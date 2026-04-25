@@ -5,17 +5,43 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { GoogleGenAI } from '@google/genai';
 
-// Inicializa Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+// Validação explícita e logs de debug
+console.log("=== INICIANDO VALIDACAO DE VARIAVEIS DE AMBIENTE ===");
+console.log(`- NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`- SUPABASE_URL presente? ${!!process.env.SUPABASE_URL}`);
+console.log(`- VITE_SUPABASE_URL presente? ${!!process.env.VITE_SUPABASE_URL}`);
+console.log(`- SUPABASE_SERVICE_ROLE_KEY presente? ${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`);
+console.log(`- STRIPE_SECRET_KEY presente? ${!!process.env.STRIPE_SECRET_KEY}`);
+console.log("=====================================================");
+
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  throw new Error("❌ ERRO CRÍTICO: STRIPE_SECRET_KEY está ausente nas variáveis de ambiente.");
+}
+const stripe = new Stripe(stripeSecretKey);
+
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 // Inicializa Supabase Admin (Bypass RLS)
-const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl) {
+  throw new Error("❌ ERRO CRÍTICO: SUPABASE_URL (ou VITE_SUPABASE_URL) está ausente nas variáveis de ambiente.");
+}
+if (!supabaseServiceKey) {
+  throw new Error("❌ ERRO CRÍTICO: SUPABASE_SERVICE_ROLE_KEY está ausente nas variáveis de ambiente.");
+}
+
+// Em ambientes ESM ou TS, cria o cliente com as credenciais validadas
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Inicializa Google GenAI
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const geminiApiKey = process.env.GEMINI_API_KEY;
+if (!geminiApiKey) {
+  console.warn("⚠️ AVISO: GEMINI_API_KEY está ausente. Algumas funcionalidades de IA podem falhar.");
+}
+const ai = new GoogleGenAI({ apiKey: geminiApiKey || "missing_key" });
 
 async function startServer() {
   const app = express();
