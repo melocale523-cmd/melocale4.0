@@ -1,0 +1,243 @@
+import express from "express";
+import { createServer as createViteServer } from "vite";
+import path from "path";
+import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
+import { GoogleGenAI } from '@google/genai';
+
+// Inicializa Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+
+// Inicializa Supabase Admin (Bypass RLS)
+const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+// Inicializa Google GenAI
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+async function startServer() {
+  const app = express();
+  const PORT = 3000;
+
+  // Webhook deve usar express.raw ANTES do express.json()
+  app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
+    const sig = req.headers["stripe-signature"] as string;
+
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+      console.error("⚠️ Webhook signature verification failed.", (err as Error).message);
+      return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
+    }
+
+    // Processa eventos de sucesso de checkout
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      
+      const userId = session.metadata?.userId;
+      const coinsAmount = parseInt(session.metadata?.coinsAmount || '0', 10);
+      
+      if (userId && coinsAmount > 0) {
+        try {
+          console.log(`Buscando creditar ${coinsAmount} moedas para o usuário ${userId}`);
+          
+          // Chama a função RPC segura com a chave de admin (service role)
+          const { error } = await supabaseAdmin.rpc("credit_wallet", {
+            p_user_id: userId,
+            p_amount: coinsAmount,
+            p_stripe_session_id: session.id,
+            p_stripe_event_id: event.id
+          });
+
+          if (error) {
+            console.error("❌ Falha crítica ao atualizar carteira (RPC credit_wallet):", error);
+            // Mesmo com erro, não retornar 500 caso seja restrição de idempotência (UNIQUE constraint).
+            // Retorna 200 de qualquer forma para o Stripe parar de tentar se a recarga já ocorreu.
+            if (!error.message.includes("duplicate key value violates unique constraint")) {
+               throw error; 
+            } else {
+               console.log("ℹ️ Evento Stripe duplicado perfeitamente ignorado.");
+            }
+          } else {
+            console.log(`✅ ${coinsAmount} moedas creditadas com sucesso via Webhook!`);
+          }
+        } catch (dbError) {
+          console.error("Erro interno processando o Webhook:", dbError);
+          // O Stripe tentará novamente caso ocorra erro (timeout/500), mas como não foi retornado 500 acima, deixamos passar se o evento é idempotente.
+          return res.status(500).json({ error: 'Erro no servidor' });
+        }
+      }
+    }
+
+    res.json({ received: true });
+  });
+
+  // Habilita JSON body parser para as próximas rotas
+  app.use(express.json());
+
+  // API route for AI Chat
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { messages } = req.body;
+      
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: messages.map((m: any) => ({ 
+          role: m.role, 
+          parts: [{ text: m.text }] 
+        })),
+        config: {
+          systemInstruction: "Você é o Assistente MeloCalé, uma plataforma que conecta profissionais de serviços (pedreiros, eletricistas, pintores, etc) a clientes. Seu objetivo é ajudar usuários com dúvidas sobre a plataforma. Se for um cliente, ele pode solicitar orçamentos. Se for profissional, ele pode comprar leads e gerenciar serviços. Use um tom profissional, amigável e direto. Responda em Português do Brasil.",
+        },
+      });
+
+      res.json({ response: response.text });
+    } catch (error) {
+      console.error("AI Error:", error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+
+  // API route for Stripe Checkout (Unified for One-time and Subscriptions)
+  app.post("/api/create-checkout-session", async (req, res) => {
+    const { type, id, amount, name, userId, coinsAmount } = req.body;
+    
+    if (!userId) {
+      return res.status(400).json({ error: "O 'userId' é obrigatório para iniciar um pagamento de carteira." });
+    }
+
+    try {
+      const mode = type === 'subscription' ? 'subscription' : 'payment';
+      
+      const sessionParams: Stripe.Checkout.SessionCreateParams = {
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "brl",
+              product_data: { name: name || "Compra MeloCalé" },
+              unit_amount: Math.round(amount * 100),
+              ...(type === 'subscription' && {
+                recurring: { interval: 'month' }
+              })
+            },
+            quantity: 1,
+          },
+        ],
+        mode: mode,
+        // METADATA é o ponto de veracidade para o nosso backend Webhook!
+        metadata: {
+          userId: userId,
+          planId: id,
+          coinsAmount: coinsAmount ? coinsAmount.toString() : '0' 
+        },
+        success_url: `${req.headers.origin}/profissional/assinatura?success=true`,
+        cancel_url: `${req.headers.origin}/profissional/assinatura?canceled=true`,
+      };
+
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      res.json({ id: session.id, url: session.url });
+    } catch (error) {
+      console.error("Stripe Session Error:", error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+
+  // API route for Stripe Connect Onboarding
+  app.post("/api/create-connected-account", async (req, res) => {
+    const { email } = req.body;
+    try {
+      const account = await stripe.accounts.create({
+        type: 'express',
+        email: email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+      });
+      res.json({ accountId: account.id });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+
+  app.post("/api/create-account-link", async (req, res) => {
+    const { accountId } = req.body;
+    try {
+      const accountLink = await stripe.accountLinks.create({
+        account: accountId,
+        refresh_url: `${req.headers.origin}/dashboard`,
+        return_url: `${req.headers.origin}/dashboard?onboarding=success`,
+        type: 'account_onboarding',
+      });
+      res.json({ url: accountLink.url });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+
+  // API route for Service Payment (Client to Professional) with Platform Fee
+  app.post("/api/create-service-payment", async (req, res) => {
+    const { amount, connectedAccountId, description, clientId } = req.body;
+    
+    const platformFeePercent = 0.10;
+    const applicationFeeAmount = Math.round(amount * 100 * platformFeePercent);
+
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "brl",
+              product_data: { name: description || "Pagamento de Serviço" },
+              unit_amount: Math.round(amount * 100),
+            },
+            quantity: 1,
+          },
+        ],
+        payment_intent_data: {
+          application_fee_amount: applicationFeeAmount,
+          transfer_data: {
+            destination: connectedAccountId,
+          },
+        },
+        mode: "payment",
+        metadata: {
+          clientId: clientId || '',
+          connectedAccountId
+        },
+        success_url: `${req.headers.origin}/cliente/pedidos?success=true`,
+        cancel_url: `${req.headers.origin}/cliente/pedidos?canceled=true`,
+      });
+      res.json({ id: session.id, url: session.url });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+
+  // Vite middleware for development
+  if (process.env.NODE_ENV !== "production") {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+startServer();
