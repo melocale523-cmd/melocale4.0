@@ -19,13 +19,13 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
   // Webhook deve usar express.raw ANTES do express.json()
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers["stripe-signature"] as string;
 
-    let event: Stripe.Event;
+    let event: any;
 
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
@@ -36,7 +36,7 @@ async function startServer() {
 
     // Processa eventos de sucesso de checkout
     if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object as any;
       
       const userId = session.metadata?.userId;
       const coinsAmount = parseInt(session.metadata?.coinsAmount || '0', 10);
@@ -113,7 +113,7 @@ async function startServer() {
     try {
       const mode = type === 'subscription' ? 'subscription' : 'payment';
       
-      const sessionParams: Stripe.Checkout.SessionCreateParams = {
+      const sessionParams: any = {
         payment_method_types: ["card"],
         line_items: [
           {
