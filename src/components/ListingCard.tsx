@@ -63,13 +63,20 @@ export default function ListingCard({ professional, index }: ListingCardProps) {
           className={cn(
             "absolute top-4 right-4 p-2 backdrop-blur-md rounded-full transition-all duration-300 shadow-sm border",
             isFavorite 
-              ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/50" 
+              ? "bg-emerald-500 text-black border-emerald-400 scale-110" 
               : "bg-black/40 text-white border-white/10 hover:bg-emerald-500 hover:text-black"
           )}
         >
           <motion.div
-            animate={isFavorite ? { scale: [1, 1.4, 1] } : {}}
-            transition={{ duration: 0.3 }}
+            initial={false}
+            animate={isFavorite ? { 
+              scale: [1, 1.5, 1],
+              rotate: [0, 15, -15, 0]
+            } : { scale: 1 }}
+            transition={{ 
+              duration: 0.4,
+              ease: "backOut"
+            }}
           >
             <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
           </motion.div>
@@ -232,11 +239,23 @@ export default function ListingCard({ professional, index }: ListingCardProps) {
                     className={cn(
                       "p-4 rounded-xl shadow-lg border transition-all active:scale-95 duration-300",
                       isFavorite 
-                        ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/50" 
+                        ? "bg-emerald-500 text-black border-emerald-400" 
                         : "bg-white/5 hover:bg-white/10 text-white border-white/10"
                     )}
                   >
-                    <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
+                    <motion.div
+                      initial={false}
+                      animate={isFavorite ? { 
+                        scale: [1, 1.5, 1],
+                        rotate: [0, 15, -15, 0]
+                      } : { scale: 1 }}
+                      transition={{ 
+                        duration: 0.4,
+                        ease: "backOut"
+                      }}
+                    >
+                      <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
+                    </motion.div>
                   </button>
                   <button className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 active:scale-95 text-black font-bold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-500/20 text-sm uppercase tracking-widest hover:-translate-y-1">
                      Contratar Agora
