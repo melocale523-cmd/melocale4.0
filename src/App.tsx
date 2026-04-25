@@ -205,11 +205,13 @@ import AuthInitializer from './components/auth/AuthInitializer';
 
 import { Toaster } from 'sonner';
 import AiChatWidget from './components/AiChat/AiChatWidget';
+import RealtimeNotificationHandler from './components/RealtimeNotificationHandler';
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthInitializer>
+        <RealtimeNotificationHandler />
         <RouterProvider router={router} />
         <Toaster position="top-right" richColors />
         <AiChatWidget />
