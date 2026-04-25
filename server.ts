@@ -256,7 +256,14 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    
+    // Retorna 404 em formato JSON para rotas de API não encontradas evitando que sirva HTML
+    app.use('/api', (req, res) => {
+      res.status(404).json({ error: "Endpoint da API não encontrado" });
+    });
+
+    // Express 5 exige nomeação de wildcards ('*all')
+    app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
