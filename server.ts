@@ -105,8 +105,13 @@ async function startServer() {
   // Habilita JSON body parser para as próximas rotas
   app.use(express.json());
 
+  // API endpoint for Health Check
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
+  });
+
   // API route for AI Chat
-  app.post("/api/chat", async (req, res) => {
+  app.post("/api/chat", async (req, res, next) => {
     try {
       const { messages } = req.body;
       
@@ -123,20 +128,22 @@ async function startServer() {
 
       res.json({ response: response.text });
     } catch (error) {
-      console.error("AI Error:", error);
-      res.status(500).json({ error: (error as Error).message });
+      next(error);
     }
   });
 
   // API route for Stripe Checkout (Unified for One-time and Subscriptions)
-  app.post("/api/create-checkout-session", async (req, res) => {
-    const { type, id, amount, name, userId, coinsAmount } = req.body;
-    
-    if (!userId) {
-      return res.status(400).json({ error: "O 'userId' é obrigatório para iniciar um pagamento de carteira." });
-    }
-
+  app.post("/api/create-checkout-session", async (req, res, next) => {
     try {
+      const { type, id, amount, name, userId, coinsAmount } = req.body;
+      
+      if (!userId || typeof userId !== 'string') {
+        return res.status(400).json({ error: "O 'userId' é obrigatório e deve ser texto." });
+      }
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+        return res.status(400).json({ error: "O 'amount' é obrigatório e deve ser um número positivo." });
+      }
+
       const mode = type === 'subscription' ? 'subscription' : 'payment';
       
       const sessionParams: any = {
@@ -146,7 +153,7 @@ async function startServer() {
             price_data: {
               currency: "brl",
               product_data: { name: name || "Compra MeloCalé" },
-              unit_amount: Math.round(amount * 100),
+              unit_amount: Math.round(Number(amount) * 100),
               ...(type === 'subscription' && {
                 recurring: { interval: 'month' }
               })
@@ -158,7 +165,7 @@ async function startServer() {
         // METADATA é o ponto de veracidade para o nosso backend Webhook!
         metadata: {
           userId: userId,
-          planId: id,
+          planId: id || '',
           coinsAmount: coinsAmount ? coinsAmount.toString() : '0' 
         },
         success_url: `${req.headers.origin}/profissional/assinatura?success=true`,
@@ -168,15 +175,18 @@ async function startServer() {
       const session = await stripe.checkout.sessions.create(sessionParams);
       res.json({ id: session.id, url: session.url });
     } catch (error) {
-      console.error("Stripe Session Error:", error);
-      res.status(500).json({ error: (error as Error).message });
+      next(error);
     }
   });
 
   // API route for Stripe Connect Onboarding
-  app.post("/api/create-connected-account", async (req, res) => {
-    const { email } = req.body;
+  app.post("/api/create-connected-account", async (req, res, next) => {
     try {
+      const { email } = req.body;
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: "O campo 'email' é obrigatório e deve ser texto válido." });
+      }
+
       const account = await stripe.accounts.create({
         type: 'express',
         email: email,
@@ -187,13 +197,17 @@ async function startServer() {
       });
       res.json({ accountId: account.id });
     } catch (error) {
-      res.status(500).json({ error: (error as Error).message });
+      next(error);
     }
   });
 
-  app.post("/api/create-account-link", async (req, res) => {
-    const { accountId } = req.body;
+  app.post("/api/create-account-link", async (req, res, next) => {
     try {
+      const { accountId } = req.body;
+      if (!accountId || typeof accountId !== 'string') {
+        return res.status(400).json({ error: "O campo 'accountId' é obrigatório." });
+      }
+
       const accountLink = await stripe.accountLinks.create({
         account: accountId,
         refresh_url: `${req.headers.origin}/dashboard`,
@@ -202,18 +216,25 @@ async function startServer() {
       });
       res.json({ url: accountLink.url });
     } catch (error) {
-      res.status(500).json({ error: (error as Error).message });
+      next(error);
     }
   });
 
   // API route for Service Payment (Client to Professional) with Platform Fee
-  app.post("/api/create-service-payment", async (req, res) => {
-    const { amount, connectedAccountId, description, clientId } = req.body;
-    
-    const platformFeePercent = 0.10;
-    const applicationFeeAmount = Math.round(amount * 100 * platformFeePercent);
-
+  app.post("/api/create-service-payment", async (req, res, next) => {
     try {
+      const { amount, connectedAccountId, description, clientId } = req.body;
+      
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+        return res.status(400).json({ error: "O 'amount' é obrigatório e deve ser um número positivo." });
+      }
+      if (!connectedAccountId || typeof connectedAccountId !== 'string') {
+        return res.status(400).json({ error: "O 'connectedAccountId' é obrigatório." });
+      }
+
+      const platformFeePercent = 0.10;
+      const applicationFeeAmount = Math.round(Number(amount) * 100 * platformFeePercent);
+
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -221,7 +242,7 @@ async function startServer() {
             price_data: {
               currency: "brl",
               product_data: { name: description || "Pagamento de Serviço" },
-              unit_amount: Math.round(amount * 100),
+              unit_amount: Math.round(Number(amount) * 100),
             },
             quantity: 1,
           },
@@ -242,9 +263,10 @@ async function startServer() {
       });
       res.json({ id: session.id, url: session.url });
     } catch (error) {
-      res.status(500).json({ error: (error as Error).message });
+      next(error);
     }
   });
+
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
@@ -257,19 +279,31 @@ async function startServer() {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     
-    // Retorna 404 em formato JSON para rotas de API não encontradas evitando que sirva HTML
-    app.use('/api', (req, res) => {
-      res.status(404).json({ error: "Endpoint da API não encontrado" });
-    });
-
-    // Express 5 exige nomeação de wildcards ('*all')
-    app.get('*all', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    // Tratamento seguro para fallback do SPA sem usar widcards do Express
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: "Endpoint da API não encontrado" });
+      }
+      if (req.method === 'GET') {
+        return res.sendFile(path.join(distPath, 'index.html'));
+      }
+      next();
     });
   }
 
+  // Middleware global de tratamento de erros
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error("🔥 Erro Global Capturado:", err);
+    res.status(err.status || 500).json({
+      error: "Erro Interno do Servidor",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
+  });
+
+  const HOST = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Servidor rodando em: ${HOST}`);
   });
 }
 
