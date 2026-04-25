@@ -4,6 +4,7 @@ import path from "path";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { GoogleGenAI } from '@google/genai';
+import rateLimit from "express-rate-limit";
 
 // Validação explícita e logs de debug
 console.log("=== INICIANDO VALIDACAO DE VARIAVEIS DE AMBIENTE ===");
@@ -13,6 +14,30 @@ console.log(`- VITE_SUPABASE_URL presente? ${!!process.env.VITE_SUPABASE_URL}`);
 console.log(`- SUPABASE_SERVICE_ROLE_KEY presente? ${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`);
 console.log(`- STRIPE_SECRET_KEY presente? ${!!process.env.STRIPE_SECRET_KEY}`);
 console.log("=====================================================");
+
+// Proteção global contra crashes (uncaught e unhandled)
+process.on("uncaughtException", (err) => {
+  console.error(JSON.stringify({
+    level: "error",
+    event: "uncaughtException",
+    message: "Ocorreu um erro crítico não tratado.",
+    error: err.message,
+    stack: err.stack
+  }));
+  // Em produção, deve sair o processo para a plataforma (Render) reiniciar e recuperar estado limpo
+  process.exit(1); 
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error(JSON.stringify({
+    level: "error",
+    event: "unhandledRejection",
+    message: "Promessa rejeitada não tratada.",
+    reason: reason instanceof Error ? reason.message : String(reason),
+    stack: reason instanceof Error ? reason.stack : undefined
+  }));
+  process.exit(1);
+});
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 if (!stripeSecretKey) {
@@ -43,6 +68,8 @@ if (!geminiApiKey) {
 }
 const ai = new GoogleGenAI({ apiKey: geminiApiKey || "missing_key" });
 
+const processedWebhookEvents = new Set<string>();
+
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
@@ -50,51 +77,69 @@ async function startServer() {
   // Webhook deve usar express.raw ANTES do express.json()
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers["stripe-signature"] as string;
-
-    let event: any;
+    let event: Stripe.Event;
 
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
     } catch (err) {
-      console.error("⚠️ Webhook signature verification failed.", (err as Error).message);
+      console.error(JSON.stringify({ level: "error", event: "stripe_webhook_invalid_sig", error: (err as Error).message }));
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
+    // Idempotência na camada de aplicação (evita chamada desnecessária ao DB)
+    if (processedWebhookEvents.has(event.id)) {
+      console.info(JSON.stringify({ level: "info", event: "stripe_webhook_duplicate_memory", stripeEventId: event.id }));
+      return res.json({ received: true, ignored: true, reason: "duplicate_event" });
+    }
+    processedWebhookEvents.add(event.id);
+    // Evita memory leak limpando a memória periodicamente ou usando lru-cache (simplificado via limite de tamanho)
+    if (processedWebhookEvents.size > 10000) processedWebhookEvents.clear();
+
     // Processa eventos de sucesso de checkout
     if (event.type === "checkout.session.completed") {
-      const session = event.data.object as any;
+      const session = event.data.object as Stripe.Checkout.Session;
       
       const userId = session.metadata?.userId;
       const coinsAmount = parseInt(session.metadata?.coinsAmount || '0', 10);
       
       if (userId && coinsAmount > 0) {
+        console.info(JSON.stringify({
+           level: "info",
+           event: "stripe_checkout_completed",
+           userId,
+           coinsAmount,
+           stripeSessionId: session.id
+        }));
+
         try {
-          console.log(`Buscando creditar ${coinsAmount} moedas para o usuário ${userId}`);
-          
-          // Chama a função RPC segura com a chave de admin (service role)
-          const { error } = await supabaseAdmin.rpc("credit_wallet", {
+          // Timeout protection for external call
+          const dbPromise = supabaseAdmin.rpc("credit_wallet", {
             p_user_id: userId,
             p_amount: coinsAmount,
             p_stripe_session_id: session.id,
             p_stripe_event_id: event.id
           });
+          
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Supabase RPC Timeout")), 10000)
+          );
+
+          const { error } = (await Promise.race([dbPromise, timeoutPromise])) as any;
 
           if (error) {
-            console.error("❌ Falha crítica ao atualizar carteira (RPC credit_wallet):", error);
-            // Mesmo com erro, não retornar 500 caso seja restrição de idempotência (UNIQUE constraint).
-            // Retorna 200 de qualquer forma para o Stripe parar de tentar se a recarga já ocorreu.
-            if (!error.message.includes("duplicate key value violates unique constraint")) {
+            if (!error.message?.includes("duplicate key value violates unique constraint")) {
+               console.error(JSON.stringify({ level: "error", event: "supabase_rpc_error", error: error.message || error }));
                throw error; 
             } else {
-               console.log("ℹ️ Evento Stripe duplicado perfeitamente ignorado.");
+               console.info(JSON.stringify({ level: "info", event: "stripe_webhook_duplicate_db", stripeEventId: event.id }));
             }
           } else {
-            console.log(`✅ ${coinsAmount} moedas creditadas com sucesso via Webhook!`);
+            console.info(JSON.stringify({ level: "info", event: "credit_wallet_success", userId, coinsAmount }));
           }
-        } catch (dbError) {
-          console.error("Erro interno processando o Webhook:", dbError);
-          // O Stripe tentará novamente caso ocorra erro (timeout/500), mas como não foi retornado 500 acima, deixamos passar se o evento é idempotente.
-          return res.status(500).json({ error: 'Erro no servidor' });
+        } catch (err) {
+          console.error(JSON.stringify({ level: "error", event: "stripe_webhook_processing_failed", error: (err as Error).message, stripeEventId: event.id }));
+          // Retornamos 500 para o Stripe tentar novamente se não for um duplicate error
+          return res.status(500).json({ error: "Erro interno", code: "INTERNAL_ERROR" });
         }
       }
     }
@@ -105,6 +150,16 @@ async function startServer() {
   // Habilita JSON body parser para as próximas rotas
   app.use(express.json());
 
+  // Limite de taxa (Rate Limit) para proteção de ponta a ponta
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // limite de 100 requests por IP
+    message: { error: "Muitas requisições.", code: "RATE_LIMIT_EXCEEDED" },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use("/api/", apiLimiter);
+
   // API endpoint for Health Check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
@@ -114,6 +169,9 @@ async function startServer() {
   app.post("/api/chat", async (req, res, next) => {
     try {
       const { messages } = req.body;
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ error: "O campo 'messages' é obrigatório e deve ser uma array.", code: "INVALID_INPUT" });
+      }
       
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -293,9 +351,16 @@ async function startServer() {
 
   // Middleware global de tratamento de erros
   app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error("🔥 Erro Global Capturado:", err);
+    console.error(JSON.stringify({
+      level: "error",
+      event: "uncaught_express_error",
+      error: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined
+    }));
+    
     res.status(err.status || 500).json({
       error: "Erro Interno do Servidor",
+      code: "INTERNAL_ERROR",
       details: process.env.NODE_ENV === "development" ? err.message : undefined
     });
   });
