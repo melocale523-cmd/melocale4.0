@@ -269,7 +269,7 @@ export const transactionService = {
 
 // Propostas
 export const proposalService = {
-  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string }) {
+  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string }, clientId?: string) {
     const { data, error } = await supabase
       .from('proposals')
       .insert({
@@ -287,6 +287,20 @@ export const proposalService = {
       .from('lead_purchases')
       .update({ status: 'Proposta Enviada' })
       .eq('id', purchaseId);
+
+    // Notifica o cliente
+    if (clientId) {
+      supabase
+        .from('notifications')
+        .insert({
+          user_id: clientId,
+          title: 'Nova Proposta Recebida',
+          body: `Você recebeu uma nova proposta no valor de R$ ${proposal.price}.`,
+          data: { type: 'proposal_received', purchaseId }
+        }).then(({ error }) => {
+          if (error) console.error("Erro ao notificar cliente:", error);
+        });
+    }
 
     return data;
   },
@@ -325,7 +339,7 @@ export const proposalService = {
     return data;
   },
 
-  async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada') {
+  async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada', professionalId?: string) {
     // Atualiza status da proposta
     const { error: propError } = await supabase
       .from('proposals')
@@ -341,6 +355,20 @@ export const proposalService = {
       .eq('id', purchaseId);
     
     if (purchaseError) throw purchaseError;
+
+    // Notifica o profissional
+    if (professionalId) {
+      supabase
+        .from('notifications')
+        .insert({
+          user_id: professionalId,
+          title: `Proposta ${status}`,
+          body: `O cliente ${status.toLowerCase()} sua proposta para o serviço.`,
+          data: { type: 'proposal_status_update', proposalId, status }
+        }).then(({ error }) => {
+          if (error) console.error("Erro ao notificar profissional:", error);
+        });
+    }
 
     return true;
   }
@@ -416,7 +444,8 @@ export const chatService = {
     return data;
   },
 
-  async sendMessage(chatId: string, text: string, type: string = 'text', fileName?: string) {
+  async sendMessage(chatId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string) {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
     const { data, error } = await supabase
       .from('messages')
       .insert({
@@ -424,11 +453,28 @@ export const chatService = {
         text,
         type,
         file_name: fileName,
-        sender_id: (await supabase.auth.getUser()).data.user?.id,
+        sender_id: userId,
         status: 'sent'
       });
     
     if (error) throw error;
+
+    // Se tivermos o recipientId, criamos uma notificação na tabela 'notifications'
+    if (recipientId && recipientId !== userId) {
+      try {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: recipientId,
+            title: 'Nova Mensagem',
+            body: text.length > 50 ? text.substring(0, 47) + '...' : text,
+            data: { chatId, type: 'message' }
+          });
+      } catch (e) {
+        console.error("Erro ao inserir notificação:", e);
+      }
+    }
+
     return data;
   },
 

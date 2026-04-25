@@ -22,6 +22,7 @@ interface Chat {
   last_message: string;
   updated_at: string;
   unread_count: number;
+  recipient_id: string; // Adicionado
 }
 
 export default function ProfessionalMensagens() {
@@ -52,8 +53,8 @@ export default function ProfessionalMensagens() {
   const activeChat = chats?.find(c => c.id === activeChatId);
 
   const sendMessageMutation = useMutation({
-    mutationFn: ({ text, type, fileName }: { text: string, type?: string, fileName?: string }) => 
-      chatService.sendMessage(activeChatId!, text, type, fileName),
+    mutationFn: ({ text, type, fileName, recipientId }: { text: string, type?: string, fileName?: string, recipientId?: string }) => 
+      chatService.sendMessage(activeChatId!, text, type, fileName, recipientId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages', activeChatId] });
       queryClient.invalidateQueries({ queryKey: ['chats'] });
@@ -86,7 +87,7 @@ export default function ProfessionalMensagens() {
     if (!activeChatId) return;
 
     const msgText = type === 'text' ? messageInput : `[Envio de ${type}] ${fileName || ''}`;
-    sendMessageMutation.mutate({ text: msgText, type, fileName } as any);
+    sendMessageMutation.mutate({ text: msgText, type, fileName, recipientId: activeChat?.recipient_id } as any);
   };
 
   const startRecording = async () => {

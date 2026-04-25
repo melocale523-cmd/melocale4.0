@@ -160,7 +160,7 @@ async function startServer() {
   });
   app.use("/api/", apiLimiter);
 
-  // API endpoint for Health Check
+  // API route for Health Check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
