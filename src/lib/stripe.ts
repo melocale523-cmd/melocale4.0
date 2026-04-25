@@ -1,11 +1,37 @@
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { supabase } from './supabase';
 
-// Replace with your actual Stripe Publishable Key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
+/**
+ * Utilitário seguro para carregar variáveis de ambiente no frontend (Vite).
+ * Retorna log apropriado e previne silent failures.
+ */
+function requireEnvVar(name: string): string {
+  const value = import.meta.env[name];
+  
+  if (!value) {
+    const errorMsg = `❌ ERRO CRÍTICO: Variável de ambiente '${name}' não encontrada. Verifique seu arquivo .env e certifique-se de usar o prefixo VITE_.`;
+    console.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+  
+  return value;
+}
+
+// Factory lazy-loaded para acessar o Stripe. 
+// Evita crash no bootstrap da aplicação caso a variável não exista temporariamente.
+let stripePromise: Promise<Stripe | null> | null = null;
+export const getStripe = () => {
+  if (!stripePromise) {
+    const publicKey = requireEnvVar('VITE_STRIPE_PUBLIC_KEY');
+    console.log(`✅ [Stripe] Inicializando com chave pública: ${publicKey.substring(0, 8)}...`);
+    stripePromise = loadStripe(publicKey);
+  }
+  return stripePromise;
+};
 
 export const initiateCheckout = async (type: 'one_time' | 'subscription', id: string) => {
-  const stripe = await stripePromise;
+  const stripe = await getStripe();
+
   
   // Pegar usuário atual para vínculo no Stripe
   const { data: { user } } = await supabase.auth.getUser();
@@ -68,7 +94,7 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
 };
 
 export const payProfessional = async (amount: number, connectedAccountId: string, description: string) => {
-  const stripe = await stripePromise;
+  const stripe = await getStripe();
   const { data: { user } } = await supabase.auth.getUser();
   
   const response = await fetch('/api/create-service-payment', {
