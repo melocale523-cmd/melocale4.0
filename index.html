@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <script>
+      /**
+       * Fix for "Uncaught TypeError: Cannot set property fetch of #<Window> which has only a getter"
+       * This happens in some preview environments where window.fetch is read-only.
+       */
+      (function() {
+        try {
+          if (typeof window !== 'undefined') {
+            // 1. FormData Iterators Patch
+            if (typeof window.FormData !== 'undefined') {
+              var proto = window.FormData.prototype;
+              if (!proto.keys || !proto.values || !proto.entries || (typeof Symbol !== 'undefined' && Symbol.iterator && !proto[Symbol.iterator])) {
+                var noopIter = function() { 
+                  return { 
+                    next: function() { return { done: true, value: undefined }; },
+                    [Symbol.iterator]: function() { return this; }
+                  }; 
+                };
+                if (!proto.keys) proto.keys = noopIter;
+                if (!proto.values) proto.values = noopIter;
+                if (!proto.entries) proto.entries = noopIter;
+                if (typeof Symbol !== 'undefined' && Symbol.iterator && !proto[Symbol.iterator]) {
+                  proto[Symbol.iterator] = noopIter;
+                }
+              }
+            }
+
+            // 2. Fetch Writable Patch
+            var nativeFetch = window.fetch;
+            var descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
+            
+            if (!descriptor || descriptor.configurable) {
+              var currentFetch = nativeFetch;
+              Object.defineProperty(window, 'fetch', {
+                get: function() { return currentFetch; },
+                set: function(v) { currentFetch = v; },
+                configurable: true,
+                enumerable: true
+              });
+            } else {
+              try { window.fetch = nativeFetch; } catch(e) {}
+            }
+          }
+        } catch (err) {
+          console.warn('Compatibility patch failed:', err);
+        }
+      })();
+    </script>
+
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
