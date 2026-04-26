@@ -14,6 +14,8 @@ export default function ProfessionalEstatisticas() {
 
   const { data: stats, isLoading, isFetching } = useQuery({
     queryKey: ['professionalStats', range],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: () => leadService.getProfessionalStats(range),
   });
 

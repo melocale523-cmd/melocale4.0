@@ -76,7 +76,12 @@ export default function ProfessionalAssinatura() {
   const [activeTab, setActiveTab] = useState<'plans' | 'coins'>('plans');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  const { data: balance, isLoading: balanceLoading } = useQuery({ queryKey: ['walletBalance'], queryFn: walletService.getBalance });
+  const { data: balance, isLoading: balanceLoading } = useQuery({ 
+    queryKey: ['walletBalance'], 
+    retry: false, 
+    refetchOnWindowFocus: false, 
+    queryFn: walletService.getBalance 
+  });
 
   const { data: dbCoinPackages } = useQuery({
     queryKey: ['coinPackages'],

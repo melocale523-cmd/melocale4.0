@@ -41,11 +41,15 @@ export default function ProfessionalMensagens() {
 
   const { data: chats, isLoading: chatsLoading } = useQuery({
     queryKey: ['chats'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: chatService.getChats,
   });
 
   const { data: messages, isLoading: messagesLoading } = useQuery({
     queryKey: ['messages', activeChatId],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: () => activeChatId ? chatService.getMessages(activeChatId) : Promise.resolve([]),
     enabled: !!activeChatId,
   });

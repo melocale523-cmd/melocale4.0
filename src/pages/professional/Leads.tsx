@@ -24,6 +24,8 @@ export default function ProfessionalLeads() {
 
   const { data: leads, isLoading: leadsLoading } = useQuery({
     queryKey: ['leads'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: leadService.getAvailableLeads,
   });
 
@@ -56,6 +58,8 @@ export default function ProfessionalLeads() {
 
   const { data: balance, isLoading: walletLoading } = useQuery({
     queryKey: ['walletBalance'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: walletService.getBalance,
   });
 
