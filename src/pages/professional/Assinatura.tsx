@@ -81,13 +81,20 @@ export default function ProfessionalAssinatura() {
   const { data: dbCoinPackages } = useQuery({
     queryKey: ['coinPackages'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('coin_packages')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-      if (error) return [];
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from('coin_packages')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true });
+        if (error) {
+          console.warn("Table coin_packages error", error.message);
+          return [];
+        }
+        return data || [];
+      } catch (e) {
+        return [];
+      }
     }
   });
 
