@@ -11,11 +11,6 @@ function requireEnvVar(name: string): string {
   // 1. Tenta pegar do import.meta.env (injentado no build time)
   let value = import.meta.env[name];
   
-  // 2. Se falhar, tenta pegar do window.APP_CONFIG (injetado via runtime no backend)
-  if (!value && typeof window !== 'undefined' && (window as any).APP_CONFIG) {
-    value = (window as any).APP_CONFIG[name];
-  }
-  
   if (!value) {
     // 3. Fallback manual seguro se for STRIPE_PUBLIC_KEY 
     // Em alguns casos pode ser útil, mas por enquanto lançamos o erro.
