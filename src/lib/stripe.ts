@@ -50,12 +50,13 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
   if (!user) throw new Error("Usuário não autenticado. Faça login para continuar.");
 
   const payload = {
-    type, 
+    type,
     package_id: id,
     user_id: user.id
   };
   
-  console.log("Checkout payload:", payload);
+  console.log("CHECKOUT ID ENVIADO:", id);
+  console.log("Checkout payload FINAL:", payload);
 
   const response = await apiFetch('/api/create-checkout-session', {
     method: 'POST',
