@@ -45,7 +45,7 @@ export const walletService = {
       if (error || !data) return 0;
 
       // Local filter
-      const wallet = data.find((w: any) => w.user_id === userId || w.wallet_id === userId || w.professional_id === userId);
+      const wallet = data.find((w: any) => w.user_id === userId || w.wallet_id === userId);
       
       if (!wallet) return 0;
       
@@ -93,7 +93,7 @@ export const leadService = {
       if (error) return [];
       
       const filtered = (data || [])
-        .filter((p: any) => p.professional_id === professionalId || p.user_id === professionalId || p.wallet_id === professionalId)
+        .filter((p: any) => p.user_id === professionalId || p.wallet_id === professionalId)
         .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
       // Fetch leads and profiles for mapping
@@ -209,7 +209,7 @@ export const leadService = {
 
       if (!purchaseError && purchases) {
         purchasesData = purchases.filter((p: any) => 
-          (p.professional_id === professionalId || p.user_id === professionalId || p.wallet_id === professionalId) && 
+          (p.user_id === professionalId || p.wallet_id === professionalId) && 
           new Date(p.created_at || 0) >= startDate
         );
       }
@@ -388,7 +388,7 @@ export const proposalService = {
       
       return filteredProposals.map((prop: any) => {
         const purchase = (purchases || []).find((p: any) => p.id === prop.purchase_id);
-        const professional = purchase ? (professionals || []).find((prof: any) => prof.user_id === purchase.professional_id || prof.id === purchase.professional_id) : null;
+        const professional = purchase ? (professionals || []).find((prof: any) => prof.user_id === purchase.user_id || prof.id === purchase.user_id) : null;
         
         return {
           ...prop,
