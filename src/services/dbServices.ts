@@ -92,9 +92,22 @@ export const leadService = {
       
       if (error) return [];
       
-      return (data || [])
+      const filtered = (data || [])
         .filter((p: any) => p.professional_id === professionalId || p.user_id === professionalId || p.wallet_id === professionalId)
         .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+
+      // Fetch leads and profiles for mapping
+      const { data: leads } = await supabase.from('leads').select('*');
+      const { data: profiles } = await supabase.from('profiles').select('*');
+
+      return filtered.map((p: any) => {
+        const lead = (leads || []).find((l: any) => l.id === p.lead_id);
+        const profile = lead ? (profiles || []).find((prof: any) => prof.id === lead.client_id || prof.id === lead.user_id) : null;
+        return {
+          ...p,
+          leads: lead ? { ...lead, profiles: profile } : null
+        };
+      });
     } catch {
       return [];
     }
@@ -111,9 +124,24 @@ export const leadService = {
       
       if (error) return [];
       
-      return (data || [])
+      const userRequests = (data || [])
         .filter((r: any) => r.client_id === user.id || r.user_id === user.id)
         .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+
+      // Fetch proposals to compute proposals_count
+      const { data: allPurchases } = await supabase.from('lead_purchases').select('*');
+      const { data: allProposals } = await supabase.from('proposals').select('*');
+
+      return userRequests.map((req: any) => {
+        const leadPurchases = (allPurchases || []).filter((p: any) => p.lead_id === req.id);
+        const purchaseIds = leadPurchases.map((p: any) => p.id);
+        const leadProposals = (allProposals || []).filter((prop: any) => purchaseIds.includes(prop.purchase_id));
+        
+        return {
+          ...req,
+          proposals_count: [{ count: leadProposals.length }]
+        };
+      });
     } catch {
       return [];
     }
@@ -339,13 +367,37 @@ export const proposalService = {
   },
 
   async getProposalsForLead(leadId: string) {
-    // Avoid joins by entirely filtering locally
-    const { data, error } = await supabase
-      .from('proposals')
-      .select('*');
+    // Avoid joins by filtering locally
+    try {
+      const { data, error } = await supabase
+        .from('proposals')
+        .select('*');
+        
+      if (error) throw error;
       
-    if (error) throw error;
-    return data || [];
+      const { data: allPurchases } = await supabase.from('lead_purchases').select('*');
+      const purchases = (allPurchases || []).filter((p: any) => p.lead_id === leadId);
+      const purchaseIds = purchases.map((p: any) => p.id);
+      
+      // Keep only proposals for these purchases
+      const filteredProposals = (data || []).filter((prop: any) => purchaseIds.includes(prop.purchase_id));
+
+      if (filteredProposals.length === 0) return [];
+      
+      const { data: professionals } = await supabase.from('professionals').select('*');
+      
+      return filteredProposals.map((prop: any) => {
+        const purchase = (purchases || []).find((p: any) => p.id === prop.purchase_id);
+        const professional = purchase ? (professionals || []).find((prof: any) => prof.user_id === purchase.professional_id || prof.id === purchase.professional_id) : null;
+        
+        return {
+          ...prop,
+          lead_purchases: purchase ? { ...purchase, professional } : null
+        };
+      });
+    } catch {
+      return [];
+    }
   },
 
   async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada', professionalId?: string) {
