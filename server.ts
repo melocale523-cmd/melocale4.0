@@ -75,16 +75,24 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-  // Habilitar CORS para permitir o frontend na Vercel
+  // Habilitar CORS para permitir o frontend na Vercel e chamadas locais
+  const frontendUrl = process.env.FRONTEND_URL || 'https://melocale4-0.vercel.app';
+  
   app.use(cors({
     origin: function (origin, callback) {
-      // Allow all origins to prevent CORS errors during the tests
-      callback(null, true);
+      // Allow any origin during development or specifically allow Vercel/localhost
+      if (!origin || origin.startsWith('http://localhost') || origin === frontendUrl || origin.endsWith('.vercel.app')) {
+        callback(null, origin || '*');
+      } else {
+        // Fallback to origin
+        callback(null, origin);
+      }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature', 'x-client-info', 'apikey'],
   }));
+  app.options('*', cors());
 
   // Webhook deve usar express.raw ANTES do express.json()
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
@@ -172,18 +180,6 @@ async function startServer() {
   });
   app.use("/api/", apiLimiter);
 
-  // Mapeamento de variáveis de ambiente públicas para o frontend
-  app.get("/api/config.js", (req, res) => {
-    res.type('application/javascript');
-    res.send(`
-      window.APP_CONFIG = {
-        VITE_STRIPE_PUBLIC_KEY: ${JSON.stringify(process.env.VITE_STRIPE_PUBLIC_KEY || "")},
-        VITE_SUPABASE_URL: ${JSON.stringify(process.env.VITE_SUPABASE_URL || "")},
-        VITE_SUPABASE_ANON_KEY: ${JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || "")}
-      };
-    `);
-  });
-
   // API route for Health Check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
@@ -250,8 +246,8 @@ async function startServer() {
           planId: id || '',
           coinsAmount: coinsAmount ? coinsAmount.toString() : '0' 
         },
-        success_url: `${req.headers.origin}/profissional/assinatura?success=true`,
-        cancel_url: `${req.headers.origin}/profissional/assinatura?canceled=true`,
+        success_url: `${frontendUrl}/profissional/assinatura?success=true`,
+        cancel_url: `${frontendUrl}/profissional/assinatura?canceled=true`,
       };
 
       const session = await stripe.checkout.sessions.create(sessionParams);
@@ -292,8 +288,8 @@ async function startServer() {
 
       const accountLink = await stripe.accountLinks.create({
         account: accountId,
-        refresh_url: `${req.headers.origin}/dashboard`,
-        return_url: `${req.headers.origin}/dashboard?onboarding=success`,
+        refresh_url: `${frontendUrl}/dashboard`,
+        return_url: `${frontendUrl}/dashboard?onboarding=success`,
         type: 'account_onboarding',
       });
       res.json({ url: accountLink.url });
@@ -340,8 +336,8 @@ async function startServer() {
           clientId: clientId || '',
           connectedAccountId
         },
-        success_url: `${req.headers.origin}/cliente/pedidos?success=true`,
-        cancel_url: `${req.headers.origin}/cliente/pedidos?canceled=true`,
+        success_url: `${frontendUrl}/cliente/pedidos?success=true`,
+        cancel_url: `${frontendUrl}/cliente/pedidos?canceled=true`,
       });
       res.json({ id: session.id, url: session.url });
     } catch (error) {

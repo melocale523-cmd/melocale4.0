@@ -4,11 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 const getEnv = (key: string, fallback: string) => {
   // 1. Tenta import.meta.env (Build time)
   if (import.meta.env && import.meta.env[key]) return import.meta.env[key];
-  // 2. Tenta window.APP_CONFIG (Runtime injection Server -> Frontend)
-  if (typeof window !== 'undefined' && (window as any).APP_CONFIG && (window as any).APP_CONFIG[key]) {
-    return (window as any).APP_CONFIG[key];
-  }
-  // 3. Fallback default
+  // 2. Fallback default
   return fallback;
 };
 

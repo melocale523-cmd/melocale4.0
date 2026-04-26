@@ -72,20 +72,25 @@ export const leadService = {
   },
 
   async getMyRequests() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Usuário não autenticado");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuário não autenticado");
 
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .eq('client_id', user.id)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.warn("Error fetching leads:", error);
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*');
+      
+      if (error) {
+        console.warn("Error fetching leads:", error);
+        return [];
+      }
+      return (data || [])
+        .filter(r => r.client_id === user.id || r.user_id === user.id)
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    } catch (e) {
+      console.warn("Unexpected error in getMyRequests:", e);
       return [];
     }
-    return data;
   },
 
   async createRequest(request: { title: string, description: string, category: string, location: string, budget_min: number, budget_max: number }) {
@@ -112,22 +117,31 @@ export const leadService = {
   },
 
   async getClientSummary() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { waiting: 0, in_progress: 0 };
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { waiting: 0, in_progress: 0 };
 
-    const { data: requests, error } = await supabase
-      .from('leads')
-      .select('status')
-      .eq('client_id', user.id);
-    
-    if (error) throw error;
+      const { data: requests, error } = await supabase
+        .from('leads')
+        .select('*');
+      
+      if (error) {
+        console.warn("Error fetching client summary:", error);
+        return { waiting: 0, in_progress: 0 };
+      }
 
-    const summary = {
-      waiting: requests.filter(r => r.status === 'open' || r.status === 'Orçando').length,
-      in_progress: requests.filter(r => r.status === 'in_progress' || r.status === 'Em Andamento').length
-    };
+      const userRequests = (requests || []).filter(r => r.client_id === user.id || r.user_id === user.id);
 
-    return summary;
+      const summary = {
+        waiting: userRequests.filter(r => r.status === 'open' || r.status === 'Orçando').length,
+        in_progress: userRequests.filter(r => r.status === 'in_progress' || r.status === 'Em Andamento').length
+      };
+
+      return summary;
+    } catch (e) {
+      console.warn("Client summary fetch failed:", e);
+      return { waiting: 0, in_progress: 0 };
+    }
   },
 
   async getProfessionalStats(range: '7d' | '30d' | '90d' | '1y' = '30d') {
