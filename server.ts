@@ -77,8 +77,12 @@ async function startServer() {
 
   // Habilitar CORS para permitir o frontend na Vercel
   app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+      // Allow all origins to prevent CORS errors during the tests
+      callback(null, true);
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
   }));
 
