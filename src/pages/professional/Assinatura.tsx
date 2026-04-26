@@ -80,6 +80,8 @@ export default function ProfessionalAssinatura() {
 
   const { data: dbCoinPackages } = useQuery({
     queryKey: ['coinPackages'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       try {
         const { data, error } = await supabase

@@ -10,16 +10,22 @@ export default function ProfessionalWallet() {
   
   const { data: balance, isLoading: isBalanceLoading } = useQuery({
     queryKey: ['walletBalance'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: walletService.getBalance,
   });
 
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['professionalStats'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: () => leadService.getProfessionalStats('30d'),
   });
 
   const { data: transactions, isLoading: isTransactionsLoading } = useQuery({
     queryKey: ['walletTransactions'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: transactionService.getWalletTransactions,
   });
 
