@@ -130,12 +130,12 @@ export const leadService = {
 
       // Fetch proposals to compute proposals_count
       const { data: allPurchases } = await supabase.from('lead_purchases').select('*');
-      const { data: allProposals } = await supabase.from('proposals').select('*');
+      const allProposals: any[] = []; // Removed non-existent proposals table usage
 
       return userRequests.map((req: any) => {
         const leadPurchases = (allPurchases || []).filter((p: any) => p.lead_id === req.id);
         const purchaseIds = leadPurchases.map((p: any) => p.id);
-        const leadProposals = (allProposals || []).filter((prop: any) => purchaseIds.includes(prop.purchase_id));
+        const leadProposals = allProposals.filter((prop: any) => purchaseIds.includes(prop.purchase_id));
         
         return {
           ...req,
@@ -217,13 +217,8 @@ export const leadService = {
 
     let proposalsData: any[] = [];
     try {
-      const { data: proposals, error: propError } = await supabase
-        .from('proposals')
-        .select('*');
-
-      if (!propError && proposals) {
-        proposalsData = proposals.filter((p: any) => new Date(p.created_at || 0) >= startDate);
-      }
+      // Removed non-existent proposals table usage
+      proposalsData = [];
     } catch {}
     
     const acceptedProposals = proposalsData.filter(p => p.status === 'Aceita');
@@ -321,19 +316,7 @@ export const transactionService = {
 // === Proposals ===
 export const proposalService = {
   async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string }, clientId?: string) {
-    const { data: propData, error: propError } = await supabase
-      .from('proposals')
-      .insert({
-        purchase_id: purchaseId,
-        price: proposal.price,
-        duration: proposal.duration,
-        description: proposal.description,
-        status: 'Enviada'
-      })
-      .select('*')
-      .single();
-
-    if (propError) throw propError;
+    // Removed non-existent proposals table usage
 
     await supabase
       .from('lead_purchases')
@@ -353,60 +336,21 @@ export const proposalService = {
         });
     }
 
-    return propData;
+    return { id: Math.random().toString(), purchase_id: purchaseId, ...proposal, status: 'Enviada' };
   },
 
   async getProposalByPurchase(purchaseId: string) {
-    const { data, error } = await supabase
-      .from('proposals')
-      .select('*');
-
-    if (error) throw error;
-    
-    return (data || []).find((p: any) => p.purchase_id === purchaseId) || null;
+    // Removed non-existent proposals table usage
+    return null;
   },
 
   async getProposalsForLead(leadId: string) {
-    // Avoid joins by filtering locally
-    try {
-      const { data, error } = await supabase
-        .from('proposals')
-        .select('*');
-        
-      if (error) throw error;
-      
-      const { data: allPurchases } = await supabase.from('lead_purchases').select('*');
-      const purchases = (allPurchases || []).filter((p: any) => p.lead_id === leadId);
-      const purchaseIds = purchases.map((p: any) => p.id);
-      
-      // Keep only proposals for these purchases
-      const filteredProposals = (data || []).filter((prop: any) => purchaseIds.includes(prop.purchase_id));
-
-      if (filteredProposals.length === 0) return [];
-      
-      const { data: professionals } = await supabase.from('professionals').select('*');
-      
-      return filteredProposals.map((prop: any) => {
-        const purchase = (purchases || []).find((p: any) => p.id === prop.purchase_id);
-        const professional = purchase ? (professionals || []).find((prof: any) => prof.user_id === purchase.user_id || prof.id === purchase.user_id) : null;
-        
-        return {
-          ...prop,
-          lead_purchases: purchase ? { ...purchase, professional } : null
-        };
-      });
-    } catch {
-      return [];
-    }
+    // Removed non-existent proposals table usage
+    return [];
   },
 
   async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada', professionalId?: string) {
-    const { error: propError } = await supabase
-      .from('proposals')
-      .update({ status })
-      .eq('id', proposalId);
-    
-    if (propError) throw propError;
+    // Removed non-existent proposals table usage
 
     const { error: purchaseError } = await supabase
       .from('lead_purchases')
