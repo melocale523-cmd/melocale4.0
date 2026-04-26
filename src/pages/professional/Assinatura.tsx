@@ -97,15 +97,7 @@ export default function ProfessionalAssinatura() {
     }
   });
 
-  const packagesToDisplay = dbCoinPackages && dbCoinPackages.length > 0 ? dbCoinPackages.map(pkg => ({
-    id: pkg.id,
-    name: pkg.name,
-    coins: pkg.coins + (pkg.bonus_coins || 0),
-    price: pkg.price.toFixed(2).replace('.', ','),
-    description: pkg.description || 'Impulsione seus negócios',
-    icon: CREDIT_PACKAGES.find(p => p.name === pkg.name)?.icon || CREDIT_PACKAGES[0].icon,
-    popular: (pkg as any).is_popular || false
-  })) : CREDIT_PACKAGES;
+  const packagesToDisplay = CREDIT_PACKAGES;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
