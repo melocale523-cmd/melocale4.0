@@ -12,7 +12,8 @@ export default function ProfessionalCompras() {
   const [proposalData, setProposalData] = useState({
     price: '',
     duration: '',
-    description: ''
+    description: '',
+    status: 'Proposta Enviada'
   });
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -28,13 +29,15 @@ export default function ProfessionalCompras() {
       proposalService.sendProposal(purchaseId, {
         price: parseFloat(data.price),
         duration: data.duration,
-        description: data.description
+        description: data.description,
+        status: data.status
       }, clientId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       setIsProposalModalOpen(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
+      setProposalData({ price: '', duration: '', description: '', status: 'Proposta Enviada' });
     },
     onError: (error: any) => alert(`Erro ao enviar proposta: ${error.message}`)
   });
@@ -55,6 +58,8 @@ export default function ProfessionalCompras() {
 
   const openProposalModal = (purchase: any) => {
     setSelectedPurchase(purchase);
+    // Reset status to the current purchase status or default to current
+    setProposalData(prev => ({ ...prev, status: purchase.status === 'Pendente Proposta' ? 'Proposta Enviada' : purchase.status }));
     setIsProposalModalOpen(true);
   };
 
@@ -64,7 +69,7 @@ export default function ProfessionalCompras() {
     sendProposalMutation.mutate({ 
       purchaseId: selectedPurchase.id, 
       data: proposalData,
-      clientId: selectedPurchase.leads?.client_id // Adicionado
+      clientId: selectedPurchase.leads?.client_id 
     });
   };
 
@@ -133,6 +138,21 @@ export default function ProfessionalCompras() {
                   onChange={e => setProposalData(prev => ({ ...prev, description: e.target.value }))}
                   className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all resize-none"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
+                   <FileText size={14} /> Status da Proposta
+                </label>
+                <select 
+                  value={proposalData.status}
+                  onChange={e => setProposalData(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
+                >
+                   <option value="Pendente Proposta">Pendente Proposta</option>
+                   <option value="Proposta Enviada">Proposta Enviada</option>
+                   <option value="Respondida pelo Cliente">Respondida pelo Cliente</option>
+                </select>
               </div>
 
               <div className="pt-4">

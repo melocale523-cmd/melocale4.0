@@ -118,14 +118,27 @@ async function startServer() {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       
+      console.log("=== WEBHOOK DEBUG ===");
+      console.log("EVENTO RECEBIDO:", JSON.stringify(event, null, 2));
+      console.log("METADATA:", session.metadata);
+      
       const userId = session.metadata?.user_id || session.metadata?.userId;
       const packageId = session.metadata?.package_id;
+      
+      console.log("USER_ID EXTRAÍDO:", userId);
+      console.log("PACKAGE_ID EXTRAÍDO:", packageId);
       
       let coinsAmount = 0;
       if (packageId && PACKAGES[packageId]) {
         coinsAmount = PACKAGES[packageId].coins || 0;
+        console.log("COINS MAPEADOS DO PACOTE:", coinsAmount);
       } else {
         coinsAmount = parseInt(session.metadata?.coinsAmount || '0', 10);
+        console.log("COINS MAPEADOS DO METADATA:", coinsAmount);
+      }
+      
+      if (!userId || !packageId) {
+        console.error("ERRO: METADATA INCOMPLETA OU INVALIDA");
       }
       
       if (userId && coinsAmount > 0) {

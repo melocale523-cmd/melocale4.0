@@ -315,12 +315,12 @@ export const transactionService = {
 
 // === Proposals ===
 export const proposalService = {
-  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string }, clientId?: string) {
+  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string, status: string }, clientId?: string) {
     // Removed non-existent proposals table usage
 
     await supabase
       .from('lead_purchases')
-      .update({ status: 'Proposta Enviada' })
+      .update({ status: proposal.status })
       .eq('id', purchaseId);
 
     if (clientId) {
