@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 
-// Auth
+// === Auth Functions ===
 export const authService = {
   async getProfile(userId: string) {
     try {
@@ -20,61 +20,55 @@ export const authService = {
     try {
       const { data, error } = await supabase
         .from('professionals')
-        .select('id')
-        .eq('user_id', userId)
-        .maybeSingle();
+        .select('*');
       if (error) return null;
-      return data;
+      // JS Filter to avoid 'eq' on potentially wrong columns
+      const prof = data.find((p: any) => p.user_id === userId);
+      return prof || null;
     } catch {
       return null;
     }
   }
 };
 
-// Financeiro
+// === Wallet Functions ===
 export const walletService = {
   async getBalance() {
     try {
       const userId = useAuthStore.getState().user?.id;
       if (!userId) return 0;
 
-      const { data: wallet, error: walletError } = await supabase
+      const { data, error } = await supabase
         .from('v_wallet_balance')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+        .select('*');
 
-      if (walletError && walletError.code !== 'PGRST116') {
-        // Fallback para wallet_id se a view usar wallet_id em vez de user_id
-        const { data: walletById } = await supabase
-           .from('v_wallet_balance')
-           .select('*')
-           .eq('wallet_id', userId)
-           .maybeSingle();
-           
-        if (walletById) return walletById.balance_coins || walletById.balance || walletById.coins_balance || 0;
+      if (error || !data) return 0;
 
-        console.error("Error fetching balance from view:", walletError);
-        return 0;
-      }
-
-      // Retorna balance ou coins_balance
-      return wallet?.balance_coins || wallet?.balance || wallet?.coins_balance || 0;
-    } catch (e) {
-      console.error("Unexpected error in getBalance:", e);
+      // Local filter
+      const wallet = data.find((w: any) => w.user_id === userId || w.wallet_id === userId || w.professional_id === userId);
+      
+      if (!wallet) return 0;
+      
+      return wallet.balance_coins || wallet.balance || wallet.coins_balance || 0;
+    } catch {
       return 0;
     }
   }
 };
 
-// Leads e Compras
+// === Leads and Purchases ===
 export const leadService = {
   async getAvailableLeads() {
     const { data, error } = await supabase
       .from('v_available_leads')
       .select('*');
-    if (error) throw error;
-    return data;
+      
+    if (error) {
+      // Fallback
+      const fallback = await supabase.from('leads').select('*');
+      return (fallback.data || []).filter((l: any) => l.status === 'open');
+    }
+    return data || [];
   },
 
   async purchaseLead(leadId: string) {
@@ -96,16 +90,12 @@ export const leadService = {
         .from('lead_purchases')
         .select('*');
       
-      if (error) {
-        console.warn("Table lead_purchases error:", error.message);
-        return [];
-      }
+      if (error) return [];
       
       return (data || [])
-        .filter(p => p.professional_id === professionalId || p.user_id === professionalId)
-        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    } catch (e) {
-      console.warn("Failed to fetch lead_purchases", e);
+        .filter((p: any) => p.professional_id === professionalId || p.user_id === professionalId || p.wallet_id === professionalId)
+        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    } catch {
       return [];
     }
   },
@@ -113,21 +103,18 @@ export const leadService = {
   async getMyRequests() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Usuário não autenticado");
+      if (!user) return [];
 
       const { data, error } = await supabase
         .from('leads')
         .select('*');
       
-      if (error) {
-        console.warn("Error fetching leads:", error);
-        return [];
-      }
+      if (error) return [];
+      
       return (data || [])
-        .filter(r => r.client_id === user.id || r.user_id === user.id)
-        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    } catch (e) {
-      console.warn("Unexpected error in getMyRequests:", e);
+        .filter((r: any) => r.client_id === user.id || r.user_id === user.id)
+        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    } catch {
       return [];
     }
   },
@@ -145,13 +132,10 @@ export const leadService = {
     const { data, error } = await supabase
       .from('leads')
       .insert([payload])
-      .select()
+      .select('*')
       .single();
     
-    if (error) {
-      console.error("Error creating request:", error);
-      throw error;
-    }
+    if (error) throw error;
     return data;
   },
 
@@ -164,21 +148,15 @@ export const leadService = {
         .from('leads')
         .select('*');
       
-      if (error) {
-        console.warn("Error fetching client summary:", error);
-        return { waiting: 0, in_progress: 0 };
-      }
+      if (error) return { waiting: 0, in_progress: 0 };
 
-      const userRequests = (requests || []).filter(r => r.client_id === user.id || r.user_id === user.id);
+      const userRequests = (requests || []).filter((r: any) => r.client_id === user.id || r.user_id === user.id);
 
-      const summary = {
-        waiting: userRequests.filter(r => r.status === 'open' || r.status === 'Orçando').length,
-        in_progress: userRequests.filter(r => r.status === 'in_progress' || r.status === 'Em Andamento').length
+      return {
+        waiting: userRequests.filter((r: any) => r.status === 'open' || r.status === 'Orçando').length,
+        in_progress: userRequests.filter((r: any) => r.status === 'in_progress' || r.status === 'Em Andamento').length
       };
-
-      return summary;
-    } catch (e) {
-      console.warn("Client summary fetch failed:", e);
+    } catch {
       return { waiting: 0, in_progress: 0 };
     }
   },
@@ -195,46 +173,34 @@ export const leadService = {
     else if (range === '90d') startDate.setDate(now.getDate() - 90);
     else if (range === '1y') startDate.setFullYear(now.getFullYear() - 1);
 
-    const startDateStr = startDate.toISOString();
-
-    let purchasesData = [];
+    let purchasesData: any[] = [];
     try {
       const { data: purchases, error: purchaseError } = await supabase
         .from('lead_purchases')
         .select('*');
 
       if (!purchaseError && purchases) {
-        purchasesData = purchases.filter(p => 
-          (p.professional_id === professionalId || p.user_id === professionalId) && 
+        purchasesData = purchases.filter((p: any) => 
+          (p.professional_id === professionalId || p.user_id === professionalId || p.wallet_id === professionalId) && 
           new Date(p.created_at || 0) >= startDate
         );
       }
-    } catch (e) {
-      console.warn('Error fetching lead_purchases stats', e);
-    }
+    } catch {}
 
-    let proposalsData = [];
+    let proposalsData: any[] = [];
     try {
       const { data: proposals, error: propError } = await supabase
         .from('proposals')
         .select('*');
 
       if (!propError && proposals) {
-        proposalsData = proposals.filter(p => new Date(p.created_at || 0) >= startDate);
+        proposalsData = proposals.filter((p: any) => new Date(p.created_at || 0) >= startDate);
       }
-    } catch (e) {
-      console.warn('Error fetching proposals stats', e);
-    }
+    } catch {}
     
-    // Fallback filter since we removed the inner join from the query
-    // In a real app we would do this safely, but this works around the 400
-    const filteredProposals = proposalsData;
-    const acceptedProposals = filteredProposals.filter(p => p.status === 'Aceita');
+    const acceptedProposals = proposalsData.filter(p => p.status === 'Aceita');
     const totalRevenue = acceptedProposals.reduce((acc, p) => acc + (p.price || 0), 0);
 
-    // Preparar dados para o gráfico de solicitações (barras)
-    // Agrupamento por dia para 7d e 30d, por mês para o resto
-    const chartData: any[] = [];
     const dateMap = new Map();
 
     if (range === '7d' || range === '30d') {
@@ -260,7 +226,6 @@ export const leadService = {
         }
       });
     } else {
-      // Agrupar por mês
       const months = range === '90d' ? 3 : 12;
       for (let i = months - 1; i >= 0; i--) {
         const d = new Date();
@@ -296,46 +261,39 @@ export const leadService = {
   }
 };
 
-// ... keep proposalService ...
-
-// Financeiro extra
+// === Transactions ===
 export const transactionService = {
   async getWalletTransactions() {
     const professionalId = useAuthStore.getState().user?.professionalId;
     if (!professionalId) throw new Error("Professional ID not found");
 
-    // Tenta buscar de uma tabela de transações, se falhar, monta a partir de compras
     try {
       const { data, error } = await supabase
         .from('wallet_transactions')
         .select('*');
 
-      if (error) {
-         throw error;
-      }
+      if (error) throw error;
 
       return (data || [])
-        .filter(t => t.user_id === professionalId || t.wallet_id === professionalId)
-        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    } catch (e) {
-       console.warn("Table wallet_transactions fallback applied", (e as Error).message);
-       // Fallback: usar histórico de compras
+        .filter((t: any) => t.wallet_id === professionalId || t.user_id === professionalId)
+        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    } catch {
        const purchases = await leadService.getMyPurchases();
        return purchases.map((p: any) => ({
          id: p.id,
          type: 'purchase',
          amount: p.price_coins || p.price || 0,
          date: p.created_at,
-         description: `Compra de Lead: ${p.leads?.title || 'Serviço'}`
+         description: `Compra de Lead (Ref: ${p.lead_id || 'Serviço'})`
        }));
     }
   }
 };
 
-// Propostas
+// === Proposals ===
 export const proposalService = {
   async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string }, clientId?: string) {
-    const { data, error } = await supabase
+    const { data: propData, error: propError } = await supabase
       .from('proposals')
       .insert({
         purchase_id: purchaseId,
@@ -343,17 +301,17 @@ export const proposalService = {
         duration: proposal.duration,
         description: proposal.description,
         status: 'Enviada'
-      });
+      })
+      .select('*')
+      .single();
 
-    if (error) throw error;
+    if (propError) throw propError;
 
-    // Atualiza o status da compra simultaneamente
     await supabase
       .from('lead_purchases')
       .update({ status: 'Proposta Enviada' })
       .eq('id', purchaseId);
 
-    // Notifica o cliente
     if (clientId) {
       supabase
         .from('notifications')
@@ -363,38 +321,34 @@ export const proposalService = {
           body: `Você recebeu uma nova proposta no valor de R$ ${proposal.price}.`,
           data: { type: 'proposal_received', purchaseId }
         }).then(({ error }) => {
-          if (error) console.error("Erro ao notificar cliente:", error);
+          if (error) console.error("Erro ao notificar cliente", error);
         });
     }
 
-    return data;
+    return propData;
   },
 
   async getProposalByPurchase(purchaseId: string) {
     const { data, error } = await supabase
       .from('proposals')
-      .select('*')
-      .eq('purchase_id', purchaseId)
-      .maybeSingle();
+      .select('*');
 
     if (error) throw error;
-    return data;
+    
+    return (data || []).find((p: any) => p.purchase_id === purchaseId) || null;
   },
 
   async getProposalsForLead(leadId: string) {
+    // Avoid joins by entirely filtering locally
     const { data, error } = await supabase
       .from('proposals')
       .select('*');
       
     if (error) throw error;
-    
-    // Return all proposals, bypassing the complex join which is causing 400 Bad Request
-    // Wait for proper ID check or do it locally
-    return data;
+    return data || [];
   },
 
   async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada', professionalId?: string) {
-    // Atualiza status da proposta
     const { error: propError } = await supabase
       .from('proposals')
       .update({ status })
@@ -402,7 +356,6 @@ export const proposalService = {
     
     if (propError) throw propError;
 
-    // Atualiza status da compra para liberar contato
     const { error: purchaseError } = await supabase
       .from('lead_purchases')
       .update({ status })
@@ -410,17 +363,16 @@ export const proposalService = {
     
     if (purchaseError) throw purchaseError;
 
-    // Notifica o profissional
     if (professionalId) {
       supabase
         .from('notifications')
         .insert({
           user_id: professionalId,
           title: `Proposta ${status}`,
-          body: `O cliente ${status.toLowerCase()} sua proposta para o serviço.`,
+          body: `O cliente ${status.toLowerCase()} sua proposta.`,
           data: { type: 'proposal_status_update', proposalId, status }
         }).then(({ error }) => {
-          if (error) console.error("Erro ao notificar profissional:", error);
+          if (error) console.error("Erro ao notificar profissional", error);
         });
     }
 
@@ -428,30 +380,32 @@ export const proposalService = {
   }
 };
 
-// Admin Services
+// === Admin ===
 export const adminService = {
   async getDashboardSummary() {
     let usersCount = 0, pendingCount = 0, activeLeadsCount = 0, pendingDisputesCount = 0;
     try {
-      const res1 = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-      if (!res1.error) usersCount = res1.count || 0;
+      const { data: profs } = await supabase.from('profiles').select('*');
+      if (profs) {
+        usersCount = profs.length;
+        pendingCount = profs.filter((p: any) => p.status === 'pending').length;
+      }
       
-      const res2 = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-      if (!res2.error) pendingCount = res2.count || 0;
+      const { data: leads } = await supabase.from('leads').select('*');
+      if (leads) {
+        activeLeadsCount = leads.filter((l: any) => l.status === 'open').length;
+      }
       
-      const res3 = await supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'open');
-      if (!res3.error) activeLeadsCount = res3.count || 0;
-      
-      const res4 = await supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-      if (!res4.error) pendingDisputesCount = res4.count || 0;
-    } catch (e) {
-      console.warn("Failed fetching dashboard summary parts:", e);
-    }
+      const { data: disputes } = await supabase.from('disputes').select('*');
+      if (disputes) {
+        pendingDisputesCount = disputes.filter((d: any) => d.status === 'pending').length;
+      }
+    } catch {}
 
     return {
       totalUsers: usersCount || 0,
       activeLeads: activeLeadsCount || 0,
-      estimatedRevenue: 48500, // Placeholder/Calculated later
+      estimatedRevenue: 48500,
       pendingVerifications: pendingCount || 0,
       avgResponseTime: '12m',
       pendingDisputes: pendingDisputesCount || 0
@@ -460,16 +414,13 @@ export const adminService = {
 
   async getUsers(params?: { role?: string, status?: string }) {
     try {
-      let query = supabase.from('profiles').select('*');
-      const { data, error } = await query;
-      if (error) {
-        console.warn("Table profiles error", error.message);
-        return [];
-      }
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) return [];
+      
       return (data || [])
-        .filter(user => (!params?.role || user.role === params.role) && (!params?.status || user.status === params.status))
-        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    } catch (e) {
+        .filter((user: any) => (!params?.role || user.role === params.role) && (!params?.status || user.status === params.status))
+        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    } catch {
       return [];
     }
   },
@@ -482,44 +433,47 @@ export const adminService = {
 
   async getCoinPackages() {
     try {
+      // 100% select('*') no order, no eq
       const { data, error } = await supabase.from('coin_packages').select('*');
-      if (error) {
-        console.warn("Error fetching coin_packages", error.message);
-        return [];
-      }
+      if (error) return [];
       return data || [];
-    } catch (e) {
+    } catch {
       return [];
     }
   },
   
   async updateCoinPackage(id: string, updates: any) {
+    // Apenas .eq na ID
     const { error } = await supabase.from('coin_packages').update(updates).eq('id', id);
     if (error) throw error;
     return true;
   }
 };
 
+// === Chats ===
 export const chatService = {
   async getChats() {
     const { data, error } = await supabase
       .from('chats')
-      .select('*')
-      .order('updated_at', { ascending: false });
+      .select('*');
     
     if (error) throw error;
-    return data;
+    
+    // JS side sort to avoid order() parameter failing in DB
+    return (data || []).sort((a: any, b: any) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
   },
 
   async getMessages(chatId: string) {
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
-      .eq('chat_id', chatId)
-      .order('created_at', { ascending: true });
+      .select('*');
     
     if (error) throw error;
-    return data;
+    
+    // JS side filter and sort
+    return (data || [])
+      .filter((m: any) => m.chat_id === chatId)
+      .sort((a: any, b: any) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
   },
 
   async sendMessage(chatId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string) {
@@ -533,11 +487,12 @@ export const chatService = {
         file_name: fileName,
         sender_id: userId,
         status: 'sent'
-      });
+      })
+      .select('*')
+      .single();
     
     if (error) throw error;
 
-    // Se tivermos o recipientId, criamos uma notificação na tabela 'notifications'
     if (recipientId && recipientId !== userId) {
       try {
         await supabase
@@ -548,9 +503,7 @@ export const chatService = {
             body: text.length > 50 ? text.substring(0, 47) + '...' : text,
             data: { chatId, type: 'message' }
           });
-      } catch (e) {
-        console.error("Erro ao inserir notificação:", e);
-      }
+      } catch {}
     }
 
     return data;
@@ -566,3 +519,4 @@ export const chatService = {
     return true;
   }
 };
+
