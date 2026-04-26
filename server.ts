@@ -230,11 +230,14 @@ async function startServer() {
     try {
       const { type, package_id, user_id } = req.body;
       
+      console.log("RECEBIDO:", req.body);
+
       if (!package_id || !PACKAGES[package_id]) {
-        console.error("❌ package_id inválido:", package_id);
+        console.error("❌ INVALID PACKAGE:", package_id);
         return res.status(400).json({ 
           error: "package_id inválido",
-          received: package_id
+          received: package_id,
+          available: Object.keys(PACKAGES)
         });
       }
       
