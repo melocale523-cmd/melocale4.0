@@ -9,8 +9,18 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 export default function ProfessionalDashboard() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { data: balance, isLoading } = useQuery({ queryKey: ['walletBalance'], queryFn: walletService.getBalance });
-  const { data: purchases, isLoading: purchasesLoading } = useQuery({ queryKey: ['purchases'], queryFn: api.getPurchases });
+  const { data: balance, isLoading } = useQuery({ 
+    queryKey: ['walletBalance'], 
+    retry: false, 
+    refetchOnWindowFocus: false, 
+    queryFn: walletService.getBalance 
+  });
+  const { data: purchases, isLoading: purchasesLoading } = useQuery({ 
+    queryKey: ['purchases'], 
+    retry: false, 
+    refetchOnWindowFocus: false, 
+    queryFn: api.getPurchases 
+  });
 
   if (isLoading || purchasesLoading) {
     return (

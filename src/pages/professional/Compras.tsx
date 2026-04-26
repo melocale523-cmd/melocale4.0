@@ -18,6 +18,8 @@ export default function ProfessionalCompras() {
 
   const { data: purchases, isLoading } = useQuery({
     queryKey: ['purchases'],
+    retry: false,
+    refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,
   });
 
