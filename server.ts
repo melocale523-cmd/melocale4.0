@@ -210,16 +210,36 @@ async function startServer() {
   });
 
   // API route for Stripe Checkout (Unified for One-time and Subscriptions)
+  const PACKAGES: Record<string, { price: number; name: string; type: 'subscription' | 'payment' }> = {
+    'plan_basic': { price: 49, name: 'Plano Básico', type: 'subscription' },
+    'plan_pro': { price: 99, name: 'Plano Profissional', type: 'subscription' },
+    'plan_business': { price: 199, name: 'Plano Empresarial', type: 'subscription' },
+    'pack_starter': { price: 19.90, name: 'Pacote Iniciante', type: 'payment' },
+    'pack_pro': { price: 49.90, name: 'Pacote Profissional', type: 'payment' },
+    'pack_premium': { price: 99.90, name: 'Pacote Premium', type: 'payment' }
+  };
+
   app.post("/api/create-checkout-session", async (req, res, next) => {
     try {
-      const { type, id, amount, name, userId, coinsAmount } = req.body;
+      const { user_id, package_id } = req.body;
       
-      if (!userId || typeof userId !== 'string') {
-        return res.status(400).json({ error: "O 'userId' é obrigatório e deve ser texto." });
+      if (!user_id || typeof user_id !== 'string') {
+        return res.status(400).json({ error: "O 'user_id' é obrigatório e deve ser texto." });
       }
-      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-        return res.status(400).json({ error: "O 'amount' é obrigatório e deve ser um número positivo." });
+      
+      if (!package_id || !PACKAGES[package_id]) {
+        return res.status(400).json({ error: "O 'package_id' é inválido ou obrigatório." });
       }
+
+      const pkg = PACKAGES[package_id];
+      const type = pkg.type;
+      const amount = pkg.price;
+      const name = pkg.name;
+
+      console.log("Stripe metadata:", {
+        user_id: user_id,
+        package_id: package_id
+      });
 
       const mode = type === 'subscription' ? 'subscription' : 'payment';
       
@@ -229,7 +249,7 @@ async function startServer() {
           {
             price_data: {
               currency: "brl",
-              product_data: { name: name || "Compra MeloCalé" },
+              product_data: { name: name },
               unit_amount: Math.round(Number(amount) * 100),
               ...(type === 'subscription' && {
                 recurring: { interval: 'month' }
@@ -241,9 +261,8 @@ async function startServer() {
         mode: mode,
         // METADATA é o ponto de veracidade para o nosso backend Webhook!
         metadata: {
-          userId: userId,
-          planId: id || '',
-          coinsAmount: coinsAmount ? coinsAmount.toString() : '0' 
+          user_id: user_id,
+          package_id: package_id
         },
         success_url: `${frontendUrl}/profissional/assinatura?success=true`,
         cancel_url: `${frontendUrl}/profissional/assinatura?canceled=true`,
