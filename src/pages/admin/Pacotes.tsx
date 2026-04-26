@@ -15,7 +15,7 @@ export default function AdminPacotes() {
   });
 
   const toggleStatusMutation = useMutation({
-    mutationFn: ({ id }: { id: string }) => adminService.updateCoinPackage(id, {}), // is_active does not exist in DB
+    mutationFn: ({ id }: { id: string }) => adminService.updateCoinPackage(id, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminPacotes'] });
       toast.success('Pacote atualizado com sucesso');
