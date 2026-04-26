@@ -52,14 +52,22 @@ export const leadService = {
     const professionalId = useAuthStore.getState().user?.professionalId;
     if (!professionalId) return [];
 
-    const { data, error } = await supabase
-      .from('lead_purchases')
-      .select('*')
-      .eq('professional_id', professionalId)
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    return data;
+    try {
+      const { data, error } = await supabase
+        .from('lead_purchases')
+        .select('*')
+        .eq('professional_id', professionalId)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.warn("Table lead_purchases error:", error.message);
+        return [];
+      }
+      return data || [];
+    } catch (e) {
+      console.warn("Failed to fetch lead_purchases", e);
+      return [];
+    }
   },
 
   async getMyRequests() {
@@ -135,24 +143,34 @@ export const leadService = {
 
     const startDateStr = startDate.toISOString();
 
-    const { data: purchases, error: purchaseError } = await supabase
-      .from('lead_purchases')
-      .select('coins_price, created_at')
-      .eq('professional_id', professionalId)
-      .gte('created_at', startDateStr);
+    let purchasesData = [];
+    try {
+      const { data: purchases, error: purchaseError } = await supabase
+        .from('lead_purchases')
+        .select('coins_price, created_at')
+        .eq('professional_id', professionalId)
+        .gte('created_at', startDateStr);
 
-    if (purchaseError) throw purchaseError;
+      if (!purchaseError && purchases) purchasesData = purchases;
+    } catch (e) {
+      console.warn('Error fetching lead_purchases stats', e);
+    }
 
-    const { data: proposals, error: propError } = await supabase
-      .from('proposals')
-      .select('*')
-      .gte('created_at', startDateStr);
+    let proposalsData = [];
+    try {
+      const { data: proposals, error: propError } = await supabase
+        .from('proposals')
+        .select('*')
+        .gte('created_at', startDateStr);
 
-    if (propError) throw propError;
+      if (!propError && proposals) proposalsData = proposals;
+    } catch (e) {
+      console.warn('Error fetching proposals stats', e);
+    }
     
     // Fallback filter since we removed the inner join from the query
     // In a real app we would do this safely, but this works around the 400
-    const filteredProposals = proposals;
+    const filteredProposals = proposalsData;
     const acceptedProposals = filteredProposals.filter(p => p.status === 'Aceita');
     const totalRevenue = acceptedProposals.reduce((acc, p) => acc + (p.price || 0), 0);
 
@@ -170,7 +188,7 @@ export const leadService = {
         dateMap.set(key, { name: key, total: 0, aceitas: 0, recusadas: 0, revenue: 0 });
       }
 
-      proposals.forEach(p => {
+      proposalsData.forEach(p => {
         const key = new Date(p.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         if (dateMap.has(key)) {
           const entry = dateMap.get(key);
@@ -193,7 +211,7 @@ export const leadService = {
         dateMap.set(key, { name: key, total: 0, aceitas: 0, recusadas: 0, revenue: 0 });
       }
 
-      proposals.forEach(p => {
+      proposalsData.forEach(p => {
         const key = new Date(p.created_at).toLocaleDateString('pt-BR', { month: 'short' });
         if (dateMap.has(key)) {
           const entry = dateMap.get(key);
@@ -209,10 +227,10 @@ export const leadService = {
     const seriesData = Array.from(dateMap.values());
 
     return {
-      totalSpentCoins: purchases.reduce((acc, p) => acc + (p.coins_price || 0), 0),
-      contactsPurchased: purchases.length,
+      totalSpentCoins: purchasesData.reduce((acc, p) => acc + (p.coins_price || 0), 0),
+      contactsPurchased: purchasesData.length,
       visualizacoes: Math.floor(Math.random() * 50) + (range === '7d' ? 20 : range === '1y' ? 500 : 120),
-      totalProposals: proposals.length,
+      totalProposals: proposalsData.length,
       acceptedProposalsCount: acceptedProposals.length,
       totalRevenue,
       seriesData
@@ -229,16 +247,23 @@ export const transactionService = {
     if (!professionalId) throw new Error("Professional ID not found");
 
     // Tenta buscar de uma tabela de transações, se falhar, monta a partir de compras
-    const { data, error } = await supabase
-      .from('wallet_transactions')
-      .select('*')
-      .eq('professional_id', professionalId)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('wallet_transactions')
+        .select('*')
+        .eq('professional_id', professionalId)
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) {
+         throw error;
+      }
+
+      return data;
+    } catch (e) {
+       console.warn("Table wallet_transactions fallback applied", (e as Error).message);
        // Fallback: usar histórico de compras
        const purchases = await leadService.getMyPurchases();
-       return purchases.map(p => ({
+       return purchases.map((p: any) => ({
          id: p.id,
          type: 'purchase',
          amount: p.coins_price,
@@ -246,8 +271,6 @@ export const transactionService = {
          description: `Compra de Lead: ${p.leads?.title || 'Serviço'}`
        }));
     }
-
-    return data;
   }
 };
 

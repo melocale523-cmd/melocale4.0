@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { GoogleGenAI } from '@google/genai';
 import rateLimit from "express-rate-limit";
+import cors from "cors";
 
 // Validação explícita e logs de debug
 console.log("=== INICIANDO VALIDACAO DE VARIAVEIS DE AMBIENTE ===");
@@ -73,6 +74,13 @@ const processedWebhookEvents = new Set<string>();
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+
+  // Habilitar CORS para permitir o frontend na Vercel
+  app.use(cors({
+    origin: ['https://melocale4-0.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
+  }));
 
   // Webhook deve usar express.raw ANTES do express.json()
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
