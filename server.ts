@@ -79,7 +79,7 @@ async function startServer() {
   const frontendUrl = process.env.FRONTEND_URL || 'https://melocale4-0.vercel.app';
   
   app.use(cors({
-    origin: function (origin, callback) {
+    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: string | boolean) => void) {
       // Allow any origin during development or specifically allow Vercel/localhost
       if (!origin || origin.startsWith('http://localhost') || origin === frontendUrl || origin.endsWith('.vercel.app')) {
         callback(null, origin || '*');
@@ -144,7 +144,7 @@ async function startServer() {
             setTimeout(() => reject(new Error("Supabase RPC Timeout")), 10000)
           );
 
-          const { error } = (await Promise.race([dbPromise, timeoutPromise])) as any;
+          const { error } = (await Promise.race([dbPromise, timeoutPromise])) as { error?: { message?: string } };
 
           if (error) {
             if (!error.message?.includes("duplicate key value violates unique constraint")) {
@@ -195,7 +195,7 @@ async function startServer() {
       
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: messages.map((m: any) => ({ 
+        contents: messages.map((m: { role: string; text: string }) => ({ 
           role: m.role, 
           parts: [{ text: m.text }] 
         })),
@@ -224,7 +224,7 @@ async function startServer() {
 
       const mode = type === 'subscription' ? 'subscription' : 'payment';
       
-      const sessionParams: any = {
+      const sessionParams: Stripe.Checkout.SessionCreateParams = {
         payment_method_types: ["card"],
         line_items: [
           {
@@ -370,7 +370,7 @@ async function startServer() {
   }
 
   // Middleware global de tratamento de erros
-  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.use((err: Error & { status?: number }, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(JSON.stringify({
       level: "error",
       event: "uncaught_express_error",
