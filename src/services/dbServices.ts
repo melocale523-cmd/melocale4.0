@@ -246,7 +246,7 @@ export const leadService = {
     const seriesData = Array.from(dateMap.values());
 
     return {
-      totalSpentCoins: purchasesData.reduce((acc, p) => acc + (p.coins_price || 0), 0),
+      totalSpentCoins: purchasesData.reduce((acc, p) => acc + (p.price_coins || 0), 0),
       contactsPurchased: purchasesData.length,
       visualizacoes: Math.floor(Math.random() * 50) + (range === '7d' ? 20 : range === '1y' ? 500 : 120),
       totalProposals: proposalsData.length,
@@ -276,7 +276,7 @@ export const transactionService = {
       }
 
       return (data || [])
-        .filter(t => t.professional_id === professionalId || t.user_id === professionalId)
+        .filter(t => t.user_id === professionalId || t.wallet_id === professionalId)
         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
     } catch (e) {
        console.warn("Table wallet_transactions fallback applied", (e as Error).message);
@@ -285,7 +285,7 @@ export const transactionService = {
        return purchases.map((p: any) => ({
          id: p.id,
          type: 'purchase',
-         amount: p.coins_price || p.price || 0,
+         amount: p.price_coins || p.price || 0,
          date: p.created_at,
          description: `Compra de Lead: ${p.leads?.title || 'Serviço'}`
        }));
@@ -448,7 +448,7 @@ export const adminService = {
         console.warn("Error fetching coin_packages", error.message);
         return [];
       }
-      return (data || []).sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+      return data || [];
     } catch (e) {
       return [];
     }
