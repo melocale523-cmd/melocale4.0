@@ -25,7 +25,14 @@ import AdminTransacoes from './pages/admin/Transacoes';
 import { useAuthGuard } from './hooks/useAuthGuard';
 import RouteProgressBar from './components/RouteProgressBar';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 import { useUserRole } from './hooks/useUserRole';
 import { Loader2 } from 'lucide-react';

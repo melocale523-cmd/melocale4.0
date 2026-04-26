@@ -238,15 +238,15 @@ export default function Pedidos() {
                                  <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-[8px] font-black px-1.5 py-0.5 rounded-full text-black uppercase tracking-tighter">Verificado</div>
                               </div>
                               <div>
-                                 <h4 className="text-xl font-black text-white">{prop.lead_purchases.professional.name}</h4>
-                                 <p className="text-blue-500 font-bold text-sm">{prop.lead_purchases.professional.specialty}</p>
+                                 <h4 className="text-xl font-black text-white">{prop.lead_purchases?.professional?.name || 'Profissional'}</h4>
+                                 <p className="text-blue-500 font-bold text-sm">{prop.lead_purchases?.professional?.specialty || 'Especialista'}</p>
                                  <div className="flex items-center gap-3 mt-1">
                                     <div className="flex items-center gap-1">
                                        {Array.from({ length: 5 }).map((_, i) => (
                                           <div key={i} className={cn("w-2 h-2 rounded-full", i < 4 ? "bg-amber-500" : "bg-slate-800")}></div>
                                        ))}
                                     </div>
-                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">4.8 • {prop.lead_purchases.professional.completed_services} serviços</span>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">4.8 • {prop.lead_purchases?.professional?.completed_services || 0} serviços</span>
                                  </div>
                               </div>
                            </div>
@@ -271,7 +271,7 @@ export default function Pedidos() {
                            {prop.status === 'Enviada' || prop.status === 'Proposta Enviada' ? (
                              <>
                                <button 
-                                 onClick={() => respondMutation.mutate({ proposalId: prop.id, purchaseId: prop.lead_purchases.id, status: 'Respondida pelo Cliente' })}
+                                 onClick={() => respondMutation.mutate({ proposalId: prop.id, purchaseId: prop.purchase_id || prop.lead_purchases?.id || '', status: 'Respondida pelo Cliente' })}
                                  disabled={respondMutation.isPending}
                                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
                                >
