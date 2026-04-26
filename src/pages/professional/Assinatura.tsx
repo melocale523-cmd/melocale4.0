@@ -93,8 +93,7 @@ export default function ProfessionalAssinatura() {
           return [];
         }
         return (data || [])
-          .filter(pkg => pkg.is_active !== false) // Assumes active if null or true
-          .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+          .sort((a, b) => (a.price || 0) - (b.price || 0));
       } catch (e) {
         return [];
       }

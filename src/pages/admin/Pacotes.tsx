@@ -15,7 +15,7 @@ export default function AdminPacotes() {
   });
 
   const toggleStatusMutation = useMutation({
-    mutationFn: ({ id, is_active }: { id: string, is_active: boolean }) => adminService.updateCoinPackage(id, { is_active }),
+    mutationFn: ({ id }: { id: string }) => adminService.updateCoinPackage(id, {}), // is_active does not exist in DB
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminPacotes'] });
       toast.success('Pacote atualizado com sucesso');
@@ -52,8 +52,8 @@ export default function AdminPacotes() {
                <div className="flex justify-between items-start mb-6 z-10 relative">
                   <div>
                     <h3 className="text-xl font-bold text-white">{pacote.name}</h3>
-                    <span className={`inline-block mt-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border ${pacote.is_active ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
-                      {pacote.is_active ? 'Ativo' : 'Inativo'}
+                    <span className={`inline-block mt-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border bg-emerald-500/10 text-emerald-500 border-emerald-500/20`}>
+                      Ativo
                     </span>
                   </div>
                   <div className="text-right">
@@ -75,18 +75,11 @@ export default function AdminPacotes() {
                       <span className="font-bold">+{pacote.bonus_coins}</span>
                     </div>
                   )}
-                  <p className="text-slate-500 text-sm">Ordem de exibição: {pacote.display_order}</p>
-               </div>
+                </div>
 
                <div className="flex items-center gap-3 mt-auto pt-6 border-t border-white/5 z-10 relative">
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-colors text-sm font-medium">
+                  <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-colors text-sm font-medium">
                     <Edit2 size={16} /> Editar
-                  </button>
-                  <button 
-                    onClick={() => toggleStatusMutation.mutate({ id: pacote.id, is_active: !pacote.is_active })}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-colors text-sm font-medium border ${pacote.is_active ? 'border-red-500/20 text-red-400 hover:bg-red-500/10' : 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10'}`}
-                  >
-                    {pacote.is_active ? <><XCircle size={16} /> Desativar</> : <><Plus size={16} /> Ativar</>}
                   </button>
                </div>
              </div>
