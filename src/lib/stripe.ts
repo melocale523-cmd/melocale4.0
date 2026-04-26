@@ -1,15 +1,32 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { supabase } from './supabase';
+import { apiFetch } from './api';
 
 /**
  * Utilitário seguro para carregar variáveis de ambiente no frontend (Vite).
  * Retorna log apropriado e previne silent failures.
+ * Suporta fallback para window.APP_CONFIG injetado pelo Render/Backend
  */
 function requireEnvVar(name: string): string {
-  const value = import.meta.env[name];
+  // 1. Tenta pegar do import.meta.env (injentado no build time)
+  let value = import.meta.env[name];
+  
+  // 2. Se falhar, tenta pegar do window.APP_CONFIG (injetado via runtime no backend)
+  if (!value && typeof window !== 'undefined' && (window as any).APP_CONFIG) {
+    value = (window as any).APP_CONFIG[name];
+  }
   
   if (!value) {
-    const errorMsg = `❌ ERRO CRÍTICO: Variável de ambiente '${name}' não encontrada. Verifique seu arquivo .env e certifique-se de usar o prefixo VITE_.`;
+    // 3. Fallback manual seguro se for STRIPE_PUBLIC_KEY 
+    // Em alguns casos pode ser útil, mas por enquanto lançamos o erro.
+    if (name === 'VITE_STRIPE_PUBLIC_KEY') {
+      // Como o VITE_STRIPE_PUBLIC_KEY já é público, em último caso usamos ele explícito
+      value = 'pk_test_51SRlmgCx1uHAwHhQj51ZFGzqwne1m4lHhycuZ1dlayZ6c7IYVSotIIuy9V3oyhI0bOA4Ka4BrEHPV5PqJO2529NH00L02bnqDh';
+      console.warn(`⚠️ Aviso: Variável '${name}' não encontrada. Usando fallback hardcoded para testes.`);
+      return value;
+    }
+    
+    const errorMsg = `❌ ERRO CRÍTICO: Variável de ambiente '${name}' não encontrada. Verifique seu arquivo .env e processo de build no Render.`;
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
@@ -65,7 +82,7 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
     coinsAmount = pkg?.coins || 0;
   }
 
-  const response = await fetch('/api/create-checkout-session', {
+  const response = await apiFetch('/api/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
@@ -97,7 +114,7 @@ export const payProfessional = async (amount: number, connectedAccountId: string
   const stripe = await getStripe();
   const { data: { user } } = await supabase.auth.getUser();
   
-  const response = await fetch('/api/create-service-payment', {
+  const response = await apiFetch('/api/create-service-payment', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 

@@ -1,3 +1,16 @@
+export const API_URL = "https://melocale4-0.onrender.com";
+
+/**
+ * Utilitário para fazer requisições para a API do backend no Render.
+ * Corrige o problema do frontend em Vercel tentar chamar '/api/...' relativo.
+ */
+export async function apiFetch(path: string, options?: RequestInit) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const url = `${API_URL}${normalizedPath}`;
+  
+  return fetch(url, options);
+}
+
 export const api = {
   getProfile: async () => {
     // Simulated delay

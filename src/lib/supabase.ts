@@ -1,7 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = "https://wfournowizclpiektwuv.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indmb3Vybm93aXpjbHBpZWt0d3V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTQxMDUsImV4cCI6MjA5MTY3MDEwNX0.1byW8VpRXa9FlUXfonSQCbC1da6L7CEi1Fm-7HD7dmg";
+// Helpers para carregar configuração dinamicamente com fallback hardcoded
+const getEnv = (key: string, fallback: string) => {
+  // 1. Tenta import.meta.env (Build time)
+  if (import.meta.env && import.meta.env[key]) return import.meta.env[key];
+  // 2. Tenta window.APP_CONFIG (Runtime injection Server -> Frontend)
+  if (typeof window !== 'undefined' && (window as any).APP_CONFIG && (window as any).APP_CONFIG[key]) {
+    return (window as any).APP_CONFIG[key];
+  }
+  // 3. Fallback default
+  return fallback;
+};
+
+const supabaseUrl = getEnv('VITE_SUPABASE_URL', "https://wfournowizclpiektwuv.supabase.co");
+const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indmb3Vybm93aXpjbHBpZWt0d3V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTQxMDUsImV4cCI6MjA5MTY3MDEwNX0.1byW8VpRXa9FlUXfonSQCbC1da6L7CEi1Fm-7HD7dmg");
 
 console.log("Supabase Client initialized with URL:", supabaseUrl);
 

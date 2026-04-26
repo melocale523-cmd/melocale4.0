@@ -160,6 +160,18 @@ async function startServer() {
   });
   app.use("/api/", apiLimiter);
 
+  // Mapeamento de variáveis de ambiente públicas para o frontend
+  app.get("/api/config.js", (req, res) => {
+    res.type('application/javascript');
+    res.send(`
+      window.APP_CONFIG = {
+        VITE_STRIPE_PUBLIC_KEY: ${JSON.stringify(process.env.VITE_STRIPE_PUBLIC_KEY || "")},
+        VITE_SUPABASE_URL: ${JSON.stringify(process.env.VITE_SUPABASE_URL || "")},
+        VITE_SUPABASE_ANON_KEY: ${JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || "")}
+      };
+    `);
+  });
+
   // API route for Health Check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
