@@ -92,7 +92,6 @@ async function startServer() {
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature', 'x-client-info', 'apikey'],
   }));
-  app.options('*', cors());
 
   // Webhook deve usar express.raw ANTES do express.json()
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
