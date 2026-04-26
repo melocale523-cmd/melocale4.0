@@ -84,16 +84,8 @@ export default function ProfessionalAssinatura() {
     refetchOnWindowFocus: false,
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
-          .from('coin_packages')
-          .select('*')
-        
-        if (error) {
-          console.warn("Table coin_packages error", error.message);
-          return [];
-        }
-        return (data || [])
-          .sort((a, b) => (a.price || 0) - (b.price || 0));
+        const data = await adminService.getCoinPackages();
+        return (data || []).sort((a: any, b: any) => (a.price || 0) - (b.price || 0));
       } catch (e) {
         return [];
       }

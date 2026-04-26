@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
+import { authService } from '../../services/dbServices';
 import { useAuthStore, Role } from '../../store/authStore';
 
 export default function AuthInitializer({ children }: { children: React.ReactNode }) {
@@ -53,28 +54,19 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
 
       try {
         // 4. Fonte Única da Verdade: buscamos profile sem depender de user_metadata
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle();
+        const profile = await authService.getProfile(userId);
 
-        if (error) {
-          console.error('AuthInitializer: Erro ao carregar o profile do DB.', error);
+        if (!profile) {
+          console.error('AuthInitializer: Erro ao carregar o profile ou profile não existe.');
         }
 
         let professionalId = undefined;
         // O papel verdadeiro SEMPRE vem do banco (profile). Fallback para 'client'
-        let finalRole: Role = (profile?.role as Role) || 'client';
+        let finalRole: Role = ((profile as any)?.role as Role) || 'client';
 
         if (finalRole === 'professional') {
-          const { data: prof } = await supabase
-            .from('professionals')
-            .select('id')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-          if (prof) professionalId = prof.id;
+          const prof = await authService.getProfessionalByUserId(userId);
+          if (prof) professionalId = (prof as any).id;
         }
 
         // 5. Atualização de Estado Consistente

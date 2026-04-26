@@ -1,20 +1,59 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 
+// Auth
+export const authService = {
+  async getProfile(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      if (error) return null;
+      return data;
+    } catch {
+      return null;
+    }
+  },
+  async getProfessionalByUserId(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('professionals')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (error) return null;
+      return data;
+    } catch {
+      return null;
+    }
+  }
+};
+
 // Financeiro
 export const walletService = {
   async getBalance() {
     try {
-      const professionalId = useAuthStore.getState().user?.professionalId;
-      if (!professionalId) return 0;
+      const userId = useAuthStore.getState().user?.id;
+      if (!userId) return 0;
 
       const { data: wallet, error: walletError } = await supabase
         .from('v_wallet_balance')
         .select('*')
-        .eq('professional_id', professionalId)
+        .eq('user_id', userId)
         .single();
 
-      if (walletError) {
+      if (walletError && walletError.code !== 'PGRST116') {
+        // Fallback para wallet_id se a view usar wallet_id em vez de user_id
+        const { data: walletById } = await supabase
+           .from('v_wallet_balance')
+           .select('*')
+           .eq('wallet_id', userId)
+           .maybeSingle();
+           
+        if (walletById) return walletById.balance_coins || walletById.balance || walletById.coins_balance || 0;
+
         console.error("Error fetching balance from view:", walletError);
         return 0;
       }
