@@ -77,14 +77,14 @@ export const leadService = {
 
     const { data, error } = await supabase
       .from('leads')
-      .select(`
-        *,
-        proposals_count:proposals(count)
-      `)
+      .select('*')
       .eq('client_id', user.id)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.warn("Error fetching leads:", error);
+      return [];
+    }
     return data;
   },
 
@@ -378,10 +378,22 @@ export const proposalService = {
 // Admin Services
 export const adminService = {
   async getDashboardSummary() {
-    const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-    const { count: pendingCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-    const { count: activeLeadsCount } = await supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'open');
-    const { count: pendingDisputes } = await supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+    let usersCount = 0, pendingCount = 0, activeLeadsCount = 0, pendingDisputesCount = 0;
+    try {
+      const res1 = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+      if (!res1.error) usersCount = res1.count || 0;
+      
+      const res2 = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+      if (!res2.error) pendingCount = res2.count || 0;
+      
+      const res3 = await supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'open');
+      if (!res3.error) activeLeadsCount = res3.count || 0;
+      
+      const res4 = await supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+      if (!res4.error) pendingDisputesCount = res4.count || 0;
+    } catch (e) {
+      console.warn("Failed fetching dashboard summary parts:", e);
+    }
 
     return {
       totalUsers: usersCount || 0,
@@ -389,19 +401,24 @@ export const adminService = {
       estimatedRevenue: 48500, // Placeholder/Calculated later
       pendingVerifications: pendingCount || 0,
       avgResponseTime: '12m',
-      pendingDisputes: pendingDisputes || 0
+      pendingDisputes: pendingDisputesCount || 0
     };
   },
 
   async getUsers(params?: { role?: string, status?: string }) {
-    let query = supabase.from('profiles').select('*').order('created_at', { ascending: false });
-    
-    if (params?.role) query = query.eq('role', params.role);
-    if (params?.status) query = query.eq('status', params.status);
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return data;
+    try {
+      let query = supabase.from('profiles').select('*');
+      const { data, error } = await query;
+      if (error) {
+        console.warn("Table profiles error", error.message);
+        return [];
+      }
+      return (data || [])
+        .filter(user => (!params?.role || user.role === params.role) && (!params?.status || user.status === params.status))
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    } catch (e) {
+      return [];
+    }
   },
 
   async updateUserStatus(userId: string, status: string) {
@@ -411,9 +428,16 @@ export const adminService = {
   },
 
   async getCoinPackages() {
-    const { data, error } = await supabase.from('coin_packages').select('*').order('display_order', { ascending: true });
-    if (error) throw error;
-    return data;
+    try {
+      const { data, error } = await supabase.from('coin_packages').select('*');
+      if (error) {
+        console.warn("Error fetching coin_packages", error.message);
+        return [];
+      }
+      return (data || []).sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    } catch (e) {
+      return [];
+    }
   },
   
   async updateCoinPackage(id: string, updates: any) {
