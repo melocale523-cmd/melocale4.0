@@ -49,14 +49,18 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Usuário não autenticado. Faça login para continuar.");
 
+  const payload = {
+    type, 
+    package_id: id,
+    user_id: user.id
+  };
+  
+  console.log("Checkout payload:", payload);
+
   const response = await apiFetch('/api/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      type, 
-      package_id: id,
-      user_id: user.id
-    }),
+    body: JSON.stringify(payload),
   });
   
   const session = await response.json();
