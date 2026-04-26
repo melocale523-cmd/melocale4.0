@@ -210,70 +210,67 @@ async function startServer() {
   });
 
   // API route for Stripe Checkout (Unified for One-time and Subscriptions)
-  const PACKAGES: Record<string, { price: number; name: string; type: 'subscription' | 'payment'; coins?: number }> = {
-    'plan_basic': { price: 49, name: 'Plano Básico', type: 'subscription' },
-    'plan_pro': { price: 99, name: 'Plano Profissional', type: 'subscription' },
-    'plan_business': { price: 199, name: 'Plano Empresarial', type: 'subscription' },
-    'pack_starter': { name: 'Starter', price: 19.90, coins: 50, type: 'payment' },
-    'pack_pro': { name: 'Pro', price: 49.90, coins: 150, type: 'payment' },
-    'pack_premium': { name: 'Premium', price: 99.90, coins: 400, type: 'payment' }
+  const PACKAGES: Record<string, { price: number; name: string; coins?: number; type?: 'subscription' | 'payment' }> = {
+    'plan_basic': { price: 4900, name: 'Plano Básico', type: 'subscription' },
+    'plan_pro': { price: 9900, name: 'Plano Profissional', type: 'subscription' },
+    'plan_business': { price: 19900, name: 'Plano Empresarial', type: 'subscription' },
+    'pack_starter': { price: 1990, coins: 50, name: 'Starter', type: 'payment' },
+    'pack_pro': { price: 4990, coins: 150, name: 'Pro', type: 'payment' },
+    'pack_premium': { price: 9990, coins: 400, name: 'Premium', type: 'payment' }
   };
 
   app.post("/api/create-checkout-session", async (req, res, next) => {
     try {
-      const { user_id, package_id } = req.body;
-      
-      console.log("CHECKOUT REQUEST:", { user_id, package_id });
-
-      if (!user_id || typeof user_id !== 'string') {
-        return res.status(400).json({ error: "O 'user_id' é obrigatório e deve ser texto." });
-      }
+      const { type, package_id, user_id } = req.body;
       
       if (!package_id || !PACKAGES[package_id]) {
-        return res.status(400).json({ error: "O 'package_id' é inválido ou obrigatório." });
+        console.error("❌ package_id inválido:", package_id);
+        return res.status(400).json({ 
+          error: "package_id inválido",
+          received: package_id
+        });
+      }
+      
+      if (!user_id) {
+        return res.status(400).json({ error: "user_id obrigatório" });
       }
 
-      console.log("PACKAGE FOUND:", PACKAGES[package_id]);
-
       const pkg = PACKAGES[package_id];
-      const type = pkg.type;
-      const amount = pkg.price;
-      const name = pkg.name;
 
-      console.log("Stripe metadata:", {
-        user_id: user_id,
-        package_id: package_id
+      console.log("🔥 Criando checkout:", {
+        package_id,
+        user_id,
+        package: pkg
       });
 
-      const mode = type === 'subscription' ? 'subscription' : 'payment';
-      
-      const sessionParams: Stripe.Checkout.SessionCreateParams = {
+      const session = await stripe.checkout.sessions.create({
+        mode: pkg.type === 'subscription' ? 'subscription' : 'payment',
         payment_method_types: ["card"],
         line_items: [
           {
             price_data: {
               currency: "brl",
-              product_data: { name: name },
-              unit_amount: Math.round(Number(amount) * 100),
-              ...(type === 'subscription' && {
+              product_data: { name: pkg.name },
+              unit_amount: pkg.price,
+              ...(pkg.type === 'subscription' && {
                 recurring: { interval: 'month' }
               })
             },
             quantity: 1,
           },
         ],
-        mode: mode,
-        // METADATA é o ponto de veracidade para o nosso backend Webhook!
+        success_url: `${frontendUrl}/profissional/assinatura?success=true`,
+        cancel_url: `${frontendUrl}/profissional/assinatura?canceled=true`,
         metadata: {
           user_id: user_id,
           package_id: package_id
-        },
-        success_url: `${frontendUrl}/profissional/assinatura?success=true`,
-        cancel_url: `${frontendUrl}/profissional/assinatura?canceled=true`,
-      };
+        }
+      });
 
-      const session = await stripe.checkout.sessions.create(sessionParams);
-      res.json({ id: session.id, url: session.url });
+      return res.json({
+        id: session.id,
+        url: session.url
+      });
     } catch (error) {
       next(error);
     }
