@@ -77,9 +77,9 @@ async function startServer() {
 
   // Habilitar CORS para permitir o frontend na Vercel
   app.use(cors({
-    origin: ['https://melocale4-0.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
   }));
 
   // Webhook deve usar express.raw ANTES do express.json()

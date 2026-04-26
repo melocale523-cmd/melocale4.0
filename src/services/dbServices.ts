@@ -55,15 +55,16 @@ export const leadService = {
     try {
       const { data, error } = await supabase
         .from('lead_purchases')
-        .select('*')
-        .eq('professional_id', professionalId)
-        .order('created_at', { ascending: false });
+        .select('*');
       
       if (error) {
         console.warn("Table lead_purchases error:", error.message);
         return [];
       }
-      return data || [];
+      
+      return (data || [])
+        .filter(p => p.professional_id === professionalId || p.user_id === professionalId)
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
     } catch (e) {
       console.warn("Failed to fetch lead_purchases", e);
       return [];
@@ -147,11 +148,14 @@ export const leadService = {
     try {
       const { data: purchases, error: purchaseError } = await supabase
         .from('lead_purchases')
-        .select('coins_price, created_at')
-        .eq('professional_id', professionalId)
-        .gte('created_at', startDateStr);
+        .select('*');
 
-      if (!purchaseError && purchases) purchasesData = purchases;
+      if (!purchaseError && purchases) {
+        purchasesData = purchases.filter(p => 
+          (p.professional_id === professionalId || p.user_id === professionalId) && 
+          new Date(p.created_at || 0) >= startDate
+        );
+      }
     } catch (e) {
       console.warn('Error fetching lead_purchases stats', e);
     }
@@ -160,10 +164,11 @@ export const leadService = {
     try {
       const { data: proposals, error: propError } = await supabase
         .from('proposals')
-        .select('*')
-        .gte('created_at', startDateStr);
+        .select('*');
 
-      if (!propError && proposals) proposalsData = proposals;
+      if (!propError && proposals) {
+        proposalsData = proposals.filter(p => new Date(p.created_at || 0) >= startDate);
+      }
     } catch (e) {
       console.warn('Error fetching proposals stats', e);
     }
@@ -250,15 +255,15 @@ export const transactionService = {
     try {
       const { data, error } = await supabase
         .from('wallet_transactions')
-        .select('*')
-        .eq('professional_id', professionalId)
-        .order('created_at', { ascending: false });
+        .select('*');
 
       if (error) {
          throw error;
       }
 
-      return data;
+      return (data || [])
+        .filter(t => t.professional_id === professionalId || t.user_id === professionalId)
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
     } catch (e) {
        console.warn("Table wallet_transactions fallback applied", (e as Error).message);
        // Fallback: usar histórico de compras
@@ -266,7 +271,7 @@ export const transactionService = {
        return purchases.map((p: any) => ({
          id: p.id,
          type: 'purchase',
-         amount: p.coins_price,
+         amount: p.coins_price || p.price || 0,
          date: p.created_at,
          description: `Compra de Lead: ${p.leads?.title || 'Serviço'}`
        }));

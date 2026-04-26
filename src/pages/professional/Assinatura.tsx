@@ -85,13 +85,14 @@ export default function ProfessionalAssinatura() {
         const { data, error } = await supabase
           .from('coin_packages')
           .select('*')
-          .eq('is_active', true)
-          .order('display_order', { ascending: true });
+        
         if (error) {
           console.warn("Table coin_packages error", error.message);
           return [];
         }
-        return data || [];
+        return (data || [])
+          .filter(pkg => pkg.is_active !== false) // Assumes active if null or true
+          .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
       } catch (e) {
         return [];
       }
