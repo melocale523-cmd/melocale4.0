@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { User, Mail, Phone, MapPin, Briefcase, Camera, Loader2, CheckCircle2, CreditCard } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
 
 export default function ProfessionalPerfil() {
   const { user, updateProfile } = useAuthStore();
@@ -187,14 +188,14 @@ export default function ProfessionalPerfil() {
           <button 
             onClick={async () => {
               try {
-                const res = await fetch('/api/create-connected-account', {
+                const res = await apiFetch('/api/create-connected-account', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ email: user?.email })
                 });
                 const { accountId } = await res.json();
                 
-                const linkRes = await fetch('/api/create-account-link', {
+                const linkRes = await apiFetch('/api/create-account-link', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ accountId })
