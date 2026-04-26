@@ -210,19 +210,21 @@ async function startServer() {
   });
 
   // API route for Stripe Checkout (Unified for One-time and Subscriptions)
-  const PACKAGES: Record<string, { price: number; name: string; type: 'subscription' | 'payment' }> = {
+  const PACKAGES: Record<string, { price: number; name: string; type: 'subscription' | 'payment'; coins?: number }> = {
     'plan_basic': { price: 49, name: 'Plano Básico', type: 'subscription' },
     'plan_pro': { price: 99, name: 'Plano Profissional', type: 'subscription' },
     'plan_business': { price: 199, name: 'Plano Empresarial', type: 'subscription' },
-    'pack_starter': { price: 19.90, name: 'Pacote Iniciante', type: 'payment' },
-    'pack_pro': { price: 49.90, name: 'Pacote Profissional', type: 'payment' },
-    'pack_premium': { price: 99.90, name: 'Pacote Premium', type: 'payment' }
+    'pack_starter': { name: 'Starter', price: 19.90, coins: 50, type: 'payment' },
+    'pack_pro': { name: 'Pro', price: 49.90, coins: 150, type: 'payment' },
+    'pack_premium': { name: 'Premium', price: 99.90, coins: 400, type: 'payment' }
   };
 
   app.post("/api/create-checkout-session", async (req, res, next) => {
     try {
       const { user_id, package_id } = req.body;
       
+      console.log("CHECKOUT REQUEST:", { user_id, package_id });
+
       if (!user_id || typeof user_id !== 'string') {
         return res.status(400).json({ error: "O 'user_id' é obrigatório e deve ser texto." });
       }
@@ -230,6 +232,8 @@ async function startServer() {
       if (!package_id || !PACKAGES[package_id]) {
         return res.status(400).json({ error: "O 'package_id' é inválido ou obrigatório." });
       }
+
+      console.log("PACKAGE FOUND:", PACKAGES[package_id]);
 
       const pkg = PACKAGES[package_id];
       const type = pkg.type;
