@@ -231,6 +231,7 @@ async function startServer() {
       const { type, package_id, user_id } = req.body;
       
       console.log("RECEBIDO:", req.body);
+      console.log("PACOTES DISPONÍVEIS:", Object.keys(PACKAGES));
 
       if (!package_id || !PACKAGES[package_id]) {
         console.error("❌ INVALID PACKAGE:", package_id);
