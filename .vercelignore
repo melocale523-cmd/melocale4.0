@@ -1,2 +1,6 @@
 backend/
-supabase/
+node_modules/
+root_files_backup/
+.env*
+*.sql
+*.md
