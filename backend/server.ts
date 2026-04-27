@@ -1,10 +1,20 @@
-// Trigger Render redeploy 2026-04-28
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
+import { createServer as createViteServer } from "vite";
+import path from "path";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenAI } from '@google/genai';
 import rateLimit from "express-rate-limit";
 import cors from "cors";
+
+// Validação explícita e logs de debug
+console.log("=== INICIANDO VALIDACAO DE VARIAVEIS DE AMBIENTE ===");
+console.log(`- NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`- SUPABASE_URL presente? ${!!process.env.SUPABASE_URL}`);
+console.log(`- VITE_SUPABASE_URL presente? ${!!process.env.VITE_SUPABASE_URL}`);
+console.log(`- SUPABASE_SERVICE_ROLE_KEY presente? ${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`);
+console.log(`- STRIPE_SECRET_KEY presente? ${!!process.env.STRIPE_SECRET_KEY}`);
+console.log("=====================================================");
 
 // Proteção global contra crashes (uncaught e unhandled)
 process.on("uncaughtException", (err) => {
@@ -15,6 +25,7 @@ process.on("uncaughtException", (err) => {
     error: err.message,
     stack: err.stack
   }));
+  // Em produção, deve sair o processo para a plataforma (Render) reiniciar e recuperar estado limpo
   process.exit(1); 
 });
 
@@ -35,10 +46,7 @@ if (!stripeSecretKey) {
 }
 const stripe = new Stripe(stripeSecretKey);
 
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
-if (!STRIPE_WEBHOOK_SECRET) {
-  throw new Error("❌ ERRO CRÍTICO: STRIPE_WEBHOOK_SECRET está ausente nas variáveis de ambiente.");
-}
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 // Inicializa Supabase Admin (Bypass RLS)
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -51,650 +59,380 @@ if (!supabaseServiceKey) {
   throw new Error("❌ ERRO CRÍTICO: SUPABASE_SERVICE_ROLE_KEY está ausente nas variáveis de ambiente.");
 }
 
+// Em ambientes ESM ou TS, cria o cliente com as credenciais validadas
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-if (!process.env.ANTHROPIC_API_KEY) {
-  throw new Error('❌ ERRO CRÍTICO: ANTHROPIC_API_KEY não definida — servidor não pode subir');
+// Inicializa Google GenAI
+const geminiApiKey = process.env.GEMINI_API_KEY;
+if (!geminiApiKey) {
+  console.warn("⚠️ AVISO: GEMINI_API_KEY está ausente. Algumas funcionalidades de IA podem falhar.");
 }
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const ai = new GoogleGenAI({ apiKey: geminiApiKey || "missing_key" });
 
-async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Token não fornecido' });
-
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Token inválido' });
-
-  (req as any).authUser = user;
-  next();
-}
+const processedWebhookEvents = new Set<string>();
 
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-  const EXTRA_ORIGINS = (process.env.FRONTEND_URL ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  const ALLOWED_ORIGINS_EXACT = new Set([
-    'https://melocale4-0.vercel.app',
-    'http://localhost:5173',
-    ...EXTRA_ORIGINS,
-  ]);
-
-  // Matches preview deployments of this project only (e.g. melocale4-0-<hash>.vercel.app)
-  const VERCEL_PREVIEW_RE = /^https:\/\/melocale4-0-[^.]+\.vercel\.app$/i;
-
-  const isOriginAllowed = (origin: string) =>
-    ALLOWED_ORIGINS_EXACT.has(origin) || VERCEL_PREVIEW_RE.test(origin);
-
-  const corsOptions: Parameters<typeof cors>[0] = {
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || isOriginAllowed(origin)) {
-        callback(null, true);
+  // Habilitar CORS para permitir o frontend na Vercel e chamadas locais
+  const frontendUrl = process.env.FRONTEND_URL || 'https://melocale4-0.vercel.app';
+  
+  app.use(cors({
+    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: string | boolean) => void) {
+      // Allow any origin during development or specifically allow Vercel/localhost
+      if (!origin || origin.startsWith('http://localhost') || origin === frontendUrl || origin.endsWith('.vercel.app')) {
+        callback(null, origin || '*');
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // Fallback to origin
+        callback(null, origin);
       }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature', 'x-client-info', 'apikey'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  };
-  app.use(cors(corsOptions));
+  }));
 
-  // Webhook deve usar express.raw
-  app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req: Request, res: Response) => {
+  // Webhook deve usar express.raw ANTES do express.json()
+  app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers["stripe-signature"] as string;
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET!);
+      event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
     } catch (err) {
+      console.error(JSON.stringify({ level: "error", event: "stripe_webhook_invalid_sig", error: (err as Error).message }));
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
-    // Deduplicação persistente: verifica se este evento já foi processado no banco.
-    // Cobre o caso crítico de double-crediting após restart do servidor.
-    const { data: existingTx } = await supabaseAdmin
-      .from('wallet_transactions')
-      .select('id')
-      .eq('stripe_event_id', event.id)
-      .maybeSingle();
-
-    if (existingTx) {
-      console.log(`[webhook] evento ${event.id} já processado — ignorando`);
-      return res.json({ received: true });
+    // Idempotência na camada de aplicação (evita chamada desnecessária ao DB)
+    if (processedWebhookEvents.has(event.id)) {
+      console.info(JSON.stringify({ level: "info", event: "stripe_webhook_duplicate_memory", stripeEventId: event.id }));
+      return res.json({ received: true, ignored: true, reason: "duplicate_event" });
     }
+    processedWebhookEvents.add(event.id);
+    // Evita memory leak limpando a memória periodicamente ou usando lru-cache (simplificado via limite de tamanho)
+    if (processedWebhookEvents.size > 10000) processedWebhookEvents.clear();
 
-    const COIN_PACKAGES: Record<string, { coins: number; name: string }> = {
-      'pack_starter': { coins: 60,  name: 'Básico'        },
-      'pack_pro':     { coins: 200, name: 'Popular'       },
-      'pack_premium': { coins: 560, name: 'Máximo'        },
-    };
-
-    const PLAN_WELCOME_COINS: Record<string, number> = {
-      plan_basic:     30,
-      plan_pro:       80,
-      plan_business:  200,
-    };
-
+    // Processa eventos de sucesso de checkout
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      const userId    = session.metadata?.user_id || session.metadata?.userId;
+      
+      console.log("=== WEBHOOK DEBUG ===");
+      console.log("EVENTO RECEBIDO:", JSON.stringify(event, null, 2));
+      console.log("METADATA:", session.metadata);
+      
+      const userId = session.metadata?.user_id || session.metadata?.userId;
       const packageId = session.metadata?.package_id;
-      const sessionType = session.metadata?.type;
-
-      // --- Gravar assinatura ---
-      if (sessionType === "subscription" && userId && packageId) {
-        const stripeSubId = typeof session.subscription === "string"
-          ? session.subscription
-          : (session.subscription as any)?.id ?? null;
-        try {
-          await supabaseAdmin.from("user_subscriptions").upsert({
-            user_id: userId,
-            stripe_subscription_id: stripeSubId,
-            package_id: packageId,
-            status: "active",
-            started_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }, { onConflict: "user_id" });
-        } catch (subErr) {
-          console.error("Erro ao gravar user_subscription:", subErr);
-        }
-      }
-
-      // --- Creditar moedas ---
+      
+      console.log("USER_ID EXTRAÍDO:", userId);
+      console.log("PACKAGE_ID EXTRAÍDO:", packageId);
+      
       let coinsAmount = 0;
-      let coinLabel = "avulso";
-      if (sessionType === "subscription" && packageId) {
-        coinsAmount = PLAN_WELCOME_COINS[packageId] ?? 0;
-        coinLabel = `boas-vindas:${packageId}`;
-      } else if (packageId && COIN_PACKAGES[packageId]) {
-        coinsAmount = COIN_PACKAGES[packageId].coins;
-        coinLabel = COIN_PACKAGES[packageId].name;
+      if (packageId && PACKAGES[packageId]) {
+        coinsAmount = PACKAGES[packageId].coins || 0;
+        console.log("COINS MAPEADOS DO PACOTE:", coinsAmount);
       } else {
-        coinsAmount = parseInt(session.metadata?.coins || session.metadata?.coinsAmount || "0", 10);
+        coinsAmount = parseInt(session.metadata?.coinsAmount || '0', 10);
+        console.log("COINS MAPEADOS DO METADATA:", coinsAmount);
       }
-
+      
+      if (!userId || !packageId) {
+        console.error("ERRO: METADATA INCOMPLETA OU INVALIDA");
+      }
+      
       if (userId && coinsAmount > 0) {
-        const { error: rpcErr } = await supabaseAdmin.rpc("credit_wallet", {
-          p_user_id: userId,
-          p_amount: coinsAmount,
-          p_stripe_session_id: session.id,
-          p_stripe_event_id: event.id
-        });
-        if (rpcErr) {
-          console.error("Erro no RPC credit_wallet:", rpcErr);
-          return res.status(500).json({ error: "Falha ao creditar" });
-        }
+        console.info(JSON.stringify({
+           level: "info",
+           event: "stripe_checkout_completed",
+           userId,
+           coinsAmount,
+           stripeSessionId: session.id
+        }));
 
-        const { error: txErr } = await supabaseAdmin.from("wallet_transactions").insert({
-          user_id: userId,
-          kind: sessionType === "subscription" ? "bonus" : "deposit",
-          amount: coinsAmount,
-          reference: `Stripe — ${coinLabel} — ${session.id}`,
-          stripe_session_id: session.id,
-          stripe_event_id: event.id,
-          created_at: new Date().toISOString(),
-        });
-        if (txErr) {
-          console.error("Erro ao inserir wallet_transaction:", txErr);
-          return res.status(500).json({ error: "Falha ao creditar" });
-        }
-      }
-    }
+        try {
+          // Timeout protection for external call
+          const dbPromise = supabaseAdmin.rpc("credit_wallet", {
+            p_user_id: userId,
+            p_amount: coinsAmount,
+            p_stripe_session_id: session.id,
+            p_stripe_event_id: event.id
+          });
+          
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Supabase RPC Timeout")), 10000)
+          );
 
-    // --- Sincronizar status de assinatura ---
-    if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
-      const subscription = event.data.object as Stripe.Subscription;
-      const newStatus = event.type === "customer.subscription.deleted" ? "canceled" : subscription.status;
-      try {
-        await supabaseAdmin.from("user_subscriptions")
-          .update({ status: newStatus, updated_at: new Date().toISOString() })
-          .eq("stripe_subscription_id", subscription.id);
-      } catch (updErr) {
-        console.error("Erro ao atualizar user_subscription:", updErr);
+          const { error } = (await Promise.race([dbPromise, timeoutPromise])) as { error?: { message?: string } };
+          console.log("RPC RESULT:", { error });
+
+          if (error) {
+            if (!error.message?.includes("duplicate key value violates unique constraint")) {
+               console.error(JSON.stringify({ level: "error", event: "supabase_rpc_error", error: error.message || error }));
+               throw error; 
+            } else {
+               console.info(JSON.stringify({ level: "info", event: "stripe_webhook_duplicate_db", stripeEventId: event.id }));
+            }
+          } else {
+            console.info(JSON.stringify({ level: "info", event: "credit_wallet_success", userId, coinsAmount }));
+          }
+        } catch (err) {
+          console.error(JSON.stringify({ level: "error", event: "stripe_webhook_processing_failed", error: (err as Error).message, stripeEventId: event.id }));
+          // Retornamos 500 para o Stripe tentar novamente se não for um duplicate error
+          return res.status(500).json({ error: "Erro interno", code: "INTERNAL_ERROR" });
+        }
       }
     }
 
     res.json({ received: true });
   });
 
+  // Habilita JSON body parser para as próximas rotas
   app.use(express.json());
 
-  app.use("/api/", rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-  }));
+  // Limite de taxa (Rate Limit) para proteção de ponta a ponta
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // limite de 100 requests por IP
+    message: { error: "Muitas requisições.", code: "RATE_LIMIT_EXCEEDED" },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use("/api/", apiLimiter);
 
-  app.get("/api/health", (req: Request, res: Response) => {
+  // API route for Health Check
+  app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
 
   // API route for AI Chat
-  app.post("/api/chat", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
-    const SUSPICIOUS_PATTERN = /ignore|system\s*prompt|assistant|jailbreak|prompt\s*injection/i;
-
-    function sanitizeUserData(raw: Record<string, unknown>): {
-      name: string;
-      role: 'client' | 'professional' | null;
-      category: string;
-      coinBalance: unknown;
-      activePlan: unknown;
-      leadsBought: unknown;
-      totalPedidos: unknown;
-      openTickets: unknown;
-      activeSubscriptions: unknown;
-    } {
-      const stripTags = (v: unknown, max: number): string => {
-        if (typeof v !== 'string') return '';
-        return v.replace(/<[^>]*>/g, '').replace(/\n|\r/g, ' ').trim().slice(0, max);
-      };
-
-      const name = stripTags(raw.name, 100);
-      const category = stripTags(raw.category, 100);
-
-      if (SUSPICIOUS_PATTERN.test(name) || SUSPICIOUS_PATTERN.test(category)) {
-        throw Object.assign(new Error('Conteúdo inválido em userData'), { status: 400 });
-      }
-
-      const rawRole = raw.role;
-      const role: 'client' | 'professional' | null =
-        rawRole === 'client' || rawRole === 'professional' ? rawRole : null;
-
-      if (rawRole !== undefined && rawRole !== null && role === null) {
-        throw Object.assign(new Error('role inválido'), { status: 400 });
-      }
-
-      return {
-        name,
-        role,
-        category,
-        coinBalance: raw.coinBalance,
-        activePlan: raw.activePlan,
-        leadsBought: raw.leadsBought,
-        totalPedidos: raw.totalPedidos,
-        openTickets: raw.openTickets,
-        activeSubscriptions: raw.activeSubscriptions,
-      };
-    }
-
-    const buildSystemPrompt = (context: string, userData: Record<string, any>) => {
-      const name = userData.name || 'usuário';
-
-      const BASE = `Você é o Assistente MeloCalé — amigável, direto e focado em ajudar. Use linguagem simples. Respostas curtas (máx 3 parágrafos). Sempre termine com uma ação clara. Use no máximo 2 emojis por resposta. Nunca invente informações.`;
-
-      const PLATFORM_KNOWLEDGE = `
-SOBRE A MELOCALÉ: Conecta clientes que precisam de serviços domésticos a profissionais qualificados.
-PLANOS: Starter R$37/mês (25% desc + 30 moedas) | PRO R$67/mês (40% desc + 80 moedas) ⭐ | Elite R$127/mês (55% desc + 200 moedas)
-MOEDAS: Básico 60 por R$24,90 | Popular 200 por R$59,90 | Máximo 560 por R$119,90. Nunca expiram.
-LEADS: custam 10-150 moedas dependendo de orçamento, urgência e categoria.`;
-
-      if (context === 'professional') {
-        const balance = userData.coinBalance ?? 0;
-        const plan = userData.activePlan;
-        const leads = userData.leadsBought ?? 0;
-        const planNames: Record<string, string> = { plan_basic: 'Starter', plan_pro: 'PRO', plan_business: 'Elite' };
-
-        return `${BASE}
-
-CONTEXTO: Você está no painel PROFISSIONAL conversando com ${name}.
-DADOS REAIS DO USUÁRIO:
-- Saldo atual: ${balance} moedas${balance < 20 ? ' ⚠️ BAIXO' : ''}
-- Plano ativo: ${plan ? planNames[plan] || plan : 'Nenhum (sem desconto)'}
-- Leads comprados: ${leads}
-
-${PLATFORM_KNOWLEDGE}
-
-COMPORTAMENTO NESTE CONTEXTO:
-- Se saldo < 20: mencione que está baixo e sugira recarregar
-- Se sem plano: sugira o PRO como melhor custo-benefício
-- Foque em estratégias para fechar mais serviços
-- Ajude com dúvidas sobre leads, moedas, planos, perfil
-- NUNCA fale sobre funcionalidades de cliente ou admin`;
-      }
-
-      if (context === 'client') {
-        const pedidos = userData.totalPedidos ?? 0;
-
-        return `${BASE}
-
-CONTEXTO: Você está no painel CLIENTE conversando com ${name}.
-DADOS REAIS DO USUÁRIO:
-- Total de pedidos criados: ${pedidos}
-
-${PLATFORM_KNOWLEDGE}
-
-COMPORTAMENTO NESTE CONTEXTO:
-- Ajude a criar pedidos, entender propostas, contratar profissionais
-- Se pedidos = 0: incentive a criar o primeiro pedido (é grátis!)
-- Explique como funciona o processo de contratação
-- NUNCA fale sobre moedas, leads ou funcionalidades de profissional/admin`;
-      }
-
-      if (context === 'admin') {
-        const tickets = userData.openTickets ?? 0;
-        const subs = userData.activeSubscriptions ?? 0;
-
-        return `${BASE}
-
-CONTEXTO: Você está no painel ADMIN conversando com ${name}.
-DADOS REAIS DO SISTEMA:
-- Tickets de suporte abertos: ${tickets}
-- Assinaturas ativas: ${subs}
-
-COMPORTAMENTO NESTE CONTEXTO:
-- Responda perguntas técnicas sobre o sistema
-- Ajude a interpretar métricas e dados
-- Sugira ações baseadas nos dados (ex: muitos tickets = verificar bug)
-- Pode discutir estratégias de negócio e crescimento da plataforma
-- Tom mais técnico e direto`;
-      }
-
-      // landing / default
-      return `${BASE}
-
-CONTEXTO: Você está na PÁGINA INICIAL — o usuário pode ser visitante, cliente ou profissional.
-
-${PLATFORM_KNOWLEDGE}
-
-COMPORTAMENTO NESTE CONTEXTO:
-- Foco em CONVERSÃO: convença visitantes a se cadastrar
-- Primeira pergunta: descubra se é cliente ou profissional
-- Para clientes: é grátis, rápido, seguro
-- Para profissionais: ROI dos leads, plano PRO se paga em 2-3 clientes
-- NUNCA mencione funcionalidades de admin`;
-    };
-
+  app.post("/api/chat", async (req, res, next) => {
     try {
-      const { messages, context = 'landing', userData: rawUserData = {} } = req.body;
-      const userData = sanitizeUserData(rawUserData as Record<string, unknown>);
-      const systemPrompt = buildSystemPrompt(context, userData);
-      const mapped = (messages as { role: string; text: string }[])
-        .map((m) => ({
-          role: (m.role === 'model' || m.role === 'bot' || m.role === 'assistant')
-            ? 'assistant' as const
-            : 'user' as const,
-          content: m.text,
-        }))
-        .filter((m, idx) => !(idx === 0 && m.role === 'assistant'));
-      const response = await anthropic.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: mapped,
+      const { messages } = req.body;
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ error: "O campo 'messages' é obrigatório e deve ser uma array.", code: "INVALID_INPUT" });
+      }
+      
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: messages.map((m: { role: string; text: string }) => ({ 
+          role: m.role, 
+          parts: [{ text: m.text }] 
+        })),
+        config: {
+          systemInstruction: "Você é o Assistente MeloCalé, uma plataforma que conecta profissionais de serviços (pedreiros, eletricistas, pintores, etc) a clientes. Seu objetivo é ajudar usuários com dúvidas sobre a plataforma. Se for um cliente, ele pode solicitar orçamentos. Se for profissional, ele pode comprar leads e gerenciar serviços. Use um tom profissional, amigável e direto. Responda em Português do Brasil.",
+        },
       });
-      const text = response.content[0].type === 'text' ? response.content[0].text : '';
-      res.json({ response: text });
+
+      res.json({ response: response.text });
     } catch (error) {
       next(error);
     }
   });
 
-  // Stripe routes...
-  // (Assuming other Stripe routes are similar and use frontendUrl)
-
-  // ============================================
-  // Stripe Checkout Session - Compra de moedas e assinatura de planos
-  // ============================================
-
-  // Planos mensais hardcoded (não ficam na tabela coin_packages)
-  const SUBSCRIPTION_PLANS: Record<string, { name: string; price: number; description: string }> = {
-    plan_basic:    { name: "Starter",  price: 3700,  description: "Plano Starter MeloCale — 25% desconto em moedas" },
-    plan_pro:      { name: "PRO",      price: 6700,  description: "Plano PRO MeloCale — 40% desconto em moedas" },
-    plan_business: { name: "Elite",     price: 12700, description: "Plano Elite MeloCale — 55% desconto em moedas" },
+  // API route for Stripe Checkout (Unified for One-time and Subscriptions)
+  const PACKAGES: Record<string, { price: number; name: string; coins?: number; type?: 'subscription' | 'payment' }> = {
+    'plan_basic': { price: 4900, name: 'Plano Básico', type: 'subscription' },
+    'plan_pro': { price: 9900, name: 'Plano Profissional', type: 'subscription' },
+    'plan_business': { price: 19900, name: 'Plano Empresarial', type: 'subscription' },
+    'pack_starter': { price: 1990, coins: 50, name: 'Starter', type: 'payment' },
+    'pack_pro': { price: 4990, coins: 150, name: 'Pro', type: 'payment' },
+    'pack_premium': { price: 9990, coins: 400, name: 'Premium', type: 'payment' }
   };
 
-  app.post("/api/create-checkout-session", requireAuth, async (req: any, res: any) => {
+  app.post("/api/create-checkout-session", async (req, res, next) => {
     try {
-      const authUser = (req as any).authUser;
-      const { type, package_id, user_id } = req.body || {};
+      const { type, package_id, user_id } = req.body;
+      
+      console.log("RECEBIDO:", req.body);
+      console.log("PACOTES DISPONÍVEIS:", Object.keys(PACKAGES));
 
-      if (!package_id || !user_id) {
-        return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
-      }
-
-      if (user_id !== authUser.id) {
-        return res.status(403).json({ error: "Não autorizado." });
-      }
-
-      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
-
-      // --- Fluxo de assinatura mensal ---
-      if (type === "subscription" || package_id in SUBSCRIPTION_PLANS) {
-        const plan = SUBSCRIPTION_PLANS[package_id];
-        if (!plan) {
-          return res.status(404).json({ error: "Plano de assinatura nao encontrado." });
-        }
-
-        const session = await stripe.checkout.sessions.create({
-          mode: "subscription",
-          payment_method_types: ["card"],
-          line_items: [
-            {
-              price_data: {
-                currency: "brl",
-                product_data: { name: plan.name, description: plan.description },
-                unit_amount: plan.price,
-                recurring: { interval: "month" },
-              },
-              quantity: 1,
-            },
-          ],
-          metadata: {
-            user_id: String(user_id),
-            package_id: String(package_id),
-            type: "subscription",
-          },
-          success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${frontendUrl}/checkout/cancel`,
+      if (!package_id || !PACKAGES[package_id]) {
+        console.error("❌ INVALID PACKAGE:", package_id);
+        return res.status(400).json({ 
+          error: "package_id inválido",
+          received: package_id,
+          available: Object.keys(PACKAGES)
         });
-
-        return res.json({ id: session.id, url: session.url });
+      }
+      
+      if (!user_id) {
+        return res.status(400).json({ error: "user_id obrigatório" });
       }
 
-      // --- Fluxo de compra de moedas ---
-      const { data: pkg, error: pkgErr } = await supabaseAdmin
-        .from("coin_packages")
-        .select("id, name, coins, price, is_active")
-        .eq("id", package_id)
-        .eq("is_active", true)
-        .single();
+      const pkg = PACKAGES[package_id];
 
-      if (pkgErr || !pkg) {
-        console.error("Pacote nao encontrado:", package_id, pkgErr);
-        return res.status(404).json({ error: "Pacote nao encontrado ou inativo." });
-      }
-
-      // Mapa de desconto por plano
-      const PLAN_DISCOUNTS: Record<string, number> = {
-        plan_basic:    0.25,
-        plan_pro:      0.40,
-        plan_business: 0.55,
-      };
-
-      // Busca plano ativo do usuário
-      const { data: activeSub } = await supabaseAdmin
-        .from("user_subscriptions")
-        .select("package_id")
-        .eq("user_id", user_id)
-        .eq("status", "active")
-        .maybeSingle();
-
-      const discount = activeSub?.package_id
-        ? (PLAN_DISCOUNTS[activeSub.package_id] ?? 0)
-        : 0;
-
-      const originalPrice = Math.round(Number(pkg.price) * 100);
-      const finalPrice = Math.round(originalPrice * (1 - discount));
+      console.log("🔥 Criando checkout:", {
+        package_id,
+        user_id,
+        package: pkg
+      });
 
       const session = await stripe.checkout.sessions.create({
-        mode: "payment",
+        mode: pkg.type === 'subscription' ? 'subscription' : 'payment',
         payment_method_types: ["card"],
         line_items: [
           {
             price_data: {
               currency: "brl",
-              product_data: {
-                name: pkg.name,
-                description: discount > 0
-                  ? `${pkg.coins} moedas MeloCale — ${discount * 100}% OFF (plano ativo)`
-                  : `${pkg.coins} moedas MeloCale`,
-              },
-              unit_amount: finalPrice,
+              product_data: { name: pkg.name },
+              unit_amount: pkg.price,
+              ...(pkg.type === 'subscription' && {
+                recurring: { interval: 'month' }
+              })
             },
             quantity: 1,
           },
         ],
-        metadata: {
-          user_id: String(user_id),
-          package_id: String(pkg.id),
-          coins: String(pkg.coins),
-          type: String(type || "one_time"),
-        },
-        success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${frontendUrl}/checkout/success`,
         cancel_url: `${frontendUrl}/checkout/cancel`,
+        metadata: {
+          user_id: user_id,
+          package_id: package_id
+        }
       });
 
-      return res.json({ id: session.id, url: session.url });
-    } catch (err: any) {
-      console.error("Erro em /api/create-checkout-session:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro interno ao criar sessao de checkout." });
+      return res.json({
+        id: session.id,
+        url: session.url
+      });
+    } catch (error) {
+      next(error);
     }
   });
-  
-  // ============================================
-  // Stripe Checkout Session - Pagamento de serviço a profissional
-  // ============================================
-  app.post("/api/create-service-payment", requireAuth, async (req: any, res: any) => {
+
+  // API route for Stripe Connect Onboarding
+  app.post("/api/create-connected-account", async (req, res, next) => {
     try {
-      const authUser = (req as any).authUser;
-      const { amount, connectedAccountId, description, user_id } = req.body || {};
-
-      if (!amount || !connectedAccountId || !user_id) {
-        return res.status(400).json({ error: "amount, connectedAccountId e user_id são obrigatórios." });
+      const { email } = req.body;
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: "O campo 'email' é obrigatório e deve ser texto válido." });
       }
 
-      if (user_id !== authUser.id) {
-        return res.status(403).json({ error: "Não autorizado." });
+      const account = await stripe.accounts.create({
+        type: 'express',
+        email: email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+      });
+      res.json({ accountId: account.id });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post("/api/create-account-link", async (req, res, next) => {
+    try {
+      const { accountId } = req.body;
+      if (!accountId || typeof accountId !== 'string') {
+        return res.status(400).json({ error: "O campo 'accountId' é obrigatório." });
       }
 
-      const amountInCents = Math.round(Number(amount));
-      if (isNaN(amountInCents) || amountInCents <= 0) {
-        return res.status(400).json({ error: "amount deve ser um número positivo em centavos." });
+      const accountLink = await stripe.accountLinks.create({
+        account: accountId,
+        refresh_url: `${frontendUrl}/dashboard`,
+        return_url: `${frontendUrl}/dashboard?onboarding=success`,
+        type: 'account_onboarding',
+      });
+      res.json({ url: accountLink.url });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // API route for Service Payment (Client to Professional) with Platform Fee
+  app.post("/api/create-service-payment", async (req, res, next) => {
+    try {
+      const { amount, connectedAccountId, description, clientId } = req.body;
+      
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+        return res.status(400).json({ error: "O 'amount' é obrigatório e deve ser um número positivo." });
+      }
+      if (!connectedAccountId || typeof connectedAccountId !== 'string') {
+        return res.status(400).json({ error: "O 'connectedAccountId' é obrigatório." });
       }
 
-      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
+      const platformFeePercent = 0.10;
+      const applicationFeeAmount = Math.round(Number(amount) * 100 * platformFeePercent);
 
       const session = await stripe.checkout.sessions.create({
-        mode: "payment",
         payment_method_types: ["card"],
         line_items: [
           {
             price_data: {
               currency: "brl",
-              product_data: {
-                name: description || "Pagamento de serviço",
-              },
-              unit_amount: amountInCents,
+              product_data: { name: description || "Pagamento de Serviço" },
+              unit_amount: Math.round(Number(amount) * 100),
             },
             quantity: 1,
           },
         ],
         payment_intent_data: {
+          application_fee_amount: applicationFeeAmount,
           transfer_data: {
             destination: connectedAccountId,
           },
         },
+        mode: "payment",
         metadata: {
-          user_id: String(user_id),
-          connected_account_id: String(connectedAccountId),
-          type: "service_payment",
+          clientId: clientId || '',
+          connectedAccountId
         },
-        success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${frontendUrl}/checkout/cancel`,
+        success_url: `${frontendUrl}/cliente/pedidos?success=true`,
+        cancel_url: `${frontendUrl}/cliente/pedidos?canceled=true`,
       });
-
-      return res.json({ id: session.id, url: session.url });
-    } catch (err: any) {
-      console.error("Erro em /api/create-service-payment:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro interno ao criar sessão de pagamento." });
+      res.json({ id: session.id, url: session.url });
+    } catch (error) {
+      next(error);
     }
   });
 
-  // ============================================
-  // GET /api/subscription-status?user_id=X
-  // ============================================
-  app.get("/api/subscription-status", requireAuth, async (req: any, res: any) => {
-    try {
-      const userId = (req as any).authUser.id as string;
 
-      const { data: sub, error: subErr } = await supabaseAdmin
-        .from("user_subscriptions")
-        .select("*")
-        .eq("user_id", userId)
-        .order("started_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (subErr || !sub) return res.status(404).json({ error: "Assinatura não encontrada." });
-
-      console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
-
-      if (!sub.stripe_subscription_id) {
-        return res.json({
-          status: sub.status,
-          package_id: sub.package_id,
-          started_at: sub.started_at,
-          current_period_start: null,
-          current_period_end: null,
-          cancel_at_period_end: false,
-        });
+  // Vite middleware for development
+  if (process.env.NODE_ENV !== "production") {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    
+    // Tratamento seguro para fallback do SPA sem usar widcards do Express
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: "Endpoint da API não encontrado" });
       }
-
-      // cast to any: Stripe SDK v22 removed current_period_end from the TS type
-      // but the Stripe API still returns it at runtime
-      const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id) as any;
-      console.log("[subscription-status] stripe current_period_end:", stripeSub.current_period_end, "status:", stripeSub.status);
-      return res.json({
-        status: stripeSub.status,
-        package_id: sub.package_id,
-        started_at: sub.started_at,
-        current_period_start: stripeSub.current_period_start ?? null,
-        current_period_end: stripeSub.current_period_end ?? null,
-        cancel_at_period_end: stripeSub.cancel_at_period_end ?? false,
-      });
-    } catch (err: any) {
-      console.error("Erro em /api/subscription-status:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro ao buscar status da assinatura." });
-    }
-  });
-
-  // ============================================
-  // POST /api/cancel-subscription
-  // ============================================
-  app.post("/api/cancel-subscription", requireAuth, async (req: any, res: any) => {
-    try {
-      const authUser = (req as any).authUser;
-      const { user_id } = req.body || {};
-      if (!user_id) return res.status(400).json({ error: "user_id é obrigatório." });
-
-      if (user_id !== authUser.id) {
-        return res.status(403).json({ error: "Não autorizado." });
+      if (req.method === 'GET') {
+        return res.sendFile(path.join(distPath, 'index.html'));
       }
+      next();
+    });
+  }
 
-      const { data: sub, error: subErr } = await supabaseAdmin
-        .from("user_subscriptions")
-        .select("stripe_subscription_id")
-        .eq("user_id", String(user_id))
-        .order("started_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (subErr || !sub?.stripe_subscription_id) {
-        return res.status(404).json({ error: "Assinatura ativa não encontrada." });
-      }
-
-      await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true });
-
-      await supabaseAdmin
-        .from("user_subscriptions")
-        .update({ status: "canceled", updated_at: new Date().toISOString() })
-        .eq("user_id", String(user_id));
-
-      return res.json({ success: true });
-    } catch (err: any) {
-      console.error("Erro em /api/cancel-subscription:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro ao cancelar assinatura." });
-    }
+  // Middleware global de tratamento de erros
+  app.use((err: Error & { status?: number }, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error(JSON.stringify({
+      level: "error",
+      event: "uncaught_express_error",
+      error: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined
+    }));
+    
+    res.status(err.status || 500).json({
+      error: "Erro Interno do Servidor",
+      code: "INTERNAL_ERROR",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
   });
 
-  app.post("/api/support-ticket", requireAuth, async (req: any, res: any) => {
-    try {
-      const { user_id, email, conversation } = req.body;
-      const { data, error } = await supabaseAdmin
-        .from('support_tickets')
-        .insert({ user_id: user_id || null, email: email || null, conversation, status: 'open' })
-        .select('id')
-        .single();
-      if (error) throw error;
-      return res.json({ ticket_id: data.id });
-    } catch (err: any) {
-      return res.status(500).json({ error: err.message });
-    }
-  });
-
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = typeof err?.status === 'number' ? err.status : 500;
-    res.status(status).json({ error: err?.message || 'Erro interno' });
-  });
+  const HOST = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Servidor rodando em: ${PORT}`);
+    console.log(`🚀 Servidor rodando em: ${HOST}`);
   });
 }
 
