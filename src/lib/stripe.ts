@@ -54,8 +54,10 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
     package_id: id,
     user_id: user.id
   };
+  
+  console.log("CHECKOUT PAYLOAD:", payload);
 
-  const VALID_IDS = ["plan_basic", "plan_pro", "plan_business", "pack_starter", "pack_pro", "pack_premium"];
+  const VALID_IDS = ["pack_starter", "pack_pro", "pack_premium", "plan_basic", "plan_pro", "plan_business"];
   
   if (!VALID_IDS.includes(id)) {
     console.error("❌ ID inválido no frontend:", id);
@@ -63,7 +65,6 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
   }
 
   console.log("ID SENDO ENVIADO:", id);
-  console.log("PAYLOAD FINAL:", payload);
 
   const response = await apiFetch('/api/create-checkout-session', {
     method: 'POST',

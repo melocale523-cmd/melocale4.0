@@ -8,65 +8,65 @@ import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 const SUBSCRIPTION_PLANS = [
-  {
-    id: 'plan_basic',
-    name: 'Básico',
-    price: '49',
-    description: 'Ideal para profissionais iniciantes',
-    leads: '30 clientes/mês',
-    features: ['Cadastro na plataforma', 'Perfil público visível', 'Até 30 clientes inclusos/mês', 'Responder orçamentos ilimitados'],
-    popular: false,
-    color: 'blue'
-  },
-  {
-    id: 'plan_pro',
-    name: 'Profissional',
-    price: '99',
-    description: 'Para profissionais estabelecidos',
-    leads: '80 clientes/mês',
-    features: ['Tudo do plano Básico', 'Até 80 clientes inclusos/mês', 'Perfil PREMIUM destacado', 'Aparecer no topo das buscas', 'Suporte prioritário'],
-    popular: true,
-    color: 'purple'
-  },
-  {
-    id: 'plan_business',
-    name: 'Empresarial',
-    price: '199',
-    description: 'Para empresas e equipes',
-    leads: '200 clientes/mês',
-    features: ['Tudo do plano Profissional', 'Até 200 clientes inclusos/mês', 'Perfil de EMPRESA', 'Adicionar até 5 profissionais'],
-    popular: false,
-    color: 'emerald'
-  }
-];
-
-const CREDIT_PACKAGES = [
-  {
-    id: 'pack_starter',
-    name: 'Iniciante',
-    coins: 50,
-    price: '19,90',
-    description: 'Ideal para testar a plataforma',
-    icon: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-  },
-  {
-    id: 'pack_pro',
-    name: 'Profissional',
-    coins: 150,
-    price: '49,90',
-    description: 'O melhor custo-benefício',
-    icon: <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>,
-    popular: true
-  },
-  {
-    id: 'pack_premium',
-    name: 'Premium',
-    coins: 400,
-    price: '99,90',
-    description: 'Para quem não quer perder nenhum lead',
-    icon: <path d="M2 4h20M2 4l3 16h14l3-16M2 4l7 5M22 4l-7 5M9 9l3 11M15 9l-3 11"/>
-  }
-];
+          {
+            id: 'plan_basic',
+            name: 'Básico',
+            price: '49',
+            description: 'Ideal para profissionais iniciantes',
+            leads: '30 clientes/mês',
+            features: ['Cadastro na plataforma', 'Perfil público visível', 'Até 30 clientes inclusos/mês', 'Responder orçamentos ilimitados'],
+            popular: false,
+            color: 'blue'
+          },
+          {
+            id: 'plan_pro',
+            name: 'Profissional',
+            price: '99',
+            description: 'Para profissionais estabelecidos',
+            leads: '80 clientes/mês',
+            features: ['Tudo do plano Básico', 'Até 80 clientes inclusos/mês', 'Perfil PREMIUM destacado', 'Aparecer no topo das buscas', 'Suporte prioritário'],
+            popular: true,
+            color: 'purple'
+          },
+          {
+            id: 'plan_business',
+            name: 'Empresarial',
+            price: '199',
+            description: 'Para empresas e equipes',
+            leads: '200 clientes/mês',
+            features: ['Tudo do plano Profissional', 'Até 200 clientes inclusos/mês', 'Perfil de EMPRESA', 'Adicionar até 5 profissionais'],
+            popular: false,
+            color: 'emerald'
+          }
+        ];
+        
+        const CREDIT_PACKAGES = [
+          {
+            id: 'pack_starter',
+            name: 'Iniciante',
+            coins: 50,
+            price: '19,90',
+            description: 'Ideal para testar a plataforma',
+            icon: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          },
+          {
+            id: 'pack_pro',
+            name: 'Profissional',
+            coins: 150,
+            price: '49,90',
+            description: 'O melhor custo-benefício',
+            icon: <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>,
+            popular: true
+          },
+          {
+            id: 'pack_premium',
+            name: 'Premium',
+            coins: 400,
+            price: '99,90',
+            description: 'Para quem não quer perder nenhum lead',
+            icon: <path d="M2 4h20M2 4l3 16h14l3-16M2 4l7 5M22 4l-7 5M9 9l3 11M15 9l-3 11"/>
+          }
+        ];
 
 export default function ProfessionalAssinatura() {
   const navigate = useNavigate();
