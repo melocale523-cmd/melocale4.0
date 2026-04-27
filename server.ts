@@ -284,8 +284,8 @@ async function startServer() {
             quantity: 1,
           },
         ],
-        success_url: `${frontendUrl}/profissional/assinatura?success=true`,
-        cancel_url: `${frontendUrl}/profissional/assinatura?canceled=true`,
+        success_url: `${frontendUrl}/checkout/success`,
+        cancel_url: `${frontendUrl}/checkout/cancel`,
         metadata: {
           user_id: user_id,
           package_id: package_id

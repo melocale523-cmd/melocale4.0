@@ -133,6 +133,8 @@ import ProfessionalAgenda from './pages/professional/Agenda';
 import ProfessionalEstatisticas from './pages/professional/Estatisticas';
 import ProfessionalAssinatura from './pages/professional/Assinatura';
 import ProfessionalMensagens from './pages/professional/Mensagens';
+import CheckoutSuccess from './pages/checkout/CheckoutSuccess';
+import CheckoutCancel from './pages/checkout/CheckoutCancel';
 
 import AdminPendentes from './pages/admin/Pendentes';
 import AdminAprovados from './pages/admin/Aprovados';
@@ -147,6 +149,14 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <LandingPage />
+      },
+      {
+        path: '/checkout/success',
+        element: <CheckoutSuccess />
+      },
+      {
+        path: '/checkout/cancel',
+        element: <CheckoutCancel />
       },
       {
         element: <AuthLayout />,
