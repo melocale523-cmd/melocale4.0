@@ -40,16 +40,15 @@ export const walletService = {
 
       const { data, error } = await supabase
         .from('v_wallet_balance')
-        .select('*');
+        .select('balance_coins')
+        .eq('user_id', userId)
+        .single();
+      
+      console.log("Saldo recebido:", data);
 
       if (error || !data) return 0;
-
-      // Local filter
-      const wallet = data.find((w: any) => w.user_id === userId || w.wallet_id === userId);
       
-      if (!wallet) return 0;
-      
-      return wallet.balance_coins || wallet.balance || wallet.coins_balance || 0;
+      return data.balance_coins || 0;
     } catch {
       return 0;
     }

@@ -164,6 +164,7 @@ async function startServer() {
           );
 
           const { error } = (await Promise.race([dbPromise, timeoutPromise])) as { error?: { message?: string } };
+          console.log("RPC RESULT:", { error });
 
           if (error) {
             if (!error.message?.includes("duplicate key value violates unique constraint")) {
