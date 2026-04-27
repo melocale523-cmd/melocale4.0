@@ -8,5 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "NodeNext"
   },
-  "include": ["backend/server.ts"]
+  "include": ["server.ts"]
 }
+
