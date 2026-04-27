@@ -1,12 +1,20 @@
 {
-  "name": "react-example",
+  "name": "melocalé",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "npm run build --prefix frontend && cp -r frontend/dist dist"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
 }
