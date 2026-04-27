@@ -1,16 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ES2022",
     "outDir": "dist",
-    "rootDir": ".",
     "esModuleInterop": true,
-    "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "moduleResolution": "NodeNext"
   },
-  "include": ["server.ts"]
+  "include": ["backend/server.ts"]
 }
-
