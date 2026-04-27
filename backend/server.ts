@@ -1,5 +1,4 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
@@ -389,29 +388,6 @@ async function startServer() {
     }
   });
 
-
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    
-    // Tratamento seguro para fallback do SPA sem usar widcards do Express
-    app.use((req, res, next) => {
-      if (req.path.startsWith('/api')) {
-        return res.status(404).json({ error: "Endpoint da API não encontrado" });
-      }
-      if (req.method === 'GET') {
-        return res.sendFile(path.join(distPath, 'index.html'));
-      }
-      next();
-    });
-  }
 
   // Middleware global de tratamento de erros
   app.use((err: Error & { status?: number }, req: express.Request, res: express.Response, next: express.NextFunction) => {
