@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "build": "npm run build --prefix frontend && cp -r frontend/dist dist"
   },
   "dependencies": {},
   "devDependencies": {}
