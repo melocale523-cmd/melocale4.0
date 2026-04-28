@@ -3,7 +3,7 @@
 -- Rode este SQL no SQL Editor do Supabase
 -- ============================================
 
-INSERT INTO public.coin_packages (id, name, coins, price_brl, is_active, display_order)
+INSERT INTO public.coin_packages (id, name, coins, price, is_active, display_order)
 VALUES
   ('pack_starter', 'Starter', 50,  19.90, true, 1),
   ('pack_pro',     'Pro',     150, 49.90, true, 2),
@@ -11,7 +11,7 @@ VALUES
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   coins = EXCLUDED.coins,
-  price_brl = EXCLUDED.price_brl,
+  price = EXCLUDED.price,
   is_active = EXCLUDED.is_active,
   display_order = EXCLUDED.display_order;
 
