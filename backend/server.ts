@@ -173,7 +173,7 @@ async function startServer() {
                                     return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
                         }
 
-                        const { data: pkg, error: pkgErr } = await supabase
+                        const { data: pkg, error: pkgErr } = await supabaseAdmin
                           .from("coin_packages")
                           .select("id, name, coins, price, is_active")
                           .eq("id", package_id)
