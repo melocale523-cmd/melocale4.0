@@ -161,6 +161,64 @@ async function startServer() {
   // Stripe routes...
   // (Assuming other Stripe routes are similar and use frontendUrl)
 
+      // ============================================
+      // Stripe Checkout Session - Compra de pacotes de moedas
+      // ============================================
+      app.post("/api/create-checkout-session", async (req: any, res: any) => {
+              try {
+                        const { type, package_id, user_id } = req.body || {};
+
+                        if (!package_id || !user_id) {
+                                    return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
+                        }
+
+                        const { data: pkg, error: pkgErr } = await supabase
+                          .from("coin_packages")
+                          .select("id, name, coins, price_brl, is_active")
+                          .eq("id", package_id)
+                          .eq("is_active", true)
+                          .single();
+
+                        if (pkgErr || !pkg) {
+                                    console.error("Pacote nao encontrado:", package_id, pkgErr);
+                                    return res.status(404).json({ error: "Pacote nao encontrado ou inativo." });
+                        }
+
+                        const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
+
+                        const session = await stripe.checkout.sessions.create({
+                                    mode: "payment",
+                                    payment_method_types: ["card"],
+                                    line_items: [
+                                      {
+                                                      price_data: {
+                                                                        currency: "brl",
+                                                                        product_data: {
+                                                                                            name: pkg.name,
+                                                                                            description: `${pkg.coins} moedas MeloCale`,
+                                                                        },
+                                                                        unit_amount: Math.round(Number(pkg.price_brl) * 100),
+                                                      },
+                                                      quantity: 1,
+                                      },
+                                                ],
+                                    metadata: {
+                                                  user_id: String(user_id),
+                                                  package_id: String(pkg.id),
+                                                  coins: String(pkg.coins),
+                                                  type: String(type || "one_time"),
+                                    },
+                                    success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+                                    cancel_url: `${frontendUrl}/checkout/cancel`,
+                        });
+
+                        return res.json({ id: session.id, url: session.url });
+              } catch (err: any) {
+                        console.error("Erro em /api/create-checkout-session:", err?.message || err);
+                        return res.status(500).json({ error: err?.message || "Erro interno ao criar sessao de checkout." });
+              }
+      });
+  
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
   });
