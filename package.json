@@ -1,11 +1,13 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "clean": "rm -rf dist"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+    "name": "melocale4.0",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+          "clean": "rm -rf dist",
+          "build": "cd backend && npm install && npm run build",
+          "start": "cd backend && npm start"
+    },
+    "dependencies": {},
+    "devDependencies": {}
 }
