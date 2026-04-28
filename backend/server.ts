@@ -175,7 +175,7 @@ async function startServer() {
 
                         const { data: pkg, error: pkgErr } = await supabase
                           .from("coin_packages")
-                          .select("id, name, coins, price_brl, is_active")
+                          .select("id, name, coins, price, is_active")
                           .eq("id", package_id)
                           .eq("is_active", true)
                           .single();
@@ -198,7 +198,7 @@ async function startServer() {
                                                                                             name: pkg.name,
                                                                                             description: `${pkg.coins} moedas MeloCale`,
                                                                         },
-                                                                        unit_amount: Math.round(Number(pkg.price_brl) * 100),
+                                                                        unit_amount: Math.round(Number(pkg.price) * 100),
                                                       },
                                                       quantity: 1,
                                       },
