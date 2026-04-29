@@ -6,10 +6,10 @@ import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function ProfessionalCompras() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
-  const [proposalData, setProposalData] = useState({
+  const [proposalData, setProposalData] = useState({h
     price: '',
     duration: '',
     description: '',
@@ -21,7 +21,7 @@ export default function ProfessionalCompras() {
     queryKey: ['purchases'],
     retry: false,
     refetchOnWindowFocus: false,
-    queryFn: leadService.getMyPurchases,
+    queryFn: leadService.getMyPurchases,h
   });
 
   const sendProposalMutation = useMutation({
@@ -30,7 +30,7 @@ export default function ProfessionalCompras() {
         price: parseFloat(data.price),
         duration: data.duration,
         description: data.description,
-        status: data.status
+        status: 'Proposta Enviada'
       }, clientId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
@@ -142,7 +142,7 @@ export default function ProfessionalCompras() {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
-                   <FileText size={14} /> Status da Proposta
+                   <FileText size={14} /> 
                 </label>
                 <select 
                   value={proposalData.status}
