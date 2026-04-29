@@ -287,7 +287,7 @@ export default function ProfessionalCompras() {
                       : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
                   )}
                 >
-                  <Phone size={16} /> {canContact(purchase.status) ? 'Contactar Agora' : 'Aguardando Resposta'}
+                  <Phone size={16} /> {canContact(purchase.status) ? 'Contactar Agora' : '{(purchase.proposals_count ?? 0) > 0 ? 'Aguardando Resposta' : 'Enviar Proposta'}'}
                 </button>
                 {purchase.status === 'Pendente Proposta' && (
                   <button 
