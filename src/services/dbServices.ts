@@ -81,32 +81,10 @@ export const leadService = {
   },
 
   async getMyPurchases() {
-    const professionalId = useAuthStore.getState().user?.professionalId;
-    if (!professionalId) return [];
-
     try {
-      const { data, error } = await supabase
-        .from('lead_purchases')
-        .select('*');
-      
+      const { data, error } = await supabase.rpc('get_my_purchases');
       if (error) return [];
-      
-      const filtered = (data || [])
-        .filter((p: any) => p.user_id === professionalId || p.wallet_id === professionalId)
-        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-
-      // Fetch leads and profiles for mapping
-      const { data: leads } = await supabase.from('leads').select('*');
-      const { data: profiles } = await supabase.from('profiles').select('*');
-
-      return filtered.map((p: any) => {
-        const lead = (leads || []).find((l: any) => l.id === p.lead_id);
-        const profile = lead ? (profiles || []).find((prof: any) => prof.id === lead.client_id || prof.id === lead.user_id) : null;
-        return {
-          ...p,
-          leads: lead ? { ...lead, profiles: profile } : null
-        };
-      });
+      return data || [];
     } catch {
       return [];
     }
