@@ -6,7 +6,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
-
+hh
 export default function Pedidos() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -160,7 +160,7 @@ export default function Pedidos() {
                   <div className="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-white/5 pt-6 lg:pt-0">
                     <div className="text-right hidden sm:block">
                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Interessados</p>
-                       <p className="text-white font-black">{pedido.proposals_count?.[0]?.count || 0} Profissionais</p>
+                       <p className="text-white font-black">{pedido.interested_count ?? 0} Profissionais</p>
                     </div>
 
                     <div className="flex items-center gap-4">
