@@ -105,7 +105,7 @@ export const leadService = {
         .filter((r: any) => r.client_id === user.id || r.user_id === user.id)
         .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
-      // Fetch proposals to compute proposals_count
+      // PLACEHOLDER_GETMYREQUESTS
       const { data: allPurchases } = await supabase.from('lead_purchases').select('*');
       const allProposals: any[] = []; // Removed non-existent proposals table usage
 
