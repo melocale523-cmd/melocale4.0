@@ -9,7 +9,7 @@ export default function ProfessionalCompras() {
   const queryClient = useQueryClient()
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
-  const [proposalData, setProposalData] = useState({h
+  , setProposalData] = useState({
     price: '',
     duration: '',
     description: '',
