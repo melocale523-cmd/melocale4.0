@@ -129,12 +129,13 @@ export const leadService = {
       if (!user) return { waiting: 0, in_progress: 0 };
 
       const { data: requests, error } = await supabase
-        .from('leads')
-        .select('*');
-      
+        .from('v_client_leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (error) return { waiting: 0, in_progress: 0 };
 
-      const userRequests = (requests || []).filter((r: any) => r.client_id === user.id || r.user_id === user.id);
+      const userRequests = requests || [];
 
       return {
         waiting: userRequests.filter((r: any) => r.status === 'open' || r.status === 'Orçando').length,
