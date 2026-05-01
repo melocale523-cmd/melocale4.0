@@ -64,11 +64,11 @@ export default function ClientePerfil() {
         <div className="max-w-3xl mx-auto space-y-6">
               <div className="flex items-center gap-3 mb-6">
                       <Settings size={24} />
-                      <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>h1>
-              </div>div>
+                      <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
+              </div>
               <form onSubmit={handleSubmit} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 space-y-4">
                       <div>
-                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><User size={14} /> Nome completo</label>label>
+                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><User size={14} /> Nome completo</label>
                                 <input
                                               type="text"
                                               value={formData.name}
@@ -78,7 +78,7 @@ export default function ClientePerfil() {
                                             />
                       </div>
                       <div>
-                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><Phone size={14} /> Telefone</label>label>
+                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><Phone size={14} /> Telefone</label>
                                 <input
                                               type="tel"
                                               value={formData.phone}
@@ -86,18 +86,18 @@ export default function ClientePerfil() {
                                               className="w-full bg-slate-700/50 border border-slate-600/50 rounded-lg px-3 py-2 text-white"
                                               placeholder="(11) 99999-9999"
                                             />
-                      </div>div>
+                      </div>
                       <div>
-                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><Mail size={14} /> Email</label>label>
+                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><Mail size={14} /> Email</label>
                                 <input
                                               type="email"
                                               value={user?.email || ''}
                                               disabled
                                               className="w-full bg-slate-700/30 border border-slate-600/30 rounded-lg px-3 py-2 text-slate-400 cursor-not-allowed"
                                             />
-                      </div>div>
+                      </div>
                       <div>
-                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><MapPin size={14} /> Cidade / Endereco</label>label>
+                                <label className="text-slate-400 text-sm flex items-center gap-2 mb-1"><MapPin size={14} /> Cidade / Endereco</label>
                                 <input
                                               type="text"
                                               value={formData.address}
@@ -105,17 +105,17 @@ export default function ClientePerfil() {
                                               className="w-full bg-slate-700/50 border border-slate-600/50 rounded-lg px-3 py-2 text-white"
                                               placeholder="Sua cidade"
                                             />
-                      </div>div>
-                {successMsg && <p className="text-emerald-400 text-sm">{successMsg}</p>p>}
-                {errorMsg && <p className="text-red-400 text-sm">{errorMsg}</p>p>}
+                      </div>
+                {successMsg && <p className="text-emerald-400 text-sm">{successMsg}</p>}
+                {errorMsg && <p className="text-red-400 text-sm">{errorMsg}</p>}
                       <button
                                   type="submit"
                                   disabled={isSaving}
                                   className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-lg transition-colors disabled:opacity-50"
                                 >
                         {isSaving ? 'Salvando...' : 'Salvar Alteracoes'}
-                      </button>button>
-              </form>form>
-        </div>div>
+                      </button>
+              </form>
+        </div>
       );
-}</div>
+}
