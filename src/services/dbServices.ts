@@ -92,33 +92,12 @@ export const leadService = {
 
   async getMyRequests() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
-
       const { data, error } = await supabase
-        .from('leads')
-        .select('*');
-      
+        .from('v_client_leads')
+        .select('*')
+        .order('created_at', { ascending: false });
       if (error) return [];
-      
-      const userRequests = (data || [])
-        .filter((r: any) => r.client_id === user.id || r.user_id === user.id)
-        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-
-      // PLACEHOLDER_GETMYREQUESTS
-      const { data: allPurchases } = await supabase.from('lead_purchases').select('*');
-      const allProposals: any[] = []; // Removed non-existent proposals table usage
-
-      return userRequests.map((req: any) => {
-        const leadPurchases = (allPurchases || []).filter((p: any) => p.lead_id === req.id);
-        const purchaseIds = leadPurchases.map((p: any) => p.id);
-        const leadProposals = allProposals.filter((prop: any) => purchaseIds.includes(prop.purchase_id));
-        
-        return {
-          ...req,
-          proposals_count: [{ count: leadProposals.length }]
-        };
-      });
+      return data ?? [];
     } catch {
       return [];
     }
