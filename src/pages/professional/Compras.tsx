@@ -9,7 +9,7 @@ export default function ProfessionalCompras() {
   const queryClient = useQueryClient()
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
-  , setProposalData] = useState({
+  const [proposalData, setProposalData] = useState({
     price: '',
     duration: '',
     description: '',
@@ -21,7 +21,7 @@ export default function ProfessionalCompras() {
     queryKey: ['purchases'],
     retry: false,
     refetchOnWindowFocus: false,
-    queryFn: leadService.getMyPurchases,h
+    queryFn: leadService.getMyPurchases,
   });
 
   const sendProposalMutation = useMutation({
@@ -287,7 +287,7 @@ export default function ProfessionalCompras() {
                       : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
                   )}
                 >
-                  <Phone size={16} /> {canContact(purchase.status) ? 'Contactar Agora' : '{(purchase.proposals_count ?? 0) > 0 ? 'Aguardando Resposta' : 'Enviar Proposta'}'}
+                  <Phone size={16} /> {canContact(purchase.status) ? 'Contactar Agora' : (purchase.proposals_count ?? 0) > 0 ? 'Aguardando Resposta' : 'Enviar Proposta'}
                 </button>
                 {purchase.status === 'Pendente Proposta' && (
                   <button 
