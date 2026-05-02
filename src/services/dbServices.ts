@@ -327,6 +327,29 @@ export const proposalService = {
   }
 };
 
+// === Subscriptions ===
+export const subscriptionService = {
+  async getCurrentSubscription() {
+    try {
+      const userId = useAuthStore.getState().user?.id;
+      if (!userId) return null;
+
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) return null;
+      return data;
+    } catch {
+      return null;
+    }
+  }
+};
+
 // === Admin ===
 export const adminService = {
   async getDashboardSummary() {

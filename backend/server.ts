@@ -88,29 +88,47 @@ async function startServer() {
     }
     processedWebhookEvents.add(event.id);
 
+    const COIN_PACKAGES: Record<string, { coins: number; name: string }> = {
+      'pack_starter': { coins: 50,  name: 'Starter'      },
+      'pack_pro':     { coins: 150, name: 'Pro'           },
+      'pack_premium': { coins: 400, name: 'Premium'       },
+    };
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      
-      const userId = session.metadata?.user_id || session.metadata?.userId;
+      const userId    = session.metadata?.user_id || session.metadata?.userId;
       const packageId = session.metadata?.package_id;
-      
-      const PACKAGES: Record<string, { price: number; name: string; coins?: number; type?: 'subscription' | 'payment' }> = {
-        'plan_basic': { price: 4900, name: 'Plano Básico', type: 'subscription' },
-        'plan_pro': { price: 9900, name: 'Plano Profissional', type: 'subscription' },
-        'plan_business': { price: 19900, name: 'Plano Empresarial', type: 'subscription' },
-        'pack_starter': { price: 1990, coins: 50, name: 'Starter', type: 'payment' },
-        'pack_pro': { price: 4990, coins: 150, name: 'Pro', type: 'payment' },
-        'pack_premium': { price: 9990, coins: 400, name: 'Premium', type: 'payment' }
-      };
+      const sessionType = session.metadata?.type;
 
-      let coinsAmount = 0;
-      if (packageId && PACKAGES[packageId]) {
-        coinsAmount = PACKAGES[packageId].coins || 0;
-      } else {
-        coinsAmount = parseInt(session.metadata?.coinsAmount || '0', 10);
+      // --- Gravar assinatura ---
+      if (sessionType === "subscription" && userId && packageId) {
+        const stripeSubId = typeof session.subscription === "string"
+          ? session.subscription
+          : (session.subscription as any)?.id ?? null;
+        try {
+          await supabaseAdmin.from("user_subscriptions").upsert({
+            user_id: userId,
+            stripe_subscription_id: stripeSubId,
+            package_id: packageId,
+            status: "active",
+            started_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "user_id" });
+        } catch (subErr) {
+          console.error("Erro ao gravar user_subscription:", subErr);
+        }
       }
-      
+
+      // --- Creditar moedas ---
+      let coinsAmount = 0;
+      if (packageId && COIN_PACKAGES[packageId]) {
+        coinsAmount = COIN_PACKAGES[packageId].coins;
+      } else {
+        coinsAmount = parseInt(session.metadata?.coinsAmount || "0", 10);
+      }
+
       if (userId && coinsAmount > 0) {
+        // Tenta RPC
         try {
           await supabaseAdmin.rpc("credit_wallet", {
             p_user_id: userId,
@@ -118,9 +136,36 @@ async function startServer() {
             p_stripe_session_id: session.id,
             p_stripe_event_id: event.id
           });
-        } catch (err) {
-          return res.status(500).json({ error: "Erro interno", code: "INTERNAL_ERROR" });
+        } catch (rpcErr) {
+          console.error("Erro no RPC credit_wallet:", rpcErr);
         }
+
+        // Insere diretamente em wallet_transactions como garantia de auditoria
+        try {
+          await supabaseAdmin.from("wallet_transactions").insert({
+            user_id: userId,
+            type: "deposit",
+            amount_coins: coinsAmount,
+            description: `Recarga via Stripe — ${COIN_PACKAGES[packageId ?? ""]?.name ?? packageId ?? "avulso"}`,
+            stripe_session_id: session.id,
+            created_at: new Date().toISOString(),
+          });
+        } catch (txErr) {
+          console.error("Erro ao inserir wallet_transaction:", txErr);
+        }
+      }
+    }
+
+    // --- Sincronizar status de assinatura ---
+    if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+      const subscription = event.data.object as Stripe.Subscription;
+      const newStatus = event.type === "customer.subscription.deleted" ? "canceled" : subscription.status;
+      try {
+        await supabaseAdmin.from("user_subscriptions")
+          .update({ status: newStatus, updated_at: new Date().toISOString() })
+          .eq("stripe_subscription_id", subscription.id);
+      } catch (updErr) {
+        console.error("Erro ao atualizar user_subscription:", updErr);
       }
     }
 

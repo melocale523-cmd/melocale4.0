@@ -1,11 +1,24 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
-import { walletService, adminService } from '../../services/dbServices';
+import { walletService, adminService, subscriptionService } from '../../services/dbServices';
 import { initiateCheckout } from '../../lib/stripe';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
+
+const STATUS_LABELS: Record<string, { label: string; colorClass: string }> = {
+  active:   { label: 'Ativo',              colorClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+  canceled: { label: 'Cancelado',          colorClass: 'bg-red-500/10 text-red-400 border-red-500/20'            },
+  past_due: { label: 'Pagamento Pendente', colorClass: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'   },
+  trialing: { label: 'Em Teste',           colorClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20'         },
+};
+
+const PLAN_NAMES: Record<string, string> = {
+  plan_basic:    'Básico',
+  plan_pro:      'Profissional',
+  plan_business: 'Empresarial',
+};
 
 const SUBSCRIPTION_PLANS = [
           {
@@ -75,12 +88,20 @@ export default function ProfessionalAssinatura() {
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'plans' | 'coins'>('plans');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showChangePlanModal, setShowChangePlanModal] = useState(false);
 
   const { data: balance, isLoading: balanceLoading } = useQuery({ 
     queryKey: ['walletBalance'], 
     retry: false, 
     refetchOnWindowFocus: false, 
     queryFn: walletService.getBalance 
+  });
+
+  const { data: currentSubscription } = useQuery({
+    queryKey: ['currentSubscription'],
+    retry: false,
+    refetchOnWindowFocus: false,
+    queryFn: subscriptionService.getCurrentSubscription,
   });
 
   const { data: dbCoinPackages } = useQuery({
@@ -333,16 +354,29 @@ export default function ProfessionalAssinatura() {
           </div>
 
           <div className="mb-6">
-             <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-widest rounded mb-4 inline-block border border-emerald-500/20">
-               ACTIVE
-             </span>
-             <p className="text-slate-400 text-sm flex items-center gap-2">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-               Expira em: N/A
-             </p>
+            {currentSubscription ? (
+              <>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border ${(STATUS_LABELS[currentSubscription.status] ?? STATUS_LABELS['active']).colorClass}`}>
+                    {(STATUS_LABELS[currentSubscription.status] ?? { label: currentSubscription.status }).label}
+                  </span>
+                  <span className="text-white font-semibold text-sm">
+                    {PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}
+                  </span>
+                </div>
+                {currentSubscription.expires_at && (
+                  <p className="text-slate-400 text-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                    Renova em: {new Date(currentSubscription.expires_at).toLocaleDateString('pt-BR')}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-slate-400 text-sm">Nenhum plano ativo. Escolha um plano abaixo.</p>
+            )}
           </div>
 
-          <button onClick={scrollToPlans} className="mt-auto w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2">
+          <button onClick={() => setShowChangePlanModal(true)} className="mt-auto w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2">
             Mudar de Plano <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
         </div>
@@ -387,6 +421,45 @@ export default function ProfessionalAssinatura() {
           </div>
         </div>
       </div>
+
+      {showChangePlanModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#14161B] border border-white/10 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white font-bold text-xl">Mudar de Plano</h2>
+              <button onClick={() => setShowChangePlanModal(false)} className="text-slate-400 hover:text-white transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-6 flex items-start gap-2">
+              <AlertCircle size={16} className="text-yellow-400 shrink-0 mt-0.5" />
+              <p className="text-yellow-300 text-sm">Ao mudar de plano, o plano atual será cancelado automaticamente.</p>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-4">
+              {SUBSCRIPTION_PLANS.map((plan) => (
+                <div key={plan.id} className={`bg-[#0A0B0D] border ${plan.popular ? 'border-purple-500/40' : 'border-white/5'} rounded-xl p-5 flex flex-col`}>
+                  <h3 className="text-white font-bold text-lg mb-1">{plan.name}</h3>
+                  <div className="flex items-end mb-2">
+                    <span className="text-slate-400 text-sm mr-1">R$</span>
+                    <span className="text-3xl font-bold text-white">{plan.price}</span>
+                    <span className="text-slate-500 text-sm ml-1">/mês</span>
+                  </div>
+                  <p className="text-slate-400 text-xs mb-4 flex-1">{plan.leads} incluídos</p>
+                  <button
+                    disabled={!!buyingId}
+                    onClick={() => { setShowChangePlanModal(false); handleCheckout('subscription', plan.id); }}
+                    className={`w-full py-3 ${plan.popular ? 'bg-purple-600 hover:bg-purple-500' : 'bg-white/5 hover:bg-white/10'} text-white font-bold rounded-xl transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2`}
+                  >
+                    {buyingId === plan.id ? <Loader2 size={16} className="animate-spin" /> : 'Assinar'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
