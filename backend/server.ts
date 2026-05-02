@@ -386,13 +386,15 @@ async function startServer() {
         });
       }
 
-      const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id);
+      // cast to any: Stripe SDK v22 removed current_period_end from the TS type
+      // but the Stripe API still returns it at runtime
+      const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id) as any;
       return res.json({
         status: stripeSub.status,
         package_id: sub.package_id,
         started_at: sub.started_at,
-        current_period_end: stripeSub.current_period_end,
-        cancel_at_period_end: stripeSub.cancel_at_period_end,
+        current_period_end: stripeSub.current_period_end ?? null,
+        cancel_at_period_end: stripeSub.cancel_at_period_end ?? false,
       });
     } catch (err: any) {
       console.error("Erro em /api/subscription-status:", err?.message || err);
