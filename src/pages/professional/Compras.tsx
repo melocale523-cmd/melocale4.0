@@ -9,7 +9,7 @@ export default function ProfessionalCompras() {
   const queryClient = useQueryClient()
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
-  , setProposalData] = useState({
+  const [proposalData, setProposalData] = useState({
     price: '',
     duration: '',
     description: '',
@@ -21,7 +21,7 @@ export default function ProfessionalCompras() {
     queryKey: ['purchases'],
     retry: false,
     refetchOnWindowFocus: false,
-    queryFn: leadService.getMyPurchases,h
+    queryFn: leadService.getMyPurchases,
   });
 
   const sendProposalMutation = useMutation({
