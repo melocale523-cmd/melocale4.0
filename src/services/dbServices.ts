@@ -298,8 +298,33 @@ export const proposalService = {
   },
 
   async getProposalsForLead(leadId: string) {
-    // Removed non-existent proposals table usage
-    return [];
+    try {
+      // Try with professionals join (requires FK lead_purchases.professional_id → professionals.id)
+      const { data, error } = await supabase
+        .from('lead_purchases')
+        .select('*, professionals(*)')
+        .eq('lead_id', leadId);
+
+      // If join fails (FK not declared), fall back to plain query
+      const purchases: any[] = error
+        ? ((await supabase.from('lead_purchases').select('*').eq('lead_id', leadId)).data ?? [])
+        : (data ?? []);
+
+      return purchases.map((p: any) => ({
+        id: p.id,
+        purchase_id: p.id,
+        lead_purchases: {
+          id: p.id,
+          professional: p.professionals ?? null,
+        },
+        description: p.description || '',
+        price: p.price || 0,
+        duration: p.duration || 'A combinar',
+        status: p.status || 'Enviada',
+      }));
+    } catch {
+      return [];
+    }
   },
 
   async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada', professionalId?: string) {
