@@ -46,12 +46,9 @@ export default function ProfessionalLeads() {
     const price = lead.price_coins || lead.budget_coins || 0;
     const matchesCoinCost = price <= filters.coinCost;
     
-    // Simulando orçamento e KM para filtros detalhados
-    const simulatedBudget = Math.floor(Math.random() * 5000) + 100;
-    const simulatedKm = Math.floor(Math.random() * 50);
-    
-    const matchesBudget = simulatedBudget >= filters.minBudget && simulatedBudget <= filters.maxBudget;
-    const matchesRadius = simulatedKm <= filters.radius;
+    const leadBudget = lead.budget_max || lead.budget_min || 0;
+    const matchesBudget = leadBudget === 0 || (leadBudget >= filters.minBudget && leadBudget <= filters.maxBudget);
+    const matchesRadius = true;
 
     return matchesSearch && matchesCategory && matchesSpecialty && matchesCity && matchesCoinCost && matchesBudget && matchesRadius;
   });
@@ -366,11 +363,11 @@ export default function ProfessionalLeads() {
                     </div>
                     <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
                       <DollarSign size={14} className="text-emerald-500" />
-                      Estimativa: R$ {Math.floor(Math.random() * 3000) + 500}
+                      {lead.budget_min && lead.budget_max ? `R$ ${lead.budget_min.toLocaleString('pt-BR')} – R$ ${lead.budget_max.toLocaleString('pt-BR')}` : 'A combinar'}
                     </div>
                     <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
                       <Navigation size={14} className="text-purple-500" />
-                      A {Math.floor(Math.random() * 15) + 2} km de você
+                      {lead.location || 'Localização não informada'}
                     </div>
                   </div>
                 </div>
