@@ -358,6 +358,82 @@ async function startServer() {
     }
   });
 
+  // ============================================
+  // GET /api/subscription-status?user_id=X
+  // ============================================
+  app.get("/api/subscription-status", async (req: any, res: any) => {
+    try {
+      const userId = req.query.user_id as string | undefined;
+      if (!userId) return res.status(400).json({ error: "user_id é obrigatório." });
+
+      const { data: sub, error: subErr } = await supabaseAdmin
+        .from("user_subscriptions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("started_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (subErr || !sub) return res.status(404).json({ error: "Assinatura não encontrada." });
+
+      if (!sub.stripe_subscription_id) {
+        return res.json({
+          status: sub.status,
+          package_id: sub.package_id,
+          started_at: sub.started_at,
+          current_period_end: null,
+          cancel_at_period_end: false,
+        });
+      }
+
+      const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id);
+      return res.json({
+        status: stripeSub.status,
+        package_id: sub.package_id,
+        started_at: sub.started_at,
+        current_period_end: stripeSub.current_period_end,
+        cancel_at_period_end: stripeSub.cancel_at_period_end,
+      });
+    } catch (err: any) {
+      console.error("Erro em /api/subscription-status:", err?.message || err);
+      return res.status(500).json({ error: err?.message || "Erro ao buscar status da assinatura." });
+    }
+  });
+
+  // ============================================
+  // POST /api/cancel-subscription
+  // ============================================
+  app.post("/api/cancel-subscription", async (req: any, res: any) => {
+    try {
+      const { user_id } = req.body || {};
+      if (!user_id) return res.status(400).json({ error: "user_id é obrigatório." });
+
+      const { data: sub, error: subErr } = await supabaseAdmin
+        .from("user_subscriptions")
+        .select("stripe_subscription_id")
+        .eq("user_id", String(user_id))
+        .order("started_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (subErr || !sub?.stripe_subscription_id) {
+        return res.status(404).json({ error: "Assinatura ativa não encontrada." });
+      }
+
+      await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true });
+
+      await supabaseAdmin
+        .from("user_subscriptions")
+        .update({ status: "canceled", updated_at: new Date().toISOString() })
+        .eq("user_id", String(user_id));
+
+      return res.json({ success: true });
+    } catch (err: any) {
+      console.error("Erro em /api/cancel-subscription:", err?.message || err);
+      return res.status(500).json({ error: err?.message || "Erro ao cancelar assinatura." });
+    }
+  });
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
   });

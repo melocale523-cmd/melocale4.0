@@ -2,9 +2,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { walletService, adminService, subscriptionService } from '../../services/dbServices';
 import { initiateCheckout } from '../../lib/stripe';
+import { apiFetch } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, X, Users, Calendar } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 const STATUS_LABELS: Record<string, { label: string; colorClass: string }> = {
@@ -18,6 +19,12 @@ const PLAN_NAMES: Record<string, string> = {
   plan_basic:    'Básico',
   plan_pro:      'Profissional',
   plan_business: 'Empresarial',
+};
+
+const PLAN_LEADS: Record<string, string> = {
+  plan_basic:    '30',
+  plan_pro:      '80',
+  plan_business: '200',
 };
 
 const SUBSCRIPTION_PLANS = [
@@ -89,6 +96,8 @@ export default function ProfessionalAssinatura() {
   const [activeTab, setActiveTab] = useState<'plans' | 'coins'>('plans');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
+  const [cancelConfirm, setCancelConfirm] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   const { data: balance, isLoading: balanceLoading } = useQuery({ 
     queryKey: ['walletBalance'], 
@@ -102,6 +111,23 @@ export default function ProfessionalAssinatura() {
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: subscriptionService.getCurrentSubscription,
+  });
+
+  const { data: subscriptionStatus } = useQuery({
+    queryKey: ['subscriptionStatus'],
+    retry: false,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      try {
+        const res = await apiFetch(`/api/subscription-status?user_id=${user.id}`);
+        if (!res.ok) return null;
+        return res.json();
+      } catch {
+        return null;
+      }
+    },
   });
 
   const { data: dbCoinPackages } = useQuery({
@@ -151,6 +177,34 @@ export default function ProfessionalAssinatura() {
   const scrollToPlans = () => {
     plansRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handleCancelSubscription = async () => {
+    try {
+      setCancelLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Não autenticado");
+      const res = await apiFetch('/api/cancel-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setStatusMessage({ type: 'success', text: 'Assinatura cancelada. Seu acesso continua até o fim do período atual.' });
+      setCancelConfirm(false);
+      queryClient.invalidateQueries({ queryKey: ['currentSubscription'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptionStatus'] });
+    } catch (err: any) {
+      setStatusMessage({ type: 'error', text: err.message || 'Erro ao cancelar assinatura.' });
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const daysUntilExpiry = subscriptionStatus?.current_period_end
+    ? Math.ceil((subscriptionStatus.current_period_end * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+  const showExpiryWarning = daysUntilExpiry !== null && daysUntilExpiry >= 0 && daysUntilExpiry <= 7;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -348,37 +402,89 @@ export default function ProfessionalAssinatura() {
       <div className="grid lg:grid-cols-2 gap-6 pt-6 border-t border-slate-800">
 
         <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6 relative flex flex-col">
-          <div className="flex items-center gap-2 mb-8">
+          <div className="flex items-center gap-2 mb-5">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <h2 className="text-lg font-bold text-white">Plano Atual</h2>
           </div>
 
-          <div className="mb-6">
+          {showExpiryWarning && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4 flex items-start gap-2">
+              <AlertCircle size={15} className="text-yellow-400 shrink-0 mt-0.5" />
+              <p className="text-yellow-300 text-sm">
+                Seu plano expira em <strong>{daysUntilExpiry} dia{daysUntilExpiry !== 1 ? 's' : ''}</strong>. Renove para não perder o acesso.
+              </p>
+            </div>
+          )}
+
+          <div className="flex-1 mb-5">
             {currentSubscription ? (
-              <>
-                <div className="flex items-center gap-3 mb-3">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border ${(STATUS_LABELS[currentSubscription.status] ?? STATUS_LABELS['active']).colorClass}`}>
                     {(STATUS_LABELS[currentSubscription.status] ?? { label: currentSubscription.status }).label}
                   </span>
-                  <span className="text-white font-semibold text-sm">
-                    {PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}
+                  <span className="text-white font-semibold">
+                    Plano {PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}
                   </span>
                 </div>
-                {currentSubscription.expires_at && (
-                  <p className="text-slate-400 text-sm flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                    Renova em: {new Date(currentSubscription.expires_at).toLocaleDateString('pt-BR')}
-                  </p>
+
+                {PLAN_LEADS[currentSubscription.package_id] && (
+                  <div className="flex items-center gap-2 text-sm text-slate-300">
+                    <Users size={14} className="text-emerald-400 shrink-0" />
+                    <span>{PLAN_LEADS[currentSubscription.package_id]} clientes/mês incluídos</span>
+                  </div>
                 )}
-              </>
+
+                {currentSubscription.started_at && (
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Calendar size={14} className="shrink-0" />
+                    <span>Início: {new Date(currentSubscription.started_at).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                )}
+
+                {subscriptionStatus?.current_period_end && (
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Calendar size={14} className="shrink-0" />
+                    <span>
+                      {subscriptionStatus.cancel_at_period_end ? 'Expira em:' : 'Renova em:'}{' '}
+                      <span className={subscriptionStatus.cancel_at_period_end ? 'text-red-400' : 'text-slate-300'}>
+                        {new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')}
+                      </span>
+                    </span>
+                  </div>
+                )}
+              </div>
             ) : (
               <p className="text-slate-400 text-sm">Nenhum plano ativo. Escolha um plano abaixo.</p>
             )}
           </div>
 
-          <button onClick={() => setShowChangePlanModal(true)} className="mt-auto w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2">
-            Mudar de Plano <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </button>
+          <div className="space-y-2">
+            <button onClick={() => setShowChangePlanModal(true)} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2">
+              Mudar de Plano
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+
+            {currentSubscription && !subscriptionStatus?.cancel_at_period_end && (
+              cancelConfirm ? (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                  <p className="text-red-300 text-sm text-center mb-3">Confirmar cancelamento da assinatura?</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => setCancelConfirm(false)} className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-bold rounded-lg transition-colors">
+                      Não
+                    </button>
+                    <button onClick={handleCancelSubscription} disabled={cancelLoading} className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1 disabled:opacity-50">
+                      {cancelLoading ? <Loader2 size={14} className="animate-spin" /> : 'Sim, cancelar'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => setCancelConfirm(true)} className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-bold rounded-xl transition-colors border border-red-500/20">
+                  Cancelar Assinatura
+                </button>
+              )
+            )}
+          </div>
         </div>
 
         <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6 relative flex flex-col">
