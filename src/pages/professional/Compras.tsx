@@ -51,9 +51,16 @@ export default function ProfessionalCompras() {
 
   const canContact = (status: string) => status === 'Respondida pelo Cliente';
 
-  const handleContact = (phone: string) => {
-    const formattedPhone = phone.replace(/\D/g, '');
-    window.open(`https://wa.me/55${formattedPhone}`, '_blank');
+  const handleContact = (purchase: any) => {
+    const phone = purchase.leads?.clients?.phone;
+    const email = purchase.leads?.clients?.email;
+    if (phone) {
+      window.open(`https://wa.me/55${phone.replace(/\D/g, '')}`, '_blank');
+    } else if (email) {
+      window.location.href = `mailto:${email}`;
+    } else {
+      alert('Contato indisponível. Aguarde o cliente responder sua proposta.');
+    }
   };
 
   const openProposalModal = (purchase: any) => {
@@ -277,14 +284,13 @@ export default function ProfessionalCompras() {
               </div>
 
               <div className="mt-5 flex gap-3">
-                <button 
-                  disabled={!canContact(purchase.status)}
-                  onClick={() => handleContact(purchase.leads?.clients?.phone)}
+                <button
+                  onClick={() => canContact(purchase.status) ? handleContact(purchase) : openProposalModal(purchase)}
                   className={cn(
                     "flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
-                    canContact(purchase.status) 
-                      ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
-                      : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
+                    canContact(purchase.status)
+                      ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                      : "bg-slate-800 hover:bg-slate-700 text-slate-400"
                   )}
                 >
                   <Phone size={16} /> {canContact(purchase.status) ? 'Contactar Agora' : (purchase.proposals_count ?? 0) > 0 ? 'Aguardando Resposta' : 'Enviar Proposta'}
