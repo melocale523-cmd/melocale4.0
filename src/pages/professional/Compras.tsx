@@ -51,15 +51,22 @@ export default function ProfessionalCompras() {
 
   const canContact = (status: string) => status === 'Respondida pelo Cliente';
 
-  const handleContact = (phone?: string, email?: string) => {
-    console.log('[handleContact] client contact data:', { phone, email });
-    const formattedPhone = phone ? phone.replace(/\D/g, '') : '';
-    if (formattedPhone) {
-      window.open(`https://wa.me/55${formattedPhone}`, '_blank');
-    } else if (email) {
-      window.open(`mailto:${email}`, '_blank');
-    } else {
-      alert('Nenhum dado de contato disponível para este cliente.');
+  const handleContact = (phone?: unknown, email?: unknown) => {
+    try {
+      console.log('[handleContact] raw values received:', { phone, email, typeofPhone: typeof phone, typeofEmail: typeof email });
+      const safePhone = typeof phone === 'string' ? phone : '';
+      const safeEmail = typeof email === 'string' ? email : '';
+      const formattedPhone = safePhone.replace(/\D/g, '');
+      if (formattedPhone) {
+        window.open(`https://wa.me/55${formattedPhone}`, '_blank');
+      } else if (safeEmail) {
+        window.open(`mailto:${safeEmail}`, '_blank');
+      } else {
+        alert('Nenhum dado de contato disponível para este cliente.');
+      }
+    } catch (err) {
+      console.error('[handleContact] unexpected error:', err);
+      alert('Erro ao abrir contato. Tente novamente.');
     }
   };
 
