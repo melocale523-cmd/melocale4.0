@@ -162,63 +162,102 @@ async function startServer() {
   // Stripe routes...
   // (Assuming other Stripe routes are similar and use frontendUrl)
 
-      // ============================================
-      // Stripe Checkout Session - Compra de pacotes de moedas
-      // ============================================
-      app.post("/api/create-checkout-session", async (req: any, res: any) => {
-              try {
-                        const { type, package_id, user_id } = req.body || {};
+  // ============================================
+  // Stripe Checkout Session - Compra de moedas e assinatura de planos
+  // ============================================
 
-                        if (!package_id || !user_id) {
-                                    return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
-                        }
+  // Planos mensais hardcoded (não ficam na tabela coin_packages)
+  const SUBSCRIPTION_PLANS: Record<string, { name: string; price: number; description: string }> = {
+    plan_basic:    { name: "Plano Básico",         price: 4900,  description: "Plano Básico MeloCale" },
+    plan_pro:      { name: "Plano Profissional",   price: 9900,  description: "Plano Profissional MeloCale" },
+    plan_business: { name: "Plano Empresarial",    price: 19900, description: "Plano Empresarial MeloCale" },
+  };
 
-                        const { data: pkg, error: pkgErr } = await supabaseAdmin
-                          .from("coin_packages")
-                          .select("id, name, coins, price, is_active")
-                          .eq("id", package_id)
-                          .eq("is_active", true)
-                          .single();
+  app.post("/api/create-checkout-session", async (req: any, res: any) => {
+    try {
+      const { type, package_id, user_id } = req.body || {};
 
-                        if (pkgErr || !pkg) {
-                                    console.error("Pacote nao encontrado:", package_id, pkgErr);
-                                    return res.status(404).json({ error: "Pacote nao encontrado ou inativo." });
-                        }
+      if (!package_id || !user_id) {
+        return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
+      }
 
-                        const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
+      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
 
-                        const session = await stripe.checkout.sessions.create({
-                                    mode: "payment",
-                                    payment_method_types: ["card"],
-                                    line_items: [
-                                      {
-                                                      price_data: {
-                                                                        currency: "brl",
-                                                                        product_data: {
-                                                                                            name: pkg.name,
-                                                                                            description: `${pkg.coins} moedas MeloCale`,
-                                                                        },
-                                                                        unit_amount: Math.round(Number(pkg.price) * 100),
-                                                      },
-                                                      quantity: 1,
-                                      },
-                                                ],
-                                    metadata: {
-                                                  user_id: String(user_id),
-                                                  package_id: String(pkg.id),
-                                                  coins: String(pkg.coins),
-                                                  type: String(type || "one_time"),
-                                    },
-                                    success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-                                    cancel_url: `${frontendUrl}/checkout/cancel`,
-                        });
+      // --- Fluxo de assinatura mensal ---
+      if (type === "subscription" || package_id in SUBSCRIPTION_PLANS) {
+        const plan = SUBSCRIPTION_PLANS[package_id];
+        if (!plan) {
+          return res.status(404).json({ error: "Plano de assinatura nao encontrado." });
+        }
 
-                        return res.json({ id: session.id, url: session.url });
-              } catch (err: any) {
-                        console.error("Erro em /api/create-checkout-session:", err?.message || err);
-                        return res.status(500).json({ error: err?.message || "Erro interno ao criar sessao de checkout." });
-              }
+        const session = await stripe.checkout.sessions.create({
+          mode: "subscription",
+          payment_method_types: ["card"],
+          line_items: [
+            {
+              price_data: {
+                currency: "brl",
+                product_data: { name: plan.name, description: plan.description },
+                unit_amount: plan.price,
+                recurring: { interval: "month" },
+              },
+              quantity: 1,
+            },
+          ],
+          metadata: {
+            user_id: String(user_id),
+            package_id: String(package_id),
+            type: "subscription",
+          },
+          success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${frontendUrl}/checkout/cancel`,
+        });
+
+        return res.json({ id: session.id, url: session.url });
+      }
+
+      // --- Fluxo de compra de moedas ---
+      const { data: pkg, error: pkgErr } = await supabaseAdmin
+        .from("coin_packages")
+        .select("id, name, coins, price, is_active")
+        .eq("id", package_id)
+        .eq("is_active", true)
+        .single();
+
+      if (pkgErr || !pkg) {
+        console.error("Pacote nao encontrado:", package_id, pkgErr);
+        return res.status(404).json({ error: "Pacote nao encontrado ou inativo." });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "brl",
+              product_data: { name: pkg.name, description: `${pkg.coins} moedas MeloCale` },
+              unit_amount: Math.round(Number(pkg.price) * 100),
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          user_id: String(user_id),
+          package_id: String(pkg.id),
+          coins: String(pkg.coins),
+          type: String(type || "one_time"),
+        },
+        success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${frontendUrl}/checkout/cancel`,
       });
+
+      return res.json({ id: session.id, url: session.url });
+    } catch (err: any) {
+      console.error("Erro em /api/create-checkout-session:", err?.message || err);
+      return res.status(500).json({ error: err?.message || "Erro interno ao criar sessao de checkout." });
+    }
+  });
   
   // ============================================
   // Stripe Checkout Session - Pagamento de serviço a profissional
