@@ -220,6 +220,60 @@ async function startServer() {
               }
       });
   
+  // ============================================
+  // Stripe Checkout Session - Pagamento de serviço a profissional
+  // ============================================
+  app.post("/api/create-service-payment", async (req: any, res: any) => {
+    try {
+      const { amount, connectedAccountId, description, user_id } = req.body || {};
+
+      if (!amount || !connectedAccountId || !user_id) {
+        return res.status(400).json({ error: "amount, connectedAccountId e user_id são obrigatórios." });
+      }
+
+      const amountInCents = Math.round(Number(amount));
+      if (isNaN(amountInCents) || amountInCents <= 0) {
+        return res.status(400).json({ error: "amount deve ser um número positivo em centavos." });
+      }
+
+      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "brl",
+              product_data: {
+                name: description || "Pagamento de serviço",
+              },
+              unit_amount: amountInCents,
+            },
+            quantity: 1,
+          },
+        ],
+        payment_intent_data: {
+          transfer_data: {
+            destination: connectedAccountId,
+          },
+        },
+        metadata: {
+          user_id: String(user_id),
+          connected_account_id: String(connectedAccountId),
+          type: "service_payment",
+        },
+        success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${frontendUrl}/checkout/cancel`,
+      });
+
+      return res.json({ id: session.id, url: session.url });
+    } catch (err: any) {
+      console.error("Erro em /api/create-service-payment:", err?.message || err);
+      return res.status(500).json({ error: err?.message || "Erro interno ao criar sessão de pagamento." });
+    }
+  });
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
   });
