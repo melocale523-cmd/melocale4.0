@@ -44,8 +44,6 @@ export const walletService = {
         .eq('user_id', userId)
         .single();
       
-      console.log("Saldo recebido:", data);
-
       if (error || !data) return 0;
       
       return data.balance_coins || 0;
@@ -232,7 +230,7 @@ export const leadService = {
     return {
       totalSpentCoins: purchasesData.reduce((acc, p) => acc + (p.price_coins || 0), 0),
       contactsPurchased: purchasesData.length,
-      visualizacoes: Math.floor(Math.random() * 50) + (range === '7d' ? 20 : range === '1y' ? 500 : 120),
+      visualizacoes: purchasesData.length,
       totalProposals: proposalsData.length,
       acceptedProposalsCount: acceptedProposals.length,
       totalRevenue,
@@ -281,19 +279,17 @@ export const proposalService = {
       .eq('id', purchaseId);
 
     if (clientId) {
-      supabase
+      await supabase
         .from('notifications')
         .insert({
           user_id: clientId,
           title: 'Nova Proposta Recebida',
           body: `Você recebeu uma nova proposta no valor de R$ ${proposal.price}.`,
           data: { type: 'proposal_received', purchaseId }
-        }).then(({ error }) => {
-          if (error) console.error("Erro ao notificar cliente", error);
         });
     }
 
-    return { id: Math.random().toString(), purchase_id: purchaseId, ...proposal, status: 'Enviada' };
+    return { id: crypto.randomUUID(), purchase_id: purchaseId, ...proposal, status: 'Enviada' };
   },
 
   async getProposalByPurchase(purchaseId: string) {
@@ -317,15 +313,13 @@ export const proposalService = {
     if (purchaseError) throw purchaseError;
 
     if (professionalId) {
-      supabase
+      await supabase
         .from('notifications')
         .insert({
           user_id: professionalId,
           title: `Proposta ${status}`,
           body: `O cliente ${status.toLowerCase()} sua proposta.`,
           data: { type: 'proposal_status_update', proposalId, status }
-        }).then(({ error }) => {
-          if (error) console.error("Erro ao notificar profissional", error);
         });
     }
 
