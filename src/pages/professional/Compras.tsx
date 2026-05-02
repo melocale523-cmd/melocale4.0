@@ -53,8 +53,8 @@ export default function ProfessionalCompras() {
 
   const handleContact = (phone?: string, email?: string) => {
     console.log('[handleContact] client contact data:', { phone, email });
-    if (phone) {
-      const formattedPhone = phone.replace(/\D/g, '');
+    const formattedPhone = phone ? phone.replace(/\D/g, '') : '';
+    if (formattedPhone) {
       window.open(`https://wa.me/55${formattedPhone}`, '_blank');
     } else if (email) {
       window.open(`mailto:${email}`, '_blank');

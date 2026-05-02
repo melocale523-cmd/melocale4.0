@@ -86,7 +86,7 @@ export default function ProfessionalWallet() {
              <p className="text-3xl font-semibold text-white mt-1">
                {(stats as any)?.totalSpentCoins ? `${(stats as any).totalSpentCoins} moedas` : '0 moedas'}
              </p>
-             <p className="text-xs text-slate-500 mt-1 italic">≈ R$ {((stats as any)?.totalSpentCoins ? (stats as any).totalSpentCoins / 10 : 0).toFixed(2).replace('.', ',')}</p>
+             <p className="text-xs text-slate-500 mt-1 italic">≈ R$ {(((stats as any)?.totalSpentCoins ?? 0) / 10).toFixed(2).replace('.', ',')}</p>
            </div>
            <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
              <div className="w-10 h-10 bg-slate-800/80 rounded-xl flex items-center justify-center mb-4 text-blue-400 border border-white/5 group-hover:border-blue-500/30 transition-colors">
