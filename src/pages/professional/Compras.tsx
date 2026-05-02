@@ -250,7 +250,7 @@ export default function ProfessionalCompras() {
                   <div className="flex-1">
                     <p className="text-xs text-slate-500">Telefone do Cliente</p>
                     <p className="text-sm font-medium">
-                      {canContact(purchase.status) ? purchase.leads?.profiles?.phone : '(**) *****-****'}
+                      {canContact(purchase.status) ? purchase.leads?.clients?.phone : '(**) *****-****'}
                     </p>
                   </div>
                 </div>
@@ -261,7 +261,7 @@ export default function ProfessionalCompras() {
                   <div className="flex-1">
                     <p className="text-xs text-slate-500">E-mail</p>
                     <p className="text-sm font-medium">
-                      {canContact(purchase.status) ? purchase.leads?.profiles?.email : '*******@****.com'}
+                      {canContact(purchase.status) ? purchase.leads?.clients?.email : '*******@****.com'}
                     </p>
                   </div>
                 </div>
@@ -271,7 +271,7 @@ export default function ProfessionalCompras() {
                   </span>
                   <div className="flex-1">
                     <p className="text-xs text-slate-500">Endereço (Aproximado)</p>
-                    <p className="text-sm font-medium">{purchase.leads?.profiles?.address || purchase.leads?.location}</p>
+                    <p className="text-sm font-medium">{purchase.leads?.clients?.city || purchase.leads?.location}</p>
                   </div>
                 </div>
               </div>
@@ -279,7 +279,7 @@ export default function ProfessionalCompras() {
               <div className="mt-5 flex gap-3">
                 <button 
                   disabled={!canContact(purchase.status)}
-                  onClick={() => handleContact(purchase.leads?.profiles?.phone)}
+                  onClick={() => handleContact(purchase.leads?.clients?.phone)}
                   className={cn(
                     "flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
                     canContact(purchase.status) 

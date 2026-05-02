@@ -80,7 +80,10 @@ export const leadService = {
 
   async getMyPurchases() {
     try {
-      const { data, error } = await supabase.rpc('get_my_purchases');
+      const { data, error } = await supabase
+        .from('lead_purchases')
+        .select('*, leads(*, clients!client_id(phone, email, full_name, city))')
+        .order('created_at', { ascending: false });
       if (error) return [];
       return data || [];
     } catch {
@@ -271,11 +274,14 @@ export const transactionService = {
 // === Proposals ===
 export const proposalService = {
   async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string, status: string }, clientId?: string) {
-    // Removed non-existent proposals table usage
-
     await supabase
       .from('lead_purchases')
-      .update({ status: proposal.status })
+      .update({
+        status: proposal.status,
+        price: proposal.price,
+        description: proposal.description,
+        duration: proposal.duration,
+      })
       .eq('id', purchaseId);
 
     if (clientId) {
@@ -298,8 +304,33 @@ export const proposalService = {
   },
 
   async getProposalsForLead(leadId: string) {
-    // Removed non-existent proposals table usage
-    return [];
+    try {
+      const { data, error } = await supabase
+        .from('lead_purchases')
+        .select('*, professionals!professional_id(*, profiles!user_id(full_name))')
+        .eq('lead_id', leadId);
+
+      const purchases: any[] = error
+        ? ((await supabase.from('lead_purchases').select('*').eq('lead_id', leadId)).data ?? [])
+        : (data ?? []);
+
+      return purchases.map((p: any) => ({
+        id: p.id,
+        purchase_id: p.id,
+        lead_purchases: {
+          id: p.id,
+          professional: p.professionals
+            ? { ...p.professionals, name: p.professionals?.profiles?.full_name || 'Profissional' }
+            : null,
+        },
+        description: p.description || '',
+        price: p.price || 0,
+        duration: p.duration || 'A combinar',
+        status: p.status || 'Enviada',
+      }));
+    } catch {
+      return [];
+    }
   },
 
   async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada', professionalId?: string) {
