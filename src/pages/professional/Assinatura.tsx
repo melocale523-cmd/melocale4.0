@@ -5,7 +5,7 @@ import { initiateCheckout } from '../../lib/stripe';
 import { apiFetch } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, AlertCircle, X, Users, Calendar } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, X, Users, Calendar, RefreshCw } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 const STATUS_LABELS: Record<string, { label: string; colorClass: string }> = {
@@ -25,6 +25,12 @@ const PLAN_LEADS: Record<string, string> = {
   plan_basic:    '30',
   plan_pro:      '80',
   plan_business: '200',
+};
+
+const PLAN_PRICES: Record<string, string> = {
+  plan_basic:    '49',
+  plan_pro:      '99',
+  plan_business: '199',
 };
 
 const SUBSCRIPTION_PLANS = [
@@ -205,6 +211,17 @@ export default function ProfessionalAssinatura() {
     ? Math.ceil((subscriptionStatus.current_period_end * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
   const showExpiryWarning = daysUntilExpiry !== null && daysUntilExpiry >= 0 && daysUntilExpiry <= 7;
+
+  const cycleProgress = (() => {
+    if (!subscriptionStatus?.current_period_end) return 0;
+    const endMs = subscriptionStatus.current_period_end * 1000;
+    const startMs = subscriptionStatus.current_period_start
+      ? subscriptionStatus.current_period_start * 1000
+      : endMs - 30 * 24 * 60 * 60 * 1000;
+    const total = endMs - startMs;
+    const elapsed = Date.now() - startMs;
+    return total > 0 ? Math.min(100, Math.max(0, (elapsed / total) * 100)) : 0;
+  })();
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -401,68 +418,142 @@ export default function ProfessionalAssinatura() {
 
       <div className="grid lg:grid-cols-2 gap-6 pt-6 border-t border-slate-800">
 
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6 relative flex flex-col">
-          <div className="flex items-center gap-2 mb-5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <h2 className="text-lg font-bold text-white">Plano Atual</h2>
-          </div>
+        {/* ===== CARD PLANO ATUAL ===== */}
+        <div className="bg-[#14161B] border border-white/5 rounded-2xl overflow-hidden flex flex-col">
 
-          {showExpiryWarning && (
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4 flex items-start gap-2">
-              <AlertCircle size={15} className="text-yellow-400 shrink-0 mt-0.5" />
-              <p className="text-yellow-300 text-sm">
-                Seu plano expira em <strong>{daysUntilExpiry} dia{daysUntilExpiry !== 1 ? 's' : ''}</strong>. Renove para não perder o acesso.
-              </p>
-            </div>
-          )}
-
-          <div className="flex-1 mb-5">
-            {currentSubscription ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border ${(STATUS_LABELS[currentSubscription.status] ?? STATUS_LABELS['active']).colorClass}`}>
-                    {(STATUS_LABELS[currentSubscription.status] ?? { label: currentSubscription.status }).label}
-                  </span>
-                  <span className="text-white font-semibold">
-                    Plano {PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}
-                  </span>
-                </div>
-
-                {PLAN_LEADS[currentSubscription.package_id] && (
-                  <div className="flex items-center gap-2 text-sm text-slate-300">
-                    <Users size={14} className="text-emerald-400 shrink-0" />
-                    <span>{PLAN_LEADS[currentSubscription.package_id]} clientes/mês incluídos</span>
-                  </div>
-                )}
-
-                {currentSubscription.started_at && (
-                  <div className="flex items-center gap-2 text-sm text-slate-400">
-                    <Calendar size={14} className="shrink-0" />
-                    <span>Início: {new Date(currentSubscription.started_at).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                )}
-
-                {subscriptionStatus?.current_period_end && (
-                  <div className="flex items-center gap-2 text-sm text-slate-400">
-                    <Calendar size={14} className="shrink-0" />
-                    <span>
-                      {subscriptionStatus.cancel_at_period_end ? 'Expira em:' : 'Renova em:'}{' '}
-                      <span className={subscriptionStatus.cancel_at_period_end ? 'text-red-400' : 'text-slate-300'}>
-                        {new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')}
-                      </span>
-                    </span>
-                  </div>
-                )}
+          {/* Header */}
+          <div className="bg-gradient-to-r from-emerald-900/30 via-emerald-900/10 to-transparent border-b border-white/5 px-5 py-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               </div>
-            ) : (
-              <p className="text-slate-400 text-sm">Nenhum plano ativo. Escolha um plano abaixo.</p>
+              <div>
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Plano Atual</p>
+                <h2 className="text-white font-bold text-base leading-tight">
+                  {currentSubscription
+                    ? `Plano ${PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}`
+                    : 'Sem plano ativo'}
+                </h2>
+              </div>
+            </div>
+            {currentSubscription && (
+              <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-lg border shrink-0 ${(STATUS_LABELS[currentSubscription.status] ?? STATUS_LABELS['active']).colorClass}`}>
+                {(STATUS_LABELS[currentSubscription.status] ?? { label: currentSubscription.status }).label}
+              </span>
             )}
           </div>
 
-          <div className="space-y-2">
-            <button onClick={() => setShowChangePlanModal(true)} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2">
+          {/* Body */}
+          <div className="p-5 flex-1 flex flex-col">
+            {currentSubscription ? (
+              <>
+                {/* Banner cancelamento agendado */}
+                {subscriptionStatus?.cancel_at_period_end && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4 flex items-center gap-2">
+                    <AlertCircle size={14} className="text-red-400 shrink-0" />
+                    <p className="text-red-300 text-sm">
+                      Cancelamento agendado para{' '}
+                      <strong>
+                        {subscriptionStatus.current_period_end
+                          ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')
+                          : '—'}
+                      </strong>
+                    </p>
+                  </div>
+                )}
+
+                {/* Banner expiração próxima */}
+                {showExpiryWarning && !subscriptionStatus?.cancel_at_period_end && (
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4 flex items-start gap-2">
+                    <AlertCircle size={14} className="text-yellow-400 shrink-0 mt-0.5" />
+                    <p className="text-yellow-300 text-sm">
+                      Seu plano expira em <strong>{daysUntilExpiry} dia{daysUntilExpiry !== 1 ? 's' : ''}</strong>. Renove para não perder o acesso.
+                    </p>
+                  </div>
+                )}
+
+                {/* Grid 2×2 */}
+                <div className="grid grid-cols-2 gap-2.5 mb-4">
+                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
+                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                      <Users size={10} />Clientes/mês
+                    </div>
+                    <p className="text-white font-bold text-2xl">{PLAN_LEADS[currentSubscription.package_id] ?? '—'}</p>
+                  </div>
+
+                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
+                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                      <Calendar size={10} />Data início
+                    </div>
+                    <p className="text-white font-bold text-sm">
+                      {currentSubscription.started_at
+                        ? new Date(currentSubscription.started_at).toLocaleDateString('pt-BR')
+                        : '—'}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
+                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                      <RefreshCw size={10} />
+                      {subscriptionStatus?.cancel_at_period_end ? 'Expira em' : 'Próx. renovação'}
+                    </div>
+                    <p className={`font-bold text-sm ${subscriptionStatus?.cancel_at_period_end ? 'text-red-400' : 'text-white'}`}>
+                      {subscriptionStatus?.current_period_end
+                        ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')
+                        : '—'}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
+                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      Valor mensal
+                    </div>
+                    <p className="text-white font-bold text-xl">
+                      R$ {PLAN_PRICES[currentSubscription.package_id] ?? '—'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Barra de progresso do ciclo */}
+                {subscriptionStatus?.current_period_end && (
+                  <div className="mb-4">
+                    <div className="flex justify-between text-[11px] text-slate-500 mb-1.5">
+                      <span>Ciclo atual</span>
+                      <span>
+                        {daysUntilExpiry !== null && daysUntilExpiry >= 0
+                          ? `${daysUntilExpiry} dia${daysUntilExpiry !== 1 ? 's' : ''} restante${daysUntilExpiry !== 1 ? 's' : ''}`
+                          : 'Expirado'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-white/5 rounded-full h-1.5">
+                      <div
+                        className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
+                        style={{ width: `${cycleProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center py-8 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <p className="text-slate-400 text-sm font-medium mb-1">Nenhum plano ativo</p>
+                <p className="text-slate-600 text-xs">Escolha um plano abaixo para começar</p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer — botões */}
+          <div className="px-5 pb-5 space-y-2">
+            <button
+              onClick={() => setShowChangePlanModal(true)}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2"
+            >
               Mudar de Plano
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </button>
 
             {currentSubscription && !subscriptionStatus?.cancel_at_period_end && (
@@ -470,16 +561,26 @@ export default function ProfessionalAssinatura() {
                 <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
                   <p className="text-red-300 text-sm text-center mb-3">Confirmar cancelamento da assinatura?</p>
                   <div className="flex gap-2">
-                    <button onClick={() => setCancelConfirm(false)} className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-bold rounded-lg transition-colors">
+                    <button
+                      onClick={() => setCancelConfirm(false)}
+                      className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-bold rounded-lg transition-colors"
+                    >
                       Não
                     </button>
-                    <button onClick={handleCancelSubscription} disabled={cancelLoading} className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1 disabled:opacity-50">
+                    <button
+                      onClick={handleCancelSubscription}
+                      disabled={cancelLoading}
+                      className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                    >
                       {cancelLoading ? <Loader2 size={14} className="animate-spin" /> : 'Sim, cancelar'}
                     </button>
                   </div>
                 </div>
               ) : (
-                <button onClick={() => setCancelConfirm(true)} className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-bold rounded-xl transition-colors border border-red-500/20">
+                <button
+                  onClick={() => setCancelConfirm(true)}
+                  className="w-full py-2.5 bg-transparent hover:bg-red-500/10 text-red-500 text-sm font-semibold rounded-xl transition-colors border border-red-500/20 hover:border-red-500/40"
+                >
                   Cancelar Assinatura
                 </button>
               )
