@@ -487,7 +487,7 @@ export const chatService = {
   }
 };
 
-// === Profile ===
+// === Profile (professional) ===
 export const profileService = {
   async saveProfile(userId: string, data: {
     name: string;
@@ -507,6 +507,20 @@ export const profileService = {
     if (error) {
       console.error('[profileService.saveProfile] RPC ERROR:', error);
       throw new Error('Erro ao salvar dados. Tente novamente.');
+    }
+    return true;
+  },
+};
+
+// === Profile (client) ===
+export const clientProfileService = {
+  async saveProfile(userId: string, data: { name: string; phone: string; city: string }) {
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({ id: userId, full_name: data.name, phone: data.phone, city: data.city }, { onConflict: 'id' });
+    if (error) {
+      console.error('[clientProfileService.saveProfile]:', error);
+      throw new Error('Erro ao salvar perfil. Tente novamente.');
     }
     return true;
   },
