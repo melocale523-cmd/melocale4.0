@@ -2,36 +2,6 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { logService } from '../lib/logService';
 
-// === Auth Functions ===
-export const authService = {
-  async getProfile(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      if (error) return null;
-      return data;
-    } catch {
-      return null;
-    }
-  },
-  async getProfessionalByUserId(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('professionals')
-        .select('*');
-      if (error) return null;
-      // JS Filter to avoid 'eq' on potentially wrong columns
-      const prof = data.find((p: any) => p.user_id === userId);
-      return prof || null;
-    } catch {
-      return null;
-    }
-  }
-};
-
 // === Wallet Functions ===
 export const walletService = {
   async getBalance() {
@@ -497,18 +467,21 @@ export const profileService = {
     category: string;
     serviceRadius: string;
   }) {
-    const { error } = await supabase.rpc('save_full_profile', {
+    const payload = {
       p_user_id: userId,
       p_full_name: data.name,
       p_phone: data.phone,
       p_bio: data.bio || null,
       p_category: data.category || null,
       p_service_radius: data.serviceRadius ? Number(data.serviceRadius) : null,
-    });
+    };
+    logService.info('profileService', 'saving profile via save_full_profile RPC', payload);
+    const { error } = await supabase.rpc('save_full_profile', payload);
     if (error) {
       logService.error('profileService', 'save_full_profile RPC failed', error);
       throw new Error('Erro ao salvar dados. Tente novamente.');
     }
+    logService.info('profileService', 'profile saved successfully');
     return true;
   },
 };
@@ -516,9 +489,11 @@ export const profileService = {
 // === Profile (client) ===
 export const clientProfileService = {
   async saveProfile(userId: string, data: { name: string; phone: string; city: string }) {
+    const payload = { id: userId, full_name: data.name, phone: data.phone, city: data.city };
+    logService.info('clientProfileService', 'saving profile', payload);
     const { error } = await supabase
       .from('profiles')
-      .upsert({ id: userId, full_name: data.name, phone: data.phone, city: data.city }, { onConflict: 'id' });
+      .upsert(payload, { onConflict: 'id' });
     if (error) {
       logService.error('clientProfileService', 'profiles upsert failed', error);
       throw new Error('Erro ao salvar perfil. Tente novamente.');
