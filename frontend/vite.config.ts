@@ -24,13 +24,14 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             if (!id.includes('node_modules')) return;
-            if (id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) return 'vendor-react';
-            if (id.includes('/react/')) return 'vendor-react';
+            if (id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler') || id.includes('/react/')) return 'vendor-react';
             if (id.includes('@tanstack')) return 'vendor-query';
             if (id.includes('@supabase') || id.includes('@realtime-kit') || id.includes('websocket')) return 'vendor-supabase';
-            if (id.includes('lucide') || id.includes('recharts') || id.includes('sonner') || id.includes('victory')) return 'vendor-ui';
-            if (id.includes('firebase')) return 'vendor-firebase';
+            if (id.includes('lucide-react')) return 'vendor-icons';
+            if (id.includes('sonner')) return 'vendor-toast';
+            if (id.includes('recharts') || id.includes('victory')) return 'vendor-charts';
             if (id.includes('motion') || id.includes('framer')) return 'vendor-motion';
+            if (id.includes('firebase')) return 'vendor-firebase';
           },
         },
       },
