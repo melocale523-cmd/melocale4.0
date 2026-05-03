@@ -23,7 +23,7 @@ function ChartsSkeleton() {
 export default function ProfessionalEstatisticas() {
   const [range, setRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
 
-  const [chartsRef, chartsInView] = useInView({ threshold: 0.1 });
+  const [chartsRef, chartsInView] = useInView({ threshold: 0, rootMargin: '200px' });
 
   const { data: stats, isLoading, isFetching } = useQuery({
     queryKey: ['professionalStats', range],
