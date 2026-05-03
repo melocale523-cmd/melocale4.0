@@ -1,6 +1,7 @@
 import { useAuthStore } from '../../store/authStore';
 import { useClientProfile } from '../../hooks/useClientProfile';
-import { AlertCircle, ArrowRight, Plus, Hammer, Shield, Clock, TrendingUp, MessageCircle, FileText, X, Loader2 } from 'lucide-react';
+import { isClientProfileComplete } from '../../lib/profileHelpers';
+import { AlertCircle, ArrowRight, Plus, Hammer, Shield, Clock, TrendingUp, MessageCircle, FileText, X, Loader2, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
@@ -10,10 +11,10 @@ import { cn } from '../../lib/utils';
 
 export default function ClientDashboard() {
   const { user } = useAuthStore();
-  const { data: profile } = useClientProfile();
+  const { data: profile, isLoading: profileLoading, isError: profileError, refetch: refetchProfile } = useClientProfile();
   const queryClient = useQueryClient();
 
-  const needsPhone = !profile?.phone;
+  const profileComplete = isClientProfileComplete(profile);
   const userName = profile?.full_name
     ? profile.full_name.split(' ').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' ')
     : 'Usuário';
@@ -56,12 +57,37 @@ export default function ClientDashboard() {
     } as any);
   };
 
+  if (profileError) {
+    return (
+      <div className="max-w-6xl mx-auto mt-16 flex flex-col items-center gap-4 text-center">
+        <AlertCircle size={40} className="text-red-400" />
+        <p className="text-slate-300 font-medium">Não foi possível carregar seu perfil.</p>
+        <button
+          onClick={() => refetchProfile()}
+          className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold rounded-xl transition-colors"
+        >
+          <RefreshCw size={15} /> Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
+      {/* Greeting — skeleton while loading */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tight mb-2">Olá, {userName}</h1>
-          <p className="text-slate-400 font-medium">Bem-vindo(a) ao seu painel de controle MeloCalé.</p>
+          {profileLoading ? (
+            <div className="space-y-2">
+              <div className="h-9 w-56 bg-slate-800 animate-pulse rounded-lg" />
+              <div className="h-4 w-72 bg-slate-800/60 animate-pulse rounded" />
+            </div>
+          ) : (
+            <>
+              <h1 className="text-4xl font-black text-white tracking-tight mb-2">Olá, {userName}</h1>
+              <p className="text-slate-400 font-medium">Bem-vindo(a) ao seu painel de controle MeloCalé.</p>
+            </>
+          )}
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -72,7 +98,7 @@ export default function ClientDashboard() {
         </button>
       </div>
 
-      {needsPhone && (
+      {!profileLoading && !profileComplete && (
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-[2rem] p-8 flex flex-col md:flex-row items-center gap-6 text-center md:text-left transition-all hover:bg-amber-500/15">
           <div className="w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
             <AlertCircle size={32} />
@@ -101,7 +127,7 @@ export default function ClientDashboard() {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              disabled={needsPhone}
+              disabled={!profileComplete}
               className="px-8 py-4 bg-emerald-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500 active:scale-95 flex items-center gap-2"
             >
               Solicitar Orçamento Agora

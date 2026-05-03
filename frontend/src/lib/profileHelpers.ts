@@ -1,4 +1,5 @@
 import { ProfileData } from '../hooks/useProfile';
+import { ClientProfileData } from '../hooks/useClientProfile';
 
 export interface CompletionResult {
   pct: number;
@@ -29,6 +30,34 @@ export function calculateProfileCompletion(
   if (profile.avatar_url?.trim()) { score += 15; } else { missing.push('Foto de perfil'); }
 
   return { pct: score, missing };
+}
+
+// ─── Client profile helpers ───────────────────────────────────────────────────
+
+export function isClientProfileComplete(profile: ClientProfileData | null | undefined): boolean {
+  if (!profile) return false;
+  return !!(profile.full_name?.trim() && profile.phone?.trim() && profile.city?.trim());
+}
+
+// Brazilian phone: 10 digits (landline) or 11 digits (mobile with 9-prefix)
+export const BR_PHONE_RE = /^\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}$/;
+
+export type ClientFieldErrors = { name?: string; phone?: string; city?: string };
+
+export function validateClientProfileForm(data: {
+  name: string;
+  phone: string;
+  city: string;
+}): ClientFieldErrors {
+  const errors: ClientFieldErrors = {};
+  if (!data.name.trim() || data.name.trim().length < 3)
+    errors.name = 'Nome deve ter pelo menos 3 caracteres.';
+  const digits = data.phone.replace(/\D/g, '');
+  if (!digits || digits.length < 10 || digits.length > 11)
+    errors.phone = 'Telefone inválido. Use (11) 99999-9999.';
+  if (!data.city.trim())
+    errors.city = 'Informe sua cidade.';
+  return errors;
 }
 
 export interface DashboardStep {
