@@ -1,10 +1,5 @@
 {
-  "framework": "vite",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "cleanUrls": true,
   "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

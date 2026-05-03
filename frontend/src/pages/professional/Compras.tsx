@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
-import { ShoppingBag, Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Lock, Eye, CheckCircle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Lock, Eye, CheckCircle, MessageCircle, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -51,15 +52,41 @@ export default function ProfessionalCompras() {
 
   const canContact = (status: string) => status === 'Respondida pelo Cliente';
 
-  const handleContact = (phone?: unknown, email?: unknown) => {
+  const formatPhone = (raw: unknown): string => {
+    if (typeof raw !== 'string') return '';
+    const d = raw.replace(/\D/g, '');
+    if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    return raw;
+  };
+
+  const trackContactMutation = useMutation({
+    mutationFn: async (purchaseId: string) => {
+      const { error } = await supabase
+        .from('lead_purchases')
+        .update({ contacted_at: new Date().toISOString() })
+        .eq('id', purchaseId);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['purchases'] }),
+  });
+
+  const handleContact = (purchase: any) => {
     try {
-      console.log('[handleContact] raw values received:', { phone, email, typeofPhone: typeof phone, typeofEmail: typeof email });
-      const safePhone = typeof phone === 'string' ? phone : '';
-      const safeEmail = typeof email === 'string' ? email : '';
-      const formattedPhone = safePhone.replace(/\D/g, '');
-      if (formattedPhone) {
-        window.open(`https://wa.me/55${formattedPhone}`, '_blank');
+      const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
+      const rawEmail = purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email;
+      const safePhone = typeof rawPhone === 'string' ? rawPhone : '';
+      const safeEmail = typeof rawEmail === 'string' ? rawEmail : '';
+      const digits = safePhone.replace(/\D/g, '');
+      const clientName = purchase.leads?.clients?.full_name ?? purchase.leads?.profiles?.name ?? 'cliente';
+      const serviceName = typeof purchase.leads?.title === 'string' ? purchase.leads.title : 'serviço';
+      const message = `Olá ${clientName}, vi seu pedido de ${serviceName} na MeloCalé e posso te ajudar. Vamos conversar?`;
+      console.log('[handleContact] contact data:', { rawPhone, rawEmail, digits, clientName, serviceName });
+      if (digits) {
+        trackContactMutation.mutate(purchase.id);
+        window.open(`https://wa.me/55${digits}?text=${encodeURIComponent(message)}`, '_blank');
       } else if (safeEmail) {
+        trackContactMutation.mutate(purchase.id);
         window.open(`mailto:${safeEmail}`, '_blank');
       } else {
         alert('Nenhum dado de contato disponível para este cliente.');
@@ -256,7 +283,14 @@ export default function ProfessionalCompras() {
                     <p className="text-[9px] text-slate-500 mt-1">Aguarde a resposta do cliente para ver os detalhes de contato.</p>
                   </div>
                 )}
-                
+
+                {canContact(purchase.status) && (
+                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-3 py-2 mb-1">
+                    <Zap size={13} className="text-emerald-400 shrink-0" />
+                    <p className="text-[11px] text-emerald-400 font-bold uppercase tracking-widest">Cliente pronto para contato</p>
+                  </div>
+                )}
+
                 <div className="flex items-center text-slate-300">
                   <span className="bg-slate-800 p-1.5 rounded-md mr-3">
                     <Phone size={16} className="text-slate-400" />
@@ -264,7 +298,9 @@ export default function ProfessionalCompras() {
                   <div className="flex-1">
                     <p className="text-xs text-slate-500">Telefone do Cliente</p>
                     <p className="text-sm font-medium">
-                      {canContact(purchase.status) ? (purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) : '(**) *****-****'}
+                      {canContact(purchase.status)
+                        ? formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-slate-500 italic text-xs">Não informado</span>
+                        : '(**) *****-****'}
                     </p>
                   </div>
                 </div>
@@ -291,18 +327,33 @@ export default function ProfessionalCompras() {
               </div>
 
               <div className="mt-5 flex gap-3">
-                <button 
-                  disabled={!canContact(purchase.status)}
-                  onClick={() => handleContact(purchase.leads?.clients?.phone, purchase.leads?.clients?.email)}
-                  className={cn(
-                    "flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
-                    canContact(purchase.status) 
-                      ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
-                      : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
-                  )}
-                >
-                  <Phone size={16} /> {canContact(purchase.status) ? 'Contactar Agora' : (purchase.proposals_count ?? 0) > 0 ? 'Aguardando Resposta' : 'Enviar Proposta'}
-                </button>
+                {(() => {
+                  const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
+                  const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
+                  const ready = canContact(purchase.status);
+                  if (ready && hasPhone) {
+                    return (
+                      <button
+                        onClick={() => handleContact(purchase)}
+                        className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe59] text-white shadow-lg shadow-[#25D366]/25"
+                      >
+                        <MessageCircle size={16} /> Falar no WhatsApp
+                      </button>
+                    );
+                  }
+                  if (ready && !hasPhone) {
+                    return (
+                      <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700">
+                        <Phone size={16} /> Contato indisponível
+                      </button>
+                    );
+                  }
+                  return (
+                    <button disabled className="flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-50">
+                      <MessageCircle size={16} /> {(purchase.proposals_count ?? 0) > 0 ? 'Aguardando Resposta' : 'Enviar Proposta'}
+                    </button>
+                  );
+                })()}
                 {purchase.status === 'Pendente Proposta' && (
                   <button 
                     onClick={() => openProposalModal(purchase)}

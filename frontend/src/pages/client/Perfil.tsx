@@ -44,13 +44,6 @@ export default function ClientePerfil() {
                               email: authUser.email,
                   }, { onConflict: 'id' });
                 if (error) throw error;
-
-                // Sync phone to profiles so AuthInitializer reads it on next load
-                await supabase
-                  .from('profiles')
-                  .update({ phone: formData.phone, full_name: formData.name })
-                  .eq('id', authUser.id);
-
                 updateProfile(formData);
                 setSuccessMsg('Perfil salvo com sucesso!');
                 setTimeout(() => setSuccessMsg(''), 3000);
