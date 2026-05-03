@@ -8,7 +8,7 @@ import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function ProfessionalPerfil() {
-  const { user, updateProfile } = useAuthStore();
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
 
@@ -45,7 +45,6 @@ export default function ProfessionalPerfil() {
         serviceRadius: formData.radius,
       }),
     onSuccess: () => {
-      updateProfile({ name: formData.name, phone: formData.phone });
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);

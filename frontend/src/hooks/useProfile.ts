@@ -16,8 +16,12 @@ export interface ProfileData {
 }
 
 async function fetchProfileData(userId: string): Promise<ProfileData> {
-  // Step 1: guarantee the professional row exists (idempotent RPC, no race)
-  await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
+  // Step 1: guarantee the professional row exists (idempotent, DB-level uniqueness)
+  const { error: rpcError } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
+  if (rpcError) {
+    console.error('[useProfile] ensure_professional_exists failed:', rpcError);
+    throw new Error('Não foi possível preparar os dados profissionais. Tente novamente.');
+  }
 
   // Step 2: fetch both rows — professional row is guaranteed to exist now
   const [profileRes, profRes] = await Promise.all([
