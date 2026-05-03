@@ -32,7 +32,7 @@ export default function ProfessionalDashboard() {
       <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 py-2">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">
-            Olá, {user?.name?.split(' ')[0] || 'Profissional'}! 👋
+            Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋
           </h1>
           <p className="text-slate-400 text-sm">Resumo do seu negócio.</p>
         </div>

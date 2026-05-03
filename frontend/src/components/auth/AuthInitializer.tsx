@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
-import { authService } from '../../services/dbServices';
 import { useAuthStore, Role } from '../../store/authStore';
 
 export default function AuthInitializer({ children }: { children: React.ReactNode }) {
@@ -53,34 +52,33 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
       }
 
       try {
-        // 4. Fonte Única da Verdade: buscamos profile sem depender de user_metadata
-        const profile = await authService.getProfile(userId);
+        // 4. Load profile and ensure professional record exists in one shot
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, full_name, phone, avatar_url, role')
+          .eq('id', userId)
+          .maybeSingle();
 
-        if (!profile) {
-          console.error('AuthInitializer: Erro ao carregar o profile ou profile não existe.');
-        }
+        const finalRole: Role = ((profile as any)?.role as Role) || 'client';
 
-        let professionalId = undefined;
-        // O papel verdadeiro SEMPRE vem do banco (profile). Fallback para 'client'
-        let finalRole: Role = ((profile as any)?.role as Role) || 'client';
-
+        let professionalId: string | undefined;
         if (finalRole === 'professional') {
-          const prof = await authService.getProfessionalByUserId(userId);
-          if (prof) professionalId = (prof as any).id;
+          // ensure_professional_exists creates the row if missing and returns its UUID
+          const { data: profId } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
+          professionalId = profId || undefined;
         }
 
-        // 5. Atualização de Estado Consistente
-        // Setamos dados apenas se o componente ainda estiver montado
+        // 5. Commit to store only when component is still mounted
         if (isMounted) {
-          currentUserIdRef.current = userId; // Confirma que ESSE usuário está validado
+          currentUserIdRef.current = userId;
           setAuth({
             id: userId,
             professionalId,
             email: session.user.email || '',
-            name: profile?.full_name || profile?.name || session.user.email?.split('@')[0] || 'Usuário',
+            name: (profile as any)?.full_name || session.user.email?.split('@')[0] || 'Usuário',
             role: finalRole,
-            phone: profile?.phone || '',
-            avatar: profile?.avatar_url || profile?.avatar,
+            phone: (profile as any)?.phone || '',
+            avatar: (profile as any)?.avatar_url,
           });
         }
       } catch (err) {

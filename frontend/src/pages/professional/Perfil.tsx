@@ -13,6 +13,7 @@ export default function ProfessionalPerfil() {
   const { data: profile, isLoading: profileLoading } = useProfile();
 
   const [successMsg, setSuccessMsg] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: user?.email || '',
@@ -52,11 +53,29 @@ export default function ProfessionalPerfil() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setValidationError(null);
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const validate = (): string | null => {
+    if (!formData.name.trim() || formData.name.trim().length < 3)
+      return 'Nome deve ter pelo menos 3 caracteres.';
+    if (!formData.category)
+      return 'Selecione uma categoria.';
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (!phoneDigits || phoneDigits.length < 10 || phoneDigits.length > 11)
+      return 'Telefone inválido. Use o formato (11) 90000-0000.';
+    return null;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const error = validate();
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+    setValidationError(null);
     saveMutation.mutate();
   };
 
@@ -95,6 +114,12 @@ export default function ProfessionalPerfil() {
           {successMsg && (
             <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center text-sm">
               <CheckCircle2 size={16} className="mr-2 shrink-0" /> Alterações salvas com sucesso!
+            </div>
+          )}
+          {validationError && (
+            <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3 rounded-lg flex items-center text-sm">
+              <AlertCircle size={16} className="mr-2 shrink-0" />
+              {validationError}
             </div>
           )}
           {saveMutation.isError && (

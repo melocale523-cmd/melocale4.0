@@ -36,15 +36,11 @@ async function fetchProfileData(userId: string): Promise<ProfileData> {
   const profile = profileRes.data;
   const prof = profRes.data;
 
-  // Auto-create professional record if it doesn't exist
+  // Ensure professional row exists via RPC (idempotent, no duplicate inserts)
   let profId = prof?.id || '';
   if (!prof) {
-    const { data: newProf } = await supabase
-      .from('professionals')
-      .insert({ user_id: userId, is_active: true })
-      .select('id')
-      .single();
-    profId = newProf?.id || '';
+    const { data: ensuredId } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
+    profId = ensuredId || '';
   }
 
   return {
