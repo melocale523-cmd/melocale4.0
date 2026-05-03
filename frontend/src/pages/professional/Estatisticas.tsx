@@ -1,10 +1,11 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
 import { Eye, TrendingUp, CheckCircle2, DollarSign, Loader2, Calendar } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
 import { useInView } from '../../hooks/useInView';
+import { useDeepMemo } from '../../hooks/useDeepMemo';
 
 const EstatisticasCharts = lazy(() => import('./EstatisticasCharts'));
 
@@ -24,14 +25,15 @@ export default function ProfessionalEstatisticas() {
   const [range, setRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
 
   const [chartsRef, chartsInView] = useInView({ threshold: 0, rootMargin: '200px' });
-  const seriesData = useMemo(() => stats?.seriesData ?? [], [stats?.seriesData]);
 
-  const { data: stats, isLoading, isFetching } = useQuery({
+  const { data: stats, isLoading } = useQuery({
     queryKey: ['professionalStats', range],
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: () => leadService.getProfessionalStats(range),
   });
+
+  const seriesData = useDeepMemo(() => stats?.seriesData ?? [], [stats?.seriesData]);
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -110,7 +112,6 @@ export default function ProfessionalEstatisticas() {
             <EstatisticasCharts
               key={range}
               seriesData={seriesData}
-              isFetching={isFetching}
               range={range}
             />
           </Suspense>

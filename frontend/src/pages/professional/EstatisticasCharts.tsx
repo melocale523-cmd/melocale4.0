@@ -3,7 +3,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 interface Props {
   seriesData: any[];
-  isFetching: boolean;
   range: '7d' | '30d' | '90d' | '1y';
 }
 
@@ -29,13 +28,12 @@ function CustomTooltip({ active, payload, label }: any) {
   );
 }
 
-function EstatisticasCharts({ seriesData, isFetching, range }: Props) {
+function EstatisticasCharts({ seriesData, range }: Props) {
   const barSize = range === '7d' ? 30 : range === '30d' ? 12 : 30;
-  const opacity = isFetching ? 'opacity-50' : '';
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
-      <div className={`bg-[#14161B] border border-white/5 rounded-3xl p-8 relative transition-opacity ${opacity}`}>
+      <div className={`bg-[#14161B] border border-white/5 rounded-3xl p-8 relative transition-opacity `}>
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-white font-bold text-lg">Solicitações e Propostas</h3>
@@ -62,7 +60,7 @@ function EstatisticasCharts({ seriesData, isFetching, range }: Props) {
         </div>
       </div>
 
-      <div className={`bg-[#14161B] border border-white/5 rounded-3xl p-8 relative transition-opacity ${opacity}`}>
+      <div className={`bg-[#14161B] border border-white/5 rounded-3xl p-8 relative transition-opacity `}>
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-white font-bold text-lg">Evolução Financeira</h3>
