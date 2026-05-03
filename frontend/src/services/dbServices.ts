@@ -83,15 +83,23 @@ export const leadService = {
   async getMyPurchases() {
     try {
       const { data, error } = await supabase
-        .from('lead_purchases')
-        .select('*, leads(*, clients!client_id(phone, email, city))')
+        .from('v_my_purchases')
+        .select('*')
         .order('created_at', { ascending: false });
-      if (error) {
-        // Fallback to RPC if direct query fails
-        const rpc = await supabase.rpc('get_my_purchases');
-        return rpc.data || [];
-      }
-      return data || [];
+      if (error) return [];
+      return (data || []).map((row: any) => ({
+        ...row,
+        leads: {
+          id: row.lead_id, title: row.title, description: row.description,
+          category: row.category, city: row.city, state: row.state,
+          budget_min: row.budget_min, budget_max: row.budget_max,
+          event_date: row.event_date, status: row.lead_status,
+          clients: {
+            id: row.client_id, full_name: row.client_name,
+            email: row.client_email, phone: row.client_phone, city: row.client_city,
+          },
+        },
+      }));
     } catch {
       return [];
     }
@@ -477,6 +485,28 @@ export const chatService = {
     if (error) throw error;
     return true;
   }
+};
+
+// === Profile ===
+export const profileService = {
+  async saveProfile(userId: string, data: {
+    name: string;
+    phone: string;
+    bio: string;
+    category: string;
+    serviceRadius: string;
+  }) {
+    const { error } = await supabase.rpc('save_full_profile', {
+      p_user_id: userId,
+      p_full_name: data.name,
+      p_phone: data.phone,
+      p_bio: data.bio || null,
+      p_category: data.category || null,
+      p_service_radius: data.serviceRadius ? Number(data.serviceRadius) : null,
+    });
+    if (error) throw error;
+    return true;
+  },
 };
 
 // === Subscriptions ===
