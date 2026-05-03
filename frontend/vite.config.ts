@@ -19,13 +19,18 @@ export default defineConfig(({ mode }) => {
       hmr: process.env.DISABLE_HMR !== 'true',
     },
     build: {
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            'vendor-query': ['@tanstack/react-query'],
-            'vendor-ui': ['lucide-react', 'sonner', 'recharts'],
-            'vendor-supabase': ['@supabase/supabase-js'],
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+            if (id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) return 'vendor-react';
+            if (id.includes('/react/')) return 'vendor-react';
+            if (id.includes('@tanstack')) return 'vendor-query';
+            if (id.includes('@supabase') || id.includes('@realtime-kit') || id.includes('websocket')) return 'vendor-supabase';
+            if (id.includes('lucide') || id.includes('recharts') || id.includes('sonner') || id.includes('victory')) return 'vendor-ui';
+            if (id.includes('firebase')) return 'vendor-firebase';
+            if (id.includes('motion') || id.includes('framer')) return 'vendor-motion';
           },
         },
       },
