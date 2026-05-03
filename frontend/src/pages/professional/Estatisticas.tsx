@@ -4,6 +4,7 @@ import { leadService } from '../../services/dbServices';
 import { Eye, TrendingUp, CheckCircle2, DollarSign, Loader2, Calendar } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
+import { useInView } from '../../hooks/useInView';
 
 const EstatisticasCharts = lazy(() => import('./EstatisticasCharts'));
 
@@ -21,6 +22,8 @@ function ChartsSkeleton() {
 
 export default function ProfessionalEstatisticas() {
   const [range, setRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+
+  const [chartsRef, chartsInView] = useInView({ threshold: 0.1 });
 
   const { data: stats, isLoading, isFetching } = useQuery({
     queryKey: ['professionalStats', range],
@@ -99,14 +102,20 @@ export default function ProfessionalEstatisticas() {
         </div>
       </div>
 
-      {/* Gráficos — carregam lazy (vendor-charts só é baixado aqui) */}
-      <Suspense fallback={<ChartsSkeleton />}>
-        <EstatisticasCharts
-          seriesData={stats?.seriesData || []}
-          isFetching={isFetching}
-          range={range}
-        />
-      </Suspense>
+      {/* Gráficos — vendor-charts só é baixado quando esta div entra na viewport */}
+      <div ref={chartsRef}>
+        {chartsInView ? (
+          <Suspense fallback={<ChartsSkeleton />}>
+            <EstatisticasCharts
+              seriesData={stats?.seriesData || []}
+              isFetching={isFetching}
+              range={range}
+            />
+          </Suspense>
+        ) : (
+          <ChartsSkeleton />
+        )}
+      </div>
 
       {/* Relatório Rápido — renderiza sem recharts */}
       <div className="bg-[#14161B] border border-white/5 rounded-3xl p-8">
