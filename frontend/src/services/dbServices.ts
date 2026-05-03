@@ -504,7 +504,10 @@ export const profileService = {
       p_category: data.category || null,
       p_service_radius: data.serviceRadius ? Number(data.serviceRadius) : null,
     });
-    if (error) throw error;
+    if (error) {
+      console.error('[profileService.saveProfile] RPC ERROR:', error);
+      throw new Error('Erro ao salvar dados. Tente novamente.');
+    }
     return true;
   },
 };

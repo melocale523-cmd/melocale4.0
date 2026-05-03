@@ -52,6 +52,14 @@ export default function ProfessionalPerfil() {
     },
   });
 
+  // Auto-clear mutation error after 5 seconds
+  const { isError: mutationIsError, reset: mutationReset } = saveMutation;
+  useEffect(() => {
+    if (!mutationIsError) return;
+    const t = setTimeout(mutationReset, 5000);
+    return () => clearTimeout(t);
+  }, [mutationIsError, mutationReset]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setValidationError(null);
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -125,7 +133,7 @@ export default function ProfessionalPerfil() {
           {saveMutation.isError && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center text-sm">
               <AlertCircle size={16} className="mr-2 shrink-0" />
-              {(saveMutation.error as any)?.message || 'Erro ao salvar. Tente novamente.'}
+              {(saveMutation.error as Error).message}
             </div>
           )}
 

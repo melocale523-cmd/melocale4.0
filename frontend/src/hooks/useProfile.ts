@@ -3,13 +3,11 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 
 export interface ProfileData {
-  // from profiles table
   id: string;
   full_name: string;
   phone: string;
   avatar_url: string;
   city: string;
-  // from professionals table
   professionalId: string;
   bio: string;
   category: string;
@@ -18,6 +16,10 @@ export interface ProfileData {
 }
 
 async function fetchProfileData(userId: string): Promise<ProfileData> {
+  // Step 1: guarantee the professional row exists (idempotent RPC, no race)
+  await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
+
+  // Step 2: fetch both rows — professional row is guaranteed to exist now
   const [profileRes, profRes] = await Promise.all([
     supabase
       .from('profiles')
@@ -28,20 +30,14 @@ async function fetchProfileData(userId: string): Promise<ProfileData> {
       .from('professionals')
       .select('id, bio, category, service_radius, is_active')
       .eq('user_id', userId)
-      .maybeSingle(),
+      .single(),
   ]);
 
-  if (profileRes.error) throw profileRes.error;
+  if (profileRes.error) throw new Error('Erro ao carregar perfil. Tente novamente.');
+  if (profRes.error) throw new Error('Erro ao carregar dados profissionais. Tente novamente.');
 
   const profile = profileRes.data;
   const prof = profRes.data;
-
-  // Ensure professional row exists via RPC (idempotent, no duplicate inserts)
-  let profId = prof?.id || '';
-  if (!prof) {
-    const { data: ensuredId } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
-    profId = ensuredId || '';
-  }
 
   return {
     id: profile.id,
@@ -49,11 +45,11 @@ async function fetchProfileData(userId: string): Promise<ProfileData> {
     phone: profile.phone || '',
     avatar_url: profile.avatar_url || '',
     city: profile.city || '',
-    professionalId: profId,
-    bio: prof?.bio || '',
-    category: prof?.category || '',
-    serviceRadius: prof?.service_radius ?? null,
-    isActive: prof?.is_active ?? true,
+    professionalId: prof.id,
+    bio: prof.bio || '',
+    category: prof.category || '',
+    serviceRadius: prof.service_radius ?? null,
+    isActive: prof.is_active ?? true,
   };
 }
 
