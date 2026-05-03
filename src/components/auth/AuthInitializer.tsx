@@ -106,14 +106,38 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
       }
     };
 
-    // A. Bootstrap inicial (captura evento e atua de imediato no mount)
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // A. Bootstrap inicial — verifica sessão e trata token inválido proativamente
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        // Token inválido ou expirado — faz signOut para limpar localStorage e evitar loop
+        console.warn('AuthInitializer: Sessão inválida detectada, limpando...', error.message);
+        supabase.auth.signOut();
+        if (isMounted) {
+          currentUserIdRef.current = null;
+          processingIdRef.current = null;
+          setAuth(null);
+          setLoading(false);
+        }
+        return;
+      }
       processSession(session);
     });
 
     // B. Reage a eventos REAIS e previne corridas com o processSession debounce pattern
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`AuthInitializer: Evento Auth [${event}]`);
+
+      // SIGNED_OUT cobre: logout manual, token inválido e refresh failure
+      if (event === 'SIGNED_OUT') {
+        if (isMounted) {
+          currentUserIdRef.current = null;
+          processingIdRef.current = null;
+          setAuth(null);
+          setLoading(false);
+        }
+        return;
+      }
+
       processSession(session);
     });
 
