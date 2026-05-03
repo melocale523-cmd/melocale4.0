@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
 import { Eye, TrendingUp, CheckCircle2, DollarSign, Loader2, Calendar } from 'lucide-react';
@@ -24,6 +24,7 @@ export default function ProfessionalEstatisticas() {
   const [range, setRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
 
   const [chartsRef, chartsInView] = useInView({ threshold: 0, rootMargin: '200px' });
+  const seriesData = useMemo(() => stats?.seriesData ?? [], [stats?.seriesData]);
 
   const { data: stats, isLoading, isFetching } = useQuery({
     queryKey: ['professionalStats', range],
@@ -107,7 +108,8 @@ export default function ProfessionalEstatisticas() {
         {chartsInView ? (
           <Suspense fallback={<ChartsSkeleton />}>
             <EstatisticasCharts
-              seriesData={stats?.seriesData || []}
+              key={range}
+              seriesData={seriesData}
               isFetching={isFetching}
               range={range}
             />

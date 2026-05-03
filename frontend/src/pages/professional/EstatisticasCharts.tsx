@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 
 interface Props {
@@ -28,7 +29,7 @@ function CustomTooltip({ active, payload, label }: any) {
   );
 }
 
-export default function EstatisticasCharts({ seriesData, isFetching, range }: Props) {
+function EstatisticasCharts({ seriesData, isFetching, range }: Props) {
   const barSize = range === '7d' ? 30 : range === '30d' ? 12 : 30;
   const opacity = isFetching ? 'opacity-50' : '';
 
@@ -89,3 +90,5 @@ export default function EstatisticasCharts({ seriesData, isFetching, range }: Pr
     </div>
   );
 }
+
+export default memo(EstatisticasCharts);
