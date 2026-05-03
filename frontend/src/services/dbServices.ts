@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { logService } from '../lib/logService';
 
 // === Auth Functions ===
 export const authService = {
@@ -505,7 +506,7 @@ export const profileService = {
       p_service_radius: data.serviceRadius ? Number(data.serviceRadius) : null,
     });
     if (error) {
-      console.error('[profileService.saveProfile] RPC ERROR:', error);
+      logService.error('profileService', 'save_full_profile RPC failed', error);
       throw new Error('Erro ao salvar dados. Tente novamente.');
     }
     return true;
@@ -519,7 +520,7 @@ export const clientProfileService = {
       .from('profiles')
       .upsert({ id: userId, full_name: data.name, phone: data.phone, city: data.city }, { onConflict: 'id' });
     if (error) {
-      console.error('[clientProfileService.saveProfile]:', error);
+      logService.error('clientProfileService', 'profiles upsert failed', error);
       throw new Error('Erro ao salvar perfil. Tente novamente.');
     }
     return true;

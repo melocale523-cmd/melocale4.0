@@ -15,9 +15,10 @@ export default function ClientDashboard() {
   const queryClient = useQueryClient();
 
   const profileComplete = isClientProfileComplete(profile);
-  const userName = profile?.full_name
+  // Only compute after data is ready — never renders 'Usuário' as a transient value
+  const userName = !profileLoading && profile?.full_name
     ? profile.full_name.split(' ').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' ')
-    : 'Usuário';
+    : '';
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({

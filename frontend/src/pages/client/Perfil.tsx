@@ -3,7 +3,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useClientProfile } from '../../hooks/useClientProfile';
 import { clientProfileService } from '../../services/dbServices';
-import { validateClientProfileForm, ClientFieldErrors } from '../../lib/profileHelpers';
+import { validateClientProfileForm, normalizeClientProfileData, ClientFieldErrors } from '../../lib/profileHelpers';
+import { logService } from '../../lib/logService';
 import { User, MapPin, Phone, Mail, Settings, CheckCircle2, AlertCircle, Loader2, Hash } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -29,7 +30,7 @@ export default function ClientePerfil() {
   }, [profile]);
 
   const saveMutation = useMutation({
-    mutationFn: () => clientProfileService.saveProfile(user!.id, formData),
+    mutationFn: () => clientProfileService.saveProfile(user!.id, normalizeClientProfileData(formData)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientProfile', user?.id] });
       setSuccessMsg(true);
@@ -49,6 +50,8 @@ export default function ClientePerfil() {
     setFormData(prev => ({ ...prev, [name]: value }));
     if (fieldErrors[name as keyof ClientFieldErrors])
       setFieldErrors(prev => ({ ...prev, [name]: undefined }));
+    // CEP helper is optional — typing in city directly clears any CEP warning
+    if (name === 'city') setCepError(null);
   };
 
   const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,8 +71,9 @@ export default function ClientePerfil() {
         setFormData(prev => ({ ...prev, city }));
         setFieldErrors(prev => ({ ...prev, city: undefined }));
       }
-    } catch {
-      setCepError('Não foi possível consultar o CEP. Tente novamente.');
+    } catch (err) {
+      logService.warn('CEP', 'ViaCEP lookup failed', err);
+      setCepError('Não foi possível consultar o CEP. Insira a cidade manualmente.');
     } finally {
       setCepLoading(false);
     }
@@ -77,6 +81,7 @@ export default function ClientePerfil() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (saveMutation.isPending) return;
     const errors = validateClientProfileForm(formData);
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);

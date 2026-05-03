@@ -50,14 +50,33 @@ export function validateClientProfileForm(data: {
   city: string;
 }): ClientFieldErrors {
   const errors: ClientFieldErrors = {};
+
   if (!data.name.trim() || data.name.trim().length < 3)
     errors.name = 'Nome deve ter pelo menos 3 caracteres.';
+
   const digits = data.phone.replace(/\D/g, '');
-  if (!digits || digits.length < 10 || digits.length > 11)
+  if (!digits || digits.length < 10 || digits.length > 11) {
     errors.phone = 'Telefone inválido. Use (11) 99999-9999.';
+  } else if (digits === digits[0].repeat(digits.length)) {
+    errors.phone = 'Telefone inválido. Verifique o número.';
+  }
+
   if (!data.city.trim())
     errors.city = 'Informe sua cidade.';
+
   return errors;
+}
+
+export function normalizeClientProfileData(data: {
+  name: string;
+  phone: string;
+  city: string;
+}) {
+  return {
+    name: data.name.trim(),
+    phone: data.phone.replace(/\D/g, ''),
+    city: data.city.trim(),
+  };
 }
 
 export interface DashboardStep {

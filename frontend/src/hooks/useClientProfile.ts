@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { logService } from '../lib/logService';
 
 export interface ClientProfileData {
   id: string;
@@ -18,7 +19,7 @@ async function fetchClientProfile(userId: string): Promise<ClientProfileData> {
     .single();
 
   if (error) {
-    console.error('[useClientProfile] fetch error:', error);
+    logService.error('useClientProfile', 'fetch failed', error);
     throw new Error('Erro ao carregar perfil. Tente novamente.');
   }
 

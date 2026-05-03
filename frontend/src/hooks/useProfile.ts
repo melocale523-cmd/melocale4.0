@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { logService } from '../lib/logService';
 
 export interface ProfileData {
   id: string;
@@ -19,7 +20,7 @@ async function fetchProfileData(userId: string): Promise<ProfileData> {
   // Step 1: guarantee the professional row exists (idempotent, DB-level uniqueness)
   const { error: rpcError } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
   if (rpcError) {
-    console.error('[useProfile] ensure_professional_exists failed:', rpcError);
+    logService.error('useProfile', 'ensure_professional_exists failed', rpcError);
     throw new Error('Não foi possível preparar os dados profissionais. Tente novamente.');
   }
 
