@@ -57,7 +57,7 @@ export default function AdminPacotes() {
                     </span>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-emerald-400">R$ {pacote.price.toFixed(2).replace('.', ',')}</div>
+                    <div className="text-2xl font-bold text-emerald-400">R$ {(pacote.price ?? 0).toFixed(2).replace('.', ',')}</div>
                   </div>
                </div>
 

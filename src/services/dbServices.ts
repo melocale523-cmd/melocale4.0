@@ -80,8 +80,15 @@ export const leadService = {
 
   async getMyPurchases() {
     try {
-      const { data, error } = await supabase.rpc('get_my_purchases');
-      if (error) return [];
+      const { data, error } = await supabase
+        .from('lead_purchases')
+        .select('*, leads(*, clients!client_id(phone, email, city))')
+        .order('created_at', { ascending: false });
+      if (error) {
+        // Fallback to RPC if direct query fails
+        const rpc = await supabase.rpc('get_my_purchases');
+        return rpc.data || [];
+      }
       return data || [];
     } catch {
       return [];
