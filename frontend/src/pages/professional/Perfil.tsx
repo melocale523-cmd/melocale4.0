@@ -1,45 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
+import { useProfile } from '../../hooks/useProfile';
+import { profileService } from '../../services/dbServices';
 import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
-import { profileService } from '../../services/dbServices';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function ProfessionalPerfil() {
   const { user, updateProfile } = useAuthStore();
-  const [isSaving, setIsSaving] = useState(false);
-  const [successMsg, setSuccessMsg] = useState(false);
-  const [error, setError] = useState('');
+  const queryClient = useQueryClient();
+  const { data: profile, isLoading: profileLoading } = useProfile();
 
+  const [successMsg, setSuccessMsg] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: '',
     email: user?.email || '',
-    phone: user?.phone || '',
-    category: user?.category || 'Pintura',
-    radius: user?.serviceRadius || '15',
-    bio: user?.bio || '',
+    phone: '',
+    category: 'Pintura',
+    radius: '15',
+    bio: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  // Initialise form once profile loads from Supabase
+  useEffect(() => {
+    if (!profile) return;
+    setFormData(prev => ({
+      ...prev,
+      name: profile.full_name || '',
+      phone: profile.phone || '',
+      category: profile.category || 'Pintura',
+      radius: profile.serviceRadius ? String(profile.serviceRadius) : '15',
+      bio: profile.bio || '',
+    }));
+  }, [profile]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    setIsSaving(true);
-    setError('');
-    setSuccessMsg(false);
-
-    try {
-      await profileService.saveProfile(user.id, user.professionalId, {
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      profileService.saveProfile(user!.id, user?.professionalId, {
         name: formData.name,
         phone: formData.phone,
         bio: formData.bio,
         category: formData.category,
         serviceRadius: formData.radius,
-      });
-
+      }),
+    onSuccess: () => {
+      // Keep auth store in sync for layouts/greeting
       updateProfile({
         name: formData.name,
         phone: formData.phone,
@@ -47,15 +53,29 @@ export default function ProfessionalPerfil() {
         category: formData.category,
         serviceRadius: formData.radius,
       });
-
+      // Invalidate profile query so Dashboard and any other consumer re-fetches
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar. Tente novamente.');
-    } finally {
-      setIsSaving(false);
-    }
+    },
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveMutation.mutate();
+  };
+
+  if (profileLoading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <LoadingSpinner size={40} label="Carregando perfil..." />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -69,12 +89,12 @@ export default function ProfessionalPerfil() {
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
           <div className="absolute -bottom-10 left-6">
             <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden">
-              {user?.avatar ? (
-                <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
               ) : (
                 <User size={32} />
               )}
-              <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
+              <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center">
                 <Camera size={20} className="text-white" />
               </div>
             </div>
@@ -87,9 +107,10 @@ export default function ProfessionalPerfil() {
               <CheckCircle2 size={16} className="mr-2 shrink-0" /> Alterações salvas com sucesso!
             </div>
           )}
-          {error && (
+          {saveMutation.isError && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center text-sm">
-              <AlertCircle size={16} className="mr-2 shrink-0" /> {error}
+              <AlertCircle size={16} className="mr-2 shrink-0" />
+              {(saveMutation.error as any)?.message || 'Erro ao salvar. Tente novamente.'}
             </div>
           )}
 
@@ -192,10 +213,10 @@ export default function ProfessionalPerfil() {
           <div className="pt-4 flex justify-end">
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={saveMutation.isPending}
               className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center"
             >
-              {isSaving ? (
+              {saveMutation.isPending ? (
                 <><Loader2 size={16} className="animate-spin mr-2" /> Salvando...</>
               ) : (
                 'Salvar Alterações'
@@ -205,7 +226,7 @@ export default function ProfessionalPerfil() {
         </form>
       </div>
 
-      {/* Stripe Connect Section */}
+      {/* Stripe Connect */}
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500">
@@ -228,13 +249,13 @@ export default function ProfessionalPerfil() {
                 const res = await apiFetch('/api/create-connected-account', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: user?.email })
+                  body: JSON.stringify({ email: user?.email }),
                 });
                 const { accountId } = await res.json();
                 const linkRes = await apiFetch('/api/create-account-link', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ accountId })
+                  body: JSON.stringify({ accountId }),
                 });
                 const { url } = await linkRes.json();
                 window.location.href = url;

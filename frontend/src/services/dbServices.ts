@@ -509,28 +509,36 @@ export const profileService = {
     category: string;
     serviceRadius: string;
   }) {
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ full_name: data.name, phone: data.phone })
-      .eq('id', userId);
+    console.log('[profileService.saveProfile] payload:', { userId, professionalId, data });
 
-    if (profileError) throw profileError;
+    const profUpdate: Record<string, unknown> = { bio: data.bio };
+    if (data.category) profUpdate.categories = [data.category];
+    if (data.serviceRadius) profUpdate.service_radius = Number(data.serviceRadius);
 
-    if (professionalId) {
-      const profUpdate: Record<string, unknown> = { bio: data.bio };
-      // categories is a TEXT[] column; store single selection as first element
-      if (data.category) profUpdate.categories = [data.category];
-      // service_radius is INTEGER (added via migration)
-      if (data.serviceRadius) profUpdate.service_radius = Number(data.serviceRadius);
+    const [profileRes, profRes] = await Promise.all([
+      // upsert ensures record exists even if profiles row was somehow missing
+      supabase
+        .from('profiles')
+        .upsert({ id: userId, full_name: data.name, phone: data.phone }, { onConflict: 'id' }),
 
-      const { error: profError } = await supabase
-        .from('professionals')
-        .update(profUpdate)
-        .eq('id', professionalId);
+      professionalId
+        ? supabase.from('professionals').update(profUpdate).eq('id', professionalId)
+        : Promise.resolve({ error: null }),
+    ]);
 
-      if (profError) throw profError;
+    console.log('[profileService.saveProfile] profiles response:', profileRes);
+    console.log('[profileService.saveProfile] professionals response:', profRes);
+
+    if (profileRes.error) {
+      console.error('[profileService.saveProfile] profiles error:', profileRes.error);
+      throw profileRes.error;
+    }
+    if (profRes.error) {
+      console.error('[profileService.saveProfile] professionals error:', profRes.error);
+      throw profRes.error;
     }
 
+    console.log('[profileService.saveProfile] success');
     return true;
   }
 };

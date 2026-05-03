@@ -1,4 +1,5 @@
-import { useAuthStore, User } from '../../store/authStore';
+import { useAuthStore } from '../../store/authStore';
+import { useProfile, ProfileData } from '../../hooks/useProfile';
 import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { walletService, leadService } from '../../services/dbServices';
@@ -12,27 +13,27 @@ interface CompletionResult {
   missing: string[];
 }
 
-function calculateProfileCompletion(user: User | null): CompletionResult {
-  if (!user) return { pct: 0, missing: [] };
+function calculateProfileCompletion(profile: ProfileData | null | undefined, email: string | undefined): CompletionResult {
+  if (!profile) return { pct: 0, missing: [] };
 
   const missing: string[] = [];
   let score = 0;
 
-  // Name (20%) — must be non-empty and not just the email prefix
-  const nameIsReal = user.name && user.name !== user.email?.split('@')[0] && user.name.trim().length > 2;
+  // Name (20%) — must differ from email prefix and be non-trivial
+  const nameIsReal = profile.full_name && profile.full_name !== email?.split('@')[0] && profile.full_name.trim().length > 2;
   if (nameIsReal) { score += 20; } else { missing.push('Nome completo'); }
 
   // Phone (20%)
-  if (user.phone?.trim()) { score += 20; } else { missing.push('Telefone'); }
+  if (profile.phone?.trim()) { score += 20; } else { missing.push('Telefone'); }
 
-  // Bio (25%) — must have meaningful text (professionals.bio)
-  if (user.bio && user.bio.trim().length > 10) { score += 25; } else { missing.push('Biografia'); }
+  // Bio (25%) — professionals.bio
+  if (profile.bio && profile.bio.trim().length > 10) { score += 25; } else { missing.push('Biografia'); }
 
   // Category (20%) — first element of professionals.categories[]
-  if (user.category?.trim()) { score += 20; } else { missing.push('Categoria'); }
+  if (profile.category?.trim()) { score += 20; } else { missing.push('Categoria'); }
 
   // Avatar (15%) — profiles.avatar_url
-  if (user.avatar?.trim()) { score += 15; } else { missing.push('Foto de perfil'); }
+  if (profile.avatar_url?.trim()) { score += 15; } else { missing.push('Foto de perfil'); }
 
   return { pct: score, missing };
 }
@@ -42,6 +43,9 @@ function calculateProfileCompletion(user: User | null): CompletionResult {
 export default function ProfessionalDashboard() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+
+  // useProfile is the authoritative source — always fresh from Supabase
+  const { data: profile, isLoading: profileLoading } = useProfile();
 
   const { data: balance, isLoading: balanceLoading } = useQuery({
     queryKey: ['walletBalance'],
@@ -57,7 +61,7 @@ export default function ProfessionalDashboard() {
     queryFn: leadService.getMyPurchases,
   });
 
-  const completion = calculateProfileCompletion(user);
+  const completion = calculateProfileCompletion(profile, user?.email);
   const balanceCoins = typeof balance === 'number' ? balance : 0;
   const purchaseCount = Array.isArray(purchases) ? purchases.length : 0;
 
@@ -93,7 +97,7 @@ export default function ProfessionalDashboard() {
   const doneCount = steps.filter(s => s.done).length;
   const checklistPct = Math.round((doneCount / steps.length) * 100);
 
-  if (balanceLoading || purchasesLoading) {
+  if (profileLoading || balanceLoading || purchasesLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <LoadingSpinner size={40} label="Carregando seu painel..." />
@@ -150,10 +154,10 @@ export default function ProfessionalDashboard() {
             <Briefcase size={16} className="text-purple-400" />
           </div>
           <p className="text-2xl font-bold text-white mb-2 truncate">
-            {user?.category || 'Não definida'}
+            {profile?.category || 'Não definida'}
           </p>
           <Link to="/profissional/perfil" className="text-purple-400 hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
-            {user?.category ? 'Alterar' : 'Definir agora'} <ArrowRight size={12} />
+            {profile?.category ? 'Alterar' : 'Definir agora'} <ArrowRight size={12} />
           </Link>
         </div>
       </div>
