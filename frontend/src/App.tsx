@@ -1,29 +1,53 @@
-import { RouterProvider, createBrowserRouter, Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { RouterProvider, createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
+import { Loader2 } from 'lucide-react';
 import AuthLayout from './layouts/AuthLayout';
 import ClientLayout from './layouts/ClientLayout';
 import ProfessionalLayout from './layouts/ProfessionalLayout';
 import AdminLayout from './layouts/AdminLayout';
-import LandingPage from './pages/Landing';
-import Login from './pages/auth/Login';
-import ClientDashboard from './pages/client/Dashboard';
-import ClientPedidos from './pages/client/Pedidos';
-import ClientMensagens from './pages/client/Mensagens';
-import ClientPerfil from './pages/client/Perfil';
-import ProfessionalDashboard from './pages/professional/Dashboard';
-import ProfessionalLeads from './pages/professional/Leads';
-import ProfessionalCompras from './pages/professional/Compras';
-import ProfessionalWallet from './pages/professional/Wallet';
-import ProfessionalPerfil from './pages/professional/Perfil';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminObservabilidade from './pages/admin/Observabilidade';
-import AdminDisputas from './pages/admin/Disputas';
-import AdminPlanos from './pages/admin/Planos';
-import AdminTransacoes from './pages/admin/Transacoes';
-import { useAuthGuard } from './hooks/useAuthGuard';
+import AuthInitializer from './components/auth/AuthInitializer';
 import RouteProgressBar from './components/RouteProgressBar';
+import RealtimeNotificationHandler from './components/RealtimeNotificationHandler';
+import AiChatWidget from './components/AiChat/AiChatWidget';
+import { Toaster } from 'sonner';
+
+// Lazy-loaded pages — client
+const LandingPage = lazy(() => import('./pages/Landing'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const ClientDashboard = lazy(() => import('./pages/client/Dashboard'));
+const ClientPedidos = lazy(() => import('./pages/client/Pedidos'));
+const ClientMensagens = lazy(() => import('./pages/client/Mensagens'));
+const ClientPerfil = lazy(() => import('./pages/client/Perfil'));
+
+// Lazy-loaded pages — professional
+const ProfessionalDashboard = lazy(() => import('./pages/professional/Dashboard'));
+const ProfessionalLeads = lazy(() => import('./pages/professional/Leads'));
+const ProfessionalCompras = lazy(() => import('./pages/professional/Compras'));
+const ProfessionalWallet = lazy(() => import('./pages/professional/Wallet'));
+const ProfessionalPerfil = lazy(() => import('./pages/professional/Perfil'));
+const ProfessionalAgenda = lazy(() => import('./pages/professional/Agenda'));
+const ProfessionalEstatisticas = lazy(() => import('./pages/professional/Estatisticas'));
+const ProfessionalAssinatura = lazy(() => import('./pages/professional/Assinatura'));
+const ProfessionalMensagens = lazy(() => import('./pages/professional/Mensagens'));
+
+// Lazy-loaded pages — admin
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AdminObservabilidade = lazy(() => import('./pages/admin/Observabilidade'));
+const AdminDisputas = lazy(() => import('./pages/admin/Disputas'));
+const AdminPlanos = lazy(() => import('./pages/admin/Planos'));
+const AdminTransacoes = lazy(() => import('./pages/admin/Transacoes'));
+const AdminPendentes = lazy(() => import('./pages/admin/Pendentes'));
+const AdminAprovados = lazy(() => import('./pages/admin/Aprovados'));
+const AdminClientes = lazy(() => import('./pages/admin/Clientes'));
+const AdminUsuarios = lazy(() => import('./pages/admin/Usuarios'));
+const AdminPacotes = lazy(() => import('./pages/admin/Pacotes'));
+
+// Lazy-loaded pages — checkout
+const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
+const CheckoutCancel = lazy(() => import('./pages/checkout/CheckoutCancel'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,8 +59,14 @@ const queryClient = new QueryClient({
   },
 });
 
-import { useUserRole } from './hooks/useUserRole';
-import { Loader2 } from 'lucide-react';
+function PageLoader() {
+  return (
+    <div className="min-h-screen bg-[#0A0B0D] flex flex-col items-center justify-center text-emerald-500">
+      <Loader2 className="animate-spin mb-4" size={40} />
+      <p className="text-slate-400 font-medium">Carregando...</p>
+    </div>
+  );
+}
 
 function RootLayout() {
   return (
@@ -69,18 +99,16 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
     return <Navigate to="/login" replace />;
   }
 
-  // 1. Definição da Modalidade Efetiva Lógica
   let effectiveMode: 'client' | 'professional' | 'admin' = 'client';
-  
+
   if (user.role === 'admin') {
     effectiveMode = 'admin';
   } else if (user.role === 'professional') {
-    effectiveMode = (currentMode as 'client'|'professional') || 'professional';
+    effectiveMode = (currentMode as 'client' | 'professional') || 'professional';
   } else {
-    effectiveMode = 'client'; // Força client para quem não é admin nem professional
+    effectiveMode = 'client';
   }
 
-  // 2. Transição final controlada. Impede múltiplos redirecionamentos simultâneos sem React useEffect cascade
   if (role !== effectiveMode) {
     let dashboard = '/cliente/dashboard';
     if (effectiveMode === 'admin') dashboard = '/admin/dashboard';
@@ -111,11 +139,11 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
 
   if (isAuthenticated && user) {
     let effectiveMode: 'client' | 'professional' | 'admin' = 'client';
-    
+
     if (user.role === 'admin') {
       effectiveMode = 'admin';
     } else if (user.role === 'professional') {
-      effectiveMode = (currentMode as 'client'|'professional') || 'professional';
+      effectiveMode = (currentMode as 'client' | 'professional') || 'professional';
     } else {
       effectiveMode = 'client';
     }
@@ -129,50 +157,43 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-import ProfessionalAgenda from './pages/professional/Agenda';
-import ProfessionalEstatisticas from './pages/professional/Estatisticas';
-import ProfessionalAssinatura from './pages/professional/Assinatura';
-import ProfessionalMensagens from './pages/professional/Mensagens';
-import CheckoutSuccess from './pages/checkout/CheckoutSuccess';
-import CheckoutCancel from './pages/checkout/CheckoutCancel';
-
-import AdminPendentes from './pages/admin/Pendentes';
-import AdminAprovados from './pages/admin/Aprovados';
-import AdminClientes from './pages/admin/Clientes';
-import AdminUsuarios from './pages/admin/Usuarios';
-import AdminPacotes from './pages/admin/Pacotes';
-
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
       {
         path: '/',
-        element: <LandingPage />
+        element: <Suspense fallback={<PageLoader />}><LandingPage /></Suspense>
       },
       {
         path: '/checkout/success',
-        element: <CheckoutSuccess />
+        element: <Suspense fallback={<PageLoader />}><CheckoutSuccess /></Suspense>
       },
       {
         path: '/checkout/cancel',
-        element: <CheckoutCancel />
+        element: <Suspense fallback={<PageLoader />}><CheckoutCancel /></Suspense>
       },
       {
         element: <AuthLayout />,
         children: [
-          { path: '/login', element: <AuthRedirect><Login /></AuthRedirect> },
-          // add signup if needed later
+          {
+            path: '/login',
+            element: (
+              <AuthRedirect>
+                <Suspense fallback={<PageLoader />}><Login /></Suspense>
+              </AuthRedirect>
+            )
+          },
         ]
       },
       {
         path: '/cliente',
         element: <ProtectedRoute role="client"><ClientLayout /></ProtectedRoute>,
         children: [
-          { path: 'dashboard', element: <ClientDashboard /> },
-          { path: 'pedidos', element: <ClientPedidos /> },
-          { path: 'mensagens', element: <ClientMensagens /> },
-          { path: 'perfil', element: <ClientPerfil /> },
+          { path: 'dashboard', element: <Suspense fallback={<PageLoader />}><ClientDashboard /></Suspense> },
+          { path: 'pedidos', element: <Suspense fallback={<PageLoader />}><ClientPedidos /></Suspense> },
+          { path: 'mensagens', element: <Suspense fallback={<PageLoader />}><ClientMensagens /></Suspense> },
+          { path: 'perfil', element: <Suspense fallback={<PageLoader />}><ClientPerfil /></Suspense> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
@@ -180,15 +201,15 @@ const router = createBrowserRouter([
         path: '/profissional',
         element: <ProtectedRoute role="professional"><ProfessionalLayout /></ProtectedRoute>,
         children: [
-          { path: 'dashboard', element: <ProfessionalDashboard /> },
-          { path: 'leads', element: <ProfessionalLeads /> },
-          { path: 'meus-leads', element: <ProfessionalCompras /> },
-          { path: 'agenda', element: <ProfessionalAgenda /> },
-          { path: 'mensagens', element: <ProfessionalMensagens /> },
-          { path: 'estatisticas', element: <ProfessionalEstatisticas /> },
-          { path: 'carteira', element: <ProfessionalWallet /> },
-          { path: 'assinatura', element: <ProfessionalAssinatura /> },
-          { path: 'perfil', element: <ProfessionalPerfil /> },
+          { path: 'dashboard', element: <Suspense fallback={<PageLoader />}><ProfessionalDashboard /></Suspense> },
+          { path: 'leads', element: <Suspense fallback={<PageLoader />}><ProfessionalLeads /></Suspense> },
+          { path: 'meus-leads', element: <Suspense fallback={<PageLoader />}><ProfessionalCompras /></Suspense> },
+          { path: 'agenda', element: <Suspense fallback={<PageLoader />}><ProfessionalAgenda /></Suspense> },
+          { path: 'mensagens', element: <Suspense fallback={<PageLoader />}><ProfessionalMensagens /></Suspense> },
+          { path: 'estatisticas', element: <Suspense fallback={<PageLoader />}><ProfessionalEstatisticas /></Suspense> },
+          { path: 'carteira', element: <Suspense fallback={<PageLoader />}><ProfessionalWallet /></Suspense> },
+          { path: 'assinatura', element: <Suspense fallback={<PageLoader />}><ProfessionalAssinatura /></Suspense> },
+          { path: 'perfil', element: <Suspense fallback={<PageLoader />}><ProfessionalPerfil /></Suspense> },
           { path: 'configuracoes', element: <div className="p-8 text-slate-400">Configurações (Em breve)</div> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
@@ -197,16 +218,16 @@ const router = createBrowserRouter([
         path: '/admin',
         element: <ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>,
         children: [
-          { path: 'dashboard', element: <AdminDashboard /> },
-          { path: 'observabilidade', element: <AdminObservabilidade /> },
-          { path: 'disputas', element: <AdminDisputas /> },
-          { path: 'usuarios', element: <AdminUsuarios /> },
-          { path: 'pendentes', element: <AdminPendentes /> },
-          { path: 'aprovados', element: <AdminAprovados /> },
-          { path: 'clientes', element: <AdminClientes /> },
-          { path: 'planos', element: <AdminPlanos /> },
-          { path: 'pacotes', element: <AdminPacotes /> },
-          { path: 'transacoes', element: <AdminTransacoes /> },
+          { path: 'dashboard', element: <Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense> },
+          { path: 'observabilidade', element: <Suspense fallback={<PageLoader />}><AdminObservabilidade /></Suspense> },
+          { path: 'disputas', element: <Suspense fallback={<PageLoader />}><AdminDisputas /></Suspense> },
+          { path: 'usuarios', element: <Suspense fallback={<PageLoader />}><AdminUsuarios /></Suspense> },
+          { path: 'pendentes', element: <Suspense fallback={<PageLoader />}><AdminPendentes /></Suspense> },
+          { path: 'aprovados', element: <Suspense fallback={<PageLoader />}><AdminAprovados /></Suspense> },
+          { path: 'clientes', element: <Suspense fallback={<PageLoader />}><AdminClientes /></Suspense> },
+          { path: 'planos', element: <Suspense fallback={<PageLoader />}><AdminPlanos /></Suspense> },
+          { path: 'pacotes', element: <Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense> },
+          { path: 'transacoes', element: <Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense> },
           { path: 'financeiro-auditoria', element: <div className="p-8 text-slate-400">Auditoria Financeira (Em breve)</div> },
           { path: 'auditoria-logs', element: <div className="p-8 text-slate-400">Auditoria Logs (Em breve)</div> },
           { path: 'equipe', element: <div className="p-8 text-slate-400">Equipe (Em breve)</div> },
@@ -218,12 +239,6 @@ const router = createBrowserRouter([
     ]
   }
 ]);
-
-import AuthInitializer from './components/auth/AuthInitializer';
-
-import { Toaster } from 'sonner';
-import AiChatWidget from './components/AiChat/AiChatWidget';
-import RealtimeNotificationHandler from './components/RealtimeNotificationHandler';
 
 export default function App() {
   return (
