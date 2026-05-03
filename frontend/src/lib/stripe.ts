@@ -17,7 +17,6 @@ function requireEnvVar(name: string): string {
     if (name === 'VITE_STRIPE_PUBLIC_KEY') {
       // Como o VITE_STRIPE_PUBLIC_KEY já é público, em último caso usamos ele explícito
       value = 'pk_test_51SRlmgCx1uHAwHhQj51ZFGzqwne1m4lHhycuZ1dlayZ6c7IYVSotIIuy9V3oyhI0bOA4Ka4BrEHPV5PqJO2529NH00L02bnqDh';
-      console.warn(`⚠️ Aviso: Variável '${name}' não encontrada. Usando fallback hardcoded para testes.`);
       return value;
     }
     
@@ -35,7 +34,6 @@ let stripePromise: Promise<Stripe | null> | null = null;
 export const getStripe = () => {
   if (!stripePromise) {
     const publicKey = requireEnvVar('VITE_STRIPE_PUBLIC_KEY');
-    console.log(`✅ [Stripe] Inicializando com chave pública: ${publicKey.substring(0, 8)}...`);
     stripePromise = loadStripe(publicKey);
   }
   return stripePromise;
@@ -55,16 +53,11 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
     user_id: user.id
   };
   
-  console.log("CHECKOUT PAYLOAD:", payload);
-
   const VALID_IDS = ["pack_starter", "pack_pro", "pack_premium", "plan_basic", "plan_pro", "plan_business"];
   
   if (!VALID_IDS.includes(id)) {
-    console.error("❌ ID inválido no frontend:", id);
     throw new Error("ID inválido no frontend: " + id);
   }
-
-  console.log("ID SENDO ENVIADO:", id);
 
   const response = await apiFetch('/api/create-checkout-session', {
     method: 'POST',

@@ -11,8 +11,6 @@ const getEnv = (key: string, fallback: string) => {
 const supabaseUrl = getEnv('VITE_SUPABASE_URL', "https://wfournowizclpiektwuv.supabase.co");
 const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indmb3Vybm93aXpjbHBpZWt0d3V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTQxMDUsImV4cCI6MjA5MTY3MDEwNX0.1byW8VpRXa9FlUXfonSQCbC1da6L7CEi1Fm-7HD7dmg");
 
-console.log("Supabase Client initialized with URL:", supabaseUrl);
-
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Variáveis de ambiente do Supabase não encontradas.");
 }

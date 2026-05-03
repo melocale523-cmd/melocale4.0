@@ -473,9 +473,26 @@ export const chatService = {
       .from('chats')
       .delete()
       .eq('id', chatId);
-    
+
     if (error) throw error;
     return true;
+  }
+};
+
+// === Subscriptions ===
+export const subscriptionService = {
+  async getCurrentSubscription() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) return null;
+    return data;
   }
 };
 
