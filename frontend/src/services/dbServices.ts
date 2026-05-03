@@ -479,6 +479,39 @@ export const chatService = {
   }
 };
 
+// === Profile Save ===
+export const profileService = {
+  async saveProfile(userId: string, professionalId: string | undefined, data: {
+    name: string;
+    phone: string;
+    bio: string;
+    category: string;
+    serviceRadius: string;
+  }) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ full_name: data.name, phone: data.phone })
+      .eq('id', userId);
+
+    if (profileError) throw profileError;
+
+    if (professionalId) {
+      const { error: profError } = await supabase
+        .from('professionals')
+        .update({
+          bio: data.bio,
+          category: data.category,
+          service_radius: data.serviceRadius ? Number(data.serviceRadius) : null,
+        })
+        .eq('id', professionalId);
+
+      if (profError) throw profError;
+    }
+
+    return true;
+  }
+};
+
 // === Subscriptions ===
 export const subscriptionService = {
   async getCurrentSubscription() {

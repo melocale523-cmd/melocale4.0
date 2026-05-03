@@ -64,9 +64,10 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
         // O papel verdadeiro SEMPRE vem do banco (profile). Fallback para 'client'
         let finalRole: Role = ((profile as any)?.role as Role) || 'client';
 
+        let prof: any = null;
         if (finalRole === 'professional') {
-          const prof = await authService.getProfessionalByUserId(userId);
-          if (prof) professionalId = (prof as any).id;
+          prof = await authService.getProfessionalByUserId(userId);
+          if (prof) professionalId = prof.id;
         }
 
         // 5. Atualização de Estado Consistente
@@ -80,7 +81,11 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
             name: profile?.full_name || profile?.name || session.user.email?.split('@')[0] || 'Usuário',
             role: finalRole,
             phone: profile?.phone || '',
-            avatar: profile?.avatar_url || profile?.avatar,
+            avatar: profile?.avatar_url || profile?.avatar || '',
+            bio: prof?.bio || (profile as any)?.bio || '',
+            category: prof?.category || '',
+            serviceRadius: String(prof?.service_radius || prof?.radius || ''),
+            status: (profile as any)?.status || '',
           });
         }
       } catch (err) {

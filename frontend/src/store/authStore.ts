@@ -12,6 +12,10 @@ export interface User {
   avatar?: string;
   address?: string;
   cep?: string;
+  bio?: string;
+  category?: string;
+  serviceRadius?: string;
+  status?: string;
 }
 
 interface AuthState {

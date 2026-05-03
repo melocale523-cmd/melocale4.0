@@ -1,37 +1,60 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { User, Mail, Phone, MapPin, Briefcase, Camera, Loader2, CheckCircle2, CreditCard } from 'lucide-react';
+import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
+import { profileService } from '../../services/dbServices';
 
 export default function ProfessionalPerfil() {
   const { user, updateProfile } = useAuthStore();
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState(false);
+  const [error, setError] = useState('');
+
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    category: 'Pintura', // Default mock
-    radius: '15',
-    bio: 'Profissional com mais de 5 anos de experiência.',
+    category: user?.category || 'Pintura',
+    radius: user?.serviceRadius || '15',
+    bio: user?.bio || '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+
     setIsSaving(true);
+    setError('');
     setSuccessMsg(false);
-    
-    // Simulate save duration
-    setTimeout(() => {
-      updateProfile({ name: formData.name, phone: formData.phone });
-      setIsSaving(false);
+
+    try {
+      await profileService.saveProfile(user.id, user.professionalId, {
+        name: formData.name,
+        phone: formData.phone,
+        bio: formData.bio,
+        category: formData.category,
+        serviceRadius: formData.radius,
+      });
+
+      updateProfile({
+        name: formData.name,
+        phone: formData.phone,
+        bio: formData.bio,
+        category: formData.category,
+        serviceRadius: formData.radius,
+      });
+
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
-    }, 800);
+    } catch (err: any) {
+      setError(err.message || 'Erro ao salvar. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -42,14 +65,18 @@ export default function ProfessionalPerfil() {
       </div>
 
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
-        {/* Cover Photo Mock */}
+        {/* Cover Photo */}
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
           <div className="absolute -bottom-10 left-6">
             <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden">
-               <User size={32} />
-               <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
-                 <Camera size={20} className="text-white" />
-               </div>
+              {user?.avatar ? (
+                <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User size={32} />
+              )}
+              <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
+                <Camera size={20} className="text-white" />
+              </div>
             </div>
           </div>
         </div>
@@ -57,7 +84,12 @@ export default function ProfessionalPerfil() {
         <form onSubmit={handleSubmit} className="p-6 pt-14 space-y-6">
           {successMsg && (
             <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center text-sm">
-              <CheckCircle2 size={16} className="mr-2" /> Alterações salvas com sucesso!
+              <CheckCircle2 size={16} className="mr-2 shrink-0" /> Alterações salvas com sucesso!
+            </div>
+          )}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center text-sm">
+              <AlertCircle size={16} className="mr-2 shrink-0" /> {error}
             </div>
           )}
 
@@ -70,6 +102,7 @@ export default function ProfessionalPerfil() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  required
                   className="w-full bg-[#0A0B0D] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                   placeholder="Seu nome"
                 />
@@ -118,6 +151,10 @@ export default function ProfessionalPerfil() {
                   <option value="Eletrica">Elétrica</option>
                   <option value="Encanamento">Encanamento</option>
                   <option value="Montagem">Montagem de Móveis</option>
+                  <option value="Limpeza">Limpeza</option>
+                  <option value="Jardinagem">Jardinagem</option>
+                  <option value="Reformas">Reformas em Geral</option>
+                  <option value="Outro">Outro</option>
                 </select>
               </div>
             </div>
@@ -126,8 +163,8 @@ export default function ProfessionalPerfil() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-300">Raio de Atendimento (km)</label>
             <div className="flex items-center gap-4">
-              <input 
-                type="range" 
+              <input
+                type="range"
                 name="radius"
                 min="5" max="50" step="5"
                 value={formData.radius}
@@ -149,7 +186,7 @@ export default function ProfessionalPerfil() {
               rows={4}
               className="w-full bg-[#0A0B0D] border border-slate-800 text-slate-200 text-sm rounded-lg p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
               placeholder="Descreva suas habilidades, tempo de experiência e diferenciais..."
-            ></textarea>
+            />
           </div>
 
           <div className="pt-4 flex justify-end">
@@ -185,7 +222,7 @@ export default function ProfessionalPerfil() {
             <p className="text-sm font-medium text-slate-200">Status da Conta: <span className="text-amber-500">Pendente</span></p>
             <p className="text-xs text-slate-500">Para receber pagamentos, você precisa concluir o cadastro no Stripe.</p>
           </div>
-          <button 
+          <button
             onClick={async () => {
               try {
                 const res = await apiFetch('/api/create-connected-account', {
@@ -194,7 +231,6 @@ export default function ProfessionalPerfil() {
                   body: JSON.stringify({ email: user?.email })
                 });
                 const { accountId } = await res.json();
-                
                 const linkRes = await apiFetch('/api/create-account-link', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -203,8 +239,8 @@ export default function ProfessionalPerfil() {
                 const { url } = await linkRes.json();
                 window.location.href = url;
               } catch (e) {
-                console.error("Stripe Connect Error:", e);
-                alert("Erro ao iniciar conexão com Stripe.");
+                console.error('Stripe Connect Error:', e);
+                alert('Erro ao iniciar conexão com Stripe.');
               }
             }}
             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
