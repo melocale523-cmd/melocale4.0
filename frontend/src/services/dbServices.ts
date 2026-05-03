@@ -82,16 +82,37 @@ export const leadService = {
 
   async getMyPurchases() {
     try {
+      // v_my_purchases joins lead_purchases + leads + clients in one flat view
       const { data, error } = await supabase
-        .from('lead_purchases')
-        .select('*, leads(*, clients!client_id(phone, email, city))')
+        .from('v_my_purchases')
+        .select('*')
         .order('created_at', { ascending: false });
-      if (error) {
-        // Fallback to RPC if direct query fails
-        const rpc = await supabase.rpc('get_my_purchases');
-        return rpc.data || [];
-      }
-      return data || [];
+
+      if (error) return [];
+
+      // Reshape flat view rows into the nested shape Compras.tsx expects
+      return (data || []).map((row: any) => ({
+        ...row,
+        leads: {
+          id: row.lead_id,
+          title: row.title,
+          description: row.description,
+          category: row.category,
+          city: row.city,
+          state: row.state,
+          budget_min: row.budget_min,
+          budget_max: row.budget_max,
+          event_date: row.event_date,
+          status: row.lead_status,
+          clients: {
+            id: row.client_id,
+            full_name: row.client_name,
+            email: row.client_email,
+            phone: row.client_phone,
+            city: row.client_city,
+          },
+        },
+      }));
     } catch {
       return [];
     }
@@ -496,13 +517,15 @@ export const profileService = {
     if (profileError) throw profileError;
 
     if (professionalId) {
+      const profUpdate: Record<string, unknown> = { bio: data.bio };
+      // categories is a TEXT[] column; store single selection as first element
+      if (data.category) profUpdate.categories = [data.category];
+      // service_radius is INTEGER (added via migration)
+      if (data.serviceRadius) profUpdate.service_radius = Number(data.serviceRadius);
+
       const { error: profError } = await supabase
         .from('professionals')
-        .update({
-          bio: data.bio,
-          category: data.category,
-          service_radius: data.serviceRadius ? Number(data.serviceRadius) : null,
-        })
+        .update(profUpdate)
         .eq('id', professionalId);
 
       if (profError) throw profError;

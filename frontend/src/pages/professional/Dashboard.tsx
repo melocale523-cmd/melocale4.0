@@ -1,5 +1,5 @@
 import { useAuthStore, User } from '../../store/authStore';
-import { Target, Wallet, ArrowRight, ShieldCheck, Rocket, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
+import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { walletService, leadService } from '../../services/dbServices';
 import { Link, useNavigate } from 'react-router-dom';
@@ -18,25 +18,21 @@ function calculateProfileCompletion(user: User | null): CompletionResult {
   const missing: string[] = [];
   let score = 0;
 
-  // Name (15%) — must be non-empty and not just the email prefix
+  // Name (20%) — must be non-empty and not just the email prefix
   const nameIsReal = user.name && user.name !== user.email?.split('@')[0] && user.name.trim().length > 2;
-  if (nameIsReal) { score += 15; } else { missing.push('Nome completo'); }
+  if (nameIsReal) { score += 20; } else { missing.push('Nome completo'); }
 
-  // Phone (15%)
-  if (user.phone?.trim()) { score += 15; } else { missing.push('Telefone'); }
+  // Phone (20%)
+  if (user.phone?.trim()) { score += 20; } else { missing.push('Telefone'); }
 
-  // Bio (20%) — must have meaningful text
-  if (user.bio && user.bio.trim().length > 10) { score += 20; } else { missing.push('Biografia'); }
+  // Bio (25%) — must have meaningful text (professionals.bio)
+  if (user.bio && user.bio.trim().length > 10) { score += 25; } else { missing.push('Biografia'); }
 
-  // Category (15%)
-  if (user.category?.trim()) { score += 15; } else { missing.push('Categoria'); }
+  // Category (20%) — first element of professionals.categories[]
+  if (user.category?.trim()) { score += 20; } else { missing.push('Categoria'); }
 
-  // Avatar (15%)
+  // Avatar (15%) — profiles.avatar_url
   if (user.avatar?.trim()) { score += 15; } else { missing.push('Foto de perfil'); }
-
-  // Verified (20%) — profile status from DB
-  const isVerified = ['approved', 'active', 'verified'].includes(user.status || '');
-  if (isVerified) { score += 20; } else { missing.push('Verificação de conta'); }
 
   return { pct: score, missing };
 }
@@ -150,16 +146,15 @@ export default function ProfessionalDashboard() {
 
         <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Status</h3>
-            <ShieldCheck size={16} className="text-emerald-500" />
+            <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Categoria</h3>
+            <Briefcase size={16} className="text-purple-400" />
           </div>
-          <p className="text-3xl font-bold text-white mb-2 capitalize">
-            {user?.status === 'approved' || user?.status === 'active' ? 'Aprovado' :
-             user?.status === 'pending' ? 'Em análise' : 'Pendente'}
+          <p className="text-2xl font-bold text-white mb-2 truncate">
+            {user?.category || 'Não definida'}
           </p>
-          <p className="text-slate-500 text-xs">
-            {user?.status === 'approved' || user?.status === 'active' ? 'Perfil verificado' : 'Aguardando verificação'}
-          </p>
+          <Link to="/profissional/perfil" className="text-purple-400 hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
+            {user?.category ? 'Alterar' : 'Definir agora'} <ArrowRight size={12} />
+          </Link>
         </div>
       </div>
 

@@ -78,14 +78,14 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
             id: userId,
             professionalId,
             email: session.user.email || '',
-            name: profile?.full_name || profile?.name || session.user.email?.split('@')[0] || 'Usuário',
+            name: profile?.full_name || session.user.email?.split('@')[0] || 'Usuário',
             role: finalRole,
             phone: profile?.phone || '',
-            avatar: profile?.avatar_url || profile?.avatar || '',
-            bio: prof?.bio || (profile as any)?.bio || '',
-            category: prof?.category || '',
-            serviceRadius: String(prof?.service_radius || prof?.radius || ''),
-            status: (profile as any)?.status || '',
+            avatar: profile?.avatar_url || '',
+            bio: prof?.bio || '',
+            // professionals.categories is TEXT[] — first element is the primary category
+            category: Array.isArray(prof?.categories) ? (prof.categories[0] || '') : '',
+            serviceRadius: String(prof?.service_radius || ''),
           });
         }
       } catch (err) {
