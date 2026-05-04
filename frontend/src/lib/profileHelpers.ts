@@ -137,9 +137,14 @@ export function getDashboardState(params: {
   const doneCount = steps.filter(s => s.done).length;
   const totalSteps = steps.length;
   const checklistPct = Math.round((doneCount / totalSteps) * 100);
-  const isChecklistComplete = doneCount === totalSteps;
-  const pendingIds = steps.filter(s => !s.done).map(s => s.id);
-  const onlyAvatarMissing = !isChecklistComplete && pendingIds.length === 1 && pendingIds[0] === 'avatar';
+
+  const requiredSteps = steps.filter(s => s.id !== 'avatar');
+  const requiredDone = requiredSteps.filter(s => s.done).length;
+  const isChecklistComplete = requiredDone === requiredSteps.length;
+
+  const onlyAvatarMissing =
+    !steps.find(s => s.id === 'avatar')?.done &&
+    requiredDone === requiredSteps.length;
 
   return {
     validation,
