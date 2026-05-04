@@ -1,6 +1,6 @@
 import {
   Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight,
-  Sparkles, MapPin, Radius, Users, Camera, TrendingUp, ShoppingBag, Star,
+  Sparkles, MapPin, Radius, Users, TrendingUp, ShoppingBag, Star,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -97,9 +97,8 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* ── STATE 1: all required done → CardResumoAvancado ── */}
-      {/* Completion ring is only shown when checklist is NOT complete — */}
-      {/* rendering it alongside the "active profile" card contradicts.  */}
+      {/* ── STATE 1: all required steps done → CardResumoAvancado ── */}
+      {/* When onlyAvatarMissing, the Status cell shows actual pct + avatar link. */}
       {isChecklistComplete && (
         <div className="bg-gradient-to-br from-emerald-950/60 to-[#14161B] border border-emerald-500/20 rounded-2xl overflow-hidden">
           {/* Header */}
@@ -155,8 +154,22 @@ export default function ProfessionalDashboard() {
               <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">
                 <Star size={11} /> Status do perfil
               </div>
-              <span className="text-sm font-bold text-emerald-400">Completo</span>
-              <span className="text-[11px] text-slate-500">100% preenchido</span>
+              {onlyAvatarMissing ? (
+                <>
+                  <span className="text-sm font-bold text-amber-400">{completion.pct}%</span>
+                  <Link
+                    to="/profissional/perfil"
+                    className="text-[11px] text-amber-400/80 hover:text-amber-300 flex items-center gap-0.5 transition-colors"
+                  >
+                    Adicionar foto <ArrowRight size={10} />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <span className="text-sm font-bold text-emerald-400">Completo</span>
+                  <span className="text-[11px] text-slate-500">100% preenchido</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -192,23 +205,7 @@ export default function ProfessionalDashboard() {
         </div>
       )}
 
-      {/* ── STATE 2: avatar badge (additive — shown even when advanced card is visible) ── */}
-      {onlyAvatarMissing && (
-        <Link
-          to="/profissional/perfil"
-          className="flex items-center gap-3 bg-slate-800/60 border border-white/5 hover:border-emerald-500/30 rounded-xl px-5 py-3 transition-all group"
-        >
-          <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/15 transition-colors">
-            <Camera size={15} className="text-slate-400 group-hover:text-emerald-400 transition-colors" />
-          </div>
-          <p className="text-sm text-slate-400 group-hover:text-slate-200 transition-colors flex-1">
-            Adicione uma <span className="font-semibold text-slate-200">foto de perfil</span> para completar seu cadastro.
-          </p>
-          <ArrowRight size={14} className="text-slate-600 group-hover:text-emerald-400 transition-colors shrink-0" />
-        </Link>
-      )}
-
-      {/* ── STATE 3: completion ring + checklist (required steps still pending) ── */}
+      {/* ── STATE 2: completion ring + checklist (required steps still pending) ── */}
       {!isChecklistComplete && (
         <div className="bg-gradient-to-r from-[#1C1613] to-[#14161B] border border-orange-500/20 rounded-2xl p-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
