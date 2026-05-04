@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useProfile } from '../../hooks/useProfile';
 import { useAvatarUrl } from '../../hooks/useAvatarUrl';
 import { profileService, avatarService } from '../../services/dbServices';
-import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2, ImagePlus } from 'lucide-react';
+import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -176,58 +176,76 @@ export default function ProfessionalPerfil() {
                 disabled={avatarBusy}
               />
 
-              {avatarDisplayUrl ? (
-                <div className="group relative w-20 h-20">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarBusy}
+                aria-label={avatarDisplayUrl ? 'Alterar foto de perfil' : 'Adicionar foto de perfil'}
+                className="relative w-20 h-20 rounded-full group cursor-pointer focus:outline-none disabled:cursor-wait"
+              >
+                {avatarDisplayUrl ? (
                   <img
                     src={avatarDisplayUrl}
                     alt="avatar"
-                    className="w-20 h-20 rounded-full border-4 border-[#14161B] object-cover transition-opacity duration-200"
+                    className="w-20 h-20 rounded-full border-4 border-[#14161B] object-cover"
                   />
-                  {avatarBusy && (
-                    <div className="absolute inset-0 rounded-full bg-black/70 flex items-center justify-center">
-                      <Loader2 size={20} className="text-white animate-spin" />
-                    </div>
-                  )}
-                  {!avatarBusy && (
-                    <div className="absolute inset-0 rounded-full bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-emerald-300 transition-colors"
-                      >
-                        <Camera size={11} /> Alterar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeMutation.mutate()}
-                        className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 size={11} /> Remover
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={avatarBusy}
-                  className="w-20 h-20 rounded-full border-4 border-[#14161B] bg-slate-700 flex flex-col items-center justify-center text-slate-400 hover:text-emerald-400 hover:bg-slate-600 transition-all disabled:opacity-50"
-                >
-                  {avatarBusy ? (
-                    <Loader2 size={20} className="animate-spin" />
-                  ) : (
-                    <>
-                      <ImagePlus size={18} className="mb-0.5" />
-                      <span className="text-[9px] font-bold leading-tight">Adicionar</span>
-                    </>
-                  )}
-                </button>
-              )}
+                ) : (
+                  <div className="w-20 h-20 rounded-full border-4 border-[#14161B] bg-slate-700 flex items-center justify-center">
+                    <User size={28} className="text-slate-500" />
+                  </div>
+                )}
+
+                {/* Hover overlay */}
+                {!avatarBusy && (
+                  <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-0.5">
+                    <Camera size={15} className="text-white" />
+                    <span className="text-[9px] font-bold text-white leading-tight">
+                      {avatarDisplayUrl ? 'Alterar' : 'Adicionar'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Loading overlay */}
+                {avatarBusy && (
+                  <div className="absolute inset-0 rounded-full bg-black/70 flex items-center justify-center">
+                    <Loader2 size={20} className="text-white animate-spin" />
+                  </div>
+                )}
+
+                {/* Camera badge */}
+                {!avatarBusy && (
+                  <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#14161B] flex items-center justify-center pointer-events-none">
+                    <Camera size={11} className="text-white" />
+                  </div>
+                )}
+              </button>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 pt-14 space-y-6">
+            {/* Avatar action row */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarBusy}
+                className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-emerald-400 border border-slate-700 hover:border-emerald-500/50 bg-[#0A0B0D] px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+              >
+                <Camera size={13} />
+                {avatarDisplayUrl ? 'Alterar foto' : 'Adicionar foto'}
+              </button>
+              {avatarDisplayUrl && (
+                <button
+                  type="button"
+                  onClick={() => removeMutation.mutate()}
+                  disabled={avatarBusy}
+                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-red-400 border border-slate-700 hover:border-red-500/40 bg-[#0A0B0D] px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                >
+                  <Trash2 size={13} />
+                  Remover foto
+                </button>
+              )}
+            </div>
             {successMsg && (
               <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center text-sm">
                 <CheckCircle2 size={16} className="mr-2 shrink-0" /> Alterações salvas com sucesso!
