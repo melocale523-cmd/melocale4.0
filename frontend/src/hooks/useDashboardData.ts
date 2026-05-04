@@ -34,17 +34,6 @@ export function useDashboardData() {
     purchaseCount,
   });
 
-  if (!isLoading && profile) {
-    console.log('DASHBOARD STATE:', {
-      avatar: profile.avatar_url || null,
-      steps: state.steps.map(s => ({ id: s.id, done: s.done })),
-      displayDone: state.displayDone,
-      displayTotal: state.displayTotal,
-      isChecklistComplete: state.isChecklistComplete,
-      onlyAvatarMissing: state.onlyAvatarMissing,
-    });
-  }
-
   return {
     user,
     profile,
