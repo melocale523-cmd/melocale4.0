@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useProfile } from '../../hooks/useProfile';
-import { profileService } from '../../services/dbServices';
-import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle } from 'lucide-react';
+import { profileService, avatarService } from '../../services/dbServices';
+import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -11,6 +12,32 @@ export default function ProfessionalPerfil() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const invalidateProfile = () => queryClient.invalidateQueries({ queryKey: ['profile'] });
+
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => avatarService.upload(user!.id, file),
+    onSuccess: () => { invalidateProfile(); toast.success('Foto atualizada!'); },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: () => avatarService.remove(user!.id),
+    onSuccess: () => { invalidateProfile(); toast.success('Foto removida.'); },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    if (!file.type.startsWith('image/')) { toast.error('Apenas imagens são permitidas.'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Imagem deve ter no máximo 5MB.'); return; }
+    uploadMutation.mutate(file);
+  };
+
+  const avatarBusy = uploadMutation.isPending || removeMutation.isPending;
 
   const [successMsg, setSuccessMsg] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -45,7 +72,7 @@ export default function ProfessionalPerfil() {
         serviceRadius: formData.radius,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
     },
@@ -103,17 +130,39 @@ export default function ProfessionalPerfil() {
 
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
-          <div className="absolute -bottom-10 left-6">
-            <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden">
+          <div className="absolute -bottom-10 left-6 flex items-end gap-2">
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarBusy}
+              className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden disabled:cursor-wait"
+            >
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
               ) : (
                 <User size={32} />
               )}
-              <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center">
-                <Camera size={20} className="text-white" />
-              </div>
-            </div>
+              {avatarBusy ? (
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                  <Loader2 size={18} className="text-white animate-spin" />
+                </div>
+              ) : (
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera size={18} className="text-white" />
+                </div>
+              )}
+            </button>
+            {profile?.avatar_url && !avatarBusy && (
+              <button
+                type="button"
+                onClick={() => removeMutation.mutate()}
+                className="mb-1 w-6 h-6 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center transition-colors"
+                title="Remover foto"
+              >
+                <Trash2 size={11} className="text-white" />
+              </button>
+            )}
           </div>
         </div>
 

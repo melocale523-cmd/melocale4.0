@@ -66,7 +66,7 @@ export function useProfile() {
     queryKey: ['profile', userId],
     queryFn: () => fetchProfileData(userId!),
     enabled: !!userId,
-    staleTime: 30_000,
+    staleTime: 0,
     retry: 1,
   });
 }

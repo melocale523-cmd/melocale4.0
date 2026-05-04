@@ -127,7 +127,8 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* Primeiros Passos */}
+      {/* Primeiros Passos — only while steps remain */}
+      {doneCount < steps.length && (
       <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -172,6 +173,7 @@ export default function ProfessionalDashboard() {
           ))}
         </div>
       </div>
+      )}
 
     </div>
   );
