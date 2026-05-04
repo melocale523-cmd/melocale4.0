@@ -52,7 +52,6 @@ export default function ProfessionalPerfil() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
     },
@@ -60,7 +59,6 @@ export default function ProfessionalPerfil() {
 
   const invalidateAvatar = () => {
     queryClient.invalidateQueries({ queryKey: ['profile'] });
-    queryClient.invalidateQueries({ queryKey: ['dashboard'] });
   };
 
   const uploadMutation = useMutation({

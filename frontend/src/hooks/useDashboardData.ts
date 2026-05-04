@@ -36,11 +36,12 @@ export function useDashboardData() {
 
   if (!isLoading && profile) {
     console.log('[useDashboardData]', {
-      avatar: !!profile.avatar_url,
+      avatar: profile.avatar_url || null,
       steps: state.steps.map(s => ({ id: s.id, done: s.done })),
-      doneCount: state.doneCount,
-      totalSteps: state.totalSteps,
+      displayDone: state.displayDone,
+      displayTotal: state.displayTotal,
       isChecklistComplete: state.isChecklistComplete,
+      onlyAvatarMissing: state.onlyAvatarMissing,
     });
   }
 

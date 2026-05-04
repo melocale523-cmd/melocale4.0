@@ -273,7 +273,7 @@ export default function ProfessionalDashboard() {
           </div>
 
           <div className="space-y-2.5">
-            {steps.map(step => (
+            {steps.filter(s => s.id !== 'avatar').map(step => (
               <div
                 key={step.id}
                 onClick={() => !step.done && step.path && navigate(step.path)}
