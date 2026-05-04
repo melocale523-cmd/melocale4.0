@@ -154,7 +154,7 @@ export default function AdminLayout() {
             </div>
             
             <div className="h-8 w-8 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 flex items-center justify-center font-bold text-sm">
-               {user?.name?.charAt(0) || 'A'}
+               {user?.email?.charAt(0).toUpperCase() || 'A'}
             </div>
           </div>
         </header>

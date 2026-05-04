@@ -223,7 +223,18 @@ export const leadService = {
       totalRevenue,
       seriesData
     };
-  }
+  },
+
+  async getLeadsCountByCategory(category: string): Promise<number> {
+    if (!category) return 0;
+    const { count, error } = await supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .eq('category', category)
+      .in('status', ['available', 'open']);
+    if (error) return 0;
+    return count ?? 0;
+  },
 };
 
 // === Transactions ===
@@ -499,6 +510,56 @@ export const clientProfileService = {
       throw new Error('Erro ao salvar perfil. Tente novamente.');
     }
     return true;
+  },
+};
+
+// === Avatar ===
+export const avatarService = {
+  async upload(userId: string, blob: Blob): Promise<string> {
+    const path = `${userId}/profile.jpg`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+
+    if (uploadError) {
+      logService.error('avatarService', 'upload failed', uploadError);
+      throw new Error('Erro ao enviar a foto. Tente novamente.');
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: publicUrl })
+      .eq('id', userId);
+
+    if (updateError) {
+      logService.error('avatarService', 'avatar_url update failed', updateError);
+      throw new Error('Foto enviada, mas não foi possível salvar. Tente novamente.');
+    }
+
+    logService.info('avatarService', 'avatar uploaded', { publicUrl });
+    return publicUrl;
+  },
+
+  async remove(userId: string): Promise<void> {
+    const path = `${userId}/profile.jpg`;
+
+    const { error: storageError } = await supabase.storage.from('avatars').remove([path]);
+    if (storageError) logService.warn('avatarService', 'storage remove failed — continuing', storageError);
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ avatar_url: null })
+      .eq('id', userId);
+
+    if (error) {
+      logService.error('avatarService', 'avatar_url clear failed', error);
+      throw new Error('Não foi possível remover a foto. Tente novamente.');
+    }
+
+    logService.info('avatarService', 'avatar removed');
   },
 };
 

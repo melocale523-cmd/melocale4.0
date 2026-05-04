@@ -152,9 +152,9 @@ export default function ProfessionalLayout() {
                </span>
             </div>
             <div className="flex items-center gap-3 border-l border-white/10 pl-6">
-              <span className="text-sm font-medium text-slate-300">{user?.name}</span>
+              <span className="text-sm font-medium text-slate-300">{user?.email?.split('@')[0]}</span>
               <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold">
-                 {user?.name?.charAt(0).toUpperCase() || 'P'}
+                 {user?.email?.charAt(0).toUpperCase() || 'P'}
               </div>
             </div>
           </div>
