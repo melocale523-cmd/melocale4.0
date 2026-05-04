@@ -1,35 +1,120 @@
 import { ProfileData } from '../hooks/useProfile';
 import { ClientProfileData } from '../hooks/useClientProfile';
 
+// ─── Single source of truth for profile field validity ────────────────────────
+
+export interface ProfileValidation {
+  name: boolean;
+  phone: boolean;
+  bio: boolean;
+  category: boolean;
+  avatar: boolean;
+}
+
+export function getProfileValidation(
+  profile: ProfileData | null | undefined,
+  email: string | undefined,
+): ProfileValidation {
+  if (!profile) {
+    return { name: false, phone: false, bio: false, category: false, avatar: false };
+  }
+
+  return {
+    name:
+      !!profile.full_name &&
+      profile.full_name.trim().length > 2 &&
+      profile.full_name.trim() !== email?.split('@')[0],
+    phone: !!profile.phone?.trim(),
+    bio: !!profile.bio && profile.bio.trim().length > 10,
+    category: !!profile.category?.trim(),
+    avatar: !!profile.avatar_url?.trim(),
+  };
+}
+
+// ─── Professional profile completion ─────────────────────────────────────────
+
 export interface CompletionResult {
   pct: number;
   missing: string[];
 }
 
+const FIELD_WEIGHTS: Record<keyof ProfileValidation, { pts: number; label: string }> = {
+  name:     { pts: 20, label: 'Nome completo' },
+  phone:    { pts: 20, label: 'Telefone' },
+  bio:      { pts: 25, label: 'Biografia' },
+  category: { pts: 20, label: 'Categoria' },
+  avatar:   { pts: 15, label: 'Foto de perfil' },
+};
+
 export function calculateProfileCompletion(
   profile: ProfileData | null | undefined,
   email: string | undefined,
 ): CompletionResult {
-  if (!profile) return { pct: 0, missing: [] };
+  const v = getProfileValidation(profile, email);
 
+  let pct = 0;
   const missing: string[] = [];
-  let score = 0;
 
-  const nameIsReal =
-    profile.full_name &&
-    profile.full_name !== email?.split('@')[0] &&
-    profile.full_name.trim().length > 2;
-  if (nameIsReal) { score += 20; } else { missing.push('Nome completo'); }
+  for (const [field, { pts, label }] of Object.entries(FIELD_WEIGHTS) as [keyof ProfileValidation, { pts: number; label: string }][]) {
+    if (v[field]) {
+      pct += pts;
+    } else {
+      missing.push(label);
+    }
+  }
 
-  if (profile.phone?.trim()) { score += 20; } else { missing.push('Telefone'); }
+  return { pct, missing };
+}
 
-  if (profile.bio && profile.bio.trim().length > 10) { score += 25; } else { missing.push('Biografia'); }
+// ─── Dashboard checklist steps ────────────────────────────────────────────────
 
-  if (profile.category?.trim()) { score += 20; } else { missing.push('Categoria'); }
+export interface DashboardStep {
+  id: string;
+  label: string;
+  done: boolean;
+  path: string | null;
+}
 
-  if (profile.avatar_url?.trim()) { score += 15; } else { missing.push('Foto de perfil'); }
+export function calculateSteps(params: {
+  profile: ProfileData | null | undefined;
+  email: string | undefined;
+  balanceCoins: number;
+  purchaseCount: number;
+}): DashboardStep[] {
+  const v = getProfileValidation(params.profile, params.email);
 
-  return { pct: score, missing };
+  return [
+    {
+      id: 'account',
+      label: 'Criar conta',
+      done: true,
+      path: null,
+    },
+    {
+      id: 'profile',
+      label: 'Completar perfil (nome, telefone, bio, categoria)',
+      done: v.name && v.phone && v.bio && v.category,
+      path: '/profissional/perfil',
+    },
+    {
+      id: 'avatar',
+      label: 'Adicionar foto de perfil',
+      done: v.avatar,
+      path: '/profissional/perfil',
+    },
+    {
+      id: 'wallet',
+      label: 'Recarregar carteira de moedas',
+      done: params.balanceCoins > 0,
+      path: '/profissional/carteira',
+    },
+    {
+      id: 'lead',
+      label: 'Comprar primeiro lead',
+      done: params.purchaseCount > 0,
+      path: '/profissional/leads',
+    },
+  ];
 }
 
 // ─── Client profile helpers ───────────────────────────────────────────────────
@@ -39,7 +124,6 @@ export function isClientProfileComplete(profile: ClientProfileData | null | unde
   return !!(profile.full_name?.trim() && profile.phone?.trim() && profile.city?.trim());
 }
 
-// Brazilian phone: 10 digits (landline) or 11 digits (mobile with 9-prefix)
 export const BR_PHONE_RE = /^\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}$/;
 
 export type ClientFieldErrors = { name?: string; phone?: string; city?: string };
@@ -77,65 +161,4 @@ export function normalizeClientProfileData(data: {
     phone: data.phone.replace(/\D/g, ''),
     city: data.city.trim(),
   };
-}
-
-export interface DashboardStep {
-  id: string;
-  label: string;
-  done: boolean;
-  path: string | null;
-}
-
-export function calculateSteps(params: {
-  profile: ProfileData | null | undefined;
-  email: string | undefined;
-  balanceCoins: number;
-  purchaseCount: number;
-}): DashboardStep[] {
-  const p = params.profile;
-
-  const nameIsReal =
-    !!p?.full_name &&
-    p.full_name.trim().length > 2 &&
-    p.full_name !== params.email?.split('@')[0];
-
-  const profileFieldsDone = !!(
-    nameIsReal &&
-    p?.phone?.trim() &&
-    p?.bio && p.bio.trim().length > 10 &&
-    p?.category?.trim()
-  );
-
-  return [
-    {
-      id: 'account',
-      label: 'Criar conta',
-      done: true,
-      path: null,
-    },
-    {
-      id: 'profile',
-      label: 'Completar perfil (nome, telefone, bio, categoria)',
-      done: profileFieldsDone,
-      path: '/profissional/perfil',
-    },
-    {
-      id: 'avatar',
-      label: 'Adicionar foto de perfil',
-      done: !!p?.avatar_url,
-      path: '/profissional/perfil',
-    },
-    {
-      id: 'wallet',
-      label: 'Recarregar carteira de moedas',
-      done: params.balanceCoins > 0,
-      path: '/profissional/carteira',
-    },
-    {
-      id: 'lead',
-      label: 'Comprar primeiro lead',
-      done: params.purchaseCount > 0,
-      path: '/profissional/leads',
-    },
-  ];
 }

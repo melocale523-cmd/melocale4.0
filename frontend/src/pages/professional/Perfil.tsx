@@ -51,16 +51,17 @@ export default function ProfessionalPerfil() {
         serviceRadius: formData.radius,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
     },
   });
 
   const invalidateAvatar = () => {
-    // Invalidate the full profile tree so useDashboardData recalculates steps
     queryClient.invalidateQueries({ queryKey: ['profile'] });
     queryClient.invalidateQueries({ queryKey: ['avatarSignedUrl'] });
+    queryClient.invalidateQueries({ queryKey: ['dashboard'] });
   };
 
   const uploadMutation = useMutation({
