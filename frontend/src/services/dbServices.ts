@@ -15,11 +15,8 @@ export const walletService = {
         .eq('user_id', userId)
         .single();
       
-      console.log("Saldo recebido:", data);
-
       if (error || !data) return 0;
-      
-      return data.balance_coins || 0;
+      return data.balance_coins ?? 0;
     } catch {
       return 0;
     }
@@ -528,10 +525,12 @@ export const avatarService = {
     }
 
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+    // Append cache-busting param so re-uploads to the same path force a fresh browser fetch
+    const displayUrl = `${publicUrl}?v=${Date.now()}`;
 
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ avatar_url: publicUrl })
+      .update({ avatar_url: displayUrl })
       .eq('id', userId);
 
     if (updateError) {
@@ -539,8 +538,8 @@ export const avatarService = {
       throw new Error('Foto enviada, mas não foi possível salvar. Tente novamente.');
     }
 
-    logService.info('avatarService', 'avatar uploaded', { publicUrl });
-    return publicUrl;
+    logService.info('avatarService', 'avatar uploaded', { displayUrl });
+    return displayUrl;
   },
 
   async remove(userId: string): Promise<void> {

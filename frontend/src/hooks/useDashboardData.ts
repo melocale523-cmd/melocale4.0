@@ -10,16 +10,16 @@ export function useDashboardData() {
 
   const { data: balance, isLoading: balanceLoading } = useQuery({
     queryKey: ['walletBalance'],
-    retry: false,
-    refetchOnWindowFocus: false,
     queryFn: walletService.getBalance,
+    staleTime: 0,
+    retry: false,
   });
 
   const { data: purchases, isLoading: purchasesLoading } = useQuery({
     queryKey: ['myPurchases'],
-    retry: false,
-    refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,
+    staleTime: 0,
+    retry: false,
   });
 
   const isLoading = profileLoading || balanceLoading || purchasesLoading;
@@ -35,7 +35,7 @@ export function useDashboardData() {
   });
 
   if (!isLoading && profile) {
-    console.log('[useDashboardData]', {
+    console.log('DASHBOARD STATE:', {
       avatar: profile.avatar_url || null,
       steps: state.steps.map(s => ({ id: s.id, done: s.done })),
       displayDone: state.displayDone,
