@@ -223,7 +223,18 @@ export const leadService = {
       totalRevenue,
       seriesData
     };
-  }
+  },
+
+  async getLeadsCountByCategory(category: string): Promise<number> {
+    if (!category) return 0;
+    const { count, error } = await supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .eq('category', category)
+      .in('status', ['available', 'open']);
+    if (error) return 0;
+    return count ?? 0;
+  },
 };
 
 // === Transactions ===
@@ -504,28 +515,25 @@ export const clientProfileService = {
 
 // === Avatar ===
 export const avatarService = {
-  async upload(userId: string, file: File): Promise<string> {
-    if (!file.type.startsWith('image/')) throw new Error('Apenas imagens são permitidas.');
-    if (file.size > 2 * 1024 * 1024) throw new Error('A imagem deve ter no máximo 2MB.');
-
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `${userId}/${Date.now()}.${ext}`;
+  /**
+   * Uploads a cropped/compressed blob and stores the storage PATH
+   * (not a public URL) in profiles.avatar_url so signed URLs can be used.
+   */
+  async upload(userId: string, blob: Blob): Promise<string> {
+    const path = `${userId}/${Date.now()}.jpg`;
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: true });
+      .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
 
     if (uploadError) {
       logService.error('avatarService', 'upload failed', uploadError);
       throw new Error('Erro ao enviar a foto. Tente novamente.');
     }
 
-    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-    const publicUrl = data.publicUrl;
-
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ avatar_url: publicUrl })
+      .update({ avatar_url: path })
       .eq('id', userId);
 
     if (updateError) {
@@ -534,20 +542,28 @@ export const avatarService = {
     }
 
     logService.info('avatarService', 'avatar uploaded', { path });
-    return publicUrl;
+    return path;
   },
 
-  async remove(userId: string, avatarUrl: string): Promise<void> {
-    try {
-      const url = new URL(avatarUrl);
-      const marker = '/avatars/';
-      const idx = url.pathname.indexOf(marker);
-      if (idx !== -1) {
-        const storagePath = url.pathname.slice(idx + marker.length);
-        await supabase.storage.from('avatars').remove([storagePath]);
+  async remove(userId: string, storagePath: string): Promise<void> {
+    if (!storagePath) return;
+
+    // Derive storage path: handle both legacy full URLs and new relative paths
+    let path = storagePath;
+    if (storagePath.startsWith('http')) {
+      try {
+        const url = new URL(storagePath);
+        const marker = '/avatars/';
+        const idx = url.pathname.indexOf(marker);
+        path = idx !== -1 ? url.pathname.slice(idx + marker.length) : '';
+      } catch {
+        path = '';
       }
-    } catch {
-      logService.warn('avatarService', 'storage remove failed — clearing DB reference anyway');
+    }
+
+    if (path) {
+      const { error } = await supabase.storage.from('avatars').remove([path]);
+      if (error) logService.warn('avatarService', 'storage remove failed — continuing', error);
     }
 
     const { error } = await supabase

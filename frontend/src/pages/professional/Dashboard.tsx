@@ -1,7 +1,9 @@
-import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Sparkles, MapPin, Radius } from 'lucide-react';
+import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Sparkles, MapPin, Radius, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
+import { leadService } from '../../services/dbServices';
 
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
@@ -16,6 +18,13 @@ export default function ProfessionalDashboard() {
     doneCount,
     checklistPct,
   } = useDashboardData();
+
+  const { data: leadsCount = 0 } = useQuery({
+    queryKey: ['leadsCountByCategory', profile?.category],
+    queryFn: () => leadService.getLeadsCountByCategory(profile!.category),
+    enabled: !!profile?.category,
+    staleTime: 5 * 60 * 1000,
+  });
 
   if (isLoading) {
     return (
@@ -188,6 +197,14 @@ export default function ProfessionalDashboard() {
                 <p className="text-sm text-emerald-400 font-medium mb-4">
                   Perfis completos recebem até 3× mais contatos.
                 </p>
+
+                {leadsCount > 0 && profile?.category && (
+                  <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-medium px-3 py-2 rounded-xl mb-4">
+                    <Users size={13} className="shrink-0" />
+                    Hoje existem <span className="font-black text-white">{leadsCount}</span> clientes buscando{' '}
+                    <span className="font-black text-white">{profile.category}</span> na plataforma
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-3">
                   {profile?.category && (
