@@ -97,54 +97,9 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* Profile Completion ring */}
-      <div className="bg-gradient-to-r from-[#1C1613] to-[#14161B] border border-orange-500/20 rounded-2xl p-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="relative w-16 h-16 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
-              <svg viewBox="0 0 36 36" className="absolute inset-0 w-16 h-16 -rotate-90">
-                <path
-                  className="text-orange-500/20"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none" stroke="currentColor" strokeWidth="3.5"
-                />
-                <path
-                  className="text-orange-500 transition-all duration-700"
-                  strokeDasharray={`${completion.pct}, 100`}
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round"
-                />
-              </svg>
-              <span className="text-white font-bold text-xs">{completion.pct}%</span>
-            </div>
-            <div>
-              <h4 className="text-white font-bold text-lg mb-1">
-                {completion.pct >= 100 ? 'Perfil Completo!' : 'Melhore seu Perfil Profissional'}
-              </h4>
-              {completion.pct < 100 && (
-                <p className="text-slate-400 text-sm max-w-lg">
-                  Faltam: <span className="text-orange-400 font-medium">{completion.missing.join(', ')}</span>
-                </p>
-              )}
-              {completion.pct >= 100 && (
-                <p className="text-emerald-400 text-sm">
-                  Profissionais com perfil 100% completo recebem até <strong>3× mais contatos</strong>.
-                </p>
-              )}
-            </div>
-          </div>
-          {completion.pct < 100 && (
-            <Link
-              to="/profissional/perfil"
-              className="bg-orange-600 hover:bg-orange-500 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-orange-500/20 shrink-0"
-            >
-              Completar agora <ArrowRight size={18} />
-            </Link>
-          )}
-        </div>
-      </div>
-
       {/* ── STATE 1: all required done → CardResumoAvancado ── */}
+      {/* Completion ring is only shown when checklist is NOT complete — */}
+      {/* rendering it alongside the "active profile" card contradicts.  */}
       {isChecklistComplete && (
         <div className="bg-gradient-to-br from-emerald-950/60 to-[#14161B] border border-emerald-500/20 rounded-2xl overflow-hidden">
           {/* Header */}
@@ -253,7 +208,44 @@ export default function ProfessionalDashboard() {
         </Link>
       )}
 
-      {/* ── STATE 3: checklist (only when required steps still pending) ── */}
+      {/* ── STATE 3: completion ring + checklist (required steps still pending) ── */}
+      {!isChecklistComplete && (
+        <div className="bg-gradient-to-r from-[#1C1613] to-[#14161B] border border-orange-500/20 rounded-2xl p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="relative w-16 h-16 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 36 36" className="absolute inset-0 w-16 h-16 -rotate-90">
+                  <path
+                    className="text-orange-500/20"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none" stroke="currentColor" strokeWidth="3.5"
+                  />
+                  <path
+                    className="text-orange-500 transition-all duration-700"
+                    strokeDasharray={`${completion.pct}, 100`}
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round"
+                  />
+                </svg>
+                <span className="text-white font-bold text-xs">{completion.pct}%</span>
+              </div>
+              <div>
+                <h4 className="text-white font-bold text-lg mb-1">Melhore seu Perfil Profissional</h4>
+                <p className="text-slate-400 text-sm max-w-lg">
+                  Faltam: <span className="text-orange-400 font-medium">{completion.missing.join(', ')}</span>
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/profissional/perfil"
+              className="bg-orange-600 hover:bg-orange-500 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-orange-500/20 shrink-0"
+            >
+              Completar agora <ArrowRight size={18} />
+            </Link>
+          </div>
+        </div>
+      )}
+
       {!isChecklistComplete && (
         <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">

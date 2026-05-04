@@ -117,8 +117,6 @@ export interface DashboardState {
   validation: ProfileValidation;
   completion: CompletionResult;
   steps: DashboardStep[];
-  doneCount: number;
-  totalSteps: number;
   displayDone: number;
   displayTotal: number;
   checklistPct: number;
@@ -136,8 +134,6 @@ export function getDashboardState(params: {
   const validation = getProfileValidation(params.profile, params.email);
   const completion = calculateProfileCompletion(params.profile, params.email);
   const steps = calculateSteps(params);
-  const doneCount = steps.filter(s => s.done).length;
-  const totalSteps = steps.length;
 
   const requiredSteps = steps.filter(s => s.id !== 'avatar');
   const requiredDone = requiredSteps.filter(s => s.done).length;
@@ -153,8 +149,6 @@ export function getDashboardState(params: {
     validation,
     completion,
     steps,
-    doneCount,
-    totalSteps,
     displayDone,
     displayTotal,
     checklistPct,
