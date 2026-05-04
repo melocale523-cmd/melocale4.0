@@ -18,8 +18,8 @@ export default function ProfessionalDashboard() {
     purchaseCount,
     completion,
     steps,
-    doneCount,
-    totalSteps,
+    displayDone,
+    displayTotal,
     checklistPct,
     isChecklistComplete,
     onlyAvatarMissing,
@@ -144,74 +144,7 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* ── STATE 1: only avatar missing → compact badge ── */}
-      {onlyAvatarMissing && (
-        <Link
-          to="/profissional/perfil"
-          className="flex items-center gap-3 bg-slate-800/60 border border-white/5 hover:border-emerald-500/30 rounded-xl px-5 py-3 transition-all group"
-        >
-          <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/15 transition-colors">
-            <Camera size={15} className="text-slate-400 group-hover:text-emerald-400 transition-colors" />
-          </div>
-          <p className="text-sm text-slate-400 group-hover:text-slate-200 transition-colors flex-1">
-            Adicione uma <span className="font-semibold text-slate-200">foto de perfil</span> para completar seu cadastro.
-          </p>
-          <ArrowRight size={14} className="text-slate-600 group-hover:text-emerald-400 transition-colors shrink-0" />
-        </Link>
-      )}
-
-      {/* ── STATE 2: full checklist (more than avatar pending) ── */}
-      {!isChecklistComplete && !onlyAvatarMissing && (
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Rocket size={20} className="text-orange-400" />
-              <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
-            </div>
-            <span className="text-orange-400 text-xs font-bold">{doneCount}/{totalSteps} concluídos</span>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">
-            <div
-              className="bg-orange-500 h-1.5 rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${checklistPct}%` }}
-            />
-          </div>
-
-          <div className="space-y-2.5">
-            {steps.map(step => (
-              <div
-                key={step.id}
-                onClick={() => !step.done && step.path && navigate(step.path)}
-                className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 ${
-                  step.done
-                    ? 'bg-emerald-500/5 border-emerald-500/20 cursor-default'
-                    : 'bg-[#0A0B0D] border-white/5 hover:border-white/10 cursor-pointer group'
-                }`}
-              >
-                <div className={`shrink-0 transition-transform duration-300 ${step.done ? 'scale-110' : 'scale-100'}`}>
-                  {step.done ? (
-                    <CheckCircle2 size={20} className="text-emerald-500" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors" />
-                  )}
-                </div>
-                <span className={`text-sm font-medium flex-1 transition-colors duration-300 ${step.done ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
-                  {step.label}
-                </span>
-                {step.done ? (
-                  <CheckCircle2 size={14} className="text-emerald-500/40 shrink-0" />
-                ) : (
-                  <ChevronRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors shrink-0" />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── STATE 3: all done → CardResumoAvancado ── */}
+      {/* ── STATE 1: all required done → CardResumoAvancado ── */}
       {isChecklistComplete && (
         <div className="bg-gradient-to-br from-emerald-950/60 to-[#14161B] border border-emerald-500/20 rounded-2xl overflow-hidden">
           {/* Header */}
@@ -303,6 +236,74 @@ export default function ProfessionalDashboard() {
           </div>
         </div>
       )}
+
+      {/* ── STATE 2: avatar badge (additive — shown even when advanced card is visible) ── */}
+      {onlyAvatarMissing && (
+        <Link
+          to="/profissional/perfil"
+          className="flex items-center gap-3 bg-slate-800/60 border border-white/5 hover:border-emerald-500/30 rounded-xl px-5 py-3 transition-all group"
+        >
+          <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/15 transition-colors">
+            <Camera size={15} className="text-slate-400 group-hover:text-emerald-400 transition-colors" />
+          </div>
+          <p className="text-sm text-slate-400 group-hover:text-slate-200 transition-colors flex-1">
+            Adicione uma <span className="font-semibold text-slate-200">foto de perfil</span> para completar seu cadastro.
+          </p>
+          <ArrowRight size={14} className="text-slate-600 group-hover:text-emerald-400 transition-colors shrink-0" />
+        </Link>
+      )}
+
+      {/* ── STATE 3: checklist (only when required steps still pending) ── */}
+      {!isChecklistComplete && (
+        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Rocket size={20} className="text-orange-400" />
+              <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
+            </div>
+            <span className="text-orange-400 text-xs font-bold">{displayDone}/{displayTotal} concluídos</span>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">
+            <div
+              className="bg-orange-500 h-1.5 rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${checklistPct}%` }}
+            />
+          </div>
+
+          <div className="space-y-2.5">
+            {steps.map(step => (
+              <div
+                key={step.id}
+                onClick={() => !step.done && step.path && navigate(step.path)}
+                className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 ${
+                  step.done
+                    ? 'bg-emerald-500/5 border-emerald-500/20 cursor-default'
+                    : 'bg-[#0A0B0D] border-white/5 hover:border-white/10 cursor-pointer group'
+                }`}
+              >
+                <div className={`shrink-0 transition-transform duration-300 ${step.done ? 'scale-110' : 'scale-100'}`}>
+                  {step.done ? (
+                    <CheckCircle2 size={20} className="text-emerald-500" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors" />
+                  )}
+                </div>
+                <span className={`text-sm font-medium flex-1 transition-colors duration-300 ${step.done ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                  {step.label}
+                </span>
+                {step.done ? (
+                  <CheckCircle2 size={14} className="text-emerald-500/40 shrink-0" />
+                ) : (
+                  <ChevronRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors shrink-0" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
 
     </div>
   );

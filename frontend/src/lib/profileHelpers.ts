@@ -119,6 +119,8 @@ export interface DashboardState {
   steps: DashboardStep[];
   doneCount: number;
   totalSteps: number;
+  displayDone: number;
+  displayTotal: number;
   checklistPct: number;
   isChecklistComplete: boolean;
   onlyAvatarMissing: boolean;
@@ -136,15 +138,16 @@ export function getDashboardState(params: {
   const steps = calculateSteps(params);
   const doneCount = steps.filter(s => s.done).length;
   const totalSteps = steps.length;
-  const checklistPct = Math.round((doneCount / totalSteps) * 100);
 
   const requiredSteps = steps.filter(s => s.id !== 'avatar');
   const requiredDone = requiredSteps.filter(s => s.done).length;
-  const isChecklistComplete = requiredDone === requiredSteps.length;
+  const displayDone = requiredDone;
+  const displayTotal = requiredSteps.length;
+  const checklistPct = Math.round((displayDone / displayTotal) * 100);
+  const isChecklistComplete = displayDone === displayTotal;
 
   const onlyAvatarMissing =
-    !steps.find(s => s.id === 'avatar')?.done &&
-    requiredDone === requiredSteps.length;
+    isChecklistComplete && !steps.find(s => s.id === 'avatar')?.done;
 
   return {
     validation,
@@ -152,6 +155,8 @@ export function getDashboardState(params: {
     steps,
     doneCount,
     totalSteps,
+    displayDone,
+    displayTotal,
     checklistPct,
     isChecklistComplete,
     onlyAvatarMissing,
