@@ -60,7 +60,6 @@ export default function ProfessionalPerfil() {
 
   const invalidateAvatar = () => {
     queryClient.invalidateQueries({ queryKey: ['profile'] });
-    queryClient.invalidateQueries({ queryKey: ['avatarSignedUrl'] });
     queryClient.invalidateQueries({ queryKey: ['dashboard'] });
   };
 
@@ -78,7 +77,7 @@ export default function ProfessionalPerfil() {
   });
 
   const removeMutation = useMutation({
-    mutationFn: () => avatarService.remove(user!.id, profile!.avatar_url),
+    mutationFn: () => avatarService.remove(user!.id),
     onSuccess: () => {
       invalidateAvatar();
       toast.success('Foto removida.');

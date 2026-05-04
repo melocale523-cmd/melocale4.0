@@ -515,12 +515,8 @@ export const clientProfileService = {
 
 // === Avatar ===
 export const avatarService = {
-  /**
-   * Uploads a cropped/compressed blob and stores the storage PATH
-   * (not a public URL) in profiles.avatar_url so signed URLs can be used.
-   */
   async upload(userId: string, blob: Blob): Promise<string> {
-    const path = `${userId}/${Date.now()}.jpg`;
+    const path = `${userId}/profile.jpg`;
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
@@ -531,9 +527,11 @@ export const avatarService = {
       throw new Error('Erro ao enviar a foto. Tente novamente.');
     }
 
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ avatar_url: path })
+      .update({ avatar_url: publicUrl })
       .eq('id', userId);
 
     if (updateError) {
@@ -541,30 +539,15 @@ export const avatarService = {
       throw new Error('Foto enviada, mas não foi possível salvar. Tente novamente.');
     }
 
-    logService.info('avatarService', 'avatar uploaded', { path });
-    return path;
+    logService.info('avatarService', 'avatar uploaded', { publicUrl });
+    return publicUrl;
   },
 
-  async remove(userId: string, storagePath: string): Promise<void> {
-    if (!storagePath) return;
+  async remove(userId: string): Promise<void> {
+    const path = `${userId}/profile.jpg`;
 
-    // Derive storage path: handle both legacy full URLs and new relative paths
-    let path = storagePath;
-    if (storagePath.startsWith('http')) {
-      try {
-        const url = new URL(storagePath);
-        const marker = '/avatars/';
-        const idx = url.pathname.indexOf(marker);
-        path = idx !== -1 ? url.pathname.slice(idx + marker.length) : '';
-      } catch {
-        path = '';
-      }
-    }
-
-    if (path) {
-      const { error } = await supabase.storage.from('avatars').remove([path]);
-      if (error) logService.warn('avatarService', 'storage remove failed — continuing', error);
-    }
+    const { error: storageError } = await supabase.storage.from('avatars').remove([path]);
+    if (storageError) logService.warn('avatarService', 'storage remove failed — continuing', storageError);
 
     const { error } = await supabase
       .from('profiles')
