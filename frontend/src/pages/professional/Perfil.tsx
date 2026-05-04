@@ -57,11 +57,16 @@ export default function ProfessionalPerfil() {
     },
   });
 
+  const invalidateAvatar = () => {
+    // Invalidate the full profile tree so useDashboardData recalculates steps
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+    queryClient.invalidateQueries({ queryKey: ['avatarSignedUrl'] });
+  };
+
   const uploadMutation = useMutation({
     mutationFn: (blob: Blob) => avatarService.upload(user!.id, blob),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['avatarSignedUrl'] });
+      invalidateAvatar();
       setCropSrc(null);
       toast.success('Foto de perfil atualizada!');
     },
@@ -74,8 +79,7 @@ export default function ProfessionalPerfil() {
   const removeMutation = useMutation({
     mutationFn: () => avatarService.remove(user!.id, profile!.avatar_url),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['avatarSignedUrl'] });
+      invalidateAvatar();
       toast.success('Foto removida.');
     },
     onError: (err: Error) => toast.error(err.message),

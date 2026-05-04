@@ -16,6 +16,7 @@ export default function ProfessionalDashboard() {
     completion,
     steps,
     doneCount,
+    totalSteps,
     checklistPct,
   } = useDashboardData();
 
@@ -136,15 +137,15 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* Primeiros Passos — hidden when 100% complete */}
-      {checklistPct < 100 ? (
+      {/* Primeiros Passos — hidden when all steps done */}
+      {doneCount < totalSteps ? (
         <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <Rocket size={20} className="text-orange-400" />
               <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
             </div>
-            <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
+            <span className="text-orange-400 text-xs font-bold">{doneCount}/{totalSteps} concluídos</span>
           </div>
 
           <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">

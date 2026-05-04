@@ -30,14 +30,25 @@ export function useDashboardData() {
   const completion = calculateProfileCompletion(profile, user?.email);
 
   const steps = calculateSteps({
-    hasUser: !!user,
-    completionPct: completion.pct,
+    profile,
+    email: user?.email,
     balanceCoins,
     purchaseCount,
   });
 
   const doneCount = steps.filter(s => s.done).length;
-  const checklistPct = Math.round((doneCount / steps.length) * 100);
+  const totalSteps = steps.length;
+  const checklistPct = Math.round((doneCount / totalSteps) * 100);
+
+  if (!isLoading && profile) {
+    console.log('[useDashboardData]', {
+      avatar: !!profile.avatar_url,
+      steps: steps.map(s => ({ id: s.id, done: s.done })),
+      doneCount,
+      totalSteps,
+      checklistPct,
+    });
+  }
 
   return {
     user,
@@ -48,6 +59,7 @@ export function useDashboardData() {
     completion,
     steps,
     doneCount,
+    totalSteps,
     checklistPct,
   };
 }

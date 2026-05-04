@@ -87,22 +87,42 @@ export interface DashboardStep {
 }
 
 export function calculateSteps(params: {
-  hasUser: boolean;
-  completionPct: number;
+  profile: ProfileData | null | undefined;
+  email: string | undefined;
   balanceCoins: number;
   purchaseCount: number;
 }): DashboardStep[] {
+  const p = params.profile;
+
+  const nameIsReal =
+    !!p?.full_name &&
+    p.full_name.trim().length > 2 &&
+    p.full_name !== params.email?.split('@')[0];
+
+  const profileFieldsDone = !!(
+    nameIsReal &&
+    p?.phone?.trim() &&
+    p?.bio && p.bio.trim().length > 10 &&
+    p?.category?.trim()
+  );
+
   return [
     {
       id: 'account',
       label: 'Criar conta',
-      done: params.hasUser,
+      done: true,
       path: null,
     },
     {
       id: 'profile',
-      label: 'Completar perfil (80% ou mais)',
-      done: params.completionPct >= 80,
+      label: 'Completar perfil (nome, telefone, bio, categoria)',
+      done: profileFieldsDone,
+      path: '/profissional/perfil',
+    },
+    {
+      id: 'avatar',
+      label: 'Adicionar foto de perfil',
+      done: !!p?.avatar_url,
       path: '/profissional/perfil',
     },
     {
