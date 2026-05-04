@@ -1,4 +1,4 @@
-import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Sparkles, MapPin, Radius } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
@@ -127,51 +127,100 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* Primeiros Passos */}
-      <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Rocket size={20} className="text-orange-400" />
-            <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
-          </div>
-          <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
-        </div>
-
-        <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">
-          <div
-            className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${checklistPct}%` }}
-          />
-        </div>
-
-        <div className="space-y-3">
-          {steps.map((step) => (
-            <div
-              key={step.id}
-              className={`flex items-center gap-3 p-4 rounded-xl transition-colors ${
-                step.done
-                  ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
-                  : 'bg-[#0A0B0D] border border-white/5 hover:border-white/10 cursor-pointer group'
-              }`}
-              onClick={() => !step.done && step.path && navigate(step.path)}
-            >
-              {step.done ? (
-                <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
-              ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors shrink-0" />
-              )}
-              <span className={`text-sm font-medium flex-1 ${step.done ? 'text-white' : 'text-slate-300'}`}>
-                {step.label}
-              </span>
-              {step.done ? (
-                <CheckCircle2 size={16} className="text-emerald-500/50" />
-              ) : (
-                <ChevronRight size={16} className="text-slate-600 group-hover:text-slate-400 transition-colors" />
-              )}
+      {/* Primeiros Passos — hidden when 100% complete */}
+      {checklistPct < 100 ? (
+        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Rocket size={20} className="text-orange-400" />
+              <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
             </div>
-          ))}
+            <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
+          </div>
+
+          <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">
+            <div
+              className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
+              style={{ width: `${checklistPct}%` }}
+            />
+          </div>
+
+          <div className="space-y-3">
+            {steps.map((step) => (
+              <div
+                key={step.id}
+                className={`flex items-center gap-3 p-4 rounded-xl transition-colors ${
+                  step.done
+                    ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
+                    : 'bg-[#0A0B0D] border border-white/5 hover:border-white/10 cursor-pointer group'
+                }`}
+                onClick={() => !step.done && step.path && navigate(step.path)}
+              >
+                {step.done ? (
+                  <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors shrink-0" />
+                )}
+                <span className={`text-sm font-medium flex-1 ${step.done ? 'text-white' : 'text-slate-300'}`}>
+                  {step.label}
+                </span>
+                {step.done ? (
+                  <CheckCircle2 size={16} className="text-emerald-500/50" />
+                ) : (
+                  <ChevronRight size={16} className="text-slate-600 group-hover:text-slate-400 transition-colors" />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Performance card — shown when all steps are done */
+        <div className="bg-gradient-to-br from-emerald-950/60 to-[#14161B] border border-emerald-500/20 rounded-2xl p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center shrink-0">
+                <Sparkles size={22} className="text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white mb-1">
+                  Seu perfil está pronto para gerar clientes 🚀
+                </h2>
+                <p className="text-sm text-emerald-400 font-medium mb-4">
+                  Perfis completos recebem até 3× mais contatos.
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  {profile?.category && (
+                    <span className="inline-flex items-center gap-1.5 bg-[#0A0B0D] border border-white/5 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-full">
+                      <Briefcase size={12} className="text-purple-400" />
+                      {profile.category}
+                    </span>
+                  )}
+                  {profile?.city && (
+                    <span className="inline-flex items-center gap-1.5 bg-[#0A0B0D] border border-white/5 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-full">
+                      <MapPin size={12} className="text-blue-400" />
+                      {profile.city}
+                    </span>
+                  )}
+                  {profile?.serviceRadius && (
+                    <span className="inline-flex items-center gap-1.5 bg-[#0A0B0D] border border-white/5 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-full">
+                      <Radius size={12} className="text-orange-400" />
+                      Raio: {profile.serviceRadius} km
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <Link
+              to="/profissional/perfil"
+              className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+            >
+              Melhorar ainda mais <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      )}
 
     </div>
   );

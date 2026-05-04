@@ -502,6 +502,68 @@ export const clientProfileService = {
   },
 };
 
+// === Avatar ===
+export const avatarService = {
+  async upload(userId: string, file: File): Promise<string> {
+    if (!file.type.startsWith('image/')) throw new Error('Apenas imagens são permitidas.');
+    if (file.size > 2 * 1024 * 1024) throw new Error('A imagem deve ter no máximo 2MB.');
+
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `${userId}/${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) {
+      logService.error('avatarService', 'upload failed', uploadError);
+      throw new Error('Erro ao enviar a foto. Tente novamente.');
+    }
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+    const publicUrl = data.publicUrl;
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: publicUrl })
+      .eq('id', userId);
+
+    if (updateError) {
+      logService.error('avatarService', 'avatar_url update failed', updateError);
+      throw new Error('Foto enviada, mas não foi possível salvar. Tente novamente.');
+    }
+
+    logService.info('avatarService', 'avatar uploaded', { path });
+    return publicUrl;
+  },
+
+  async remove(userId: string, avatarUrl: string): Promise<void> {
+    try {
+      const url = new URL(avatarUrl);
+      const marker = '/avatars/';
+      const idx = url.pathname.indexOf(marker);
+      if (idx !== -1) {
+        const storagePath = url.pathname.slice(idx + marker.length);
+        await supabase.storage.from('avatars').remove([storagePath]);
+      }
+    } catch {
+      logService.warn('avatarService', 'storage remove failed — clearing DB reference anyway');
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ avatar_url: null })
+      .eq('id', userId);
+
+    if (error) {
+      logService.error('avatarService', 'avatar_url clear failed', error);
+      throw new Error('Não foi possível remover a foto. Tente novamente.');
+    }
+
+    logService.info('avatarService', 'avatar removed');
+  },
+};
+
 // === Subscriptions ===
 export const subscriptionService = {
   async getCurrentSubscription() {

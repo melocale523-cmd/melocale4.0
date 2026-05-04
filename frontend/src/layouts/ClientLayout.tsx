@@ -80,9 +80,9 @@ export default function ClientLayout() {
           
           <div className="flex-1" />
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-slate-300">{user?.name}</span>
+            <span className="text-sm font-medium text-slate-300">{user?.email?.split('@')[0]}</span>
             <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold border border-emerald-500/30">
-               {user?.name?.charAt(0).toUpperCase() || 'C'}
+               {user?.email?.charAt(0).toUpperCase() || 'C'}
             </div>
           </div>
         </header>

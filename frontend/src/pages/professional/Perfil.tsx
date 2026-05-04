@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useProfile } from '../../hooks/useProfile';
-import { profileService } from '../../services/dbServices';
-import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle } from 'lucide-react';
+import { profileService, avatarService } from '../../services/dbServices';
+import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2, ImagePlus } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -11,9 +11,11 @@ export default function ProfessionalPerfil() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [successMsg, setSuccessMsg] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: user?.email || '',
@@ -51,7 +53,31 @@ export default function ProfessionalPerfil() {
     },
   });
 
-  // Auto-clear mutation error after 5 seconds
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => avatarService.upload(user!.id, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      setAvatarError(null);
+    },
+    onError: (err: Error) => setAvatarError(err.message),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: () => avatarService.remove(user!.id, profile!.avatar_url),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      setAvatarError(null);
+    },
+    onError: (err: Error) => setAvatarError(err.message),
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    uploadMutation.mutate(file);
+  };
+
   const { isError: mutationIsError, reset: mutationReset } = saveMutation;
   useEffect(() => {
     if (!mutationIsError) return;
@@ -78,13 +104,12 @@ export default function ProfessionalPerfil() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const error = validate();
-    if (error) {
-      setValidationError(error);
-      return;
-    }
+    if (error) { setValidationError(error); return; }
     setValidationError(null);
     saveMutation.mutate();
   };
+
+  const avatarBusy = uploadMutation.isPending || removeMutation.isPending;
 
   if (profileLoading) {
     return (
@@ -102,22 +127,81 @@ export default function ProfessionalPerfil() {
       </div>
 
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
+        {/* Cover + Avatar */}
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
           <div className="absolute -bottom-10 left-6">
-            <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
-              ) : (
-                <User size={32} />
-              )}
-              <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center">
-                <Camera size={20} className="text-white" />
+            {/* Hidden file picker */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+
+            {profile?.avatar_url ? (
+              /* Has avatar — hover shows Alterar / Remover */
+              <div className="group relative w-20 h-20">
+                <img
+                  src={profile.avatar_url}
+                  alt="avatar"
+                  className="w-20 h-20 rounded-full border-4 border-[#14161B] object-cover"
+                />
+                {/* Loading overlay */}
+                {avatarBusy && (
+                  <div className="absolute inset-0 rounded-full bg-black/70 flex items-center justify-center">
+                    <Loader2 size={20} className="text-white animate-spin" />
+                  </div>
+                )}
+                {/* Hover action overlay */}
+                {!avatarBusy && (
+                  <div className="absolute inset-0 rounded-full bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-emerald-300 transition-colors"
+                    >
+                      <Camera size={11} /> Alterar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeMutation.mutate()}
+                      className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-red-400 transition-colors"
+                    >
+                      <Trash2 size={11} /> Remover
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
+            ) : (
+              /* No avatar — show "Adicionar foto" */
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarBusy}
+                className="w-20 h-20 rounded-full border-4 border-[#14161B] bg-slate-700 flex flex-col items-center justify-center text-slate-400 hover:text-emerald-400 hover:bg-slate-600 transition-all group"
+              >
+                {avatarBusy ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <>
+                    <ImagePlus size={18} className="mb-0.5" />
+                    <span className="text-[9px] font-bold leading-tight">Adicionar</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 pt-14 space-y-6">
+          {/* Avatar error */}
+          {avatarError && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center text-sm">
+              <AlertCircle size={16} className="mr-2 shrink-0" /> {avatarError}
+            </div>
+          )}
+
           {successMsg && (
             <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center text-sm">
               <CheckCircle2 size={16} className="mr-2 shrink-0" /> Alterações salvas com sucesso!
