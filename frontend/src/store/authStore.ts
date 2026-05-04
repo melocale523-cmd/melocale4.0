@@ -3,19 +3,10 @@ import { create } from 'zustand';
 export type Role = 'client' | 'professional' | 'admin';
 
 export interface User {
-  id: string; // auth.uid()
-  professionalId?: string; // Tabela professionals id (se existir)
+  id: string;
+  professionalId?: string;
   role: Role;
-  name: string;
-  phone: string;
   email: string;
-  avatar?: string;
-  address?: string;
-  cep?: string;
-  bio?: string;
-  category?: string;
-  serviceRadius?: string;
-  status?: string;
 }
 
 interface AuthState {
@@ -27,47 +18,30 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
   setMode: (mode: 'client' | 'professional' | 'admin' | null) => void;
   logout: () => void;
-  updateProfile: (data: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: true, // Começa em TRUE para prever loading assíncrono do AuthInitializer
+  isLoading: true,
   currentMode: (sessionStorage.getItem('auth_mode') as any) || null,
-  
-  // setAuth nunca gera NullPointerException se session existir
+
   setAuth: (user) => set((state) => {
-    let newMode = state.currentMode || user?.role || null;
+    const newMode = state.currentMode || user?.role || null;
     if (newMode) sessionStorage.setItem('auth_mode', newMode);
-    return { 
-      user, 
-      isAuthenticated: !!user, 
-      isLoading: false, 
-      // currentMode herda do último request, mas assume o role na montagem primária
-      currentMode: newMode 
-    };
+    return { user, isAuthenticated: !!user, isLoading: false, currentMode: newMode };
   }),
-  
+
   setLoading: (loading) => set({ isLoading: loading }),
-  
+
   setMode: (mode) => {
     if (mode) sessionStorage.setItem('auth_mode', mode);
     else sessionStorage.removeItem('auth_mode');
     set({ currentMode: mode });
   },
-  
+
   logout: () => {
     sessionStorage.removeItem('auth_mode');
-    set({ 
-      user: null, 
-      isAuthenticated: false, 
-      isLoading: false, 
-      currentMode: null 
-    });
+    set({ user: null, isAuthenticated: false, isLoading: false, currentMode: null });
   },
-  
-  updateProfile: (data) => set((state) => ({ 
-    user: state.user ? { ...state.user, ...data } : null 
-  })),
 }));

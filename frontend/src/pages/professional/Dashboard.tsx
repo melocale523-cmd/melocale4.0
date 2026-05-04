@@ -1,103 +1,23 @@
-import { useAuthStore } from '../../store/authStore';
-import { useProfile, ProfileData } from '../../hooks/useProfile';
-import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { walletService, leadService } from '../../services/dbServices';
+import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
-
-// ─── Profile Completion ────────────────────────────────────────────────────────
-
-interface CompletionResult {
-  pct: number;
-  missing: string[];
-}
-
-function calculateProfileCompletion(profile: ProfileData | null | undefined, email: string | undefined): CompletionResult {
-  if (!profile) return { pct: 0, missing: [] };
-
-  const missing: string[] = [];
-  let score = 0;
-
-  // Name (20%) — must differ from email prefix and be non-trivial
-  const nameIsReal = profile.full_name && profile.full_name !== email?.split('@')[0] && profile.full_name.trim().length > 2;
-  if (nameIsReal) { score += 20; } else { missing.push('Nome completo'); }
-
-  // Phone (20%)
-  if (profile.phone?.trim()) { score += 20; } else { missing.push('Telefone'); }
-
-  // Bio (25%) — professionals.bio
-  if (profile.bio && profile.bio.trim().length > 10) { score += 25; } else { missing.push('Biografia'); }
-
-  // Category (20%) — first element of professionals.categories[]
-  if (profile.category?.trim()) { score += 20; } else { missing.push('Categoria'); }
-
-  // Avatar (15%) — profiles.avatar_url
-  if (profile.avatar_url?.trim()) { score += 15; } else { missing.push('Foto de perfil'); }
-
-  return { pct: score, missing };
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
+import { useDashboardData } from '../../hooks/useDashboardData';
 
 export default function ProfessionalDashboard() {
-  const { user } = useAuthStore();
   const navigate = useNavigate();
+  const {
+    user,
+    profile,
+    isLoading,
+    balanceCoins,
+    purchaseCount,
+    completion,
+    steps,
+    doneCount,
+    checklistPct,
+  } = useDashboardData();
 
-  // useProfile is the authoritative source — always fresh from Supabase
-  const { data: profile, isLoading: profileLoading } = useProfile();
-
-  const { data: balance, isLoading: balanceLoading } = useQuery({
-    queryKey: ['walletBalance'],
-    retry: false,
-    refetchOnWindowFocus: false,
-    queryFn: walletService.getBalance,
-  });
-
-  const { data: purchases, isLoading: purchasesLoading } = useQuery({
-    queryKey: ['myPurchases'],
-    retry: false,
-    refetchOnWindowFocus: false,
-    queryFn: leadService.getMyPurchases,
-  });
-
-  const completion = calculateProfileCompletion(profile, user?.email);
-  const balanceCoins = typeof balance === 'number' ? balance : 0;
-  const purchaseCount = Array.isArray(purchases) ? purchases.length : 0;
-
-  // ─── Primeiros Passos ─────────────────────────────────────────────────────
-
-  const steps = [
-    {
-      id: 'account',
-      label: 'Criar conta',
-      done: !!user,
-      path: null,
-    },
-    {
-      id: 'profile',
-      label: 'Completar perfil (80% ou mais)',
-      done: completion.pct >= 80,
-      path: '/profissional/perfil',
-    },
-    {
-      id: 'wallet',
-      label: 'Recarregar carteira de moedas',
-      done: balanceCoins > 0,
-      path: '/profissional/carteira',
-    },
-    {
-      id: 'lead',
-      label: 'Comprar primeiro lead',
-      done: purchaseCount > 0,
-      path: '/profissional/leads',
-    },
-  ];
-
-  const doneCount = steps.filter(s => s.done).length;
-  const checklistPct = Math.round((doneCount / steps.length) * 100);
-
-  if (profileLoading || balanceLoading || purchasesLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <LoadingSpinner size={40} label="Carregando seu painel..." />
@@ -112,7 +32,7 @@ export default function ProfessionalDashboard() {
       <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 py-2">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">
-            Olá, {user?.name?.split(' ')[0] || 'Profissional'}! 👋
+            Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋
           </h1>
           <p className="text-slate-400 text-sm">Resumo do seu negócio.</p>
         </div>

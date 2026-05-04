@@ -8,11 +8,12 @@ import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function ProfessionalPerfil() {
-  const { user, updateProfile } = useAuthStore();
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
 
   const [successMsg, setSuccessMsg] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: user?.email || '',
@@ -22,7 +23,6 @@ export default function ProfessionalPerfil() {
     bio: '',
   });
 
-  // Initialise form once profile loads from Supabase
   useEffect(() => {
     if (!profile) return;
     setFormData(prev => ({
@@ -37,7 +37,7 @@ export default function ProfessionalPerfil() {
 
   const saveMutation = useMutation({
     mutationFn: () =>
-      profileService.saveProfile(user!.id, user?.professionalId, {
+      profileService.saveProfile(user!.id, {
         name: formData.name,
         phone: formData.phone,
         bio: formData.bio,
@@ -45,27 +45,44 @@ export default function ProfessionalPerfil() {
         serviceRadius: formData.radius,
       }),
     onSuccess: () => {
-      // Keep auth store in sync for layouts/greeting
-      updateProfile({
-        name: formData.name,
-        phone: formData.phone,
-        bio: formData.bio,
-        category: formData.category,
-        serviceRadius: formData.radius,
-      });
-      // Invalidate profile query so Dashboard and any other consumer re-fetches
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
     },
   });
 
+  // Auto-clear mutation error after 5 seconds
+  const { isError: mutationIsError, reset: mutationReset } = saveMutation;
+  useEffect(() => {
+    if (!mutationIsError) return;
+    const t = setTimeout(mutationReset, 5000);
+    return () => clearTimeout(t);
+  }, [mutationIsError, mutationReset]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setValidationError(null);
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const validate = (): string | null => {
+    if (!formData.name.trim() || formData.name.trim().length < 3)
+      return 'Nome deve ter pelo menos 3 caracteres.';
+    if (!formData.category)
+      return 'Selecione uma categoria.';
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (!phoneDigits || phoneDigits.length < 10 || phoneDigits.length > 11)
+      return 'Telefone inválido. Use o formato (11) 90000-0000.';
+    return null;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const error = validate();
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+    setValidationError(null);
     saveMutation.mutate();
   };
 
@@ -85,7 +102,6 @@ export default function ProfessionalPerfil() {
       </div>
 
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
-        {/* Cover Photo */}
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
           <div className="absolute -bottom-10 left-6">
             <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden">
@@ -107,10 +123,16 @@ export default function ProfessionalPerfil() {
               <CheckCircle2 size={16} className="mr-2 shrink-0" /> Alterações salvas com sucesso!
             </div>
           )}
+          {validationError && (
+            <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3 rounded-lg flex items-center text-sm">
+              <AlertCircle size={16} className="mr-2 shrink-0" />
+              {validationError}
+            </div>
+          )}
           {saveMutation.isError && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center text-sm">
               <AlertCircle size={16} className="mr-2 shrink-0" />
-              {(saveMutation.error as any)?.message || 'Erro ao salvar. Tente novamente.'}
+              {(saveMutation.error as Error).message}
             </div>
           )}
 

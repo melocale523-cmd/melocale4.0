@@ -1,16 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { getPrimaryCategory } from '../lib/profileHelpers';
+import { logService } from '../lib/logService';
 
 export interface ProfileData {
-  // from profiles table
   id: string;
   full_name: string;
   phone: string;
   avatar_url: string;
   city: string;
-  // from professionals table
   professionalId: string;
   bio: string;
   category: string;
@@ -18,61 +16,55 @@ export interface ProfileData {
   isActive: boolean;
 }
 
-async function fetchProfileData(userId: string, professionalId: string | undefined): Promise<ProfileData> {
-  console.log('[useProfile] fetching', { userId, professionalId });
+async function fetchProfileData(userId: string): Promise<ProfileData> {
+  // Step 1: guarantee the professional row exists (idempotent, DB-level uniqueness)
+  const { error: rpcError } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
+  if (rpcError) {
+    logService.error('useProfile', 'ensure_professional_exists failed', rpcError);
+    throw new Error('Não foi possível preparar os dados profissionais. Tente novamente.');
+  }
 
+  // Step 2: fetch both rows — professional row is guaranteed to exist now
   const [profileRes, profRes] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, full_name, phone, avatar_url, city')
       .eq('id', userId)
       .single(),
-    professionalId
-      ? supabase
-          .from('professionals')
-          .select('id, bio, categories, service_radius, is_active')
-          .eq('id', professionalId)
-          .single()
-      : Promise.resolve({ data: null, error: null }),
+    supabase
+      .from('professionals')
+      .select('id, bio, category, service_radius, is_active')
+      .eq('user_id', userId)
+      .single(),
   ]);
 
-  if (profileRes.error) {
-    console.error('[useProfile] profiles error:', profileRes.error);
-    throw profileRes.error;
-  }
-
-  if (profRes.error) {
-    console.error('[useProfile] professionals error:', profRes.error);
-  }
+  if (profileRes.error) throw new Error('Erro ao carregar perfil. Tente novamente.');
+  if (profRes.error) throw new Error('Erro ao carregar dados profissionais. Tente novamente.');
 
   const profile = profileRes.data;
   const prof = profRes.data;
 
-  const result: ProfileData = {
+  return {
     id: profile.id,
     full_name: profile.full_name || '',
     phone: profile.phone || '',
     avatar_url: profile.avatar_url || '',
     city: profile.city || '',
-    professionalId: prof?.id || professionalId || '',
-    bio: prof?.bio || '',
-    category: getPrimaryCategory(prof?.categories),
-    serviceRadius: prof?.service_radius ?? null,
-    isActive: prof?.is_active ?? true,
+    professionalId: prof.id,
+    bio: prof.bio || '',
+    category: prof.category || '',
+    serviceRadius: prof.service_radius ?? null,
+    isActive: prof.is_active ?? true,
   };
-
-  console.log('[useProfile] result:', result);
-  return result;
 }
 
 export function useProfile() {
   const { user } = useAuthStore();
   const userId = user?.id;
-  const professionalId = user?.professionalId;
 
   return useQuery({
     queryKey: ['profile', userId],
-    queryFn: () => fetchProfileData(userId!, professionalId),
+    queryFn: () => fetchProfileData(userId!),
     enabled: !!userId,
     staleTime: 30_000,
     retry: 1,

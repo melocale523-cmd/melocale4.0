@@ -1,35 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-
-// === Auth Functions ===
-export const authService = {
-  async getProfile(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      if (error) return null;
-      return data;
-    } catch {
-      return null;
-    }
-  },
-  async getProfessionalByUserId(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('professionals')
-        .select('*');
-      if (error) return null;
-      // JS Filter to avoid 'eq' on potentially wrong columns
-      const prof = data.find((p: any) => p.user_id === userId);
-      return prof || null;
-    } catch {
-      return null;
-    }
-  }
-};
+import { logService } from '../lib/logService';
 
 // === Wallet Functions ===
 export const walletService = {
@@ -82,34 +53,21 @@ export const leadService = {
 
   async getMyPurchases() {
     try {
-      // v_my_purchases joins lead_purchases + leads + clients in one flat view
       const { data, error } = await supabase
         .from('v_my_purchases')
         .select('*')
         .order('created_at', { ascending: false });
-
       if (error) return [];
-
-      // Reshape flat view rows into the nested shape Compras.tsx expects
       return (data || []).map((row: any) => ({
         ...row,
         leads: {
-          id: row.lead_id,
-          title: row.title,
-          description: row.description,
-          category: row.category,
-          city: row.city,
-          state: row.state,
-          budget_min: row.budget_min,
-          budget_max: row.budget_max,
-          event_date: row.event_date,
-          status: row.lead_status,
+          id: row.lead_id, title: row.title, description: row.description,
+          category: row.category, city: row.city, state: row.state,
+          budget_min: row.budget_min, budget_max: row.budget_max,
+          event_date: row.event_date, status: row.lead_status,
           clients: {
-            id: row.client_id,
-            full_name: row.client_name,
-            email: row.client_email,
-            phone: row.client_phone,
-            city: row.client_city,
+            id: row.client_id, full_name: row.client_name,
+            email: row.client_email, phone: row.client_phone, city: row.client_city,
           },
         },
       }));
@@ -500,47 +458,48 @@ export const chatService = {
   }
 };
 
-// === Profile Save ===
+// === Profile (professional) ===
 export const profileService = {
-  async saveProfile(userId: string, professionalId: string | undefined, data: {
+  async saveProfile(userId: string, data: {
     name: string;
     phone: string;
     bio: string;
     category: string;
     serviceRadius: string;
   }) {
-    console.log('[profileService.saveProfile] payload:', { userId, professionalId, data });
-
-    const profUpdate: Record<string, unknown> = { bio: data.bio };
-    if (data.category) profUpdate.categories = [data.category];
-    if (data.serviceRadius) profUpdate.service_radius = Number(data.serviceRadius);
-
-    const [profileRes, profRes] = await Promise.all([
-      // upsert ensures record exists even if profiles row was somehow missing
-      supabase
-        .from('profiles')
-        .upsert({ id: userId, full_name: data.name, phone: data.phone }, { onConflict: 'id' }),
-
-      professionalId
-        ? supabase.from('professionals').update(profUpdate).eq('id', professionalId)
-        : Promise.resolve({ error: null }),
-    ]);
-
-    console.log('[profileService.saveProfile] profiles response:', profileRes);
-    console.log('[profileService.saveProfile] professionals response:', profRes);
-
-    if (profileRes.error) {
-      console.error('[profileService.saveProfile] profiles error:', profileRes.error);
-      throw profileRes.error;
+    const payload = {
+      p_user_id: userId,
+      p_full_name: data.name,
+      p_phone: data.phone,
+      p_bio: data.bio || null,
+      p_category: data.category || null,
+      p_service_radius: data.serviceRadius ? Number(data.serviceRadius) : null,
+    };
+    logService.info('profileService', 'saving profile via save_full_profile RPC', payload);
+    const { error } = await supabase.rpc('save_full_profile', payload);
+    if (error) {
+      logService.error('profileService', 'save_full_profile RPC failed', error);
+      throw new Error('Erro ao salvar dados. Tente novamente.');
     }
-    if (profRes.error) {
-      console.error('[profileService.saveProfile] professionals error:', profRes.error);
-      throw profRes.error;
-    }
-
-    console.log('[profileService.saveProfile] success');
+    logService.info('profileService', 'profile saved successfully');
     return true;
-  }
+  },
+};
+
+// === Profile (client) ===
+export const clientProfileService = {
+  async saveProfile(userId: string, data: { name: string; phone: string; city: string }) {
+    const payload = { id: userId, full_name: data.name, phone: data.phone, city: data.city };
+    logService.info('clientProfileService', 'saving profile', payload);
+    const { error } = await supabase
+      .from('profiles')
+      .upsert(payload, { onConflict: 'id' });
+    if (error) {
+      logService.error('clientProfileService', 'profiles upsert failed', error);
+      throw new Error('Erro ao salvar perfil. Tente novamente.');
+    }
+    return true;
+  },
 };
 
 // === Subscriptions ===
