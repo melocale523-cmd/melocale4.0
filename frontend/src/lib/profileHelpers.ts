@@ -85,12 +85,6 @@ export function calculateSteps(params: {
 
   return [
     {
-      id: 'account',
-      label: 'Criar conta',
-      done: true,
-      path: null,
-    },
-    {
       id: 'profile',
       label: 'Completar perfil (nome, telefone, bio, categoria)',
       done: v.name && v.phone && v.bio && v.category,
@@ -115,6 +109,49 @@ export function calculateSteps(params: {
       path: '/profissional/leads',
     },
   ];
+}
+
+// ─── Centralised dashboard state ─────────────────────────────────────────────
+
+export interface DashboardState {
+  validation: ProfileValidation;
+  completion: CompletionResult;
+  steps: DashboardStep[];
+  doneCount: number;
+  totalSteps: number;
+  checklistPct: number;
+  isChecklistComplete: boolean;
+  onlyAvatarMissing: boolean;
+  stats: { purchaseCount: number; balanceCoins: number };
+}
+
+export function getDashboardState(params: {
+  profile: ProfileData | null | undefined;
+  email: string | undefined;
+  balanceCoins: number;
+  purchaseCount: number;
+}): DashboardState {
+  const validation = getProfileValidation(params.profile, params.email);
+  const completion = calculateProfileCompletion(params.profile, params.email);
+  const steps = calculateSteps(params);
+  const doneCount = steps.filter(s => s.done).length;
+  const totalSteps = steps.length;
+  const checklistPct = Math.round((doneCount / totalSteps) * 100);
+  const isChecklistComplete = doneCount === totalSteps;
+  const pendingIds = steps.filter(s => !s.done).map(s => s.id);
+  const onlyAvatarMissing = !isChecklistComplete && pendingIds.length === 1 && pendingIds[0] === 'avatar';
+
+  return {
+    validation,
+    completion,
+    steps,
+    doneCount,
+    totalSteps,
+    checklistPct,
+    isChecklistComplete,
+    onlyAvatarMissing,
+    stats: { purchaseCount: params.purchaseCount, balanceCoins: params.balanceCoins },
+  };
 }
 
 // ─── Client profile helpers ───────────────────────────────────────────────────

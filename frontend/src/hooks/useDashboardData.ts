@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { useProfile } from './useProfile';
 import { walletService, leadService } from '../services/dbServices';
-import { calculateProfileCompletion, calculateSteps } from '../lib/profileHelpers';
+import { getDashboardState } from '../lib/profileHelpers';
 
 export function useDashboardData() {
   const { user } = useAuthStore();
@@ -27,26 +27,20 @@ export function useDashboardData() {
   const balanceCoins = typeof balance === 'number' ? balance : 0;
   const purchaseCount = Array.isArray(purchases) ? purchases.length : 0;
 
-  const completion = calculateProfileCompletion(profile, user?.email);
-
-  const steps = calculateSteps({
+  const state = getDashboardState({
     profile,
     email: user?.email,
     balanceCoins,
     purchaseCount,
   });
 
-  const doneCount = steps.filter(s => s.done).length;
-  const totalSteps = steps.length;
-  const checklistPct = Math.round((doneCount / totalSteps) * 100);
-
   if (!isLoading && profile) {
     console.log('[useDashboardData]', {
       avatar: !!profile.avatar_url,
-      steps: steps.map(s => ({ id: s.id, done: s.done })),
-      doneCount,
-      totalSteps,
-      checklistPct,
+      steps: state.steps.map(s => ({ id: s.id, done: s.done })),
+      doneCount: state.doneCount,
+      totalSteps: state.totalSteps,
+      isChecklistComplete: state.isChecklistComplete,
     });
   }
 
@@ -56,10 +50,6 @@ export function useDashboardData() {
     isLoading,
     balanceCoins,
     purchaseCount,
-    completion,
-    steps,
-    doneCount,
-    totalSteps,
-    checklistPct,
+    ...state,
   };
 }
