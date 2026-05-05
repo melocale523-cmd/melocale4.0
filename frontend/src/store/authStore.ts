@@ -7,6 +7,7 @@ export interface User {
   professionalId?: string;
   role: Role;
   email: string;
+  name?: string;
 }
 
 interface AuthState {
