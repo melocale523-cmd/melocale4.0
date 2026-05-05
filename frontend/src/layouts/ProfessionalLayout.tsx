@@ -21,7 +21,7 @@ export default function ProfessionalLayout() {
 
   const { data: profile } = useProfile();
 
-  const { data: balance, isLoading: balanceLoading } = useQuery({
+  const { data: balance, isLoading: balanceLoading } = useQuery<number>({
     queryKey: ['walletBalance'],
     queryFn: walletService.getBalance,
     staleTime: 0,

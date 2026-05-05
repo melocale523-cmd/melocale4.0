@@ -8,6 +8,26 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
 import { leadService } from '../../services/dbServices';
 
+// Mirrors the shape returned by leadService.getProfessionalStats without
+// touching the service file.
+interface SeriesEntry {
+  name: string;
+  total: number;
+  aceitas: number;
+  recusadas: number;
+  revenue: number;
+}
+
+interface ProfessionalStats {
+  totalSpentCoins: number;
+  contactsPurchased: number;
+  visualizacoes: number;
+  totalProposals: number;
+  acceptedProposalsCount: number;
+  totalRevenue: number;
+  seriesData: SeriesEntry[];
+}
+
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
   const {
@@ -24,7 +44,7 @@ export default function ProfessionalDashboard() {
 
   const isActive = doneCount >= steps.length;
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<ProfessionalStats>({
     queryKey: ['professionalStats', '30d'],
     queryFn: () => leadService.getProfessionalStats('30d'),
     enabled: isActive && !!user?.professionalId,

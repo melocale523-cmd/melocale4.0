@@ -1,18 +1,75 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
-import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap } from 'lucide-react';
+import {
+  Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign,
+  Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap,
+} from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
+// ─── Domain types ─────────────────────────────────────────────────────────────
+
+interface PurchaseClient {
+  id: string | null;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
+}
+
+interface PurchaseProfiles {
+  phone: string | null;
+  email: string | null;
+  name: string | null;
+  address: string | null;
+}
+
+interface PurchaseLead {
+  id: string | null;
+  title: string | null;
+  description: string | null;
+  category: string | null;
+  city: string | null;
+  state: string | null;
+  budget_min: number | null;
+  budget_max: number | null;
+  event_date: string | null;
+  status: string | null;
+  location: string | null;
+  clients: PurchaseClient;
+  profiles: PurchaseProfiles | null;
+}
+
+interface Purchase {
+  id: string;
+  lead_id: string | null;
+  created_at: string;
+  status: string;
+  contacted_at: string | null;
+  price_coins: number | null;
+  leads: PurchaseLead;
+}
+
+interface ProposalFormData {
+  price: string;
+  duration: string;
+  description: string;
+  status: string;
+}
+
+// ─── Cache key ────────────────────────────────────────────────────────────────
+
 const MY_PURCHASES_KEY = ['myPurchases'] as const;
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ProfessionalCompras() {
   const queryClient = useQueryClient();
-  const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
+  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
-  const [proposalData, setProposalData] = useState({
+  const [proposalData, setProposalData] = useState<ProposalFormData>({
     price: '',
     duration: '',
     description: '',
@@ -21,7 +78,7 @@ export default function ProfessionalCompras() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('Todos');
 
-  const { data: purchases, isLoading } = useQuery({
+  const { data: purchases, isLoading } = useQuery<Purchase[]>({
     queryKey: MY_PURCHASES_KEY,
     retry: false,
     refetchOnWindowFocus: false,
@@ -38,8 +95,8 @@ export default function ProfessionalCompras() {
       clientId,
     }: {
       purchaseId: string;
-      data: typeof proposalData;
-      clientId?: string;
+      data: ProposalFormData;
+      clientId: string | null | undefined;
     }) =>
       proposalService.sendProposal(
         purchaseId,
@@ -49,7 +106,7 @@ export default function ProfessionalCompras() {
           description: data.description,
           status: 'Proposta Enviada',
         },
-        clientId
+        clientId ?? undefined
       ),
     onSuccess: () => {
       invalidatePurchases();
@@ -67,7 +124,7 @@ export default function ProfessionalCompras() {
         .from('lead_purchases')
         .update({ contacted_at: new Date().toISOString() })
         .eq('id', purchaseId);
-      if (error) throw error;
+      if (error) throw new Error(error.message);
     },
     onSuccess: invalidatePurchases,
   });
@@ -78,25 +135,24 @@ export default function ProfessionalCompras() {
     (p) => activeTab === 'Todos' || p.status === activeTab
   );
 
-  const formatPhone = (raw: unknown): string => {
-    if (typeof raw !== 'string') return '';
+  const formatPhone = (raw: string | null | undefined): string => {
+    if (!raw) return '';
     const d = raw.replace(/\D/g, '');
     if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
     if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
     return raw;
   };
 
-  const handleContact = (purchase: any) => {
+  const handleContact = (purchase: Purchase) => {
     try {
-      const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
-      const rawEmail = purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email;
-      const safePhone = typeof rawPhone === 'string' ? rawPhone : '';
-      const safeEmail = typeof rawEmail === 'string' ? rawEmail : '';
+      const rawPhone = purchase.leads.clients.phone ?? purchase.leads.profiles?.phone;
+      const rawEmail = purchase.leads.clients.email ?? purchase.leads.profiles?.email;
+      const safePhone = rawPhone ?? '';
+      const safeEmail = rawEmail ?? '';
       const digits = safePhone.replace(/\D/g, '');
       const clientName =
-        purchase.leads?.clients?.full_name ?? purchase.leads?.profiles?.name ?? 'cliente';
-      const serviceName =
-        typeof purchase.leads?.title === 'string' ? purchase.leads.title : 'serviço';
+        purchase.leads.clients.full_name ?? purchase.leads.profiles?.name ?? 'cliente';
+      const serviceName = purchase.leads.title ?? 'serviço';
       const message = `Olá ${clientName}, vi seu pedido de ${serviceName} na MeloCalé e posso te ajudar. Vamos conversar?`;
 
       if (digits) {
@@ -113,7 +169,7 @@ export default function ProfessionalCompras() {
     }
   };
 
-  const openProposalModal = (purchase: any) => {
+  const openProposalModal = (purchase: Purchase) => {
     setSelectedPurchase(purchase);
     setProposalData((prev) => ({
       ...prev,
@@ -128,7 +184,7 @@ export default function ProfessionalCompras() {
     sendProposalMutation.mutate({
       purchaseId: selectedPurchase.id,
       data: proposalData,
-      clientId: selectedPurchase.leads?.client_id,
+      clientId: selectedPurchase.leads.clients.id,
     });
   };
 
@@ -156,8 +212,8 @@ export default function ProfessionalCompras() {
               <div>
                 <h2 className="text-xl font-bold text-white">Enviar Proposta</h2>
                 <p className="text-slate-400 text-sm">
-                  Pedido #{selectedPurchase.lead_id?.slice(-6).toUpperCase()} -{' '}
-                  {selectedPurchase.leads?.title}
+                  Pedido #{selectedPurchase.lead_id?.slice(-6).toUpperCase()} —{' '}
+                  {selectedPurchase.leads.title}
                 </p>
               </div>
             </div>
@@ -231,7 +287,7 @@ export default function ProfessionalCompras() {
         </div>
       )}
 
-      {/* Alerta de Sucesso */}
+      {/* Toast de sucesso */}
       {showSuccess && (
         <div className="fixed top-6 right-6 z-[110] bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-right-4">
           <CheckCircle2 size={24} /> Proposta enviada com sucesso!
@@ -270,6 +326,13 @@ export default function ProfessionalCompras() {
         <div className="grid gap-4 md:grid-cols-2">
           {filteredPurchases.map((purchase) => {
             const isRespondida = purchase.status === 'Respondida pelo Cliente';
+            const phone = purchase.leads.clients.phone ?? purchase.leads.profiles?.phone;
+            const email = purchase.leads.clients.email ?? purchase.leads.profiles?.email;
+            const city =
+              purchase.leads.clients.city ??
+              purchase.leads.profiles?.address ??
+              purchase.leads.location;
+
             return (
               <div
                 key={purchase.id}
@@ -280,7 +343,7 @@ export default function ProfessionalCompras() {
                     : 'border border-slate-800/50 hover:border-emerald-500/30'
                 )}
               >
-                {/* Priority ribbon for Respondida */}
+                {/* Priority banner for responded leads */}
                 {isRespondida && (
                   <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 mb-4">
                     <Zap size={14} className="text-emerald-400 shrink-0" />
@@ -292,7 +355,7 @@ export default function ProfessionalCompras() {
 
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
+                    <h3 className="text-slate-200 font-medium">{purchase.leads.title}</h3>
                     <div className="flex items-center text-sm text-slate-500 mt-1">
                       <Calendar size={14} className="mr-1.5" />
                       {new Date(purchase.created_at).toLocaleDateString('pt-BR')}
@@ -326,6 +389,7 @@ export default function ProfessionalCompras() {
                   </div>
                 </div>
 
+                {/* Contact info — always visible for purchased leads */}
                 <div className="space-y-3 bg-[#0A0B0D] p-4 rounded-lg border border-slate-800/50">
                   <div className="flex items-center text-slate-300">
                     <span className="bg-slate-800 p-1.5 rounded-md mr-3">
@@ -334,9 +398,7 @@ export default function ProfessionalCompras() {
                     <div className="flex-1">
                       <p className="text-xs text-slate-500">Telefone do Cliente</p>
                       <p className="text-sm font-medium">
-                        {formatPhone(
-                          purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone
-                        ) || (
+                        {formatPhone(phone) || (
                           <span className="text-slate-500 italic text-xs">Não informado</span>
                         )}
                       </p>
@@ -349,10 +411,9 @@ export default function ProfessionalCompras() {
                     <div className="flex-1">
                       <p className="text-xs text-slate-500">E-mail</p>
                       <p className="text-sm font-medium">
-                        {purchase.leads?.clients?.email ??
-                          purchase.leads?.profiles?.email ?? (
-                            <span className="text-slate-500 italic text-xs">Não informado</span>
-                          )}
+                        {email ?? (
+                          <span className="text-slate-500 italic text-xs">Não informado</span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -362,44 +423,32 @@ export default function ProfessionalCompras() {
                     </span>
                     <div className="flex-1">
                       <p className="text-xs text-slate-500">Endereço (Aproximado)</p>
-                      <p className="text-sm font-medium">
-                        {purchase.leads?.clients?.city ||
-                          purchase.leads?.profiles?.address ||
-                          purchase.leads?.location}
-                      </p>
+                      <p className="text-sm font-medium">{city ?? '—'}</p>
                     </div>
                   </div>
                 </div>
 
+                {/* Action buttons */}
                 <div className="mt-5 flex gap-3">
-                  {(() => {
-                    const rawPhone =
-                      purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
-                    const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
-                    if (hasPhone) {
-                      return (
-                        <button
-                          onClick={() => handleContact(purchase)}
-                          className={cn(
-                            'flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg',
-                            isRespondida
-                              ? 'bg-[#25D366] hover:bg-[#1ebe59] shadow-[#25D366]/30 ring-2 ring-[#25D366]/20'
-                              : 'bg-[#25D366] hover:bg-[#1ebe59] shadow-[#25D366]/25'
-                          )}
-                        >
-                          <MessageCircle size={16} /> Falar no WhatsApp
-                        </button>
-                      );
-                    }
-                    return (
-                      <button
-                        disabled
-                        className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700"
-                      >
-                        <Phone size={16} /> Contato indisponível
-                      </button>
-                    );
-                  })()}
+                  {phone ? (
+                    <button
+                      onClick={() => handleContact(purchase)}
+                      className={cn(
+                        'flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg bg-[#25D366] hover:bg-[#1ebe59] shadow-[#25D366]/25',
+                        isRespondida && 'ring-2 ring-[#25D366]/30'
+                      )}
+                    >
+                      <MessageCircle size={16} /> Falar no WhatsApp
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700"
+                    >
+                      <Phone size={16} /> Contato indisponível
+                    </button>
+                  )}
+
                   {purchase.status === 'Pendente Proposta' && (
                     <button
                       onClick={() => openProposalModal(purchase)}
