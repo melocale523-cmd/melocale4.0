@@ -130,39 +130,43 @@ export default function ProfessionalPerfil() {
 
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
-          <div className="absolute -bottom-10 left-6 flex items-end gap-2">
+          <div className="absolute -bottom-10 left-6 flex items-end gap-4">
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={avatarBusy}
-              className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden disabled:cursor-wait"
-            >
+            {/* Avatar circle — non-interactive, buttons below handle actions */}
+            <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative overflow-hidden shrink-0">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
               ) : (
                 <User size={32} />
               )}
-              {avatarBusy ? (
+              {avatarBusy && (
                 <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
                   <Loader2 size={18} className="text-white animate-spin" />
                 </div>
-              ) : (
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Camera size={18} className="text-white" />
-                </div>
               )}
-            </button>
-            {profile?.avatar_url && !avatarBusy && (
+            </div>
+            {/* Always-visible avatar action buttons */}
+            <div className="flex gap-2 mb-1">
               <button
                 type="button"
-                onClick={() => removeMutation.mutate()}
-                className="mb-1 w-6 h-6 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center transition-colors"
-                title="Remover foto"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarBusy}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-wait text-white text-xs font-bold rounded-lg transition-all border border-white/10"
               >
-                <Trash2 size={11} className="text-white" />
+                {avatarBusy ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />}
+                Alterar Foto
               </button>
-            )}
+              {profile?.avatar_url && (
+                <button
+                  type="button"
+                  onClick={() => removeMutation.mutate()}
+                  disabled={avatarBusy}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 disabled:opacity-50 disabled:cursor-wait text-red-400 text-xs font-bold rounded-lg transition-all border border-red-500/20"
+                >
+                  <Trash2 size={13} /> Remover
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

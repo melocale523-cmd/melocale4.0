@@ -1,4 +1,4 @@
-import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Zap, Search, RefreshCw, ClipboardList } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
@@ -126,6 +126,55 @@ export default function ProfessionalDashboard() {
           )}
         </div>
       </div>
+
+      {/* Centro de Comando — shown only after checklist is complete */}
+      {doneCount >= steps.length && (
+        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Zap size={20} className="text-emerald-400" />
+            <h2 className="text-lg font-bold text-white">Centro de Comando</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+            <Link
+              to="/profissional/leads"
+              className="flex items-center gap-3 p-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/20"
+            >
+              <Search size={20} className="shrink-0" />
+              <span>Buscar Novos Leads</span>
+            </Link>
+            <Link
+              to="/profissional/meus-leads"
+              className="flex items-center gap-3 p-4 bg-blue-600/80 hover:bg-blue-600 text-white rounded-xl font-bold text-sm transition-all"
+            >
+              <ClipboardList size={20} className="shrink-0" />
+              <span>Ver Minhas Propostas</span>
+            </Link>
+            <Link
+              to="/profissional/carteira"
+              className="flex items-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-bold text-sm transition-all"
+            >
+              <RefreshCw size={20} className="shrink-0" />
+              <span>Recarregar Carteira</span>
+            </Link>
+          </div>
+
+          {purchaseCount === 0 && (
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex-1">
+                <p className="text-white font-bold mb-1">Nenhum cliente ainda</p>
+                <p className="text-slate-400 text-sm">Explore os leads disponíveis e envie sua primeira proposta para começar a faturar.</p>
+              </div>
+              <Link
+                to="/profissional/leads"
+                className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+              >
+                Ver Clientes Disponíveis <ArrowRight size={16} />
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Primeiros Passos — only while steps remain */}
       {doneCount < steps.length && (
