@@ -1,7 +1,9 @@
-import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, TrendingUp, Users, Activity } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
+import { leadService } from '../../services/dbServices';
 
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
@@ -16,6 +18,16 @@ export default function ProfessionalDashboard() {
     doneCount,
     checklistPct,
   } = useDashboardData();
+
+  const { data: stats } = useQuery({
+    queryKey: ['professionalStats', '30d'],
+    queryFn: () => leadService.getProfessionalStats('30d'),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const conversionRate = stats && stats.totalProposals > 0
+    ? Math.round((stats.acceptedProposalsCount / stats.totalProposals) * 100)
+    : 0;
 
   if (isLoading) {
     return (
@@ -125,6 +137,67 @@ export default function ProfessionalDashboard() {
             </Link>
           )}
         </div>
+      </div>
+
+      {/* Performance do Mês */}
+      <div className="space-y-4">
+        <h2 className="text-white font-bold text-lg">Performance do Mês</h2>
+
+        {!stats || stats.totalRevenue === 0 ? (
+          <div className="bg-[#14161B] border border-white/5 rounded-2xl p-8 flex flex-col items-center text-center gap-3">
+            <Rocket size={32} className="text-emerald-500/60" />
+            <p className="text-slate-300 font-medium">Sua jornada começa aqui!</p>
+            <p className="text-slate-500 text-sm max-w-sm">
+              Envie propostas para desbloquear suas estatísticas.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link
+              to="/profissional/carteira"
+              className="bg-[#14161B] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-6 transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Faturamento Estimado</h3>
+                <TrendingUp size={16} className="text-emerald-500" />
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">
+                R$ {stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+              <span className="text-emerald-500 group-hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
+                Ver carteira <ArrowRight size={12} />
+              </span>
+            </Link>
+
+            <Link
+              to="/profissional/carteira"
+              className="bg-[#14161B] border border-white/5 hover:border-blue-500/30 rounded-2xl p-6 transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Propostas Aceitas</h3>
+                <Users size={16} className="text-blue-500" />
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">{stats.acceptedProposalsCount}</p>
+              <span className="text-blue-400 group-hover:text-blue-300 text-xs font-medium flex items-center gap-1 transition-colors">
+                Ver carteira <ArrowRight size={12} />
+              </span>
+            </Link>
+
+            <Link
+              to="/profissional/meus-leads"
+              className="bg-[#14161B] border border-white/5 hover:border-purple-500/30 rounded-2xl p-6 transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Taxa de Conversão</h3>
+                <Activity size={16} className="text-purple-400" />
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">{conversionRate}%</p>
+              <span className="text-purple-400 group-hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
+                Meus leads <ArrowRight size={12} />
+              </span>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Primeiros Passos — only while steps remain */}

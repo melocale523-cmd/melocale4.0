@@ -15,8 +15,6 @@ export const walletService = {
         .eq('user_id', userId)
         .single();
       
-      console.log("Saldo recebido:", data);
-
       if (error || !data) return 0;
       
       return data.balance_coins || 0;
@@ -25,6 +23,11 @@ export const walletService = {
     }
   }
 };
+
+interface PurchaseLeadResult {
+  success: boolean;
+  lead_purchase_id: string;
+}
 
 // === Leads and Purchases ===
 export const leadService = {
@@ -41,13 +44,17 @@ export const leadService = {
     return data || [];
   },
 
-  async purchaseLead(leadId: string) {
+  async purchaseLead(leadId: string): Promise<PurchaseLeadResult> {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(leadId)) throw new Error(`Invalid lead UUID: ${leadId}`);
+
     const idempotencyKey = crypto.randomUUID();
-    const { data, error } = await supabase.rpc('purchase_lead', {
+    const { data, error } = await supabase.rpc<PurchaseLeadResult>('purchase_lead', {
       p_lead_id: leadId,
       p_idempotency_key: idempotencyKey
     });
     if (error) throw error;
+    if (!data) throw new Error('purchase_lead returned no data');
     return data;
   },
 
