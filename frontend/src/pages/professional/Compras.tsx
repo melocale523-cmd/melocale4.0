@@ -6,60 +6,60 @@ import { cn } from '../../lib/utils';
 import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
+const MY_PURCHASES_KEY = ['myPurchases'] as const;
+
 export default function ProfessionalCompras() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [proposalData, setProposalData] = useState({
     price: '',
     duration: '',
     description: '',
-    status: 'Proposta Enviada'
+    status: 'Proposta Enviada',
   });
   const [showSuccess, setShowSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState('Todos');
 
   const { data: purchases, isLoading } = useQuery({
-    queryKey: ['purchases'],
+    queryKey: MY_PURCHASES_KEY,
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,
   });
 
+  const invalidatePurchases = () =>
+    queryClient.invalidateQueries({ queryKey: MY_PURCHASES_KEY });
+
   const sendProposalMutation = useMutation({
-    mutationFn: ({ purchaseId, data, clientId }: { purchaseId: string, data: any, clientId?: string }) => 
-      proposalService.sendProposal(purchaseId, {
-        price: parseFloat(data.price),
-        duration: data.duration,
-        description: data.description,
-        status: 'Proposta Enviada'
-      }, clientId),
+    mutationFn: ({
+      purchaseId,
+      data,
+      clientId,
+    }: {
+      purchaseId: string;
+      data: typeof proposalData;
+      clientId?: string;
+    }) =>
+      proposalService.sendProposal(
+        purchaseId,
+        {
+          price: parseFloat(data.price),
+          duration: data.duration,
+          description: data.description,
+          status: 'Proposta Enviada',
+        },
+        clientId
+      ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['purchases'] });
+      invalidatePurchases();
       setIsProposalModalOpen(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
       setProposalData({ price: '', duration: '', description: '', status: 'Proposta Enviada' });
     },
-    onError: (error: any) => alert(`Erro ao enviar proposta: ${error.message}`)
+    onError: (error: Error) => alert(`Erro ao enviar proposta: ${error.message}`),
   });
-
-  const [activeTab, setActiveTab] = useState('Todos');
-  const tabs = ['Todos', 'Pendente Proposta', 'Proposta Enviada', 'Respondida pelo Cliente'];
-
-  const filteredPurchases = purchases?.filter(p => 
-    activeTab === 'Todos' || p.status === activeTab
-  );
-
-  // All purchased leads unlock contact immediately — badge "Desbloqueado" must match reality.
-  const canContact = (_status: string) => true;
-
-  const formatPhone = (raw: unknown): string => {
-    if (typeof raw !== 'string') return '';
-    const d = raw.replace(/\D/g, '');
-    if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-    if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
-    return raw;
-  };
 
   const trackContactMutation = useMutation({
     mutationFn: async (purchaseId: string) => {
@@ -69,8 +69,22 @@ export default function ProfessionalCompras() {
         .eq('id', purchaseId);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['purchases'] }),
+    onSuccess: invalidatePurchases,
   });
+
+  const tabs = ['Todos', 'Pendente Proposta', 'Proposta Enviada', 'Respondida pelo Cliente'];
+
+  const filteredPurchases = purchases?.filter(
+    (p) => activeTab === 'Todos' || p.status === activeTab
+  );
+
+  const formatPhone = (raw: unknown): string => {
+    if (typeof raw !== 'string') return '';
+    const d = raw.replace(/\D/g, '');
+    if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    return raw;
+  };
 
   const handleContact = (purchase: any) => {
     try {
@@ -79,10 +93,12 @@ export default function ProfessionalCompras() {
       const safePhone = typeof rawPhone === 'string' ? rawPhone : '';
       const safeEmail = typeof rawEmail === 'string' ? rawEmail : '';
       const digits = safePhone.replace(/\D/g, '');
-      const clientName = purchase.leads?.clients?.full_name ?? purchase.leads?.profiles?.name ?? 'cliente';
-      const serviceName = typeof purchase.leads?.title === 'string' ? purchase.leads.title : 'serviço';
+      const clientName =
+        purchase.leads?.clients?.full_name ?? purchase.leads?.profiles?.name ?? 'cliente';
+      const serviceName =
+        typeof purchase.leads?.title === 'string' ? purchase.leads.title : 'serviço';
       const message = `Olá ${clientName}, vi seu pedido de ${serviceName} na MeloCalé e posso te ajudar. Vamos conversar?`;
-      console.log('[handleContact] contact data:', { rawPhone, rawEmail, digits, clientName, serviceName });
+
       if (digits) {
         trackContactMutation.mutate(purchase.id);
         window.open(`https://wa.me/55${digits}?text=${encodeURIComponent(message)}`, '_blank');
@@ -92,26 +108,27 @@ export default function ProfessionalCompras() {
       } else {
         alert('Nenhum dado de contato disponível para este cliente.');
       }
-    } catch (err) {
-      console.error('[handleContact] unexpected error:', err);
+    } catch {
       alert('Erro ao abrir contato. Tente novamente.');
     }
   };
 
   const openProposalModal = (purchase: any) => {
     setSelectedPurchase(purchase);
-    // Reset status to the current purchase status or default to current
-    setProposalData(prev => ({ ...prev, status: purchase.status === 'Pendente Proposta' ? 'Proposta Enviada' : purchase.status }));
+    setProposalData((prev) => ({
+      ...prev,
+      status: purchase.status === 'Pendente Proposta' ? 'Proposta Enviada' : purchase.status,
+    }));
     setIsProposalModalOpen(true);
   };
 
   const handleSendProposal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPurchase) return;
-    sendProposalMutation.mutate({ 
-      purchaseId: selectedPurchase.id, 
+    sendProposalMutation.mutate({
+      purchaseId: selectedPurchase.id,
       data: proposalData,
-      clientId: selectedPurchase.leads?.client_id 
+      clientId: selectedPurchase.leads?.client_id,
     });
   };
 
@@ -120,90 +137,93 @@ export default function ProfessionalCompras() {
       {/* Modal de Envio de Proposta */}
       {isProposalModalOpen && selectedPurchase && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsProposalModalOpen(false)}></div>
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setIsProposalModalOpen(false)}
+          />
           <div className="relative bg-[#14161B] border border-white/10 rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200">
-            <button 
+            <button
               onClick={() => setIsProposalModalOpen(false)}
               className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
             >
               <X size={20} />
             </button>
-            
+
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-xl flex items-center justify-center">
                 <Send size={24} />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">Enviar Proposta</h2>
-                <p className="text-slate-400 text-sm">Pedido #{selectedPurchase.lead_id?.slice(-6).toUpperCase()} - {selectedPurchase.leads?.title}</p>
+                <p className="text-slate-400 text-sm">
+                  Pedido #{selectedPurchase.lead_id?.slice(-6).toUpperCase()} -{' '}
+                  {selectedPurchase.leads?.title}
+                </p>
               </div>
             </div>
 
             <form onSubmit={handleSendProposal} className="space-y-5">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
-                   <DollarSign size={14} /> Valor Estimado (R$)
+                  <DollarSign size={14} /> Valor Estimado (R$)
                 </label>
-                <input 
+                <input
                   required
-                  type="number" 
+                  type="number"
                   placeholder="Ex: 1200"
                   value={proposalData.price}
-                  onChange={e => setProposalData(prev => ({ ...prev, price: e.target.value }))}
+                  onChange={(e) =>
+                    setProposalData((prev) => ({ ...prev, price: e.target.value }))
+                  }
                   className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
-                   <Clock size={14} /> Prazo de Execução
+                  <Clock size={14} /> Prazo de Execução
                 </label>
-                <input 
+                <input
                   required
-                  type="text" 
+                  type="text"
                   placeholder="Ex: 3 dias úteis"
                   value={proposalData.duration}
-                  onChange={e => setProposalData(prev => ({ ...prev, duration: e.target.value }))}
+                  onChange={(e) =>
+                    setProposalData((prev) => ({ ...prev, duration: e.target.value }))
+                  }
                   className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
-                   <FileText size={14} /> Descrição Detalhada
+                  <FileText size={14} /> Descrição Detalhada
                 </label>
-                <textarea 
+                <textarea
                   required
                   rows={4}
                   placeholder="Descreva como você pretende realizar o serviço, materiais inclusos, etc..."
                   value={proposalData.description}
-                  onChange={e => setProposalData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setProposalData((prev) => ({ ...prev, description: e.target.value }))
+                  }
                   className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all resize-none"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
-                   <FileText size={14} /> 
-                </label>
-                <select 
-                  value={proposalData.status}
-                  onChange={e => setProposalData(prev => ({ ...prev, status: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
-                >
-                   <option value="Pendente Proposta">Pendente Proposta</option>
-                   <option value="Proposta Enviada">Proposta Enviada</option>
-                   <option value="Respondida pelo Cliente">Respondida pelo Cliente</option>
-                </select>
-              </div>
-
               <div className="pt-4">
-                <button 
+                <button
                   disabled={sendProposalMutation.isPending}
                   type="submit"
                   className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                 >
-                  {sendProposalMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <><Send size={18} /> Enviar Proposta para o Cliente</>}
+                  {sendProposalMutation.isPending ? (
+                    <Loader2 size={20} className="animate-spin" />
+                  ) : (
+                    <>
+                      <Send size={18} /> Enviar Proposta para o Cliente
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -214,30 +234,32 @@ export default function ProfessionalCompras() {
       {/* Alerta de Sucesso */}
       {showSuccess && (
         <div className="fixed top-6 right-6 z-[110] bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-right-4">
-           <CheckCircle2 size={24} /> Proposta enviada com sucesso!
+          <CheckCircle2 size={24} /> Proposta enviada com sucesso!
         </div>
       )}
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Meus Clientes</h1>
         <div className="text-xs font-bold px-3 py-1 bg-white/5 border border-white/10 text-slate-300 rounded-full">
-          {purchases?.length || 0} adquiridos
+          {purchases?.length ?? 0} adquiridos
         </div>
       </div>
 
       <div className="flex gap-6 border-b border-slate-800 overflow-x-auto pb-px">
-         {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                 "pb-3 text-sm font-bold transition-colors border-b-2 whitespace-nowrap",
-                 activeTab === tab ? "border-emerald-500 text-white" : "border-transparent text-slate-500 hover:text-slate-300"
-              )}
-            >
-              {tab}
-            </button>
-         ))}
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              'pb-3 text-sm font-bold transition-colors border-b-2 whitespace-nowrap',
+              activeTab === tab
+                ? 'border-emerald-500 text-white'
+                : 'border-transparent text-slate-500 hover:text-slate-300'
+            )}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
       {isLoading ? (
@@ -246,119 +268,160 @@ export default function ProfessionalCompras() {
         </div>
       ) : filteredPurchases && filteredPurchases.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
-          {filteredPurchases.map((purchase) => (
-            <div key={purchase.id} className="bg-[#14161B] border border-slate-800/50 rounded-xl p-6 hover:border-emerald-500/30 transition-colors">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
-                  <div className="flex items-center text-sm text-slate-500 mt-1">
-                    <Calendar size={14} className="mr-1.5" />
-                    {new Date(purchase.created_at).toLocaleDateString('pt-BR')}
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-2 text-right">
-                  <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded text-xs font-medium border border-emerald-500/20">
-                    Desbloqueado
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {purchase.status === 'Visualizada pelo Cliente' && <Eye size={12} className="text-blue-400" />}
-                    {purchase.status === 'Respondida pelo Cliente' && <CheckCircle size={12} className="text-emerald-400" />}
-                    <span className={cn(
-                      "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
-                      purchase.status === 'Pendente Proposta' ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : 
-                      purchase.status === 'Proposta Enviada' || purchase.status === 'Enviada' ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
-                      purchase.status === 'Visualizada pelo Cliente' ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" :
-                      "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                    )}>
-                      {purchase.status}
+          {filteredPurchases.map((purchase) => {
+            const isRespondida = purchase.status === 'Respondida pelo Cliente';
+            return (
+              <div
+                key={purchase.id}
+                className={cn(
+                  'bg-[#14161B] rounded-xl p-6 transition-all',
+                  isRespondida
+                    ? 'border border-emerald-500/50 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/20'
+                    : 'border border-slate-800/50 hover:border-emerald-500/30'
+                )}
+              >
+                {/* Priority ribbon for Respondida */}
+                {isRespondida && (
+                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 mb-4">
+                    <Zap size={14} className="text-emerald-400 shrink-0" />
+                    <span className="text-[11px] text-emerald-400 font-bold uppercase tracking-widest">
+                      Fechar agora — cliente respondeu!
                     </span>
                   </div>
-                </div>
-              </div>
-              
-              <div className="space-y-3 bg-[#0A0B0D] p-4 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
-
-                {purchase.status === 'Respondida pelo Cliente' && (
-                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-3 py-2 mb-1">
-                    <Zap size={13} className="text-emerald-400 shrink-0" />
-                    <p className="text-[11px] text-emerald-400 font-bold uppercase tracking-widest">Cliente respondeu a proposta</p>
-                  </div>
                 )}
 
-                <div className="flex items-center text-slate-300">
-                  <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <Phone size={16} className="text-slate-400" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-xs text-slate-500">Telefone do Cliente</p>
-                    <p className="text-sm font-medium">
-                      {formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-slate-500 italic text-xs">Não informado</span>}
-                    </p>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
+                    <div className="flex items-center text-sm text-slate-500 mt-1">
+                      <Calendar size={14} className="mr-1.5" />
+                      {new Date(purchase.created_at).toLocaleDateString('pt-BR')}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2 text-right">
+                    <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded text-xs font-medium border border-emerald-500/20">
+                      Desbloqueado
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {purchase.status === 'Visualizada pelo Cliente' && (
+                        <Eye size={12} className="text-blue-400" />
+                      )}
+                      {isRespondida && <CheckCircle size={12} className="text-emerald-400" />}
+                      <span
+                        className={cn(
+                          'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest',
+                          purchase.status === 'Pendente Proposta'
+                            ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                            : purchase.status === 'Proposta Enviada' ||
+                                purchase.status === 'Enviada'
+                              ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                              : purchase.status === 'Visualizada pelo Cliente'
+                                ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                                : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                        )}
+                      >
+                        {purchase.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center text-slate-300">
-                  <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <Mail size={16} className="text-slate-400" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-xs text-slate-500">E-mail</p>
-                    <p className="text-sm font-medium">
-                      {purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email ?? <span className="text-slate-500 italic text-xs">Não informado</span>}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center text-slate-300">
-                  <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <MapPin size={16} className="text-slate-400" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-xs text-slate-500">Endereço (Aproximado)</p>
-                    <p className="text-sm font-medium">{purchase.leads?.clients?.city || purchase.leads?.profiles?.address || purchase.leads?.location}</p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="mt-5 flex gap-3">
-                {(() => {
-                  const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
-                  const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
-                  if (hasPhone) {
+                <div className="space-y-3 bg-[#0A0B0D] p-4 rounded-lg border border-slate-800/50">
+                  <div className="flex items-center text-slate-300">
+                    <span className="bg-slate-800 p-1.5 rounded-md mr-3">
+                      <Phone size={16} className="text-slate-400" />
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-xs text-slate-500">Telefone do Cliente</p>
+                      <p className="text-sm font-medium">
+                        {formatPhone(
+                          purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone
+                        ) || (
+                          <span className="text-slate-500 italic text-xs">Não informado</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-slate-300">
+                    <span className="bg-slate-800 p-1.5 rounded-md mr-3">
+                      <Mail size={16} className="text-slate-400" />
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-xs text-slate-500">E-mail</p>
+                      <p className="text-sm font-medium">
+                        {purchase.leads?.clients?.email ??
+                          purchase.leads?.profiles?.email ?? (
+                            <span className="text-slate-500 italic text-xs">Não informado</span>
+                          )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-slate-300">
+                    <span className="bg-slate-800 p-1.5 rounded-md mr-3">
+                      <MapPin size={16} className="text-slate-400" />
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-xs text-slate-500">Endereço (Aproximado)</p>
+                      <p className="text-sm font-medium">
+                        {purchase.leads?.clients?.city ||
+                          purchase.leads?.profiles?.address ||
+                          purchase.leads?.location}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex gap-3">
+                  {(() => {
+                    const rawPhone =
+                      purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
+                    const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
+                    if (hasPhone) {
+                      return (
+                        <button
+                          onClick={() => handleContact(purchase)}
+                          className={cn(
+                            'flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg',
+                            isRespondida
+                              ? 'bg-[#25D366] hover:bg-[#1ebe59] shadow-[#25D366]/30 ring-2 ring-[#25D366]/20'
+                              : 'bg-[#25D366] hover:bg-[#1ebe59] shadow-[#25D366]/25'
+                          )}
+                        >
+                          <MessageCircle size={16} /> Falar no WhatsApp
+                        </button>
+                      );
+                    }
                     return (
                       <button
-                        onClick={() => handleContact(purchase)}
-                        className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe59] text-white shadow-lg shadow-[#25D366]/25"
+                        disabled
+                        className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700"
                       >
-                        <MessageCircle size={16} /> Falar no WhatsApp
+                        <Phone size={16} /> Contato indisponível
                       </button>
                     );
-                  }
-                  return (
-                    <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700">
-                      <Phone size={16} /> Contato indisponível
+                  })()}
+                  {purchase.status === 'Pendente Proposta' && (
+                    <button
+                      onClick={() => openProposalModal(purchase)}
+                      className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg text-sm font-bold transition-all border border-white/10 flex items-center justify-center gap-2"
+                    >
+                      <Send size={16} /> Enviar Proposta
                     </button>
-                  );
-                })()}
-                {purchase.status === 'Pendente Proposta' && (
-                  <button 
-                    onClick={() => openProposalModal(purchase)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg text-sm font-bold transition-all border border-white/10 flex items-center justify-center gap-2"
-                  >
-                    <Send size={16} /> Enviar Proposta
-                  </button>
-                )}
-                {purchase.status === 'Proposta Enviada' && (
-                  <div className="flex-1 bg-blue-500/5 text-blue-500 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center justify-center gap-2">
-                    <Clock size={14} /> Enviada
-                  </div>
-                )}
-                {purchase.status === 'Visualizada pelo Cliente' && (
-                  <div className="flex-1 bg-indigo-500/5 text-indigo-400 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 flex items-center justify-center gap-2 animate-pulse">
-                    <Eye size={14} /> Visualizada
-                  </div>
-                )}
+                  )}
+                  {purchase.status === 'Proposta Enviada' && (
+                    <div className="flex-1 bg-blue-500/5 text-blue-500 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center justify-center gap-2">
+                      <Clock size={14} /> Enviada
+                    </div>
+                  )}
+                  {purchase.status === 'Visualizada pelo Cliente' && (
+                    <div className="flex-1 bg-indigo-500/5 text-indigo-400 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 flex items-center justify-center gap-2 animate-pulse">
+                      <Eye size={14} /> Visualizada
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="border border-dashed border-white/10 rounded-3xl p-12 text-center flex flex-col items-center justify-center min-h-[400px]">

@@ -1,7 +1,12 @@
-import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, Zap, Search, RefreshCw, ClipboardList } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight,
+  Zap, Search, RefreshCw, ClipboardList, TrendingUp, DollarSign, Award, Loader2,
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
+import { leadService } from '../../services/dbServices';
 
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
@@ -16,6 +21,24 @@ export default function ProfessionalDashboard() {
     doneCount,
     checklistPct,
   } = useDashboardData();
+
+  const isActive = doneCount >= steps.length;
+
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['professionalStats', '30d'],
+    queryFn: () => leadService.getProfessionalStats('30d'),
+    enabled: isActive && !!user?.professionalId,
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const hasRevenue =
+    (stats?.totalRevenue ?? 0) > 0 || (stats?.acceptedProposalsCount ?? 0) > 0;
+
+  const conversionRate =
+    stats && stats.contactsPurchased > 0
+      ? ((stats.acceptedProposalsCount / stats.contactsPurchased) * 100).toFixed(1)
+      : '0.0';
 
   if (isLoading) {
     return (
@@ -44,31 +67,40 @@ export default function ProfessionalDashboard() {
         </button>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards — linked */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+        <Link
+          to="/profissional/carteira"
+          className="bg-[#14161B] border border-white/5 rounded-2xl p-6 hover:border-emerald-500/30 transition-colors block"
+        >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Saldo de Moedas</h3>
             <Wallet size={16} className="text-emerald-500" />
           </div>
           <p className="text-3xl font-bold text-white mb-2">{balanceCoins} moedas</p>
-          <Link to="/profissional/carteira" className="text-emerald-500 hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
+          <span className="text-emerald-500 text-xs font-medium flex items-center gap-1">
             Recarregar <ArrowRight size={12} />
-          </Link>
-        </div>
+          </span>
+        </Link>
 
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+        <Link
+          to="/profissional/meus-leads"
+          className="bg-[#14161B] border border-white/5 rounded-2xl p-6 hover:border-blue-500/30 transition-colors block"
+        >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Leads Comprados</h3>
             <Target size={16} className="text-blue-500" />
           </div>
           <p className="text-3xl font-bold text-white mb-2">{purchaseCount}</p>
-          <Link to="/profissional/meus-leads" className="text-blue-400 hover:text-blue-300 text-xs font-medium flex items-center gap-1 transition-colors">
+          <span className="text-blue-400 text-xs font-medium flex items-center gap-1">
             Ver contatos <ArrowRight size={12} />
-          </Link>
-        </div>
+          </span>
+        </Link>
 
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+        <Link
+          to="/profissional/perfil"
+          className="bg-[#14161B] border border-white/5 rounded-2xl p-6 hover:border-purple-500/30 transition-colors block"
+        >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Categoria</h3>
             <Briefcase size={16} className="text-purple-400" />
@@ -76,10 +108,10 @@ export default function ProfessionalDashboard() {
           <p className="text-2xl font-bold text-white mb-2 truncate">
             {profile?.category || 'Não definida'}
           </p>
-          <Link to="/profissional/perfil" className="text-purple-400 hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
+          <span className="text-purple-400 text-xs font-medium flex items-center gap-1">
             {profile?.category ? 'Alterar' : 'Definir agora'} <ArrowRight size={12} />
-          </Link>
-        </div>
+          </span>
+        </Link>
       </div>
 
       {/* Profile Completion */}
@@ -112,7 +144,9 @@ export default function ProfessionalDashboard() {
                 </p>
               )}
               {completion.pct >= 100 && (
-                <p className="text-emerald-400 text-sm">Profissionais com perfil 100% completo recebem até <strong>3x mais contatos</strong>.</p>
+                <p className="text-emerald-400 text-sm">
+                  Profissionais com perfil 100% completo recebem até <strong>3x mais contatos</strong>.
+                </p>
               )}
             </div>
           </div>
@@ -127,101 +161,168 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* Centro de Comando — shown only after checklist is complete */}
-      {doneCount >= steps.length && (
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Zap size={20} className="text-emerald-400" />
-            <h2 className="text-lg font-bold text-white">Centro de Comando</h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-            <Link
-              to="/profissional/leads"
-              className="flex items-center gap-3 p-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/20"
-            >
-              <Search size={20} className="shrink-0" />
-              <span>Buscar Novos Leads</span>
-            </Link>
-            <Link
-              to="/profissional/meus-leads"
-              className="flex items-center gap-3 p-4 bg-blue-600/80 hover:bg-blue-600 text-white rounded-xl font-bold text-sm transition-all"
-            >
-              <ClipboardList size={20} className="shrink-0" />
-              <span>Ver Minhas Propostas</span>
-            </Link>
-            <Link
-              to="/profissional/carteira"
-              className="flex items-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-bold text-sm transition-all"
-            >
-              <RefreshCw size={20} className="shrink-0" />
-              <span>Recarregar Carteira</span>
-            </Link>
-          </div>
-
-          {purchaseCount === 0 && (
-            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 flex flex-col sm:flex-row items-center gap-4">
-              <div className="flex-1">
-                <p className="text-white font-bold mb-1">Nenhum cliente ainda</p>
-                <p className="text-slate-400 text-sm">Explore os leads disponíveis e envie sua primeira proposta para começar a faturar.</p>
+      {/* ═══ ACTIVE DASHBOARD — shown when all onboarding steps are done ═══ */}
+      {isActive && (
+        <>
+          {/* Performance do Mês */}
+          <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <TrendingUp size={20} className="text-blue-400" />
+                <h2 className="text-lg font-bold text-white">Performance do Mês</h2>
               </div>
+              {statsLoading && <Loader2 size={16} className="text-slate-500 animate-spin" />}
+            </div>
+
+            {!hasRevenue ? (
+              <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-5 flex items-start gap-4">
+                <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center shrink-0">
+                  <Rocket size={20} className="text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-white font-bold mb-1">Sua jornada começa aqui!</p>
+                  <p className="text-slate-400 text-sm">
+                    Envie propostas para desbloquear suas estatísticas de conversão e faturamento.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-[#0A0B0D] rounded-xl p-4 border border-white/5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <DollarSign size={16} className="text-emerald-400" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                      Faturamento Estimado
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">
+                    R${' '}
+                    {(stats?.totalRevenue ?? 0).toLocaleString('pt-BR', {
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
+                <div className="bg-[#0A0B0D] rounded-xl p-4 border border-white/5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Award size={16} className="text-amber-400" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                      Propostas Aceitas
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">
+                    {stats?.acceptedProposalsCount ?? 0}
+                  </p>
+                </div>
+                <div className="bg-[#0A0B0D] rounded-xl p-4 border border-white/5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <TrendingUp size={16} className="text-blue-400" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                      Taxa de Conversão
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">{conversionRate}%</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Centro de Comando */}
+          <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Zap size={20} className="text-emerald-400" />
+              <h2 className="text-lg font-bold text-white">Centro de Comando</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
               <Link
                 to="/profissional/leads"
-                className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+                className="flex items-center gap-3 p-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/20"
               >
-                Ver Clientes Disponíveis <ArrowRight size={16} />
+                <Search size={20} className="shrink-0" />
+                <span>Buscar Novos Leads</span>
+              </Link>
+              <Link
+                to="/profissional/meus-leads"
+                className="flex items-center gap-3 p-4 bg-blue-600/80 hover:bg-blue-600 text-white rounded-xl font-bold text-sm transition-all"
+              >
+                <ClipboardList size={20} className="shrink-0" />
+                <span>Ver Minhas Propostas</span>
+              </Link>
+              <Link
+                to="/profissional/carteira"
+                className="flex items-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-bold text-sm transition-all"
+              >
+                <RefreshCw size={20} className="shrink-0" />
+                <span>Recarregar Carteira</span>
               </Link>
             </div>
-          )}
-        </div>
+
+            {purchaseCount === 0 && (
+              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex-1">
+                  <p className="text-white font-bold mb-1">Nenhum cliente ainda</p>
+                  <p className="text-slate-400 text-sm">
+                    Explore os leads disponíveis e envie sua primeira proposta para começar a faturar.
+                  </p>
+                </div>
+                <Link
+                  to="/profissional/leads"
+                  className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+                >
+                  Ver Clientes Disponíveis <ArrowRight size={16} />
+                </Link>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Primeiros Passos — only while steps remain */}
-      {doneCount < steps.length && (
-      <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Rocket size={20} className="text-orange-400" />
-            <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
-          </div>
-          <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
-        </div>
-
-        <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">
-          <div
-            className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${checklistPct}%` }}
-          />
-        </div>
-
-        <div className="space-y-3">
-          {steps.map((step) => (
-            <div
-              key={step.id}
-              className={`flex items-center gap-3 p-4 rounded-xl transition-colors ${
-                step.done
-                  ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
-                  : 'bg-[#0A0B0D] border border-white/5 hover:border-white/10 cursor-pointer group'
-              }`}
-              onClick={() => !step.done && step.path && navigate(step.path)}
-            >
-              {step.done ? (
-                <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
-              ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors shrink-0" />
-              )}
-              <span className={`text-sm font-medium flex-1 ${step.done ? 'text-white' : 'text-slate-300'}`}>
-                {step.label}
-              </span>
-              {step.done ? (
-                <CheckCircle2 size={16} className="text-emerald-500/50" />
-              ) : (
-                <ChevronRight size={16} className="text-slate-600 group-hover:text-slate-400 transition-colors" />
-              )}
+      {!isActive && (
+        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Rocket size={20} className="text-orange-400" />
+              <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
             </div>
-          ))}
+            <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
+          </div>
+
+          <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">
+            <div
+              className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
+              style={{ width: `${checklistPct}%` }}
+            />
+          </div>
+
+          <div className="space-y-3">
+            {steps.map((step) => (
+              <div
+                key={step.id}
+                className={`flex items-center gap-3 p-4 rounded-xl transition-colors ${
+                  step.done
+                    ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
+                    : 'bg-[#0A0B0D] border border-white/5 hover:border-white/10 cursor-pointer group'
+                }`}
+                onClick={() => !step.done && step.path && navigate(step.path)}
+              >
+                {step.done ? (
+                  <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors shrink-0" />
+                )}
+                <span className={`text-sm font-medium flex-1 ${step.done ? 'text-white' : 'text-slate-300'}`}>
+                  {step.label}
+                </span>
+                {step.done ? (
+                  <CheckCircle2 size={16} className="text-emerald-500/50" />
+                ) : (
+                  <ChevronRight size={16} className="text-slate-600 group-hover:text-slate-400 transition-colors" />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
       )}
 
     </div>
