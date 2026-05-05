@@ -15,8 +15,6 @@ export const walletService = {
         .eq('user_id', userId)
         .single();
       
-      console.log("Saldo recebido:", data);
-
       if (error || !data) return 0;
       
       return data.balance_coins || 0;
