@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { logService } from '../lib/logService';
+import { PurchaseStatus } from '../lib/profileHelpers';
 
 // === Wallet Functions ===
 export const walletService = {
@@ -265,7 +266,7 @@ export const transactionService = {
 
 // === Proposals ===
 export const proposalService = {
-  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string, status: string }, clientId?: string) {
+  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string, status: PurchaseStatus }, clientId?: string) {
     // Removed non-existent proposals table usage
 
     await supabase

@@ -111,6 +111,31 @@ export function calculateSteps(params: {
   ];
 }
 
+// ─── Dashboard phase — single mutually-exclusive source of truth ─────────────
+
+export type DashboardPhase =
+  | 'INCOMPLETE_PROFILE'  // required steps (profile, wallet, lead) not all done
+  | 'PENDING_AVATAR'      // required done, avatar still missing
+  | 'ACTIVE_DASHBOARD';   // all done including avatar
+
+// ─── Lead purchase status ─────────────────────────────────────────────────────
+
+export const PURCHASE_STATUSES = [
+  'Pendente Proposta',
+  'Proposta Enviada',
+  'Visualizada pelo Cliente',
+  'Respondida pelo Cliente',
+] as const;
+
+export type PurchaseStatus = (typeof PURCHASE_STATUSES)[number];
+
+export function normalizePurchaseStatus(raw: unknown): PurchaseStatus {
+  if (typeof raw === 'string' && (PURCHASE_STATUSES as readonly string[]).includes(raw)) {
+    return raw as PurchaseStatus;
+  }
+  throw new Error(`Unexpected purchase status from backend: ${JSON.stringify(raw)}`);
+}
+
 // ─── Centralised dashboard state ─────────────────────────────────────────────
 
 export interface DashboardState {
@@ -122,6 +147,7 @@ export interface DashboardState {
   checklistPct: number;
   isChecklistComplete: boolean;
   onlyAvatarMissing: boolean;
+  dashboardPhase: DashboardPhase;
   stats: { purchaseCount: number; balanceCoins: number };
 }
 
@@ -145,6 +171,12 @@ export function getDashboardState(params: {
   const onlyAvatarMissing =
     isChecklistComplete && !steps.find(s => s.id === 'avatar')?.done;
 
+  const dashboardPhase: DashboardPhase = !isChecklistComplete
+    ? 'INCOMPLETE_PROFILE'
+    : onlyAvatarMissing
+      ? 'PENDING_AVATAR'
+      : 'ACTIVE_DASHBOARD';
+
   return {
     validation,
     completion,
@@ -154,6 +186,7 @@ export function getDashboardState(params: {
     checklistPct,
     isChecklistComplete,
     onlyAvatarMissing,
+    dashboardPhase,
     stats: { purchaseCount: params.purchaseCount, balanceCoins: params.balanceCoins },
   };
 }

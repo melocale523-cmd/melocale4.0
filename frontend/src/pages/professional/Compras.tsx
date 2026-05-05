@@ -1,56 +1,67 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
+import { PURCHASE_STATUSES, PurchaseStatus } from '../../lib/profileHelpers';
 import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Lock, Eye, CheckCircle, MessageCircle, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
+const STATUS_CONFIG: Record<PurchaseStatus, { badge: string; label: string }> = {
+  'Pendente Proposta':        { badge: 'bg-amber-500/10 text-amber-500 border border-amber-500/20',    label: 'Pendente Proposta' },
+  'Proposta Enviada':         { badge: 'bg-blue-500/10 text-blue-500 border border-blue-500/20',       label: 'Proposta Enviada' },
+  'Visualizada pelo Cliente': { badge: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20', label: 'Visualizada' },
+  'Respondida pelo Cliente':  { badge: 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20', label: 'Respondida' },
+};
+const UNKNOWN_STATUS_BADGE = 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+function getStatusConfig(raw: unknown): { badge: string; label: string } {
+  if (typeof raw === 'string' && (PURCHASE_STATUSES as readonly string[]).includes(raw)) {
+    return STATUS_CONFIG[raw as PurchaseStatus];
+  }
+  return { badge: UNKNOWN_STATUS_BADGE, label: typeof raw === 'string' ? raw : 'Status inválido' };
+}
+
+const canContact = (status: unknown): boolean => status === 'Respondida pelo Cliente';
+
 export default function ProfessionalCompras() {
   const queryClient = useQueryClient()
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
-  const [proposalData, setProposalData] = useState({
-    price: '',
-    duration: '',
-    description: '',
-    status: 'Proposta Enviada'
-  });
+  const [proposalData, setProposalData] = useState({ price: '', duration: '', description: '' });
   const [showSuccess, setShowSuccess] = useState(false);
 
   const { data: purchases, isLoading } = useQuery({
-    queryKey: ['purchases'],
+    queryKey: ['myPurchases'],
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,
   });
 
   const sendProposalMutation = useMutation({
-    mutationFn: ({ purchaseId, data, clientId }: { purchaseId: string, data: any, clientId?: string }) => 
+    mutationFn: ({ purchaseId, data, clientId }: { purchaseId: string, data: typeof proposalData, clientId?: string }) =>
       proposalService.sendProposal(purchaseId, {
         price: parseFloat(data.price),
         duration: data.duration,
         description: data.description,
-        status: 'Proposta Enviada'
+        status: 'Proposta Enviada',
       }, clientId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['myPurchases'] });
       setIsProposalModalOpen(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      setProposalData({ price: '', duration: '', description: '', status: 'Proposta Enviada' });
+      setProposalData({ price: '', duration: '', description: '' });
     },
-    onError: (error: any) => alert(`Erro ao enviar proposta: ${error.message}`)
+    onError: (error: any) => alert(`Erro ao enviar proposta: ${error.message}`),
   });
 
   const [activeTab, setActiveTab] = useState('Todos');
   const tabs = ['Todos', 'Pendente Proposta', 'Proposta Enviada', 'Respondida pelo Cliente'];
 
-  const filteredPurchases = purchases?.filter(p => 
+  const filteredPurchases = purchases?.filter(p =>
     activeTab === 'Todos' || p.status === activeTab
   );
-
-  const canContact = (status: string) => status === 'Respondida pelo Cliente';
 
   const formatPhone = (raw: unknown): string => {
     if (typeof raw !== 'string') return '';
@@ -68,7 +79,7 @@ export default function ProfessionalCompras() {
         .eq('id', purchaseId);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['purchases'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['myPurchases'] }),
   });
 
   const handleContact = (purchase: any) => {
@@ -81,7 +92,6 @@ export default function ProfessionalCompras() {
       const clientName = purchase.leads?.clients?.full_name ?? purchase.leads?.profiles?.name ?? 'cliente';
       const serviceName = typeof purchase.leads?.title === 'string' ? purchase.leads.title : 'serviço';
       const message = `Olá ${clientName}, vi seu pedido de ${serviceName} na MeloCalé e posso te ajudar. Vamos conversar?`;
-      console.log('[handleContact] contact data:', { rawPhone, rawEmail, digits, clientName, serviceName });
       if (digits) {
         trackContactMutation.mutate(purchase.id);
         window.open(`https://wa.me/55${digits}?text=${encodeURIComponent(message)}`, '_blank');
@@ -99,8 +109,6 @@ export default function ProfessionalCompras() {
 
   const openProposalModal = (purchase: any) => {
     setSelectedPurchase(purchase);
-    // Reset status to the current purchase status or default to current
-    setProposalData(prev => ({ ...prev, status: purchase.status === 'Pendente Proposta' ? 'Proposta Enviada' : purchase.status }));
     setIsProposalModalOpen(true);
   };
 
@@ -181,21 +189,6 @@ export default function ProfessionalCompras() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
-                   <FileText size={14} /> 
-                </label>
-                <select 
-                  value={proposalData.status}
-                  onChange={e => setProposalData(prev => ({ ...prev, status: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
-                >
-                   <option value="Pendente Proposta">Pendente Proposta</option>
-                   <option value="Proposta Enviada">Proposta Enviada</option>
-                   <option value="Respondida pelo Cliente">Respondida pelo Cliente</option>
-                </select>
-              </div>
-
               <div className="pt-4">
                 <button 
                   disabled={sendProposalMutation.isPending}
@@ -262,15 +255,14 @@ export default function ProfessionalCompras() {
                   <div className="flex items-center gap-1.5">
                     {purchase.status === 'Visualizada pelo Cliente' && <Eye size={12} className="text-blue-400" />}
                     {purchase.status === 'Respondida pelo Cliente' && <CheckCircle size={12} className="text-emerald-400" />}
-                    <span className={cn(
-                      "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
-                      purchase.status === 'Pendente Proposta' ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : 
-                      purchase.status === 'Proposta Enviada' || purchase.status === 'Enviada' ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
-                      purchase.status === 'Visualizada pelo Cliente' ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" :
-                      "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                    )}>
-                      {purchase.status}
-                    </span>
+                    {(() => {
+                      const cfg = getStatusConfig(purchase.status);
+                      return (
+                        <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest', cfg.badge)}>
+                          {cfg.label}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

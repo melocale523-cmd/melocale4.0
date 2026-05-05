@@ -21,8 +21,7 @@ export default function ProfessionalDashboard() {
     displayDone,
     displayTotal,
     checklistPct,
-    isChecklistComplete,
-    onlyAvatarMissing,
+    dashboardPhase,
   } = useDashboardData();
 
   const { data: leadsCount = 0 } = useQuery({
@@ -97,9 +96,8 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* ── STATE 1: all required steps done → CardResumoAvancado ── */}
-      {/* When onlyAvatarMissing, the Status cell shows actual pct + avatar link. */}
-      {isChecklistComplete && (
+      {/* ── ACTIVE_DASHBOARD | PENDING_AVATAR → CardResumoAvancado ── */}
+      {dashboardPhase !== 'INCOMPLETE_PROFILE' && (
         <div className="bg-gradient-to-br from-emerald-950/60 to-[#14161B] border border-emerald-500/20 rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 border-b border-emerald-500/10">
@@ -154,7 +152,7 @@ export default function ProfessionalDashboard() {
               <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">
                 <Star size={11} /> Status do perfil
               </div>
-              {onlyAvatarMissing ? (
+              {dashboardPhase === 'PENDING_AVATAR' ? (
                 <>
                   <span className="text-sm font-bold text-amber-400">{completion.pct}%</span>
                   <Link
@@ -205,8 +203,8 @@ export default function ProfessionalDashboard() {
         </div>
       )}
 
-      {/* ── STATE 2: completion ring + checklist (required steps still pending) ── */}
-      {!isChecklistComplete && (
+      {/* ── INCOMPLETE_PROFILE → completion ring ── */}
+      {dashboardPhase === 'INCOMPLETE_PROFILE' && (
         <div className="bg-gradient-to-r from-[#1C1613] to-[#14161B] border border-orange-500/20 rounded-2xl p-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-6">
@@ -243,7 +241,8 @@ export default function ProfessionalDashboard() {
         </div>
       )}
 
-      {!isChecklistComplete && (
+      {/* ── INCOMPLETE_PROFILE → checklist ── */}
+      {dashboardPhase === 'INCOMPLETE_PROFILE' && (
         <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
