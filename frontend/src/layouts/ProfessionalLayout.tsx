@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, ArrowLeft, Calendar, MessageSquare, BarChart3, CreditCard, Settings, Menu, X, Wallet, LayoutDashboard, Target, ShoppingBag, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
@@ -14,11 +14,26 @@ export default function ProfessionalLayout() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const { data: balance, isLoading } = useQuery({
-     queryKey: ['walletBalance'],
-     queryFn: walletService.getBalance
-  })
+    queryKey: ['walletBalance'],
+    queryFn: walletService.getBalance,
+    refetchOnMount: true,
+  });
+
+  const balanceDisplay = typeof balance === 'number' ? Math.floor(balance) : 0;
+
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, []);
   
   const navItems = [
     { name: 'Dashboard', path: '/profissional/dashboard', icon: LayoutDashboard },
@@ -151,11 +166,44 @@ export default function ProfessionalLayout() {
                  {isLoading ? '...' : (typeof balance === 'object' && balance !== null && 'balance_coins' in balance ? Math.floor(balance.balance_coins) : Math.floor(typeof balance === 'number' ? balance : 0))} moedas
                </span>
             </div>
-            <div className="flex items-center gap-3 border-l border-white/10 pl-6">
-              <span className="text-sm font-medium text-slate-300">{user?.name}</span>
-              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold">
-                 {user?.name?.charAt(0).toUpperCase() || 'P'}
-              </div>
+            <div className="relative border-l border-white/10 pl-6" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(v => !v)}
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.name}</span>
+                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold shrink-0">
+                  {user?.name?.charAt(0).toUpperCase() || 'P'}
+                </div>
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-[#1C1E24] border border-white/10 rounded-xl shadow-xl z-50 py-1 overflow-hidden">
+                  <button
+                    onClick={() => { setMenuOpen(false); navigate('/profissional/perfil'); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-left"
+                  >
+                    <UserCircle size={16} className="text-slate-400 shrink-0" />
+                    Ver Meu Perfil
+                  </button>
+                  <button
+                    onClick={() => { setMenuOpen(false); navigate('/profissional/carteira'); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-left"
+                  >
+                    <Wallet size={16} className="text-yellow-400 shrink-0" />
+                    Minha Carteira
+                    <span className="ml-auto text-xs font-mono text-yellow-400">{isLoading ? '…' : balanceDisplay} moedas</span>
+                  </button>
+                  <div className="border-t border-white/5 my-1" />
+                  <button
+                    onClick={() => { setMenuOpen(false); supabase.auth.signOut(); navigate('/'); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left"
+                  >
+                    <LogOut size={16} className="shrink-0" />
+                    Sair
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
