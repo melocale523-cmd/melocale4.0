@@ -277,6 +277,68 @@ export default function ProfessionalCompras() {
                 </div>
               </div>
               
+              {/* Detalhes do Serviço */}
+              {purchase.leads && (
+                <div className="bg-[#0A0B0D]/60 border border-white/5 rounded-xl p-4 mb-4 space-y-2.5">
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Detalhes do Serviço</p>
+
+                  {purchase.leads.description && (
+                    <p className="text-slate-400 text-xs leading-relaxed line-clamp-3">{purchase.leads.description}</p>
+                  )}
+
+                  <div className="text-xs text-slate-400 font-medium">
+                    💰 {purchase.leads.budget_min && purchase.leads.budget_max
+                      ? `R$ ${purchase.leads.budget_min.toLocaleString('pt-BR')} – R$ ${purchase.leads.budget_max.toLocaleString('pt-BR')}`
+                      : 'A combinar'}
+                  </div>
+
+                  {purchase.leads.event_date && (
+                    <div className="text-xs text-slate-400 font-medium">
+                      📅 Para: {new Date(purchase.leads.event_date).toLocaleDateString('pt-BR')}
+                    </div>
+                  )}
+
+                  {(() => {
+                    if (!purchase.leads?.expires_at) return null;
+                    const diff = (new Date(purchase.leads.expires_at).getTime() - Date.now()) / (1000 * 60 * 60);
+                    if (diff < 24) return <span className="inline-flex items-center px-2 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">🔥 URGENTE</span>;
+                    if (diff < 72) return <span className="inline-flex items-center px-2 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">⚡ Em breve</span>;
+                    return null;
+                  })()}
+
+                  {(purchase.leads.city || purchase.leads.state || purchase.leads.location) && (
+                    <div className="text-xs text-slate-400 font-medium">
+                      📍 {purchase.leads.city && purchase.leads.state
+                        ? `${purchase.leads.city} - ${purchase.leads.state}`
+                        : purchase.leads.location || ''}
+                    </div>
+                  )}
+
+                  {Array.isArray(purchase.leads.images) && purchase.leads.images.length > 0 && (
+                    <div className="space-y-1.5 pt-1">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">📸 Fotos do local</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(purchase.leads.images as string[]).map((url, i) => (
+                          <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                            className="block w-12 h-12 rounded-lg overflow-hidden border border-white/10 hover:border-emerald-500/40 transition-colors shrink-0">
+                            <img src={url} alt="" className="w-full h-full object-cover" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {(() => {
+                    const max = purchase.leads?.max_purchases as number | undefined;
+                    const count = purchase.leads?.purchases_count as number | undefined;
+                    if (max == null || count == null) return null;
+                    const remaining = max - count;
+                    if (remaining <= 1) return <div className="text-xs font-bold text-emerald-400">🏆 Você é o único profissional com acesso</div>;
+                    return <div className="text-xs font-medium text-slate-500">👥 {remaining} profissionais também viram este cliente</div>;
+                  })()}
+                </div>
+              )}
+
               <div className="space-y-3 bg-[#0A0B0D] p-4 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
                 {purchase.status === 'Respondida pelo Cliente' && (
                   <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-3 py-2 mb-1">

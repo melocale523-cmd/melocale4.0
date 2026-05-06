@@ -405,6 +405,35 @@ export default function ProfessionalLeads() {
                       <Navigation size={14} className="text-purple-500" />
                       {lead.location || 'Localização não informada'}
                     </div>
+
+                    {lead.description && (
+                      <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">{lead.description}</p>
+                    )}
+
+                    {lead.event_date && (
+                      <div className="text-slate-500 text-xs font-medium">
+                        📅 Para: {new Date(lead.event_date as string).toLocaleDateString('pt-BR')}
+                      </div>
+                    )}
+
+                    {(() => {
+                      const max = lead.max_purchases as number | undefined;
+                      const count = (lead.purchases_count as number | undefined) ?? 0;
+                      if (max == null) return null;
+                      const remaining = max - count;
+                      if (remaining <= 1) return <div className="text-xs font-bold text-red-400">🏆 Última vaga!</div>;
+                      return <div className="text-xs font-medium text-slate-500">👥 {remaining} vagas restantes</div>;
+                    })()}
+
+                    {((lead.purchases_count as number | undefined) ?? 0) > 0 && (
+                      <div className="text-xs font-medium text-amber-400/80">⚡ {lead.purchases_count as number} profissionais interessados</div>
+                    )}
+
+                    {Array.isArray(lead.images) && (lead.images as string[]).length > 0 && (
+                      <div className="text-xs font-medium text-slate-400">
+                        📸 {(lead.images as string[]).length} foto{(lead.images as string[]).length > 1 ? 's' : ''} disponível{(lead.images as string[]).length > 1 ? 'is' : ''}
+                      </div>
+                    )}
                   </div>
                 </div>
                 
