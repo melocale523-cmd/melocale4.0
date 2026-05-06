@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
-import { supabase } from '../../lib/supabase';
-import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, ImagePlus, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { payProfessional } from '../../lib/stripe';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import RequestWizard, { WizardData } from '../../components/RequestWizard';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
@@ -24,16 +24,6 @@ interface PedidoItem {
 
 const STATUS_TABS = ['Todos', 'Aberto', 'Orçando', 'Finalizado'] as const;
 
-const EMPTY_FORM = {
-  title: '',
-  category: '',
-  description: '',
-  location: '',
-  budget_min: '',
-  budget_max: '',
-  images: [] as string[],
-};
-
 export default function Pedidos() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,10 +31,8 @@ export default function Pedidos() {
   const [isProposalsModalOpen, setIsProposalsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('todos');
-  const [uploadingImages, setUploadingImages] = useState(false);
   const [editingPedido, setEditingPedido] = useState<PedidoItem | null>(null);
   const [contextMenuId, setContextMenuId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ ...EMPTY_FORM });
 
   const { data: pedidos, isLoading } = useQuery({
     queryKey: ['pedidos'],
@@ -63,7 +51,6 @@ export default function Pedidos() {
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
       queryClient.invalidateQueries({ queryKey: ['clientSummary'] });
       setIsModalOpen(false);
-      setFormData({ ...EMPTY_FORM });
       toast.success('Pedido criado com sucesso!');
     },
     onError: (error: Error) => {
@@ -72,13 +59,12 @@ export default function Pedidos() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number; images?: string[] } }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number; images?: string[]; metadata?: Record<string, string> } }) =>
       leadService.updateRequest(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
       setIsModalOpen(false);
       setEditingPedido(null);
-      setFormData({ ...EMPTY_FORM });
       toast.success('Pedido atualizado!');
     },
     onError: (error: Error) => {
@@ -109,20 +95,10 @@ export default function Pedidos() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingPedido(null);
-    setFormData({ ...EMPTY_FORM });
   };
 
   const openEditModal = (pedido: PedidoItem) => {
     setEditingPedido(pedido);
-    setFormData({
-      title: pedido.title,
-      category: pedido.category,
-      description: pedido.description,
-      location: pedido.location,
-      budget_min: String(pedido.budget_min ?? ''),
-      budget_max: String(pedido.budget_max ?? ''),
-      images: pedido.images ?? [],
-    });
     setIsModalOpen(true);
     setContextMenuId(null);
   };
@@ -133,56 +109,39 @@ export default function Pedidos() {
     deleteMutation.mutate(pedido.id);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const handleWizardSubmit = (wizardData: WizardData) => {
+    const metadata: Record<string, string> = {
+      urgency: wizardData.urgency,
+      work_size: wizardData.work_size,
+      availability: wizardData.availability,
+      local_condition: wizardData.local_condition,
+      purchase_decision: wizardData.purchase_decision,
+    };
 
-    setUploadingImages(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuário não autenticado');
-
-      const urls: string[] = [];
-      for (const file of Array.from(files)) {
-        const path = `leads/${user.id}/${Date.now()}-${file.name}`;
-        const { error } = await supabase.storage.from('avatars').upload(path, file);
-        if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
-        urls.push(publicUrl);
-      }
-      setFormData(prev => ({ ...prev, images: [...prev.images, ...urls] }));
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erro ao enviar imagem';
-      toast.error(message);
-    } finally {
-      setUploadingImages(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
     if (editingPedido) {
       updateMutation.mutate({
         id: editingPedido.id,
         updates: {
-          title: formData.title,
-          category: formData.category,
-          description: formData.description,
-          location: formData.location,
-          budget_min: parseFloat(formData.budget_min),
-          budget_max: parseFloat(formData.budget_max),
-          images: formData.images,
+          title: wizardData.title,
+          category: wizardData.category,
+          description: wizardData.description,
+          location: wizardData.location,
+          budget_min: parseFloat(wizardData.budget_min) || 0,
+          budget_max: parseFloat(wizardData.budget_max) || 0,
+          images: wizardData.images,
+          metadata,
         },
       });
     } else {
       createRequestMutation.mutate({
-        title: formData.title,
-        category: formData.category,
-        description: formData.description,
-        location: formData.location,
-        budget_min: parseFloat(formData.budget_min),
-        budget_max: parseFloat(formData.budget_max),
-        images: formData.images,
+        title: wizardData.title,
+        category: wizardData.category,
+        description: wizardData.description,
+        location: wizardData.location,
+        budget_min: parseFloat(wizardData.budget_min) || 0,
+        budget_max: parseFloat(wizardData.budget_max) || 0,
+        images: wizardData.images,
+        metadata,
       });
     }
   };
@@ -201,6 +160,16 @@ export default function Pedidos() {
     (p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const wizardInitialData: Partial<WizardData> | undefined = editingPedido ? {
+    title: editingPedido.title,
+    category: editingPedido.category,
+    description: editingPedido.description,
+    location: editingPedido.location,
+    budget_min: String(editingPedido.budget_min ?? 0),
+    budget_max: String(editingPedido.budget_max ?? 5000),
+    images: editingPedido.images ?? [],
+  } : undefined;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -491,157 +460,16 @@ export default function Pedidos() {
         <div className="fixed inset-0 z-10" onClick={() => setContextMenuId(null)} />
       )}
 
-      {/* Modal Novo Pedido / Editar Pedido */}
+      {/* Wizard de Nova Solicitação / Edição */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={closeModal}></div>
-          <div className="relative bg-[#14161B] border border-white/10 rounded-[2.5rem] p-8 sm:p-10 max-w-2xl w-full max-h-screen sm:max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
-            <button
-              onClick={closeModal}
-              className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"
-            >
-              <X size={24} />
-            </button>
-
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-14 h-14 bg-emerald-500/20 text-emerald-500 rounded-2xl flex items-center justify-center">
-                <FileText size={28} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">{editingPedido ? 'Editar Pedido' : 'Nova Solicitação'}</h2>
-                <p className="text-slate-400 font-medium">Preencha os detalhes do que você precisa.</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-5">
-              <div className="col-span-2 space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Título do Pedido</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="Ex: Pintura completa de apartamento"
-                  value={formData.title}
-                  onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Categoria</label>
-                <select
-                  required
-                  value={formData.category}
-                  onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium appearance-none"
-                >
-                  <option value="">Selecione...</option>
-                  <option value="Pintura">Pintura</option>
-                  <option value="Elétrica">Elétrica</option>
-                  <option value="Hidráulica">Hidráulica</option>
-                  <option value="Reformas">Reformas</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Localização (Cidade/Estado)</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="Ex: São Paulo, SP"
-                  value={formData.location}
-                  onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-                />
-              </div>
-
-              <div className="col-span-2 space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Descrição Detalhada</label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Descreva o serviço com o máximo de detalhes possível..."
-                  value={formData.description}
-                  onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none"
-                />
-              </div>
-
-              <div className="col-span-2 space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Fotos do Local / Serviço</label>
-                <label className={cn(
-                  "flex items-center gap-3 cursor-pointer w-full bg-[#0A0B0D] border border-white/5 hover:border-emerald-500/30 rounded-2xl px-5 py-4 transition-all",
-                  uploadingImages && "opacity-50 pointer-events-none"
-                )}>
-                  {uploadingImages
-                    ? <Loader2 size={20} className="animate-spin text-emerald-500 shrink-0" />
-                    : <ImagePlus size={20} className="text-slate-500 shrink-0" />
-                  }
-                  <span className="text-sm text-slate-400 font-medium">
-                    {uploadingImages ? 'Enviando...' : 'Adicionar fotos (opcional)'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    disabled={uploadingImages}
-                  />
-                </label>
-                {formData.images.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {formData.images.map((url, i) => (
-                      <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 group/thumb">
-                        <img src={url} alt="" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}
-                          className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-all"
-                        >
-                          <X size={16} className="text-white" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Orçamento Mín (R$)</label>
-                <input
-                  required
-                  type="number"
-                  placeholder="0"
-                  value={formData.budget_min}
-                  onChange={e => setFormData(prev => ({ ...prev, budget_min: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Orçamento Máx (R$)</label>
-                <input
-                  required
-                  type="number"
-                  placeholder="1000"
-                  value={formData.budget_max}
-                  onChange={e => setFormData(prev => ({ ...prev, budget_max: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-                />
-              </div>
-
-              <div className="col-span-2 pt-6">
-                <button
-                  disabled={isMutating || uploadingImages}
-                  type="submit"
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white font-black py-5 rounded-[1.5rem] transition-all shadow-2xl shadow-emerald-500/20 flex items-center justify-center gap-3 active:scale-[0.98]"
-                >
-                  {isMutating ? <Loader2 size={24} className="animate-spin" /> : editingPedido ? <><Pencil size={20} /> Salvar Alterações</> : <><Plus size={20} /> Publicar Solicitação de Orçamento</>}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <RequestWizard
+          onSubmit={handleWizardSubmit}
+          onClose={closeModal}
+          isPending={isMutating}
+          isUploading={false}
+          onImageUpload={() => undefined}
+          initialData={wizardInitialData}
+        />
       )}
     </div>
   );
