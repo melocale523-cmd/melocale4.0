@@ -17,6 +17,7 @@ export default function ProfessionalCompras() {
     status: 'Proposta Enviada'
   });
   const [showSuccess, setShowSuccess] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const { data: purchases, isLoading } = useQuery({
     queryKey: ['purchases'],
@@ -318,10 +319,10 @@ export default function ProfessionalCompras() {
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">📸 Fotos do local</p>
                     <div className="flex flex-wrap gap-1.5">
                       {(purchase.images as string[]).map((url, i) => (
-                        <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                        <button key={i} onClick={() => setLightboxUrl(url)}
                           className="block w-12 h-12 rounded-lg overflow-hidden border border-white/10 hover:border-emerald-500/40 transition-colors shrink-0">
                           <img src={url} alt="" className="w-full h-full object-cover" />
-                        </a>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -424,6 +425,26 @@ export default function ProfessionalCompras() {
         <div className="border border-dashed border-white/10 rounded-3xl p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
           <Inbox className="text-slate-700 mb-4" size={48} />
           <p className="text-slate-500 font-medium">Nenhum cliente nesta categoria.</p>
+        </div>
+      )}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <div className="relative max-w-3xl w-full mx-4" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setLightboxUrl(null)}
+              className="absolute -top-10 right-0 text-white/70 hover:text-white text-sm font-bold flex items-center gap-1"
+            >
+              <X size={18} /> Fechar
+            </button>
+            <img
+              src={lightboxUrl}
+              alt="Foto do serviço"
+              className="w-full max-h-[80vh] object-contain rounded-2xl"
+            />
+          </div>
         </div>
       )}
     </div>
