@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
-import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Lock, Eye, CheckCircle, MessageCircle, Zap } from 'lucide-react';
+import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -50,7 +50,7 @@ export default function ProfessionalCompras() {
     activeTab === 'Todos' || p.status === activeTab
   );
 
-  const canContact = (status: string) => status === 'Respondida pelo Cliente';
+  const canContact = (_status: string) => true;
 
   const formatPhone = (raw: unknown): string => {
     if (typeof raw !== 'string') return '';
@@ -81,7 +81,6 @@ export default function ProfessionalCompras() {
       const clientName = purchase.leads?.clients?.full_name ?? purchase.leads?.profiles?.name ?? 'cliente';
       const serviceName = typeof purchase.leads?.title === 'string' ? purchase.leads.title : 'serviço';
       const message = `Olá ${clientName}, vi seu pedido de ${serviceName} na MeloCalé e posso te ajudar. Vamos conversar?`;
-      console.log('[handleContact] contact data:', { rawPhone, rawEmail, digits, clientName, serviceName });
       if (digits) {
         trackContactMutation.mutate(purchase.id);
         window.open(`https://wa.me/55${digits}?text=${encodeURIComponent(message)}`, '_blank');
@@ -246,7 +245,10 @@ export default function ProfessionalCompras() {
       ) : filteredPurchases && filteredPurchases.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {filteredPurchases.map((purchase) => (
-            <div key={purchase.id} className="bg-[#14161B] border border-slate-800/50 rounded-xl p-6 hover:border-emerald-500/30 transition-colors">
+            <div key={purchase.id} className={cn(
+              "bg-[#14161B] border border-slate-800/50 rounded-xl p-6 hover:border-emerald-500/30 transition-colors",
+              purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40 animate-pulse"
+            )}>
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
@@ -276,15 +278,7 @@ export default function ProfessionalCompras() {
               </div>
               
               <div className="space-y-3 bg-[#0A0B0D] p-4 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
-                {!canContact(purchase.status) && (
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center p-4 text-center">
-                    <Lock size={20} className="text-slate-500 mb-2" />
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Bloqueado</p>
-                    <p className="text-[9px] text-slate-500 mt-1">Aguarde a resposta do cliente para ver os detalhes de contato.</p>
-                  </div>
-                )}
-
-                {canContact(purchase.status) && (
+                {purchase.status === 'Respondida pelo Cliente' && (
                   <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-3 py-2 mb-1">
                     <Zap size={13} className="text-emerald-400 shrink-0" />
                     <p className="text-[11px] text-emerald-400 font-bold uppercase tracking-widest">Cliente pronto para contato</p>
@@ -298,9 +292,7 @@ export default function ProfessionalCompras() {
                   <div className="flex-1">
                     <p className="text-xs text-slate-500">Telefone do Cliente</p>
                     <p className="text-sm font-medium">
-                      {canContact(purchase.status)
-                        ? formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-slate-500 italic text-xs">Não informado</span>
-                        : '(**) *****-****'}
+                      {formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-slate-500 italic text-xs">Não informado</span>}
                     </p>
                   </div>
                 </div>
@@ -311,7 +303,7 @@ export default function ProfessionalCompras() {
                   <div className="flex-1">
                     <p className="text-xs text-slate-500">E-mail</p>
                     <p className="text-sm font-medium">
-                      {canContact(purchase.status) ? (purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email) : '*******@****.com'}
+                      {(purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email) || <span className="text-slate-500 italic text-xs">Não informado</span>}
                     </p>
                   </div>
                 </div>
@@ -330,8 +322,7 @@ export default function ProfessionalCompras() {
                 {(() => {
                   const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
                   const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
-                  const ready = canContact(purchase.status);
-                  if (ready && hasPhone) {
+                  if (hasPhone) {
                     return (
                       <button
                         onClick={() => handleContact(purchase)}
@@ -341,21 +332,14 @@ export default function ProfessionalCompras() {
                       </button>
                     );
                   }
-                  if (ready && !hasPhone) {
-                    return (
-                      <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700">
-                        <Phone size={16} /> Contato indisponível
-                      </button>
-                    );
-                  }
                   return (
-                    <button disabled className="flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-50">
-                      <MessageCircle size={16} /> {(purchase.proposals_count ?? 0) > 0 ? 'Aguardando Resposta' : 'Enviar Proposta'}
+                    <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700">
+                      <Phone size={16} /> Contato indisponível
                     </button>
                   );
                 })()}
                 {purchase.status === 'Pendente Proposta' && (
-                  <button 
+                  <button
                     onClick={() => openProposalModal(purchase)}
                     className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg text-sm font-bold transition-all border border-white/10 flex items-center justify-center gap-2"
                   >
