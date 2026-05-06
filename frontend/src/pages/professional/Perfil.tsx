@@ -130,37 +130,51 @@ export default function ProfessionalPerfil() {
 
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
-          <div className="absolute -bottom-10 left-6 flex items-end gap-2">
+          <div className="absolute -bottom-10 left-6 flex flex-col gap-2">
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={avatarBusy}
-              className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden disabled:cursor-wait"
-            >
+
+            {/* Avatar circle */}
+            <div className={cn(
+              "w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] overflow-hidden flex items-center justify-center text-slate-400",
+              avatarBusy && "opacity-50"
+            )}>
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
               ) : (
                 <User size={32} />
               )}
-              {avatarBusy ? (
-                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                  <Loader2 size={18} className="text-white animate-spin" />
-                </div>
-              ) : (
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Camera size={18} className="text-white" />
-                </div>
-              )}
-            </button>
-            {profile?.avatar_url && !avatarBusy && (
+            </div>
+
+            {/* Action buttons */}
+            {avatarBusy ? (
+              <div className="flex items-center gap-2 h-7">
+                <Loader2 size={14} className="text-slate-400 animate-spin" />
+                <span className="text-xs text-slate-500">Aguarde…</span>
+              </div>
+            ) : profile?.avatar_url ? (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors border border-white/10"
+                >
+                  <Camera size={12} /> Alterar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeMutation.mutate()}
+                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors border border-red-500/20"
+                >
+                  <Trash2 size={12} /> Excluir
+                </button>
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={() => removeMutation.mutate()}
-                className="mb-1 w-6 h-6 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center transition-colors"
-                title="Remover foto"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
               >
-                <Trash2 size={11} className="text-white" />
+                <Camera size={12} /> + Adicionar Foto
               </button>
             )}
           </div>
