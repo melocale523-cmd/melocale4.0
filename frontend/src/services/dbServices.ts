@@ -96,7 +96,7 @@ export const leadService = {
     }
   },
 
-  async createRequest(request: { title: string, description: string, category: string, location: string, budget_min: number, budget_max: number }) {
+  async createRequest(request: { title: string, description: string, category: string, location: string, budget_min: number, budget_max: number, images?: string[] }) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Usuário não autenticado");
 
