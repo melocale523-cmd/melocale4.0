@@ -1,10 +1,11 @@
 import { useAuthStore } from '../../store/authStore';
 import { useClientProfile } from '../../hooks/useClientProfile';
 import { isClientProfileComplete } from '../../lib/profileHelpers';
-import { AlertCircle, ArrowRight, Plus, Hammer, Shield, Clock, TrendingUp, MessageCircle, FileText, X, Loader2, RefreshCw } from 'lucide-react';
+import { AlertCircle, ArrowRight, Plus, Hammer, Shield, Clock, TrendingUp, MessageCircle, FileText, X, Loader2, RefreshCw, ImagePlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
+import { supabase } from '../../lib/supabase';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
@@ -21,13 +22,15 @@ export default function ClientDashboard() {
     : '';
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     description: '',
     location: '',
     budget_min: '',
-    budget_max: ''
+    budget_max: '',
+    images: [] as string[],
   });
 
   const { data: summary, isLoading: summaryLoading } = useQuery({
@@ -41,21 +44,51 @@ export default function ClientDashboard() {
       queryClient.invalidateQueries({ queryKey: ['clientSummary'] });
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
       setIsModalOpen(false);
-      setFormData({ title: '', category: '', description: '', location: '', budget_min: '', budget_max: '' });
+      setFormData({ title: '', category: '', description: '', location: '', budget_min: '', budget_max: '', images: [] });
       toast.success('Pedido criado com sucesso!');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Erro ao criar pedido: ${error.message}`);
     }
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) throw new Error('Usuário não autenticado');
+
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const path = `leads/${authUser.id}/${Date.now()}-${file.name}`;
+        const { error } = await supabase.storage.from('avatars').upload(path, file);
+        if (error) throw error;
+        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+        urls.push(publicUrl);
+      }
+      setFormData(prev => ({ ...prev, images: [...prev.images, ...urls] }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao enviar imagem';
+      toast.error(message);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createRequestMutation.mutate({
-      ...formData,
+      title: formData.title,
+      category: formData.category,
+      description: formData.description,
+      location: formData.location,
       budget_min: parseFloat(formData.budget_min),
-      budget_max: parseFloat(formData.budget_max)
-    } as any);
+      budget_max: parseFloat(formData.budget_max),
+      images: formData.images,
+    });
   };
 
   if (profileError) {
@@ -189,7 +222,7 @@ export default function ClientDashboard() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="relative bg-[#14161B] border border-white/10 rounded-[2.5rem] p-8 sm:p-10 max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative bg-[#14161B] border border-white/10 rounded-[2.5rem] p-8 sm:p-10 max-w-2xl w-full max-h-screen sm:max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"
@@ -257,6 +290,46 @@ export default function ClientDashboard() {
                 />
               </div>
 
+              <div className="col-span-2 space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Fotos do Local / Serviço</label>
+                <label className={cn(
+                  "flex items-center gap-3 cursor-pointer w-full bg-[#0A0B0D] border border-white/5 hover:border-emerald-500/30 rounded-2xl px-5 py-4 transition-all",
+                  uploadingImages && "opacity-50 pointer-events-none"
+                )}>
+                  {uploadingImages
+                    ? <Loader2 size={20} className="animate-spin text-emerald-500 shrink-0" />
+                    : <ImagePlus size={20} className="text-slate-500 shrink-0" />
+                  }
+                  <span className="text-sm text-slate-400 font-medium">
+                    {uploadingImages ? 'Enviando...' : 'Adicionar fotos (opcional)'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImages}
+                  />
+                </label>
+                {formData.images.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {formData.images.map((url, i) => (
+                      <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 group/thumb">
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}
+                          className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-all"
+                        >
+                          <X size={16} className="text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Orçamento Mín (R$)</label>
                 <input
@@ -281,7 +354,7 @@ export default function ClientDashboard() {
 
               <div className="col-span-2 pt-6">
                 <button
-                  disabled={createRequestMutation.isPending}
+                  disabled={createRequestMutation.isPending || uploadingImages}
                   type="submit"
                   className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white font-black py-5 rounded-[1.5rem] transition-all shadow-2xl shadow-emerald-500/20 flex items-center justify-center gap-3 active:scale-[0.98]"
                 >
