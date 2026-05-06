@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
-import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap } from 'lucide-react';
+import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap, Camera } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -429,21 +429,38 @@ export default function ProfessionalCompras() {
       )}
       {lightboxUrl && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0A0B0D]/95 backdrop-blur-md"
           onClick={() => setLightboxUrl(null)}
         >
-          <div className="relative max-w-3xl w-full mx-4" onClick={e => e.stopPropagation()}>
-            <button
-              onClick={() => setLightboxUrl(null)}
-              className="absolute -top-10 right-0 text-white/70 hover:text-white text-sm font-bold flex items-center gap-1"
-            >
-              <X size={18} /> Fechar
-            </button>
-            <img
-              src={lightboxUrl}
-              alt="Foto do serviço"
-              className="w-full max-h-[80vh] object-contain rounded-2xl"
-            />
+          <div
+            className="relative max-w-3xl w-full mx-4 bg-[#14161B] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-xl flex items-center justify-center">
+                  <Camera size={16} />
+                </div>
+                <span className="text-white font-bold text-sm">Foto do Serviço</span>
+              </div>
+              <button
+                onClick={() => setLightboxUrl(null)}
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-4 bg-[#0A0B0D]/50">
+              <img
+                src={lightboxUrl}
+                alt="Foto do serviço"
+                className="w-full max-h-[70vh] object-contain rounded-xl"
+              />
+            </div>
+            <div className="px-6 py-3 border-t border-white/5 flex items-center justify-between">
+              <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Clique fora para fechar</span>
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Melocale PRO</span>
+            </div>
           </div>
         </div>
       )}
