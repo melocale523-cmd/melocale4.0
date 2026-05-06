@@ -7,6 +7,7 @@ import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { cn } from '../../lib/utils';
 
 export default function ProfessionalPerfil() {
   const { user } = useAuthStore();
