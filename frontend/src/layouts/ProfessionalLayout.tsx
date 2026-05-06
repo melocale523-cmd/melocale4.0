@@ -7,6 +7,7 @@ import { cn } from '../lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { walletService } from '../services/dbServices';
+import { useProfile } from '../hooks/useProfile';
 
 export default function ProfessionalLayout() {
   const location = useLocation();
@@ -16,6 +17,8 @@ export default function ProfessionalLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const { data: profile } = useProfile();
 
   const { data: balance, isLoading } = useQuery({
     queryKey: ['walletBalance'],
@@ -172,13 +175,39 @@ export default function ProfessionalLayout() {
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               >
                 <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.name}</span>
-                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold shrink-0">
-                  {user?.name?.charAt(0).toUpperCase() || 'P'}
-                </div>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="avatar" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold shrink-0">
+                    {user?.name?.charAt(0).toUpperCase() || 'P'}
+                  </div>
+                )}
               </button>
 
               {menuOpen && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-[#1C1E24] border border-white/10 rounded-xl shadow-xl z-50 py-1 overflow-hidden">
+                  {/* Profile header */}
+                  <div className="flex items-center gap-3 px-4 py-4 border-b border-white/5">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="avatar" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold shrink-0">
+                        {user?.name?.charAt(0).toUpperCase() || 'P'}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white truncate">{profile?.full_name || user?.name || '—'}</p>
+                      {profile?.city && (
+                        <p className="text-xs text-slate-500 truncate">{profile.city}</p>
+                      )}
+                    </div>
+                  </div>
+                  {/* Phone row */}
+                  <div className="flex items-center gap-3 px-4 py-2.5">
+                    <UserCircle size={16} className="text-slate-600 shrink-0" />
+                    <span className="text-xs text-slate-500">{profile?.phone || 'Telefone não informado'}</span>
+                  </div>
+                  <div className="border-t border-white/5 my-1" />
                   <button
                     onClick={() => { setMenuOpen(false); navigate('/profissional/perfil'); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-left"
