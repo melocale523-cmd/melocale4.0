@@ -564,7 +564,7 @@ export const subscriptionService = {
     if (!user) return null;
 
     const { data, error } = await supabase
-      .from('subscriptions')
+      .from('user_subscriptions')
       .select('*')
       .eq('user_id', user.id)
       .single();
