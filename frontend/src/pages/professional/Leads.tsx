@@ -5,6 +5,7 @@ import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, 
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { cn } from '../../lib/utils';
 
 export default function ProfessionalLeads() {
   const queryClient = useQueryClient();
@@ -72,6 +73,28 @@ export default function ProfessionalLeads() {
     },
     onError: (error) => alert(`Erro: ${error.message}`)
   });
+
+  const getBadges = (lead: { expires_at?: string; created_at: string; budget_max?: number; category?: string; city?: string; location?: string }): { label: string; color: string; icon: string }[] => {
+    const badges: { label: string; color: string; icon: string }[] = [];
+    const now = new Date();
+    const expires = lead.expires_at ? new Date(lead.expires_at) : null;
+    const diffDays = expires ? (expires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) : null;
+    const created = new Date(lead.created_at);
+    const hoursOld = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+
+    if (diffDays !== null && diffDays < 3)
+      badges.push({ label: 'Urgente', color: 'bg-red-500/20 text-red-400 border-red-500/30', icon: '🔥' });
+    if ((lead.budget_max || 0) > 2000)
+      badges.push({ label: 'Premium', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', icon: '💰' });
+    if (['Elétrica', 'Hidráulica', 'Gás'].some(c => lead.category?.includes(c)))
+      badges.push({ label: 'Especializado', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', icon: '⚡' });
+    if (lead.city || lead.location)
+      badges.push({ label: 'Localizado', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', icon: '📍' });
+    if (hoursOld < 24)
+      badges.push({ label: 'Novo', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', icon: '🆕' });
+
+    return badges;
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -338,16 +361,29 @@ export default function ProfessionalLeads() {
           </div>
         ) : (
           filteredLeads?.map((lead) => (
-             <div key={lead.id} className="bg-[#14161B] border border-white/5 rounded-[2rem] p-6 flex flex-col hover:border-emerald-500/30 transition-all group relative overflow-hidden text-left">
+             <div key={lead.id} className={cn(
+                "bg-[#14161B] border rounded-[2rem] p-6 flex flex-col transition-all group relative overflow-hidden text-left",
+                getBadges(lead).some(b => b.label === 'Urgente')
+                  ? "border-red-500/40 animate-pulse"
+                  : "border-white/5 hover:border-emerald-500/30"
+             )}>
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-all"></div>
                 
                 <div className="flex-1 relative z-10">
                   <div className="flex justify-between items-start mb-4">
-                     <span className="px-3 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-amber-500/20">
-                       NOVO
-                     </span>
-                     <div className="text-right">
-                       <span className="text-xl font-mono font-bold text-emerald-400 block tracking-tighter">{lead.price_coins || lead.budget_coins || 0}</span>
+                     <div>
+                       {getBadges(lead).length > 0 && (
+                         <div className="flex flex-wrap gap-1.5 mb-3">
+                           {getBadges(lead).map((b, i) => (
+                             <span key={i} className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-lg border ${b.color}`}>
+                               {b.icon} {b.label}
+                             </span>
+                           ))}
+                         </div>
+                       )}
+                     </div>
+                     <div className="text-right shrink-0 ml-2">
+                       <span className="text-xl font-mono font-bold text-emerald-400 block tracking-tighter">{lead.price_coins || 1}</span>
                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">moedas</span>
                      </div>
                   </div>
@@ -373,13 +409,13 @@ export default function ProfessionalLeads() {
                 </div>
                 
                 <button 
-                  onClick={() => purchaseMutation.mutate({ 
-                    id: lead.id, 
-                    price: lead.price_coins || lead.budget_coins || 0,
-                    title: lead.title 
+                  onClick={() => purchaseMutation.mutate({
+                    id: lead.id,
+                    price: lead.price_coins || 1,
+                    title: lead.title
                   })}
                   disabled={purchaseMutation.isPending}
-                  className="w-full py-4 bg-white/5 hover:bg-emerald-500 hover:text-black text-white font-bold rounded-2xl transition-all border border-white/10 hover:border-emerald-500 text-xs uppercase tracking-widest flex items-center justify-center gap-2 group/btn relative z-10 shadow-lg"
+                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all border border-emerald-500/30 text-xs uppercase tracking-widest flex items-center justify-center gap-2 group/btn relative z-10 shadow-lg"
                 >
                    {purchaseMutation.isPending ? <Loader2 className="animate-spin" size={16}/> : <><ShoppingCart size={18} className="group-hover/btn:scale-110 transition-transform" /> Adquirir Cliente</>}
                 </button>
