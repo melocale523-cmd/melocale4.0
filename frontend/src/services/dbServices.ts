@@ -96,7 +96,7 @@ export const leadService = {
     }
   },
 
-  async createRequest(request: { title: string, description: string, category: string, location: string, budget_min: number, budget_max: number }) {
+  async createRequest(request: { title: string, description: string, category: string, city: string, state: string, budget_min: number, budget_max: number }) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Usuário não autenticado");
 
@@ -116,7 +116,7 @@ export const leadService = {
     return data;
   },
 
-  async updateRequest(id: string, updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number }) {
+  async updateRequest(id: string, updates: { title: string; description: string; category: string; city: string; state: string; budget_min: number; budget_max: number }) {
     const { error } = await supabase
       .from('leads')
       .update(updates)

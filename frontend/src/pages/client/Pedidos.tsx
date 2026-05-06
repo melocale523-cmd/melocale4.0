@@ -12,7 +12,8 @@ interface PedidoItem {
   title: string;
   category: string;
   description: string;
-  location: string;
+  city: string;
+  state: string;
   budget_min: number | null;
   budget_max: number | null;
   status: string;
@@ -24,12 +25,13 @@ interface FormData {
   title: string;
   category: string;
   description: string;
-  location: string;
+  city: string;
+  state: string;
   budget_min: string;
   budget_max: string;
 }
 
-const EMPTY_FORM: FormData = { title: '', category: '', description: '', location: '', budget_min: '', budget_max: '' };
+const EMPTY_FORM: FormData = { title: '', category: '', description: '', city: '', state: '', budget_min: '', budget_max: '' };
 
 export default function Pedidos() {
   const queryClient = useQueryClient();
@@ -72,7 +74,7 @@ export default function Pedidos() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number } }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: { title: string; description: string; category: string; city: string; state: string; budget_min: number; budget_max: number } }) =>
       leadService.updateRequest(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
@@ -111,10 +113,10 @@ export default function Pedidos() {
     if (editingPedido) {
       updateMutation.mutate({
         id: editingPedido.id,
-        updates: { title: formData.title, description: formData.description, category: formData.category, location: formData.location, budget_min, budget_max },
+        updates: { title: formData.title, description: formData.description, category: formData.category, city: formData.city, state: formData.state, budget_min, budget_max },
       });
     } else {
-      createRequestMutation.mutate({ title: formData.title, description: formData.description, category: formData.category, location: formData.location, budget_min, budget_max });
+      createRequestMutation.mutate({ title: formData.title, description: formData.description, category: formData.category, city: formData.city, state: formData.state, budget_min, budget_max });
     }
   };
 
@@ -124,7 +126,8 @@ export default function Pedidos() {
       title: pedido.title,
       category: pedido.category,
       description: pedido.description,
-      location: pedido.location,
+      city: pedido.city,
+      state: pedido.state,
       budget_min: String(pedido.budget_min ?? ''),
       budget_max: String(pedido.budget_max ?? ''),
     });
@@ -222,7 +225,7 @@ export default function Pedidos() {
                       </div>
                       <div className="flex items-center text-xs text-slate-500 font-bold">
                         <MapPin size={13} className="mr-1 text-slate-600" />
-                        {pedido.location}
+                        {pedido.city}{pedido.state ? ` - ${pedido.state}` : ''}
                       </div>
                       <div className="flex items-center text-xs text-slate-500 font-bold">
                         <Tag size={13} className="mr-1 text-slate-600" />
@@ -486,14 +489,27 @@ export default function Pedidos() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Localização (Cidade/Estado)</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Cidade</label>
                 <input
                   required
                   type="text"
-                  placeholder="Ex: São Paulo, SP"
-                  value={formData.location}
-                  onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="Ex: São Paulo"
+                  value={formData.city}
+                  onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
                   className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Estado</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="SP"
+                  maxLength={2}
+                  value={formData.state}
+                  onChange={e => setFormData(prev => ({ ...prev, state: e.target.value.toUpperCase() }))}
+                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium uppercase"
                 />
               </div>
 
