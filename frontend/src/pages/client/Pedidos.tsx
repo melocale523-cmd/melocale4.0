@@ -341,7 +341,7 @@ export default function Pedidos() {
                             onClick={() => handleDelete(pedido)}
                             className="w-full px-4 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-red-500/10 transition-all text-left"
                           >
-                            <Trash2 size={14} className="shrink-0" /> Arquivar
+                            <Trash2 size={14} className="shrink-0" /> Excluir
                           </button>
                         </div>
                       )}
