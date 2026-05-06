@@ -90,7 +90,7 @@ export default function Pedidos() {
     mutationFn: (id: string) => leadService.deleteRequest(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
-      toast.success('Pedido excluído.');
+      toast.success('Pedido arquivado.');
     },
     onError: (error: Error) => toast.error(`Erro ao excluir: ${error.message}`),
   });

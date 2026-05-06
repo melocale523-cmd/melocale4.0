@@ -127,7 +127,7 @@ export const leadService = {
   async deleteRequest(id: string) {
     const { error } = await supabase
       .from('leads')
-      .delete()
+      .update({ status: 'arquivado' })
       .eq('id', id);
     if (error) throw error;
   },
