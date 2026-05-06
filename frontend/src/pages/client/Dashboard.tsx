@@ -95,7 +95,7 @@ export default function ClientDashboard() {
           className="flex items-center gap-2 px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Plus size={20} />
-          Solicitar Novo Orçamento
+          Solicitar Novo Pedido
         </button>
       </div>
 
@@ -131,7 +131,7 @@ export default function ClientDashboard() {
               disabled={!profileComplete}
               className="px-8 py-4 bg-emerald-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500 active:scale-95 flex items-center gap-2"
             >
-              Solicitar Orçamento Agora
+              Solicitar Pedido Agora
               <ArrowRight size={18} />
             </button>
           </div>
@@ -287,7 +287,7 @@ export default function ClientDashboard() {
                 >
                   {createRequestMutation.isPending
                     ? <Loader2 size={24} className="animate-spin" />
-                    : <><Plus size={20} /> Publicar Solicitação de Orçamento</>
+                    : <><Plus size={20} /> Publicar Pedido</>
                   }
                 </button>
               </div>
