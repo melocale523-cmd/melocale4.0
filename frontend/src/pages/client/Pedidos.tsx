@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
-import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, ImagePlus } from 'lucide-react';
+import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, ImagePlus, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { payProfessional } from '../../lib/stripe';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useState } from 'react';
@@ -42,6 +42,8 @@ export default function Pedidos() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('todos');
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [editingPedido, setEditingPedido] = useState<PedidoItem | null>(null);
+  const [contextMenuId, setContextMenuId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ ...EMPTY_FORM });
 
   const { data: pedidos, isLoading } = useQuery({
@@ -69,6 +71,30 @@ export default function Pedidos() {
     }
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number; images?: string[] } }) =>
+      leadService.updateRequest(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      setIsModalOpen(false);
+      setEditingPedido(null);
+      setFormData({ ...EMPTY_FORM });
+      toast.success('Pedido atualizado!');
+    },
+    onError: (error: Error) => {
+      toast.error(`Erro ao atualizar pedido: ${error.message}`);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => leadService.deleteRequest(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      toast.success('Pedido arquivado.');
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const respondMutation = useMutation({
     mutationFn: ({ proposalId, purchaseId, status }: { proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada' }) =>
       proposalService.respondProposal(proposalId, purchaseId, status),
@@ -79,6 +105,33 @@ export default function Pedidos() {
     },
     onError: (error: Error) => toast.error(error.message)
   });
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingPedido(null);
+    setFormData({ ...EMPTY_FORM });
+  };
+
+  const openEditModal = (pedido: PedidoItem) => {
+    setEditingPedido(pedido);
+    setFormData({
+      title: pedido.title,
+      category: pedido.category,
+      description: pedido.description,
+      location: pedido.location,
+      budget_min: String(pedido.budget_min ?? ''),
+      budget_max: String(pedido.budget_max ?? ''),
+      images: pedido.images ?? [],
+    });
+    setIsModalOpen(true);
+    setContextMenuId(null);
+  };
+
+  const handleDelete = (pedido: PedidoItem) => {
+    setContextMenuId(null);
+    if (!window.confirm(`Arquivar "${pedido.title}"?`)) return;
+    deleteMutation.mutate(pedido.id);
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -108,16 +161,33 @@ export default function Pedidos() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createRequestMutation.mutate({
-      title: formData.title,
-      category: formData.category,
-      description: formData.description,
-      location: formData.location,
-      budget_min: parseFloat(formData.budget_min),
-      budget_max: parseFloat(formData.budget_max),
-      images: formData.images,
-    });
+    if (editingPedido) {
+      updateMutation.mutate({
+        id: editingPedido.id,
+        updates: {
+          title: formData.title,
+          category: formData.category,
+          description: formData.description,
+          location: formData.location,
+          budget_min: parseFloat(formData.budget_min),
+          budget_max: parseFloat(formData.budget_max),
+          images: formData.images,
+        },
+      });
+    } else {
+      createRequestMutation.mutate({
+        title: formData.title,
+        category: formData.category,
+        description: formData.description,
+        location: formData.location,
+        budget_min: parseFloat(formData.budget_min),
+        budget_max: parseFloat(formData.budget_max),
+        images: formData.images,
+      });
+    }
   };
+
+  const isMutating = createRequestMutation.isPending || updateMutation.isPending;
 
   const openProposals = (pedido: PedidoItem) => {
     setSelectedPedido(pedido);
@@ -250,6 +320,33 @@ export default function Pedidos() {
                         Pagar R$ 500
                       </button>
                     )}
+
+                    {/* Context menu */}
+                    <div className="relative z-20" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => setContextMenuId(contextMenuId === pedido.id ? null : pedido.id)}
+                        className="w-10 h-10 bg-[#0A0B0D] rounded-xl flex items-center justify-center border border-white/5 text-slate-600 hover:text-white hover:border-white/20 transition-all"
+                      >
+                        <MoreVertical size={18} />
+                      </button>
+                      {contextMenuId === pedido.id && (
+                        <div className="absolute right-0 top-full mt-1 w-40 bg-[#1C1E25] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-30">
+                          <button
+                            onClick={() => openEditModal(pedido)}
+                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-slate-300 hover:bg-white/5 transition-all text-left"
+                          >
+                            <Pencil size={14} className="text-slate-400 shrink-0" /> Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(pedido)}
+                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-red-500/10 transition-all text-left"
+                          >
+                            <Trash2 size={14} className="shrink-0" /> Arquivar
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="w-10 h-10 bg-[#0A0B0D] rounded-xl flex items-center justify-center border border-white/5 text-slate-600 group-hover:bg-emerald-500 group-hover:text-black transition-all">
                       <ArrowRight size={20} />
                     </div>
@@ -389,13 +486,18 @@ export default function Pedidos() {
         </div>
       )}
 
-      {/* Modal Novo Pedido */}
+      {/* Overlay para fechar context menu */}
+      {contextMenuId && (
+        <div className="fixed inset-0 z-10" onClick={() => setContextMenuId(null)} />
+      )}
+
+      {/* Modal Novo Pedido / Editar Pedido */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={closeModal}></div>
           <div className="relative bg-[#14161B] border border-white/10 rounded-[2.5rem] p-8 sm:p-10 max-w-2xl w-full max-h-screen sm:max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={closeModal}
               className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"
             >
               <X size={24} />
@@ -406,7 +508,7 @@ export default function Pedidos() {
                 <FileText size={28} />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">Nova Solicitação</h2>
+                <h2 className="text-2xl font-black text-white tracking-tight">{editingPedido ? 'Editar Pedido' : 'Nova Solicitação'}</h2>
                 <p className="text-slate-400 font-medium">Preencha os detalhes do que você precisa.</p>
               </div>
             </div>
@@ -530,11 +632,11 @@ export default function Pedidos() {
 
               <div className="col-span-2 pt-6">
                 <button
-                  disabled={createRequestMutation.isPending || uploadingImages}
+                  disabled={isMutating || uploadingImages}
                   type="submit"
                   className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white font-black py-5 rounded-[1.5rem] transition-all shadow-2xl shadow-emerald-500/20 flex items-center justify-center gap-3 active:scale-[0.98]"
                 >
-                  {createRequestMutation.isPending ? <Loader2 size={24} className="animate-spin" /> : <><Plus size={20} /> Publicar Solicitação de Orçamento</>}
+                  {isMutating ? <Loader2 size={24} className="animate-spin" /> : editingPedido ? <><Pencil size={20} /> Salvar Alterações</> : <><Plus size={20} /> Publicar Solicitação de Orçamento</>}
                 </button>
               </div>
             </form>
