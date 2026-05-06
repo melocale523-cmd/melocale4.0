@@ -116,6 +116,22 @@ export const leadService = {
     return data;
   },
 
+  async updateRequest(id: string, updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number }) {
+    const { error } = await supabase
+      .from('leads')
+      .update(updates)
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async deleteRequest(id: string) {
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
   async getClientSummary() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
