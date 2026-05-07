@@ -48,6 +48,7 @@ const SUBSCRIPTION_PLANS = [
     discount: '25%',
     color: 'blue',
     popular: false,
+    welcomeCoins: 30,
     features: [
       '25% desconto em moedas avulsas',
       'Badge ✅ VERIFICADO',
@@ -64,6 +65,7 @@ const SUBSCRIPTION_PLANS = [
     discount: '40%',
     color: 'emerald',
     popular: true,
+    welcomeCoins: 80,
     features: [
       '40% desconto em moedas avulsas',
       'Badge ⚡ PRO em destaque',
@@ -81,6 +83,7 @@ const SUBSCRIPTION_PLANS = [
     discount: '55%',
     color: 'yellow',
     popular: false,
+    welcomeCoins: 200,
     features: [
       '55% desconto em moedas avulsas',
       'Badge 🏆 ELITE dourado',
@@ -454,6 +457,11 @@ export default function ProfessionalAssinatura() {
                     <span className="text-slate-500 text-sm mb-1 ml-1">/mês</span>
                   </div>
                   <p className={`text-xs font-bold mt-1 ${discountColor}`}>{plan.discount} desconto em todas as moedas</p>
+                  <div className="flex items-center gap-2 mt-2 mb-3">
+                    <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
+                      🎁 {plan.welcomeCoins} moedas de boas-vindas
+                    </span>
+                  </div>
                 </div>
 
                 <button

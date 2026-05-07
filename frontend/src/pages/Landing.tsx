@@ -227,6 +227,7 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
+                  <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
                 </ul>
                 <div className="mt-6 bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
@@ -252,6 +253,7 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Moedas nunca expiram</li>
+                  <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
                 </ul>
                 <div className="mt-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
@@ -275,6 +277,7 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Até 3 profissionais na conta</li>
+                  <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
                 </ul>
                 <div className="mt-6 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
