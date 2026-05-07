@@ -4,6 +4,7 @@ import { leadService, walletService } from '../../services/dbServices';
 import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, ArrowRight, Navigation, Coins, Search, X, DollarSign, Plus, Trash2, Filter, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
 
@@ -64,15 +65,25 @@ export default function ProfessionalLeads() {
   const [purchasedLead, setPurchasedLead] = useState<{ title: string, price: number } | null>(null);
 
   const purchaseMutation = useMutation({
-    mutationFn: ({ id, price, title }: { id: string, price: number, title: string }) => 
+    mutationFn: ({ id, price, title }: { id: string, price: number, title: string }) =>
       leadService.purchaseLead(id).then(() => ({ id, price, title })),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
       setPurchasedLead(data);
     },
-    onError: (error) => alert(`Erro: ${error.message}`)
+    onError: (error) => toast.error(`Erro: ${error.message}`)
   });
+
+  const handlePurchase = (lead: { id: string; price_coins?: number; title: string }) => {
+    const coinBalance = typeof balance === 'number' ? Math.floor(balance) : 0;
+    const leadPrice = lead.price_coins || 1;
+    if (coinBalance <= 0 || coinBalance < leadPrice) {
+      toast.error(`Saldo insuficiente. Você tem ${coinBalance} moedas e este lead custa ${leadPrice}.`);
+      return;
+    }
+    purchaseMutation.mutate({ id: lead.id, price: leadPrice, title: lead.title });
+  };
 
   const getBadges = (lead: { expires_at?: string; created_at: string; budget_max?: number; category?: string; city?: string; location?: string }): { label: string; color: string; icon: string }[] => {
     const badges: { label: string; color: string; icon: string }[] = [];
@@ -430,19 +441,22 @@ export default function ProfessionalLeads() {
                     )}
 
                     {Array.isArray(lead.images) && (lead.images as string[]).length > 0 && (
-                      <div className="text-xs font-medium text-slate-400">
-                        📸 {(lead.images as string[]).length} foto{(lead.images as string[]).length > 1 ? 's' : ''} disponível{(lead.images as string[]).length > 1 ? 'is' : ''}
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 mt-1" style={{ scrollbarWidth: 'none' }}>
+                        {(lead.images as string[]).map((url, idx) => (
+                          <img
+                            key={idx}
+                            src={url}
+                            alt={`Foto ${idx + 1}`}
+                            className="w-16 h-16 rounded-lg object-cover shrink-0 border border-white/10"
+                          />
+                        ))}
                       </div>
                     )}
                   </div>
                 </div>
                 
-                <button 
-                  onClick={() => purchaseMutation.mutate({
-                    id: lead.id,
-                    price: lead.price_coins || 1,
-                    title: lead.title
-                  })}
+                <button
+                  onClick={() => handlePurchase(lead)}
                   disabled={purchaseMutation.isPending}
                   className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all border border-emerald-500/30 text-xs uppercase tracking-widest flex items-center justify-center gap-2 group/btn relative z-10 shadow-lg"
                 >

@@ -130,39 +130,40 @@ export default function ProfessionalPerfil() {
 
       <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
-          <div className="absolute -bottom-10 left-6 flex items-end gap-2">
+          <div className="absolute -bottom-10 left-6 flex items-end gap-3">
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={avatarBusy}
-              className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative group cursor-pointer overflow-hidden disabled:cursor-wait"
-            >
+            <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative overflow-hidden">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
               ) : (
                 <User size={32} />
               )}
-              {avatarBusy ? (
+              {avatarBusy && (
                 <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
                   <Loader2 size={18} className="text-white animate-spin" />
                 </div>
-              ) : (
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Camera size={18} className="text-white" />
-                </div>
               )}
-            </button>
-            {profile?.avatar_url && !avatarBusy && (
+            </div>
+            <div className="flex flex-col gap-1 mb-1">
               <button
                 type="button"
-                onClick={() => removeMutation.mutate()}
-                className="mb-1 w-6 h-6 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center transition-colors"
-                title="Remover foto"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarBusy}
+                className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-wait text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all whitespace-nowrap"
               >
-                <Trash2 size={11} className="text-white" />
+                <Camera size={12} />
+                {profile?.avatar_url ? 'Alterar foto' : 'Adicionar foto'}
               </button>
-            )}
+              {profile?.avatar_url && !avatarBusy && (
+                <button
+                  type="button"
+                  onClick={() => removeMutation.mutate()}
+                  className="flex items-center gap-1.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 text-xs font-bold px-3 py-1.5 rounded-lg transition-all whitespace-nowrap"
+                >
+                  <Trash2 size={12} /> Remover
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
