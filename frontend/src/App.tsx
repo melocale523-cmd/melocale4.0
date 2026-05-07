@@ -1,8 +1,9 @@
-import { lazy, Suspense } from 'react';
-import { RouterProvider, createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { RouterProvider, createBrowserRouter, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import AuthLayout from './layouts/AuthLayout';
 import ClientLayout from './layouts/ClientLayout';
 import ProfessionalLayout from './layouts/ProfessionalLayout';
@@ -68,6 +69,16 @@ function PageLoader() {
 }
 
 function RootLayout() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const msg = sessionStorage.getItem('redirect_msg');
+    if (msg) {
+      sessionStorage.removeItem('redirect_msg');
+      toast.info(msg);
+    }
+  }, [location.pathname]);
+
   return (
     <>
       <RouteProgressBar />
@@ -102,6 +113,12 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
       userRole === 'admin' ? '/admin/dashboard'
       : userRole === 'professional' ? '/profissional/dashboard'
       : '/cliente/dashboard';
+    const msgs: Record<string, string> = {
+      client: 'Sua conta é de cliente. Redirecionando para sua área...',
+      professional: 'Sua conta é profissional. Redirecionando para sua área...',
+      admin: 'Acesso restrito. Redirecionando...',
+    };
+    sessionStorage.setItem('redirect_msg', msgs[userRole]);
     return <Navigate to={dashboard} replace />;
   }
 

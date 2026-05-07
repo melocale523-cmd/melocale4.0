@@ -7,6 +7,18 @@ import { useAuthStore, Role } from '../../store/authStore';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 
+async function fetchCepData(cep: string): Promise<{ city: string } | null> {
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.erro) return null;
+    return { city: `${data.localidade}, ${data.uf}` };
+  } catch {
+    return null;
+  }
+}
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,6 +35,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     password: '',
     name: '',
     phone: '',
+    cep: '',
     city: '',
     category: '',
     specialty: '',
@@ -53,12 +66,30 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     setError(null);
   };
 
+  const handleCepChange = async (cep: string) => {
+    const digits = cep.replace(/\D/g, '');
+    setFormData(prev => ({ ...prev, cep }));
+    if (digits.length === 8) {
+      const result = await fetchCepData(digits);
+      if (result) {
+        setFormData(prev => ({ ...prev, city: result.city }));
+      } else {
+        toast.error("CEP não encontrado. Preencha a cidade manualmente.");
+      }
+    }
+  };
+
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/login`
+          redirectTo: `${window.location.origin}/login`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          data: { role: selectedRole ?? 'client' },
         }
       });
       if (error) throw error;
@@ -76,7 +107,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     try {
       if (mode === 'signup') {
         setMode(selectedRole as any);
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -90,9 +121,21 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
             }
           }
         });
-        
+
         if (signUpError) throw signUpError;
-        
+
+        await supabase.from('profiles').upsert({
+          id: signUpData.user?.id,
+          full_name: formData.name,
+          phone: formData.phone,
+          city: formData.city,
+          role: selectedRole,
+        }, { onConflict: 'id' });
+
+        if (selectedRole === 'professional') {
+          await supabase.rpc('save_full_profile', { category: formData.category });
+        }
+
         toast.success("Conta criada com sucesso! Verifique seu e-mail.");
         onClose();
         navigate('/login');
@@ -332,16 +375,24 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         <div className="space-y-5">
                           <div>
                             <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">WhatsApp para Contato</label>
-                            <input 
-                              required type="tel" placeholder="(00) 00000-0000" 
+                            <input
+                              required type="tel" placeholder="(00) 00000-0000"
                               className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                               value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                             />
                           </div>
                           <div>
+                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">CEP</label>
+                            <input
+                              type="text" placeholder="00000-000" maxLength={9}
+                              className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                              value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
+                            />
+                          </div>
+                          <div>
                             <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">Cidade / Localização</label>
-                            <input 
-                              required type="text" placeholder="Onde você está localizado?" 
+                            <input
+                              required type="text" placeholder="Onde você está localizado?"
                               className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                               value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
                             />

@@ -7,6 +7,18 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 
+async function fetchCepData(cep: string): Promise<{ city: string } | null> {
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.erro) return null;
+    return { city: `${data.localidade}, ${data.uf}` };
+  } catch {
+    return null;
+  }
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -23,6 +35,7 @@ export default function Login() {
     password: '',
     name: '',
     phone: '',
+    cep: '',
     city: '',
     category: '',
     bio: ''
@@ -40,12 +53,30 @@ export default function Login() {
     setError(null);
   };
 
+  const handleCepChange = async (cep: string) => {
+    const digits = cep.replace(/\D/g, '');
+    setFormData(prev => ({ ...prev, cep }));
+    if (digits.length === 8) {
+      const result = await fetchCepData(digits);
+      if (result) {
+        setFormData(prev => ({ ...prev, city: result.city }));
+      } else {
+        toast.error("CEP não encontrado. Preencha a cidade manualmente.");
+      }
+    }
+  };
+
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/login`
+          redirectTo: `${window.location.origin}/login`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          data: { role: selectedRole },
         }
       });
       if (error) throw error;
@@ -115,7 +146,7 @@ export default function Login() {
     try {
       if (isSignUp) {
         setMode(selectedRole as any);
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -129,9 +160,21 @@ export default function Login() {
             }
           }
         });
-        
+
         if (signUpError) throw signUpError;
-        
+
+        await supabase.from('profiles').upsert({
+          id: signUpData.user?.id,
+          full_name: formData.name,
+          phone: formData.phone,
+          city: formData.city,
+          role: selectedRole,
+        }, { onConflict: 'id' });
+
+        if (selectedRole === 'professional') {
+          await supabase.rpc('save_full_profile', { category: formData.category });
+        }
+
         toast.success("Conta criada! Verifique seu e-mail.");
       } else {
         setMode(selectedRole as any);
@@ -304,16 +347,24 @@ export default function Login() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">WhatsApp de Contato</label>
-                  <input 
-                    required type="tel" placeholder="(11) 99999-9999" 
+                  <input
+                    required type="tel" placeholder="(11) 99999-9999"
                     className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
                 </div>
                 <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">CEP</label>
+                  <input
+                    type="text" placeholder="00000-000" maxLength={9}
+                    className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                    value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
+                  />
+                </div>
+                <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Sua Cidade</label>
-                  <input 
-                    required type="text" placeholder="Ex: São Paulo, SP" 
+                  <input
+                    required type="text" placeholder="Ex: São Paulo, SP"
                     className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
                   />

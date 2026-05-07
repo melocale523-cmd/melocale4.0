@@ -43,7 +43,19 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
           .eq('id', userId)
           .maybeSingle();
 
-        const finalRole: Role = ((profile as any)?.role as Role) || 'client';
+        let finalRole: Role = ((profile as any)?.role as Role) || 'client';
+
+        if (!profile) {
+          const metaRole = session.user.user_metadata?.role as Role | undefined;
+          const roleToSet: Role =
+            metaRole === 'professional' || metaRole === 'admin' ? metaRole : 'client';
+          finalRole = roleToSet;
+          await supabase.from('profiles').upsert({
+            id: userId,
+            full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email || '',
+            role: roleToSet,
+          }, { onConflict: 'id' });
+        }
 
         let professionalId: string | undefined;
         if (finalRole === 'professional') {
