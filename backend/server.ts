@@ -133,9 +133,9 @@ async function startServer() {
               });
               await supabaseAdmin.from("wallet_transactions").insert({
                 user_id: userId,
-                type: "bonus",
-                amount_coins: welcomeCoins,
-                description: `Bônus de boas-vindas — Plano ${COIN_PACKAGES[packageId]?.name ?? packageId}`,
+                kind: "bonus",
+                amount: welcomeCoins,
+                reference: `bonus:boas-vindas:${packageId}`,
                 stripe_session_id: session.id,
                 created_at: new Date().toISOString(),
               });
@@ -173,9 +173,9 @@ async function startServer() {
         try {
           await supabaseAdmin.from("wallet_transactions").insert({
             user_id: userId,
-            type: "deposit",
-            amount_coins: coinsAmount,
-            description: `Recarga via Stripe — ${COIN_PACKAGES[packageId ?? ""]?.name ?? packageId ?? "avulso"}`,
+            kind: "deposit",
+            amount: coinsAmount,
+            reference: `stripe:${session.id}`,
             stripe_session_id: session.id,
             created_at: new Date().toISOString(),
           });
