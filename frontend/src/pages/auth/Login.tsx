@@ -121,6 +121,7 @@ export default function Login() {
           options: {
             data: {
               name: formData.name,
+              role: selectedRole,
               phone: formData.phone,
               city: formData.city,
               category: formData.category,

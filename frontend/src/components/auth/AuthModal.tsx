@@ -82,6 +82,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
           options: {
             data: {
               name: formData.name,
+              role: selectedRole,
               phone: formData.phone,
               city: formData.city,
               category: formData.category,
