@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { RouterProvider, createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
 import AuthLayout from './layouts/AuthLayout';
@@ -78,13 +77,7 @@ function RootLayout() {
 }
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode, role: 'client' | 'professional' | 'admin' }) {
-  const { user, isAuthenticated, isLoading, currentMode, setMode } = useAuthStore();
-
-  useEffect(() => {
-    if (user && currentMode === 'professional' && user.role !== 'professional' && user.role !== 'admin') {
-      setMode('client');
-    }
-  }, [user, currentMode, setMode]);
+  const { user, isAuthenticated, isLoading } = useAuthStore();
 
   if (isLoading) {
     return (
@@ -99,20 +92,16 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
     return <Navigate to="/login" replace />;
   }
 
-  let effectiveMode: 'client' | 'professional' | 'admin' = 'client';
+  const userRole: 'client' | 'professional' | 'admin' =
+    user.role === 'admin' ? 'admin'
+    : user.role === 'professional' ? 'professional'
+    : 'client';
 
-  if (user.role === 'admin') {
-    effectiveMode = 'admin';
-  } else if (user.role === 'professional') {
-    effectiveMode = (currentMode as 'client' | 'professional') || 'professional';
-  } else {
-    effectiveMode = 'client';
-  }
-
-  if (role !== effectiveMode) {
-    let dashboard = '/cliente/dashboard';
-    if (effectiveMode === 'admin') dashboard = '/admin/dashboard';
-    else if (effectiveMode === 'professional') dashboard = '/profissional/dashboard';
+  if (role !== userRole) {
+    const dashboard =
+      userRole === 'admin' ? '/admin/dashboard'
+      : userRole === 'professional' ? '/profissional/dashboard'
+      : '/cliente/dashboard';
     return <Navigate to={dashboard} replace />;
   }
 
@@ -120,13 +109,7 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
 }
 
 function AuthRedirect({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, isLoading, currentMode, setMode } = useAuthStore();
-
-  useEffect(() => {
-    if (user && currentMode === 'professional' && user.role !== 'professional' && user.role !== 'admin') {
-      setMode('client');
-    }
-  }, [user, currentMode, setMode]);
+  const { user, isAuthenticated, isLoading } = useAuthStore();
 
   if (isLoading) {
     return (
@@ -138,19 +121,10 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated && user) {
-    let effectiveMode: 'client' | 'professional' | 'admin' = 'client';
-
-    if (user.role === 'admin') {
-      effectiveMode = 'admin';
-    } else if (user.role === 'professional') {
-      effectiveMode = (currentMode as 'client' | 'professional') || 'professional';
-    } else {
-      effectiveMode = 'client';
-    }
-
-    let dashboard = '/cliente/dashboard';
-    if (effectiveMode === 'admin') dashboard = '/admin/dashboard';
-    else if (effectiveMode === 'professional') dashboard = '/profissional/dashboard';
+    const dashboard =
+      user.role === 'admin' ? '/admin/dashboard'
+      : user.role === 'professional' ? '/profissional/dashboard'
+      : '/cliente/dashboard';
     return <Navigate to={dashboard} replace />;
   }
 
