@@ -94,6 +94,12 @@ async function startServer() {
       'pack_premium': { coins: 560, name: 'Máximo'        },
     };
 
+    const PLAN_WELCOME_COINS: Record<string, number> = {
+      plan_basic:     30,
+      plan_pro:       80,
+      plan_business:  200,
+    };
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId    = session.metadata?.user_id || session.metadata?.userId;
@@ -114,6 +120,29 @@ async function startServer() {
             started_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }, { onConflict: "user_id" });
+
+          // --- Creditar moedas de boas-vindas (somente na primeira assinatura) ---
+          const welcomeCoins = PLAN_WELCOME_COINS[packageId] ?? 0;
+          if (welcomeCoins > 0) {
+            try {
+              await supabaseAdmin.rpc("credit_wallet", {
+                p_user_id: userId,
+                p_amount: welcomeCoins,
+                p_stripe_session_id: session.id + "_welcome",
+                p_stripe_event_id: event.id + "_welcome"
+              });
+              await supabaseAdmin.from("wallet_transactions").insert({
+                user_id: userId,
+                type: "bonus",
+                amount_coins: welcomeCoins,
+                description: `Bônus de boas-vindas — Plano ${COIN_PACKAGES[packageId]?.name ?? packageId}`,
+                stripe_session_id: session.id,
+                created_at: new Date().toISOString(),
+              });
+            } catch (welcomeErr) {
+              console.error("Erro ao creditar bônus de boas-vindas:", welcomeErr);
+            }
+          }
         } catch (subErr) {
           console.error("Erro ao gravar user_subscription:", subErr);
         }
