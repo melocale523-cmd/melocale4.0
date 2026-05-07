@@ -283,6 +283,28 @@ async function startServer() {
         return res.status(404).json({ error: "Pacote nao encontrado ou inativo." });
       }
 
+      // Mapa de desconto por plano
+      const PLAN_DISCOUNTS: Record<string, number> = {
+        plan_basic:    0.25,
+        plan_pro:      0.40,
+        plan_business: 0.55,
+      };
+
+      // Busca plano ativo do usuário
+      const { data: activeSub } = await supabaseAdmin
+        .from("user_subscriptions")
+        .select("package_id")
+        .eq("user_id", user_id)
+        .eq("status", "active")
+        .maybeSingle();
+
+      const discount = activeSub?.package_id
+        ? (PLAN_DISCOUNTS[activeSub.package_id] ?? 0)
+        : 0;
+
+      const originalPrice = Math.round(Number(pkg.price) * 100);
+      const finalPrice = Math.round(originalPrice * (1 - discount));
+
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         payment_method_types: ["card"],
@@ -290,8 +312,13 @@ async function startServer() {
           {
             price_data: {
               currency: "brl",
-              product_data: { name: pkg.name, description: `${pkg.coins} moedas MeloCale` },
-              unit_amount: Math.round(Number(pkg.price) * 100),
+              product_data: {
+                name: pkg.name,
+                description: discount > 0
+                  ? `${pkg.coins} moedas MeloCale — ${discount * 100}% OFF (plano ativo)`
+                  : `${pkg.coins} moedas MeloCale`,
+              },
+              unit_amount: finalPrice,
             },
             quantity: 1,
           },
