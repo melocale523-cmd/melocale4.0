@@ -120,29 +120,6 @@ async function startServer() {
             started_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }, { onConflict: "user_id" });
-
-          // --- Creditar moedas de boas-vindas (somente na primeira assinatura) ---
-          const welcomeCoins = PLAN_WELCOME_COINS[packageId] ?? 0;
-          if (welcomeCoins > 0) {
-            try {
-              await supabaseAdmin.rpc("credit_wallet", {
-                p_user_id: userId,
-                p_amount: welcomeCoins,
-                p_stripe_session_id: session.id + "_welcome",
-                p_stripe_event_id: event.id + "_welcome"
-              });
-              await supabaseAdmin.from("wallet_transactions").insert({
-                user_id: userId,
-                kind: "bonus",
-                amount: welcomeCoins,
-                reference: `bonus:boas-vindas:${packageId}`,
-                stripe_session_id: session.id,
-                created_at: new Date().toISOString(),
-              });
-            } catch (welcomeErr) {
-              console.error("Erro ao creditar bônus de boas-vindas:", welcomeErr);
-            }
-          }
         } catch (subErr) {
           console.error("Erro ao gravar user_subscription:", subErr);
         }
@@ -150,14 +127,18 @@ async function startServer() {
 
       // --- Creditar moedas ---
       let coinsAmount = 0;
-      if (packageId && COIN_PACKAGES[packageId]) {
+      let coinLabel = "avulso";
+      if (sessionType === "subscription" && packageId) {
+        coinsAmount = PLAN_WELCOME_COINS[packageId] ?? 0;
+        coinLabel = `boas-vindas:${packageId}`;
+      } else if (packageId && COIN_PACKAGES[packageId]) {
         coinsAmount = COIN_PACKAGES[packageId].coins;
+        coinLabel = COIN_PACKAGES[packageId].name;
       } else {
-        coinsAmount = parseInt(session.metadata?.coinsAmount || "0", 10);
+        coinsAmount = parseInt(session.metadata?.coins || session.metadata?.coinsAmount || "0", 10);
       }
 
       if (userId && coinsAmount > 0) {
-        // Tenta RPC
         try {
           await supabaseAdmin.rpc("credit_wallet", {
             p_user_id: userId,
@@ -169,13 +150,12 @@ async function startServer() {
           console.error("Erro no RPC credit_wallet:", rpcErr);
         }
 
-        // Insere diretamente em wallet_transactions como garantia de auditoria
         try {
           await supabaseAdmin.from("wallet_transactions").insert({
             user_id: userId,
-            kind: "deposit",
+            kind: sessionType === "subscription" ? "bonus" : "deposit",
             amount: coinsAmount,
-            reference: `stripe:${session.id}`,
+            reference: `Stripe — ${coinLabel} — ${session.id}`,
             stripe_session_id: session.id,
             created_at: new Date().toISOString(),
           });
