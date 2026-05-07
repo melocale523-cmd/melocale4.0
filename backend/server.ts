@@ -89,9 +89,9 @@ async function startServer() {
     processedWebhookEvents.add(event.id);
 
     const COIN_PACKAGES: Record<string, { coins: number; name: string }> = {
-      'pack_starter': { coins: 50,  name: 'Starter'      },
-      'pack_pro':     { coins: 150, name: 'Pro'           },
-      'pack_premium': { coins: 400, name: 'Premium'       },
+      'pack_starter': { coins: 60,  name: 'Básico'        },
+      'pack_pro':     { coins: 200, name: 'Popular'       },
+      'pack_premium': { coins: 560, name: 'Máximo'        },
     };
 
     if (event.type === "checkout.session.completed") {
@@ -213,9 +213,9 @@ async function startServer() {
 
   // Planos mensais hardcoded (não ficam na tabela coin_packages)
   const SUBSCRIPTION_PLANS: Record<string, { name: string; price: number; description: string }> = {
-    plan_basic:    { name: "Plano Básico",         price: 4900,  description: "Plano Básico MeloCale" },
-    plan_pro:      { name: "Plano Profissional",   price: 9900,  description: "Plano Profissional MeloCale" },
-    plan_business: { name: "Plano Empresarial",    price: 19900, description: "Plano Empresarial MeloCale" },
+    plan_basic:    { name: "Starter",  price: 3700,  description: "Plano Starter MeloCale — 25% desconto em moedas" },
+    plan_pro:      { name: "PRO",      price: 6700,  description: "Plano PRO MeloCale — 40% desconto em moedas" },
+    plan_business: { name: "Elite",     price: 12700, description: "Plano Elite MeloCale — 55% desconto em moedas" },
   };
 
   app.post("/api/create-checkout-session", async (req: any, res: any) => {
