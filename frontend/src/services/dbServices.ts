@@ -583,7 +583,7 @@ export const subscriptionService = {
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (error) return null;
     return data;

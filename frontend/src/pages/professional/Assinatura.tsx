@@ -159,7 +159,8 @@ export default function ProfessionalAssinatura() {
       if (!user) return null;
       try {
         const res = await apiFetch(`/api/subscription-status?user_id=${user.id}`);
-        if (!res.ok) return null;
+        if (res.status === 404) return null; // sem assinatura ativa — não é erro
+        if (!res.ok) throw new Error('Erro ao buscar assinatura');
         return res.json();
       } catch {
         return null;
