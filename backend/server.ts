@@ -298,14 +298,19 @@ Como recebo os dados do cliente? → Na hora, assim que comprar o lead!
 
     try {
       const { messages } = req.body;
+      const mapped = (messages as { role: string; text: string }[])
+        .map((m) => ({
+          role: (m.role === 'model' || m.role === 'bot' || m.role === 'assistant')
+            ? 'assistant' as const
+            : 'user' as const,
+          content: m.text,
+        }))
+        .filter((m, idx) => !(idx === 0 && m.role === 'assistant'));
       const response = await anthropic.messages.create({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
         system: SYSTEM_PROMPT,
-        messages: messages.map((m: { role: string; text: string }) => ({
-          role: m.role as 'user' | 'assistant',
-          content: m.text
-        }))
+        messages: mapped,
       });
       const text = response.content[0].type === 'text' ? response.content[0].text : '';
       res.json({ response: text });
