@@ -406,7 +406,7 @@ export default function Login() {
                 "w-full h-16 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl mt-12 uppercase tracking-widest",
                 isSignUp 
                   ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-500/20 active:scale-95" 
-                  : (selectedRole === 'admin' ? "bg-red-600 hover:bg-red-500 text-white shadow-red-600/20" :
+                  : (selectedRole === 'admin' ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20" :
                     "bg-emerald-500 hover:bg-emerald-600 text-black shadow-emerald-500/20")
               )}
             >
