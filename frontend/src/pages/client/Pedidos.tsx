@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
+import { supabase } from '../../lib/supabase';
 import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { payProfessional } from '../../lib/stripe';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -54,7 +55,12 @@ export default function Pedidos() {
       toast.success('Pedido criado com sucesso!');
     },
     onError: (error: Error) => {
-      toast.error(`Erro ao criar pedido: ${error.message}`);
+      if (error.message.includes('Sessão expirada')) {
+        supabase.auth.signOut();
+        toast.error('Sua sessão expirou. Faça login novamente.');
+      } else {
+        toast.error(`Erro ao criar pedido: ${error.message}`);
+      }
     }
   });
 
