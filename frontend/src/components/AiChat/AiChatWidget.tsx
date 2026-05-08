@@ -43,6 +43,12 @@ export default function AiChatWidget() {
   };
 
   useEffect(() => {
+    setMessages([{ role: 'model', text: 'Olá! Sou o Assistente MeloCalé. Como posso te ajudar hoje?', time: getTime() }]);
+    setInput('');
+    ticketCreatedRef.current = false;
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -89,6 +95,14 @@ export default function AiChatWidget() {
         data.activeSubscriptions = subsRes.count ?? 0;
       }
 
+      const displayName = data.name || null;
+      if (displayName) {
+        setMessages(prev => prev.length === 1 ? [{
+          role: 'model' as const,
+          text: `Olá, ${displayName}! 👋 Sou o Assistente MeloCalé. Como posso te ajudar hoje?`,
+          time: getTime(),
+        }] : prev);
+      }
       setUserData(data);
     };
 
