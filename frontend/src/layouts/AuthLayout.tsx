@@ -10,20 +10,20 @@ export default function AuthLayout() {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-[#B0C4D8] hover:text-white transition-colors text-sm font-medium mb-6"
-        >
-          <ArrowLeft size={16} />
-          Voltar
-        </button>
         <div className="flex justify-center mb-10">
           <span className="text-3xl font-bold tracking-tight uppercase text-emerald-400">
              MeloCalé
           </span>
         </div>
         <div className="bg-[#132540] border border-[#2563eb33] p-8 rounded-3xl shadow-[0_0_40px_rgba(37,99,235,0.08)]">
-           <Outlet />
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-[#B0C4D8] hover:text-white transition-colors text-sm font-medium mb-6 border border-[#243F6A] hover:border-[#2563eb] px-3 py-1.5 rounded-xl"
+          >
+            <ArrowLeft size={15} />
+            Voltar
+          </button>
+          <Outlet />
         </div>
       </div>
     </div>
