@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
-import { Loader2, AlertCircle, ArrowLeft, ChevronRight, Briefcase, User as UserIcon } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowLeft, ChevronRight, Briefcase, User as UserIcon, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -42,6 +42,7 @@ export default function Login() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,8 +103,8 @@ export default function Login() {
       });
       if (error) throw error;
       toast.success("E-mail de recuperação enviado! Verifique sua caixa de entrada.");
-    } catch (err: any) {
-      toast.error("Erro ao enviar e-mail de recuperação. Tente novamente.");
+    } catch {
+      toast.error("Não encontramos uma conta com este e-mail.");
     } finally {
       setIsSubmitting(false);
     }
@@ -189,7 +190,14 @@ export default function Login() {
         // Navigation will be handled by the useEffect once the auth store is updated by AuthInitializer
       }
     } catch (err: any) {
-      setError(err.message);
+      const msg = (err.message || '').toLowerCase();
+      if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('email not confirmed')) {
+        setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.');
+      } else if (msg.includes('too many requests')) {
+        setError('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -334,11 +342,20 @@ export default function Login() {
                       <button type="button" onClick={handleForgotPassword} className="text-[10px] font-black uppercase text-emerald-500 hover:text-emerald-400 tracking-widest transition-colors">Esqueci a senha</button>
                     )}
                   </div>
-                  <input 
-                    required type="password" placeholder="••••••••" 
-                    className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
-                    value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
-                  />
+                  <div className="relative">
+                    <input
+                      required type={showPassword ? 'text' : 'password'} placeholder="••••••••"
+                      className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                      value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(p => !p)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
               </>
             )}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, User, Briefcase, ChevronRight, Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { X, User, Briefcase, ChevronRight, Loader2, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore, Role } from '../../store/authStore';
@@ -43,6 +43,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRoleSelect = (role: 'client' | 'professional') => {
     setSelectedRole(role);
@@ -76,6 +77,26 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
       } else {
         toast.error("CEP não encontrado. Preencha a cidade manualmente.");
       }
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      setError("Por favor, insira um e-mail válido para recuperar sua senha.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: `${window.location.origin}/login`,
+      });
+      if (resetError) throw resetError;
+      toast.success("E-mail de recuperação enviado! Verifique sua caixa de entrada.");
+    } catch {
+      toast.error("Não encontramos uma conta com este e-mail.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -154,7 +175,14 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         // thanks to AuthInitializer!
       }
     } catch (err: any) {
-      setError(err.message || "Erro inesperado.");
+      const msg = (err.message || '').toLowerCase();
+      if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('email not confirmed')) {
+        setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.');
+      } else if (msg.includes('too many requests')) {
+        setError('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+      } else {
+        setError(err.message || 'Erro inesperado.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -359,12 +387,33 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">Sua Senha</label>
-                            <input 
-                              required type="password" placeholder="Mínimo 6 caracteres" 
-                              className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
-                              value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
-                            />
+                            <div className="flex justify-between items-center mb-3">
+                              <label className="block text-xs font-black text-slate-500 uppercase tracking-widest pl-1">Sua Senha</label>
+                              {mode === 'login' && (
+                                <button
+                                  type="button"
+                                  onClick={handleForgotPassword}
+                                  disabled={isSubmitting}
+                                  className="text-[10px] font-black uppercase text-emerald-500 hover:text-emerald-400 tracking-widest transition-colors"
+                                >
+                                  Esqueci a senha
+                                </button>
+                              )}
+                            </div>
+                            <div className="relative">
+                              <input
+                                required type={showPassword ? 'text' : 'password'} placeholder="Mínimo 6 caracteres"
+                                className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 pr-12 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+                                value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword(p => !p)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                              >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </>
