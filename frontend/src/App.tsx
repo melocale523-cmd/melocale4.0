@@ -62,9 +62,9 @@ const queryClient = new QueryClient({
 
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-[#0A0B0D] flex flex-col items-center justify-center text-emerald-500">
+    <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
       <Loader2 className="animate-spin mb-4" size={40} />
-      <p className="text-slate-400 font-medium">Carregando...</p>
+      <p className="text-[#94A3B8] font-medium">Carregando...</p>
     </div>
   );
 }
@@ -94,9 +94,9 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0B0D] flex flex-col items-center justify-center text-emerald-500">
+      <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
         <Loader2 className="animate-spin mb-4" size={40} />
-        <p className="text-slate-400 font-medium">Verificando acesso...</p>
+        <p className="text-[#94A3B8] font-medium">Verificando acesso...</p>
       </div>
     );
   }
@@ -132,9 +132,9 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-emerald-500 bg-[#0A0B0D]">
+      <div className="min-h-screen flex flex-col items-center justify-center text-emerald-500 bg-[#0E1C32]">
         <Loader2 className="animate-spin mb-4" size={40} />
-        <p className="text-slate-400 font-medium">Carregando sessão...</p>
+        <p className="text-[#94A3B8] font-medium">Carregando sessão...</p>
       </div>
     );
   }
@@ -203,7 +203,7 @@ const router = createBrowserRouter([
           { path: 'carteira', element: <Suspense fallback={<PageLoader />}><ProfessionalWallet /></Suspense> },
           { path: 'assinatura', element: <Suspense fallback={<PageLoader />}><ProfessionalAssinatura /></Suspense> },
           { path: 'perfil', element: <Suspense fallback={<PageLoader />}><ProfessionalPerfil /></Suspense> },
-          { path: 'configuracoes', element: <div className="p-8 text-slate-400">Configurações (Em breve)</div> },
+          { path: 'configuracoes', element: <div className="p-8 text-[#94A3B8]">Configurações (Em breve)</div> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
@@ -221,12 +221,12 @@ const router = createBrowserRouter([
           { path: 'planos', element: <Suspense fallback={<PageLoader />}><AdminPlanos /></Suspense> },
           { path: 'pacotes', element: <Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense> },
           { path: 'transacoes', element: <Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense> },
-          { path: 'financeiro-auditoria', element: <div className="p-8 text-slate-400">Auditoria Financeira (Em breve)</div> },
-          { path: 'auditoria-logs', element: <div className="p-8 text-slate-400">Auditoria Logs (Em breve)</div> },
-          { path: 'equipe', element: <div className="p-8 text-slate-400">Equipe (Em breve)</div> },
-          { path: 'simulador', element: <div className="p-8 text-slate-400">Simulador (Em breve)</div> },
+          { path: 'financeiro-auditoria', element: <div className="p-8 text-[#94A3B8]">Auditoria Financeira (Em breve)</div> },
+          { path: 'auditoria-logs', element: <div className="p-8 text-[#94A3B8]">Auditoria Logs (Em breve)</div> },
+          { path: 'equipe', element: <div className="p-8 text-[#94A3B8]">Equipe (Em breve)</div> },
+          { path: 'simulador', element: <div className="p-8 text-[#94A3B8]">Simulador (Em breve)</div> },
           { path: 'suporte', element: <Suspense fallback={<PageLoader />}><AdminSuporte /></Suspense> },
-          { path: 'configuracoes', element: <div className="p-8 text-slate-400">Configurações (Em breve)</div> },
+          { path: 'configuracoes', element: <div className="p-8 text-[#94A3B8]">Configurações (Em breve)</div> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       }

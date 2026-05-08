@@ -130,11 +130,11 @@ export default function ClientePerfil() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <Settings size={24} className="text-slate-400" />
+        <Settings size={24} className="text-[#94A3B8]" />
         <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
       </div>
 
-      <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
+      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl overflow-hidden">
         {/* Banner + avatar */}
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
           <div className="absolute -bottom-10 left-6 flex flex-col gap-2">
@@ -149,7 +149,7 @@ export default function ClientePerfil() {
 
             {/* Avatar circle */}
             <div className={cn(
-              "w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] overflow-hidden flex items-center justify-center text-slate-400",
+              "w-20 h-20 bg-slate-700 rounded-full border-4 border-[#1C3454] overflow-hidden flex items-center justify-center text-[#94A3B8]",
               avatarBusy && "opacity-50"
             )}>
               {profile?.avatar_url ? (
@@ -162,15 +162,15 @@ export default function ClientePerfil() {
             {/* Action buttons */}
             {avatarBusy ? (
               <div className="flex items-center gap-2 h-7">
-                <Loader2 size={14} className="text-slate-400 animate-spin" />
-                <span className="text-xs text-slate-500">Aguarde…</span>
+                <Loader2 size={14} className="text-[#94A3B8] animate-spin" />
+                <span className="text-xs text-[#4A6580]">Aguarde…</span>
               </div>
             ) : profile?.avatar_url ? (
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors border border-white/10"
+                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors border border-[#243F6A]"
                 >
                   <Camera size={12} /> Alterar
                 </button>
@@ -210,7 +210,7 @@ export default function ClientePerfil() {
 
           {/* Name */}
           <div className="space-y-1">
-            <label className="text-slate-400 text-sm flex items-center gap-2">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
               <User size={14} /> Nome completo
             </label>
             <input
@@ -219,7 +219,7 @@ export default function ClientePerfil() {
               value={formData.name}
               onChange={handleChange}
               placeholder="Seu nome completo"
-              className={`w-full bg-[#0A0B0D] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
+              className={`w-full bg-[#0E1C32] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
                 fieldErrors.name
                   ? 'border-red-500/60 focus:border-red-500'
                   : 'border-slate-700/50 focus:border-emerald-500'
@@ -234,20 +234,20 @@ export default function ClientePerfil() {
 
           {/* Email (disabled) */}
           <div className="space-y-1">
-            <label className="text-slate-400 text-sm flex items-center gap-2">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
               <Mail size={14} /> E-mail
             </label>
             <input
               type="email"
               value={user?.email || ''}
               disabled
-              className="w-full bg-[#0A0B0D] border border-slate-700/30 rounded-lg px-3 py-2.5 text-slate-500 cursor-not-allowed"
+              className="w-full bg-[#0E1C32] border border-slate-700/30 rounded-lg px-3 py-2.5 text-[#4A6580] cursor-not-allowed"
             />
           </div>
 
           {/* Phone */}
           <div className="space-y-1">
-            <label className="text-slate-400 text-sm flex items-center gap-2">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
               <Phone size={14} /> Telefone / WhatsApp
             </label>
             <input
@@ -256,7 +256,7 @@ export default function ClientePerfil() {
               value={formData.phone}
               onChange={handleChange}
               placeholder="(11) 99999-9999"
-              className={`w-full bg-[#0A0B0D] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
+              className={`w-full bg-[#0E1C32] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
                 fieldErrors.phone
                   ? 'border-red-500/60 focus:border-red-500'
                   : 'border-slate-700/50 focus:border-emerald-500'
@@ -271,7 +271,7 @@ export default function ClientePerfil() {
 
           {/* CEP auto-fill */}
           <div className="space-y-1">
-            <label className="text-slate-400 text-sm flex items-center gap-2">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
               <Hash size={14} /> CEP
               <span className="text-slate-600 text-xs">(preenche a cidade automaticamente)</span>
             </label>
@@ -283,10 +283,10 @@ export default function ClientePerfil() {
                 onChange={handleCepChange}
                 placeholder="00000-000"
                 maxLength={9}
-                className="w-full bg-[#0A0B0D] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors pr-8"
+                className="w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors pr-8"
               />
               {cepLoading && (
-                <Loader2 size={14} className="animate-spin text-slate-400 absolute right-3 top-3" />
+                <Loader2 size={14} className="animate-spin text-[#94A3B8] absolute right-3 top-3" />
               )}
             </div>
             {cepError && (
@@ -298,7 +298,7 @@ export default function ClientePerfil() {
 
           {/* City */}
           <div className="space-y-1">
-            <label className="text-slate-400 text-sm flex items-center gap-2">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
               <MapPin size={14} /> Cidade
             </label>
             <input
@@ -307,7 +307,7 @@ export default function ClientePerfil() {
               value={formData.city}
               onChange={handleChange}
               placeholder="Sua cidade"
-              className={`w-full bg-[#0A0B0D] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
+              className={`w-full bg-[#0E1C32] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
                 fieldErrors.city
                   ? 'border-red-500/60 focus:border-red-500'
                   : 'border-slate-700/50 focus:border-emerald-500'

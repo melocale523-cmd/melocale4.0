@@ -155,15 +155,15 @@ export default function ProfessionalAgenda() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Calendário de Agendamentos</h1>
-          <p className="text-slate-400 text-sm">Gerencie seus compromissos e horários</p>
+          <p className="text-[#94A3B8] text-sm">Gerencie seus compromissos e horários</p>
         </div>
         <div className="flex gap-2">
-          <div className="flex bg-[#14161B] border border-white/5 rounded-xl p-1">
+          <div className="flex bg-[#1C3454] border border-[#1C3050] rounded-xl p-1">
             <button 
               onClick={() => setViewMode('calendar')}
               className={cn(
                 "px-4 py-2 text-sm font-medium rounded-lg transition-all",
-                viewMode === 'calendar' ? "bg-emerald-500 text-black" : "text-slate-400 hover:text-white"
+                viewMode === 'calendar' ? "bg-emerald-500 text-black" : "text-[#94A3B8] hover:text-white"
               )}
             >
               Calendário
@@ -172,7 +172,7 @@ export default function ProfessionalAgenda() {
               onClick={() => setViewMode('list')}
               className={cn(
                 "px-4 py-2 text-sm font-medium rounded-lg transition-all",
-                viewMode === 'list' ? "bg-emerald-500 text-black" : "text-slate-400 hover:text-white"
+                viewMode === 'list' ? "bg-emerald-500 text-black" : "text-[#94A3B8] hover:text-white"
               )}
             >
               Lista
@@ -180,7 +180,7 @@ export default function ProfessionalAgenda() {
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 text-sm font-bold bg-white/5 border border-white/10 hover:bg-emerald-500 hover:text-black text-white rounded-xl transition-all flex items-center gap-2 group"
+            className="px-4 py-2 text-sm font-bold bg-white/5 border border-[#243F6A] hover:bg-emerald-500 hover:text-black text-white rounded-xl transition-all flex items-center gap-2 group"
           >
             <Plus size={18} className="group-hover:rotate-90 transition-transform" /> Novo Agendamento
           </button>
@@ -189,19 +189,19 @@ export default function ProfessionalAgenda() {
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-4 group hover:border-white/10 transition-colors">
-           <h4 className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total</h4>
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-4 group hover:border-[#243F6A] transition-colors">
+           <h4 className="text-[#4A6580] text-xs font-bold uppercase tracking-widest mb-1">Total</h4>
            <p className="text-2xl font-bold text-white">{stats.total}</p>
         </div>
-        <div className="bg-[#14161B] border border-blue-500/20 rounded-2xl p-4">
+        <div className="bg-[#1C3454] border border-blue-500/20 rounded-2xl p-4">
            <h4 className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-1">Agendados</h4>
            <p className="text-2xl font-bold text-blue-400">{stats.pending}</p>
         </div>
-        <div className="bg-[#14161B] border border-emerald-500/20 rounded-2xl p-4">
+        <div className="bg-[#1C3454] border border-emerald-500/20 rounded-2xl p-4">
            <h4 className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-1">Concluídos</h4>
            <p className="text-2xl font-bold text-emerald-500">{stats.completed}</p>
         </div>
-        <div className="bg-[#14161B] border border-yellow-500/20 rounded-2xl p-4">
+        <div className="bg-[#1C3454] border border-yellow-500/20 rounded-2xl p-4">
            <h4 className="text-yellow-500 text-xs font-bold uppercase tracking-widest mb-1">Hoje</h4>
            <p className="text-2xl font-bold text-yellow-500">{stats.today}</p>
         </div>
@@ -209,7 +209,7 @@ export default function ProfessionalAgenda() {
 
       <div className="grid lg:grid-cols-3 gap-6">
          {/* Main View Area */}
-         <div className="lg:col-span-2 bg-[#14161B] border border-white/5 rounded-2xl p-6">
+         <div className="lg:col-span-2 bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6">
             {viewMode === 'calendar' ? (
               <>
                 <div className="flex justify-between items-center mb-10">
@@ -219,19 +219,19 @@ export default function ProfessionalAgenda() {
                    <div className="flex items-center gap-2">
                       <button 
                         onClick={handlePrev}
-                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0A0B0D] border border-white/5 text-slate-400 hover:text-white hover:border-white/20 transition-all shadow-sm"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm"
                       >
                         <ChevronLeft size={20} />
                       </button>
                       <button 
                         onClick={handleToday}
-                        className="px-4 py-2 text-sm font-bold rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all shadow-sm"
+                        className="px-4 py-2 text-sm font-bold rounded-xl bg-white/5 border border-[#243F6A] text-white hover:bg-white/10 transition-all shadow-sm"
                       >
                         Hoje
                       </button>
                       <button 
                         onClick={handleNext}
-                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0A0B0D] border border-white/5 text-slate-400 hover:text-white hover:border-white/20 transition-all shadow-sm"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm"
                       >
                         <ChevronRight size={20} />
                       </button>
@@ -258,7 +258,7 @@ export default function ProfessionalAgenda() {
                           !isCurrentMonth ? "opacity-[0.05] pointer-events-none" : "hover:border-emerald-500/50",
                           isSelected 
                             ? "bg-emerald-500 text-black border-emerald-400 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]" 
-                            : "bg-[#0A0B0D] border-white/5 text-slate-400"
+                            : "bg-[#0E1C32] border-[#1C3050] text-[#94A3B8]"
                         )}
                       >
                         <span className="relative z-10">{format(day, 'd')}</span>
@@ -275,16 +275,16 @@ export default function ProfessionalAgenda() {
                   })}
                 </div>
 
-                <div className="flex flex-wrap gap-6 mt-10 p-4 bg-[#0A0B0D] rounded-2xl border border-white/5">
-                   <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <div className="flex flex-wrap gap-6 mt-10 p-4 bg-[#0E1C32] rounded-2xl border border-[#1C3050]">
+                   <div className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
                      <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> 
                      Agendado
                    </div>
-                   <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                   <div className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> 
                      Concluído
                    </div>
-                   <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                   <div className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
                      <div className="w-2.5 h-2.5 rounded-full bg-slate-500"></div> 
                      Cancelado
                    </div>
@@ -295,9 +295,9 @@ export default function ProfessionalAgenda() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-white font-bold text-xl uppercase tracking-tight">Próximos Compromissos</h2>
                   <div className="flex items-center gap-2">
-                    <button onClick={handlePrev} className="p-2 hover:text-emerald-500 text-slate-400 transition-colors"><ChevronLeft size={20}/></button>
-                    <button onClick={handleToday} className="text-xs font-bold text-slate-400 hover:text-white transition-colors">Ir para Hoje</button>
-                    <button onClick={handleNext} className="p-2 hover:text-emerald-500 text-slate-400 transition-colors"><ChevronRight size={20}/></button>
+                    <button onClick={handlePrev} className="p-2 hover:text-emerald-500 text-[#94A3B8] transition-colors"><ChevronLeft size={20}/></button>
+                    <button onClick={handleToday} className="text-xs font-bold text-[#94A3B8] hover:text-white transition-colors">Ir para Hoje</button>
+                    <button onClick={handleNext} className="p-2 hover:text-emerald-500 text-[#94A3B8] transition-colors"><ChevronRight size={20}/></button>
                   </div>
                 </div>
                 
@@ -306,15 +306,15 @@ export default function ProfessionalAgenda() {
                     {appointments
                       .sort((a, b) => a.date.getTime() - b.date.getTime())
                       .map(app => (
-                        <div key={app.id} className="bg-[#0A0B0D] border border-white/5 p-4 rounded-2xl flex items-center justify-between group hover:border-emerald-500/30 transition-all">
+                        <div key={app.id} className="bg-[#0E1C32] border border-[#1C3050] p-4 rounded-2xl flex items-center justify-between group hover:border-emerald-500/30 transition-all">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-white/5 rounded-xl flex flex-col items-center justify-center border border-white/10 group-hover:border-emerald-500/20 transition-colors">
-                              <span className="text-[10px] font-bold text-slate-500 uppercase">{format(app.date, 'MMM', { locale: ptBR })}</span>
+                            <div className="w-12 h-12 bg-white/5 rounded-xl flex flex-col items-center justify-center border border-[#243F6A] group-hover:border-emerald-500/20 transition-colors">
+                              <span className="text-[10px] font-bold text-[#4A6580] uppercase">{format(app.date, 'MMM', { locale: ptBR })}</span>
                               <span className="text-lg font-bold text-white leading-none">{format(app.date, 'dd')}</span>
                             </div>
                             <div>
                                <p className="text-white font-bold">{app.service}</p>
-                               <div className="flex items-center gap-2 text-xs text-slate-500">
+                               <div className="flex items-center gap-2 text-xs text-[#4A6580]">
                                  <User size={12} /> {app.clientName}
                                  <span className="w-1 h-1 rounded-full bg-slate-700"></span>
                                  <Clock size={12} /> {app.time}
@@ -332,14 +332,14 @@ export default function ProfessionalAgenda() {
                              </span>
                              <button 
                                onClick={() => handleUpdateStatus(app.id, 'cancelled')}
-                               className="p-2 text-slate-500 hover:text-red-500 transition-colors" 
+                               className="p-2 text-[#4A6580] hover:text-red-500 transition-colors" 
                                title="Cancelar agendamento"
                              >
                                <X size={18} />
                              </button>
                              <button 
                                onClick={() => openDetails(app)}
-                               className="p-2 text-slate-500 hover:text-emerald-500 transition-colors"
+                               className="p-2 text-[#4A6580] hover:text-emerald-500 transition-colors"
                                title="Ver detalhes"
                              >
                                <List size={18} />
@@ -349,12 +349,12 @@ export default function ProfessionalAgenda() {
                     ))}
                   </div>
                 ) : (
-                  <div className="border border-dashed border-white/10 rounded-3xl p-16 text-center flex flex-col items-center justify-center bg-[#0A0B0D]/50 min-h-[400px]">
+                  <div className="border border-dashed border-[#243F6A] rounded-3xl p-16 text-center flex flex-col items-center justify-center bg-[#0E1C32]/50 min-h-[400px]">
                     <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 text-slate-700">
                       <List size={32} />
                     </div>
                     <h3 className="text-slate-300 font-bold mb-2">Sem agendamentos para este período</h3>
-                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Sua lista de compromissos está vazia. Novos agendamentos aparecerão aqui automaticamente.</p>
+                    <p className="text-[#4A6580] text-sm max-w-xs mx-auto">Sua lista de compromissos está vazia. Novos agendamentos aparecerão aqui automaticamente.</p>
                   </div>
                 )}
               </div>
@@ -362,7 +362,7 @@ export default function ProfessionalAgenda() {
          </div>
 
          {/* Right Sidebar / Day View */}
-         <div className="bg-[#14161B] border border-white/5 rounded-3xl p-8 flex flex-col relative overflow-hidden group">
+         <div className="bg-[#1C3454] border border-[#1C3050] rounded-3xl p-8 flex flex-col relative overflow-hidden group">
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/10 transition-all duration-700"></div>
             
             <div className="flex items-center justify-between mb-8 relative z-10">
@@ -372,14 +372,14 @@ export default function ProfessionalAgenda() {
                <div className="flex gap-1">
                  <button 
                   onClick={() => setSelectedDate(subDays(selectedDate, 1))}
-                  className="p-1.5 hover:bg-white/5 rounded-lg text-slate-500 hover:text-emerald-500 transition-all"
+                  className="p-1.5 hover:bg-white/5 rounded-lg text-[#4A6580] hover:text-emerald-500 transition-all"
                   title="Anterior"
                  >
                    <ChevronLeft size={18} />
                  </button>
                  <button 
                   onClick={() => setSelectedDate(addDays(selectedDate, 1))}
-                  className="p-1.5 hover:bg-white/5 rounded-lg text-slate-500 hover:text-emerald-500 transition-all"
+                  className="p-1.5 hover:bg-white/5 rounded-lg text-[#4A6580] hover:text-emerald-500 transition-all"
                   title="Próximo"
                  >
                    <ChevronRight size={18} />
@@ -390,7 +390,7 @@ export default function ProfessionalAgenda() {
             <div className="flex-1 space-y-4 relative z-10">
                {selectedDayAppointments.length > 0 ? (
                  selectedDayAppointments.map(app => (
-                   <div key={app.id} className="bg-[#0A0B0D] border border-white/5 p-5 rounded-2xl space-y-3 hover:border-emerald-500/30 transition-all group">
+                   <div key={app.id} className="bg-[#0E1C32] border border-[#1C3050] p-5 rounded-2xl space-y-3 hover:border-emerald-500/30 transition-all group">
                      <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2 px-2 py-1 bg-emerald-500/10 rounded-lg text-emerald-500 text-[10px] font-bold font-mono">
                            <Clock size={12} /> {app.time}
@@ -401,7 +401,7 @@ export default function ProfessionalAgenda() {
                      </div>
                      <div>
                         <h4 className="text-white font-bold text-base">{app.service}</h4>
-                        <p className="text-slate-500 text-sm flex items-center gap-2 mt-1">
+                        <p className="text-[#4A6580] text-sm flex items-center gap-2 mt-1">
                            <User size={14} /> {app.clientName}
                         </p>
                         {app.status === 'completed' && (
@@ -413,7 +413,7 @@ export default function ProfessionalAgenda() {
                      <div className="flex gap-2 pt-2">
                        <button 
                          onClick={() => openDetails(app)}
-                         className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-lg border border-white/10 transition-all"
+                         className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-lg border border-[#243F6A] transition-all"
                        >
                          Detalhes
                        </button>
@@ -431,11 +431,11 @@ export default function ProfessionalAgenda() {
                  ))
                ) : (
                  <div className="flex flex-col items-center justify-center text-center py-12">
-                   <div className="w-20 h-20 bg-[#0A0B0D] rounded-full flex items-center justify-center mb-6 border border-white/5 shadow-inner">
+                   <div className="w-20 h-20 bg-[#0E1C32] rounded-full flex items-center justify-center mb-6 border border-[#1C3050] shadow-inner">
                       <CalendarIcon className="text-slate-700" size={32} />
                    </div>
                    <p className="text-white/90 font-bold text-lg mb-2">Nenhum agendamento</p>
-                   <p className="text-slate-500 text-sm">Este dia está livre. Aproveite para organizar seus próximos leads!</p>
+                   <p className="text-[#4A6580] text-sm">Este dia está livre. Aproveite para organizar seus próximos leads!</p>
                    
                    <button 
                     onClick={() => setIsModalOpen(true)}
@@ -446,14 +446,14 @@ export default function ProfessionalAgenda() {
                )}
             </div>
 
-            <div className="mt-8 pt-8 border-t border-white/5 relative z-10">
+            <div className="mt-8 pt-8 border-t border-[#1C3050] relative z-10">
                <div className="flex justify-between items-center text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-4">
                   <span>Horários Populares</span>
                   <span className="text-emerald-500/50">Disponível</span>
                </div>
                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-[#0A0B0D] border border-white/5 p-3 rounded-xl text-center text-xs text-slate-300 font-mono italic">09:00 - 10:00</div>
-                  <div className="bg-[#0A0B0D] border border-white/5 p-3 rounded-xl text-center text-xs text-slate-300 font-mono italic">14:00 - 15:00</div>
+                  <div className="bg-[#0E1C32] border border-[#1C3050] p-3 rounded-xl text-center text-xs text-slate-300 font-mono italic">09:00 - 10:00</div>
+                  <div className="bg-[#0E1C32] border border-[#1C3050] p-3 rounded-xl text-center text-xs text-slate-300 font-mono italic">14:00 - 15:00</div>
                </div>
             </div>
          </div>
@@ -463,7 +463,7 @@ export default function ProfessionalAgenda() {
       {detailsModalOpen && viewingAppointment && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDetailsModalOpen(false)}></div>
-          <div className="relative bg-[#14161B] border border-white/10 rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300">
              <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                    <div className="p-2.5 bg-emerald-500/20 text-emerald-500 rounded-xl">
@@ -471,15 +471,15 @@ export default function ProfessionalAgenda() {
                    </div>
                    Detalhes do Agendamento
                 </h2>
-                <button onClick={() => setDetailsModalOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+                <button onClick={() => setDetailsModalOpen(false)} className="text-[#4A6580] hover:text-white transition-colors">
                    <X size={24} />
                 </button>
              </div>
 
              <div className="space-y-8">
                 <div className="grid grid-cols-2 gap-4">
-                   <div className="p-4 bg-[#0A0B0D] border border-white/5 rounded-2xl">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Status</p>
+                   <div className="p-4 bg-[#0E1C32] border border-[#1C3050] rounded-2xl">
+                      <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest mb-1">Status</p>
                       <span className={cn(
                         "text-xs font-bold",
                         viewingAppointment.status === 'pending' ? "text-blue-400" : viewingAppointment.status === 'completed' ? "text-emerald-500" : "text-red-500"
@@ -487,49 +487,49 @@ export default function ProfessionalAgenda() {
                         {viewingAppointment.status === 'pending' ? 'AGENDADO' : viewingAppointment.status === 'completed' ? 'CONCLUÍDO' : 'CANCELADO'}
                       </span>
                    </div>
-                   <div className="p-4 bg-[#0A0B0D] border border-white/5 rounded-2xl">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">ID do Pedido</p>
+                   <div className="p-4 bg-[#0E1C32] border border-[#1C3050] rounded-2xl">
+                      <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest mb-1">ID do Pedido</p>
                       <span className="text-xs font-mono text-slate-300">#{viewingAppointment.id}</span>
                    </div>
                 </div>
 
                 <div className="space-y-4">
-                   <div className="flex items-center gap-4 p-4 border border-white/5 rounded-2xl bg-[#0A0B0D]/30">
+                   <div className="flex items-center gap-4 p-4 border border-[#1C3050] rounded-2xl bg-[#0E1C32]/30">
                       <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500">
                          <User size={24} />
                       </div>
                       <div>
-                         <p className="text-xs text-slate-500">Cliente</p>
+                         <p className="text-xs text-[#4A6580]">Cliente</p>
                          <p className="text-white font-bold text-lg">{viewingAppointment.clientName}</p>
                       </div>
                    </div>
 
-                   <div className="flex items-center gap-4 p-4 border border-white/5 rounded-2xl bg-[#0A0B0D]/30">
+                   <div className="flex items-center gap-4 p-4 border border-[#1C3050] rounded-2xl bg-[#0E1C32]/30">
                       <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
                          <Briefcase size={24} />
                       </div>
                       <div>
-                         <p className="text-xs text-slate-500">Serviço Solicitado</p>
+                         <p className="text-xs text-[#4A6580]">Serviço Solicitado</p>
                          <p className="text-white font-bold text-lg">{viewingAppointment.service}</p>
                       </div>
                    </div>
 
                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center gap-4 p-4 border border-white/5 rounded-2xl bg-[#0A0B0D]/30">
-                         <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400">
+                      <div className="flex items-center gap-4 p-4 border border-[#1C3050] rounded-2xl bg-[#0E1C32]/30">
+                         <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-[#94A3B8]">
                             <CalendarIcon size={20} />
                          </div>
                          <div>
-                            <p className="text-[10px] text-slate-500 uppercase font-bold">Data</p>
+                            <p className="text-[10px] text-[#4A6580] uppercase font-bold">Data</p>
                             <p className="text-white font-bold text-sm">{format(viewingAppointment.date, 'dd/MM/yyyy')}</p>
                          </div>
                       </div>
-                      <div className="flex items-center gap-4 p-4 border border-white/5 rounded-2xl bg-[#0A0B0D]/30">
-                         <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400">
+                      <div className="flex items-center gap-4 p-4 border border-[#1C3050] rounded-2xl bg-[#0E1C32]/30">
+                         <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-[#94A3B8]">
                             <Clock size={20} />
                          </div>
                          <div>
-                            <p className="text-[10px] text-slate-500 uppercase font-bold">Horário</p>
+                            <p className="text-[10px] text-[#4A6580] uppercase font-bold">Horário</p>
                             <p className="text-white font-bold text-sm">{viewingAppointment.time}</p>
                          </div>
                       </div>
@@ -566,7 +566,7 @@ export default function ProfessionalAgenda() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsModalOpen(false)}></div>
-          <div className="relative bg-[#14161B] border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
              <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                    <div className="p-2 bg-emerald-500/20 text-emerald-500 rounded-lg">
@@ -574,14 +574,14 @@ export default function ProfessionalAgenda() {
                    </div>
                    Novo Agendamento
                 </h2>
-                <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+                <button onClick={() => setIsModalOpen(false)} className="text-[#4A6580] hover:text-white transition-colors">
                    <X size={24} />
                 </button>
              </div>
 
              <form onSubmit={handleCreateAppointment} className="space-y-6">
                 <div className="space-y-2">
-                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                   <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                       <User size={14} /> Nome do Cliente
                    </label>
                    <input 
@@ -590,12 +590,12 @@ export default function ProfessionalAgenda() {
                       placeholder="Ex: João Silva"
                       value={formData.clientName}
                       onChange={e => setFormData({...formData, clientName: e.target.value})}
-                      className="w-full bg-[#0A0B0D] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
                    />
                 </div>
 
                 <div className="space-y-2">
-                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                   <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                       <Briefcase size={14} /> Serviço
                    </label>
                    <input 
@@ -604,13 +604,13 @@ export default function ProfessionalAgenda() {
                       placeholder="Ex: Instalação Elétrica"
                       value={formData.service}
                       onChange={e => setFormData({...formData, service: e.target.value})}
-                      className="w-full bg-[#0A0B0D] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
                    />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                          <CalendarIcon size={14} /> Data
                       </label>
                       <input 
@@ -618,11 +618,11 @@ export default function ProfessionalAgenda() {
                          required
                          value={formData.date}
                          onChange={e => setFormData({...formData, date: e.target.value})}
-                         className="w-full bg-[#0A0B0D] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                         className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                    </div>
                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                          <Clock size={14} /> Horário
                       </label>
                       <input 
@@ -630,14 +630,14 @@ export default function ProfessionalAgenda() {
                          required
                          value={formData.time}
                          onChange={e => setFormData({...formData, time: e.target.value})}
-                         className="w-full bg-[#0A0B0D] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                         className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                    </div>
                 </div>
 
                 <button 
                    type="submit"
-                   className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-[#0A0B0D] font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] mt-4"
+                   className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-[#0E1C32] font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] mt-4"
                 >
                    Finalizar Agendamento
                 </button>

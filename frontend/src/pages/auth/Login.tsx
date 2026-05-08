@@ -206,7 +206,7 @@ export default function Login() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-emerald-500">
         <Loader2 className="animate-spin mb-4" size={40} />
-        <p className="text-slate-400 font-medium">Carregando...</p>
+        <p className="text-[#94A3B8] font-medium">Carregando...</p>
       </div>
     );
   }
@@ -217,7 +217,7 @@ export default function Login() {
         <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight">
           {selectedRole === 'admin' ? 'Acesso Restrito' : (isSignUp ? 'Criar nova conta' : 'Bem-vindo de volta')}
         </h1>
-        <p className="text-slate-500 font-medium">
+        <p className="text-[#4A6580] font-medium">
           {selectedRole === 'admin' ? 'Apenas administradores autorizados' : (isSignUp ? 'Comece agora sua jornada no MeloCalé' : 'Sentimos sua falta! Entre para continuar.')}
         </p>
       </div>
@@ -228,7 +228,7 @@ export default function Login() {
             <AlertCircle size={18} />
             Não encontramos seu perfil
           </p>
-          <p className="mb-4 text-slate-400">
+          <p className="mb-4 text-[#94A3B8]">
             Você está autenticado, mas não conseguimos carregar suas informações de perfil. Escolha sua função abaixo ou tente entrar novamente.
           </p>
           <button 
@@ -244,7 +244,7 @@ export default function Login() {
         <div className="mb-10">
           <button 
             onClick={handleGoogleLogin}
-            className="w-full h-14 bg-white hover:bg-slate-100 text-[#0A0B0D] rounded-2xl font-black transition-all flex items-center justify-center gap-3 shadow-xl mb-8 group"
+            className="w-full h-14 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black transition-all flex items-center justify-center gap-3 shadow-xl mb-8 group"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -256,23 +256,23 @@ export default function Login() {
           </button>
           
           <div className="relative">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black"><span className="bg-[#0A0B0D] px-6 text-slate-700">Ou use seu e-mail</span></div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#1C3050]"></div></div>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black"><span className="bg-[#0E1C32] px-6 text-slate-700">Ou use seu e-mail</span></div>
           </div>
         </div>
       )}
 
       {!isAuthenticated && selectedRole !== 'admin' && !isLockedMode && (
-        <div className="flex bg-[#0A0B0D] p-1.5 rounded-2xl mb-8 border border-white/5">
+        <div className="flex bg-[#0E1C32] p-1.5 rounded-2xl mb-8 border border-[#1C3050]">
           <button
             onClick={() => { setIsSignUp(false); setAuthStep('basics'); setError(null); }}
-            className={cn("flex-1 py-3 text-sm font-black rounded-xl transition-all", !isSignUp ? "bg-white/5 text-white" : "text-slate-500 hover:text-slate-300")}
+            className={cn("flex-1 py-3 text-sm font-black rounded-xl transition-all", !isSignUp ? "bg-white/5 text-white" : "text-[#4A6580] hover:text-slate-300")}
           >
             Entrar
           </button>
           <button
             onClick={() => { setIsSignUp(true); setAuthStep('basics'); setError(null); }}
-            className={cn("flex-1 py-3 text-sm font-black rounded-xl transition-all", isSignUp ? "bg-white/5 text-white" : "text-slate-500 hover:text-slate-300")}
+            className={cn("flex-1 py-3 text-sm font-black rounded-xl transition-all", isSignUp ? "bg-white/5 text-white" : "text-[#4A6580] hover:text-slate-300")}
           >
             Cadastrar
           </button>
@@ -283,14 +283,14 @@ export default function Login() {
         <div className="grid grid-cols-2 gap-4 mb-8">
           <button
             onClick={() => setSelectedRole('client')}
-            className={cn("flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all", selectedRole === 'client' ? "border-blue-500/50 bg-blue-500/10 text-blue-400" : "border-white/5 text-slate-500 bg-white/[0.02] hover:bg-white/[0.05]")}
+            className={cn("flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all", selectedRole === 'client' ? "border-blue-500/50 bg-blue-500/10 text-blue-400" : "border-[#1C3050] text-[#4A6580] bg-white/[0.02] hover:bg-white/[0.05]")}
           >
             <UserIcon size={20} />
             <span className="text-[10px] font-black uppercase tracking-widest">Sou Cliente</span>
           </button>
           <button
             onClick={() => setSelectedRole('professional')}
-            className={cn("flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all", selectedRole === 'professional' ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400" : "border-white/5 text-slate-500 bg-white/[0.02] hover:bg-white/[0.05]")}
+            className={cn("flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all", selectedRole === 'professional' ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400" : "border-[#1C3050] text-[#4A6580] bg-white/[0.02] hover:bg-white/[0.05]")}
           >
             <Briefcase size={20} />
             <span className="text-[10px] font-black uppercase tracking-widest">Sou Profissional</span>
@@ -318,25 +318,25 @@ export default function Login() {
               <>
                 {isSignUp && (
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Nome Completo</label>
+                    <label className="block text-[10px] font-black text-[#4A6580] uppercase tracking-[0.2em] mb-3 ml-1">Nome Completo</label>
                     <input 
                       required type="text" placeholder="João da Silva" 
-                      className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                      className="w-full h-16 bg-[#1C3454] border border-[#1C3050] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                       value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
                     />
                   </div>
                 )}
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">E-mail</label>
+                  <label className="block text-[10px] font-black text-[#4A6580] uppercase tracking-[0.2em] mb-3 ml-1">E-mail</label>
                   <input 
                     required type="email" placeholder="seu@email.com" 
-                    className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                    className="w-full h-16 bg-[#1C3454] border border-[#1C3050] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-3">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Sua Senha</label>
+                    <label className="block text-[10px] font-black text-[#4A6580] uppercase tracking-[0.2em] ml-1">Sua Senha</label>
                     {!isSignUp && (
                       <button type="button" onClick={handleForgotPassword} className="text-[10px] font-black uppercase text-emerald-500 hover:text-emerald-400 tracking-widest transition-colors">Esqueci a senha</button>
                     )}
@@ -344,13 +344,13 @@ export default function Login() {
                   <div className="relative">
                     <input
                       required type={showPassword ? 'text' : 'password'} placeholder="••••••••"
-                      className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                      className="w-full h-16 bg-[#1C3454] border border-[#1C3050] rounded-2xl px-6 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                       value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(p => !p)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-white transition-colors"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -362,40 +362,40 @@ export default function Login() {
             {authStep === 'details' && (
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">WhatsApp de Contato</label>
+                  <label className="block text-[10px] font-black text-[#4A6580] uppercase tracking-[0.2em] mb-3 ml-1">WhatsApp de Contato</label>
                   <input
                     required type="tel" placeholder="(11) 99999-9999"
-                    className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                    className="w-full h-16 bg-[#1C3454] border border-[#1C3050] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">CEP</label>
+                  <label className="block text-[10px] font-black text-[#4A6580] uppercase tracking-[0.2em] mb-3 ml-1">CEP</label>
                   <input
                     type="text" placeholder="00000-000" maxLength={9}
-                    className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                    className="w-full h-16 bg-[#1C3454] border border-[#1C3050] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Sua Cidade</label>
+                  <label className="block text-[10px] font-black text-[#4A6580] uppercase tracking-[0.2em] mb-3 ml-1">Sua Cidade</label>
                   <input
                     required type="text" placeholder="Ex: São Paulo, SP"
-                    className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                    className="w-full h-16 bg-[#1C3454] border border-[#1C3050] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
                   />
                 </div>
                 {selectedRole === 'professional' && (
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Especialidade / Categoria</label>
+                    <label className="block text-[10px] font-black text-[#4A6580] uppercase tracking-[0.2em] mb-3 ml-1">Especialidade / Categoria</label>
                     <input 
                       required type="text" placeholder="Ex: Pintura, Elétrica..." 
-                      className="w-full h-16 bg-[#14161B] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                      className="w-full h-16 bg-[#1C3454] border border-[#1C3050] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                       value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
                     />
                   </div>
                 )}
-                <button type="button" onClick={() => setAuthStep('basics')} className="flex items-center gap-2 text-slate-500 hover:text-white text-xs font-bold transition-all"><ArrowLeft size={14} /> Voltar para o início</button>
+                <button type="button" onClick={() => setAuthStep('basics')} className="flex items-center gap-2 text-[#4A6580] hover:text-white text-xs font-bold transition-all"><ArrowLeft size={14} /> Voltar para o início</button>
               </div>
             )}
 

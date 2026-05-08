@@ -206,7 +206,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className={cn(
-              "relative w-full bg-[#07080A] rounded-[2.5rem] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] border border-white/5 my-auto transition-all duration-500",
+              "relative w-full bg-[#0E1C32] rounded-[2.5rem] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] border border-[#1C3050] my-auto transition-all duration-500",
               step === 'role' ? 'max-w-4xl' : 'max-w-xl'
             )}
           >
@@ -220,7 +220,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
             {/* Close Button */}
             <button 
               onClick={onClose} 
-              className="absolute top-8 right-8 p-3 hover:bg-white/5 rounded-2xl text-slate-500 hover:text-white transition-all z-10"
+              className="absolute top-8 right-8 p-3 hover:bg-white/5 rounded-2xl text-[#4A6580] hover:text-white transition-all z-10"
             >
               <X size={24} />
             </button>
@@ -237,7 +237,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                   <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">
                     {mode === 'signup' ? 'Escolha como deseja se cadastrar' : 'Entre na sua conta'}
                   </h1>
-                  <p className="text-slate-500 font-medium mb-12">
+                  <p className="text-[#4A6580] font-medium mb-12">
                     {mode === 'signup' ? 'Selecione a opção que melhor se adequa ao seu perfil' : 'Escolha como deseja acessar seu painel'}
                   </p>
 
@@ -245,7 +245,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                     {/* Client Card */}
                     <button
                       onClick={() => handleRoleSelect('client')}
-                      className="group relative flex flex-col text-left p-8 rounded-[2rem] bg-[#0F1116] border border-white/5 hover:border-blue-500/40 hover:bg-blue-500/[0.02] transition-all duration-500 h-full"
+                      className="group relative flex flex-col text-left p-8 rounded-[2rem] bg-[#132540] border border-[#1C3050] hover:border-blue-500/40 hover:bg-blue-500/[0.02] transition-all duration-500 h-full"
                     >
                       <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform mb-8">
                         <User size={32} />
@@ -255,7 +255,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         {mode === 'signup' ? 'Sou Cliente' : 'Área do Cliente'}
                       </h3>
                       
-                      <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                      <p className="text-[#4A6580] text-sm leading-relaxed mb-6">
                         {mode === 'signup' 
                           ? 'Preciso contratar profissionais para serviços em minha casa' 
                           : 'Gerencie seus pedidos e contrate profissionais'}
@@ -264,7 +264,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       {mode === 'signup' && (
                         <ul className="space-y-3 mb-8">
                           {['Solicite orçamentos grátis', 'Compare profissionais', 'Contrate com segurança'].map((item, i) => (
-                            <li key={i} className="flex items-center gap-3 text-xs font-bold text-slate-400">
+                            <li key={i} className="flex items-center gap-3 text-xs font-bold text-[#94A3B8]">
                               <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                               {item}
                             </li>
@@ -281,7 +281,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                     {/* Professional Card */}
                     <button
                       onClick={() => handleRoleSelect('professional')}
-                      className="group relative flex flex-col text-left p-8 rounded-[2rem] bg-[#0F1116] border border-white/5 hover:border-emerald-500/40 hover:bg-emerald-500/[0.02] transition-all duration-500 h-full"
+                      className="group relative flex flex-col text-left p-8 rounded-[2rem] bg-[#132540] border border-[#1C3050] hover:border-emerald-500/40 hover:bg-emerald-500/[0.02] transition-all duration-500 h-full"
                     >
                       <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform mb-8">
                         <Briefcase size={32} />
@@ -291,7 +291,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         {mode === 'signup' ? 'Sou Profissional' : 'Área do Profissional'}
                       </h3>
                       
-                      <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                      <p className="text-[#4A6580] text-sm leading-relaxed mb-6">
                         {mode === 'signup'
                           ? 'Quero oferecer meus serviços e receber solicitações de clientes'
                           : 'Acesse seus leads e envie propostas agora'}
@@ -300,7 +300,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       {mode === 'signup' && (
                         <ul className="space-y-3 mb-8">
                           {['Aumente sua receita mensal', 'Clientes prontos para contratar', 'Expanda seu negócio'].map((item, i) => (
-                            <li key={i} className="flex items-center gap-3 text-xs font-bold text-slate-400">
+                            <li key={i} className="flex items-center gap-3 text-xs font-bold text-[#94A3B8]">
                               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                               {item}
                             </li>
@@ -316,7 +316,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                   </div>
 
                   {/* Google Login Footer */}
-                  <div className="mt-12 pt-8 border-t border-white/5">
+                  <div className="mt-12 pt-8 border-t border-[#1C3050]">
                     <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-6">Ou conecte-se instantaneamente</p>
                     <button 
                       onClick={handleGoogleLogin}
@@ -333,7 +333,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                     
                     <button 
                       onClick={() => navigate('/login' + (mode === 'login' ? '?mode=signup' : ''))}
-                      className="mt-8 text-slate-500 text-sm font-medium hover:text-white transition-colors"
+                      className="mt-8 text-[#4A6580] text-sm font-medium hover:text-white transition-colors"
                     >
                       {mode === 'signup' ? 'Já tem conta? ' : 'Ainda não é cadastrado? '}
                       <span className="text-blue-500 font-bold hover:underline">
@@ -346,14 +346,14 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                   {/* Header for steps */}
                   <div className="flex items-center gap-4 mb-8">
-                    <button onClick={handleBack} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all border border-white/5">
+                    <button onClick={handleBack} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-[#94A3B8] hover:text-white transition-all border border-[#1C3050]">
                       <ArrowLeft size={20} />
                     </button>
                     <div>
                       <h2 className="text-2xl font-black text-white tracking-tight">
                         {mode === 'signup' ? 'Falta pouco...' : 'Acessar minha conta'}
                       </h2>
-                      <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">
+                      <p className="text-[#4A6580] text-xs font-bold uppercase tracking-widest mt-1">
                         {selectedRole === 'client' ? 'Perfil de Cliente' : 'Perfil de Profissional'}
                       </p>
                     </div>
@@ -370,24 +370,24 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       <>
                         <div className="space-y-5">
                           <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
+                            <label className="block text-xs font-black text-[#4A6580] uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
                             <input 
                               required type="text" placeholder="Como devemos te chamar?" 
-                              className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+                              className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
                               value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">E-mail de Acesso</label>
+                            <label className="block text-xs font-black text-[#4A6580] uppercase tracking-widest mb-3 pl-1">E-mail de Acesso</label>
                             <input 
                               required type="email" placeholder="seu@email.com" 
-                              className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+                              className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
                               value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                             />
                           </div>
                           <div>
                             <div className="flex justify-between items-center mb-3">
-                              <label className="block text-xs font-black text-slate-500 uppercase tracking-widest pl-1">Sua Senha</label>
+                              <label className="block text-xs font-black text-[#4A6580] uppercase tracking-widest pl-1">Sua Senha</label>
                               {mode === 'login' && (
                                 <button
                                   type="button"
@@ -402,13 +402,13 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                             <div className="relative">
                               <input
                                 required type={showPassword ? 'text' : 'password'} placeholder="Mínimo 6 caracteres"
-                                className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 pr-12 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+                                className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl px-5 pr-12 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
                                 value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
                               />
                               <button
                                 type="button"
                                 onClick={() => setShowPassword(p => !p)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-white transition-colors"
                               >
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
@@ -422,35 +422,35 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       <>
                         <div className="space-y-5">
                           <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">WhatsApp para Contato</label>
+                            <label className="block text-xs font-black text-[#4A6580] uppercase tracking-widest mb-3 pl-1">WhatsApp para Contato</label>
                             <input
                               required type="tel" placeholder="(00) 00000-0000"
-                              className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                              className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                               value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">CEP</label>
+                            <label className="block text-xs font-black text-[#4A6580] uppercase tracking-widest mb-3 pl-1">CEP</label>
                             <input
                               type="text" placeholder="00000-000" maxLength={9}
-                              className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                              className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                               value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">Cidade / Localização</label>
+                            <label className="block text-xs font-black text-[#4A6580] uppercase tracking-widest mb-3 pl-1">Cidade / Localização</label>
                             <input
                               required type="text" placeholder="Onde você está localizado?"
-                              className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                              className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                               value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
                             />
                           </div>
                           {selectedRole === 'professional' && (
                             <div>
-                              <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">Área de Atuação</label>
+                              <label className="block text-xs font-black text-[#4A6580] uppercase tracking-widest mb-3 pl-1">Área de Atuação</label>
                               <input 
                                 required type="text" placeholder="Ex: Eletricista, Pintor..." 
-                                className="w-full bg-[#14161B] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                                className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                                 value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
                               />
                             </div>
@@ -480,10 +480,10 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
             </div>
 
             {/* Footer */}
-            <div className="p-8 bg-[#0A0B0D] border-t border-white/5 text-center">
+            <div className="p-8 bg-[#0E1C32] border-t border-[#1C3050] text-center">
               <p className="text-slate-600 text-xs font-medium leading-relaxed">
                 Ao continuar você declara que leu e concorda com nossos <br /> 
-                <a href="#" className="text-slate-400 hover:text-white underline">Termos de Uso</a> e <a href="#" className="text-slate-400 hover:text-white underline">Políticas de Privacidade</a>.
+                <a href="#" className="text-[#94A3B8] hover:text-white underline">Termos de Uso</a> e <a href="#" className="text-[#94A3B8] hover:text-white underline">Políticas de Privacidade</a>.
               </p>
             </div>
           </motion.div>

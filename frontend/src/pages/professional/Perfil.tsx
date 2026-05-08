@@ -125,14 +125,14 @@ export default function ProfessionalPerfil() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-100">Perfil Profissional</h1>
-        <p className="text-slate-400 mt-1">Configure como os clientes verão seus serviços.</p>
+        <p className="text-[#94A3B8] mt-1">Configure como os clientes verão seus serviços.</p>
       </div>
 
-      <div className="bg-[#14161B] border border-slate-800/50 rounded-xl overflow-hidden">
+      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
           <div className="absolute -bottom-10 left-6 flex items-end gap-3">
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
-            <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#14161B] flex items-center justify-center text-slate-300 relative overflow-hidden">
+            <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#1C3454] flex items-center justify-center text-slate-300 relative overflow-hidden">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
               ) : (
@@ -190,13 +190,13 @@ export default function ProfessionalPerfil() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">Nome Completo</label>
               <div className="relative">
-                <User className="absolute left-3 top-2.5 text-slate-500" size={18} />
+                <User className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
                 <input
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full bg-[#0A0B0D] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                   placeholder="Seu nome"
                 />
               </div>
@@ -205,12 +205,12 @@ export default function ProfessionalPerfil() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">E-mail</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 text-slate-500" size={18} />
+                <Mail className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
                 <input
                   name="email"
                   value={formData.email}
                   disabled
-                  className="w-full bg-[#0A0B0D]/50 border border-slate-800/50 text-slate-500 cursor-not-allowed text-sm rounded-lg pl-10 px-3 py-2.5 outline-none"
+                  className="w-full bg-[#0E1C32]/50 border border-slate-800/50 text-[#4A6580] cursor-not-allowed text-sm rounded-lg pl-10 px-3 py-2.5 outline-none"
                 />
               </div>
             </div>
@@ -218,13 +218,13 @@ export default function ProfessionalPerfil() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">Telefone / WhatsApp</label>
               <div className="relative">
-                <Phone className="absolute left-3 top-2.5 text-slate-500" size={18} />
+                <Phone className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
                 <input
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full bg-[#0A0B0D] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                   placeholder="(11) 90000-0000"
                 />
               </div>
@@ -233,12 +233,12 @@ export default function ProfessionalPerfil() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">Categoria Principal</label>
               <div className="relative">
-                <Briefcase className="absolute left-3 top-2.5 text-slate-500" size={18} />
+                <Briefcase className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full bg-[#0A0B0D] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all appearance-none"
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all appearance-none"
                 >
                   <option value="Pintura">Pintura e Acabamento</option>
                   <option value="Eletrica">Elétrica</option>
@@ -264,7 +264,7 @@ export default function ProfessionalPerfil() {
                 onChange={handleChange}
                 className="flex-1 accent-emerald-500"
               />
-              <span className="bg-[#0A0B0D] border border-slate-800 px-3 py-1 rounded text-sm text-emerald-400 font-medium min-w-16 text-center">
+              <span className="bg-[#0E1C32] border border-slate-800 px-3 py-1 rounded text-sm text-emerald-400 font-medium min-w-16 text-center">
                 {formData.radius} km
               </span>
             </div>
@@ -277,7 +277,7 @@ export default function ProfessionalPerfil() {
               value={formData.bio}
               onChange={handleChange}
               rows={4}
-              className="w-full bg-[#0A0B0D] border border-slate-800 text-slate-200 text-sm rounded-lg p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
+              className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
               placeholder="Descreva suas habilidades, tempo de experiência e diferenciais..."
             />
           </div>
@@ -299,21 +299,21 @@ export default function ProfessionalPerfil() {
       </div>
 
       {/* Stripe Connect */}
-      <div className="bg-[#14161B] border border-slate-800/50 rounded-xl p-6 space-y-4">
+      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500">
             <CreditCard size={20} />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-100">Recebimentos e Pagamentos</h2>
-            <p className="text-sm text-slate-400">Conecte sua conta bancária para receber pagamentos de clientes.</p>
+            <p className="text-sm text-[#94A3B8]">Conecte sua conta bancária para receber pagamentos de clientes.</p>
           </div>
         </div>
 
-        <div className="p-4 bg-[#0A0B0D] border border-slate-800 rounded-lg flex items-center justify-between">
+        <div className="p-4 bg-[#0E1C32] border border-slate-800 rounded-lg flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-sm font-medium text-slate-200">Status da Conta: <span className="text-amber-500">Pendente</span></p>
-            <p className="text-xs text-slate-500">Para receber pagamentos, você precisa concluir o cadastro no Stripe.</p>
+            <p className="text-xs text-[#4A6580]">Para receber pagamentos, você precisa concluir o cadastro no Stripe.</p>
           </div>
           <button
             onClick={async () => {

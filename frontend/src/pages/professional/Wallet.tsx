@@ -38,7 +38,7 @@ export default function ProfessionalWallet() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-100">Carteira</h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-[#94A3B8] mt-1">
             Gerencie seu saldo de moedas para comprar contatos de clientes.
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function ProfessionalWallet() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Balance Card */}
-        <div className="md:col-span-1 bg-gradient-to-br from-emerald-600/30 via-[#14161B] to-[#0A0B0D] border border-emerald-500/30 rounded-3xl p-8 relative overflow-hidden flex flex-col justify-between shadow-2xl ring-1 ring-emerald-500/20">
+        <div className="md:col-span-1 bg-gradient-to-br from-emerald-600/30 via-[#1C3454] to-[#0E1C32] border border-emerald-500/30 rounded-3xl p-8 relative overflow-hidden flex flex-col justify-between shadow-2xl ring-1 ring-emerald-500/20">
           <div className="absolute -right-12 -top-12 text-emerald-500/5 rotate-12 transition-transform group-hover:scale-110">
             <Coins size={240} />
           </div>
@@ -58,7 +58,7 @@ export default function ProfessionalWallet() {
             {isBalanceLoading ? (
               <div className="flex items-center gap-3">
                 <Loader2 size={32} className="text-emerald-500 animate-spin" />
-                <span className="text-slate-400 font-bold">Calculando...</span>
+                <span className="text-[#94A3B8] font-bold">Calculando...</span>
               </div>
             ) : (
               <div className="flex flex-col">
@@ -71,28 +71,28 @@ export default function ProfessionalWallet() {
           </div>
           <button 
             onClick={() => navigate('/profissional/assinatura')}
-            className="mt-10 w-full bg-emerald-500 hover:bg-emerald-400 text-[#0A0B0D] py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all flex justify-center items-center shadow-xl shadow-emerald-500/20 group/btn active:scale-95">
+            className="mt-10 w-full bg-emerald-500 hover:bg-emerald-400 text-[#0E1C32] py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all flex justify-center items-center shadow-xl shadow-emerald-500/20 group/btn active:scale-95">
             <Plus size={20} className="mr-2 group-hover/btn:rotate-90 transition-transform" /> Adicionar Saldo
           </button>
         </div>
 
         {/* Quick Stats */}
         <div className="md:col-span-2 grid gap-4 sm:grid-cols-2">
-           <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-             <div className="w-10 h-10 bg-slate-800/80 rounded-xl flex items-center justify-center mb-4 text-emerald-500 border border-white/5 group-hover:border-emerald-500/30 transition-colors">
+           <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden group">
+             <div className="w-10 h-10 bg-slate-800/80 rounded-xl flex items-center justify-center mb-4 text-emerald-500 border border-[#1C3050] group-hover:border-emerald-500/30 transition-colors">
                <ArrowDownRight size={20} />
              </div>
-             <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Gasto no Mês</h3>
+             <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Gasto no Mês</h3>
              <p className="text-3xl font-semibold text-white mt-1">
                {(stats as any)?.totalSpentCoins ? `${(stats as any).totalSpentCoins} moedas` : '0 moedas'}
              </p>
-             <p className="text-xs text-slate-500 mt-1 italic">≈ R$ {(((stats as any)?.totalSpentCoins ?? 0) / 10).toFixed(2).replace('.', ',')}</p>
+             <p className="text-xs text-[#4A6580] mt-1 italic">≈ R$ {(((stats as any)?.totalSpentCoins ?? 0) / 10).toFixed(2).replace('.', ',')}</p>
            </div>
-           <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-             <div className="w-10 h-10 bg-slate-800/80 rounded-xl flex items-center justify-center mb-4 text-blue-400 border border-white/5 group-hover:border-blue-500/30 transition-colors">
+           <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden group">
+             <div className="w-10 h-10 bg-slate-800/80 rounded-xl flex items-center justify-center mb-4 text-blue-400 border border-[#1C3050] group-hover:border-blue-500/30 transition-colors">
                <Receipt size={20} />
              </div>
-             <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Contatos Comprados</h3>
+             <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Contatos Comprados</h3>
              <p className="text-3xl font-semibold text-white mt-1">
                {(stats as any)?.contactsPurchased || 0} {(stats as any)?.contactsPurchased === 1 ? 'cliente' : 'clientes'}
              </p>
@@ -102,7 +102,7 @@ export default function ProfessionalWallet() {
 
       {/* Transaction History */}
       <h2 className="text-lg font-bold text-white pt-4">Histórico de Transações</h2>
-      <div className="bg-[#14161B] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl overflow-hidden shadow-xl">
         <ul className="divide-y divide-slate-800/50">
           {transactions && transactions.length > 0 ? (
             transactions.map((tx: any) => (
@@ -116,7 +116,7 @@ export default function ProfessionalWallet() {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-slate-200">{tx.description || tx.desc || 'Transação'}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-[#4A6580] mt-0.5">
                       {new Date(tx.created_at || tx.date).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
@@ -133,7 +133,7 @@ export default function ProfessionalWallet() {
               </li>
             ))
           ) : (
-            <li className="p-10 text-center text-slate-500">Nenhuma transação encontrada.</li>
+            <li className="p-10 text-center text-[#4A6580]">Nenhuma transação encontrada.</li>
           )}
         </ul>
       </div>

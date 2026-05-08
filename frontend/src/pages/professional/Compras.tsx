@@ -120,10 +120,10 @@ export default function ProfessionalCompras() {
       {isProposalModalOpen && selectedPurchase && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsProposalModalOpen(false)}></div>
-          <div className="relative bg-[#14161B] border border-white/10 rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200">
             <button 
               onClick={() => setIsProposalModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-[#4A6580] hover:text-white transition-colors"
             >
               <X size={20} />
             </button>
@@ -134,13 +134,13 @@ export default function ProfessionalCompras() {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">Enviar Proposta</h2>
-                <p className="text-slate-400 text-sm">Pedido #{selectedPurchase.lead_id?.slice(-6).toUpperCase()} - {selectedPurchase.leads?.title}</p>
+                <p className="text-[#94A3B8] text-sm">Pedido #{selectedPurchase.lead_id?.slice(-6).toUpperCase()} - {selectedPurchase.leads?.title}</p>
               </div>
             </div>
 
             <form onSubmit={handleSendProposal} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
                    <DollarSign size={14} /> Valor Estimado (R$)
                 </label>
                 <input 
@@ -149,12 +149,12 @@ export default function ProfessionalCompras() {
                   placeholder="Ex: 1200"
                   value={proposalData.price}
                   onChange={e => setProposalData(prev => ({ ...prev, price: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
                    <Clock size={14} /> Prazo de Execução
                 </label>
                 <input 
@@ -163,12 +163,12 @@ export default function ProfessionalCompras() {
                   placeholder="Ex: 3 dias úteis"
                   value={proposalData.duration}
                   onChange={e => setProposalData(prev => ({ ...prev, duration: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
                    <FileText size={14} /> Descrição Detalhada
                 </label>
                 <textarea 
@@ -177,18 +177,18 @@ export default function ProfessionalCompras() {
                   placeholder="Descreva como você pretende realizar o serviço, materiais inclusos, etc..."
                   value={proposalData.description}
                   onChange={e => setProposalData(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all resize-none"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all resize-none"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1 flex items-center gap-2">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
                    <FileText size={14} /> 
                 </label>
                 <select 
                   value={proposalData.status}
                   onChange={e => setProposalData(prev => ({ ...prev, status: e.target.value }))}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
                 >
                    <option value="Pendente Proposta">Pendente Proposta</option>
                    <option value="Proposta Enviada">Proposta Enviada</option>
@@ -219,7 +219,7 @@ export default function ProfessionalCompras() {
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Meus Clientes</h1>
-        <div className="text-xs font-bold px-3 py-1 bg-white/5 border border-white/10 text-slate-300 rounded-full">
+        <div className="text-xs font-bold px-3 py-1 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
           {purchases?.length || 0} adquiridos
         </div>
       </div>
@@ -231,7 +231,7 @@ export default function ProfessionalCompras() {
               onClick={() => setActiveTab(tab)}
               className={cn(
                  "pb-3 text-sm font-bold transition-colors border-b-2 whitespace-nowrap",
-                 activeTab === tab ? "border-emerald-500 text-white" : "border-transparent text-slate-500 hover:text-slate-300"
+                 activeTab === tab ? "border-emerald-500 text-white" : "border-transparent text-[#4A6580] hover:text-slate-300"
               )}
             >
               {tab}
@@ -247,13 +247,13 @@ export default function ProfessionalCompras() {
         <div className="grid gap-4 md:grid-cols-2">
           {filteredPurchases.map((purchase) => (
             <div key={purchase.id} className={cn(
-              "bg-[#14161B] border border-slate-800/50 rounded-xl p-6 hover:border-emerald-500/30 transition-colors",
+              "bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 hover:border-emerald-500/30 transition-colors",
               purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40 animate-pulse"
             )}>
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
-                  <div className="flex items-center text-sm text-slate-500 mt-1">
+                  <div className="flex items-center text-sm text-[#4A6580] mt-1">
                     <Calendar size={14} className="mr-1.5" />
                     {new Date(purchase.created_at).toLocaleDateString('pt-BR')}
                   </div>
@@ -279,21 +279,21 @@ export default function ProfessionalCompras() {
               </div>
               
               {/* Detalhes do Serviço */}
-              <div className="bg-[#0A0B0D]/60 border border-white/5 rounded-xl p-4 mb-4 space-y-2.5">
+              <div className="bg-[#0E1C32]/60 border border-[#1C3050] rounded-xl p-4 mb-4 space-y-2.5">
                 <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Detalhes do Serviço</p>
 
                 {purchase.description && (
-                  <p className="text-slate-400 text-xs leading-relaxed line-clamp-3">{purchase.description}</p>
+                  <p className="text-[#94A3B8] text-xs leading-relaxed line-clamp-3">{purchase.description}</p>
                 )}
 
-                <div className="text-xs text-slate-400 font-medium">
+                <div className="text-xs text-[#94A3B8] font-medium">
                   💰 {purchase.budget_min && purchase.budget_max
                     ? `R$ ${purchase.budget_min.toLocaleString('pt-BR')} – R$ ${purchase.budget_max.toLocaleString('pt-BR')}`
                     : 'A combinar'}
                 </div>
 
                 {purchase.event_date && (
-                  <div className="text-xs text-slate-400 font-medium">
+                  <div className="text-xs text-[#94A3B8] font-medium">
                     📅 Para: {new Date(purchase.event_date).toLocaleDateString('pt-BR')}
                   </div>
                 )}
@@ -307,7 +307,7 @@ export default function ProfessionalCompras() {
                 })()}
 
                 {(purchase.city || purchase.state || purchase.location) && (
-                  <div className="text-xs text-slate-400 font-medium">
+                  <div className="text-xs text-[#94A3B8] font-medium">
                     📍 {purchase.city && purchase.state
                       ? `${purchase.city} - ${purchase.state}`
                       : purchase.location || ''}
@@ -316,11 +316,11 @@ export default function ProfessionalCompras() {
 
                 {Array.isArray(purchase.images) && purchase.images.length > 0 && (
                   <div className="space-y-1.5 pt-1">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">📸 Fotos do local</p>
+                    <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">📸 Fotos do local</p>
                     <div className="flex flex-wrap gap-1.5">
                       {(purchase.images as string[]).map((url, i) => (
                         <button key={i} onClick={() => setLightboxUrl(url)}
-                          className="block w-12 h-12 rounded-lg overflow-hidden border border-white/10 hover:border-emerald-500/40 transition-colors shrink-0">
+                          className="block w-12 h-12 rounded-lg overflow-hidden border border-[#243F6A] hover:border-emerald-500/40 transition-colors shrink-0">
                           <img src={url} alt="" className="w-full h-full object-cover" />
                         </button>
                       ))}
@@ -334,11 +334,11 @@ export default function ProfessionalCompras() {
                   if (max == null || count == null) return null;
                   const remaining = max - count;
                   if (remaining <= 1) return <div className="text-xs font-bold text-emerald-400">🏆 Você é o único profissional com acesso</div>;
-                  return <div className="text-xs font-medium text-slate-500">👥 {remaining} profissionais também viram este cliente</div>;
+                  return <div className="text-xs font-medium text-[#4A6580]">👥 {remaining} profissionais também viram este cliente</div>;
                 })()}
               </div>
 
-              <div className="space-y-3 bg-[#0A0B0D] p-4 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
+              <div className="space-y-3 bg-[#0E1C32] p-4 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
                 {purchase.status === 'Respondida pelo Cliente' && (
                   <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-3 py-2 mb-1">
                     <Zap size={13} className="text-emerald-400 shrink-0" />
@@ -348,32 +348,32 @@ export default function ProfessionalCompras() {
 
                 <div className="flex items-center text-slate-300">
                   <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <Phone size={16} className="text-slate-400" />
+                    <Phone size={16} className="text-[#94A3B8]" />
                   </span>
                   <div className="flex-1">
-                    <p className="text-xs text-slate-500">Telefone do Cliente</p>
+                    <p className="text-xs text-[#4A6580]">Telefone do Cliente</p>
                     <p className="text-sm font-medium">
-                      {formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-slate-500 italic text-xs">Não informado</span>}
+                      {formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-[#4A6580] italic text-xs">Não informado</span>}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center text-slate-300">
                   <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <Mail size={16} className="text-slate-400" />
+                    <Mail size={16} className="text-[#94A3B8]" />
                   </span>
                   <div className="flex-1">
-                    <p className="text-xs text-slate-500">E-mail</p>
+                    <p className="text-xs text-[#4A6580]">E-mail</p>
                     <p className="text-sm font-medium">
-                      {(purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email) || <span className="text-slate-500 italic text-xs">Não informado</span>}
+                      {(purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email) || <span className="text-[#4A6580] italic text-xs">Não informado</span>}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center text-slate-300">
                   <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <MapPin size={16} className="text-slate-400" />
+                    <MapPin size={16} className="text-[#94A3B8]" />
                   </span>
                   <div className="flex-1">
-                    <p className="text-xs text-slate-500">Endereço (Aproximado)</p>
+                    <p className="text-xs text-[#4A6580]">Endereço (Aproximado)</p>
                     <p className="text-sm font-medium">{purchase.leads?.clients?.city || purchase.leads?.profiles?.address || purchase.leads?.location}</p>
                   </div>
                 </div>
@@ -394,7 +394,7 @@ export default function ProfessionalCompras() {
                     );
                   }
                   return (
-                    <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed opacity-60 border border-slate-700">
+                    <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-[#4A6580] cursor-not-allowed opacity-60 border border-slate-700">
                       <Phone size={16} /> Contato indisponível
                     </button>
                   );
@@ -402,7 +402,7 @@ export default function ProfessionalCompras() {
                 {purchase.status === 'Pendente Proposta' && (
                   <button
                     onClick={() => openProposalModal(purchase)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg text-sm font-bold transition-all border border-white/10 flex items-center justify-center gap-2"
+                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg text-sm font-bold transition-all border border-[#243F6A] flex items-center justify-center gap-2"
                   >
                     <Send size={16} /> Enviar Proposta
                   </button>
@@ -422,21 +422,21 @@ export default function ProfessionalCompras() {
           ))}
         </div>
       ) : (
-        <div className="border border-dashed border-white/10 rounded-3xl p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <div className="border border-dashed border-[#243F6A] rounded-3xl p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
           <Inbox className="text-slate-700 mb-4" size={48} />
-          <p className="text-slate-500 font-medium">Nenhum cliente nesta categoria.</p>
+          <p className="text-[#4A6580] font-medium">Nenhum cliente nesta categoria.</p>
         </div>
       )}
       {lightboxUrl && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0A0B0D]/95 backdrop-blur-md"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0E1C32]/95 backdrop-blur-md"
           onClick={() => setLightboxUrl(null)}
         >
           <div
-            className="relative max-w-3xl w-full mx-4 bg-[#14161B] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl"
+            className="relative max-w-3xl w-full mx-4 bg-[#1C3454] border border-[#243F6A] rounded-[2rem] overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C3050]">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-xl flex items-center justify-center">
                   <Camera size={16} />
@@ -445,19 +445,19 @@ export default function ProfessionalCompras() {
               </div>
               <button
                 onClick={() => setLightboxUrl(null)}
-                className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-[#94A3B8] hover:text-white transition-all"
               >
                 <X size={18} />
               </button>
             </div>
-            <div className="p-4 bg-[#0A0B0D]/50">
+            <div className="p-4 bg-[#0E1C32]/50">
               <img
                 src={lightboxUrl}
                 alt="Foto do serviço"
                 className="w-full max-h-[70vh] object-contain rounded-xl"
               />
             </div>
-            <div className="px-6 py-3 border-t border-white/5 flex items-center justify-between">
+            <div className="px-6 py-3 border-t border-[#1C3050] flex items-center justify-between">
               <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Clique fora para fechar</span>
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Melocale PRO</span>
             </div>

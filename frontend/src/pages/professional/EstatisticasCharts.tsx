@@ -9,8 +9,8 @@ interface Props {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#1A1D24] border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-md">
-      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">{label}</p>
+    <div className="bg-[#1A1D24] border border-[#243F6A] p-3 rounded-xl shadow-2xl backdrop-blur-md">
+      <p className="text-[#94A3B8] text-[10px] font-black uppercase tracking-widest mb-2">{label}</p>
       {payload.map((entry: any, index: number) => (
         <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
@@ -33,11 +33,11 @@ function EstatisticasCharts({ seriesData, range }: Props) {
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
-      <div className={`bg-[#14161B] border border-white/5 rounded-3xl p-8 relative transition-opacity `}>
+      <div className={`bg-[#1C3454] border border-[#1C3050] rounded-3xl p-8 relative transition-opacity `}>
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-white font-bold text-lg">Solicitações e Propostas</h3>
-            <p className="text-slate-500 text-xs mt-1">Comparativo de atividade no período</p>
+            <p className="text-[#4A6580] text-xs mt-1">Comparativo de atividade no período</p>
           </div>
         </div>
         <div className="h-[300px] w-full">
@@ -60,11 +60,11 @@ function EstatisticasCharts({ seriesData, range }: Props) {
         </div>
       </div>
 
-      <div className={`bg-[#14161B] border border-white/5 rounded-3xl p-8 relative transition-opacity `}>
+      <div className={`bg-[#1C3454] border border-[#1C3050] rounded-3xl p-8 relative transition-opacity `}>
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-white font-bold text-lg">Evolução Financeira</h3>
-            <p className="text-slate-500 text-xs mt-1">Crescimento do faturamento estimado</p>
+            <p className="text-[#4A6580] text-xs mt-1">Crescimento do faturamento estimado</p>
           </div>
         </div>
         <div className="h-[300px] w-full">

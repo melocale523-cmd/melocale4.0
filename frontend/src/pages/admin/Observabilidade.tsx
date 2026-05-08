@@ -8,10 +8,10 @@ export default function AdminObservabilidade() {
           <Activity className="text-red-500 w-8 h-8" />
           <h1 className="text-2xl font-bold text-slate-100">Observabilidade Operacional</h1>
         </div>
-        <p className="text-slate-400 mt-1">Visão passiva do estado operacional do sistema</p>
+        <p className="text-[#94A3B8] mt-1">Visão passiva do estado operacional do sistema</p>
       </div>
 
-      <div className="bg-[#14161B] border border-emerald-500/20 rounded-xl p-8 flex flex-col items-center justify-center space-y-4">
+      <div className="bg-[#1C3454] border border-emerald-500/20 rounded-xl p-8 flex flex-col items-center justify-center space-y-4">
          <div className="flex items-center gap-4">
            <ShieldCheck size={48} className="text-emerald-500" />
            <div>
@@ -28,18 +28,18 @@ export default function AdminObservabilidade() {
           { label: 'RECORRÊNCIAS', value: '0', color: 'text-orange-500' },
           { label: 'FILA PENDENTE', value: '0', color: 'text-blue-500' },
         ].map((stat, i) => (
-          <div key={i} className="bg-[#14161B] border border-slate-800/50 rounded-xl p-8 text-center flex flex-col items-center justify-center">
+          <div key={i} className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-8 text-center flex flex-col items-center justify-center">
             <h3 className={`text-5xl font-black mb-2 ${stat.color || 'text-white'}`}>{stat.value}</h3>
-            <p className="text-xs font-bold text-slate-500 tracking-wider font-mono">{stat.label}</p>
+            <p className="text-xs font-bold text-[#4A6580] tracking-wider font-mono">{stat.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-[#14161B] border border-slate-800/50 rounded-xl max-h-[400px] overflow-y-auto">
-        <div className="p-6 border-b border-white/5 sticky top-0 bg-[#14161B]/95 backdrop-blur z-10">
+      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl max-h-[400px] overflow-y-auto">
+        <div className="p-6 border-b border-[#1C3050] sticky top-0 bg-[#1C3454]/95 backdrop-blur z-10">
           <h2 className="text-lg font-bold text-white">Timeline de Incidentes</h2>
         </div>
-        <div className="p-16 flex items-center justify-center text-slate-500 italic">
+        <div className="p-16 flex items-center justify-center text-[#4A6580] italic">
            Nenhum incidente registrado no período.
         </div>
       </div>

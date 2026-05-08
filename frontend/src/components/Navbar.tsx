@@ -55,7 +55,7 @@ export default function Navbar() {
         id="main-nav"
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 py-4 border-b',
-          isScrolled ? 'bg-[#0A0B0D]/80 backdrop-blur-md border-white/5 shadow-lg' : 'bg-transparent border-transparent'
+          isScrolled ? 'bg-[#0E1C32]/80 backdrop-blur-md border-[#1C3050] shadow-lg' : 'bg-transparent border-transparent'
         )}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -73,7 +73,7 @@ export default function Navbar() {
               <a
                 key={link.name}
                 href={link.href}
-                className="text-sm font-medium transition-all text-slate-400 hover:text-emerald-400 hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                className="text-sm font-medium transition-all text-[#94A3B8] hover:text-emerald-400 hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
               >
                 {link.name}
               </a>
@@ -98,7 +98,7 @@ export default function Navbar() {
                 <div className="w-px h-6 bg-white/10 mx-1" />
                 <Link 
                   to="/login?role=admin"
-                  className="p-2.5 bg-white/5 hover:bg-white/10 text-slate-500 hover:text-slate-300 rounded-xl transition-all border border-white/5"
+                  className="p-2.5 bg-white/5 hover:bg-white/10 text-[#4A6580] hover:text-slate-300 rounded-xl transition-all border border-[#1C3050]"
                   title="Acesso Restrito"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
@@ -115,7 +115,7 @@ export default function Navbar() {
                 </Link>
                 <button 
                   onClick={handleLogout}
-                  className="p-2 text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                  className="p-2 text-[#94A3B8] hover:text-red-400 transition-colors cursor-pointer"
                   title="Sair da conta"
                 >
                   <LogOut size={18} />
@@ -138,13 +138,13 @@ export default function Navbar() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 right-0 bg-[#14161B] shadow-2xl p-6 md:hidden flex flex-col gap-4 border-t border-white/5"
+              className="absolute top-full left-0 right-0 bg-[#1C3454] shadow-2xl p-6 md:hidden flex flex-col gap-4 border-t border-[#1C3050]"
             >
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-medium text-white py-2 border-b border-white/5"
+                  className="text-lg font-medium text-white py-2 border-b border-[#1C3050]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.name}
@@ -172,7 +172,7 @@ export default function Navbar() {
                       <Link 
                         to="/login?role=admin"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="w-14 bg-white/5 border border-white/5 text-slate-500 py-4 rounded-xl font-bold flex items-center justify-center transition-all active:scale-95 transition-all"
+                        className="w-14 bg-white/5 border border-[#1C3050] text-[#4A6580] py-4 rounded-xl font-bold flex items-center justify-center transition-all active:scale-95 transition-all"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
                       </Link>
@@ -193,7 +193,7 @@ export default function Navbar() {
                         handleLogout();
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full bg-white/5 text-slate-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+                      className="w-full bg-white/5 text-[#94A3B8] py-3 rounded-xl font-bold flex items-center justify-center gap-2"
                       title="Sair da conta"
                     >
                       <LogOut size={18} />

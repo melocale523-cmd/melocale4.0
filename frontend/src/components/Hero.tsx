@@ -45,7 +45,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-slate-400 mb-10 max-w-xl font-light leading-relaxed"
+            className="text-lg md:text-xl text-[#94A3B8] mb-10 max-w-xl font-light leading-relaxed"
           >
             Encontre os melhores especialistas para qualquer serviço. Solicite orçamentos, compare perfis e contrate com segurança.
           </motion.p>
@@ -54,30 +54,30 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="bg-[#14161B]/80 backdrop-blur-xl p-2 md:p-3 rounded-2xl md:rounded-3xl border border-white/10 shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-4xl"
+            className="bg-[#1C3454]/80 backdrop-blur-xl p-2 md:p-3 rounded-2xl md:rounded-3xl border border-[#243F6A] shadow-2xl flex flex-col md:flex-row items-center gap-2 max-w-4xl"
           >
             <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/5">
               <div className="flex items-center gap-3 px-4 py-3 cursor-pointer group">
                 <Search className="text-emerald-500 group-hover:scale-110 transition-transform" />
                 <div className="flex flex-col text-left">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">O que precisa?</span>
+                  <span className="text-[10px] uppercase font-bold text-[#4A6580] tracking-wider">O que precisa?</span>
                   <span className="text-white font-medium whitespace-nowrap">Pintor, Designer...</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 px-4 py-3 cursor-pointer group">
                 <MapPin className="text-emerald-500 group-hover:scale-110 transition-transform" />
                 <div className="flex flex-col text-left">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Cidade</span>
+                  <span className="text-[10px] uppercase font-bold text-[#4A6580] tracking-wider">Cidade</span>
                   <div className="flex items-center gap-1">
                     <span className="text-white font-medium">São Paulo, SP</span>
-                    <ChevronDown size={14} className="text-slate-500" />
+                    <ChevronDown size={14} className="text-[#4A6580]" />
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-3 px-4 py-3 cursor-pointer group">
                 <Zap className="text-emerald-500 group-hover:scale-110 transition-transform" />
                 <div className="flex flex-col text-left">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Urgência</span>
+                  <span className="text-[10px] uppercase font-bold text-[#4A6580] tracking-wider">Urgência</span>
                   <span className="text-white font-mono">Imediata</span>
                 </div>
               </div>
@@ -89,18 +89,18 @@ export default function Hero() {
           </motion.div>
 
           {/* Quick Stats */}
-          <div className="mt-12 grid grid-cols-3 gap-8 pt-8 border-t border-white/5 max-w-xl">
+          <div className="mt-12 grid grid-cols-3 gap-8 pt-8 border-t border-[#1C3050] max-w-xl">
             <div>
               <div className="text-2xl font-bold">42.8k</div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Serviços Realizados</div>
+              <div className="text-[10px] text-[#4A6580] uppercase tracking-widest mt-1">Serviços Realizados</div>
             </div>
             <div>
               <div className="text-2xl font-bold">156</div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Categorias</div>
+              <div className="text-[10px] text-[#4A6580] uppercase tracking-widest mt-1">Categorias</div>
             </div>
             <div>
               <div className="text-2xl font-bold">12.5k</div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Profissionais</div>
+              <div className="text-[10px] text-[#4A6580] uppercase tracking-widest mt-1">Profissionais</div>
             </div>
           </div>
         </div>

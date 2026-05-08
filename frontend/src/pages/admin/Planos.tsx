@@ -38,7 +38,7 @@ export default function AdminPlanos() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold text-slate-100">Gerenciamento de Planos</h1>
-          <p className="text-slate-400 mt-1">Configure os planos disponíveis para os profissionais</p>
+          <p className="text-[#94A3B8] mt-1">Configure os planos disponíveis para os profissionais</p>
         </div>
         <button 
           onClick={() => setShowModal(true)}
@@ -51,17 +51,17 @@ export default function AdminPlanos() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-           <div className="bg-[#14161B] border border-slate-700 rounded-xl p-6 w-full max-w-lg relative z-50">
+           <div className="bg-[#1C3454] border border-slate-700 rounded-xl p-6 w-full max-w-lg relative z-50">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-white">Criar Novo Plano</h2>
-                <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white"><X size={20} /></button>
+                <button onClick={() => setShowModal(false)} className="text-[#94A3B8] hover:text-white"><X size={20} /></button>
               </div>
               <div className="space-y-4">
-                 <input type="text" placeholder="Nome do plano" className="w-full bg-[#0A0B0D] border border-slate-700 p-3 rounded-lg text-white" />
-                 <input type="number" placeholder="Preço (R$)" className="w-full bg-[#0A0B0D] border border-slate-700 p-3 rounded-lg text-white" />
-                 <input type="number" placeholder="Quantidade de Moedas" className="w-full bg-[#0A0B0D] border border-slate-700 p-3 rounded-lg text-white" />
-                 <input type="number" placeholder="Quantidade de Leads" className="w-full bg-[#0A0B0D] border border-slate-700 p-3 rounded-lg text-white" />
-                 <textarea placeholder="Funcionalidades (uma por linha)" className="w-full bg-[#0A0B0D] border border-slate-700 p-3 rounded-lg text-white h-24" />
+                 <input type="text" placeholder="Nome do plano" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
+                 <input type="number" placeholder="Preço (R$)" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
+                 <input type="number" placeholder="Quantidade de Moedas" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
+                 <input type="number" placeholder="Quantidade de Leads" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
+                 <textarea placeholder="Funcionalidades (uma por linha)" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white h-24" />
                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold">Salvar Plano</button>
               </div>
            </div>
@@ -70,7 +70,7 @@ export default function AdminPlanos() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
          {planos.map(plano => (
-           <div key={plano.id} className="bg-[#14161B] border border-slate-800/80 rounded-xl p-6 flex flex-col">
+           <div key={plano.id} className="bg-[#1C3454] border border-slate-800/80 rounded-xl p-6 flex flex-col">
              <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="text-xl font-bold text-white">{plano.nome}</h3>
@@ -78,7 +78,7 @@ export default function AdminPlanos() {
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-blue-400">R$ {plano.preco}</div>
-                  <div className="text-slate-500 text-sm">/mês</div>
+                  <div className="text-[#4A6580] text-sm">/mês</div>
                 </div>
              </div>
 
@@ -100,10 +100,10 @@ export default function AdminPlanos() {
              </div>
 
              <div className="flex items-center gap-2">
-               <button className="flex-1 flex items-center justify-center gap-2 bg-[#0A0B0D] hover:bg-slate-800 border border-slate-800 text-white py-2 rounded-lg transition-colors font-medium text-sm">
+               <button className="flex-1 flex items-center justify-center gap-2 bg-[#0E1C32] hover:bg-slate-800 border border-slate-800 text-white py-2 rounded-lg transition-colors font-medium text-sm">
                  <Edit2 size={16} /> Editar
                </button>
-               <button className="flex-1 flex items-center justify-center gap-2 bg-[#0A0B0D] hover:bg-slate-800 border border-slate-800 text-red-400 py-2 rounded-lg transition-colors font-medium text-sm">
+               <button className="flex-1 flex items-center justify-center gap-2 bg-[#0E1C32] hover:bg-slate-800 border border-slate-800 text-red-400 py-2 rounded-lg transition-colors font-medium text-sm">
                  <XCircle size={16} /> Desativar
                </button>
                <button className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors border border-red-500/20">

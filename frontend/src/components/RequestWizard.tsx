@@ -159,7 +159,7 @@ export default function RequestWizard({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#14161B] border border-white/10 rounded-[2.5rem] max-w-2xl w-full max-h-screen sm:max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
+      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-[2.5rem] max-w-2xl w-full max-h-screen sm:max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
 
         {/* Header */}
         <div className="p-8 pb-0 flex-shrink-0">
@@ -170,10 +170,10 @@ export default function RequestWizard({
               </div>
               <div>
                 <h2 className="text-2xl font-black text-white tracking-tight">Nova Solicitação</h2>
-                <p className="text-slate-400 font-medium">{STEP_SUBTITLES[step - 1]}</p>
+                <p className="text-[#94A3B8] font-medium">{STEP_SUBTITLES[step - 1]}</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-2 text-slate-500 hover:text-white transition-colors">
+            <button onClick={onClose} className="p-2 text-[#4A6580] hover:text-white transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -199,18 +199,18 @@ export default function RequestWizard({
           {step === 1 && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Título</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Título</label>
                 <input
                   type="text"
                   placeholder="Ex: Pintura completa de apartamento"
                   value={data.title}
                   onChange={e => setField('title', e.target.value)}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                 />
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Categoria</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Categoria</label>
                 <div className="grid grid-cols-3 gap-3">
                   {CATEGORIES.map(cat => (
                     <button
@@ -221,11 +221,11 @@ export default function RequestWizard({
                         'flex flex-col items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all text-center',
                         data.category === cat.label
                           ? 'bg-emerald-500/10 border-emerald-500/50'
-                          : 'bg-[#0A0B0D] border-white/5 hover:border-emerald-500/30'
+                          : 'bg-[#0E1C32] border-[#1C3050] hover:border-emerald-500/30'
                       )}
                     >
                       <span className="text-2xl">{cat.icon}</span>
-                      <span className={cn('text-xs font-bold', data.category === cat.label ? 'text-emerald-400' : 'text-slate-400')}>
+                      <span className={cn('text-xs font-bold', data.category === cat.label ? 'text-emerald-400' : 'text-[#94A3B8]')}>
                         {cat.label}
                       </span>
                     </button>
@@ -247,7 +247,7 @@ export default function RequestWizard({
           {step === 2 && (
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Quando você precisa?</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Quando você precisa?</label>
                 <div className="grid grid-cols-2 gap-3">
                   {URGENCY_OPTIONS.map(opt => (
                     <button
@@ -258,13 +258,13 @@ export default function RequestWizard({
                         'flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all text-left',
                         data.urgency === opt.value
                           ? 'bg-emerald-500/10 border-emerald-500/50'
-                          : 'bg-[#0A0B0D] border-white/5 hover:border-emerald-500/30'
+                          : 'bg-[#0E1C32] border-[#1C3050] hover:border-emerald-500/30'
                       )}
                     >
                       <span className="text-xl mt-0.5">{opt.icon}</span>
                       <div>
                         <p className={cn('text-sm font-bold', data.urgency === opt.value ? 'text-emerald-400' : 'text-white')}>{opt.label}</p>
-                        <p className="text-xs text-slate-500">{opt.desc}</p>
+                        <p className="text-xs text-[#4A6580]">{opt.desc}</p>
                       </div>
                     </button>
                   ))}
@@ -272,7 +272,7 @@ export default function RequestWizard({
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Tamanho do trabalho?</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Tamanho do trabalho?</label>
                 <div className="grid grid-cols-2 gap-3">
                   {WORK_SIZE_OPTIONS.map(opt => (
                     <button
@@ -283,13 +283,13 @@ export default function RequestWizard({
                         'flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all text-left',
                         data.work_size === opt.value
                           ? 'bg-emerald-500/10 border-emerald-500/50'
-                          : 'bg-[#0A0B0D] border-white/5 hover:border-emerald-500/30'
+                          : 'bg-[#0E1C32] border-[#1C3050] hover:border-emerald-500/30'
                       )}
                     >
                       <span className="text-xl mt-0.5">{opt.icon}</span>
                       <div>
                         <p className={cn('text-sm font-bold', data.work_size === opt.value ? 'text-emerald-400' : 'text-white')}>{opt.label}</p>
-                        <p className="text-xs text-slate-500">{opt.desc}</p>
+                        <p className="text-xs text-[#4A6580]">{opt.desc}</p>
                       </div>
                     </button>
                   ))}
@@ -299,7 +299,7 @@ export default function RequestWizard({
               <div className="flex gap-3">
                 <button
                   onClick={() => setStep(1)}
-                  className="flex-1 bg-[#0A0B0D] border border-white/5 hover:border-white/20 text-slate-400 font-black py-4 rounded-2xl transition-all"
+                  className="flex-1 bg-[#0E1C32] border border-[#1C3050] hover:border-white/20 text-[#94A3B8] font-black py-4 rounded-2xl transition-all"
                 >
                   ← Voltar
                 </button>
@@ -318,7 +318,7 @@ export default function RequestWizard({
           {step === 3 && (
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Você pode contratar agora?</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Você pode contratar agora?</label>
                 <div className="space-y-2">
                   {PURCHASE_DECISION_OPTIONS.map(opt => (
                     <button
@@ -329,13 +329,13 @@ export default function RequestWizard({
                         'w-full flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all text-left',
                         data.purchase_decision === opt.value
                           ? 'bg-emerald-500/10 border-emerald-500/50'
-                          : 'bg-[#0A0B0D] border-white/5 hover:border-emerald-500/30'
+                          : 'bg-[#0E1C32] border-[#1C3050] hover:border-emerald-500/30'
                       )}
                     >
                       <span className="text-xl">{opt.icon}</span>
                       <div>
                         <p className={cn('text-sm font-bold', data.purchase_decision === opt.value ? 'text-emerald-400' : 'text-white')}>{opt.label}</p>
-                        <p className="text-xs text-slate-500">{opt.desc}</p>
+                        <p className="text-xs text-[#4A6580]">{opt.desc}</p>
                       </div>
                     </button>
                   ))}
@@ -343,7 +343,7 @@ export default function RequestWizard({
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Disponibilidade para visita?</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Disponibilidade para visita?</label>
                 <div className="grid grid-cols-4 gap-2">
                   {AVAILABILITY_OPTIONS.map(opt => (
                     <button
@@ -354,11 +354,11 @@ export default function RequestWizard({
                         'flex flex-col items-center gap-1.5 p-3 rounded-xl border cursor-pointer transition-all text-center',
                         data.availability === opt.value
                           ? 'bg-emerald-500/10 border-emerald-500/50'
-                          : 'bg-[#0A0B0D] border-white/5 hover:border-emerald-500/30'
+                          : 'bg-[#0E1C32] border-[#1C3050] hover:border-emerald-500/30'
                       )}
                     >
                       <span className="text-lg">{opt.icon}</span>
-                      <span className={cn('text-xs font-bold', data.availability === opt.value ? 'text-emerald-400' : 'text-slate-400')}>
+                      <span className={cn('text-xs font-bold', data.availability === opt.value ? 'text-emerald-400' : 'text-[#94A3B8]')}>
                         {opt.label}
                       </span>
                     </button>
@@ -367,7 +367,7 @@ export default function RequestWizard({
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Como está o local?</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Como está o local?</label>
                 <div className="space-y-2">
                   {LOCAL_CONDITION_OPTIONS.map(opt => (
                     <button
@@ -378,13 +378,13 @@ export default function RequestWizard({
                         'w-full flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all text-left',
                         data.local_condition === opt.value
                           ? 'bg-emerald-500/10 border-emerald-500/50'
-                          : 'bg-[#0A0B0D] border-white/5 hover:border-emerald-500/30'
+                          : 'bg-[#0E1C32] border-[#1C3050] hover:border-emerald-500/30'
                       )}
                     >
                       <span className="text-xl">{opt.icon}</span>
                       <div>
                         <p className={cn('text-sm font-bold', data.local_condition === opt.value ? 'text-emerald-400' : 'text-white')}>{opt.label}</p>
-                        <p className="text-xs text-slate-500">{opt.desc}</p>
+                        <p className="text-xs text-[#4A6580]">{opt.desc}</p>
                       </div>
                     </button>
                   ))}
@@ -394,7 +394,7 @@ export default function RequestWizard({
               <div className="flex gap-3">
                 <button
                   onClick={() => setStep(2)}
-                  className="flex-1 bg-[#0A0B0D] border border-white/5 hover:border-white/20 text-slate-400 font-black py-4 rounded-2xl transition-all"
+                  className="flex-1 bg-[#0E1C32] border border-[#1C3050] hover:border-white/20 text-[#94A3B8] font-black py-4 rounded-2xl transition-all"
                 >
                   ← Voltar
                 </button>
@@ -413,26 +413,26 @@ export default function RequestWizard({
           {step === 4 && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Localização (Cidade, Estado)</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Localização (Cidade, Estado)</label>
                 <input
                   type="text"
                   placeholder="Ex: São Paulo, SP"
                   value={data.location}
                   onChange={e => setField('location', e.target.value)}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                 />
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Orçamento</label>
-                <div className="bg-[#0A0B0D] border border-white/5 rounded-2xl p-5 space-y-4">
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Orçamento</label>
+                <div className="bg-[#0E1C32] border border-[#1C3050] rounded-2xl p-5 space-y-4">
                   <div className="flex justify-between text-sm font-bold text-white">
                     <span>Mín: {formatBRL(Number(data.budget_min))}</span>
                     <span>Máx: {formatBRL(Number(data.budget_max))}</span>
                   </div>
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Mínimo</p>
+                      <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-widest">Mínimo</p>
                       <input
                         type="range"
                         min={0}
@@ -444,7 +444,7 @@ export default function RequestWizard({
                       />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Máximo</p>
+                      <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-widest">Máximo</p>
                       <input
                         type="range"
                         min={0}
@@ -460,27 +460,27 @@ export default function RequestWizard({
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Descrição (opcional)</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Descrição (opcional)</label>
                 <textarea
                   rows={3}
                   placeholder="Conte mais detalhes — quanto mais informações, melhores serão as propostas!"
                   value={data.description}
                   onChange={e => setField('description', e.target.value)}
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Fotos (opcional)</label>
+                <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Fotos (opcional)</label>
                 <label className={cn(
-                  'flex items-center gap-3 cursor-pointer w-full bg-[#0A0B0D] border border-white/5 hover:border-emerald-500/30 rounded-2xl px-5 py-4 transition-all',
+                  'flex items-center gap-3 cursor-pointer w-full bg-[#0E1C32] border border-[#1C3050] hover:border-emerald-500/30 rounded-2xl px-5 py-4 transition-all',
                   uploading && 'opacity-50 pointer-events-none'
                 )}>
                   {uploading
                     ? <Loader2 size={20} className="animate-spin text-emerald-500 shrink-0" />
-                    : <ImagePlus size={20} className="text-slate-500 shrink-0" />
+                    : <ImagePlus size={20} className="text-[#4A6580] shrink-0" />
                   }
-                  <span className="text-sm text-slate-400 font-medium">
+                  <span className="text-sm text-[#94A3B8] font-medium">
                     {uploading ? 'Enviando...' : 'Adicionar fotos'}
                   </span>
                   <input
@@ -495,7 +495,7 @@ export default function RequestWizard({
                 {data.images.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-1">
                     {data.images.map((url, i) => (
-                      <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 group/thumb">
+                      <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-[#243F6A] group/thumb">
                         <img src={url} alt="" className="w-full h-full object-cover" />
                         <button
                           type="button"
@@ -513,7 +513,7 @@ export default function RequestWizard({
               <div className="flex gap-3">
                 <button
                   onClick={() => setStep(3)}
-                  className="flex-1 bg-[#0A0B0D] border border-white/5 hover:border-white/20 text-slate-400 font-black py-4 rounded-2xl transition-all"
+                  className="flex-1 bg-[#0E1C32] border border-[#1C3050] hover:border-white/20 text-[#94A3B8] font-black py-4 rounded-2xl transition-all"
                 >
                   ← Voltar
                 </button>

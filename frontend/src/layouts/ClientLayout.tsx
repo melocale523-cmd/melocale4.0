@@ -57,9 +57,9 @@ export default function ClientLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0A0B0D] text-white">
+    <div className="flex h-screen bg-[#0E1C32] text-white">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-white/5 bg-[#14161B] flex flex-col hidden md:flex">
+      <aside className="w-64 border-r border-[#1C3050] bg-[#132540] flex flex-col hidden md:flex">
         <div className="p-6">
           <span className="text-xl font-bold tracking-tight uppercase text-emerald-400">
             Melocale <span className="text-white text-xs ml-1">Cliente</span>
@@ -76,8 +76,8 @@ export default function ClientLayout() {
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
                   isActive
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
+                    : "text-[#94A3B8] hover:text-white hover:bg-[#1C3454]"
                 )}
               >
                 <item.icon size={18} />
@@ -90,7 +90,7 @@ export default function ClientLayout() {
         <div className="p-4 border-t border-slate-800/50">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#94A3B8] hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
           >
             <LogOut size={18} />
             <span>Sair do perfil</span>
@@ -102,12 +102,12 @@ export default function ClientLayout() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="w-64 bg-[#14161B] border-r border-white/5 relative flex flex-col pt-4">
-            <div className="p-4 flex justify-between items-center border-b border-white/5">
+          <aside className="w-64 bg-[#132540] border-r border-[#1C3050] relative flex flex-col pt-4">
+            <div className="p-4 flex justify-between items-center border-b border-[#1C3050]">
               <span className="text-lg font-bold tracking-tight uppercase text-emerald-400">
                 Melocale <span className="text-white text-xs ml-1">Cliente</span>
               </span>
-              <button onClick={() => setMobileMenuOpen(false)} className="text-slate-400 p-1">
+              <button onClick={() => setMobileMenuOpen(false)} className="text-[#94A3B8] p-1">
                 <X size={20} />
               </button>
             </div>
@@ -122,8 +122,8 @@ export default function ClientLayout() {
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
                       isActive
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        : "text-slate-400 hover:text-white"
+                        ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
+                        : "text-[#94A3B8] hover:text-white"
                     )}
                   >
                     <item.icon size={18} />
@@ -132,10 +132,10 @@ export default function ClientLayout() {
                 );
               })}
             </nav>
-            <div className="p-4 border-t border-white/5">
+            <div className="p-4 border-t border-[#1C3050]">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-emerald-400 transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#94A3B8] hover:text-emerald-400 transition-all"
               >
                 <LogOut size={18} />
                 <span>Sair do perfil</span>
@@ -148,14 +148,14 @@ export default function ClientLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="h-16 border-b border-white/5 bg-[#14161B]/80 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 z-10 w-full shrink-0">
+        <header className="h-16 border-b border-[#1C3050] bg-[#132540] backdrop-blur-md flex items-center justify-between px-4 sm:px-6 z-10 w-full shrink-0">
           <div className="flex items-center gap-2 sm:gap-4">
-            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-slate-400 p-1">
+            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#94A3B8] p-1">
               <Menu size={22} />
             </button>
             <button
               onClick={() => navigate(-1)}
-              className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors"
+              className="hidden sm:flex items-center gap-2 text-sm font-medium text-[#94A3B8] hover:text-slate-200 transition-colors"
             >
               <ArrowLeft size={16} /> Voltar
             </button>
@@ -174,16 +174,16 @@ export default function ClientLayout() {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-[#1C1E24] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
+              <div className="absolute right-0 top-full mt-2 w-72 bg-[#132540] border border-[#243F6A] rounded-xl shadow-xl z-50 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center gap-3 px-4 py-4 border-b border-white/5">
+                <div className="flex items-center gap-3 px-4 py-4 border-b border-[#1C3050]">
                   <AvatarCircle size="md" />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-white truncate">
                       {profile?.full_name || user?.email || '—'}
                     </p>
                     {profile?.city && (
-                      <p className="text-xs text-slate-500 truncate">{profile.city}</p>
+                      <p className="text-xs text-[#4A6580] truncate">{profile.city}</p>
                     )}
                   </div>
                 </div>
@@ -193,17 +193,17 @@ export default function ClientLayout() {
                     onClick={() => { setMenuOpen(false); navigate('/cliente/perfil'); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-left"
                   >
-                    <UserCircle size={16} className="text-slate-400 shrink-0" />
+                    <UserCircle size={16} className="text-[#94A3B8] shrink-0" />
                     Meu Perfil
                   </button>
                   <button
                     onClick={() => { setMenuOpen(false); navigate('/cliente/pedidos'); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-left"
                   >
-                    <ClipboardList size={16} className="text-slate-400 shrink-0" />
+                    <ClipboardList size={16} className="text-[#94A3B8] shrink-0" />
                     Meus Pedidos
                   </button>
-                  <div className="border-t border-white/5 my-1" />
+                  <div className="border-t border-[#1C3050] my-1" />
                   <button
                     onClick={() => { setMenuOpen(false); supabase.auth.signOut(); navigate('/'); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left"

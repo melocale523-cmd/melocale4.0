@@ -87,7 +87,7 @@ export default function ClientDashboard() {
           ) : (
             <>
               <h1 className="text-4xl font-black text-white tracking-tight mb-2">Olá, {userName}</h1>
-              <p className="text-slate-400 font-medium">Bem-vindo(a) ao seu painel de controle MeloCalé.</p>
+              <p className="text-[#94A3B8] font-medium">Bem-vindo(a) ao seu painel de controle MeloCalé.</p>
             </>
           )}
         </div>
@@ -107,7 +107,7 @@ export default function ClientDashboard() {
           </div>
           <div className="flex-1">
             <h3 className="text-amber-500 font-black text-xl mb-1">Ação Necessária: Perfil Incompleto</h3>
-            <p className="text-slate-400 font-medium">
+            <p className="text-[#94A3B8] font-medium">
               Para que os profissionais possam entrar em contato com você, precisamos que o seu telefone esteja cadastrado no sistema.
             </p>
           </div>
@@ -118,13 +118,13 @@ export default function ClientDashboard() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#14161B] border border-white/5 rounded-[2.5rem] p-8 relative overflow-hidden group col-span-1 md:col-span-2">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-[2.5rem] p-8 relative overflow-hidden group col-span-1 md:col-span-2">
           <div className="relative z-10">
             <div className="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mb-6">
               <Hammer size={24} />
             </div>
             <h3 className="text-2xl font-black text-white mb-3">Encontre o Profissional Ideal</h3>
-            <p className="text-slate-400 font-medium mb-8 max-w-md leading-relaxed">
+            <p className="text-[#94A3B8] font-medium mb-8 max-w-md leading-relaxed">
               Descreva seu projeto, anexe fotos e receba orçamentos detalhados de profissionais verificados e avaliados pela nossa comunidade.
             </p>
             <button
@@ -142,25 +142,25 @@ export default function ClientDashboard() {
           </div>
         </div>
 
-        <div className="bg-[#14161B] border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between group">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-[2.5rem] p-8 flex flex-col justify-between group">
           <div>
             <div className="flex items-center justify-between mb-6">
               <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
                 <TrendingUp size={24} />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Hoje</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A6580]">Hoje</span>
             </div>
             <h3 className="text-white font-black text-xl mb-1">Resumo do Painel</h3>
-            <p className="text-sm text-slate-500 font-medium">Acompanhe seu progresso</p>
+            <p className="text-sm text-[#4A6580] font-medium">Acompanhe seu progresso</p>
           </div>
           <div className="grid grid-cols-2 gap-4 mt-8">
-            <div className="bg-[#0A0B0D] p-6 rounded-3xl border border-white/5 hover:border-emerald-500/30 transition-all">
+            <div className="bg-[#0E1C32] p-6 rounded-3xl border border-[#1C3050] hover:border-emerald-500/30 transition-all">
               <div className="text-3xl font-black text-white mb-1">
                 {summaryLoading ? '...' : summary?.waiting || 0}
               </div>
               <div className="text-[10px] uppercase font-black text-emerald-500 tracking-widest">Aguardando</div>
             </div>
-            <div className="bg-[#0A0B0D] p-6 rounded-3xl border border-white/5 hover:border-cyan-500/30 transition-all">
+            <div className="bg-[#0E1C32] p-6 rounded-3xl border border-[#1C3050] hover:border-cyan-500/30 transition-all">
               <div className="text-3xl font-black text-white mb-1">
                 {summaryLoading ? '...' : summary?.in_progress || 0}
               </div>
@@ -177,12 +177,12 @@ export default function ClientDashboard() {
           { icon: <MessageCircle />, label: 'Chat Direto', desc: 'Fale com o profissional no app', color: 'text-blue-500' },
           { icon: <TrendingUp />, label: 'Avaliações', desc: 'Veja o histórico do profissional', color: 'text-purple-500' }
         ].map((item, i) => (
-          <div key={i} className="bg-[#14161B]/50 border border-white/5 rounded-3xl p-6 hover:bg-[#14161B] transition-all">
+          <div key={i} className="bg-[#1C3454]/50 border border-[#1C3050] rounded-3xl p-6 hover:bg-[#1C3454] transition-all">
             <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-white/5', item.color)}>
               {item.icon}
             </div>
             <h4 className="text-white font-bold text-sm mb-1">{item.label}</h4>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+            <p className="text-xs text-[#4A6580] font-medium leading-relaxed">{item.desc}</p>
           </div>
         ))}
       </div>

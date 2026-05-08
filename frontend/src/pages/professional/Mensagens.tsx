@@ -141,17 +141,17 @@ export default function ProfessionalMensagens() {
   const emojis = ['👍', '🤝', '✅', '🏠', '🛠️', '🎨', '📐', '💰', '📅', '📍'];
 
   return (
-    <div className="h-[calc(100vh-140px)] flex bg-[#14161B] border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative animate-in fade-in duration-500">
+    <div className="h-[calc(100vh-140px)] flex bg-[#1C3454] border border-[#1C3050] rounded-3xl overflow-hidden shadow-2xl relative animate-in fade-in duration-500">
       {/* Sidebar de Chats */}
-      <div className="w-full md:w-80 lg:w-96 border-r border-white/5 flex flex-col shrink-0 bg-[#0A0B0D]">
-        <div className="p-6 border-b border-white/5 bg-[#14161B]/40 backdrop-blur-xl">
+      <div className="w-full md:w-80 lg:w-96 border-r border-[#1C3050] flex flex-col shrink-0 bg-[#0E1C32]">
+        <div className="p-6 border-b border-[#1C3050] bg-[#1C3454]/40 backdrop-blur-xl">
           <h2 className="text-xl font-bold text-white mb-4">Mensagens</h2>
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-emerald-500 transition-colors" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={16} />
             <input 
               type="text" 
               placeholder="Buscar conversas..."
-              className="w-full bg-[#0A0B0D] border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+              className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
             />
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function ProfessionalMensagens() {
           {chatsLoading ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 opacity-50">
               <Loader2 className="animate-spin text-emerald-500" />
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Carregando chats...</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Carregando chats...</p>
             </div>
           ) : chats && chats.length > 0 ? (
             chats.map(chat => (
@@ -173,19 +173,19 @@ export default function ProfessionalMensagens() {
                 )}
               >
                 {activeChatId === chat.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>}
-                <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 relative">
-                  <User className="text-slate-500" size={24} />
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-[#14161B] rounded-full"></div>
+                <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050] relative">
+                  <User className="text-[#4A6580]" size={24} />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-[#1C3454] rounded-full"></div>
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <div className="flex justify-between items-center mb-1">
                     <h4 className="text-sm font-bold text-white truncate">{chat.user_name}</h4>
-                    <span className="text-[10px] text-slate-500 font-bold">{new Date(chat.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-[10px] text-[#4A6580] font-bold">{new Date(chat.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex justify-between items-center gap-2">
-                    <p className="text-xs text-slate-500 truncate font-medium">{chat.last_message}</p>
+                    <p className="text-xs text-[#4A6580] truncate font-medium">{chat.last_message}</p>
                     {chat.unread_count > 0 && (
-                      <span className="bg-emerald-500 text-[#0A0B0D] text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-emerald-500/20">
+                      <span className="bg-emerald-500 text-[#0E1C32] text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-emerald-500/20">
                         {chat.unread_count}
                       </span>
                     )}
@@ -195,7 +195,7 @@ export default function ProfessionalMensagens() {
             ))
           ) : (
              <div className="p-12 text-center">
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Nenhuma conversa encontrada</p>
+                <p className="text-xs text-[#4A6580] font-bold uppercase tracking-widest">Nenhuma conversa encontrada</p>
              </div>
           )}
         </div>
@@ -203,15 +203,15 @@ export default function ProfessionalMensagens() {
 
       {/* Área do Chat */}
       {activeChat ? (
-        <div className="flex-1 flex flex-col bg-[#0A0B0D]/30 relative overflow-hidden">
+        <div className="flex-1 flex flex-col bg-[#0E1C32]/30 relative overflow-hidden">
           {/* Background Decorative Gradient */}
           <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-500/5 blur-[120px] pointer-events-none rounded-full"></div>
           
           {/* Header do Chat */}
-          <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between bg-[#14161B]/80 backdrop-blur-xl z-10">
+          <div className="p-4 sm:p-6 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]/80 backdrop-blur-xl z-10">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-white/5">
-                <User className="text-slate-500" size={24} />
+              <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050]">
+                <User className="text-[#4A6580]" size={24} />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-white leading-tight">{activeChat.user_name}</h3>
@@ -225,13 +225,13 @@ export default function ProfessionalMensagens() {
             <div className="relative">
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2.5 text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all"
+                className="p-2.5 text-[#4A6580] hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all"
               >
                 <MoreVertical size={20} />
               </button>
               
               {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-[#14161B] border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
                   <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
                     <User size={16} /> Ver Perfil do Cliente
                   </button>
@@ -270,46 +270,46 @@ export default function ProfessionalMensagens() {
                     "p-4 rounded-2xl text-[13px] leading-relaxed relative shadow-lg",
                     msg.sender_id === 'me' 
                       ? "bg-emerald-600 text-white rounded-tr-sm" 
-                      : "bg-[#14161B] text-slate-200 border border-white/5 rounded-tl-sm hover:border-emerald-500/30 transition-colors"
+                      : "bg-[#1C3454] text-slate-200 border border-[#1C3050] rounded-tl-sm hover:border-emerald-500/30 transition-colors"
                   )}>
                     {msg.type === 'image' && (
-                      <div className="mb-2 p-1 bg-black/20 rounded-lg overflow-hidden border border-white/10 group-hover:bg-black/30 transition-all">
-                        <div className="aspect-video bg-emerald-500/10 flex items-center justify-center rounded-md border border-white/5 relative group/img">
+                      <div className="mb-2 p-1 bg-black/20 rounded-lg overflow-hidden border border-[#243F6A] group-hover:bg-black/30 transition-all">
+                        <div className="aspect-video bg-emerald-500/10 flex items-center justify-center rounded-md border border-[#1C3050] relative group/img">
                           <ImageIcon size={32} className="text-emerald-500 opacity-50 transition-transform group-hover/img:scale-110" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity"></div>
                         </div>
                       </div>
                     )}
                     {msg.type === 'file' && (
-                      <div className="mb-2 p-3 bg-black/20 rounded-xl flex items-center gap-3 border border-white/5 hover:bg-black/40 transition-all cursor-pointer">
+                      <div className="mb-2 p-3 bg-black/20 rounded-xl flex items-center gap-3 border border-[#1C3050] hover:bg-black/40 transition-all cursor-pointer">
                         <div className="w-10 h-10 bg-red-500/20 text-red-500 rounded-lg flex items-center justify-center">
                           <FileIcon size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-bold truncate">{msg.file_name}</p>
-                          <p className="text-[10px] text-slate-400 font-bold">PDF, 2.4 MB</p>
+                          <p className="text-[10px] text-[#94A3B8] font-bold">PDF, 2.4 MB</p>
                         </div>
                       </div>
                     )}
                     {msg.type === 'audio' && (
-                      <div className="mb-2 p-3 bg-black/20 rounded-xl flex items-center gap-3 border border-white/5 min-w-[200px]">
+                      <div className="mb-2 p-3 bg-black/20 rounded-xl flex items-center gap-3 border border-[#1C3050] min-w-[200px]">
                         <div className="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center">
                           <Mic size={16} />
                         </div>
                         <div className="flex-1 h-3 bg-white/10 rounded-full relative overflow-hidden">
                            <div className="absolute left-0 top-0 bottom-0 w-[60%] bg-emerald-500 animate-pulse"></div>
                         </div>
-                        <span className="text-[10px] font-bold text-slate-400">0:12</span>
+                        <span className="text-[10px] font-bold text-[#94A3B8]">0:12</span>
                       </div>
                     )}
                     {msg.text}
                   </div>
                   <div className="flex items-center gap-2 mt-2 px-1">
-                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-[10px] text-[#4A6580] font-bold uppercase tracking-wider">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     {msg.sender_id === 'me' && (
                       <div className="flex items-center">
                         {msg.status === 'sent' && <Check size={14} className="text-slate-600" />}
-                        {msg.status === 'delivered' && <CheckCheck size={14} className="text-slate-400" />}
+                        {msg.status === 'delivered' && <CheckCheck size={14} className="text-[#94A3B8]" />}
                         {msg.status === 'read' && <CheckCheck size={14} className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" />}
                       </div>
                     )}
@@ -322,14 +322,14 @@ export default function ProfessionalMensagens() {
                       <Send size={32} />
                    </div>
                    <h4 className="text-white font-bold text-lg mb-2">Sem mensagens ainda</h4>
-                   <p className="text-slate-500 font-medium text-sm max-w-[200px]">Inicie uma conversa com {activeChat.user_name} para fechar o serviço.</p>
+                   <p className="text-[#4A6580] font-medium text-sm max-w-[200px]">Inicie uma conversa com {activeChat.user_name} para fechar o serviço.</p>
                 </div>
             )}
             
             {/* Typing Indicator */}
             {isTyping && (
               <div className="flex flex-col items-start max-w-[70%] animate-in slide-in-from-bottom-2 duration-300">
-                <div className="bg-[#14161B] text-slate-400 py-3 px-5 rounded-2xl rounded-tl-sm border border-white/5 flex items-center gap-3 shadow-lg">
+                <div className="bg-[#1C3454] text-[#94A3B8] py-3 px-5 rounded-2xl rounded-tl-sm border border-[#1C3050] flex items-center gap-3 shadow-lg">
                   <div className="flex gap-1 pt-1">
                     <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                     <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -345,9 +345,9 @@ export default function ProfessionalMensagens() {
           </div>
 
           {/* Input Area */}
-          <div className="p-6 pb-8 border-t border-white/5 bg-[#14161B]/80 backdrop-blur-xl z-20">
+          <div className="p-6 pb-8 border-t border-[#1C3050] bg-[#1C3454]/80 backdrop-blur-xl z-20">
             {showEmojiPicker && (
-              <div className="absolute bottom-28 left-6 right-6 p-4 bg-[#14161B] border border-white/10 rounded-2xl shadow-2xl flex flex-wrap gap-2 animate-in slide-in-from-bottom-4 duration-300 border-b-emerald-500/20 border-b-4">
+              <div className="absolute bottom-28 left-6 right-6 p-4 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl flex flex-wrap gap-2 animate-in slide-in-from-bottom-4 duration-300 border-b-emerald-500/20 border-b-4">
                 {emojis.map(emoji => (
                   <button 
                     key={emoji} 
@@ -362,7 +362,7 @@ export default function ProfessionalMensagens() {
                 ))}
                 <button 
                   onClick={() => setShowEmojiPicker(false)}
-                  className="absolute -top-3 -right-3 w-8 h-8 bg-black border border-white/10 rounded-full flex items-center justify-center text-slate-500 hover:text-white"
+                  className="absolute -top-3 -right-3 w-8 h-8 bg-black border border-[#243F6A] rounded-full flex items-center justify-center text-[#4A6580] hover:text-white"
                 >
                   <X size={14} />
                 </button>
@@ -370,7 +370,7 @@ export default function ProfessionalMensagens() {
             )}
 
             <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-white/5 py-1 px-1.5 rounded-[1.25rem] border border-white/5 shadow-inner">
+              <div className="flex items-center gap-1.5 bg-white/5 py-1 px-1.5 rounded-[1.25rem] border border-[#1C3050] shadow-inner">
                 {isRecording ? (
                   <div className="flex items-center gap-3 px-4 py-2 bg-red-500/10 rounded-xl border border-red-500/20 animate-pulse">
                     <div className="w-2 h-2 bg-red-500 rounded-full"></div>
@@ -390,7 +390,7 @@ export default function ProfessionalMensagens() {
                     <button 
                       type="button" 
                       onClick={startRecording}
-                      className="p-3 text-slate-500 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all" 
+                      className="p-3 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all" 
                       title="Gravar Áudio"
                     >
                       <Mic size={20} />
@@ -398,7 +398,7 @@ export default function ProfessionalMensagens() {
                     <button 
                       type="button" 
                       onClick={() => simulateFileUpload('image')}
-                      className="p-3 text-slate-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
+                      className="p-3 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
                       title="Enviar Foto"
                     >
                       <ImageIcon size={20} />
@@ -406,7 +406,7 @@ export default function ProfessionalMensagens() {
                     <button 
                       type="button" 
                       onClick={() => simulateFileUpload('file')}
-                      className="p-3 text-slate-500 hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all"
+                      className="p-3 text-[#4A6580] hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all"
                       title="Enviar Arquivo"
                     >
                       <Paperclip size={20} />
@@ -420,7 +420,7 @@ export default function ProfessionalMensagens() {
                   value={messageInput}
                   onChange={e => setMessageInput(e.target.value)}
                   placeholder="Escreva algo para o cliente..."
-                  className="w-full bg-[#0A0B0D] border border-white/5 rounded-[1.25rem] py-4 px-6 pr-14 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-inner"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-[1.25rem] py-4 px-6 pr-14 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-inner"
                 />
                 <button 
                   type="button" 
@@ -447,26 +447,26 @@ export default function ProfessionalMensagens() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-12 bg-[#0A0B0D]/20">
-           <div className="w-24 h-24 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-[2.5rem] flex items-center justify-center mb-8 text-emerald-500 border border-white/5 shadow-2xl relative group">
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-12 bg-[#0E1C32]/20">
+           <div className="w-24 h-24 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-[2.5rem] flex items-center justify-center mb-8 text-emerald-500 border border-[#1C3050] shadow-2xl relative group">
               <User size={48} />
               <div className="absolute inset-0 bg-emerald-500/10 rounded-[2.5rem] animate-ping opacity-20"></div>
            </div>
            <h3 className="text-2xl font-bold text-white mb-3">Suas Conversas Ativas</h3>
-           <p className="text-slate-500 max-w-sm font-medium leading-relaxed">
+           <p className="text-[#4A6580] max-w-sm font-medium leading-relaxed">
              Selecione um cliente ao lado para negociar orçamentos, enviar fotos dos serviços realizados e fechar novos negócios.
            </p>
            <div className="mt-12 flex gap-4">
               <div className="flex flex-col items-center gap-1 opacity-40">
-                 <Mic size={20} className="text-slate-500" />
+                 <Mic size={20} className="text-[#4A6580]" />
                  <span className="text-[8px] font-bold uppercase">Áudio</span>
               </div>
               <div className="flex flex-col items-center gap-1 opacity-40">
-                 <ImageIcon size={20} className="text-slate-500" />
+                 <ImageIcon size={20} className="text-[#4A6580]" />
                  <span className="text-[8px] font-bold uppercase">Fotos</span>
               </div>
               <div className="flex flex-col items-center gap-1 opacity-40">
-                 <Paperclip size={20} className="text-slate-500" />
+                 <Paperclip size={20} className="text-[#4A6580]" />
                  <span className="text-[8px] font-bold uppercase">Arquivos</span>
               </div>
            </div>

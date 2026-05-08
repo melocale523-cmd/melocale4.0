@@ -46,7 +46,7 @@ export default function ProfessionalDashboard() {
           <h1 className="text-2xl font-bold text-white mb-1">
             Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋
           </h1>
-          <p className="text-slate-400 text-sm">Resumo do seu negócio.</p>
+          <p className="text-[#94A3B8] text-sm">Resumo do seu negócio.</p>
         </div>
         <button
           onClick={() => navigate('/profissional/leads')}
@@ -58,9 +58,9 @@ export default function ProfessionalDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Saldo de Moedas</h3>
+            <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Saldo de Moedas</h3>
             <Wallet size={16} className="text-emerald-500" />
           </div>
           <p className="text-3xl font-bold text-white mb-2">{balanceCoins} moedas</p>
@@ -69,9 +69,9 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Leads Comprados</h3>
+            <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Leads Comprados</h3>
             <Target size={16} className="text-blue-500" />
           </div>
           <p className="text-3xl font-bold text-white mb-2">{purchaseCount}</p>
@@ -80,9 +80,9 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Categoria</h3>
+            <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Categoria</h3>
             <Briefcase size={16} className="text-purple-400" />
           </div>
           <p className="text-2xl font-bold text-white mb-2 truncate">
@@ -95,7 +95,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Profile Completion */}
-      <div className="bg-gradient-to-r from-[#1C1613] to-[#14161B] border border-orange-500/20 rounded-2xl p-6">
+      <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-2xl p-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="relative w-16 h-16 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
@@ -119,7 +119,7 @@ export default function ProfessionalDashboard() {
                 {completion.pct >= 100 ? 'Perfil Completo!' : 'Melhore seu Perfil Profissional'}
               </h4>
               {completion.pct < 100 && (
-                <p className="text-slate-400 text-sm max-w-lg">
+                <p className="text-[#94A3B8] text-sm max-w-lg">
                   Faltam: <span className="text-orange-400 font-medium">{completion.missing.join(', ')}</span>
                 </p>
               )}
@@ -144,10 +144,10 @@ export default function ProfessionalDashboard() {
         <h2 className="text-white font-bold text-lg">Performance do Mês</h2>
 
         {!stats || stats.totalRevenue === 0 ? (
-          <div className="bg-[#14161B] border border-white/5 rounded-2xl p-8 flex flex-col items-center text-center gap-3">
+          <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-8 flex flex-col items-center text-center gap-3">
             <Rocket size={32} className="text-emerald-500/60" />
             <p className="text-slate-300 font-medium">Sua jornada começa aqui!</p>
-            <p className="text-slate-500 text-sm max-w-sm">
+            <p className="text-[#4A6580] text-sm max-w-sm">
               Envie propostas para desbloquear suas estatísticas.
             </p>
           </div>
@@ -155,10 +155,10 @@ export default function ProfessionalDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link
               to="/profissional/carteira"
-              className="bg-[#14161B] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-6 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-2xl p-6 transition-colors group"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Faturamento Estimado</h3>
+                <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Faturamento Estimado</h3>
                 <TrendingUp size={16} className="text-emerald-500" />
               </div>
               <p className="text-3xl font-bold text-white mb-2">
@@ -171,10 +171,10 @@ export default function ProfessionalDashboard() {
 
             <Link
               to="/profissional/carteira"
-              className="bg-[#14161B] border border-white/5 hover:border-blue-500/30 rounded-2xl p-6 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-2xl p-6 transition-colors group"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Propostas Aceitas</h3>
+                <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Propostas Aceitas</h3>
                 <Users size={16} className="text-blue-500" />
               </div>
               <p className="text-3xl font-bold text-white mb-2">{stats.acceptedProposalsCount}</p>
@@ -185,10 +185,10 @@ export default function ProfessionalDashboard() {
 
             <Link
               to="/profissional/meus-leads"
-              className="bg-[#14161B] border border-white/5 hover:border-purple-500/30 rounded-2xl p-6 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-2xl p-6 transition-colors group"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">Taxa de Conversão</h3>
+                <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Taxa de Conversão</h3>
                 <Activity size={16} className="text-purple-400" />
               </div>
               <p className="text-3xl font-bold text-white mb-2">{conversionRate}%</p>
@@ -202,7 +202,7 @@ export default function ProfessionalDashboard() {
 
       {/* Primeiros Passos — only while steps remain */}
       {doneCount < steps.length && (
-      <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6">
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Rocket size={20} className="text-orange-400" />
@@ -211,7 +211,7 @@ export default function ProfessionalDashboard() {
           <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
         </div>
 
-        <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-white/5">
+        <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-[#1C3050]">
           <div
             className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
             style={{ width: `${checklistPct}%` }}
@@ -225,7 +225,7 @@ export default function ProfessionalDashboard() {
               className={`flex items-center gap-3 p-4 rounded-xl transition-colors ${
                 step.done
                   ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
-                  : 'bg-[#0A0B0D] border border-white/5 hover:border-white/10 cursor-pointer group'
+                  : 'bg-[#0E1C32] border border-[#1C3050] hover:border-[#243F6A] cursor-pointer group'
               }`}
               onClick={() => !step.done && step.path && navigate(step.path)}
             >
@@ -240,7 +240,7 @@ export default function ProfessionalDashboard() {
               {step.done ? (
                 <CheckCircle2 size={16} className="text-emerald-500/50" />
               ) : (
-                <ChevronRight size={16} className="text-slate-600 group-hover:text-slate-400 transition-colors" />
+                <ChevronRight size={16} className="text-slate-600 group-hover:text-[#94A3B8] transition-colors" />
               )}
             </div>
           ))}

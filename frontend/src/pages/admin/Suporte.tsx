@@ -82,7 +82,7 @@ export default function AdminSuporte() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-white">Suporte</h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-[#94A3B8] text-sm">
             {openCount > 0
               ? <span className="text-red-400 font-semibold">{openCount} ticket{openCount > 1 ? 's' : ''} aberto{openCount > 1 ? 's' : ''}</span>
               : 'Nenhum ticket aberto'}
@@ -91,7 +91,7 @@ export default function AdminSuporte() {
       </div>
 
       {tickets.length === 0 && (
-        <div className="py-24 text-center text-slate-500">
+        <div className="py-24 text-center text-[#4A6580]">
           <LifeBuoy size={48} className="mx-auto mb-4 opacity-20" />
           <p className="font-medium">Nenhum ticket de suporte ainda.</p>
         </div>
@@ -106,7 +106,7 @@ export default function AdminSuporte() {
           const noteVal = notes[ticket.id] ?? (ticket.internal_note || '');
 
           return (
-            <div key={ticket.id} className="bg-[#14161B] border border-white/5 rounded-2xl overflow-hidden">
+            <div key={ticket.id} className="bg-[#1C3454] border border-[#1C3050] rounded-2xl overflow-hidden">
               {/* Card header */}
               <button
                 className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.02] transition-colors"
@@ -125,17 +125,17 @@ export default function AdminSuporte() {
                     {ticket.email || ticket.user_id || 'Visitante anônimo'}
                   </p>
                   {lastMsg && (
-                    <p className="text-slate-500 text-xs mt-0.5 truncate">
+                    <p className="text-[#4A6580] text-xs mt-0.5 truncate">
                       {lastMsg.role === 'model' ? '🤖' : '👤'} {lastMsg.text}
                     </p>
                   )}
                 </div>
-                {expanded ? <ChevronUp size={16} className="text-slate-500 shrink-0" /> : <ChevronDown size={16} className="text-slate-500 shrink-0" />}
+                {expanded ? <ChevronUp size={16} className="text-[#4A6580] shrink-0" /> : <ChevronDown size={16} className="text-[#4A6580] shrink-0" />}
               </button>
 
               {/* Expanded content */}
               {expanded && (
-                <div className="border-t border-white/5 p-5 space-y-5">
+                <div className="border-t border-[#1C3050] p-5 space-y-5">
                   {/* Conversation */}
                   <div className="space-y-2 max-h-72 overflow-y-auto pr-1" style={{ scrollbarWidth: 'none' }}>
                     {(ticket.conversation ?? []).map((msg, i) => (
@@ -149,7 +149,7 @@ export default function AdminSuporte() {
                           'max-w-[75%] px-3 py-2 rounded-xl text-xs leading-relaxed',
                           msg.role === 'user'
                             ? 'bg-emerald-500/15 border border-emerald-500/25 text-white rounded-br-sm'
-                            : 'bg-[#0A0B0D] border border-white/5 text-slate-200 rounded-bl-sm'
+                            : 'bg-[#0E1C32] border border-[#1C3050] text-slate-200 rounded-bl-sm'
                         )}>
                           {msg.text}
                         </div>
@@ -163,13 +163,13 @@ export default function AdminSuporte() {
                   </div>
 
                   {/* Controls */}
-                  <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-white/5">
+                  <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-[#1C3050]">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</label>
+                      <label className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">Status</label>
                       <select
                         value={status}
                         onChange={(e) => updateMutation.mutate({ id: ticket.id, status: e.target.value as TicketStatus })}
-                        className="w-full bg-[#0A0B0D] border border-white/10 text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
+                        className="w-full bg-[#0E1C32] border border-[#243F6A] text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
                       >
                         <option value="open">Aberto</option>
                         <option value="pending">Pendente</option>
@@ -178,14 +178,14 @@ export default function AdminSuporte() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nota interna</label>
+                      <label className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">Nota interna</label>
                       <div className="flex gap-2">
                         <textarea
                           rows={1}
                           value={noteVal}
                           onChange={(e) => setNotes(prev => ({ ...prev, [ticket.id]: e.target.value }))}
                           placeholder="Adicionar nota..."
-                          className="flex-1 bg-[#0A0B0D] border border-white/10 text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 resize-none"
+                          className="flex-1 bg-[#0E1C32] border border-[#243F6A] text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 resize-none"
                         />
                         <button
                           onClick={() => updateMutation.mutate({ id: ticket.id, note: noteVal })}

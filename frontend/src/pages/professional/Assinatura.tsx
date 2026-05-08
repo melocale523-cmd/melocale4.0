@@ -269,7 +269,7 @@ export default function ProfessionalAssinatura() {
       )}
 
       {/* Banner Oferta de Boas-vinda */}
-      <div className="bg-gradient-to-r from-emerald-900/30 to-[#14161B] border border-emerald-500/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-emerald-900/30 to-[#1C3454] border border-emerald-500/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-emerald-400 font-black">🔥 Oferta especial</span>
@@ -278,7 +278,7 @@ export default function ProfessionalAssinatura() {
             </span>
           </div>
           <h3 className="text-white font-bold">Comece com o Plano Starter por R$37/mês</h3>
-          <p className="text-slate-400 text-sm">25% de desconto em moedas. Cancele quando quiser.</p>
+          <p className="text-[#94A3B8] text-sm">25% de desconto em moedas. Cancele quando quiser.</p>
         </div>
         <button
           disabled={!!buyingId}
@@ -307,7 +307,7 @@ export default function ProfessionalAssinatura() {
             </span>
             Pacotes de Créditos Avulsos
           </h2>
-          <p className="text-slate-400 text-sm">Recarregue sua carteira conforme a necessidade. Preço cheio, sem plano.</p>
+          <p className="text-[#94A3B8] text-sm">Recarregue sua carteira conforme a necessidade. Preço cheio, sem plano.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -316,7 +316,7 @@ export default function ProfessionalAssinatura() {
             const costPerCoin = (pkg.priceNum / totalCoins).toFixed(3);
             const isPopular = 'popular' in pkg && pkg.popular;
             return (
-              <div key={pkg.id} className={`bg-[#14161B] border ${isPopular ? 'border-blue-500/50 scale-105 shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)] z-10' : 'border-white/5'} rounded-2xl p-8 relative flex flex-col`}>
+              <div key={pkg.id} className={`bg-[#1C3454] border ${isPopular ? 'border-blue-500/50 scale-105 shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)] z-10' : 'border-[#1C3050]'} rounded-2xl p-8 relative flex flex-col`}>
                 {isPopular && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full whitespace-nowrap">
                     Recomendado
@@ -324,10 +324,10 @@ export default function ProfessionalAssinatura() {
                 )}
 
                 <h3 className="text-white font-bold text-xl mb-1">{pkg.name}</h3>
-                <p className="text-slate-400 text-sm mb-6">{pkg.description}</p>
+                <p className="text-[#94A3B8] text-sm mb-6">{pkg.description}</p>
 
                 <div className="flex items-end mb-2">
-                  <span className="text-slate-400 text-sm mb-1 mr-1">R$</span>
+                  <span className="text-[#94A3B8] text-sm mb-1 mr-1">R$</span>
                   <span className="text-5xl font-bold text-white">{pkg.price}</span>
                 </div>
 
@@ -343,9 +343,9 @@ export default function ProfessionalAssinatura() {
                   )}
                 </div>
 
-                <div className="bg-[#0A0B0D] border border-white/5 rounded-xl p-3 mb-6 space-y-1">
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1.5">Custo por moeda</p>
-                  <p className="text-slate-400 text-xs">Sem plano: <span className="text-white font-bold">R$ {costPerCoin}</span>/moeda</p>
+                <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-3 mb-6 space-y-1">
+                  <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-widest mb-1.5">Custo por moeda</p>
+                  <p className="text-[#94A3B8] text-xs">Sem plano: <span className="text-white font-bold">R$ {costPerCoin}</span>/moeda</p>
                   <p className="text-blue-300 text-xs">Com Starter (25% off): <span className="font-bold">R$ {(pkg.priceNum * 0.75 / totalCoins).toFixed(3)}</span>/moeda</p>
                   <p className="text-emerald-300 text-xs font-bold">Com PRO (40% off): <span>R$ {(pkg.priceNum * 0.60 / totalCoins).toFixed(3)}</span>/moeda</p>
                   <p className="text-yellow-300 text-xs">Com Elite (55% off): <span className="font-bold">R$ {(pkg.priceNum * 0.45 / totalCoins).toFixed(3)}</span>/moeda</p>
@@ -363,7 +363,7 @@ export default function ProfessionalAssinatura() {
                 <button
                   disabled={!!buyingId}
                   onClick={() => handleCheckout('one_time', pkg.id)}
-                  className={`w-full py-4 ${isPopular ? 'bg-blue-600 hover:bg-blue-500 shadow-xl shadow-blue-600/20' : 'bg-white/5 hover:bg-white/10'} text-white font-bold rounded-xl transition-all border border-white/10 disabled:opacity-50`}
+                  className={`w-full py-4 ${isPopular ? 'bg-blue-600 hover:bg-blue-500 shadow-xl shadow-blue-600/20' : 'bg-white/5 hover:bg-white/10'} text-white font-bold rounded-xl transition-all border border-[#243F6A] disabled:opacity-50`}
                 >
                   <span className="flex items-center justify-center gap-2 text-sm uppercase tracking-widest">
                     {buyingId === pkg.id ? (
@@ -388,7 +388,7 @@ export default function ProfessionalAssinatura() {
               Economia Inteligente
             </span>
             <h3 className="text-2xl font-bold text-white mb-2 leading-tight">Assinar é muito mais barato do que moedas avulsas!</h3>
-            <p className="text-slate-400 text-sm">
+            <p className="text-[#94A3B8] text-sm">
               Com plano PRO, cada compra de moedas custa <span className="text-emerald-400 font-bold">40% menos</span>. O plano se paga sozinho na primeira recarga.
             </p>
           </div>
@@ -402,7 +402,7 @@ export default function ProfessionalAssinatura() {
       </div>
 
       {/* Planos de Assinatura */}
-      <div ref={plansRef} className="space-y-6 pt-12 border-t border-white/5">
+      <div ref={plansRef} className="space-y-6 pt-12 border-t border-[#1C3050]">
         <div>
           <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
             <span className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
@@ -410,7 +410,7 @@ export default function ProfessionalAssinatura() {
             </span>
             Planos de Pagamento Recorrente
           </h2>
-          <p className="text-slate-400 text-sm">Desconto automático em todas as compras de moedas enquanto o plano estiver ativo.</p>
+          <p className="text-[#94A3B8] text-sm">Desconto automático em todas as compras de moedas enquanto o plano estiver ativo.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -437,7 +437,7 @@ export default function ProfessionalAssinatura() {
               : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-300';
 
             return (
-              <div key={plan.id} className={`bg-[#14161B] border ${borderClass} rounded-2xl p-8 relative flex flex-col ${plan.popular ? 'transform scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.3)]' : ''}`}>
+              <div key={plan.id} className={`bg-[#1C3454] border ${borderClass} rounded-2xl p-8 relative flex flex-col ${plan.popular ? 'transform scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.3)]' : ''}`}>
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
                     ⚡ Mais Popular
@@ -451,11 +451,11 @@ export default function ProfessionalAssinatura() {
                     {plan.discount} OFF
                   </div>
                   <h3 className="text-white font-bold text-2xl mb-1">{plan.name}</h3>
-                  <p className="text-slate-400 text-sm mb-3">{plan.description}</p>
+                  <p className="text-[#94A3B8] text-sm mb-3">{plan.description}</p>
                   <div className="flex items-end">
-                    <span className="text-slate-400 text-sm mb-1 mr-1">R$</span>
+                    <span className="text-[#94A3B8] text-sm mb-1 mr-1">R$</span>
                     <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    <span className="text-slate-500 text-sm mb-1 ml-1">/mês</span>
+                    <span className="text-[#4A6580] text-sm mb-1 ml-1">/mês</span>
                   </div>
                   <p className={`text-xs font-bold mt-1 ${discountColor}`}>{plan.discount} desconto em todas as moedas</p>
                   <div className="flex items-center gap-2 mt-2 mb-3">
@@ -503,16 +503,16 @@ export default function ProfessionalAssinatura() {
       </div>
 
       {/* ROI box */}
-      <div className="max-w-2xl mx-auto bg-[#14161B] border border-white/5 rounded-2xl p-6 text-center">
+      <div className="max-w-2xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6 text-center">
         <p className="text-white font-bold text-lg mb-1">
           💡 1 cliente de R$ 500 já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
         </p>
-        <p className="text-slate-500 text-sm">E com 40% de desconto em moedas, você acessa muito mais pelo mesmo preço.</p>
+        <p className="text-[#4A6580] text-sm">E com 40% de desconto em moedas, você acessa muito mais pelo mesmo preço.</p>
       </div>
 
       {/* Footer Stripe */}
       <div className="flex justify-center pb-4">
-        <p className="text-slate-500 text-sm flex gap-3 items-center text-center">
+        <p className="text-[#4A6580] text-sm flex gap-3 items-center text-center">
           <span className="font-bold text-lg opacity-80">stripe</span>
           <span className="w-px h-4 bg-slate-800"></span>
           <span className="text-slate-600 text-xs text-left max-w-xs">Pagamento processado de forma segura pelo Stripe. Não armazenamos seus dados de cartão.</span>
@@ -522,16 +522,16 @@ export default function ProfessionalAssinatura() {
       <div className="grid lg:grid-cols-2 gap-6 pt-6 border-t border-slate-800">
 
         {/* ===== CARD PLANO ATUAL ===== */}
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl overflow-hidden flex flex-col">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl overflow-hidden flex flex-col">
 
           {/* Header */}
-          <div className="bg-gradient-to-r from-emerald-900/30 via-emerald-900/10 to-transparent border-b border-white/5 px-5 py-4 flex items-center justify-between gap-3">
+          <div className="bg-gradient-to-r from-emerald-900/30 via-emerald-900/10 to-transparent border-b border-[#1C3050] px-5 py-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               </div>
               <div>
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Plano Atual</p>
+                <p className="text-[#4A6580] text-[10px] font-bold uppercase tracking-widest">Plano Atual</p>
                 <h2 className="text-white font-bold text-base leading-tight">
                   {currentSubscription
                     ? `Plano ${PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}`
@@ -574,16 +574,16 @@ export default function ProfessionalAssinatura() {
                 )}
 
                 <div className="grid grid-cols-2 gap-2.5 mb-4">
-                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
-                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                  <div className="bg-[#0E1C32] rounded-xl p-3 border border-[#1C3050]">
+                    <div className="flex items-center gap-1.5 text-[#4A6580] text-[10px] font-bold uppercase tracking-wider mb-1.5">
                       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                       Desconto moedas
                     </div>
                     <p className="text-white font-bold text-2xl">{PLAN_LEADS[currentSubscription.package_id] ?? '—'}</p>
                   </div>
 
-                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
-                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                  <div className="bg-[#0E1C32] rounded-xl p-3 border border-[#1C3050]">
+                    <div className="flex items-center gap-1.5 text-[#4A6580] text-[10px] font-bold uppercase tracking-wider mb-1.5">
                       <Calendar size={10} />Data início
                     </div>
                     <p className="text-white font-bold text-sm">
@@ -593,8 +593,8 @@ export default function ProfessionalAssinatura() {
                     </p>
                   </div>
 
-                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
-                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                  <div className="bg-[#0E1C32] rounded-xl p-3 border border-[#1C3050]">
+                    <div className="flex items-center gap-1.5 text-[#4A6580] text-[10px] font-bold uppercase tracking-wider mb-1.5">
                       <RefreshCw size={10} />
                       {subscriptionStatus?.cancel_at_period_end ? 'Expira em' : 'Próx. renovação'}
                     </div>
@@ -605,8 +605,8 @@ export default function ProfessionalAssinatura() {
                     </p>
                   </div>
 
-                  <div className="bg-[#0A0B0D] rounded-xl p-3 border border-white/5">
-                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                  <div className="bg-[#0E1C32] rounded-xl p-3 border border-[#1C3050]">
+                    <div className="flex items-center gap-1.5 text-[#4A6580] text-[10px] font-bold uppercase tracking-wider mb-1.5">
                       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                       Valor mensal
                     </div>
@@ -618,7 +618,7 @@ export default function ProfessionalAssinatura() {
 
                 {subscriptionStatus?.current_period_end && (
                   <div className="mb-4">
-                    <div className="flex justify-between text-[11px] text-slate-500 mb-1.5">
+                    <div className="flex justify-between text-[11px] text-[#4A6580] mb-1.5">
                       <span>Ciclo atual</span>
                       <span>
                         {daysUntilExpiry !== null && daysUntilExpiry >= 0
@@ -640,7 +640,7 @@ export default function ProfessionalAssinatura() {
                 <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-3">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 </div>
-                <p className="text-slate-400 text-sm font-medium mb-1">Nenhum plano ativo</p>
+                <p className="text-[#94A3B8] text-sm font-medium mb-1">Nenhum plano ativo</p>
                 <p className="text-slate-600 text-xs">Escolha um plano acima para começar</p>
               </div>
             )}
@@ -689,20 +689,20 @@ export default function ProfessionalAssinatura() {
         </div>
 
         {/* Saldo de Moedas */}
-        <div className="bg-[#14161B] border border-white/5 rounded-2xl p-6 relative flex flex-col">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6 relative flex flex-col">
           <div className="flex items-center gap-2 mb-8">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.92-.88a2 2 0 0 1 2.81 2.81l-.88.92"/></svg>
             <h2 className="text-lg font-bold text-white">Saldo de Moedas</h2>
           </div>
 
-          <div className="bg-[#0A0B0D] border border-white/5 rounded-xl p-6 mb-6">
+          <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-6 mb-6">
             <div className="flex items-center gap-2 mb-4 text-emerald-400">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
               <h3 className="font-bold text-white">Minha Carteira</h3>
             </div>
 
-            <div className="bg-[#14161B] rounded-lg p-4 text-center mb-4 border border-white/5">
-              <p className="text-slate-400 text-xs mb-1">Saldo disponível</p>
+            <div className="bg-[#1C3454] rounded-lg p-4 text-center mb-4 border border-[#1C3050]">
+              <p className="text-[#94A3B8] text-xs mb-1">Saldo disponível</p>
               <p className="text-3xl font-bold text-white">
                 {balanceLoading ? <LoadingSpinner size={24} className="inline-block" /> : balance} moedas
               </p>
@@ -713,13 +713,13 @@ export default function ProfessionalAssinatura() {
             </button>
           </div>
 
-          <div className="bg-[#0A0B0D] border border-white/5 rounded-xl p-6">
+          <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-6">
             <h3 className="font-bold text-white text-center mb-1">Transações</h3>
-            <p className="text-slate-500 text-xs text-center mb-4">Histórico auditado</p>
+            <p className="text-[#4A6580] text-xs text-center mb-4">Histórico auditado</p>
 
             <div className="space-y-3">
               {[60, 200, 60, 560, 180].map((val, i) => (
-                <div key={i} className="flex justify-between text-xs font-mono bg-[#14161B] p-2 rounded border border-white/5 text-emerald-400">
+                <div key={i} className="flex justify-between text-xs font-mono bg-[#1C3454] p-2 rounded border border-[#1C3050] text-emerald-400">
                   <div className="flex items-center gap-2 truncate">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
                     <span className="truncate">stripe:cs_test_a1{Math.random().toString(36).substr(2, 6).toUpperCase()}...</span>
@@ -735,10 +735,10 @@ export default function ProfessionalAssinatura() {
       {/* Modal Mudar de Plano */}
       {showChangePlanModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#14161B] border border-white/10 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#1C3454] border border-[#243F6A] rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-bold text-xl">Mudar de Plano</h2>
-              <button onClick={() => setShowChangePlanModal(false)} className="text-slate-400 hover:text-white transition-colors">
+              <button onClick={() => setShowChangePlanModal(false)} className="text-[#94A3B8] hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -750,7 +750,7 @@ export default function ProfessionalAssinatura() {
 
             <div className="grid sm:grid-cols-3 gap-4">
               {SUBSCRIPTION_PLANS.map((plan) => (
-                <div key={plan.id} className={`bg-[#0A0B0D] border ${plan.popular ? 'border-emerald-500/40' : plan.color === 'blue' ? 'border-blue-500/20' : 'border-yellow-500/20'} rounded-xl p-5 flex flex-col`}>
+                <div key={plan.id} className={`bg-[#0E1C32] border ${plan.popular ? 'border-emerald-500/40' : plan.color === 'blue' ? 'border-blue-500/20' : 'border-yellow-500/20'} rounded-xl p-5 flex flex-col`}>
                   <div className={`inline-block px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-full mb-2 ${
                     plan.popular ? 'bg-emerald-500/20 text-emerald-400' : plan.color === 'blue' ? 'bg-blue-500/20 text-blue-400' : 'bg-yellow-500/20 text-yellow-400'
                   }`}>
@@ -758,11 +758,11 @@ export default function ProfessionalAssinatura() {
                   </div>
                   <h3 className="text-white font-bold text-lg mb-1">{plan.name}</h3>
                   <div className="flex items-end mb-2">
-                    <span className="text-slate-400 text-sm mr-1">R$</span>
+                    <span className="text-[#94A3B8] text-sm mr-1">R$</span>
                     <span className="text-3xl font-bold text-white">{plan.price}</span>
-                    <span className="text-slate-500 text-sm ml-1">/mês</span>
+                    <span className="text-[#4A6580] text-sm ml-1">/mês</span>
                   </div>
-                  <p className="text-slate-400 text-xs mb-4 flex-1">{plan.description}</p>
+                  <p className="text-[#94A3B8] text-xs mb-4 flex-1">{plan.description}</p>
                   <button
                     disabled={!!buyingId}
                     onClick={() => { setShowChangePlanModal(false); handleCheckout('subscription', plan.id); }}

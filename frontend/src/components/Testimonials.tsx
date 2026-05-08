@@ -24,7 +24,7 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section id="testimonials" className="py-24 bg-[#0A0B0D] overflow-hidden relative">
+    <section id="testimonials" className="py-24 bg-[#0E1C32] overflow-hidden relative">
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none"></div>
       <div className="container mx-auto px-6">
         <div className="flex flex-col items-center text-center mb-16">
@@ -44,13 +44,13 @@ export default function Testimonials() {
               whileHover={{ scale: 1.02, y: -4 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, scale: { duration: 0.2 }, y: { duration: 0.2 } }}
-              className="p-8 rounded-[2rem] bg-[#14161B] border border-white/5 relative group hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 transition-all cursor-pointer"
+              className="p-8 rounded-[2rem] bg-[#1C3454] border border-[#1C3050] relative group hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 transition-all cursor-pointer"
             >
               <Quote className="absolute top-6 right-8 text-white/5 group-hover:text-emerald-500/10 transition-colors" size={48} />
               <div className="relative z-10">
-                <p className="text-slate-400 italic mb-8 leading-relaxed">"{t.content}"</p>
+                <p className="text-[#94A3B8] italic mb-8 leading-relaxed">"{t.content}"</p>
                 <div className="flex items-center gap-4">
-                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full border border-white/10 shadow-sm" />
+                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full border border-[#243F6A] shadow-sm" />
                   <div>
                     <h4 className="font-bold text-white text-sm">{t.name}</h4>
                     <p className="text-xs text-emerald-500 font-bold uppercase tracking-widest">{t.role}</p>

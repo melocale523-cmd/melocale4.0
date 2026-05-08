@@ -2,7 +2,7 @@ import { Home, Instagram, Facebook, Twitter, Linkedin, Mail, Phone, MapPin } fro
 
 export default function Footer() {
   return (
-    <footer id="main-footer" className="bg-[#0A0B0D] text-slate-500 py-20 px-6 border-t border-white/5">
+    <footer id="main-footer" className="bg-[#0E1C32] text-[#4A6580] py-20 px-6 border-t border-[#1C3050]">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-2 text-white">
@@ -11,14 +11,14 @@ export default function Footer() {
             </div>
             <span className="text-2xl font-bold tracking-tight uppercase">MeloCalé</span>
           </div>
-          <p className="text-sm leading-relaxed text-slate-400">
+          <p className="text-sm leading-relaxed text-[#94A3B8]">
             A plataforma líder para encontrar profissionais de confiança. Tecnologia a serviço de conexões reais e seguras.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="p-2 bg-white/5 border border-white/5 rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Instagram size={18} /></a>
-            <a href="#" className="p-2 bg-white/5 border border-white/5 rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Facebook size={18} /></a>
-            <a href="#" className="p-2 bg-white/5 border border-white/5 rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Twitter size={18} /></a>
-            <a href="#" className="p-2 bg-white/5 border border-white/5 rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Linkedin size={18} /></a>
+            <a href="#" className="p-2 bg-white/5 border border-[#1C3050] rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Instagram size={18} /></a>
+            <a href="#" className="p-2 bg-white/5 border border-[#1C3050] rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Facebook size={18} /></a>
+            <a href="#" className="p-2 bg-white/5 border border-[#1C3050] rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Twitter size={18} /></a>
+            <a href="#" className="p-2 bg-white/5 border border-[#1C3050] rounded-lg hover:text-emerald-500 hover:border-emerald-500/30 transition-all"><Linkedin size={18} /></a>
           </div>
         </div>
 
@@ -56,7 +56,7 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto border-t border-white/5 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+      <div className="max-w-7xl mx-auto border-t border-[#1C3050] mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#4A6580]">
         <span>© 2026 MeloCalé. Protocolo Ativo.</span>
         <div className="flex gap-8">
            <span>$MELO: $0.428</span>

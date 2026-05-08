@@ -176,7 +176,7 @@ export default function Pedidos() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black text-white tracking-tight mb-2">Meus Pedidos</h1>
-          <p className="text-slate-400 font-medium">Gerencie e acompanhe suas solicitações de serviço em tempo real.</p>
+          <p className="text-[#94A3B8] font-medium">Gerencie e acompanhe suas solicitações de serviço em tempo real.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -190,13 +190,13 @@ export default function Pedidos() {
       {/* Barra de Busca e Filtro por Status */}
       <div className="space-y-4">
         <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-emerald-500 transition-colors" size={20} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
           <input
             type="text"
             placeholder="Buscar um pedido específico..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-[#14161B] border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -208,7 +208,7 @@ export default function Pedidos() {
                 "px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all",
                 (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
                   ? "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
-                  : "bg-[#14161B] border border-white/5 text-slate-400 hover:text-white hover:border-white/20"
+                  : "bg-[#1C3454] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20"
               )}
             >
               {tab}
@@ -217,7 +217,7 @@ export default function Pedidos() {
         </div>
       </div>
 
-      <div className="bg-[#14161B] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-[2.5rem] overflow-hidden shadow-2xl">
         {isLoading ? (
           <div className="p-20 flex justify-center">
             <LoadingSpinner size={48} label="Sincronizando seus pedidos..." />
@@ -231,7 +231,7 @@ export default function Pedidos() {
                 className="p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all cursor-pointer group active:bg-white/[0.04]"
               >
                 <div className="flex items-start gap-6">
-                  <div className="w-16 h-16 bg-[#0A0B0D] rounded-2xl flex items-center justify-center border border-white/5 text-slate-500 group-hover:text-emerald-500 group-hover:border-emerald-500/30 transition-all shrink-0 shadow-inner">
+                  <div className="w-16 h-16 bg-[#0E1C32] rounded-2xl flex items-center justify-center border border-[#1C3050] text-[#4A6580] group-hover:text-emerald-500 group-hover:border-emerald-500/30 transition-all shrink-0 shadow-inner">
                     <FileText size={28} />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -246,18 +246,18 @@ export default function Pedidos() {
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-y-2 gap-x-4">
-                      <div className="flex items-center text-xs text-slate-500 font-bold">
+                      <div className="flex items-center text-xs text-[#4A6580] font-bold">
                         <span className="text-emerald-500 mr-1.5 font-black">ID:</span> #{pedido.id.toString().slice(-6).toUpperCase()}
                       </div>
-                      <div className="flex items-center text-xs text-slate-500 font-bold">
+                      <div className="flex items-center text-xs text-[#4A6580] font-bold">
                         <MapPin size={14} className="mr-1 text-slate-600" />
                         {pedido.location}
                       </div>
-                      <div className="flex items-center text-xs text-slate-500 font-bold">
+                      <div className="flex items-center text-xs text-[#4A6580] font-bold">
                         <Tag size={14} className="mr-1 text-slate-600" />
                         {pedido.category}
                       </div>
-                      <div className="flex items-center text-xs text-slate-500 font-bold">
+                      <div className="flex items-center text-xs text-[#4A6580] font-bold">
                         <Calendar size={14} className="mr-1 text-slate-600" />
                         {new Date(pedido.created_at).toLocaleDateString('pt-BR')}
                       </div>
@@ -265,7 +265,7 @@ export default function Pedidos() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-white/5 pt-6 lg:pt-0">
+                <div className="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-[#1C3050] pt-6 lg:pt-0">
                   <div className="text-right hidden md:block">
                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Interessados</p>
                     <p className="text-white font-black">{pedido.interested_count ?? 0} Profissionais</p>
@@ -294,17 +294,17 @@ export default function Pedidos() {
                     <div className="relative z-20" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => setContextMenuId(contextMenuId === pedido.id ? null : pedido.id)}
-                        className="w-10 h-10 bg-[#0A0B0D] rounded-xl flex items-center justify-center border border-white/5 text-slate-600 hover:text-white hover:border-white/20 transition-all"
+                        className="w-10 h-10 bg-[#0E1C32] rounded-xl flex items-center justify-center border border-[#1C3050] text-slate-600 hover:text-white hover:border-white/20 transition-all"
                       >
                         <MoreVertical size={18} />
                       </button>
                       {contextMenuId === pedido.id && (
-                        <div className="absolute right-0 top-full mt-1 w-40 bg-[#1C1E25] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-30">
+                        <div className="absolute right-0 top-full mt-1 w-40 bg-[#1C1E25] border border-[#243F6A] rounded-2xl shadow-2xl overflow-hidden z-30">
                           <button
                             onClick={() => openEditModal(pedido)}
                             className="w-full px-4 py-3 flex items-center gap-3 text-sm text-slate-300 hover:bg-white/5 transition-all text-left"
                           >
-                            <Pencil size={14} className="text-slate-400 shrink-0" /> Editar
+                            <Pencil size={14} className="text-[#94A3B8] shrink-0" /> Editar
                           </button>
                           <button
                             onClick={() => handleDelete(pedido)}
@@ -316,7 +316,7 @@ export default function Pedidos() {
                       )}
                     </div>
 
-                    <div className="w-10 h-10 bg-[#0A0B0D] rounded-xl flex items-center justify-center border border-white/5 text-slate-600 group-hover:bg-emerald-500 group-hover:text-black transition-all">
+                    <div className="w-10 h-10 bg-[#0E1C32] rounded-xl flex items-center justify-center border border-[#1C3050] text-slate-600 group-hover:bg-emerald-500 group-hover:text-black transition-all">
                       <ArrowRight size={20} />
                     </div>
                   </div>
@@ -328,7 +328,7 @@ export default function Pedidos() {
                 <Inbox size={64} className="text-slate-600" />
                 <div>
                   <p className="text-white font-black text-lg">Nenhum pedido encontrado</p>
-                  <p className="text-slate-500 text-sm font-medium">Você ainda não possui solicitações ativas no momento.</p>
+                  <p className="text-[#4A6580] text-sm font-medium">Você ainda não possui solicitações ativas no momento.</p>
                 </div>
               </div>
             )}
@@ -340,41 +340,41 @@ export default function Pedidos() {
       {isProposalsModalOpen && selectedPedido && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsProposalsModalOpen(false)}></div>
-          <div className="relative bg-[#14161B] border border-white/10 rounded-[2.5rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-[#14161B]">
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-[2.5rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="p-8 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center">
                   <MessageCircle size={28} />
                 </div>
                 <div>
                   <h2 className="text-2xl font-black text-white tracking-tight">Propostas Recebidas</h2>
-                  <p className="text-slate-400 font-medium">{selectedPedido.title}</p>
+                  <p className="text-[#94A3B8] font-medium">{selectedPedido.title}</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsProposalsModalOpen(false)}
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-500 hover:text-white transition-all"
+                className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-[#4A6580] hover:text-white transition-all"
               >
                 <X size={24} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar bg-[#0A0B0D]/30">
+            <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar bg-[#0E1C32]/30">
               {proposalsLoading ? (
                 <div className="py-20 flex flex-col items-center gap-4">
                   <Loader2 className="animate-spin text-blue-500" size={40} />
-                  <p className="text-xs font-black uppercase tracking-widest text-slate-500">Buscando orçamentos...</p>
+                  <p className="text-xs font-black uppercase tracking-widest text-[#4A6580]">Buscando orçamentos...</p>
                 </div>
               ) : proposals && proposals.length > 0 ? (
                 proposals.map((prop: any) => (
-                  <div key={prop.id} className="bg-[#14161B] border border-white/5 rounded-[2rem] p-8 hover:border-blue-500/30 transition-all group overflow-hidden relative">
+                  <div key={prop.id} className="bg-[#1C3454] border border-[#1C3050] rounded-[2rem] p-8 hover:border-blue-500/30 transition-all group overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[60px] rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-all"></div>
 
                     <div className="flex flex-col md:flex-row justify-between gap-8 relative z-10">
                       <div className="flex-1 space-y-6">
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/5 relative">
-                            <User className="text-slate-500" size={32} />
+                          <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center border border-[#1C3050] relative">
+                            <User className="text-[#4A6580]" size={32} />
                             <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-[8px] font-black px-1.5 py-0.5 rounded-full text-black uppercase tracking-tighter">Verificado</div>
                           </div>
                           <div>
@@ -386,22 +386,22 @@ export default function Pedidos() {
                                   <div key={i} className={cn("w-2 h-2 rounded-full", i < 4 ? "bg-amber-500" : "bg-slate-800")}></div>
                                 ))}
                               </div>
-                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">4.8 • {prop.lead_purchases?.professional?.completed_services || 0} serviços</span>
+                              <span className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest">4.8 • {prop.lead_purchases?.professional?.completed_services || 0} serviços</span>
                             </div>
                           </div>
                         </div>
 
-                        <div className="bg-[#0A0B0D] p-6 rounded-2xl border border-white/5">
+                        <div className="bg-[#0E1C32] p-6 rounded-2xl border border-[#1C3050]">
                           <p className="text-slate-300 text-sm leading-relaxed italic">"{prop.description}"</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1.5"><DollarSign size={12} /> Valor do Serviço</p>
+                          <div className="bg-white/5 p-4 rounded-xl border border-[#1C3050]">
+                            <p className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest mb-1 flex items-center gap-1.5"><DollarSign size={12} /> Valor do Serviço</p>
                             <p className="text-xl font-black text-white">R$ {prop.price.toLocaleString('pt-BR')}</p>
                           </div>
-                          <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Clock size={12} /> Prazo Estimado</p>
+                          <div className="bg-white/5 p-4 rounded-xl border border-[#1C3050]">
+                            <p className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest mb-1 flex items-center gap-1.5"><Clock size={12} /> Prazo Estimado</p>
                             <p className="text-xl font-black text-white">{prop.duration}</p>
                           </div>
                         </div>
@@ -428,7 +428,7 @@ export default function Pedidos() {
                             </div>
                             <div>
                               <p className="text-sm font-black text-emerald-500 uppercase tracking-widest">Interesse Enviado</p>
-                              <p className="text-[10px] text-slate-500 font-bold mt-1">O profissional já recebeu seus dados de contato.</p>
+                              <p className="text-[10px] text-[#4A6580] font-bold mt-1">O profissional já recebeu seus dados de contato.</p>
                             </div>
                             <button className="w-full py-3 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-500 transition-all flex items-center justify-center gap-2">
                               <MessageCircle size={14} /> Abrir Chat
@@ -443,13 +443,13 @@ export default function Pedidos() {
                 <div className="py-20 text-center flex flex-col items-center justify-center gap-4 opacity-50 grayscale">
                   <Inbox size={64} className="text-slate-700" />
                   <p className="text-white font-black text-lg">Nenhuma proposta ainda</p>
-                  <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-xs mx-auto">Assim que os profissionais enviarem orçamentos, eles aparecerão aqui para sua avaliação.</p>
+                  <p className="text-[#4A6580] text-sm font-medium leading-relaxed max-w-xs mx-auto">Assim que os profissionais enviarem orçamentos, eles aparecerão aqui para sua avaliação.</p>
                 </div>
               )}
             </div>
 
-            <div className="p-6 bg-[#14161B] border-t border-white/5 flex items-center justify-center">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Analise com cuidado antes de aceitar • MeloCalé</p>
+            <div className="p-6 bg-[#1C3454] border-t border-[#1C3050] flex items-center justify-center">
+              <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-[0.2em]">Analise com cuidado antes de aceitar • MeloCalé</p>
             </div>
           </div>
         </div>

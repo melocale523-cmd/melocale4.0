@@ -188,7 +188,7 @@ export default function AiChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 16 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="absolute bottom-20 right-0 w-[380px] max-w-[calc(100vw-1.5rem)] h-[520px] max-h-[calc(100vh-8rem)] bg-[#0A0B0D] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            className="absolute bottom-20 right-0 w-[380px] max-w-[calc(100vw-1.5rem)] h-[520px] max-h-[calc(100vh-8rem)] bg-[#0E1C32] border border-[#243F6A] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-3 flex items-center justify-between shrink-0">
@@ -239,7 +239,7 @@ export default function AiChatWidget() {
                     <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       msg.role === 'user'
                         ? 'bg-emerald-500/20 border border-emerald-500/30 text-white rounded-br-sm'
-                        : 'bg-[#14161B] border border-white/5 text-white rounded-bl-sm'
+                        : 'bg-[#1C3454] border border-[#1C3050] text-white rounded-bl-sm'
                     }`}>
                       {msg.text}
                     </div>
@@ -253,7 +253,7 @@ export default function AiChatWidget() {
                   <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
                     <Bot size={12} className="text-emerald-400" />
                   </div>
-                  <div className="bg-[#14161B] border border-white/5 px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-1.5">
+                  <div className="bg-[#1C3454] border border-[#1C3050] px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-1.5">
                     {[0, 0.15, 0.3].map((delay, i) => (
                       <motion.div
                         key={i}
@@ -269,8 +269,8 @@ export default function AiChatWidget() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSend} className="p-3 border-t border-white/5 bg-[#0A0B0D] shrink-0">
-              <div className="flex items-center gap-2 bg-[#14161B] border border-white/10 rounded-2xl px-4 py-2.5 focus-within:border-emerald-500/50 transition-colors">
+            <form onSubmit={handleSend} className="p-3 border-t border-[#1C3050] bg-[#0E1C32] shrink-0">
+              <div className="flex items-center gap-2 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-4 py-2.5 focus-within:border-emerald-500/50 transition-colors">
                 <input
                   ref={inputRef}
                   type="text"
@@ -317,7 +317,7 @@ export default function AiChatWidget() {
 
         {/* Notification badge */}
         {!isOpen && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#0A0B0D] shadow">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#0E1C32] shadow">
             1
           </span>
         )}
