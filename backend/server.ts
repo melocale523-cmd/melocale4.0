@@ -152,6 +152,7 @@ async function startServer() {
             amount: coinsAmount,
             reference: `Stripe — ${coinLabel} — ${session.id}`,
             stripe_session_id: session.id,
+            stripe_event_id: event.id,
             created_at: new Date().toISOString(),
           });
         } catch (txErr) {
