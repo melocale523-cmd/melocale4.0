@@ -12,7 +12,7 @@ export default function AuthLayout() {
              MeloCalé
           </span>
         </div>
-        <div className="bg-[#1C3454] border border-[#1C3050] p-8 rounded-3xl shadow-2xl">
+        <div className="bg-[#132540] border border-[#2563eb33] p-8 rounded-3xl shadow-[0_0_40px_rgba(37,99,235,0.08)]">
            <Outlet />
         </div>
       </div>
