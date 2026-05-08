@@ -24,9 +24,9 @@ interface Ticket {
 }
 
 const STATUS_CONFIG: Record<TicketStatus, { label: string; cls: string }> = {
-  open:     { label: 'Aberto',    cls: 'bg-red-500/15 text-red-400 border-red-500/30' },
-  pending:  { label: 'Pendente',  cls: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' },
-  resolved: { label: 'Resolvido', cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+  open:     { label: 'Aberto',    cls: 'bg-red-500/20 text-red-300 border-red-400/50' },
+  pending:  { label: 'Pendente',  cls: 'bg-yellow-500/20 text-yellow-300 border-yellow-400/50' },
+  resolved: { label: 'Resolvido', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50' },
 };
 
 async function fetchTickets(): Promise<Ticket[]> {
@@ -106,7 +106,7 @@ export default function AdminSuporte() {
           const noteVal = notes[ticket.id] ?? (ticket.internal_note || '');
 
           return (
-            <div key={ticket.id} className="bg-[#1C3454] border border-[#1C3050] rounded-2xl overflow-hidden">
+            <div key={ticket.id} className="bg-[#132540] border border-[#243F6A] rounded-2xl overflow-hidden">
               {/* Card header */}
               <button
                 className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.02] transition-colors"
@@ -117,20 +117,20 @@ export default function AdminSuporte() {
                     <span className={cn('text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg border', cfg.cls)}>
                       {cfg.label}
                     </span>
-                    <span className="text-slate-600 text-xs">
+                    <span className="text-[#7A9EBF] text-xs">
                       {new Date(ticket.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-white font-medium text-sm truncate">
+                  <p className="text-white font-semibold text-sm truncate">
                     {ticket.email || ticket.user_id || 'Visitante anônimo'}
                   </p>
                   {lastMsg && (
-                    <p className="text-[#4A6580] text-xs mt-0.5 truncate">
+                    <p className="text-[#94A3B8] text-xs mt-0.5 truncate">
                       {lastMsg.role === 'model' ? '🤖' : '👤'} {lastMsg.text}
                     </p>
                   )}
                 </div>
-                {expanded ? <ChevronUp size={16} className="text-[#4A6580] shrink-0" /> : <ChevronDown size={16} className="text-[#4A6580] shrink-0" />}
+                {expanded ? <ChevronUp size={16} className="text-[#7A9EBF] shrink-0" /> : <ChevronDown size={16} className="text-[#7A9EBF] shrink-0" />}
               </button>
 
               {/* Expanded content */}
@@ -148,8 +148,8 @@ export default function AdminSuporte() {
                         <div className={cn(
                           'max-w-[75%] px-3 py-2 rounded-xl text-xs leading-relaxed',
                           msg.role === 'user'
-                            ? 'bg-emerald-500/15 border border-emerald-500/25 text-white rounded-br-sm'
-                            : 'bg-[#0E1C32] border border-[#1C3050] text-slate-200 rounded-bl-sm'
+                            ? 'bg-[#10b98120] border border-[#10b98140] text-white rounded-br-sm'
+                            : 'bg-[#0E1C32] border border-[#1C3050] text-[#E2E8F0] rounded-bl-sm'
                         )}>
                           {msg.text}
                         </div>
@@ -165,7 +165,7 @@ export default function AdminSuporte() {
                   {/* Controls */}
                   <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-[#1C3050]">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">Status</label>
+                      <label className="text-[10px] font-bold text-[#7A9EBF] uppercase tracking-widest">Status</label>
                       <select
                         value={status}
                         onChange={(e) => updateMutation.mutate({ id: ticket.id, status: e.target.value as TicketStatus })}
@@ -178,7 +178,7 @@ export default function AdminSuporte() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">Nota interna</label>
+                      <label className="text-[10px] font-bold text-[#7A9EBF] uppercase tracking-widest">Nota interna</label>
                       <div className="flex gap-2">
                         <textarea
                           rows={1}
