@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { leadService, walletService } from '../../services/dbServices';
-import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, ArrowRight, Navigation, Coins, Search, X, DollarSign, Plus, Trash2, Filter, Star } from 'lucide-react';
+import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, ArrowRight, Navigation, Coins, Search, X, DollarSign, Plus, Trash2, Filter, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
@@ -63,6 +63,18 @@ export default function ProfessionalLeads() {
   });
 
   const [purchasedLead, setPurchasedLead] = useState<{ title: string, price: number } | null>(null);
+  const [lightboxImg, setLightboxImg] = useState<{ images: string[]; index: number } | null>(null);
+
+  useEffect(() => {
+    if (!lightboxImg) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxImg(null);
+      if (e.key === 'ArrowRight') setLightboxImg(prev => prev && prev.index < prev.images.length - 1 ? { ...prev, index: prev.index + 1 } : prev);
+      if (e.key === 'ArrowLeft') setLightboxImg(prev => prev && prev.index > 0 ? { ...prev, index: prev.index - 1 } : prev);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [lightboxImg]);
 
   const purchaseMutation = useMutation({
     mutationFn: ({ id, price, title }: { id: string, price: number, title: string }) =>
@@ -447,7 +459,8 @@ export default function ProfessionalLeads() {
                             key={idx}
                             src={url}
                             alt={`Foto ${idx + 1}`}
-                            className="w-16 h-16 rounded-lg object-cover shrink-0 border border-white/10"
+                            onClick={(e) => { e.stopPropagation(); setLightboxImg({ images: lead.images as string[], index: idx }); }}
+                            className="w-16 h-16 rounded-lg object-cover shrink-0 border border-white/10 cursor-zoom-in hover:opacity-80 transition-opacity"
                           />
                         ))}
                       </div>
@@ -472,12 +485,63 @@ export default function ProfessionalLeads() {
           <Ghost size={64} className="text-slate-800 mb-6" />
           <h3 className="text-xl font-bold text-slate-300 mb-2">Nenhum cliente encontrado</h3>
           <p className="text-slate-500 font-medium max-w-sm">Tente ajustar seus filtros para encontrar novos clientes em sua região.</p>
-          <button 
+          <button
             onClick={() => setFilters({ search: '', category: 'Todas', specialty: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
             className="mt-8 text-emerald-500 font-bold text-sm hover:underline"
           >
             Limpar todos os filtros
           </button>
+        </div>
+      )}
+
+      {lightboxImg && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90"
+          onClick={() => setLightboxImg(null)}
+        >
+          <button
+            onClick={() => setLightboxImg(null)}
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+          >
+            <X size={24} />
+          </button>
+
+          {lightboxImg.index > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setLightboxImg(prev => prev ? { ...prev, index: prev.index - 1 } : prev); }}
+              className="absolute left-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+            >
+              <ChevronLeft size={28} />
+            </button>
+          )}
+
+          <img
+            src={lightboxImg.images[lightboxImg.index]}
+            alt={`Foto ${lightboxImg.index + 1}`}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
+          />
+
+          {lightboxImg.index < lightboxImg.images.length - 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setLightboxImg(prev => prev ? { ...prev, index: prev.index + 1 } : prev); }}
+              className="absolute right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+            >
+              <ChevronRight size={28} />
+            </button>
+          )}
+
+          {lightboxImg.images.length > 1 && (
+            <div className="absolute bottom-4 flex gap-1.5">
+              {lightboxImg.images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setLightboxImg(prev => prev ? { ...prev, index: i } : prev); }}
+                  className={cn('w-2 h-2 rounded-full transition-all', i === lightboxImg.index ? 'bg-white' : 'bg-white/30 hover:bg-white/60')}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
