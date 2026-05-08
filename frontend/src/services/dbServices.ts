@@ -281,63 +281,51 @@ export const transactionService = {
 
 // === Proposals ===
 export const proposalService = {
-  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string, status: string }, clientId?: string) {
-    // Removed non-existent proposals table usage
-
-    await supabase
+  async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string }) {
+    const { error } = await supabase
       .from('lead_purchases')
-      .update({ status: proposal.status })
+      .update({
+        price: proposal.price,
+        duration: proposal.duration,
+        description: proposal.description,
+        status: 'Proposta Enviada',
+      })
       .eq('id', purchaseId);
 
-    if (clientId) {
-      supabase
-        .from('notifications')
-        .insert({
-          user_id: clientId,
-          title: 'Nova Proposta Recebida',
-          body: `Você recebeu uma nova proposta no valor de R$ ${proposal.price}.`,
-          data: { type: 'proposal_received', purchaseId }
-        }).then(({ error }) => {
-          if (error) console.error("Erro ao notificar cliente", error);
-        });
-    }
-
-    return { id: Math.random().toString(), purchase_id: purchaseId, ...proposal, status: 'Enviada' };
-  },
-
-  async getProposalByPurchase(purchaseId: string) {
-    // Removed non-existent proposals table usage
-    return null;
+    if (error) throw error;
+    return true;
   },
 
   async getProposalsForLead(leadId: string) {
-    // Removed non-existent proposals table usage
-    return [];
+    const { data, error } = await supabase
+      .from('lead_purchases')
+      .select('id, professional_id, price, duration, description, status, created_at, user_id')
+      .eq('lead_id', leadId)
+      .not('status', 'eq', 'Aberto')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   },
 
-  async respondProposal(proposalId: string, purchaseId: string, status: 'Respondida pelo Cliente' | 'Aceita' | 'Recusada', professionalId?: string) {
-    // Removed non-existent proposals table usage
+  async getProposalByPurchase(purchaseId: string) {
+    const { data, error } = await supabase
+      .from('lead_purchases')
+      .select('id, price, duration, description, status')
+      .eq('id', purchaseId)
+      .maybeSingle();
 
-    const { error: purchaseError } = await supabase
+    if (error) throw error;
+    return data;
+  },
+
+  async respondProposal(proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada') {
+    const { error } = await supabase
       .from('lead_purchases')
       .update({ status })
       .eq('id', purchaseId);
-    
-    if (purchaseError) throw purchaseError;
 
-    if (professionalId) {
-      supabase
-        .from('notifications')
-        .insert({
-          user_id: professionalId,
-          title: `Proposta ${status}`,
-          body: `O cliente ${status.toLowerCase()} sua proposta.`,
-          data: { type: 'proposal_status_update', proposalId, status }
-        }).then(({ error }) => {
-          if (error) console.error("Erro ao notificar profissional", error);
-        });
-    }
-
+    if (error) throw error;
     return true;
   }
 };

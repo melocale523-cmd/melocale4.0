@@ -27,13 +27,12 @@ export default function ProfessionalCompras() {
   });
 
   const sendProposalMutation = useMutation({
-    mutationFn: ({ purchaseId, data, clientId }: { purchaseId: string, data: any, clientId?: string }) => 
+    mutationFn: ({ purchaseId, data }: { purchaseId: string, data: any }) =>
       proposalService.sendProposal(purchaseId, {
         price: parseFloat(data.price),
         duration: data.duration,
         description: data.description,
-        status: 'Proposta Enviada'
-      }, clientId),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       setIsProposalModalOpen(false);
@@ -107,10 +106,9 @@ export default function ProfessionalCompras() {
   const handleSendProposal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPurchase) return;
-    sendProposalMutation.mutate({ 
-      purchaseId: selectedPurchase.id, 
+    sendProposalMutation.mutate({
+      purchaseId: selectedPurchase.id,
       data: proposalData,
-      clientId: selectedPurchase.leads?.client_id 
     });
   };
 
