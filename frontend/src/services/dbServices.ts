@@ -139,11 +139,12 @@ export const leadService = {
 
       const { data: requests, error } = await supabase
         .from('leads')
-        .select('*');
-      
+        .select('status')
+        .eq('client_id', user.id);
+
       if (error) return { waiting: 0, in_progress: 0 };
 
-      const userRequests = (requests || []).filter((r: any) => r.client_id === user.id || r.user_id === user.id);
+      const userRequests = requests || [];
 
       return {
         waiting: userRequests.filter((r: any) => r.status === 'open' || r.status === 'Orçando').length,
@@ -258,13 +259,13 @@ export const transactionService = {
     try {
       const { data, error } = await supabase
         .from('wallet_transactions')
-        .select('*');
+        .select('*')
+        .or(`user_id.eq.${professionalId},wallet_id.eq.${professionalId}`)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return (data || [])
-        .filter((t: any) => t.wallet_id === professionalId || t.user_id === professionalId)
-        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      return data || [];
     } catch {
        const purchases = await leadService.getMyPurchases();
        return purchases.map((p: any) => ({
@@ -416,25 +417,24 @@ export const chatService = {
   async getChats() {
     const { data, error } = await supabase
       .from('chats')
-      .select('*');
-    
+      .select('*')
+      .order('updated_at', { ascending: false });
+
     if (error) throw error;
-    
-    // JS side sort to avoid order() parameter failing in DB
-    return (data || []).sort((a: any, b: any) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
+
+    return data || [];
   },
 
   async getMessages(chatId: string) {
     const { data, error } = await supabase
       .from('messages')
-      .select('*');
-    
+      .select('*')
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: true });
+
     if (error) throw error;
-    
-    // JS side filter and sort
-    return (data || [])
-      .filter((m: any) => m.chat_id === chatId)
-      .sort((a: any, b: any) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
+
+    return data || [];
   },
 
   async sendMessage(chatId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string) {
