@@ -385,7 +385,7 @@ export default function ProfessionalLeads() {
         ) : (
           filteredLeads?.map((lead) => (
              <div key={lead.id} className={cn(
-                "bg-[#1C3454] border rounded-[2rem] p-6 flex flex-col transition-all group relative overflow-hidden text-left",
+                "bg-[#1C3454] border rounded-[2rem] p-5 flex flex-col transition-all group relative overflow-hidden text-left",
                 getBadges(lead).some(b => b.label === 'Urgente')
                   ? "border-red-500/40 animate-pulse"
                   : "border-[#1C3050] hover:border-emerald-500/30"
@@ -398,7 +398,7 @@ export default function ProfessionalLeads() {
                        {getBadges(lead).length > 0 && (
                          <div className="flex flex-wrap gap-1.5 mb-3">
                            {getBadges(lead).map((b, i) => (
-                             <span key={i} className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-lg border ${b.color}`}>
+                             <span key={i} className={`px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-lg border ${b.color}`}>
                                {b.icon} {b.label}
                              </span>
                            ))}
@@ -406,8 +406,8 @@ export default function ProfessionalLeads() {
                        )}
                      </div>
                      <div className="text-right shrink-0 ml-2">
-                       <span className="text-xl font-mono font-bold text-emerald-400 block tracking-tighter">{lead.price_coins || 1}</span>
-                       <span className="text-[10px] text-[#4A6580] font-bold uppercase tracking-tighter">moedas</span>
+                       <span className="text-3xl font-mono font-bold text-[#10B981] block tracking-tighter">{lead.price_coins || 1}</span>
+                       <span className="text-xs font-bold text-[#7A9EBF] uppercase tracking-tighter">moedas</span>
                      </div>
                   </div>
 
@@ -416,21 +416,21 @@ export default function ProfessionalLeads() {
                   </h3>
 
                   <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-1.5 text-[#94A3B8] text-xs font-medium">
-                      <MapPin size={14} className="text-blue-500" />
+                    <div className="flex items-center gap-2 text-base font-medium text-[#E2E8F0]">
+                      <MapPin size={16} className="text-blue-500" />
                       {lead.location || lead.city || 'São Paulo, SP'}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#94A3B8] text-xs font-medium">
-                      <DollarSign size={14} className="text-emerald-500" />
+                    <div className="flex items-center gap-2 text-base font-semibold text-[#10B981]">
+                      <DollarSign size={16} className="text-emerald-500" />
                       {lead.budget_min && lead.budget_max ? `R$ ${lead.budget_min.toLocaleString('pt-BR')} – R$ ${lead.budget_max.toLocaleString('pt-BR')}` : 'A combinar'}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#94A3B8] text-xs font-medium">
-                      <Navigation size={14} className="text-purple-500" />
+                    <div className="flex items-center gap-2 text-base text-[#B0C4D8]">
+                      <Navigation size={16} className="text-purple-500" />
                       {lead.location || 'Localização não informada'}
                     </div>
 
                     {lead.description && (
-                      <p className="text-[#4A6580] text-xs leading-relaxed line-clamp-2">{lead.description}</p>
+                      <p className="text-sm text-[#94A3B8] leading-relaxed line-clamp-2">{lead.description}</p>
                     )}
 
                     {lead.event_date && (
@@ -445,7 +445,7 @@ export default function ProfessionalLeads() {
                       if (max == null) return null;
                       const remaining = max - count;
                       if (remaining <= 1) return <div className="text-xs font-bold text-red-400">🏆 Última vaga!</div>;
-                      return <div className="text-xs font-medium text-[#4A6580]">👥 {remaining} vagas restantes</div>;
+                      return <div className="text-sm font-medium text-[#B0C4D8]">👥 {remaining} vagas restantes</div>;
                     })()}
 
                     {((lead.purchases_count as number | undefined) ?? 0) > 0 && (
@@ -460,7 +460,7 @@ export default function ProfessionalLeads() {
                             src={url}
                             alt={`Foto ${idx + 1}`}
                             onClick={(e) => { e.stopPropagation(); setLightboxImg({ images: lead.images as string[], index: idx }); }}
-                            className="w-16 h-16 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
+                            className="w-20 h-20 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
                           />
                         ))}
                       </div>
