@@ -44,6 +44,7 @@ const AdminAprovados = lazy(() => import('./pages/admin/Aprovados'));
 const AdminClientes = lazy(() => import('./pages/admin/Clientes'));
 const AdminUsuarios = lazy(() => import('./pages/admin/Usuarios'));
 const AdminPacotes = lazy(() => import('./pages/admin/Pacotes'));
+const AdminSuporte = lazy(() => import('./pages/admin/Suporte'));
 
 // Lazy-loaded pages — checkout
 const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
@@ -223,6 +224,7 @@ const router = createBrowserRouter([
           { path: 'auditoria-logs', element: <div className="p-8 text-slate-400">Auditoria Logs (Em breve)</div> },
           { path: 'equipe', element: <div className="p-8 text-slate-400">Equipe (Em breve)</div> },
           { path: 'simulador', element: <div className="p-8 text-slate-400">Simulador (Em breve)</div> },
+          { path: 'suporte', element: <Suspense fallback={<PageLoader />}><AdminSuporte /></Suspense> },
           { path: 'configuracoes', element: <div className="p-8 text-slate-400">Configurações (Em breve)</div> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]

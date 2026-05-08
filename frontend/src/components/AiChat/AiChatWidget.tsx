@@ -2,6 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { apiFetch } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
+
+const PROBLEM_KEYWORDS = ['erro', 'problema', 'não consigo', 'nao consigo', 'bug', 'travou', 'não funciona', 'nao funciona', 'falhou', 'não abre', 'não carrega', 'ajuda', 'suporte'];
+const isProblem = (text: string) => PROBLEM_KEYWORDS.some(kw => text.toLowerCase().includes(kw));
 
 interface Message {
   role: 'user' | 'model';
@@ -22,6 +26,7 @@ export default function AiChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const ticketCreatedRef = useRef(false);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -55,7 +60,26 @@ export default function AiChatWidget() {
       const data = await response.json();
 
       const aiResponse = data.response || 'Desculpe, tive um problema ao processar sua pergunta.';
-      setMessages((prev) => [...prev, { role: 'model', text: aiResponse, time: getTime() }]);
+      const finalMessages: Message[] = [...newMessages, { role: 'model', text: aiResponse, time: getTime() }];
+      setMessages(finalMessages);
+
+      if (isProblem(userMessage) && !ticketCreatedRef.current) {
+        ticketCreatedRef.current = true;
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          await apiFetch('/api/support-ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user?.id || null,
+              email: user?.email || null,
+              conversation: finalMessages,
+            }),
+          });
+        } catch {
+          // silently ignore ticket creation failures
+        }
+      }
     } catch {
       setMessages((prev) => [...prev, { role: 'model', text: 'Ocorreu um erro ao conectar com o assistente. Tente novamente mais tarde.', time: getTime() }]);
     } finally {

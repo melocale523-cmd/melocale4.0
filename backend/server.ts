@@ -583,6 +583,21 @@ Como recebo os dados do cliente? → Na hora, assim que comprar o lead!
     }
   });
 
+  app.post("/api/support-ticket", async (req: any, res: any) => {
+    try {
+      const { user_id, email, conversation } = req.body;
+      const { data, error } = await supabaseAdmin
+        .from('support_tickets')
+        .insert({ user_id: user_id || null, email: email || null, conversation, status: 'open' })
+        .select('id')
+        .single();
+      if (error) throw error;
+      return res.json({ ticket_id: data.id });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
   });

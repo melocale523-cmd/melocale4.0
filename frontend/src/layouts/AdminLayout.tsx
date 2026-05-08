@@ -1,14 +1,15 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
-import { 
+import {
   Users, Briefcase, BarChart3, Settings, ShieldAlert,
   LogOut, ArrowLeft, Menu, Bell, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X, LifeBuoy
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 const ADMIN_NAVIGATION = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: BarChart3 },
@@ -25,6 +26,7 @@ const ADMIN_NAVIGATION = [
   { name: 'Auditoria Logs', href: '/admin/auditoria-logs', icon: ShieldCheck },
   { name: 'Equipe', href: '/admin/equipe', icon: UsersRound },
   { name: 'Simulador', href: '/admin/simulador', icon: Zap },
+  { name: 'Suporte', href: '/admin/suporte', icon: LifeBuoy },
 ];
 
 export default function AdminLayout() {
@@ -40,6 +42,18 @@ export default function AdminLayout() {
     { id: 2, title: 'Alerta de Transação', message: 'Transação suspeita no valor de R$ 5000.', time: 'há 1 hora', read: false },
     { id: 3, title: 'Cadastro Pendente', message: 'Temos 3 novos profissionais aguardando aprovação.', time: 'há 3 horas', read: true },
   ]);
+
+  const { data: openTicketCount = 0 } = useQuery({
+    queryKey: ['support_tickets_open_count'],
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('support_tickets')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'open');
+      return count ?? 0;
+    },
+  });
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -66,19 +80,25 @@ export default function AdminLayout() {
         <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
           {ADMIN_NAVIGATION.map((item) => {
             const isActive = location.pathname.startsWith(item.href);
+            const isSupporte = item.href === '/admin/suporte';
             return (
               <Link
                 key={item.name}
                 to={item.href}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                  isActive 
-                    ? "bg-red-500/10 text-red-400 border border-red-500/20" 
+                  isActive
+                    ? "bg-red-500/10 text-red-400 border border-red-500/20"
                     : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
                 )}
               >
                 <item.icon size={18} className={cn(isActive ? "text-red-400" : "text-slate-500")} />
-                {item.name}
+                <span className="flex-1">{item.name}</span>
+                {isSupporte && openTicketCount > 0 && (
+                  <span className="min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {openTicketCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -174,19 +194,28 @@ export default function AdminLayout() {
                 <span className="text-lg font-bold text-white">MeloCalé <span className="text-red-500 text-xs">ADMIN</span></span>
               </div>
               <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
-                 {ADMIN_NAVIGATION.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium",
-                        location.pathname.startsWith(item.href) ? "bg-red-500/10 text-red-400 border border-red-500/20" : "text-slate-400 hover:text-slate-200"
-                      )}
-                    >
-                      <item.icon size={18} /> {item.name}
-                    </Link>
-                 ))}
+                 {ADMIN_NAVIGATION.map((item) => {
+                    const isSupporte = item.href === '/admin/suporte';
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium",
+                          location.pathname.startsWith(item.href) ? "bg-red-500/10 text-red-400 border border-red-500/20" : "text-slate-400 hover:text-slate-200"
+                        )}
+                      >
+                        <item.icon size={18} />
+                        <span className="flex-1">{item.name}</span>
+                        {isSupporte && openTicketCount > 0 && (
+                          <span className="min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                            {openTicketCount}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                 })}
                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-red-400 mt-8">
                    <LogOut size={18} /> Sair do perfil
                  </button>
