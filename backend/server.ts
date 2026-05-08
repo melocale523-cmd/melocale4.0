@@ -2,7 +2,7 @@
 import express from "express";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
-import { GoogleGenAI } from '@google/genai';
+import Anthropic from '@anthropic-ai/sdk';
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 
@@ -50,12 +50,7 @@ if (!supabaseServiceKey) {
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-// Inicializa Google GenAI
-const geminiApiKey = process.env.GEMINI_API_KEY;
-if (!geminiApiKey) {
-  console.warn("⚠️ AVISO: GEMINI_API_KEY está ausente. Algumas funcionalidades de IA podem falhar.");
-}
-const ai = new GoogleGenAI({ apiKey: geminiApiKey || "missing_key" });
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || '' });
 
 const processedWebhookEvents = new Set<string>();
 
@@ -303,18 +298,17 @@ Como recebo os dados do cliente? → Na hora, assim que comprar o lead!
 
     try {
       const { messages } = req.body;
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: messages.map((m: { role: string; text: string }) => ({
-          role: m.role,
-          parts: [{ text: m.text }]
-        })),
-        config: {
-          systemInstruction: SYSTEM_PROMPT,
-        },
+      const response = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: messages.map((m: { role: string; text: string }) => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.text
+        }))
       });
-
-      res.json({ response: response.text });
+      const text = response.content[0].type === 'text' ? response.content[0].text : '';
+      res.json({ response: text });
     } catch (error) {
       next(error);
     }
