@@ -63,8 +63,16 @@ export default function AiChatWidget() {
     const context = getRouteContext();
 
     const fetchUserData = async () => {
+      const profileRes = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const displayName = profileRes.data?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'você';
+
       const data: Record<string, any> = {
-        name: user.email?.split('@')[0] || 'usuário',
+        name: displayName,
         email: user.email,
         role: user.role,
       };
@@ -95,7 +103,6 @@ export default function AiChatWidget() {
         data.activeSubscriptions = subsRes.count ?? 0;
       }
 
-      const displayName = data.name || null;
       if (displayName) {
         setMessages(prev => prev.length === 1 ? [{
           role: 'model' as const,
