@@ -83,6 +83,7 @@ function RootLayout() {
   return (
     <>
       <RouteProgressBar />
+      <AiChatWidget />
       <Outlet />
     </>
   );
@@ -240,7 +241,6 @@ export default function App() {
         <RealtimeNotificationHandler />
         <RouterProvider router={router} />
         <Toaster position="top-right" richColors />
-        <AiChatWidget />
       </AuthInitializer>
     </QueryClientProvider>
   );
