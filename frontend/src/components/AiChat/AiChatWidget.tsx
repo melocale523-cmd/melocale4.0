@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLocation } from 'react-router-dom';
 import { apiFetch } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/authStore';
 
 const PROBLEM_KEYWORDS = ['erro', 'problema', 'não consigo', 'nao consigo', 'bug', 'travou', 'não funciona', 'nao funciona', 'falhou', 'não abre', 'não carrega', 'ajuda', 'suporte'];
 const isProblem = (text: string) => PROBLEM_KEYWORDS.some(kw => text.toLowerCase().includes(kw));
@@ -18,15 +20,27 @@ function getTime() {
 }
 
 export default function AiChatWidget() {
+  const location = useLocation();
+  const { user } = useAuthStore();
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: 'model', text: 'Olá! Sou o Assistente MeloCalé. Como posso te ajudar hoje?', time: getTime() }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userData, setUserData] = useState<Record<string, any>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const ticketCreatedRef = useRef(false);
+
+  const getRouteContext = () => {
+    const path = location.pathname;
+    if (path.startsWith('/profissional')) return 'professional';
+    if (path.startsWith('/cliente')) return 'client';
+    if (path.startsWith('/admin')) return 'admin';
+    return 'landing';
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -37,6 +51,59 @@ export default function AiChatWidget() {
   useEffect(() => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    const context = getRouteContext();
+
+    const fetchUserData = async () => {
+      const data: Record<string, any> = {
+        name: user.email?.split('@')[0] || 'usuário',
+        email: user.email,
+        role: user.role,
+      };
+
+      if (context === 'professional') {
+        const [coinsRes, subRes, leadsRes] = await Promise.all([
+          supabase.from('professional_coins').select('balance').eq('professional_id', user.id).maybeSingle(),
+          supabase.from('user_subscriptions').select('package_id, status').eq('user_id', user.id).eq('status', 'active').maybeSingle(),
+          supabase.from('lead_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        ]);
+        data.coinBalance = coinsRes.data?.balance ?? 0;
+        data.activePlan = subRes.data?.package_id ?? null;
+        data.leadsBought = leadsRes.count ?? 0;
+      }
+
+      if (context === 'client') {
+        const pedidosRes = await supabase.from('leads').select('id, status', { count: 'exact' }).eq('client_id', user.id);
+        data.totalPedidos = pedidosRes.count ?? 0;
+        data.pedidos = pedidosRes.data?.slice(0, 3) ?? [];
+      }
+
+      if (context === 'admin') {
+        const [ticketsRes, subsRes] = await Promise.all([
+          supabase.from('support_tickets').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+          supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+        ]);
+        data.openTickets = ticketsRes.count ?? 0;
+        data.activeSubscriptions = subsRes.count ?? 0;
+      }
+
+      setUserData(data);
+    };
+
+    fetchUserData();
+  }, [isOpen, user, location.pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (getRouteContext() === 'professional' && userData.coinBalance !== undefined && userData.coinBalance < 20 && messages.length === 1) {
+      const alert = userData.coinBalance === 0
+        ? `⚠️ Oi ${userData.name}! Seu saldo está zerado. Você não conseguirá comprar novos leads sem recarregar. Quer ver os pacotes disponíveis?`
+        : `💡 Oi ${userData.name}! Seu saldo está baixo (${userData.coinBalance} moedas). Considere recarregar para não perder leads!`;
+      setMessages(prev => [...prev, { role: 'model', text: alert, time: getTime() }]);
+    }
+  }, [isOpen, userData]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +120,11 @@ export default function AiChatWidget() {
       const response = await apiFetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages })
+        body: JSON.stringify({
+          messages: newMessages,
+          context: getRouteContext(),
+          userData,
+        })
       });
 
       if (!response.ok) throw new Error('Falha ao comunicar com assistente');
@@ -66,13 +137,13 @@ export default function AiChatWidget() {
       if (isProblem(userMessage) && !ticketCreatedRef.current) {
         ticketCreatedRef.current = true;
         try {
-          const { data: { user } } = await supabase.auth.getUser();
+          const { data: { user: authUser } } = await supabase.auth.getUser();
           await apiFetch('/api/support-ticket', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              user_id: user?.id || null,
-              email: user?.email || null,
+              user_id: authUser?.id || null,
+              email: authUser?.email || null,
               conversation: finalMessages,
             }),
           });
