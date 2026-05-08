@@ -110,7 +110,6 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
             access_type: 'offline',
             prompt: 'consent',
           },
-          data: { role: selectedRole ?? 'client' },
         }
       });
       if (error) throw error;

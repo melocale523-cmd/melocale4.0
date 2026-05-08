@@ -77,7 +77,6 @@ export default function Login() {
             access_type: 'offline',
             prompt: 'consent',
           },
-          data: { role: selectedRole },
         }
       });
       if (error) throw error;

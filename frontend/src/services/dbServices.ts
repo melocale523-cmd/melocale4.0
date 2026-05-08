@@ -49,13 +49,13 @@ export const leadService = {
     if (!UUID_RE.test(leadId)) throw new Error(`Invalid lead UUID: ${leadId}`);
 
     const idempotencyKey = crypto.randomUUID();
-    const { data, error } = await supabase.rpc<PurchaseLeadResult>('purchase_lead', {
+    const { data, error } = await supabase.rpc('purchase_lead', {
       p_lead_id: leadId,
       p_idempotency_key: idempotencyKey
     });
     if (error) throw error;
     if (!data) throw new Error('purchase_lead returned no data');
-    return data;
+    return data as PurchaseLeadResult;
   },
 
   async getMyPurchases() {

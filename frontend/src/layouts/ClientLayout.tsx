@@ -51,7 +51,7 @@ export default function ClientLayout() {
     }
     return (
       <div className={fallbackCls}>
-        {user?.name?.charAt(0).toUpperCase() || 'C'}
+        {user?.email?.charAt(0).toUpperCase() || 'C'}
       </div>
     );
   };
@@ -169,7 +169,7 @@ export default function ClientLayout() {
               onClick={() => setMenuOpen(v => !v)}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.name}</span>
+              <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.email}</span>
               <AvatarCircle size="sm" />
             </button>
 
@@ -180,7 +180,7 @@ export default function ClientLayout() {
                   <AvatarCircle size="md" />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-white truncate">
-                      {profile?.full_name || user?.name || '—'}
+                      {profile?.full_name || user?.email || '—'}
                     </p>
                     {profile?.city && (
                       <p className="text-xs text-slate-500 truncate">{profile.city}</p>

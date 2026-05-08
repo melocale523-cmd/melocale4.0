@@ -174,12 +174,12 @@ export default function ProfessionalLayout() {
                 onClick={() => setMenuOpen(v => !v)}
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               >
-                <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.name}</span>
+                <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.email}</span>
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="avatar" className="w-8 h-8 rounded-full object-cover shrink-0" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold shrink-0">
-                    {user?.name?.charAt(0).toUpperCase() || 'P'}
+                    {user?.email?.charAt(0).toUpperCase() || 'P'}
                   </div>
                 )}
               </button>
@@ -192,11 +192,11 @@ export default function ProfessionalLayout() {
                       <img src={profile.avatar_url} alt="avatar" className="w-10 h-10 rounded-full object-cover shrink-0" />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold shrink-0">
-                        {user?.name?.charAt(0).toUpperCase() || 'P'}
+                        {user?.email?.charAt(0).toUpperCase() || 'P'}
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{profile?.full_name || user?.name || '—'}</p>
+                      <p className="text-sm font-semibold text-white truncate">{profile?.full_name || user?.email || '—'}</p>
                       {profile?.city && (
                         <p className="text-xs text-slate-500 truncate">{profile.city}</p>
                       )}
