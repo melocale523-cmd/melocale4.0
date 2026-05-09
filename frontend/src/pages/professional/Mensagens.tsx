@@ -35,6 +35,7 @@ interface ConversationWithProfiles {
   last_message_at: string | null;
   unread_for_prof: number | null;
   created_at: string;
+  prof_user_id: string | null;
   prof_profile: ProfileData | null;
   client_profile: ProfileData | null;
 }
