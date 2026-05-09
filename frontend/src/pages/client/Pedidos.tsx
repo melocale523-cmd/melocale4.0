@@ -423,7 +423,11 @@ export default function Pedidos() {
                             >
                               {respondMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <><CheckCircle size={18} /> Tenho Interesse</>}
                             </button>
-                            <button className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black rounded-2xl transition-all active:scale-95">
+                            <button
+                              onClick={() => respondMutation.mutate({ proposalId: prop.id, purchaseId: prop.id, status: 'Recusada' })}
+                              disabled={respondMutation.isPending}
+                              className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black rounded-2xl transition-all active:scale-95"
+                            >
                               Recusar Proposta
                             </button>
                           </>
