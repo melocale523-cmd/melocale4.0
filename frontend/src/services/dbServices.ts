@@ -354,12 +354,22 @@ export const proposalService = {
         let chatId: string | null = purchase.chat_id ?? null;
 
         if (!chatId) {
-          const { data: newChat } = await supabase
-            .from('chats')
-            .insert({})
+          const { data: prof } = await supabase
+            .from('professionals')
+            .select('user_id')
+            .eq('id', purchase.professional_id)
+            .single();
+
+          const { data: conv } = await supabase
+            .from('conversations')
+            .insert({
+              professional_id: prof?.user_id ?? purchase.professional_id,
+              client_id: purchase.client_id,
+              lead_id: purchase.lead_id,
+            })
             .select('id')
             .single();
-          chatId = newChat?.id ?? null;
+          chatId = conv?.id ?? null;
 
           if (chatId) {
             await supabase
@@ -384,26 +394,36 @@ export const proposalService = {
   async ensureChatForPurchase(purchaseId: string): Promise<string | null> {
     const { data: purchase } = await supabase
       .from('lead_purchases')
-      .select('chat_id')
+      .select('chat_id, professional_id, client_id, lead_id')
       .eq('id', purchaseId)
       .single();
 
     if (purchase?.chat_id) return purchase.chat_id;
 
-    const { data: newChat } = await supabase
-      .from('chats')
-      .insert({})
+    const { data: prof } = await supabase
+      .from('professionals')
+      .select('user_id')
+      .eq('id', purchase?.professional_id)
+      .single();
+
+    const { data: conv } = await supabase
+      .from('conversations')
+      .insert({
+        professional_id: prof?.user_id ?? purchase?.professional_id,
+        client_id: purchase?.client_id,
+        lead_id: purchase?.lead_id,
+      })
       .select('id')
       .single();
 
-    if (!newChat?.id) return null;
+    if (!conv?.id) return null;
 
     await supabase
       .from('lead_purchases')
-      .update({ chat_id: newChat.id })
+      .update({ chat_id: conv.id })
       .eq('id', purchaseId);
 
-    return newChat.id;
+    return conv.id;
   }
 };
 
@@ -478,67 +498,72 @@ export const adminService = {
 // === Chats ===
 export const chatService = {
   async getChats() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
     const { data, error } = await supabase
-      .from('chats')
+      .from('conversations')
       .select('*')
-      .order('updated_at', { ascending: false });
-
-    if (error) throw error;
-
+      .or(`client_id.eq.${user.id},professional_id.eq.${user.id}`)
+      .order('last_message_at', { ascending: false, nullsFirst: false });
+    if (error) return [];
     return data || [];
   },
 
-  async getMessages(chatId: string) {
+  async getMessages(conversationId: string) {
     const { data, error } = await supabase
       .from('messages')
       .select('*')
-      .eq('chat_id', chatId)
+      .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
-
     if (error) throw error;
-
     return data || [];
   },
 
-  async sendMessage(chatId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string) {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
+  async sendMessage(conversationId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    let senderType = 'user';
+    if (user) {
+      const { data: conv } = await supabase
+        .from('conversations')
+        .select('client_id, professional_id')
+        .eq('id', conversationId)
+        .single();
+      if (conv?.client_id === user.id) senderType = 'client';
+      else if (conv?.professional_id === user.id) senderType = 'professional';
+    }
+
     const { data, error } = await supabase
       .from('messages')
       .insert({
-        chat_id: chatId,
-        text,
-        type,
-        file_name: fileName,
-        sender_id: userId,
-        status: 'sent'
+        conversation_id: conversationId,
+        body: text,
+        sender_type: senderType,
       })
       .select('*')
       .single();
-    
     if (error) throw error;
 
-    if (recipientId && recipientId !== userId) {
+    await supabase
+      .from('conversations')
+      .update({ last_message_at: new Date().toISOString() })
+      .eq('id', conversationId);
+
+    if (recipientId && user && recipientId !== user.id) {
       try {
-        await supabase
-          .from('notifications')
-          .insert({
-            user_id: recipientId,
-            title: 'Nova Mensagem',
-            body: text.length > 50 ? text.substring(0, 47) + '...' : text,
-            data: { chatId, type: 'message' }
-          });
+        await supabase.from('notifications').insert({
+          user_id: recipientId,
+          title: 'Nova Mensagem',
+          body: text.length > 50 ? text.substring(0, 47) + '...' : text,
+          data: { conversationId, type: 'message' },
+        });
       } catch {}
     }
-
     return data;
   },
 
-  async deleteChat(chatId: string) {
-    const { data, error } = await supabase
-      .from('chats')
-      .delete()
-      .eq('id', chatId);
-
+  async deleteChat(conversationId: string) {
+    const { error } = await supabase.from('conversations').delete().eq('id', conversationId);
     if (error) throw error;
     return true;
   }
