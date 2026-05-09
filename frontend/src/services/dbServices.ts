@@ -299,7 +299,7 @@ export const proposalService = {
   async getProposalsForLead(leadId: string) {
     const { data, error } = await supabase
       .from('lead_purchases')
-      .select('id, professional_id, price, duration, description, status, created_at, user_id')
+      .select('id, professional_id, price, duration, description, status, created_at, user_id, profiles:user_id(full_name, avatar_url)')
       .eq('lead_id', leadId)
       .not('status', 'eq', 'Aberto')
       .order('created_at', { ascending: false });
