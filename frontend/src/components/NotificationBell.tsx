@@ -1,0 +1,136 @@
+import { useState, useEffect, useRef } from 'react';
+import { Bell, X, Check } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
+import { cn } from '../lib/utils';
+
+interface Notification {
+  id: string;
+  title: string;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+  data?: Record<string, unknown>;
+}
+
+export default function NotificationBell() {
+  const user = useAuthStore(s => s.user);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const unread = notifications.filter(n => !n.is_read).length;
+
+  const fetchNotifications = async () => {
+    if (!user?.id) return;
+    const { data } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (data) setNotifications(data as Notification[]);
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+
+    const channel = supabase
+      .channel('notifications-bell')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user?.id}`,
+      }, () => fetchNotifications())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const markAllRead = async () => {
+    if (!user?.id) return;
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+  };
+
+  const markRead = async (id: string) => {
+    await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-[#1C3454] border border-[#243F6A] hover:border-emerald-500/40 transition-all"
+      >
+        <Bell size={18} className="text-[#94A3B8]" />
+        {unread > 0 && (
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-black text-[9px] font-black rounded-full flex items-center justify-center">
+            {unread > 9 ? '9+' : unread}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-80 bg-[#132540] border border-[#243F6A] rounded-2xl shadow-2xl z-50 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#1C3050]">
+            <span className="text-sm font-black text-white">Notificações</span>
+            <div className="flex items-center gap-2">
+              {unread > 0 && (
+                <button onClick={markAllRead} className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1">
+                  <Check size={12} /> Marcar todas lidas
+                </button>
+              )}
+              <button onClick={() => setOpen(false)} className="text-[#4A6580] hover:text-white transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className="max-h-80 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="py-10 text-center">
+                <Bell size={32} className="text-[#243F6A] mx-auto mb-2" />
+                <p className="text-xs text-[#4A6580] font-medium">Nenhuma notificação</p>
+              </div>
+            ) : (
+              notifications.map(n => (
+                <div
+                  key={n.id}
+                  onClick={() => markRead(n.id)}
+                  className={cn(
+                    "px-4 py-3 border-b border-[#1C3050] cursor-pointer hover:bg-white/5 transition-all",
+                    !n.is_read && "bg-emerald-500/5 border-l-2 border-l-emerald-500"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-xs font-black truncate", n.is_read ? "text-[#94A3B8]" : "text-white")}>{n.title}</p>
+                      <p className="text-[11px] text-[#4A6580] mt-0.5 leading-relaxed">{n.body}</p>
+                      <p className="text-[10px] text-[#4A6580] mt-1">{new Date(n.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                    {!n.is_read && <div className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-1"></div>}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

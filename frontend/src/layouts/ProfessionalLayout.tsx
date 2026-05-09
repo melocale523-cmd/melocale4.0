@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { walletService } from '../services/dbServices';
 import { useProfile } from '../hooks/useProfile';
+import NotificationBell from '../components/NotificationBell';
 
 export default function ProfessionalLayout() {
   const location = useLocation();
@@ -174,6 +175,7 @@ export default function ProfessionalLayout() {
                 onClick={() => setMenuOpen(v => !v)}
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               >
+                <NotificationBell />
                 <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.email}</span>
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="avatar" className="w-8 h-8 rounded-full object-cover shrink-0" />
