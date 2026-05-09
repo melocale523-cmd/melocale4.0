@@ -4,9 +4,11 @@ import { supabase } from '../../lib/supabase';
 import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap, Camera } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function ProfessionalCompras() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient()
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
@@ -377,7 +379,7 @@ export default function ProfessionalCompras() {
                 </div>
               </div>
 
-              <div className="mt-5 flex gap-3">
+              <div className="mt-5 flex gap-3 flex-wrap">
                 {(() => {
                   const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
                   const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
@@ -415,6 +417,18 @@ export default function ProfessionalCompras() {
                     <Eye size={14} /> Visualizada
                   </div>
                 )}
+                <button
+                  onClick={async () => {
+                    let chatId = (purchase as any).chat_id as string | null;
+                    if (!chatId) {
+                      chatId = await proposalService.ensureChatForPurchase(purchase.id);
+                    }
+                    if (chatId) navigate(`/profissional/mensagens?chatId=${chatId}`);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#1C3050] text-white text-sm font-semibold rounded-xl hover:bg-[#243d61] transition-all border border-[#2a4a6b]"
+                >
+                  <MessageCircle size={16} /> Chat
+                </button>
               </div>
             </div>
           ))}
