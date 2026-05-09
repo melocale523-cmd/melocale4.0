@@ -296,13 +296,25 @@ export const proposalService = {
   async getProposalsForLead(leadId: string) {
     const { data, error } = await supabase
       .from('lead_purchases')
-      .select('id, professional_id, chat_id, price, duration, description, status, created_at, user_id, profiles!professional_id(full_name, avatar_url)')
+      .select('id, professional_id, chat_id, price, duration, description, status, created_at, user_id')
       .eq('lead_id', leadId)
       .not('status', 'eq', 'Aberto')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+
+    const professionalIds = (data || []).map(p => p.professional_id).filter(Boolean);
+
+    const { data: profiles } = professionalIds.length
+      ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', professionalIds)
+      : { data: [] };
+
+    const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]));
+
+    return (data || []).map(p => ({
+      ...p,
+      profiles: profileMap[p.professional_id] || null,
+    }));
   },
 
   async getProposalByPurchase(purchaseId: string) {
