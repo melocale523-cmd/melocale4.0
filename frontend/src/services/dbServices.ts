@@ -296,7 +296,7 @@ export const proposalService = {
   async getProposalsForLead(leadId: string) {
     const { data, error } = await supabase
       .from('lead_purchases')
-      .select('id, professional_id, chat_id, price, duration, description, status, created_at, user_id')
+      .select('id, professional_id, chat_id, price, duration, description, status, created_at, user_id, client_id')
       .eq('lead_id', leadId)
       .not('status', 'eq', 'Aberto')
       .order('created_at', { ascending: false });
@@ -339,16 +339,34 @@ export const proposalService = {
     if (status === 'Aceita') {
       const { data: purchase } = await supabase
         .from('lead_purchases')
-        .select('professional_id')
+        .select('professional_id, client_id, lead_id, chat_id')
         .eq('id', purchaseId)
         .single();
 
-      if (purchase?.professional_id) {
+      if (purchase) {
+        let chatId: string | null = purchase.chat_id ?? null;
+
+        if (!chatId) {
+          const { data: newChat } = await supabase
+            .from('chats')
+            .insert({})
+            .select('id')
+            .single();
+          chatId = newChat?.id ?? null;
+
+          if (chatId) {
+            await supabase
+              .from('lead_purchases')
+              .update({ chat_id: chatId })
+              .eq('id', purchaseId);
+          }
+        }
+
         await supabase.from('notifications').insert({
           user_id: purchase.professional_id,
           title: 'Interesse confirmado! 🎉',
           body: 'Um cliente aceitou sua proposta. Abra o chat para iniciar o serviço.',
-          data: { type: 'proposal_accepted', purchaseId },
+          data: { type: 'proposal_accepted', purchaseId, chatId },
         });
       }
     }
