@@ -404,7 +404,7 @@ export default function Pedidos() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="bg-white/5 p-4 rounded-xl border border-[#1C3050]">
                             <p className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest mb-1 flex items-center gap-1.5"><DollarSign size={12} /> Valor do Serviço</p>
-                            <p className="text-xl font-black text-white">R$ {prop.price.toLocaleString('pt-BR')}</p>
+                            <p className="text-xl font-black text-white">R$ {(prop.price ?? 0).toLocaleString('pt-BR')}</p>
                           </div>
                           <div className="bg-white/5 p-4 rounded-xl border border-[#1C3050]">
                             <p className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest mb-1 flex items-center gap-1.5"><Clock size={12} /> Prazo Estimado</p>
@@ -440,9 +440,12 @@ export default function Pedidos() {
                               <p className="text-sm font-black text-emerald-500 uppercase tracking-widest">Interesse Enviado</p>
                               <p className="text-[10px] text-[#4A6580] font-bold mt-1">O profissional já recebeu seus dados de contato.</p>
                             </div>
-                            <button className="w-full py-3 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-500 transition-all flex items-center justify-center gap-2">
+                            <a
+                              href="/cliente/mensagens"
+                              className="w-full py-3 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 text-center"
+                            >
                               <MessageCircle size={14} /> Abrir Chat
-                            </button>
+                            </a>
                           </div>
                         )}
                       </div>
