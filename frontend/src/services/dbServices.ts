@@ -606,15 +606,17 @@ export const chatService = {
       }
     }
 
-    const attachments = type !== 'text' ? { type, fileName } : null;
-
     const { data, error } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversationId,
         body: text,
         sender_type: senderType,
-        attachments,
+        topic: type !== 'text' ? type : 'text',
+        extension: fileName ? fileName.split('.').pop() || '' : '',
+        attachments: type !== 'text' ? { type, fileName } : {},
+        updated_at: new Date().toISOString(),
+        inserted_at: new Date().toISOString(),
       })
       .select('*')
       .single();
