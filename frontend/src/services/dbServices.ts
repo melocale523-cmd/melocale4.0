@@ -500,13 +500,55 @@ export const chatService = {
   async getChats() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
+
+    // Try join query first (professional_id and client_id are both user UUIDs)
     const { data, error } = await supabase
+      .from('conversations')
+      .select(`
+        *,
+        prof_profile:profiles!professional_id(full_name, avatar_url),
+        client_profile:profiles!client_id(full_name, avatar_url)
+      `)
+      .or(`client_id.eq.${user.id},professional_id.eq.${user.id}`)
+      .order('last_message_at', { ascending: false, nullsFirst: false });
+
+    if (!error) return data || [];
+
+    // Fallback: separate queries (same pattern as getProposalsForLead)
+    const { data: convs } = await supabase
       .from('conversations')
       .select('*')
       .or(`client_id.eq.${user.id},professional_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false, nullsFirst: false });
-    if (error) return [];
-    return data || [];
+
+    if (!convs?.length) return convs || [];
+
+    const userIds = [...new Set([
+      ...convs.map((c: any) => c.professional_id),
+      ...convs.map((c: any) => c.client_id),
+    ].filter(Boolean))];
+
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', userIds);
+
+    const profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.id, p]));
+
+    return convs.map((c: any) => ({
+      ...c,
+      prof_profile: profileMap[c.professional_id] || null,
+      client_profile: profileMap[c.client_id] || null,
+    }));
+  },
+
+  async uploadChatFile(conversationId: string, file: File): Promise<string> {
+    const ext = file.name.split('.').pop() || 'bin';
+    const path = `chats/${conversationId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('chat-files').upload(path, file);
+    if (error) throw error;
+    const { data: { publicUrl } } = supabase.storage.from('chat-files').getPublicUrl(path);
+    return publicUrl;
   },
 
   async getMessages(conversationId: string) {
@@ -533,12 +575,15 @@ export const chatService = {
       else if (conv?.professional_id === user.id) senderType = 'professional';
     }
 
+    const attachments = type !== 'text' ? { type, fileName } : null;
+
     const { data, error } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversationId,
         body: text,
         sender_type: senderType,
+        attachments,
       })
       .select('*')
       .single();
@@ -551,10 +596,15 @@ export const chatService = {
 
     if (recipientId && user && recipientId !== user.id) {
       try {
+        const notifBody = type === 'text'
+          ? (text.length > 50 ? text.substring(0, 47) + '...' : text)
+          : type === 'image' ? '📷 Foto'
+          : type === 'audio' ? '🎤 Áudio'
+          : `📎 ${fileName || 'Arquivo'}`;
         await supabase.from('notifications').insert({
           user_id: recipientId,
           title: 'Nova Mensagem',
-          body: text.length > 50 ? text.substring(0, 47) + '...' : text,
+          body: notifBody,
           data: { conversationId, type: 'message' },
         });
       } catch {}
