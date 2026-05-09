@@ -441,6 +441,16 @@ export default function Pedidos() {
                               {refuseMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : 'Recusar Proposta'}
                             </button>
                           </>
+                        ) : prop.status === 'Recusada' ? (
+                          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center space-y-3">
+                            <div className="w-12 h-12 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mx-auto">
+                              <X size={24} />
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-red-400 uppercase tracking-widest">Proposta Recusada</p>
+                              <p className="text-[10px] text-[#4A6580] font-bold mt-1">Você recusou esta proposta.</p>
+                            </div>
+                          </div>
                         ) : (
                           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center space-y-4">
                             <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
