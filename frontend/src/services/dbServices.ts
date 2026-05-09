@@ -410,7 +410,6 @@ export const adminService = {
 
   async getCoinPackages() {
     try {
-      // 100% select('*') no order, no eq
       const { data, error } = await supabase.from('coin_packages').select('*');
       if (error) return [];
       return data || [];
@@ -420,7 +419,6 @@ export const adminService = {
   },
   
   async updateCoinPackage(id: string, updates: any) {
-    // Apenas .eq na ID
     const { error } = await supabase.from('coin_packages').update(updates).eq('id', id);
     if (error) throw error;
     return true;
@@ -486,7 +484,7 @@ export const chatService = {
   },
 
   async deleteChat(chatId: string) {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('chats')
       .delete()
       .eq('id', chatId);
@@ -604,4 +602,3 @@ export const subscriptionService = {
     return data;
   }
 };
-
