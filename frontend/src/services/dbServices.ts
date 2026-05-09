@@ -157,41 +157,37 @@ export const leadService = {
 
   async getProfessionalStats(range: '7d' | '30d' | '90d' | '1y' = '30d') {
     const professionalId = useAuthStore.getState().user?.professionalId;
-    if (!professionalId) throw new Error("Professional ID not found");
+    const userId = useAuthStore.getState().user?.id;
+    if (!professionalId || !userId) throw new Error("Professional ID not found");
 
     const now = new Date();
     let startDate = new Date();
-    
     if (range === '7d') startDate.setDate(now.getDate() - 7);
     else if (range === '30d') startDate.setDate(now.getDate() - 30);
     else if (range === '90d') startDate.setDate(now.getDate() - 90);
     else if (range === '1y') startDate.setFullYear(now.getFullYear() - 1);
 
+    // Busca compras do profissional no período — filtradas no banco
     let purchasesData: any[] = [];
     try {
-      const { data: purchases, error: purchaseError } = await supabase
+      const { data, error } = await supabase
         .from('lead_purchases')
-        .select('*');
-
-      if (!purchaseError && purchases) {
-        purchasesData = purchases.filter((p: any) => 
-          (p.user_id === professionalId || p.wallet_id === professionalId) && 
-          new Date(p.created_at || 0) >= startDate
-        );
-      }
+        .select('id, price_coins, price, status, created_at')
+        .eq('user_id', userId)
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: true });
+      if (!error && data) purchasesData = data;
     } catch {}
 
-    let proposalsData: any[] = [];
-    try {
-      // Removed non-existent proposals table usage
-      proposalsData = [];
-    } catch {}
-    
-    const acceptedProposals = proposalsData.filter(p => p.status === 'Aceita');
-    const totalRevenue = acceptedProposals.reduce((acc, p) => acc + (p.price || 0), 0);
+    // Propostas = lead_purchases com status relevante
+    const proposalsData = purchasesData.filter((p: any) =>
+      p.status === 'Proposta Enviada' || p.status === 'Aceita' || p.status === 'Recusada'
+    );
+    const acceptedProposals = proposalsData.filter((p: any) => p.status === 'Aceita');
+    const totalRevenue = acceptedProposals.reduce((acc: number, p: any) => acc + (p.price || 0), 0);
 
+    // Monta série temporal
     const dateMap = new Map();
-
     if (range === '7d' || range === '30d') {
       const days = range === '7d' ? 7 : 30;
       for (let i = days - 1; i >= 0; i--) {
@@ -200,18 +196,13 @@ export const leadService = {
         const key = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         dateMap.set(key, { name: key, total: 0, aceitas: 0, recusadas: 0, revenue: 0 });
       }
-
-      proposalsData.forEach(p => {
+      purchasesData.forEach((p: any) => {
         const key = new Date(p.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         if (dateMap.has(key)) {
           const entry = dateMap.get(key);
           entry.total += 1;
-          if (p.status === 'Aceita') {
-            entry.aceitas += 1;
-            entry.revenue += (p.price || 0);
-          } else if (p.status === 'Recusada') {
-            entry.recusadas += 1;
-          }
+          if (p.status === 'Aceita') { entry.aceitas += 1; entry.revenue += (p.price || 0); }
+          else if (p.status === 'Recusada') { entry.recusadas += 1; }
         }
       });
     } else {
@@ -222,30 +213,24 @@ export const leadService = {
         const key = d.toLocaleDateString('pt-BR', { month: 'short' });
         dateMap.set(key, { name: key, total: 0, aceitas: 0, recusadas: 0, revenue: 0 });
       }
-
-      proposalsData.forEach(p => {
+      purchasesData.forEach((p: any) => {
         const key = new Date(p.created_at).toLocaleDateString('pt-BR', { month: 'short' });
         if (dateMap.has(key)) {
           const entry = dateMap.get(key);
           entry.total += 1;
-          if (p.status === 'Aceita') {
-            entry.aceitas += 1;
-            entry.revenue += (p.price || 0);
-          }
+          if (p.status === 'Aceita') { entry.aceitas += 1; entry.revenue += (p.price || 0); }
         }
       });
     }
 
-    const seriesData = Array.from(dateMap.values());
-
     return {
-      totalSpentCoins: purchasesData.reduce((acc, p) => acc + (p.price_coins || 0), 0),
+      totalSpentCoins: purchasesData.reduce((acc: number, p: any) => acc + (p.price_coins || 0), 0),
       contactsPurchased: purchasesData.length,
-      visualizacoes: Math.floor(Math.random() * 50) + (range === '7d' ? 20 : range === '1y' ? 500 : 120),
+      visualizacoes: null,
       totalProposals: proposalsData.length,
       acceptedProposalsCount: acceptedProposals.length,
       totalRevenue,
-      seriesData
+      seriesData: Array.from(dateMap.values()),
     };
   }
 };
