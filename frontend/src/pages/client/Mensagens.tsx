@@ -23,7 +23,7 @@ interface Chat {
   last_message: string;
   updated_at: string;
   unread_count: number;
-  recipient_id: string; // Adicionado
+  recipient_id: string;
 }
 
 export default function ClientMensagens() {
@@ -81,7 +81,9 @@ export default function ClientMensagens() {
 
   useEffect(() => {
     const chatIdFromUrl = searchParams.get('chatId');
-    if (chatIdFromUrl) setActiveChatId(chatIdFromUrl);
+    if (chatIdFromUrl && chatIdFromUrl !== 'null' && chatIdFromUrl.length > 10) {
+      setActiveChatId(chatIdFromUrl);
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -207,10 +209,8 @@ export default function ClientMensagens() {
       {/* Área do Chat */}
       {activeChat ? (
         <div className="flex-1 flex flex-col bg-[#0E1C32]/30 relative overflow-hidden">
-          {/* Background Decorative Gradient */}
           <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-500/5 blur-[120px] pointer-events-none rounded-full"></div>
           
-          {/* Header do Chat */}
           <div className="p-4 sm:p-6 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]/80 backdrop-blur-xl z-10">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050]">
@@ -254,7 +254,6 @@ export default function ClientMensagens() {
             </div>
           </div>
 
-          {/* Mensagens */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar relative z-10">
             {messagesLoading ? (
                <div className="h-full flex items-center justify-center">
@@ -329,7 +328,6 @@ export default function ClientMensagens() {
                 </div>
             )}
             
-            {/* Typing Indicator */}
             {isTyping && (
               <div className="flex flex-col items-start max-w-[70%] animate-in slide-in-from-bottom-2 duration-300">
                 <div className="bg-[#1C3454] text-[#94A3B8] py-3 px-5 rounded-2xl rounded-tl-sm border border-[#1C3050] flex items-center gap-3 shadow-lg">
@@ -347,7 +345,6 @@ export default function ClientMensagens() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
           <div className="p-6 pb-8 border-t border-[#1C3050] bg-[#1C3454]/80 backdrop-blur-xl z-20">
             {showEmojiPicker && (
               <div className="absolute bottom-28 left-6 right-6 p-4 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl flex flex-wrap gap-2 animate-in slide-in-from-bottom-4 duration-300 border-b-emerald-500/20 border-b-4">

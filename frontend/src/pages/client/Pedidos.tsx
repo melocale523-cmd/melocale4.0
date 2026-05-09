@@ -205,7 +205,6 @@ export default function Pedidos() {
         </button>
       </div>
 
-      {/* Barra de Busca e Filtro por Status */}
       <div className="space-y-4">
         <div className="relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
@@ -308,7 +307,6 @@ export default function Pedidos() {
                       </button>
                     )}
 
-                    {/* Context menu */}
                     <div className="relative z-20" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => setContextMenuId(contextMenuId === pedido.id ? null : pedido.id)}
@@ -354,7 +352,6 @@ export default function Pedidos() {
         )}
       </div>
 
-      {/* Modal de Propostas Recebidas */}
       {isProposalsModalOpen && selectedPedido && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsProposalsModalOpen(false)}></div>
@@ -469,7 +466,13 @@ export default function Pedidos() {
                               <p className="text-[10px] text-[#4A6580] font-bold mt-1">O profissional já recebeu seus dados de contato.</p>
                             </div>
                             <button
-                              onClick={() => navigate(`/cliente/mensagens?chatId=${(prop as any).chat_id}`)}
+                              onClick={async () => {
+                                let chatId = (prop as any).chat_id as string | null;
+                                if (!chatId) {
+                                  chatId = await proposalService.ensureChatForPurchase(prop.id);
+                                }
+                                if (chatId) navigate(`/cliente/mensagens?chatId=${chatId}`);
+                              }}
                               className="w-full py-3 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-500 transition-all flex items-center justify-center gap-2"
                             >
                               <MessageCircle size={14} /> Abrir Chat
@@ -496,12 +499,10 @@ export default function Pedidos() {
         </div>
       )}
 
-      {/* Overlay para fechar context menu */}
       {contextMenuId && (
         <div className="fixed inset-0 z-10" onClick={() => setContextMenuId(null)} />
       )}
 
-      {/* Wizard de Nova Solicitação / Edição */}
       {isModalOpen && (
         <RequestWizard
           onSubmit={handleWizardSubmit}

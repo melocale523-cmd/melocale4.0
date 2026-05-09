@@ -372,6 +372,31 @@ export const proposalService = {
     }
 
     return true;
+  },
+
+  async ensureChatForPurchase(purchaseId: string): Promise<string | null> {
+    const { data: purchase } = await supabase
+      .from('lead_purchases')
+      .select('chat_id')
+      .eq('id', purchaseId)
+      .single();
+
+    if (purchase?.chat_id) return purchase.chat_id;
+
+    const { data: newChat } = await supabase
+      .from('chats')
+      .insert({})
+      .select('id')
+      .single();
+
+    if (!newChat?.id) return null;
+
+    await supabase
+      .from('lead_purchases')
+      .update({ chat_id: newChat.id })
+      .eq('id', purchaseId);
+
+    return newChat.id;
   }
 };
 
