@@ -35,6 +35,7 @@ interface ConversationWithProfiles {
   last_message_at: string | null;
   unread_for_prof: number | null;
   created_at: string;
+  prof_user_id: string | null;
   prof_profile: ProfileData | null;
   client_profile: ProfileData | null;
 }
@@ -84,10 +85,11 @@ export default function ProfessionalMensagens() {
   });
 
   const activeConversation = (chats as ConversationWithProfiles[] | undefined)?.find(c => c.id === activeConversationId);
-  const recipientId = activeConversation?.client_id;
+  // client_id = clients.id = auth user UUID, so it is the correct recipientId directly
+  const recipientId = activeConversation?.client_id ?? undefined;
   const otherName = activeConversation?.client_profile?.full_name || 'Cliente';
   const otherAvatar = activeConversation?.client_profile?.avatar_url;
-  const isOtherUserOnline = onlineUsers.includes(recipientId ?? '');
+  const isOtherUserOnline = onlineUsers.includes(activeConversation?.client_id ?? '');
 
   const sendMessageMutation = useMutation({
     mutationFn: ({ text }: { text: string }) =>
