@@ -6,6 +6,7 @@ import { payProfessional } from '../../lib/stripe';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 
@@ -26,6 +27,7 @@ interface PedidoItem {
 const STATUS_TABS = ['Todos', 'Aberto', 'Orçando', 'Finalizado'] as const;
 
 export default function Pedidos() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoItem | null>(null);
@@ -389,12 +391,18 @@ export default function Pedidos() {
                     <div className="flex flex-col md:flex-row justify-between gap-8 relative z-10">
                       <div className="flex-1 space-y-6">
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center border border-[#1C3050] relative">
-                            <User className="text-[#4A6580]" size={32} />
+                          <div className="w-16 h-16 rounded-2xl border border-[#1C3050] relative shrink-0">
+                            {(prop as any).profiles?.avatar_url ? (
+                              <img src={(prop as any).profiles.avatar_url} className="w-16 h-16 rounded-2xl object-cover" alt="avatar" />
+                            ) : (
+                              <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
+                                <User className="text-[#4A6580]" size={32} />
+                              </div>
+                            )}
                             <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-[8px] font-black px-1.5 py-0.5 rounded-full text-black uppercase tracking-tighter">Verificado</div>
                           </div>
                           <div>
-                            <h4 className="text-xl font-black text-white">{(prop.profiles as any)?.full_name || 'Profissional'}</h4>
+                            <h4 className="text-xl font-black text-white">{(prop as any).profiles?.full_name || 'Profissional'}</h4>
                             <p className="text-blue-500 font-bold text-sm">Especialista verificado</p>
                             <div className="flex items-center gap-3 mt-1">
                               <div className="flex items-center gap-1">
@@ -460,12 +468,12 @@ export default function Pedidos() {
                               <p className="text-sm font-black text-emerald-500 uppercase tracking-widest">Interesse Enviado</p>
                               <p className="text-[10px] text-[#4A6580] font-bold mt-1">O profissional já recebeu seus dados de contato.</p>
                             </div>
-                            <a
-                              href="/cliente/mensagens"
-                              className="w-full py-3 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 text-center"
+                            <button
+                              onClick={() => navigate(`/cliente/mensagens?chatId=${(prop as any).chat_id}`)}
+                              className="w-full py-3 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-500 transition-all flex items-center justify-center gap-2"
                             >
                               <MessageCircle size={14} /> Abrir Chat
-                            </a>
+                            </button>
                           </div>
                         )}
                       </div>
