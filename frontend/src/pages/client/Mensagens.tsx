@@ -35,6 +35,7 @@ interface ConversationWithProfiles {
   last_message_at: string | null;
   unread_for_prof: number | null;
   created_at: string;
+  prof_user_id: string | null;
   prof_profile: ProfileData | null;
   client_profile: ProfileData | null;
 }
@@ -80,10 +81,11 @@ export default function ClientMensagens() {
   });
 
   const activeConversation = (chats as ConversationWithProfiles[] | undefined)?.find(c => c.id === activeConversationId);
-  const recipientId = activeConversation?.professional_id;
+  // prof_user_id is the professional's auth UUID — used for notifications and presence
+  const recipientId = activeConversation?.prof_user_id ?? undefined;
   const otherName = activeConversation?.prof_profile?.full_name || 'Profissional';
   const otherAvatar = activeConversation?.prof_profile?.avatar_url;
-  const isOtherUserOnline = onlineUsers.includes(recipientId ?? '');
+  const isOtherUserOnline = onlineUsers.includes(activeConversation?.prof_user_id ?? '');
 
   const sendMessageMutation = useMutation({
     mutationFn: ({ text }: { text: string }) =>
@@ -337,7 +339,7 @@ export default function ClientMensagens() {
             (chats as ConversationWithProfiles[]).map(conv => {
               const profName = conv.prof_profile?.full_name || 'Profissional';
               const profAvatar = conv.prof_profile?.avatar_url;
-              const isOnline = onlineUsers.includes(conv.professional_id);
+              const isOnline = onlineUsers.includes(conv.prof_user_id ?? '');
               return (
                 <button
                   key={conv.id}
