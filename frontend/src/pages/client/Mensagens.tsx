@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, File as FileIcon, Trash2, Clock, X, Square } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
@@ -27,6 +28,7 @@ interface Chat {
 
 export default function ClientMensagens() {
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -76,6 +78,11 @@ export default function ClientMensagens() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  useEffect(() => {
+    const chatIdFromUrl = searchParams.get('chatId');
+    if (chatIdFromUrl) setActiveChatId(chatIdFromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     scrollToBottom();

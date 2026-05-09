@@ -296,7 +296,7 @@ export const proposalService = {
   async getProposalsForLead(leadId: string) {
     const { data, error } = await supabase
       .from('lead_purchases')
-      .select('id, professional_id, price, duration, description, status, created_at, user_id')
+      .select('id, professional_id, chat_id, price, duration, description, status, created_at, user_id, profiles!professional_id(full_name, avatar_url)')
       .eq('lead_id', leadId)
       .not('status', 'eq', 'Aberto')
       .order('created_at', { ascending: false });
@@ -323,6 +323,24 @@ export const proposalService = {
       .eq('id', purchaseId);
 
     if (error) throw error;
+
+    if (status === 'Aceita') {
+      const { data: purchase } = await supabase
+        .from('lead_purchases')
+        .select('professional_id')
+        .eq('id', purchaseId)
+        .single();
+
+      if (purchase?.professional_id) {
+        await supabase.from('notifications').insert({
+          user_id: purchase.professional_id,
+          title: 'Interesse confirmado! 🎉',
+          body: 'Um cliente aceitou sua proposta. Abra o chat para iniciar o serviço.',
+          data: { type: 'proposal_accepted', purchaseId },
+        });
+      }
+    }
+
     return true;
   }
 };
