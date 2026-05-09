@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { useClientProfile } from '../hooks/useClientProfile';
+import NotificationBell from '../components/NotificationBell';
 
 export default function ClientLayout() {
   const location = useLocation();
@@ -169,6 +170,7 @@ export default function ClientLayout() {
               onClick={() => setMenuOpen(v => !v)}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
+              <NotificationBell />
               <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.email}</span>
               <AvatarCircle size="sm" />
             </button>
