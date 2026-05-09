@@ -501,45 +501,67 @@ export const chatService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-    // Try join query first (professional_id and client_id are both user UUIDs)
-    const { data, error } = await supabase
-      .from('conversations')
-      .select(`
-        *,
-        prof_profile:profiles!professional_id(full_name, avatar_url),
-        client_profile:profiles!client_id(full_name, avatar_url)
-      `)
-      .or(`client_id.eq.${user.id},professional_id.eq.${user.id}`)
-      .order('last_message_at', { ascending: false, nullsFirst: false });
+    // Step 1: Find this user's professionals.id (if they are a professional)
+    // professional_id in conversations → professionals.id (not auth user id)
+    const { data: profRecord } = await supabase
+      .from('professionals')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const myProfessionalId = profRecord?.id ?? null;
 
-    if (!error) return data || [];
+    // client_id in conversations = clients.id = auth user id
+    let filter = `client_id.eq.${user.id}`;
+    if (myProfessionalId) filter += `,professional_id.eq.${myProfessionalId}`;
 
-    // Fallback: separate queries (same pattern as getProposalsForLead)
-    const { data: convs } = await supabase
+    const { data: convs, error } = await supabase
       .from('conversations')
       .select('*')
-      .or(`client_id.eq.${user.id},professional_id.eq.${user.id}`)
+      .or(filter)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
-    if (!convs?.length) return convs || [];
+    if (error || !convs?.length) return convs || [];
 
-    const userIds = [...new Set([
-      ...convs.map((c: any) => c.professional_id),
-      ...convs.map((c: any) => c.client_id),
-    ].filter(Boolean))];
+    // Step 2: professionals.id → professionals.user_id
+    const profIds = [...new Set(convs.map((c: any) => c.professional_id).filter(Boolean))];
+    const { data: profsData } = profIds.length
+      ? await supabase.from('professionals').select('id, user_id').in('id', profIds)
+      : { data: [] };
+    const profIdToUserId: Record<string, string> = Object.fromEntries(
+      (profsData || []).map((p: any) => [p.id, p.user_id]),
+    );
 
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, full_name, avatar_url')
-      .in('id', userIds);
+    // Step 3: clients table has full_name directly (no user_id column)
+    const clientIds = [...new Set(convs.map((c: any) => c.client_id).filter(Boolean))];
+    const { data: clientsData } = clientIds.length
+      ? await supabase.from('clients').select('id, full_name').in('id', clientIds)
+      : { data: [] };
+    const clientMap: Record<string, any> = Object.fromEntries(
+      (clientsData || []).map((c: any) => [c.id, c]),
+    );
 
-    const profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.id, p]));
+    // Step 4: profiles for professional user_ids + client_ids (clients.id = auth user id = profiles.id)
+    const profUserIds = [...new Set(Object.values(profIdToUserId).filter(Boolean))] as string[];
+    const allProfileIds = [...new Set([...profUserIds, ...clientIds])];
+    const { data: profilesData } = allProfileIds.length
+      ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', allProfileIds)
+      : { data: [] };
+    const profileMap: Record<string, any> = Object.fromEntries(
+      (profilesData || []).map((p: any) => [p.id, p]),
+    );
 
-    return convs.map((c: any) => ({
-      ...c,
-      prof_profile: profileMap[c.professional_id] || null,
-      client_profile: profileMap[c.client_id] || null,
-    }));
+    // Step 5: assemble
+    return convs.map((c: any) => {
+      const profUserId = profIdToUserId[c.professional_id] ?? null;
+      const profProfile = profUserId ? (profileMap[profUserId] ?? null) : null;
+      const clientFromProfile = profileMap[c.client_id];
+      const clientFromTable = clientMap[c.client_id];
+      const clientProfile = {
+        full_name: clientFromProfile?.full_name ?? clientFromTable?.full_name ?? null,
+        avatar_url: clientFromProfile?.avatar_url ?? null,
+      };
+      return { ...c, prof_user_id: profUserId, prof_profile: profProfile, client_profile: clientProfile };
+    });
   },
 
   async uploadChatFile(conversationId: string, file: File): Promise<string> {
@@ -571,8 +593,17 @@ export const chatService = {
         .select('client_id, professional_id')
         .eq('id', conversationId)
         .single();
-      if (conv?.client_id === user.id) senderType = 'client';
-      else if (conv?.professional_id === user.id) senderType = 'professional';
+      if (conv?.client_id === user.id) {
+        senderType = 'client';
+      } else if (conv?.professional_id) {
+        // professional_id → professionals.id; resolve via user_id
+        const { data: prof } = await supabase
+          .from('professionals')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (prof?.id === conv.professional_id) senderType = 'professional';
+      }
     }
 
     const attachments = type !== 'text' ? { type, fileName } : null;
