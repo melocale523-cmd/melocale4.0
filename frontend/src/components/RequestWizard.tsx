@@ -133,7 +133,7 @@ export default function RequestWizard({
 
       const urls: string[] = [];
       for (const file of Array.from(files)) {
-        const path = `leads/${user.id}/${Date.now()}-${file.name}`;
+        const path = `${user.id}/leads/${Date.now()}-${file.name}`;
         const { error } = await supabase.storage.from('avatars').upload(path, file);
         if (error) throw error;
         const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
