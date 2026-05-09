@@ -384,7 +384,7 @@ export default function Pedidos() {
                             <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-[8px] font-black px-1.5 py-0.5 rounded-full text-black uppercase tracking-tighter">Verificado</div>
                           </div>
                           <div>
-                            <h4 className="text-xl font-black text-white">{(prop.profiles as any)?.full_name || 'Profissional'}</h4>
+                            <h4 className="text-xl font-black text-white">Profissional</h4>
                             <p className="text-blue-500 font-bold text-sm">Especialista verificado</p>
                             <div className="flex items-center gap-3 mt-1">
                               <div className="flex items-center gap-1">
