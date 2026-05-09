@@ -87,13 +87,23 @@ export default function Pedidos() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const respondMutation = useMutation({
-    mutationFn: ({ proposalId, purchaseId, status }: { proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada' }) =>
-      proposalService.respondProposal(proposalId, purchaseId, status),
+  const acceptMutation = useMutation({
+    mutationFn: ({ purchaseId }: { purchaseId: string }) =>
+      proposalService.respondProposal('', purchaseId, 'Aceita'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['proposals', selectedPedido?.id] });
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
-      toast.success('Resposta enviada! O profissional agora pode ver seus dados de contato.');
+      toast.success('Interesse enviado! O profissional já pode ver seus dados de contato.');
+    },
+    onError: (error: Error) => toast.error(error.message)
+  });
+
+  const refuseMutation = useMutation({
+    mutationFn: ({ purchaseId }: { purchaseId: string }) =>
+      proposalService.respondProposal('', purchaseId, 'Recusada'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proposals', selectedPedido?.id] });
+      toast.success('Proposta recusada.');
     },
     onError: (error: Error) => toast.error(error.message)
   });
@@ -417,18 +427,18 @@ export default function Pedidos() {
                         {prop.status === 'Enviada' || prop.status === 'Proposta Enviada' ? (
                           <>
                             <button
-                              onClick={() => respondMutation.mutate({ proposalId: prop.id, purchaseId: prop.id, status: 'Aceita' })}
-                              disabled={respondMutation.isPending}
+                              onClick={() => acceptMutation.mutate({ purchaseId: prop.id })}
+                              disabled={acceptMutation.isPending || refuseMutation.isPending}
                               className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
                             >
-                              {respondMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <><CheckCircle size={18} /> Tenho Interesse</>}
+                              {acceptMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <><CheckCircle size={18} /> Tenho Interesse</>}
                             </button>
                             <button
-                              onClick={() => respondMutation.mutate({ proposalId: prop.id, purchaseId: prop.id, status: 'Recusada' })}
-                              disabled={respondMutation.isPending}
-                              className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black rounded-2xl transition-all active:scale-95"
+                              onClick={() => refuseMutation.mutate({ purchaseId: prop.id })}
+                              disabled={refuseMutation.isPending || acceptMutation.isPending}
+                              className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
-                              Recusar Proposta
+                              {refuseMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : 'Recusar Proposta'}
                             </button>
                           </>
                         ) : (
