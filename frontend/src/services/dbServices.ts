@@ -317,27 +317,12 @@ export const proposalService = {
   },
 
   async respondProposal(proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada') {
-    const { data: purchase, error } = await supabase
+    const { error } = await supabase
       .from('lead_purchases')
       .update({ status })
-      .eq('id', purchaseId)
-      .select('user_id')
-      .single();
+      .eq('id', purchaseId);
 
     if (error) throw error;
-
-    if (purchase?.user_id) {
-      const msg = status === 'Aceita'
-        ? 'O cliente aceitou sua proposta! Entre em contato para combinar os detalhes. ✅'
-        : 'O cliente recusou sua proposta desta vez. Continue enviando orçamentos!';
-      await supabase.from('notifications').insert({
-        user_id: purchase.user_id,
-        title: `Proposta ${status}`,
-        body: msg,
-        data: { type: 'proposal_response', purchaseId, status },
-      });
-    }
-
     return true;
   }
 };
