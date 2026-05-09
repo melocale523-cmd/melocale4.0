@@ -1,0 +1,6 @@
+{
+  "name": "MeloCalé",
+  "description": "Plataforma premium para contratação de profissionais e serviços - Conectando talentos a clientes de forma inteligente e segura",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": []
+}
