@@ -305,15 +305,22 @@ export const proposalService = {
 
     const professionalIds = (data || []).map(p => p.professional_id).filter(Boolean);
 
-    const { data: profiles } = professionalIds.length
-      ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', professionalIds)
+    const { data: professionals } = professionalIds.length
+      ? await supabase.from('professionals').select('id, user_id').in('id', professionalIds)
+      : { data: [] };
+
+    const profMap = Object.fromEntries((professionals || []).map(p => [p.id, p.user_id]));
+    const userIds = Object.values(profMap).filter(Boolean);
+
+    const { data: profiles } = userIds.length
+      ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', userIds)
       : { data: [] };
 
     const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]));
 
     return (data || []).map(p => ({
       ...p,
-      profiles: profileMap[p.professional_id] || null,
+      profiles: profileMap[profMap[p.professional_id]] || null,
     }));
   },
 
