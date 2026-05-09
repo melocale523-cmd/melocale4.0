@@ -170,12 +170,12 @@ export default function ProfessionalLayout() {
                  {isLoading ? '...' : (typeof balance === 'object' && balance !== null && 'balance_coins' in balance ? Math.floor(balance.balance_coins) : Math.floor(typeof balance === 'number' ? balance : 0))} moedas
                </span>
             </div>
+            <NotificationBell />
             <div className="relative border-l border-[#243F6A] pl-6" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(v => !v)}
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               >
-                <NotificationBell />
                 <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.email}</span>
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="avatar" className="w-8 h-8 rounded-full object-cover shrink-0" />

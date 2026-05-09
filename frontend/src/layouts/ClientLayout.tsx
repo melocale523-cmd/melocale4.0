@@ -165,12 +165,12 @@ export default function ClientLayout() {
           <div className="flex-1" />
 
           {/* Avatar + dropdown */}
+          <NotificationBell />
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(v => !v)}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <NotificationBell />
               <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.email}</span>
               <AvatarCircle size="sm" />
             </button>
