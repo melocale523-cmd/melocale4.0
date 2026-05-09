@@ -267,7 +267,7 @@ export const transactionService = {
 // === Proposals ===
 export const proposalService = {
   async sendProposal(purchaseId: string, proposal: { price: number, duration: string, description: string }) {
-    const { error } = await supabase
+    const { data: purchase, error } = await supabase
       .from('lead_purchases')
       .update({
         price: proposal.price,
@@ -275,9 +275,21 @@ export const proposalService = {
         description: proposal.description,
         status: 'Proposta Enviada',
       })
-      .eq('id', purchaseId);
+      .eq('id', purchaseId)
+      .select('client_id')
+      .single();
 
     if (error) throw error;
+
+    if (purchase?.client_id) {
+      await supabase.from('notifications').insert({
+        user_id: purchase.client_id,
+        title: 'Nova proposta recebida! 🎉',
+        body: `Um profissional enviou um orçamento de R$ ${proposal.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. Acesse Meus Pedidos para ver.`,
+        data: { type: 'proposal_received', purchaseId },
+      });
+    }
+
     return true;
   },
 
@@ -305,12 +317,27 @@ export const proposalService = {
   },
 
   async respondProposal(proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada') {
-    const { error } = await supabase
+    const { data: purchase, error } = await supabase
       .from('lead_purchases')
       .update({ status })
-      .eq('id', purchaseId);
+      .eq('id', purchaseId)
+      .select('user_id')
+      .single();
 
     if (error) throw error;
+
+    if (purchase?.user_id) {
+      const msg = status === 'Aceita'
+        ? 'O cliente aceitou sua proposta! Entre em contato para combinar os detalhes. ✅'
+        : 'O cliente recusou sua proposta desta vez. Continue enviando orçamentos!';
+      await supabase.from('notifications').insert({
+        user_id: purchase.user_id,
+        title: `Proposta ${status}`,
+        body: msg,
+        data: { type: 'proposal_response', purchaseId, status },
+      });
+    }
+
     return true;
   }
 };
