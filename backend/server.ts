@@ -1,5 +1,5 @@
 // Trigger Render redeploy 2026-04-28
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import Anthropic from '@anthropic-ai/sdk';
@@ -68,8 +68,8 @@ async function startServer() {
     process.env.FRONTEND_URL,
   ].filter(Boolean) as string[];
 
-  app.use(cors({
-    origin: (origin, callback) => {
+  const corsOptions: Parameters<typeof cors>[0] = {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin || ALLOWED_ORIGINS.includes(origin)) {
         callback(null, true);
       } else {
@@ -79,15 +79,16 @@ async function startServer() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature', 'x-client-info', 'apikey'],
-  }));
+  };
+  app.use(cors(corsOptions));
 
   // Webhook deve usar express.raw
-  app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
+  app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async (req: Request, res: Response) => {
     const sig = req.headers["stripe-signature"] as string;
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
+      event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET!);
     } catch (err) {
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
@@ -198,12 +199,12 @@ async function startServer() {
     max: 100,
   }));
 
-  app.get("/api/health", (req, res) => {
+  app.get("/api/health", (req: Request, res: Response) => {
     res.json({ status: "ok" });
   });
 
   // API route for AI Chat
-  app.post("/api/chat", async (req, res, next) => {
+  app.post("/api/chat", async (req: Request, res: Response, next: NextFunction) => {
     const buildSystemPrompt = (context: string, userData: Record<string, any>) => {
       const name = userData.name || 'usuário';
 
