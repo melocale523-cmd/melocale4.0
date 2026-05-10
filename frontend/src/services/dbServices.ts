@@ -612,11 +612,7 @@ export const chatService = {
         conversation_id: conversationId,
         body: text,
         sender_type: senderType,
-        topic: type !== 'text' ? type : 'text',
-        extension: fileName ? fileName.split('.').pop() || '' : '',
-        attachments: type !== 'text' ? { type, fileName } : {},
-        updated_at: new Date().toISOString(),
-        inserted_at: new Date().toISOString(),
+        attachments: type !== 'text' ? [{ type, fileName, url: text }] : [],
       })
       .select('*')
       .single();
