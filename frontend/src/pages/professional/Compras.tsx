@@ -45,12 +45,15 @@ export default function ProfessionalCompras() {
     onError: (error: any) => alert(`Erro ao enviar proposta: ${error.message}`)
   });
 
-  const [activeTab, setActiveTab] = useState('Todos');
-  const tabs = ['Todos', 'Pendente Proposta', 'Proposta Enviada', 'Respondida pelo Cliente'];
+  const STATUS_TABS = ['Todos', 'Pendente Proposta', 'Proposta Enviada', 'Aceita', 'Recusada'] as const;
+  type StatusTab = typeof STATUS_TABS[number];
+  const [activeTab, setActiveTab] = useState<StatusTab>('Todos');
 
-  const filteredPurchases = purchases?.filter(p => 
-    activeTab === 'Todos' || p.status === activeTab
-  );
+  const filteredPurchases = (purchases ?? []).filter(p => {
+    if (activeTab === 'Todos') return true;
+    if (activeTab === 'Proposta Enviada') return p.status === 'Proposta Enviada' || p.status === 'Enviada';
+    return p.status === activeTab;
+  });
 
   const canContact = (_status: string) => true;
 
@@ -224,26 +227,37 @@ export default function ProfessionalCompras() {
         </div>
       </div>
 
-      <div className="flex gap-6 border-b border-slate-800 overflow-x-auto pb-px">
-         {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                 "pb-3 text-sm font-bold transition-colors border-b-2 whitespace-nowrap",
-                 activeTab === tab ? "border-emerald-500 text-white" : "border-transparent text-[#4A6580] hover:text-slate-300"
-              )}
-            >
-              {tab}
-            </button>
-         ))}
+      <div className="flex gap-2 flex-wrap">
+        {STATUS_TABS.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              "px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
+              activeTab === tab
+                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                : "bg-[#0E1C32] text-slate-400 border border-[#1C3050] hover:border-emerald-500/50"
+            )}
+          >
+            {tab}
+            {tab !== 'Todos' && (
+              <span className="ml-1.5 opacity-70">
+                ({(purchases ?? []).filter(p =>
+                  tab === 'Proposta Enviada'
+                    ? p.status === 'Proposta Enviada' || p.status === 'Enviada'
+                    : p.status === tab
+                ).length})
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <LoadingSpinner size={32} label="Carregando seus clientes..." />
         </div>
-      ) : filteredPurchases && filteredPurchases.length > 0 ? (
+      ) : filteredPurchases.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {filteredPurchases.map((purchase) => (
             <div key={purchase.id} className={cn(
