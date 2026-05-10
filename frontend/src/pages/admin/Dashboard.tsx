@@ -49,7 +49,7 @@ export default function AdminDashboard() {
               <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400"><TrendingUp size={20} /></div>
            </div>
            <h3 className="text-[#94A3B8] text-sm font-medium">Receita Estimada (Mês)</h3>
-           <p className="text-3xl font-bold text-white mt-1">R$ {(summary?.estimatedRevenue || 0).toLocaleString()}</p>
+           <p className="text-3xl font-bold text-white mt-1">R$ {(summary?.estimatedRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
         </div>
 
         <div className="bg-[#1C3454] border border-red-500/20 rounded-xl p-6 relative overflow-hidden">

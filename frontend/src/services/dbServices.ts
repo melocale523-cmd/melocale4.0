@@ -431,29 +431,37 @@ export const proposalService = {
 // === Admin ===
 export const adminService = {
   async getDashboardSummary() {
-    let usersCount = 0, pendingCount = 0, activeLeadsCount = 0, pendingDisputesCount = 0;
+    let usersCount = 0, pendingCount = 0, activeLeadsCount = 0, pendingDisputesCount = 0, totalRevenue = 0;
     try {
       const { data: profs } = await supabase.from('profiles').select('*');
       if (profs) {
         usersCount = profs.length;
         pendingCount = profs.filter((p: any) => p.status === 'pending').length;
       }
-      
+
       const { data: leads } = await supabase.from('leads').select('*');
       if (leads) {
         activeLeadsCount = leads.filter((l: any) => l.status === 'open').length;
       }
-      
+
       const { data: disputes } = await supabase.from('disputes').select('*');
       if (disputes) {
         pendingDisputesCount = disputes.filter((d: any) => d.status === 'pending').length;
+      }
+
+      const { data: purchases } = await supabase
+        .from('lead_purchases')
+        .select('price')
+        .not('price', 'is', null);
+      if (purchases) {
+        totalRevenue = purchases.reduce((acc: number, p: any) => acc + (p.price ?? 0), 0);
       }
     } catch {}
 
     return {
       totalUsers: usersCount || 0,
       activeLeads: activeLeadsCount || 0,
-      estimatedRevenue: 48500,
+      estimatedRevenue: totalRevenue,
       pendingVerifications: pendingCount || 0,
       avgResponseTime: '12m',
       pendingDisputes: pendingDisputesCount || 0
