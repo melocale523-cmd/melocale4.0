@@ -176,6 +176,15 @@ export default function ClientMensagens() {
     return () => { supabase.removeChannel(ch); };
   }, [currentUser]);
 
+  // Mark incoming messages as read when conversation opens
+  useEffect(() => {
+    if (!activeConversationId) return;
+    supabase.rpc('mark_messages_read', {
+      p_conversation_id: activeConversationId,
+      p_sender_type: 'client',
+    }).then(() => {});
+  }, [activeConversationId]);
+
   const handleSendMessage = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!messageInput.trim() || !activeConversationId) return;
