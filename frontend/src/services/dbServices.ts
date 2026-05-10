@@ -226,7 +226,7 @@ export const leadService = {
     return {
       totalSpentCoins: purchasesData.reduce((acc: number, p: any) => acc + (p.price_coins || 0), 0),
       contactsPurchased: purchasesData.length,
-      visualizacoes: null,
+      visualizacoes: purchasesData.length,
       totalProposals: proposalsData.length,
       acceptedProposalsCount: acceptedProposals.length,
       totalRevenue,
