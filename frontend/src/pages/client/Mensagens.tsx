@@ -128,6 +128,10 @@ export default function ClientMensagens() {
   // Realtime new messages
   useEffect(() => {
     if (!activeConversationId) return;
+    const invalidate = () => {
+      queryClient.invalidateQueries({ queryKey: ['messages', activeConversationId] });
+      queryClient.invalidateQueries({ queryKey: ['chats'] });
+    };
     const channel = supabase
       .channel(`messages:${activeConversationId}`)
       .on('postgres_changes', {
@@ -135,10 +139,13 @@ export default function ClientMensagens() {
         schema: 'public',
         table: 'messages',
         filter: `conversation_id=eq.${activeConversationId}`,
-      }, () => {
-        queryClient.invalidateQueries({ queryKey: ['messages', activeConversationId] });
-        queryClient.invalidateQueries({ queryKey: ['chats'] });
-      })
+      }, invalidate)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'messages',
+        filter: `conversation_id=eq.${activeConversationId}`,
+      }, invalidate)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [activeConversationId, queryClient]);
