@@ -265,7 +265,7 @@ export default function ClientMensagens() {
   const isMyMessage = (msg: Message) => msg.sender_type === 'client';
 
   const renderMessageContent = (msg: Message) => {
-    const att = msg.attachments;
+    const att = Array.isArray(msg.attachments) ? msg.attachments[0] : msg.attachments;
     if (att?.type === 'image') {
       return (
         <img
