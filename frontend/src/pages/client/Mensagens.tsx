@@ -183,7 +183,10 @@ export default function ClientMensagens() {
     supabase.rpc('mark_messages_read', {
       p_conversation_id: activeConversationId,
       p_sender_type: 'client',
-    }).then(() => { queryClient.invalidateQueries({ queryKey: ['chats'] }); });
+    }).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['chats'] });
+      queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
+    });
   }, [activeConversationId]);
 
   const handleSendMessage = (e?: React.FormEvent) => {
