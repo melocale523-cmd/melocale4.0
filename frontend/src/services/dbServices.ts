@@ -502,74 +502,33 @@ export const chatService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-    // conversations.professional_user_id = auth UUID directly — no join to professionals needed
-    const filter = `client_id.eq.${user.id},professional_user_id.eq.${user.id}`;
-
-    const { data: convs, error } = await supabase
-      .from('conversations')
+    const { data, error } = await supabase
+      .from('v_conversations')
       .select('*')
-      .or(filter)
+      .or(`client_id.eq.${user.id},professional_user_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
-    if (error || !convs?.length) return convs || [];
-
-    const convIds = convs.map((c: any) => c.id);
-    const { data: lastMsgs } = await supabase
-      .from('messages')
-      .select('conversation_id, body, attachments')
-      .in('conversation_id', convIds)
-      .order('created_at', { ascending: false });
-
-    const lastMsgMap: Record<string, string> = {};
-    (lastMsgs || []).forEach((m: any) => {
-      if (!lastMsgMap[m.conversation_id]) {
-        const att = Array.isArray(m.attachments) ? m.attachments[0] : null;
-        lastMsgMap[m.conversation_id] = att?.type === 'image' ? '📷 Foto' : att?.type === 'audio' ? '🎤 Áudio' : att?.type === 'file' ? `📎 ${att.fileName || 'Arquivo'}` : m.body;
-      }
-    });
-
-    const { data: unreadClientData } = await supabase
-      .from('messages')
-      .select('conversation_id')
-      .in('conversation_id', convIds)
-      .eq('sender_type', 'professional')
-      .is('read_at', null);
-    const unreadClientMap: Record<string, number> = {};
-    (unreadClientData || []).forEach((m: any) => {
-      unreadClientMap[m.conversation_id] = (unreadClientMap[m.conversation_id] || 0) + 1;
-    });
-
-    // Step 2: clients table has full_name directly (no user_id column)
-    const clientIds = [...new Set(convs.map((c: any) => c.client_id).filter(Boolean))];
-    const { data: clientsData } = clientIds.length
-      ? await supabase.from('clients').select('id, full_name').in('id', clientIds)
-      : { data: [] };
-    const clientMap: Record<string, any> = Object.fromEntries(
-      (clientsData || []).map((c: any) => [c.id, c]),
-    );
-
-    // Step 3: profiles for prof auth UUIDs (direct from column) + client_ids
-    const profUserIds = [...new Set(convs.map((c: any) => c.professional_user_id).filter(Boolean))] as string[];
-    const allProfileIds = [...new Set([...profUserIds, ...clientIds])];
-    const { data: profilesData } = allProfileIds.length
-      ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', allProfileIds)
-      : { data: [] };
-    const profileMap: Record<string, any> = Object.fromEntries(
-      (profilesData || []).map((p: any) => [p.id, p]),
-    );
-
-    // Step 5: assemble
-    return convs.map((c: any) => {
-      const profUserId = c.professional_user_id ?? null;
-      const profProfile = profUserId ? (profileMap[profUserId] ?? null) : null;
-      const clientFromProfile = profileMap[c.client_id];
-      const clientFromTable = clientMap[c.client_id];
-      const clientProfile = {
-        full_name: clientFromProfile?.full_name ?? clientFromTable?.full_name ?? null,
-        avatar_url: clientFromProfile?.avatar_url ?? null,
-      };
-      return { ...c, prof_user_id: profUserId, prof_profile: profProfile, client_profile: clientProfile, last_message: lastMsgMap[c.id] ?? null, unread_client: unreadClientMap[c.id] ?? 0 };
-    });
+    if (error) throw error;
+    return (data ?? []).map((conv: any) => ({
+      id: conv.id,
+      client_id: conv.client_id,
+      professional_id: conv.professional_id,
+      professional_user_id: conv.professional_user_id,
+      lead_id: conv.lead_id,
+      last_message_at: conv.last_message_at,
+      created_at: conv.created_at,
+      unread_for_prof: conv.unread_for_prof,
+      last_message: conv.last_message ?? null,
+      unread_client: conv.unread_for_client ?? 0,
+      prof_user_id: conv.professional_user_id ?? null,
+      prof_profile: conv.prof_full_name || conv.prof_avatar_url
+        ? { full_name: conv.prof_full_name ?? null, avatar_url: conv.prof_avatar_url ?? null }
+        : null,
+      client_profile: {
+        full_name: conv.client_full_name ?? null,
+        avatar_url: conv.client_avatar_url ?? null,
+      },
+    }));
   },
 
   async uploadChatFile(conversationId: string, file: File): Promise<string> {
