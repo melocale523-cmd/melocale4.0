@@ -4,7 +4,7 @@ import { LogOut, ArrowLeft, Calendar, MessageSquare, BarChart3, CreditCard, Sett
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { walletService } from '../services/dbServices';
 import { useProfile } from '../hooks/useProfile';
@@ -52,6 +52,8 @@ export default function ProfessionalLayout() {
     { name: 'Configurações', path: '/profissional/configuracoes', icon: Settings },
   ];
 
+  const queryClient = useQueryClient();
+
   const { data: unreadCount } = useQuery({
     queryKey: ['unread_count'],
     queryFn: async () => {
@@ -67,8 +69,16 @@ export default function ProfessionalLayout() {
         .gt('unread_for_prof', 0);
       return (data || []).reduce((acc, c) => acc + (c.unread_for_prof || 0), 0);
     },
-    refetchInterval: 10000,
   });
+
+  useEffect(() => {
+    const ch = supabase.channel('prof_unread_watch')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['unread_count'] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [queryClient]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

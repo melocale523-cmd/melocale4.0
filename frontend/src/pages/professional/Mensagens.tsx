@@ -33,6 +33,7 @@ interface ConversationWithProfiles {
   client_id: string;
   lead_id: string | null;
   last_message_at: string | null;
+  last_message: string | null;
   unread_for_prof: number | null;
   created_at: string;
   prof_user_id: string | null;
@@ -372,7 +373,7 @@ export default function ProfessionalMensagens() {
                     </div>
                     <div className="flex justify-between items-center gap-2">
                       <p className="text-xs text-[#4A6580] truncate font-medium">
-                        {conv.last_message_at ? 'Última mensagem' : 'Sem mensagens ainda'}
+                        {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
                       </p>
                       {(conv.unread_for_prof ?? 0) > 0 && (
                         <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-emerald-500/20">

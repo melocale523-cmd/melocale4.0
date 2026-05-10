@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { useClientProfile } from '../hooks/useClientProfile';
 import NotificationBell from '../components/NotificationBell';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function ClientLayout() {
   const location = useLocation();
@@ -16,6 +17,37 @@ export default function ClientLayout() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: profile } = useClientProfile();
+  const queryClient = useQueryClient();
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ['client_unread_count'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+      const { data } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('client_id', user.id);
+      if (!data?.length) return 0;
+      const convIds = data.map(c => c.id);
+      const { count } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .in('conversation_id', convIds)
+        .eq('sender_type', 'professional')
+        .is('read_at', null);
+      return count ?? 0;
+    },
+  });
+
+  useEffect(() => {
+    const ch = supabase.channel('client_unread_watch')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [queryClient]);
 
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
@@ -83,6 +115,11 @@ export default function ClientLayout() {
               >
                 <item.icon size={18} />
                 {item.name}
+                {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -129,6 +166,11 @@ export default function ClientLayout() {
                   >
                     <item.icon size={18} />
                     {item.name}
+                    {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
