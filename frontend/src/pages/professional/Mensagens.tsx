@@ -54,6 +54,7 @@ export default function ProfessionalMensagens() {
   const [isUploading, setIsUploading] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -327,6 +328,8 @@ export default function ProfessionalMensagens() {
               type="text"
               placeholder="Buscar conversas..."
               className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
@@ -338,7 +341,14 @@ export default function ProfessionalMensagens() {
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Carregando chats...</p>
             </div>
           ) : chats && chats.length > 0 ? (
-            (chats as ConversationWithProfiles[]).map(conv => {
+            (chats as ConversationWithProfiles[]).filter(conv => {
+              if (!searchQuery.trim()) return true;
+              const q = searchQuery.toLowerCase();
+              return (
+                conv.client_profile?.full_name?.toLowerCase().includes(q) ||
+                conv.last_message?.toLowerCase().includes(q)
+              );
+            }).map(conv => {
               const clientName = conv.client_profile?.full_name || 'Cliente';
               const clientAvatar = conv.client_profile?.avatar_url;
               const isOnline = onlineUsers.includes(conv.client_id);
