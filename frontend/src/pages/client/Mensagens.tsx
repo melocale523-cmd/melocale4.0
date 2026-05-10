@@ -182,7 +182,7 @@ export default function ClientMensagens() {
     supabase.rpc('mark_messages_read', {
       p_conversation_id: activeConversationId,
       p_sender_type: 'client',
-    }).then(() => {});
+    }).then(() => { queryClient.invalidateQueries({ queryKey: ['chats'] }); });
   }, [activeConversationId]);
 
   const handleSendMessage = (e?: React.FormEvent) => {
@@ -421,6 +421,8 @@ export default function ClientMensagens() {
               </button>
 
               {isMenuOpen && (
+                <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
                 <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
                   <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
                     <User size={16} /> Ver Perfil do Profissional
@@ -437,6 +439,7 @@ export default function ClientMensagens() {
                     <Trash2 size={16} /> {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir Conversa'}
                   </button>
                 </div>
+                </>
               )}
             </div>
           </div>
@@ -557,7 +560,7 @@ export default function ClientMensagens() {
                       type="button"
                       onClick={() => imageInputRef.current?.click()}
                       disabled={isUploading}
-                      className="p-3 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50"
+                      className="p3 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50"
                       title="Enviar Foto"
                     >
                       <ImageIcon size={20} />
