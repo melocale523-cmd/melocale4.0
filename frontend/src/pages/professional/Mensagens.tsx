@@ -186,7 +186,7 @@ export default function ProfessionalMensagens() {
     supabase.rpc('mark_messages_read', {
       p_conversation_id: activeConversationId,
       p_sender_type: 'professional',
-    }).then(() => {});
+    }).then(() => { queryClient.invalidateQueries({ queryKey: ['chats'] }); });
   }, [activeConversationId]);
 
   const handleSendMessage = (e?: React.FormEvent) => {
@@ -375,7 +375,7 @@ export default function ProfessionalMensagens() {
                         {conv.last_message_at ? 'Última mensagem' : 'Sem mensagens ainda'}
                       </p>
                       {(conv.unread_for_prof ?? 0) > 0 && (
-                        <span className="bg-emerald-500 text-[#0E1C32] text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-emerald-500/20">
+                        <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-emerald-500/20">
                           {conv.unread_for_prof}
                         </span>
                       )}
@@ -432,6 +432,8 @@ export default function ProfessionalMensagens() {
               </button>
 
               {isMenuOpen && (
+                <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
                 <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
                   <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
                     <User size={16} /> Ver Perfil do Cliente
@@ -448,6 +450,7 @@ export default function ProfessionalMensagens() {
                     <Trash2 size={16} /> {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir Conversa'}
                   </button>
                 </div>
+                </>
               )}
             </div>
           </div>
