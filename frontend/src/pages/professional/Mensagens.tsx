@@ -144,12 +144,6 @@ export default function ProfessionalMensagens() {
         table: 'messages',
         filter: `conversation_id=eq.${activeConversationId}`,
       }, invalidate)
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'messages',
-        filter: `conversation_id=eq.${activeConversationId}`,
-      }, invalidate)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [activeConversationId, queryClient]);
