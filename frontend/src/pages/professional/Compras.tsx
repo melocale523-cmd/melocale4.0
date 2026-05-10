@@ -15,6 +15,7 @@ export default function ProfessionalCompras() {
   const [proposalData, setProposalData] = useState({
     price: '',
     duration: '',
+    durationUnit: 'dias',
     description: '',
     status: 'Proposta Enviada'
   });
@@ -32,7 +33,7 @@ export default function ProfessionalCompras() {
     mutationFn: ({ purchaseId, data }: { purchaseId: string, data: any }) =>
       proposalService.sendProposal(purchaseId, {
         price: parseFloat(data.price),
-        duration: data.duration,
+        duration: `${data.duration} ${data.durationUnit}`,
         description: data.description,
       }),
     onSuccess: () => {
@@ -40,7 +41,7 @@ export default function ProfessionalCompras() {
       setIsProposalModalOpen(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      setProposalData({ price: '', duration: '', description: '', status: 'Proposta Enviada' });
+      setProposalData({ price: '', duration: '', durationUnit: 'dias', description: '', status: 'Proposta Enviada' });
     },
     onError: (error: any) => alert(`Erro ao enviar proposta: ${error.message}`)
   });
@@ -160,14 +161,28 @@ export default function ProfessionalCompras() {
                 <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
                    <Clock size={14} /> Prazo de Execução
                 </label>
-                <input 
-                  required
-                  type="text" 
-                  placeholder="Ex: 3 dias úteis"
-                  value={proposalData.duration}
-                  onChange={e => setProposalData(prev => ({ ...prev, duration: e.target.value }))}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
-                />
+                <div className="flex gap-2">
+                  <input
+                    required
+                    type="number"
+                    min="1"
+                    placeholder="Ex: 3"
+                    value={proposalData.duration}
+                    onChange={e => setProposalData(prev => ({ ...prev, duration: e.target.value }))}
+                    className="w-24 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+                  />
+                  <select
+                    value={proposalData.durationUnit}
+                    onChange={e => setProposalData(prev => ({ ...prev, durationUnit: e.target.value }))}
+                    className="flex-1 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
+                  >
+                    <option value="horas">Horas</option>
+                    <option value="dias">Dias</option>
+                    <option value="dias úteis">Dias úteis</option>
+                    <option value="semanas">Semanas</option>
+                    <option value="meses">Meses</option>
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-2">
