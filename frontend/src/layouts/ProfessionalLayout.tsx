@@ -52,6 +52,24 @@ export default function ProfessionalLayout() {
     { name: 'Configurações', path: '/profissional/configuracoes', icon: Settings },
   ];
 
+  const { data: unreadCount } = useQuery({
+    queryKey: ['unread_count'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+      const { data: prof } = await supabase
+        .from('professionals').select('id').eq('user_id', user.id).maybeSingle();
+      if (!prof) return 0;
+      const { data } = await supabase
+        .from('conversations')
+        .select('unread_for_prof')
+        .eq('professional_id', prof.id)
+        .gt('unread_for_prof', 0);
+      return (data || []).reduce((acc, c) => acc + (c.unread_for_prof || 0), 0);
+    },
+    refetchInterval: 10000,
+  });
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
@@ -83,6 +101,11 @@ export default function ProfessionalLayout() {
               >
                 <item.icon size={18} />
                 {item.name}
+                {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             )
           })}
@@ -129,6 +152,11 @@ export default function ProfessionalLayout() {
                   >
                     <item.icon size={18} />
                     {item.name}
+                    {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 )
               })}
