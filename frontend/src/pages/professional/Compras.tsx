@@ -267,10 +267,12 @@ export default function ProfessionalCompras() {
                     {purchase.status === 'Respondida pelo Cliente' && <CheckCircle size={12} className="text-emerald-400" />}
                     <span className={cn(
                       "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
-                      purchase.status === 'Pendente Proposta' ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : 
+                      purchase.status === 'Pendente Proposta' ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
                       purchase.status === 'Proposta Enviada' || purchase.status === 'Enviada' ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
                       purchase.status === 'Visualizada pelo Cliente' ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" :
-                      "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                      purchase.status === 'Aceita' ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" :
+                      purchase.status === 'Recusada' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                      "bg-slate-500/10 text-slate-400 border border-slate-500/20"
                     )}>
                       {purchase.status}
                     </span>
