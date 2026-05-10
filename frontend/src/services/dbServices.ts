@@ -351,19 +351,20 @@ export const proposalService = {
         .single();
 
       if (purchase) {
+        const { data: prof } = await supabase
+          .from('professionals')
+          .select('user_id')
+          .eq('id', purchase.professional_id)
+          .single();
+        const profAuthId = prof?.user_id ?? purchase.professional_id;
+
         let chatId: string | null = purchase.chat_id ?? null;
 
         if (!chatId) {
-          const { data: prof } = await supabase
-            .from('professionals')
-            .select('user_id')
-            .eq('id', purchase.professional_id)
-            .single();
-
           const { data: conv } = await supabase
             .from('conversations')
             .insert({
-              professional_id: prof?.user_id ?? purchase.professional_id,
+              professional_id: profAuthId,
               client_id: purchase.client_id,
               lead_id: purchase.lead_id,
             })
@@ -380,7 +381,7 @@ export const proposalService = {
         }
 
         await supabase.from('notifications').insert({
-          user_id: purchase.professional_id,
+          user_id: profAuthId,
           title: 'Interesse confirmado! 🎉',
           body: 'Um cliente aceitou sua proposta. Abra o chat para iniciar o serviço.',
           data: { type: 'proposal_accepted', purchaseId, chatId },
