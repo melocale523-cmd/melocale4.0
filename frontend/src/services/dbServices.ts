@@ -537,6 +537,17 @@ export const chatService = {
       }
     });
 
+    const { data: unreadClientData } = await supabase
+      .from('messages')
+      .select('conversation_id')
+      .in('conversation_id', convIds)
+      .eq('sender_type', 'professional')
+      .is('read_at', null);
+    const unreadClientMap: Record<string, number> = {};
+    (unreadClientData || []).forEach((m: any) => {
+      unreadClientMap[m.conversation_id] = (unreadClientMap[m.conversation_id] || 0) + 1;
+    });
+
     // Step 2: professionals.id → professionals.user_id
     const profIds = [...new Set(convs.map((c: any) => c.professional_id).filter(Boolean))];
     const { data: profsData } = profIds.length
@@ -575,7 +586,7 @@ export const chatService = {
         full_name: clientFromProfile?.full_name ?? clientFromTable?.full_name ?? null,
         avatar_url: clientFromProfile?.avatar_url ?? null,
       };
-      return { ...c, prof_user_id: profUserId, prof_profile: profProfile, client_profile: clientProfile, last_message: lastMsgMap[c.id] ?? null };
+      return { ...c, prof_user_id: profUserId, prof_profile: profProfile, client_profile: clientProfile, last_message: lastMsgMap[c.id] ?? null, unread_client: unreadClientMap[c.id] ?? 0 };
     });
   },
 

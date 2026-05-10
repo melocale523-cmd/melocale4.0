@@ -367,9 +367,16 @@ export default function ClientMensagens() {
                         {new Date(conv.last_message_at ?? conv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <p className="text-xs text-[#4A6580] truncate font-medium">
-                      {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
-                    </p>
+                    <div className="flex justify-between items-center gap-2">
+                      <p className="text-xs text-[#4A6580] truncate font-medium">
+                        {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
+                      </p>
+                      {(conv as any).unread_client > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shrink-0">
+                          {(conv as any).unread_client}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );
