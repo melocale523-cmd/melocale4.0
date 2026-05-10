@@ -26,6 +26,13 @@ interface PedidoItem {
 
 const STATUS_TABS = ['Todos', 'Aberto', 'Orçando', 'Finalizado'] as const;
 
+const proposalStatusConfig: Record<string, { label: string; className: string }> = {
+  'Proposta Enviada': { label: 'Aguardando', className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' },
+  'Enviada':          { label: 'Aguardando', className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' },
+  'Aceita':           { label: 'Aceita',     className: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
+  'Recusada':         { label: 'Recusada',   className: 'bg-red-500/20 text-red-400 border border-red-500/30' },
+};
+
 export default function Pedidos() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -399,7 +406,17 @@ export default function Pedidos() {
                             <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-[8px] font-black px-1.5 py-0.5 rounded-full text-black uppercase tracking-tighter">Verificado</div>
                           </div>
                           <div>
-                            <h4 className="text-xl font-black text-white">{(prop as any).profiles?.full_name || 'Profissional'}</h4>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="text-xl font-black text-white">{(prop as any).profiles?.full_name || 'Profissional'}</h4>
+                              {(() => {
+                                const cfg = proposalStatusConfig[prop.status] ?? { label: 'Aguardando', className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' };
+                                return (
+                                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${cfg.className}`}>
+                                    {cfg.label}
+                                  </span>
+                                );
+                              })()}
+                            </div>
                             <p className="text-blue-500 font-bold text-sm">Especialista verificado</p>
                             <div className="flex items-center gap-3 mt-1">
                               <div className="flex items-center gap-1">
