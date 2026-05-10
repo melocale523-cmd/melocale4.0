@@ -502,18 +502,8 @@ export const chatService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-    // Step 1: Find this user's professionals.id (if they are a professional)
-    // professional_id in conversations → professionals.id (not auth user id)
-    const { data: profRecord } = await supabase
-      .from('professionals')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    const myProfessionalId = profRecord?.id ?? null;
-
-    // client_id in conversations = clients.id = auth user id
-    let filter = `client_id.eq.${user.id}`;
-    if (myProfessionalId) filter += `,professional_id.eq.${myProfessionalId}`;
+    // conversations.professional_user_id = auth UUID directly — no join to professionals needed
+    const filter = `client_id.eq.${user.id},professional_user_id.eq.${user.id}`;
 
     const { data: convs, error } = await supabase
       .from('conversations')
@@ -549,16 +539,7 @@ export const chatService = {
       unreadClientMap[m.conversation_id] = (unreadClientMap[m.conversation_id] || 0) + 1;
     });
 
-    // Step 2: professionals.id → professionals.user_id
-    const profIds = [...new Set(convs.map((c: any) => c.professional_id).filter(Boolean))];
-    const { data: profsData } = profIds.length
-      ? await supabase.from('professionals').select('id, user_id').in('id', profIds)
-      : { data: [] };
-    const profIdToUserId: Record<string, string> = Object.fromEntries(
-      (profsData || []).map((p: any) => [p.id, p.user_id]),
-    );
-
-    // Step 3: clients table has full_name directly (no user_id column)
+    // Step 2: clients table has full_name directly (no user_id column)
     const clientIds = [...new Set(convs.map((c: any) => c.client_id).filter(Boolean))];
     const { data: clientsData } = clientIds.length
       ? await supabase.from('clients').select('id, full_name').in('id', clientIds)
@@ -567,8 +548,8 @@ export const chatService = {
       (clientsData || []).map((c: any) => [c.id, c]),
     );
 
-    // Step 4: profiles for professional user_ids + client_ids (clients.id = auth user id = profiles.id)
-    const profUserIds = [...new Set(Object.values(profIdToUserId).filter(Boolean))] as string[];
+    // Step 3: profiles for prof auth UUIDs (direct from column) + client_ids
+    const profUserIds = [...new Set(convs.map((c: any) => c.professional_user_id).filter(Boolean))] as string[];
     const allProfileIds = [...new Set([...profUserIds, ...clientIds])];
     const { data: profilesData } = allProfileIds.length
       ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', allProfileIds)
@@ -579,7 +560,7 @@ export const chatService = {
 
     // Step 5: assemble
     return convs.map((c: any) => {
-      const profUserId = profIdToUserId[c.professional_id] ?? null;
+      const profUserId = c.professional_user_id ?? null;
       const profProfile = profUserId ? (profileMap[profUserId] ?? null) : null;
       const clientFromProfile = profileMap[c.client_id];
       const clientFromTable = clientMap[c.client_id];
@@ -617,19 +598,13 @@ export const chatService = {
     if (user) {
       const { data: conv } = await supabase
         .from('conversations')
-        .select('client_id, professional_id')
+        .select('client_id, professional_user_id')
         .eq('id', conversationId)
         .single();
       if (conv?.client_id === user.id) {
         senderType = 'client';
-      } else if (conv?.professional_id) {
-        // professional_id → professionals.id; resolve via user_id
-        const { data: prof } = await supabase
-          .from('professionals')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        if (prof?.id === conv.professional_id) senderType = 'professional';
+      } else if (conv?.professional_user_id === user.id) {
+        senderType = 'professional';
       }
     }
 
