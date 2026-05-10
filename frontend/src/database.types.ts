@@ -54,6 +54,9 @@ export type Database = {
           expires_at: string | null
           created_at: string
           updated_at: string
+          visualizacoes: number
+          purchases_count: number
+          max_purchases: number
         }
         Insert: {
           client_id: string
