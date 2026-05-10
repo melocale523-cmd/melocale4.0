@@ -522,6 +522,21 @@ export const chatService = {
 
     if (error || !convs?.length) return convs || [];
 
+    const convIds = convs.map((c: any) => c.id);
+    const { data: lastMsgs } = await supabase
+      .from('messages')
+      .select('conversation_id, body, attachments')
+      .in('conversation_id', convIds)
+      .order('created_at', { ascending: false });
+
+    const lastMsgMap: Record<string, string> = {};
+    (lastMsgs || []).forEach((m: any) => {
+      if (!lastMsgMap[m.conversation_id]) {
+        const att = Array.isArray(m.attachments) ? m.attachments[0] : null;
+        lastMsgMap[m.conversation_id] = att?.type === 'image' ? '📷 Foto' : att?.type === 'audio' ? '🎤 Áudio' : att?.type === 'file' ? `📎 ${att.fileName || 'Arquivo'}` : m.body;
+      }
+    });
+
     // Step 2: professionals.id → professionals.user_id
     const profIds = [...new Set(convs.map((c: any) => c.professional_id).filter(Boolean))];
     const { data: profsData } = profIds.length
@@ -560,7 +575,7 @@ export const chatService = {
         full_name: clientFromProfile?.full_name ?? clientFromTable?.full_name ?? null,
         avatar_url: clientFromProfile?.avatar_url ?? null,
       };
-      return { ...c, prof_user_id: profUserId, prof_profile: profProfile, client_profile: clientProfile };
+      return { ...c, prof_user_id: profUserId, prof_profile: profProfile, client_profile: clientProfile, last_message: lastMsgMap[c.id] ?? null };
     });
   },
 
