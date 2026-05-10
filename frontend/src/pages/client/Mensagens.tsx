@@ -33,6 +33,7 @@ interface ConversationWithProfiles {
   client_id: string;
   lead_id: string | null;
   last_message_at: string | null;
+  last_message: string | null;
   unread_for_prof: number | null;
   created_at: string;
   prof_user_id: string | null;
@@ -367,7 +368,7 @@ export default function ClientMensagens() {
                       </span>
                     </div>
                     <p className="text-xs text-[#4A6580] truncate font-medium">
-                      {conv.last_message_at ? 'Última mensagem' : 'Sem mensagens ainda'}
+                      {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
                     </p>
                   </div>
                 </button>
