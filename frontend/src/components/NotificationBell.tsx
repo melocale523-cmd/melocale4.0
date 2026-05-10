@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bell, X, Check } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { cn } from '../lib/utils';
@@ -15,38 +16,42 @@ interface Notification {
 
 export default function NotificationBell() {
   const user = useAuthStore(s => s.user);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  const { data: notifications = [] } = useQuery<Notification[]>({
+    queryKey: ['notifications'],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      return (data ?? []) as Notification[];
+    },
+    enabled: !!user?.id,
+  });
+
   const unread = notifications.filter(n => !n.is_read).length;
 
-  const fetchNotifications = async () => {
-    if (!user?.id) return;
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
-    if (data) setNotifications(data as Notification[]);
-  };
-
   useEffect(() => {
-    fetchNotifications();
-
+    if (!user?.id) return;
     const channel = supabase
       .channel('notifications-bell')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'notifications',
-        filter: `user_id=eq.${user?.id}`,
-      }, () => fetchNotifications())
+        filter: `user_id=eq.${user.id}`,
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id]);
+  }, [user?.id, queryClient]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -63,12 +68,12 @@ export default function NotificationBell() {
       .update({ is_read: true })
       .eq('user_id', user.id)
       .eq('is_read', false);
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 
   const markRead = async (id: string) => {
     await supabase.from('notifications').update({ is_read: true }).eq('id', id);
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 
   return (
