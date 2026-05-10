@@ -19,7 +19,7 @@ interface Message {
   body: string;
   created_at: string;
   read_at: string | null;
-  attachments: MessageAttachments | MessageAttachments[] | null;
+  attachments: MessageAttachments | null;
 }
 
 interface ProfileData {
@@ -179,18 +179,6 @@ export default function ProfessionalMensagens() {
     });
     return () => { supabase.removeChannel(ch); };
   }, [currentUser]);
-
-  // Mark incoming messages as read when conversation opens
-  useEffect(() => {
-    if (!activeConversationId) return;
-    supabase
-      .from('messages')
-      .update({ read_at: new Date().toISOString() })
-      .eq('conversation_id', activeConversationId)
-      .is('read_at', null)
-      .neq('sender_type', 'professional')
-      .then(() => {});
-  }, [activeConversationId, messages]);
 
   const handleSendMessage = (e?: React.FormEvent) => {
     e?.preventDefault();
