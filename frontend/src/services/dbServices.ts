@@ -355,16 +355,31 @@ export const proposalService = {
         let chatId: string | null = purchase.chat_id ?? null;
 
         if (!chatId) {
-          const { data: conv } = await supabase
+          const baseConvQuery = supabase
             .from('conversations')
-            .insert({
-              professional_id: profAuthId,
-              client_id: purchase.client_id,
-              lead_id: purchase.lead_id,
-            })
             .select('id')
-            .single();
-          chatId = conv?.id ?? null;
+            .eq('professional_id', purchase.professional_id)
+            .eq('client_id', purchase.client_id);
+          const { data: existing } = await (
+            purchase.lead_id
+              ? baseConvQuery.eq('lead_id', purchase.lead_id)
+              : baseConvQuery.is('lead_id', null)
+          ).maybeSingle();
+
+          if (existing?.id) {
+            chatId = existing.id;
+          } else {
+            const { data: conv } = await supabase
+              .from('conversations')
+              .insert({
+                professional_id: purchase.professional_id,
+                client_id: purchase.client_id,
+                lead_id: purchase.lead_id,
+              })
+              .select('id')
+              .single();
+            chatId = conv?.id ?? null;
+          }
 
           if (chatId) {
             await supabase
@@ -394,19 +409,33 @@ export const proposalService = {
       .single();
 
     if (purchase?.chat_id) return purchase.chat_id;
+    if (!purchase) return null;
 
-    const { data: prof } = await supabase
-      .from('professionals')
-      .select('user_id')
-      .eq('id', purchase?.professional_id)
-      .single();
+    const baseConvQuery = supabase
+      .from('conversations')
+      .select('id')
+      .eq('professional_id', purchase.professional_id)
+      .eq('client_id', purchase.client_id);
+    const { data: existing } = await (
+      purchase.lead_id
+        ? baseConvQuery.eq('lead_id', purchase.lead_id)
+        : baseConvQuery.is('lead_id', null)
+    ).maybeSingle();
+
+    if (existing?.id) {
+      await supabase
+        .from('lead_purchases')
+        .update({ chat_id: existing.id })
+        .eq('id', purchaseId);
+      return existing.id;
+    }
 
     const { data: conv } = await supabase
       .from('conversations')
       .insert({
-        professional_id: prof?.user_id ?? purchase?.professional_id,
-        client_id: purchase?.client_id,
-        lead_id: purchase?.lead_id,
+        professional_id: purchase.professional_id,
+        client_id: purchase.client_id,
+        lead_id: purchase.lead_id,
       })
       .select('id')
       .single();
