@@ -55,8 +55,6 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || '' });
 
-const processedWebhookEvents = new Set<string>();
-
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
@@ -104,10 +102,18 @@ async function startServer() {
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
-    if (processedWebhookEvents.has(event.id)) {
+    // Deduplicação persistente: verifica se este evento já foi processado no banco.
+    // Cobre o caso crítico de double-crediting após restart do servidor.
+    const { data: existingTx } = await supabaseAdmin
+      .from('wallet_transactions')
+      .select('id')
+      .eq('stripe_event_id', event.id)
+      .maybeSingle();
+
+    if (existingTx) {
+      console.log(`[webhook] evento ${event.id} já processado — ignorando`);
       return res.json({ received: true });
     }
-    processedWebhookEvents.add(event.id);
 
     const COIN_PACKAGES: Record<string, { coins: number; name: string }> = {
       'pack_starter': { coins: 60,  name: 'Básico'        },
