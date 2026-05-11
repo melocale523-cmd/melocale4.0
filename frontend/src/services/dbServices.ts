@@ -238,29 +238,23 @@ export const leadService = {
 // === Transactions ===
 export const transactionService = {
   async getWalletTransactions() {
-    const professionalId = useAuthStore.getState().user?.professionalId;
-    if (!professionalId) throw new Error("Professional ID not found");
+    const userId = useAuthStore.getState().user?.id;
+    if (!userId) throw new Error("User not authenticated");
 
-    try {
-      const { data, error } = await supabase
-        .from('wallet_transactions')
-        .select('*')
-        .or(`user_id.eq.${professionalId},wallet_id.eq.${professionalId}`)
-        .order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('wallet_transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      return data || [];
-    } catch {
-       const purchases = await leadService.getMyPurchases();
-       return purchases.map((p: any) => ({
-         id: p.id,
-         type: 'purchase',
-         amount: p.price_coins || p.price || 0,
-         date: p.created_at,
-         description: `Compra de Lead (Ref: ${p.lead_id || 'Serviço'})`
-       }));
-    }
+    // Map DB columns (kind, reference) to what Wallet.tsx expects (type, description)
+    return (data ?? []).map((tx: any) => ({
+      ...tx,
+      type: tx.kind === 'deposit' || tx.kind === 'bonus' ? 'deposit' : 'purchase',
+      description: tx.reference ?? 'Transação',
+    }));
   }
 };
 
