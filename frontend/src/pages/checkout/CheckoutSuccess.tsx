@@ -2,22 +2,24 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../../store/authStore';
 
 export default function CheckoutSuccess() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     // Invalida o cache para recarregar o saldo
     queryClient.invalidateQueries({ queryKey: ['wallet'] });
-    
-    // Redireciona após 3 segundos
+
+    const dest = user?.role === 'professional' ? '/profissional/carteira' : '/cliente/dashboard';
     const timer = setTimeout(() => {
-      navigate('/profissional/carteira');
+      navigate(dest);
     }, 3000);
-    
+
     return () => clearTimeout(timer);
-  }, [navigate, queryClient]);
+  }, [navigate, queryClient, user?.role]);
 
   return (
     <div className="min-h-screen bg-[#0E1C32] flex items-center justify-center p-4">

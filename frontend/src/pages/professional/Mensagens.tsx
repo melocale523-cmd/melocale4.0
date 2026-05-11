@@ -187,11 +187,18 @@ export default function ProfessionalMensagens() {
   // Mark incoming messages as read when conversation opens
   useEffect(() => {
     if (!activeConversationId) return;
-    supabase.rpc('mark_messages_read', {
-      p_conversation_id: activeConversationId,
-      p_sender_type: 'professional',
-    }).then(() => { queryClient.invalidateQueries({ queryKey: ['chats'] }); });
-  }, [activeConversationId]);
+    (async () => {
+      try {
+        await supabase.rpc('mark_messages_read', {
+          p_conversation_id: activeConversationId,
+          p_sender_type: 'professional',
+        });
+        queryClient.invalidateQueries({ queryKey: ['chats'] });
+      } catch (err) {
+        console.error('[mark_messages_read]', err);
+      }
+    })();
+  }, [activeConversationId, queryClient]);
 
   const handleSendMessage = (e?: React.FormEvent) => {
     e?.preventDefault();

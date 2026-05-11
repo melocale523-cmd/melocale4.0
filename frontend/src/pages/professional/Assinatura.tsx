@@ -108,7 +108,7 @@ const CREDIT_PACKAGES = [
   {
     id: 'pack_pro',
     name: 'Popular',
-    coins: 180,
+    coins: 200,
     price: '59,90',
     priceNum: 59.90,
     description: 'Melhor custo por moeda',
@@ -118,7 +118,7 @@ const CREDIT_PACKAGES = [
   {
     id: 'pack_premium',
     name: 'Máximo',
-    coins: 480,
+    coins: 560,
     price: '119,90',
     priceNum: 119.90,
     description: 'Para não perder nenhum lead',

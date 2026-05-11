@@ -479,7 +479,9 @@ export const adminService = {
       if (purchases) {
         totalRevenue = purchases.reduce((acc: number, p: any) => acc + (p.price ?? 0), 0);
       }
-    } catch {}
+    } catch (err) {
+      console.error('[adminService] getDashboardSummary', err);
+    }
 
     return {
       totalUsers: usersCount || 0,
@@ -499,7 +501,8 @@ export const adminService = {
       return (data || [])
         .filter((user: any) => (!params?.role || user.role === params.role) && (!params?.status || user.status === params.status))
         .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    } catch {
+    } catch (err) {
+      console.error('[adminService] getUsers', err);
       return [];
     }
   },
@@ -515,11 +518,12 @@ export const adminService = {
       const { data, error } = await supabase.from('coin_packages').select('*');
       if (error) return [];
       return data || [];
-    } catch {
+    } catch (err) {
+      console.error('[adminService] getCoinPackages', err);
       return [];
     }
   },
-  
+
   async updateCoinPackage(id: string, updates: any) {
     const { error } = await supabase.from('coin_packages').update(updates).eq('id', id);
     if (error) throw error;

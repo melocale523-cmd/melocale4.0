@@ -183,14 +183,19 @@ export default function ClientMensagens() {
   // Mark incoming messages as read when conversation opens
   useEffect(() => {
     if (!activeConversationId) return;
-    supabase.rpc('mark_messages_read', {
-      p_conversation_id: activeConversationId,
-      p_sender_type: 'client',
-    }).then(() => {
-      queryClient.invalidateQueries({ queryKey: ['chats'] });
-      queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
-    });
-  }, [activeConversationId]);
+    (async () => {
+      try {
+        await supabase.rpc('mark_messages_read', {
+          p_conversation_id: activeConversationId,
+          p_sender_type: 'client',
+        });
+        queryClient.invalidateQueries({ queryKey: ['chats'] });
+        queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
+      } catch (err) {
+        console.error('[mark_messages_read]', err);
+      }
+    })();
+  }, [activeConversationId, queryClient]);
 
   const handleSendMessage = (e?: React.FormEvent) => {
     e?.preventDefault();
