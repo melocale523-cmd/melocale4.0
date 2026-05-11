@@ -70,16 +70,26 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-  const frontendUrl = process.env.FRONTEND_URL || 'https://melocale4-0.vercel.app';
-  
-  const ALLOWED_ORIGINS = [
+  const EXTRA_ORIGINS = (process.env.FRONTEND_URL ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const ALLOWED_ORIGINS_EXACT = new Set([
     'https://melocale4-0.vercel.app',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean) as string[];
+    'http://localhost:5173',
+    ...EXTRA_ORIGINS,
+  ]);
+
+  // Matches preview deployments of this project only (e.g. melocale4-0-<hash>.vercel.app)
+  const VERCEL_PREVIEW_RE = /^https:\/\/melocale4-0-[^.]+\.vercel\.app$/i;
+
+  const isOriginAllowed = (origin: string) =>
+    ALLOWED_ORIGINS_EXACT.has(origin) || VERCEL_PREVIEW_RE.test(origin);
 
   const corsOptions: Parameters<typeof cors>[0] = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      if (!origin || isOriginAllowed(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -88,6 +98,8 @@ async function startServer() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature', 'x-client-info', 'apikey'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   };
   app.use(cors(corsOptions));
 
