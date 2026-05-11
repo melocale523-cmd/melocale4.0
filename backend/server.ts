@@ -57,6 +57,17 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || '' })
 
 const processedWebhookEvents = new Set<string>();
 
+async function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Token não fornecido' });
+
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) return res.status(401).json({ error: 'Token inválido' });
+
+  (req as any).authUser = user;
+  next();
+}
+
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
@@ -330,12 +341,17 @@ COMPORTAMENTO NESTE CONTEXTO:
     plan_business: { name: "Elite",     price: 12700, description: "Plano Elite MeloCale — 55% desconto em moedas" },
   };
 
-  app.post("/api/create-checkout-session", async (req: any, res: any) => {
+  app.post("/api/create-checkout-session", requireAuth, async (req: any, res: any) => {
     try {
+      const authUser = (req as any).authUser;
       const { type, package_id, user_id } = req.body || {};
 
       if (!package_id || !user_id) {
         return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
+      }
+
+      if (user_id !== authUser.id) {
+        return res.status(403).json({ error: "Não autorizado." });
       }
 
       const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
@@ -446,12 +462,17 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // Stripe Checkout Session - Pagamento de serviço a profissional
   // ============================================
-  app.post("/api/create-service-payment", async (req: any, res: any) => {
+  app.post("/api/create-service-payment", requireAuth, async (req: any, res: any) => {
     try {
+      const authUser = (req as any).authUser;
       const { amount, connectedAccountId, description, user_id } = req.body || {};
 
       if (!amount || !connectedAccountId || !user_id) {
         return res.status(400).json({ error: "amount, connectedAccountId e user_id são obrigatórios." });
+      }
+
+      if (user_id !== authUser.id) {
+        return res.status(403).json({ error: "Não autorizado." });
       }
 
       const amountInCents = Math.round(Number(amount));
@@ -500,10 +521,9 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // GET /api/subscription-status?user_id=X
   // ============================================
-  app.get("/api/subscription-status", async (req: any, res: any) => {
+  app.get("/api/subscription-status", requireAuth, async (req: any, res: any) => {
     try {
-      const userId = req.query.user_id as string | undefined;
-      if (!userId) return res.status(400).json({ error: "user_id é obrigatório." });
+      const userId = (req as any).authUser.id as string;
 
       const { data: sub, error: subErr } = await supabaseAdmin
         .from("user_subscriptions")
@@ -549,10 +569,15 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // POST /api/cancel-subscription
   // ============================================
-  app.post("/api/cancel-subscription", async (req: any, res: any) => {
+  app.post("/api/cancel-subscription", requireAuth, async (req: any, res: any) => {
     try {
+      const authUser = (req as any).authUser;
       const { user_id } = req.body || {};
       if (!user_id) return res.status(400).json({ error: "user_id é obrigatório." });
+
+      if (user_id !== authUser.id) {
+        return res.status(403).json({ error: "Não autorizado." });
+      }
 
       const { data: sub, error: subErr } = await supabaseAdmin
         .from("user_subscriptions")
