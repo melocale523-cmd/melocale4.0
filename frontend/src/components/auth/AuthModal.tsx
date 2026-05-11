@@ -152,8 +152,15 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
           role: selectedRole,
         }, { onConflict: 'id' });
 
-        if (selectedRole === 'professional') {
-          await supabase.rpc('save_full_profile', { category: formData.category });
+        if (selectedRole === 'professional' && signUpData.user) {
+          await supabase.rpc('save_full_profile', {
+            p_user_id: signUpData.user.id,
+            p_full_name: formData.name ?? '',
+            p_phone: formData.phone ?? '',
+            p_bio: formData.bio ?? '',
+            p_category: formData.category ?? '',
+            p_service_radius: 50,
+          });
         }
 
         toast.success("Conta criada com sucesso! Verifique seu e-mail.");
