@@ -556,7 +556,9 @@ export default function ProfessionalAssinatura() {
                       <strong>
                         {subscriptionStatus.current_period_end
                           ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')
-                          : '—'}
+                          : currentSubscription?.started_at
+                            ? new Date(new Date(currentSubscription.started_at).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')
+                            : '—'}
                       </strong>
                     </p>
                   </div>
@@ -599,7 +601,9 @@ export default function ProfessionalAssinatura() {
                     <p className={`font-bold text-sm ${subscriptionStatus?.cancel_at_period_end ? 'text-red-400' : 'text-white'}`}>
                       {subscriptionStatus?.current_period_end
                         ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')
-                        : '—'}
+                        : currentSubscription?.started_at
+                          ? new Date(new Date(currentSubscription.started_at).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')
+                          : '—'}
                     </p>
                   </div>
 

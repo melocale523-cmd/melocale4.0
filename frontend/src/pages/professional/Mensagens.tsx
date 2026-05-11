@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, X, Square, Download } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -55,6 +55,7 @@ export default function ProfessionalMensagens() {
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -445,17 +446,20 @@ export default function ProfessionalMensagens() {
 
               {isMenuOpen && (
                 <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
-                <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
-                  <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
+                <div className="fixed inset-0 z-[9998]" onClick={() => setIsMenuOpen(false)} />
+                <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-[9999] overflow-hidden animate-in zoom-in-95 duration-200">
+                  <button
+                    onClick={() => { setShowProfileModal(true); setIsMenuOpen(false); }}
+                    className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
+                  >
                     <User size={16} /> Ver Perfil do Cliente
-                  </button>
-                  <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
-                    <Clock size={16} /> Mensagens Temporárias
                   </button>
                   <div className="h-px bg-white/5 mx-3" />
                   <button
-                    onClick={() => deleteChatMutation.mutate(activeConversationId!)}
+                    onClick={() => {
+                      if (!window.confirm('Excluir esta conversa? Esta ação não pode ser desfeita.')) return;
+                      deleteChatMutation.mutate(activeConversationId!);
+                    }}
                     disabled={deleteChatMutation.isPending}
                     className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold disabled:opacity-50"
                   >
@@ -660,6 +664,37 @@ export default function ProfessionalMensagens() {
             <div className="flex flex-col items-center gap-1 opacity-40">
               <Paperclip size={20} className="text-[#4A6580]" />
               <span className="text-[8px] font-bold uppercase">Arquivos</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showProfileModal && activeConversation && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowProfileModal(false)}
+        >
+          <div
+            className="bg-[#132540] border border-[#243F6A] rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-white font-bold text-lg">Perfil do Cliente</h3>
+              <button onClick={() => setShowProfileModal(false)} className="text-[#4A6580] hover:text-white transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              {activeConversation.client_profile?.avatar_url ? (
+                <img src={activeConversation.client_profile.avatar_url} alt="avatar" className="w-20 h-20 rounded-full object-cover border-2 border-[#243F6A]" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-[#1C3454] border-2 border-[#243F6A] flex items-center justify-center">
+                  <User size={32} className="text-[#4A6580]" />
+                </div>
+              )}
+              <div className="text-center">
+                <p className="text-white font-bold text-xl">{activeConversation.client_profile?.full_name || 'Cliente'}</p>
+              </div>
             </div>
           </div>
         </div>
