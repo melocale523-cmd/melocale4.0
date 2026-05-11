@@ -155,11 +155,9 @@ export default function ProfessionalAssinatura() {
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
       try {
-        const res = await apiFetch(`/api/subscription-status?user_id=${user.id}`);
-        if (res.status === 404) return null; // sem assinatura ativa — não é erro
+        const res = await apiFetch('/api/subscription-status');
+        if (res.status === 404 || res.status === 401) return null;
         if (!res.ok) throw new Error('Erro ao buscar assinatura');
         return res.json();
       } catch {
