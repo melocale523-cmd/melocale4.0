@@ -2,34 +2,14 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { supabase } from './supabase';
 import { apiFetch } from './api';
 
-/**
- * Utilitário seguro para carregar variáveis de ambiente no frontend (Vite).
- * Retorna log apropriado e previne silent failures.
- * Suporta fallback para window.APP_CONFIG injetado pelo Render/Backend
- */
 function requireEnvVar(name: string): string {
-  // 1. Tenta pegar do import.meta.env (injentado no build time)
-  let value = import.meta.env[name];
-  
+  const value = import.meta.env[name];
   if (!value) {
-    // 3. Fallback manual seguro se for STRIPE_PUBLIC_KEY 
-    // Em alguns casos pode ser útil, mas por enquanto lançamos o erro.
-    if (name === 'VITE_STRIPE_PUBLIC_KEY') {
-      // Como o VITE_STRIPE_PUBLIC_KEY já é público, em último caso usamos ele explícito
-      value = 'pk_test_51SRlmgCx1uHAwHhQj51ZFGzqwne1m4lHhycuZ1dlayZ6c7IYVSotIIuy9V3oyhI0bOA4Ka4BrEHPV5PqJO2529NH00L02bnqDh';
-      return value;
-    }
-    
-    const errorMsg = `❌ ERRO CRÍTICO: Variável de ambiente '${name}' não encontrada. Verifique seu arquivo .env e processo de build no Render.`;
-    console.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error(`❌ ERRO CRÍTICO: Variável de ambiente '${name}' não encontrada. Verifique as env vars do Vercel/Render.`);
   }
-  
   return value;
 }
 
-// Factory lazy-loaded para acessar o Stripe. 
-// Evita crash no bootstrap da aplicação caso a variável não exista temporariamente.
 let stripePromise: Promise<Stripe | null> | null = null;
 export const getStripe = () => {
   if (!stripePromise) {
