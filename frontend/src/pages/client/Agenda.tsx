@@ -34,16 +34,17 @@ export default function ClientAgenda() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
 
-  useEffect(() => {
-    localStorage.setItem('client_agenda_last_seen', new Date().toISOString());
-    queryClient.invalidateQueries({ queryKey: ['client_scheduled_count'] });
-  }, [queryClient]);
-
-  const { data: appointments = [], isLoading } = useQuery<Appointment[]>({
+  const { data: appointments = [], isLoading, isSuccess } = useQuery<Appointment[]>({
     queryKey: ['client_appointments', user?.id],
     queryFn: () => appointmentService.getClientAppointments(user!.id),
     enabled: !!user?.id,
   });
+
+  useEffect(() => {
+    if (!isSuccess) return;
+    localStorage.setItem('client_agenda_last_seen', new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ['client_scheduled_count'] });
+  }, [isSuccess, queryClient]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, status, reason, notifyUserId }: {

@@ -67,11 +67,6 @@ export default function ProfessionalAgenda() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    localStorage.setItem('prof_agenda_last_seen', new Date().toISOString());
-    queryClient.invalidateQueries({ queryKey: ['prof_agenda_badge'] });
-  }, [queryClient]);
-
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
@@ -103,11 +98,17 @@ export default function ProfessionalAgenda() {
     enabled: !!user?.id,
   });
 
-  const { data: appointments = [], isLoading } = useQuery({
+  const { data: appointments = [], isLoading, isSuccess } = useQuery({
     queryKey: ['professional_appointments', professional?.id],
     queryFn: () => appointmentService.getProfessionalAppointments(professional!.id),
     enabled: !!professional?.id,
   });
+
+  useEffect(() => {
+    if (!isSuccess) return;
+    localStorage.setItem('prof_agenda_last_seen', new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ['prof_agenda_badge'] });
+  }, [isSuccess, queryClient]);
 
   const { data: availableClients = [] } = useQuery<AvailableClient[]>({
     queryKey: ['schedule_clients', user?.id],
