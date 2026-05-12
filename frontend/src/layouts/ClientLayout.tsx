@@ -19,6 +19,20 @@ export default function ClientLayout() {
   const { data: profile } = useClientProfile();
   const queryClient = useQueryClient();
 
+  const { data: scheduledApptCount } = useQuery({
+    queryKey: ['client_scheduled_count', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { count } = await supabase
+        .from('appointments')
+        .select('id', { count: 'exact', head: true })
+        .eq('client_id', user.id)
+        .eq('status', 'scheduled');
+      return count ?? 0;
+    },
+    enabled: !!user?.id,
+  });
+
   const { data: unreadCount } = useQuery({
     queryKey: ['client_unread_count'],
     queryFn: async () => {
@@ -39,6 +53,15 @@ export default function ClientLayout() {
       return count ?? 0;
     },
   });
+
+  useEffect(() => {
+    const ch = supabase.channel('client_agenda_badge_watch')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['client_scheduled_count', user?.id] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [queryClient, user?.id]);
 
   useEffect(() => {
     const ch = supabase.channel('client_unread_watch')
@@ -119,6 +142,11 @@ export default function ClientLayout() {
                 {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
                   <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                     {unreadCount}
+                  </span>
+                )}
+                {item.name === 'Agenda' && (scheduledApptCount ?? 0) > 0 && (
+                  <span className="ml-auto bg-yellow-500 text-black text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                    {scheduledApptCount}
                   </span>
                 )}
               </Link>

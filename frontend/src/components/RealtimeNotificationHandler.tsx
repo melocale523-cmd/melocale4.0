@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 
 export default function RealtimeNotificationHandler() {
   const { user, isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
@@ -25,7 +27,9 @@ export default function RealtimeNotificationHandler() {
         (payload) => {
           console.log('Nova notificação recebida via Realtime:', payload);
           const { title, body } = payload.new;
-          
+
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+
           // Exibe o Toast
           toast.info(title, {
             description: body,

@@ -54,6 +54,28 @@ export default function ProfessionalLayout() {
 
   const queryClient = useQueryClient();
 
+  const { data: agendaBadgeCount } = useQuery({
+    queryKey: ['prof_agenda_badge', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { data: prof } = await supabase
+        .from('professionals')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!prof) return 0;
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from('appointments')
+        .select('id', { count: 'exact', head: true })
+        .eq('professional_id', prof.id)
+        .eq('status', 'confirmed')
+        .gte('updated_at', since);
+      return count ?? 0;
+    },
+    enabled: !!user?.id,
+  });
+
   const { data: unreadCount } = useQuery({
     queryKey: ['unread_count'],
     queryFn: async () => {
@@ -70,6 +92,15 @@ export default function ProfessionalLayout() {
       return (data || []).reduce((acc, c) => acc + (c.unread_for_prof || 0), 0);
     },
   });
+
+  useEffect(() => {
+    const ch = supabase.channel('prof_agenda_badge_watch')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['prof_agenda_badge', user?.id] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [queryClient, user?.id]);
 
   useEffect(() => {
     const ch = supabase.channel('prof_unread_watch')
@@ -114,6 +145,11 @@ export default function ProfessionalLayout() {
                 {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
                   <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                     {unreadCount}
+                  </span>
+                )}
+                {item.name === 'Agenda' && (agendaBadgeCount ?? 0) > 0 && (
+                  <span className="ml-auto bg-emerald-500 text-black text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                    {agendaBadgeCount}
                   </span>
                 )}
               </Link>
