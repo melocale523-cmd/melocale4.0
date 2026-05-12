@@ -29,7 +29,7 @@ export default function AiChatWidget() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [userData, setUserData] = useState<Record<string, any>>({});
+  const [userData, setUserData] = useState<Record<string, unknown>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const ticketCreatedRef = useRef(false);
@@ -71,7 +71,7 @@ export default function AiChatWidget() {
 
       const displayName = profileRes.data?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'você';
 
-      const data: Record<string, any> = {
+      const data: Record<string, unknown> = {
         name: displayName,
         email: user.email,
         role: user.role,
@@ -118,10 +118,11 @@ export default function AiChatWidget() {
 
   useEffect(() => {
     if (!isOpen) return;
-    if (getRouteContext() === 'professional' && userData.coinBalance !== undefined && userData.coinBalance < 20 && messages.length === 1) {
-      const alert = userData.coinBalance === 0
+    const coinBalance = userData.coinBalance as number | undefined;
+    if (getRouteContext() === 'professional' && coinBalance !== undefined && coinBalance < 20 && messages.length === 1) {
+      const alert = coinBalance === 0
         ? `⚠️ Oi ${userData.name}! Seu saldo está zerado. Você não conseguirá comprar novos leads sem recarregar. Quer ver os pacotes disponíveis?`
-        : `💡 Oi ${userData.name}! Seu saldo está baixo (${userData.coinBalance} moedas). Considere recarregar para não perder leads!`;
+        : `💡 Oi ${userData.name}! Seu saldo está baixo (${coinBalance} moedas). Considere recarregar para não perder leads!`;
       setMessages(prev => [...prev, { role: 'model', text: alert, time: getTime() }]);
     }
   }, [isOpen, userData]);

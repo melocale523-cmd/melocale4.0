@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download, CalendarPlus, MapPin } from 'lucide-react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -69,7 +70,7 @@ export default function ProfessionalMensagens() {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingChannel = useRef<any>(null);
+  const typingChannel = useRef<RealtimeChannel | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -224,7 +225,7 @@ export default function ProfessionalMensagens() {
     const ch = supabase.channel('online_users');
     ch.on('presence', { event: 'sync' }, () => {
       const state = ch.presenceState();
-      const ids = Object.values(state).flat().map((p: any) => p.user_id as string);
+      const ids = Object.values(state).flat().map((p) => (p as unknown as { user_id: string }).user_id);
       setOnlineUsers(ids);
     }).subscribe(async (status: string) => {
       if (status === 'SUBSCRIBED') {
