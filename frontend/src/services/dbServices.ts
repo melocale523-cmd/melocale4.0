@@ -495,6 +495,21 @@ export const adminService = {
     const { error } = await supabase.from('coin_packages').update(updates).eq('id', id);
     if (error) throw error;
     return true;
+  },
+
+  async getObservabilityMetrics() {
+    const [convRes, msgRes, purchaseRes, notifRes] = await Promise.all([
+      supabase.from('conversations').select('*', { count: 'exact', head: true }),
+      supabase.from('messages').select('*', { count: 'exact', head: true }),
+      supabase.from('lead_purchases').select('*', { count: 'exact', head: true }),
+      supabase.from('notifications').select('*', { count: 'exact', head: true }),
+    ]);
+    return {
+      conversations: convRes.count ?? 0,
+      messages: msgRes.count ?? 0,
+      purchases: purchaseRes.count ?? 0,
+      notifications: notifRes.count ?? 0,
+    };
   }
 };
 
