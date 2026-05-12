@@ -30,6 +30,10 @@ export default function ProfessionalLayout() {
   const balanceDisplay = typeof balance === 'number' ? Math.floor(balance) : 0;
 
   useEffect(() => {
+    if (user && user.role !== 'professional' && user.role !== 'admin') navigate('/', { replace: true });
+  }, [user, navigate]);
+
+  useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
