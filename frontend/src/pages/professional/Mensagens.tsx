@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download, CalendarPlus, Calendar as CalendarIcon, MapPin } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { chatService } from '../../services/dbServices';
+import { chatService, appointmentService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
 
 interface MessageAttachments {
@@ -55,6 +56,14 @@ export default function ProfessionalMensagens() {
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState({
+    title: '',
+    date: format(new Date(), 'yyyy-MM-dd'),
+    time: '09:00',
+    location: '',
+    description: '',
+  });
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -112,6 +121,37 @@ export default function ProfessionalMensagens() {
       setIsMenuOpen(false);
       toast.success('Conversa excluída com sucesso!');
     },
+  });
+
+  const { data: myProfessional } = useQuery({
+    queryKey: ['my_professional', currentUser?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('professionals')
+        .select('id')
+        .eq('user_id', currentUser!.id)
+        .single();
+      return data as { id: string } | null;
+    },
+    enabled: !!currentUser?.id,
+  });
+
+  const scheduleMutation = useMutation({
+    mutationFn: () => appointmentService.createAppointment({
+      professional_id: myProfessional!.id,
+      client_id: activeConversation!.client_id,
+      conversation_id: activeConversationId!,
+      scheduled_at: `${scheduleForm.date}T${scheduleForm.time}:00`,
+      title: scheduleForm.title,
+      location: scheduleForm.location || undefined,
+      description: scheduleForm.description || undefined,
+    }),
+    onSuccess: () => {
+      setScheduleOpen(false);
+      setScheduleForm({ title: '', date: format(new Date(), 'yyyy-MM-dd'), time: '09:00', location: '', description: '' });
+      toast.success('Agendamento criado e cliente notificado!');
+    },
+    onError: () => toast.error('Erro ao criar agendamento'),
   });
 
   const scrollToBottom = () => {
@@ -597,6 +637,15 @@ export default function ProfessionalMensagens() {
                     >
                       <Paperclip size={20} />
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setScheduleOpen(true)}
+                      disabled={!myProfessional}
+                      className="p-3 text-[#4A6580] hover:text-yellow-400 hover:bg-yellow-500/10 rounded-xl transition-all disabled:opacity-50"
+                      title="Agendar Visita"
+                    >
+                      <CalendarPlus size={20} />
+                    </button>
                   </>
                 )}
               </div>
@@ -661,6 +710,102 @@ export default function ProfessionalMensagens() {
               <Paperclip size={20} className="text-[#4A6580]" />
               <span className="text-[8px] font-bold uppercase">Arquivos</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Schedule Modal */}
+      {scheduleOpen && activeConversation && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setScheduleOpen(false)} />
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <div className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg"><CalendarPlus size={20} /></div>
+                Agendar Visita
+              </h2>
+              <button onClick={() => setScheduleOpen(false)} className="text-[#4A6580] hover:text-white transition-colors"><X size={22} /></button>
+            </div>
+
+            <div className="mb-5 p-3 bg-[#0E1C32] rounded-xl border border-[#1C3050] flex items-center gap-3">
+              <User size={16} className="text-emerald-500 shrink-0" />
+              <p className="text-sm text-white font-medium">{otherName}</p>
+            </div>
+
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                if (!scheduleForm.title) { toast.error('Informe o serviço'); return; }
+                if (!myProfessional) { toast.error('Perfil profissional não encontrado'); return; }
+                scheduleMutation.mutate();
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Serviço / Título *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Instalação Elétrica"
+                  value={scheduleForm.title}
+                  onChange={e => setScheduleForm(f => ({ ...f, title: e.target.value }))}
+                  className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-1.5"><CalendarIcon size={12} /> Data</label>
+                  <input
+                    type="date"
+                    required
+                    value={scheduleForm.date}
+                    onChange={e => setScheduleForm(f => ({ ...f, date: e.target.value }))}
+                    className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-1.5"><Clock size={12} /> Horário</label>
+                  <input
+                    type="time"
+                    required
+                    value={scheduleForm.time}
+                    onChange={e => setScheduleForm(f => ({ ...f, time: e.target.value }))}
+                    className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-1.5"><MapPin size={12} /> Endereço (opcional)</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Rua das Flores, 123"
+                  value={scheduleForm.location}
+                  onChange={e => setScheduleForm(f => ({ ...f, location: e.target.value }))}
+                  className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Observações (opcional)</label>
+                <textarea
+                  placeholder="Detalhes adicionais..."
+                  value={scheduleForm.description}
+                  onChange={e => setScheduleForm(f => ({ ...f, description: e.target.value }))}
+                  rows={2}
+                  className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={scheduleMutation.isPending}
+                className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+              >
+                {scheduleMutation.isPending ? <><Loader2 size={16} className="animate-spin" /> Criando...</> : <><CalendarPlus size={16} /> Criar Agendamento</>}
+              </button>
+            </form>
           </div>
         </div>
       )}
