@@ -28,7 +28,7 @@ export default function AdminTransacoes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('wallet_transactions')
-        .select('*, professionals(user_id, profiles(full_name))')
+        .select('*, wallets(professionals(profiles(full_name)))')
         .order('created_at', { ascending: false })
         .limit(200);
       if (error) throw error;
@@ -36,10 +36,13 @@ export default function AdminTransacoes() {
     },
   });
 
+  const getProfName = (t: any): string =>
+    t.wallets?.professionals?.profiles?.full_name ?? '—';
+
   const filtered = transacoes.filter((t: any) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
-    const name = t.professionals?.profiles?.full_name?.toLowerCase() ?? '';
+    const name = getProfName(t).toLowerCase();
     return name.includes(q) || t.kind?.toLowerCase().includes(q) || t.reference?.toLowerCase().includes(q);
   });
 
@@ -100,7 +103,7 @@ export default function AdminTransacoes() {
                     {new Date(t.created_at).toLocaleDateString('pt-BR')} {new Date(t.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                   </td>
                   <td className="p-4 text-white font-medium">
-                    {t.professionals?.profiles?.full_name ?? '—'}
+                    {getProfName(t)}
                   </td>
                   <td className="p-4">
                     <span className={`border px-2 py-0.5 rounded text-xs font-bold uppercase ${kindColor(t.kind)}`}>
