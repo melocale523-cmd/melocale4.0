@@ -53,7 +53,10 @@ if (!supabaseServiceKey) {
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || '' });
+if (!process.env.ANTHROPIC_API_KEY) {
+  throw new Error('❌ ERRO CRÍTICO: ANTHROPIC_API_KEY não definida — servidor não pode subir');
+}
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -233,7 +236,53 @@ async function startServer() {
   });
 
   // API route for AI Chat
-  app.post("/api/chat", async (req: Request, res: Response, next: NextFunction) => {
+  app.post("/api/chat", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const SUSPICIOUS_PATTERN = /ignore|system\s*prompt|assistant|jailbreak|prompt\s*injection/i;
+
+    function sanitizeUserData(raw: Record<string, unknown>): {
+      name: string;
+      role: 'client' | 'professional' | null;
+      category: string;
+      coinBalance: unknown;
+      activePlan: unknown;
+      leadsBought: unknown;
+      totalPedidos: unknown;
+      openTickets: unknown;
+      activeSubscriptions: unknown;
+    } {
+      const stripTags = (v: unknown, max: number): string => {
+        if (typeof v !== 'string') return '';
+        return v.replace(/<[^>]*>/g, '').replace(/\n|\r/g, ' ').trim().slice(0, max);
+      };
+
+      const name = stripTags(raw.name, 100);
+      const category = stripTags(raw.category, 100);
+
+      if (SUSPICIOUS_PATTERN.test(name) || SUSPICIOUS_PATTERN.test(category)) {
+        throw Object.assign(new Error('Conteúdo inválido em userData'), { status: 400 });
+      }
+
+      const rawRole = raw.role;
+      const role: 'client' | 'professional' | null =
+        rawRole === 'client' || rawRole === 'professional' ? rawRole : null;
+
+      if (rawRole !== undefined && rawRole !== null && role === null) {
+        throw Object.assign(new Error('role inválido'), { status: 400 });
+      }
+
+      return {
+        name,
+        role,
+        category,
+        coinBalance: raw.coinBalance,
+        activePlan: raw.activePlan,
+        leadsBought: raw.leadsBought,
+        totalPedidos: raw.totalPedidos,
+        openTickets: raw.openTickets,
+        activeSubscriptions: raw.activeSubscriptions,
+      };
+    }
+
     const buildSystemPrompt = (context: string, userData: Record<string, any>) => {
       const name = userData.name || 'usuário';
 
@@ -322,7 +371,8 @@ COMPORTAMENTO NESTE CONTEXTO:
     };
 
     try {
-      const { messages, context = 'landing', userData = {} } = req.body;
+      const { messages, context = 'landing', userData: rawUserData = {} } = req.body;
+      const userData = sanitizeUserData(rawUserData as Record<string, unknown>);
       const systemPrompt = buildSystemPrompt(context, userData);
       const mapped = (messages as { role: string; text: string }[])
         .map((m) => ({
@@ -623,7 +673,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
   });
 
-  app.post("/api/support-ticket", async (req: any, res: any) => {
+  app.post("/api/support-ticket", requireAuth, async (req: any, res: any) => {
     try {
       const { user_id, email, conversation } = req.body;
       const { data, error } = await supabaseAdmin
@@ -636,6 +686,11 @@ COMPORTAMENTO NESTE CONTEXTO:
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
     }
+  });
+
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = typeof err?.status === 'number' ? err.status : 500;
+    res.status(status).json({ error: err?.message || 'Erro interno' });
   });
 
   app.listen(PORT, "0.0.0.0", () => {
