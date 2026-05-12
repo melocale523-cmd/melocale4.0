@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Settings, Bell, Lock, Shield, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore';
+import { supabase } from '../../lib/supabase';
 
 export default function ProfessionalConfiguracoes() {
   const { user } = useAuthStore();
@@ -16,11 +17,51 @@ export default function ProfessionalConfiguracoes() {
 
   const [savingNotifications, setSavingNotifications] = useState(false);
 
+  // Load persisted preferences on mount
+  useEffect(() => {
+    async function loadPrefs() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) return;
+      const { data } = await supabase
+        .from('user_notification_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      if (data) {
+        setNotifications(prev => ({
+          ...prev,
+          newLead: data.email_new_lead,
+          messages: data.email_messages,
+          promotions: data.push_enabled,
+        }));
+      }
+    }
+    loadPrefs();
+  }, []);
+
   const handleSaveNotifications = async () => {
     setSavingNotifications(true);
-    await new Promise(r => setTimeout(r, 600));
-    setSavingNotifications(false);
-    toast.success('Preferências de notificação salvas!');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) throw new Error('Sessão expirada');
+      const { error } = await supabase
+        .from('user_notification_preferences')
+        .upsert({
+          user_id: userId,
+          email_new_lead: notifications.newLead,
+          email_messages: notifications.messages,
+          push_enabled: notifications.promotions,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' });
+      if (error) throw error;
+      toast.success('Preferências de notificação salvas!');
+    } catch {
+      toast.error('Erro ao salvar preferências. Tente novamente.');
+    } finally {
+      setSavingNotifications(false);
+    }
   };
 
   return (

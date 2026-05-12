@@ -11,7 +11,7 @@ export function useAuthGuard(targetRole?: Role) {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && !isAuthorized && user?.role) {
-      console.log('useAuthGuard: Redirecionando para dashboard correto:', user.role);
+      if (import.meta.env.DEV) console.log('useAuthGuard: Redirecionando para dashboard correto:', user.role);
       let dashboard = '/cliente/dashboard';
       if (user.role === 'admin') dashboard = '/admin/dashboard';
       else if (user.role === 'professional') dashboard = '/profissional/dashboard';

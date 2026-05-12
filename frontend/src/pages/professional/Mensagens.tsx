@@ -319,6 +319,14 @@ export default function ProfessionalMensagens() {
 
   const isMyMessage = (msg: Message) => msg.sender_type === 'professional';
 
+  function getFileName(url: string): string {
+    const parts = url.split('/');
+    const raw = decodeURIComponent(parts[parts.length - 1] || 'arquivo');
+    const cleaned = raw.replace(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-?/i, '');
+    const name = cleaned || 'arquivo';
+    return name.length > 30 ? name.substring(0, 27) + '...' : name;
+  }
+
   const renderMessageContent = (msg: Message) => {
     const att = Array.isArray(msg.attachments) ? msg.attachments[0] : msg.attachments;
     if (att?.type === 'image') {
@@ -344,7 +352,7 @@ export default function ProfessionalMensagens() {
           className="flex items-center gap-2 text-sm underline hover:no-underline"
         >
           <Download size={14} />
-          {att.fileName || 'Arquivo'}
+          {getFileName(msg.body)}
         </a>
       );
     }
