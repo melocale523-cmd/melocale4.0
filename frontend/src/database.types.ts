@@ -238,6 +238,32 @@ export type Database = {
           is_active?: boolean
         }
       }
+      disputes: {
+        Row: {
+          id: string
+          lead_id: string | null
+          client_id: string | null
+          professional_id: string | null
+          reason: string
+          status: 'open' | 'resolved' | 'rejected'
+          admin_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          lead_id?: string | null
+          client_id?: string | null
+          professional_id?: string | null
+          reason: string
+          status?: 'open' | 'resolved' | 'rejected'
+          admin_notes?: string | null
+        }
+        Update: {
+          status?: 'open' | 'resolved' | 'rejected'
+          admin_notes?: string | null
+          updated_at?: string
+        }
+      }
     }
     Views: {
       v_available_leads: { Row: Record<string, unknown> }
