@@ -17,6 +17,10 @@ export default function ProfessionalConfiguracoes() {
 
   const [savingNotifications, setSavingNotifications] = useState(false);
 
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
+  const [savingPassword, setSavingPassword] = useState(false);
+
   // Load persisted preferences on mount
   useEffect(() => {
     async function loadPrefs() {
@@ -158,12 +162,81 @@ export default function ProfessionalConfiguracoes() {
             <p className="text-xs text-[#94A3B8] mt-0.5">Altere sua senha de acesso</p>
           </div>
           <button
-            onClick={() => toast.info('Enviamos um e-mail para redefinir sua senha.')}
+            onClick={() => setShowPasswordForm(v => !v)}
             className="text-xs font-bold text-emerald-400 hover:text-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition-all"
           >
-            Redefinir senha
+            {showPasswordForm ? 'Cancelar' : 'Alterar senha'}
           </button>
         </div>
+
+        {showPasswordForm && (
+          <div className="mt-2 pt-4 border-t border-[#1C3050] space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-[#94A3B8] uppercase tracking-widest">Senha atual</label>
+              <input
+                type="password"
+                value={passwordForm.current}
+                onChange={e => setPasswordForm(f => ({ ...f, current: e.target.value }))}
+                placeholder="••••••••"
+                className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-[#94A3B8] uppercase tracking-widest">Nova senha</label>
+              <input
+                type="password"
+                value={passwordForm.newPass}
+                onChange={e => setPasswordForm(f => ({ ...f, newPass: e.target.value }))}
+                placeholder="Mínimo 8 caracteres"
+                className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-[#94A3B8] uppercase tracking-widest">Confirmar nova senha</label>
+              <input
+                type="password"
+                value={passwordForm.confirm}
+                onChange={e => setPasswordForm(f => ({ ...f, confirm: e.target.value }))}
+                placeholder="Repita a nova senha"
+                className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              />
+            </div>
+            <button
+              disabled={savingPassword}
+              onClick={async () => {
+                const { current, newPass, confirm } = passwordForm;
+                if (newPass.length < 8) {
+                  toast.error('A nova senha deve ter pelo menos 8 caracteres.');
+                  return;
+                }
+                if (newPass === current) {
+                  toast.error('A nova senha deve ser diferente da senha atual.');
+                  return;
+                }
+                if (newPass !== confirm) {
+                  toast.error('As senhas não coincidem.');
+                  return;
+                }
+                setSavingPassword(true);
+                try {
+                  const { error } = await supabase.auth.updateUser({ password: newPass });
+                  if (error) throw error;
+                  toast.success('Senha alterada com sucesso!');
+                  setShowPasswordForm(false);
+                  setPasswordForm({ current: '', newPass: '', confirm: '' });
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : 'Erro ao alterar senha.');
+                } finally {
+                  setSavingPassword(false);
+                }
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-xl transition-all disabled:opacity-50"
+            >
+              {savingPassword ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
+              Salvar nova senha
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Danger zone */}
