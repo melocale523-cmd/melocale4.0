@@ -818,13 +818,17 @@ export const appointmentService = {
       .single();
     if (error) throw error;
     const date = new Date(payload.scheduled_at);
-    await supabase.from('notifications').insert({
-      user_id: payload.client_id,
-      title: 'Novo agendamento',
-      body: `Visita agendada para ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
-      type: 'appointment',
-      data: { appointment_id: appt.id },
-    });
+    try {
+      const { error: notifError } = await supabase.from('notifications').insert({
+        user_id: payload.client_id,
+        title: 'Novo agendamento',
+        body: `Visita agendada para ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
+        data: { appointment_id: appt.id, type: 'appointment' },
+      });
+      if (notifError) console.error('Notification insert failed:', notifError);
+    } catch (e) {
+      console.error('Notification insert error:', e);
+    }
     return appt as DbAppointment;
   },
 
@@ -850,13 +854,17 @@ export const appointmentService = {
       const body = status === 'confirmed' ? 'O cliente confirmou o agendamento'
         : status === 'cancelled' ? `O cliente recusou o agendamento${cancelledReason ? ': ' + cancelledReason : ''}`
         : 'O atendimento foi marcado como concluído';
-      await supabase.from('notifications').insert({
-        user_id: notifyUserId,
-        title,
-        body,
-        type: 'appointment',
-        data: { appointment_id: appointmentId },
-      });
+      try {
+        const { error: notifError } = await supabase.from('notifications').insert({
+          user_id: notifyUserId,
+          title,
+          body,
+          data: { appointment_id: appointmentId, type: 'appointment' },
+        });
+        if (notifError) console.error('Notification insert failed:', notifError);
+      } catch (e) {
+        console.error('Notification insert error:', e);
+      }
     }
     return appt as DbAppointment;
   },
