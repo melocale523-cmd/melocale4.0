@@ -1,6 +1,7 @@
 import { Users, Briefcase, TrendingUp, AlertTriangle, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../../services/dbServices';
+import { supabase } from '../../lib/supabase';
 
 export default function AdminDashboard() {
   const { data: summary, isLoading } = useQuery({
@@ -11,6 +12,18 @@ export default function AdminDashboard() {
   const { data: recentUsers } = useQuery({
     queryKey: ['adminRecentUsers'],
     queryFn: () => adminService.getUsers({ role: 'professional' })
+  });
+
+  const { data: activeUsersCount } = useQuery({
+    queryKey: ['adminActiveUsers24h'],
+    queryFn: async () => {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from('wallet_transactions')
+        .select('user_id', { count: 'exact', head: true })
+        .gte('created_at', since);
+      return count ?? 0;
+    },
   });
 
   if (isLoading) {
@@ -63,8 +76,8 @@ export default function AdminDashboard() {
 
         {/* New KPIs */}
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
-           <h3 className="text-[#94A3B8] text-sm font-medium">Usuarios Ativos (24h)</h3>
-           <p className="text-3xl font-bold text-white mt-1">N/A</p>
+           <h3 className="text-[#94A3B8] text-sm font-medium">Usuários Ativos (24h)</h3>
+           <p className="text-3xl font-bold text-white mt-1">{activeUsersCount ?? '—'}</p>
         </div>
 
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
@@ -80,7 +93,7 @@ export default function AdminDashboard() {
               <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><Clock size={20} /></div>
            </div>
            <h3 className="text-[#94A3B8] text-sm font-medium">Tempo Médio Resposta</h3>
-           <p className="text-3xl font-bold text-white mt-1">{summary?.avgResponseTime || '12m'}</p>
+           <p className="text-3xl font-bold text-white mt-1">—</p>
         </div>
       </div>
 
@@ -89,16 +102,21 @@ export default function AdminDashboard() {
          <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
            <h2 className="text-lg font-bold text-white mb-4">Últimos Profissionais</h2>
            <div className="space-y-4">
-              {[1,2,3].map(i => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/30 transition-colors">
+              {recentPros.length === 0 ? (
+                <p className="text-sm text-[#4A6580] text-center py-4">Nenhum profissional cadastrado</p>
+              ) : recentPros.map(pro => (
+                <div key={pro.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/30 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-700"></div>
+                    <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-400 text-sm font-bold">
+                      {(pro.name ?? pro.email ?? '?')[0].toUpperCase()}
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-200">João Eletricista</p>
-                      <p className="text-xs text-[#4A6580]">Elétrica • Há 2 horas</p>
+                      <p className="text-sm font-medium text-slate-200">{pro.name ?? pro.email ?? '—'}</p>
+                      <p className="text-xs text-[#4A6580]">
+                        {pro.created_at ? new Date(pro.created_at).toLocaleDateString('pt-BR') : '—'}
+                      </p>
                     </div>
                   </div>
-                  <button className="text-xs font-medium text-blue-400 hover:text-blue-300">Ver Perfil</button>
                 </div>
               ))}
            </div>
