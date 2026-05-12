@@ -110,8 +110,8 @@ export default function AdminTransacoes() {
                       {formatKind(t.kind, t.reference)}
                     </span>
                   </td>
-                  <td className={`p-4 font-bold ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
-                    {t.kind === 'debit_lead' ? '-' : '+'}{t.amount}
+                  <td className={`p-4 font-bold ${t.amount < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                    {t.amount > 0 ? '+' : ''}{t.amount}
                   </td>
                 </tr>
               ))}
