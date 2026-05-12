@@ -235,6 +235,14 @@ export const leadService = {
   }
 };
 
+function formatWalletDescription(kind: string, reference?: string | null): string {
+  if (reference?.startsWith('lead_purchase:') || kind === 'debit_lead') return 'Compra de Lead';
+  if (kind === 'bonus') return 'Bônus de boas-vindas';
+  if (kind === 'subscription') return 'Assinatura';
+  if (kind === 'purchase' || kind === 'credit_purchase') return 'Compra de moedas';
+  return kind.charAt(0).toUpperCase() + kind.slice(1).replace(/_/g, ' ');
+}
+
 // === Transactions ===
 export const transactionService = {
   async getWalletTransactions() {
@@ -252,8 +260,8 @@ export const transactionService = {
     // Map DB columns (kind, reference) to what Wallet.tsx expects (type, description)
     return (data ?? []).map((tx: any) => ({
       ...tx,
-      type: tx.kind === 'deposit' || tx.kind === 'bonus' ? 'deposit' : 'purchase',
-      description: tx.reference ?? 'Transação',
+      type: tx.kind === 'credit_purchase' || tx.kind === 'deposit' || tx.kind === 'bonus' || tx.kind === 'subscription' ? 'deposit' : 'purchase',
+      description: formatWalletDescription(tx.kind, tx.reference),
     }));
   }
 };
@@ -448,7 +456,7 @@ export const adminService = {
         .select('price')
         .not('price', 'is', null);
       if (purchases) {
-        totalRevenue = purchases.reduce((acc: number, p: any) => acc + (p.price ?? 0), 0);
+        totalRevenue = purchases.reduce((acc: number, p: any) => acc + Number(p.price ?? 0), 0);
       }
     } catch {}
 
@@ -526,7 +534,7 @@ export const chatService = {
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (error) throw error;
-    return (data ?? []).map((conv: any) => ({
+    const mapped = (data ?? []).map((conv: any) => ({
       id: conv.id,
       client_id: conv.client_id,
       professional_id: conv.professional_id,
@@ -546,6 +554,14 @@ export const chatService = {
         avatar_url: conv.client_avatar_url ?? null,
       },
     }));
+    // Deduplicate: keep only the most recent conversation per professional+client pair
+    const seen = new Set<string>();
+    return mapped.filter((conv) => {
+      const key = `${conv.professional_id}:${conv.client_id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   },
 
   async uploadChatFile(conversationId: string, file: File): Promise<string> {
