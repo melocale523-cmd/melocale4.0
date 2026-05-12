@@ -143,7 +143,7 @@ export default function ProfessionalAssinatura() {
     queryFn: walletService.getBalance
   });
 
-  const { data: currentSubscription } = useQuery({
+  const { data: currentSubscription, isLoading: isSubscriptionLoading } = useQuery({
     queryKey: ['currentSubscription'],
     retry: false,
     refetchOnWindowFocus: false,
@@ -546,7 +546,11 @@ export default function ProfessionalAssinatura() {
 
           {/* Body */}
           <div className="p-5 flex-1 flex flex-col">
-            {currentSubscription ? (
+            {isSubscriptionLoading ? (
+              <div className="flex-1 flex items-center justify-center py-8">
+                <Loader2 size={24} className="animate-spin text-emerald-500" />
+              </div>
+            ) : currentSubscription ? (
               <>
                 {subscriptionStatus?.cancel_at_period_end && (
                   <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4 flex items-center gap-2">
