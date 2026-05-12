@@ -84,9 +84,9 @@ export default function ProfessionalWallet() {
              </div>
              <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Gasto no Mês</h3>
              <p className="text-3xl font-semibold text-white mt-1">
-               {(stats as any)?.totalSpentCoins ? `${(stats as any).totalSpentCoins} moedas` : '0 moedas'}
+               {stats?.totalSpentCoins ? `${stats.totalSpentCoins} moedas` : '0 moedas'}
              </p>
-             <p className="text-xs text-[#4A6580] mt-1 italic">≈ R$ {(((stats as any)?.totalSpentCoins ?? 0) / 10).toFixed(2).replace('.', ',')}</p>
+             <p className="text-xs text-[#4A6580] mt-1 italic">≈ R$ {(((stats?.totalSpentCoins ?? 0) / 10)).toFixed(2).replace('.', ',')}</p>
            </div>
            <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden group">
              <div className="w-10 h-10 bg-slate-800/80 rounded-xl flex items-center justify-center mb-4 text-blue-400 border border-[#1C3050] group-hover:border-blue-500/30 transition-colors">
@@ -94,7 +94,7 @@ export default function ProfessionalWallet() {
              </div>
              <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Contatos Comprados</h3>
              <p className="text-3xl font-semibold text-white mt-1">
-               {(stats as any)?.contactsPurchased || 0} {(stats as any)?.contactsPurchased === 1 ? 'cliente' : 'clientes'}
+               {stats?.contactsPurchased || 0} {stats?.contactsPurchased === 1 ? 'cliente' : 'clientes'}
              </p>
            </div>
         </div>
@@ -105,7 +105,7 @@ export default function ProfessionalWallet() {
       <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl overflow-hidden shadow-xl">
         <ul className="divide-y divide-slate-800/50">
           {transactions && transactions.length > 0 ? (
-            transactions.map((tx: any) => (
+            transactions.map((tx) => (
               <li key={tx.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
                 <div className="flex items-center">
                   <div className={cn(
@@ -115,9 +115,9 @@ export default function ProfessionalWallet() {
                     {tx.type === 'deposit' || tx.type === 'credit' ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-slate-200">{tx.description || tx.desc || 'Transação'}</p>
+                    <p className="text-sm font-medium text-slate-200">{tx.description || 'Transação'}</p>
                     <p className="text-xs text-[#4A6580] mt-0.5">
-                      {new Date(tx.created_at || tx.date).toLocaleDateString('pt-BR')}
+                      {new Date(tx.created_at).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                 </div>

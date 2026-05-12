@@ -1,5 +1,9 @@
 // Trigger Render redeploy 2026-04-28
 import express, { Request, Response, NextFunction } from "express";
+
+interface AuthRequest extends Request {
+  authUser?: { id: string; email: string; role: string }
+}
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import Anthropic from '@anthropic-ai/sdk';
@@ -65,7 +69,7 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
   if (error || !user) return res.status(401).json({ error: 'Token inválido' });
 
-  (req as any).authUser = user;
+  (req as AuthRequest).authUser = user as { id: string; email: string; role: string };
   next();
 }
 
@@ -409,9 +413,9 @@ COMPORTAMENTO NESTE CONTEXTO:
     plan_business: { name: "Elite",     price: 12700, description: "Plano Elite MeloCale — 55% desconto em moedas" },
   };
 
-  app.post("/api/create-checkout-session", requireAuth, async (req: any, res: any) => {
+  app.post("/api/create-checkout-session", requireAuth, async (req: AuthRequest, res: Response) => {
     try {
-      const authUser = (req as any).authUser;
+      const authUser = req.authUser!;
       const { type, package_id, user_id } = req.body || {};
 
       if (!package_id || !user_id) {
@@ -530,9 +534,9 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // Stripe Checkout Session - Pagamento de serviço a profissional
   // ============================================
-  app.post("/api/create-service-payment", requireAuth, async (req: any, res: any) => {
+  app.post("/api/create-service-payment", requireAuth, async (req: AuthRequest, res: Response) => {
     try {
-      const authUser = (req as any).authUser;
+      const authUser = req.authUser!;
       const { amount, connectedAccountId, description, user_id } = req.body || {};
 
       if (!amount || !connectedAccountId || !user_id) {
@@ -589,9 +593,9 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // GET /api/subscription-status?user_id=X
   // ============================================
-  app.get("/api/subscription-status", requireAuth, async (req: any, res: any) => {
+  app.get("/api/subscription-status", requireAuth, async (req: AuthRequest, res: Response) => {
     try {
-      const userId = (req as any).authUser.id as string;
+      const userId = req.authUser!.id;
 
       const { data: sub, error: subErr } = await supabaseAdmin
         .from("user_subscriptions")
@@ -637,9 +641,9 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // POST /api/cancel-subscription
   // ============================================
-  app.post("/api/cancel-subscription", requireAuth, async (req: any, res: any) => {
+  app.post("/api/cancel-subscription", requireAuth, async (req: AuthRequest, res: Response) => {
     try {
-      const authUser = (req as any).authUser;
+      const authUser = req.authUser!;
       const { user_id } = req.body || {};
       if (!user_id) return res.status(400).json({ error: "user_id é obrigatório." });
 
@@ -673,7 +677,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
   });
 
-  app.post("/api/support-ticket", requireAuth, async (req: any, res: any) => {
+  app.post("/api/support-ticket", requireAuth, async (req: Request, res: Response) => {
     try {
       const { user_id, email, conversation } = req.body;
       const { data, error } = await supabaseAdmin
