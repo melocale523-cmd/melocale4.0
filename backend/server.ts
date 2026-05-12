@@ -178,29 +178,29 @@ async function startServer() {
       }
 
       if (userId && coinsAmount > 0) {
-        try {
-          await supabaseAdmin.rpc("credit_wallet", {
-            p_user_id: userId,
-            p_amount: coinsAmount,
-            p_stripe_session_id: session.id,
-            p_stripe_event_id: event.id
-          });
-        } catch (rpcErr) {
+        const { error: rpcErr } = await supabaseAdmin.rpc("credit_wallet", {
+          p_user_id: userId,
+          p_amount: coinsAmount,
+          p_stripe_session_id: session.id,
+          p_stripe_event_id: event.id
+        });
+        if (rpcErr) {
           console.error("Erro no RPC credit_wallet:", rpcErr);
+          return res.status(500).json({ error: "Falha ao creditar" });
         }
 
-        try {
-          await supabaseAdmin.from("wallet_transactions").insert({
-            user_id: userId,
-            kind: sessionType === "subscription" ? "bonus" : "deposit",
-            amount: coinsAmount,
-            reference: `Stripe — ${coinLabel} — ${session.id}`,
-            stripe_session_id: session.id,
-            stripe_event_id: event.id,
-            created_at: new Date().toISOString(),
-          });
-        } catch (txErr) {
+        const { error: txErr } = await supabaseAdmin.from("wallet_transactions").insert({
+          user_id: userId,
+          kind: sessionType === "subscription" ? "bonus" : "deposit",
+          amount: coinsAmount,
+          reference: `Stripe — ${coinLabel} — ${session.id}`,
+          stripe_session_id: session.id,
+          stripe_event_id: event.id,
+          created_at: new Date().toISOString(),
+        });
+        if (txErr) {
           console.error("Erro ao inserir wallet_transaction:", txErr);
+          return res.status(500).json({ error: "Falha ao creditar" });
         }
       }
     }
