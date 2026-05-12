@@ -734,3 +734,130 @@ export const subscriptionService = {
     return data;
   }
 };
+
+// === Appointments ===
+export type AppointmentStatus = 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+
+export interface DbAppointment {
+  id: string;
+  professional_id: string;
+  client_id: string;
+  conversation_id: string | null;
+  title: string;
+  description: string | null;
+  location: string | null;
+  scheduled_at: string;
+  duration_minutes: number;
+  status: AppointmentStatus;
+  cancelled_reason: string | null;
+  created_at: string;
+  updated_at: string;
+  client_profile?: { full_name: string | null; avatar_url: string | null } | null;
+  professional?: { id: string; user_id: string; category: string | null; profile: { full_name: string | null; avatar_url: string | null } | null } | null;
+}
+
+export const appointmentService = {
+  async getProfessionalAppointments(professionalId: string): Promise<DbAppointment[]> {
+    const { data, error } = await supabase
+      .from('appointments')
+      .select('*')
+      .eq('professional_id', professionalId)
+      .order('scheduled_at', { ascending: true });
+    if (error) throw error;
+    const appts = (data ?? []) as DbAppointment[];
+    const clientIds = [...new Set(appts.map(a => a.client_id))];
+    if (!clientIds.length) return appts;
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', clientIds);
+    const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
+    return appts.map(a => ({ ...a, client_profile: profileMap[a.client_id] ?? null }));
+  },
+
+  async getClientAppointments(clientId: string): Promise<DbAppointment[]> {
+    const { data, error } = await supabase
+      .from('appointments')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('scheduled_at', { ascending: true });
+    if (error) throw error;
+    const appts = (data ?? []) as DbAppointment[];
+    const profIds = [...new Set(appts.map(a => a.professional_id))];
+    if (!profIds.length) return appts;
+    const { data: profs } = await supabase
+      .from('professionals')
+      .select('id, user_id, category')
+      .in('id', profIds);
+    const profMap = Object.fromEntries((profs ?? []).map(p => [p.id, p]));
+    const userIds = (profs ?? []).map(p => p.user_id).filter(Boolean);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', userIds);
+    const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
+    return appts.map(a => {
+      const prof = profMap[a.professional_id];
+      return { ...a, professional: prof ? { ...prof, profile: profileMap[prof.user_id] ?? null } : null };
+    });
+  },
+
+  async createAppointment(payload: {
+    professional_id: string;
+    client_id: string;
+    conversation_id?: string;
+    scheduled_at: string;
+    title: string;
+    location?: string;
+    description?: string;
+  }): Promise<DbAppointment> {
+    const { data: appt, error } = await supabase
+      .from('appointments')
+      .insert({ ...payload, status: 'scheduled' })
+      .select()
+      .single();
+    if (error) throw error;
+    const date = new Date(payload.scheduled_at);
+    await supabase.from('notifications').insert({
+      user_id: payload.client_id,
+      title: 'Novo agendamento',
+      body: `Visita agendada para ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
+      type: 'appointment',
+      data: { appointment_id: appt.id },
+    });
+    return appt as DbAppointment;
+  },
+
+  async updateAppointmentStatus(
+    appointmentId: string,
+    status: 'confirmed' | 'cancelled' | 'completed',
+    notifyUserId?: string,
+    cancelledReason?: string,
+  ): Promise<DbAppointment> {
+    const updates: Record<string, unknown> = { status };
+    if (cancelledReason) updates.cancelled_reason = cancelledReason;
+    const { data: appt, error } = await supabase
+      .from('appointments')
+      .update(updates)
+      .eq('id', appointmentId)
+      .select()
+      .single();
+    if (error) throw error;
+    if (notifyUserId) {
+      const title = status === 'confirmed' ? 'Agendamento confirmado ✅'
+        : status === 'cancelled' ? 'Agendamento recusado ❌'
+        : 'Atendimento concluído ✅';
+      const body = status === 'confirmed' ? 'O cliente confirmou o agendamento'
+        : status === 'cancelled' ? `O cliente recusou o agendamento${cancelledReason ? ': ' + cancelledReason : ''}`
+        : 'O atendimento foi marcado como concluído';
+      await supabase.from('notifications').insert({
+        user_id: notifyUserId,
+        title,
+        body,
+        type: 'appointment',
+        data: { appointment_id: appointmentId },
+      });
+    }
+    return appt as DbAppointment;
+  },
+};
