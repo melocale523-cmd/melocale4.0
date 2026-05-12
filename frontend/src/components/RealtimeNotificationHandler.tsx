@@ -9,7 +9,7 @@ export default function RealtimeNotificationHandler() {
   useEffect(() => {
     if (!isAuthenticated || !user) return;
 
-    console.log('Iniciando escuta de notificações Realtime para o usuário:', user.id);
+    if (import.meta.env.DEV) console.log('Iniciando escuta de notificações Realtime para o usuário:', user.id);
 
     // Subscreve para mudanças na tabela 'notifications' filtrando pelo user_id
     const channel = supabase
@@ -23,7 +23,7 @@ export default function RealtimeNotificationHandler() {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('Nova notificação recebida via Realtime:', payload);
+              if (import.meta.env.DEV) console.log('Nova notificação recebida via Realtime:', payload);
           const { title, body } = payload.new;
           
           // Exibe o Toast
@@ -45,7 +45,7 @@ export default function RealtimeNotificationHandler() {
       .subscribe();
 
     return () => {
-      console.log('Limpando canal de notificações Realtime');
+      if (import.meta.env.DEV) console.log('Limpando canal de notificações Realtime');
       supabase.removeChannel(channel);
     };
   }, [user, isAuthenticated]);

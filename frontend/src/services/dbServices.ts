@@ -451,10 +451,13 @@ export const adminService = {
         pendingDisputesCount = disputes.filter((d: any) => d.status === 'pending').length;
       }
 
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const { data: purchases } = await supabase
         .from('lead_purchases')
         .select('price')
-        .not('price', 'is', null);
+        .not('price', 'is', null)
+        .gte('created_at', startOfMonth);
       if (purchases) {
         totalRevenue = purchases.reduce((acc: number, p: any) => acc + Number(p.price ?? 0), 0);
       }
