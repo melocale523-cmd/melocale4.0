@@ -51,6 +51,7 @@ const AdminSuporte = lazy(() => import('./pages/admin/Suporte'));
 // Lazy-loaded pages — checkout
 const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 const CheckoutCancel = lazy(() => import('./pages/checkout/CheckoutCancel'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -234,6 +235,10 @@ const router = createBrowserRouter([
           { path: 'configuracoes', element: <div className="p-8 text-[#94A3B8]">Configurações (Em breve)</div> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
+      },
+      {
+        path: '*',
+        element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense>
       }
     ]
   }
