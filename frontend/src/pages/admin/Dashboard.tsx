@@ -1,6 +1,7 @@
 import { Users, Briefcase, TrendingUp, AlertTriangle, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../../services/dbServices';
+import { supabase } from '../../lib/supabase';
 
 export default function AdminDashboard() {
   const { data: summary, isLoading } = useQuery({
@@ -13,11 +14,31 @@ export default function AdminDashboard() {
     queryFn: () => adminService.getUsers({ role: 'professional' })
   });
 
+  const { data: topCategories } = useQuery({
+    queryKey: ['adminTopCategories'],
+    retry: false,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('leads')
+        .select('category')
+        .not('category', 'is', null);
+      if (!data) return [];
+      const counts: Record<string, number> = {};
+      data.forEach((r: any) => { if (r.category) counts[r.category] = (counts[r.category] ?? 0) + 1; });
+      return Object.entries(counts)
+        .map(([category, total]) => ({ category, total }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 5);
+    },
+  });
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="animate-spin text-emerald-500" size={40} /></div>;
   }
 
   const recentPros = recentUsers?.slice(0, 3) || [];
+  const maxCategory = topCategories?.[0]?.total || 1;
 
   return (
     <div className="space-y-8">
@@ -61,9 +82,8 @@ export default function AdminDashboard() {
            <p className="text-3xl font-bold text-white mt-1 relative z-10">{summary?.pendingDisputes || 0}</p>
         </div>
 
-        {/* New KPIs */}
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
-           <h3 className="text-[#94A3B8] text-sm font-medium">Usuarios Ativos (24h)</h3>
+           <h3 className="text-[#94A3B8] text-sm font-medium">Usuários Ativos (24h)</h3>
            <p className="text-3xl font-bold text-white mt-1">N/A</p>
         </div>
 
@@ -85,58 +105,53 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-         {/* Ultimos Cadastros */}
-         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
-           <h2 className="text-lg font-bold text-white mb-4">Últimos Profissionais</h2>
-           <div className="space-y-4">
-              {[1,2,3].map(i => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-700"></div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-200">João Eletricista</p>
-                      <p className="text-xs text-[#4A6580]">Elétrica • Há 2 horas</p>
-                    </div>
+        {/* Últimos Profissionais — dados reais */}
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
+          <h2 className="text-lg font-bold text-white mb-4">Últimos Profissionais</h2>
+          <div className="space-y-4">
+            {recentPros.length > 0 ? recentPros.map((pro: any) => (
+              <div key={pro.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">
+                    {(pro.full_name || pro.email || '?').charAt(0).toUpperCase()}
                   </div>
-                  <button className="text-xs font-medium text-blue-400 hover:text-blue-300">Ver Perfil</button>
+                  <div>
+                    <p className="text-sm font-medium text-slate-200">{pro.full_name || pro.email || '—'}</p>
+                    <p className="text-xs text-[#4A6580]">
+                      {pro.category || 'Profissional'} · {pro.created_at ? new Date(pro.created_at).toLocaleDateString('pt-BR') : '—'}
+                    </p>
+                  </div>
                 </div>
-              ))}
-           </div>
-         </div>
+                <button className="text-xs font-medium text-blue-400 hover:text-blue-300">Ver Perfil</button>
+              </div>
+            )) : (
+              <p className="text-[#4A6580] text-sm text-center py-6">Nenhum profissional cadastrado.</p>
+            )}
+          </div>
+        </div>
 
-         {/* Pedidos em alta */}
-         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
-           <h2 className="text-lg font-bold text-white mb-4">Categorias em Alta</h2>
-           <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Pintura Comercial</span>
-                  <span className="text-[#94A3B8]">450 pedidos</span>
+        {/* Categorias em Alta — dados reais */}
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
+          <h2 className="text-lg font-bold text-white mb-4">Categorias em Alta</h2>
+          <div className="space-y-4">
+            {topCategories && topCategories.length > 0 ? topCategories.map((cat, idx) => {
+              const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-yellow-500', 'bg-red-500'];
+              return (
+                <div key={cat.category} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-300">{cat.category}</span>
+                    <span className="text-[#94A3B8]">{cat.total} pedido{cat.total !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-2">
+                    <div className={`${colors[idx] || 'bg-slate-500'} h-2 rounded-full`} style={{ width: `${Math.round((cat.total / maxCategory) * 100)}%` }} />
+                  </div>
                 </div>
-                <div className="w-full bg-slate-800 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Elétrica Residencial</span>
-                  <span className="text-[#94A3B8]">320 pedidos</span>
-                </div>
-                <div className="w-full bg-slate-800 rounded-full h-2">
-                  <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Encanamento</span>
-                  <span className="text-[#94A3B8]">210 pedidos</span>
-                </div>
-                <div className="w-full bg-slate-800 rounded-full h-2">
-                  <div className="bg-purple-500 h-2 rounded-full" style={{ width: '40%' }}></div>
-                </div>
-              </div>
-           </div>
-         </div>
+              );
+            }) : (
+              <p className="text-[#4A6580] text-sm text-center py-6">Sem dados de categorias.</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
