@@ -23,11 +23,13 @@ export default function ClientLayout() {
     queryKey: ['client_scheduled_count', user?.id],
     queryFn: async () => {
       if (!user?.id) return 0;
+      const lastSeen = localStorage.getItem('client_agenda_last_seen') ?? new Date(0).toISOString();
       const { count } = await supabase
         .from('appointments')
         .select('id', { count: 'exact', head: true })
         .eq('client_id', user.id)
-        .eq('status', 'scheduled');
+        .eq('status', 'scheduled')
+        .gte('created_at', lastSeen);
       return count ?? 0;
     },
     enabled: !!user?.id,

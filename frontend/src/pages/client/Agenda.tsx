@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
@@ -33,6 +33,11 @@ export default function ClientAgenda() {
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('client_agenda_last_seen', new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ['client_scheduled_count'] });
+  }, [queryClient]);
 
   const { data: appointments = [], isLoading } = useQuery<Appointment[]>({
     queryKey: ['client_appointments', user?.id],

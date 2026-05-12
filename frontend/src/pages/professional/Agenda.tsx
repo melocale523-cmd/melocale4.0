@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   format,
   addMonths,
@@ -66,6 +66,11 @@ interface AvailableClient {
 export default function ProfessionalAgenda() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    localStorage.setItem('prof_agenda_last_seen', new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ['prof_agenda_badge'] });
+  }, [queryClient]);
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());

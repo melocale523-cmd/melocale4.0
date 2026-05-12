@@ -64,13 +64,13 @@ export default function ProfessionalLayout() {
         .eq('user_id', user.id)
         .maybeSingle();
       if (!prof) return 0;
-      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const lastSeen = localStorage.getItem('prof_agenda_last_seen') ?? new Date(0).toISOString();
       const { count } = await supabase
         .from('appointments')
         .select('id', { count: 'exact', head: true })
         .eq('professional_id', prof.id)
-        .eq('status', 'confirmed')
-        .gte('updated_at', since);
+        .in('status', ['confirmed', 'cancelled'])
+        .gte('updated_at', lastSeen);
       return count ?? 0;
     },
     enabled: !!user?.id,
