@@ -50,6 +50,10 @@ export default function ClientLayout() {
   }, [queryClient]);
 
   useEffect(() => {
+    if (user && user.role !== 'client' && user.role !== 'admin') navigate('/', { replace: true });
+  }, [user, navigate]);
+
+  useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);

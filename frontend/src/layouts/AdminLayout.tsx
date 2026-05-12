@@ -8,7 +8,7 @@ import {
   DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X, LifeBuoy
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 const ADMIN_NAVIGATION = [
@@ -42,6 +42,10 @@ export default function AdminLayout() {
     { id: 2, title: 'Alerta de Transação', message: 'Transação suspeita no valor de R$ 5000.', time: 'há 1 hora', read: false },
     { id: 3, title: 'Cadastro Pendente', message: 'Temos 3 novos profissionais aguardando aprovação.', time: 'há 3 horas', read: true },
   ]);
+
+  useEffect(() => {
+    if (user && user.role !== 'admin') navigate('/', { replace: true });
+  }, [user, navigate]);
 
   const { data: openTicketCount = 0 } = useQuery({
     queryKey: ['support_tickets_open_count'],
