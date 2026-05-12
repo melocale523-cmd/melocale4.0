@@ -110,7 +110,7 @@ export default function ProfessionalAgenda() {
       const { data: convs } = await supabase
         .from('conversations')
         .select('id,client_id')
-        .eq('professional_id', user!.id);
+        .eq('professional_user_id', user!.id);
       if (!convs?.length) return [];
 
       const seen = new Set<string>();
