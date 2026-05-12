@@ -44,7 +44,7 @@ export default function AdminPacotes() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
            {pacotes?.map(pacote => (
              <div key={pacote.id} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col relative overflow-hidden group">
-               {pacote.is_popular && (
+               {pacote.id === 'pack_pro' && (
                  <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-xl z-10">
                    Popular
                  </div>

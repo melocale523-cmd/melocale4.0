@@ -515,7 +515,7 @@ export const adminService = {
 
   async getCoinPackages() {
     try {
-      const { data, error } = await supabase.from('coin_packages').select('*');
+      const { data, error } = await supabase.from('coin_packages').select('*').eq('is_active', true).order('display_order', { ascending: true });
       if (error) return [];
       return data || [];
     } catch (err) {
