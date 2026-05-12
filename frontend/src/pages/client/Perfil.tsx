@@ -281,7 +281,7 @@ export default function ClientePerfil() {
                 inputMode="numeric"
                 value={formatCep(cep)}
                 onChange={handleCepChange}
-                placeholder="00000-000"
+                placeholder="Digite o CEP"
                 maxLength={9}
                 className="w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors pr-8"
               />

@@ -33,7 +33,7 @@ const ProfessionalEstatisticas = lazy(() => import('./pages/professional/Estatis
 const ProfessionalAssinatura = lazy(() => import('./pages/professional/Assinatura'));
 const ProfessionalMensagens = lazy(() => import('./pages/professional/Mensagens'));
 
-// Lazy-loaded pages — admin
+const ProfessionalConfiguracoes = lazy(() => import('./pages/professional/Configuracoes'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminObservabilidade = lazy(() => import('./pages/admin/Observabilidade'));
 const AdminDisputas = lazy(() => import('./pages/admin/Disputas'));
@@ -205,7 +205,7 @@ const router = createBrowserRouter([
           { path: 'carteira', element: <Suspense fallback={<PageLoader />}><ProfessionalWallet /></Suspense> },
           { path: 'assinatura', element: <Suspense fallback={<PageLoader />}><ProfessionalAssinatura /></Suspense> },
           { path: 'perfil', element: <Suspense fallback={<PageLoader />}><ProfessionalPerfil /></Suspense> },
-          { path: 'configuracoes', element: <div className="p-8 text-[#94A3B8]">Configurações (Em breve)</div> },
+          { path: 'configuracoes', element: <Suspense fallback={<PageLoader />}><ProfessionalConfiguracoes /></Suspense> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
