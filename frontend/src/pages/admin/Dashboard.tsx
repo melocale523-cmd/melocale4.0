@@ -25,7 +25,7 @@ export default function AdminDashboard() {
         .not('category', 'is', null);
       if (!data) return [];
       const counts: Record<string, number> = {};
-      data.forEach((r: any) => { if (r.category) counts[r.category] = (counts[r.category] ?? 0) + 1; });
+      (data as { category: string | null }[]).forEach((r) => { if (r.category) counts[r.category] = (counts[r.category] ?? 0) + 1; });
       return Object.entries(counts)
         .map(([category, total]) => ({ category, total }))
         .sort((a, b) => b.total - a.total)
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
           <h2 className="text-lg font-bold text-white mb-4">Últimos Profissionais</h2>
           <div className="space-y-4">
-            {recentPros.length > 0 ? recentPros.map((pro: any) => (
+            {recentPros.length > 0 ? recentPros.map((pro: { id: string; full_name?: string | null; email?: string | null; category?: string | null; created_at?: string | null }) => (
               <div key={pro.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/30 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">

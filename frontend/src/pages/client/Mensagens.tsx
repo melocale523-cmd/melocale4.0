@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download } from 'lucide-react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -35,6 +36,7 @@ interface ConversationWithProfiles {
   last_message_at: string | null;
   last_message: string | null;
   unread_for_prof: number | null;
+  unread_client: number;
   created_at: string;
   prof_user_id: string | null;
   prof_profile: ProfileData | null;
@@ -60,7 +62,7 @@ export default function ClientMensagens() {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingChannel = useRef<any>(null);
+  const typingChannel = useRef<RealtimeChannel | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -169,7 +171,7 @@ export default function ClientMensagens() {
     const ch = supabase.channel('online_users');
     ch.on('presence', { event: 'sync' }, () => {
       const state = ch.presenceState();
-      const ids = Object.values(state).flat().map((p: any) => p.user_id as string);
+      const ids = Object.values(state).flat().map((p) => (p as unknown as { user_id: string }).user_id);
       setOnlineUsers(ids);
     }).subscribe(async (status: string) => {
       if (status === 'SUBSCRIBED') {
@@ -393,9 +395,9 @@ export default function ClientMensagens() {
                       <p className="text-xs text-[#4A6580] truncate font-medium">
                         {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
                       </p>
-                      {(conv as any).unread_client > 0 && (
+                      {conv.unread_client > 0 && (
                         <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shrink-0">
-                          {(conv as any).unread_client}
+                          {conv.unread_client}
                         </span>
                       )}
                     </div>

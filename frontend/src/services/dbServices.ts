@@ -2,6 +2,83 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { logService } from '../lib/logService';
 
+interface LeadStatusRow { status: string }
+
+interface PurchaseStatsRow {
+  id: string;
+  price_coins?: number | null;
+  price?: number | null;
+  status: string;
+  created_at: string;
+}
+
+interface PurchaseViewRow {
+  id: string;
+  lead_id: string;
+  status?: string | null;
+  created_at?: string | null;
+  expires_at?: string | null;
+  max_purchases?: number | null;
+  purchases_count?: number | null;
+  location?: string | null;
+  images?: unknown;
+  title?: string | null;
+  description?: string | null;
+  category?: string | null;
+  city?: string | null;
+  state?: string | null;
+  budget_min?: number | null;
+  budget_max?: number | null;
+  event_date?: string | null;
+  lead_status?: string | null;
+  client_id?: string | null;
+  client_name?: string | null;
+  client_email?: string | null;
+  client_phone?: string | null;
+  client_city?: string | null;
+  profiles?: { phone?: string | null; email?: string | null; address?: string | null } | null;
+  [key: string]: unknown;
+}
+
+interface ProfileRow {
+  id: string;
+  status?: string | null;
+  role?: string | null;
+  full_name?: string | null;
+  name?: string | null;
+  email?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  category?: string | null;
+  [key: string]: unknown;
+}
+
+interface WalletTxRow {
+  id: string;
+  kind: string;
+  amount: number;
+  reference?: string | null;
+  created_at: string;
+  [key: string]: unknown;
+}
+
+interface VConversationRow {
+  id: string;
+  client_id?: string | null;
+  professional_id?: string | null;
+  professional_user_id?: string | null;
+  lead_id?: string | null;
+  last_message_at?: string | null;
+  created_at?: string | null;
+  unread_for_prof?: number | null;
+  unread_for_client?: number | null;
+  last_message?: string | null;
+  prof_full_name?: string | null;
+  prof_avatar_url?: string | null;
+  client_full_name?: string | null;
+  client_avatar_url?: string | null;
+}
+
 // === Wallet Functions ===
 export const walletService = {
   async getBalance() {
@@ -39,7 +116,7 @@ export const leadService = {
     if (error) {
       // Fallback
       const fallback = await supabase.from('leads').select('*');
-      return (fallback.data || []).filter((l: any) => l.status === 'open');
+      return (fallback.data || []).filter((l: LeadStatusRow) => l.status === 'open');
     }
     return data || [];
   },
@@ -65,13 +142,15 @@ export const leadService = {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) return [];
-      return (data || []).map((row: any) => ({
+      return (data || []).map((row: PurchaseViewRow) => ({
         ...row,
         leads: {
           id: row.lead_id, title: row.title, description: row.description,
           category: row.category, city: row.city, state: row.state,
           budget_min: row.budget_min, budget_max: row.budget_max,
           event_date: row.event_date, status: row.lead_status,
+          location: row.location ?? null,
+          profiles: row.profiles ?? null,
           clients: {
             id: row.client_id, full_name: row.client_name,
             email: row.client_email, phone: row.client_phone, city: row.client_city,
@@ -147,8 +226,8 @@ export const leadService = {
       const userRequests = requests || [];
 
       return {
-        waiting: userRequests.filter((r: any) => r.status === 'open' || r.status === 'Orçando').length,
-        in_progress: userRequests.filter((r: any) => r.status === 'in_progress' || r.status === 'Em Andamento').length
+        waiting: userRequests.filter((r: LeadStatusRow) => r.status === 'open' || r.status === 'Orçando').length,
+        in_progress: userRequests.filter((r: LeadStatusRow) => r.status === 'in_progress' || r.status === 'Em Andamento').length
       };
     } catch {
       return { waiting: 0, in_progress: 0 };
@@ -168,7 +247,7 @@ export const leadService = {
     else if (range === '1y') startDate.setFullYear(now.getFullYear() - 1);
 
     // Busca compras do profissional no período — filtradas no banco
-    let purchasesData: any[] = [];
+    let purchasesData: PurchaseStatsRow[] = [];
     try {
       const { data, error } = await supabase
         .from('lead_purchases')
@@ -180,11 +259,11 @@ export const leadService = {
     } catch {}
 
     // Propostas = lead_purchases com status relevante
-    const proposalsData = purchasesData.filter((p: any) =>
+    const proposalsData = purchasesData.filter((p) =>
       p.status === 'Proposta Enviada' || p.status === 'Aceita' || p.status === 'Recusada'
     );
-    const acceptedProposals = proposalsData.filter((p: any) => p.status === 'Aceita');
-    const totalRevenue = acceptedProposals.reduce((acc: number, p: any) => acc + (p.price || 0), 0);
+    const acceptedProposals = proposalsData.filter((p) => p.status === 'Aceita');
+    const totalRevenue = acceptedProposals.reduce((acc: number, p) => acc + (p.price || 0), 0);
 
     // Monta série temporal
     const dateMap = new Map();
@@ -196,7 +275,7 @@ export const leadService = {
         const key = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         dateMap.set(key, { name: key, total: 0, aceitas: 0, recusadas: 0, revenue: 0 });
       }
-      purchasesData.forEach((p: any) => {
+      purchasesData.forEach((p) => {
         const key = new Date(p.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         if (dateMap.has(key)) {
           const entry = dateMap.get(key);
@@ -213,7 +292,7 @@ export const leadService = {
         const key = d.toLocaleDateString('pt-BR', { month: 'short' });
         dateMap.set(key, { name: key, total: 0, aceitas: 0, recusadas: 0, revenue: 0 });
       }
-      purchasesData.forEach((p: any) => {
+      purchasesData.forEach((p) => {
         const key = new Date(p.created_at).toLocaleDateString('pt-BR', { month: 'short' });
         if (dateMap.has(key)) {
           const entry = dateMap.get(key);
@@ -224,7 +303,7 @@ export const leadService = {
     }
 
     return {
-      totalSpentCoins: purchasesData.reduce((acc: number, p: any) => acc + (p.price_coins || 0), 0),
+      totalSpentCoins: purchasesData.reduce((acc: number, p) => acc + (p.price_coins || 0), 0),
       contactsPurchased: purchasesData.length,
       visualizacoes: purchasesData.length,
       totalProposals: proposalsData.length,
@@ -258,7 +337,7 @@ export const transactionService = {
     if (error) throw error;
 
     // Map DB columns (kind, reference) to what Wallet.tsx expects (type, description)
-    return (data ?? []).map((tx: any) => ({
+    return (data ?? []).map((tx: WalletTxRow) => ({
       ...tx,
       type: tx.kind === 'credit_purchase' || tx.kind === 'deposit' || tx.kind === 'bonus' || tx.kind === 'subscription' ? 'deposit' : 'purchase',
       description: formatWalletDescription(tx.kind, tx.reference),
@@ -438,17 +517,17 @@ export const adminService = {
       const { data: profs } = await supabase.from('profiles').select('*');
       if (profs) {
         usersCount = profs.length;
-        pendingCount = profs.filter((p: any) => p.status === 'pending').length;
+        pendingCount = (profs as ProfileRow[]).filter((p) => p.status === 'pending').length;
       }
 
       const { data: leads } = await supabase.from('leads').select('*');
       if (leads) {
-        activeLeadsCount = leads.filter((l: any) => l.status === 'open').length;
+        activeLeadsCount = (leads as LeadStatusRow[]).filter((l) => l.status === 'open').length;
       }
 
       const { data: disputes } = await supabase.from('disputes').select('*');
       if (disputes) {
-        pendingDisputesCount = disputes.filter((d: any) => d.status === 'pending').length;
+        pendingDisputesCount = (disputes as LeadStatusRow[]).filter((d) => d.status === 'pending').length;
       }
 
       const now = new Date();
@@ -459,7 +538,7 @@ export const adminService = {
         .not('price', 'is', null)
         .gte('created_at', startOfMonth);
       if (purchases) {
-        totalRevenue = purchases.reduce((acc: number, p: any) => acc + Number(p.price ?? 0), 0);
+        totalRevenue = (purchases as { price: number | null }[]).reduce((acc, p) => acc + Number(p.price ?? 0), 0);
       }
     } catch {}
 
@@ -478,9 +557,9 @@ export const adminService = {
       const { data, error } = await supabase.from('profiles').select('*');
       if (error) return [];
       
-      return (data || [])
-        .filter((user: any) => (!params?.role || user.role === params.role) && (!params?.status || user.status === params.status))
-        .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      return (data as ProfileRow[] || [])
+        .filter((user) => (!params?.role || user.role === params.role) && (!params?.status || user.status === params.status))
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
     } catch {
       return [];
     }
@@ -502,7 +581,7 @@ export const adminService = {
     }
   },
   
-  async updateCoinPackage(id: string, updates: any) {
+  async updateCoinPackage(id: string, updates: Record<string, unknown>) {
     const { error } = await supabase.from('coin_packages').update(updates).eq('id', id);
     if (error) throw error;
     return true;
@@ -537,7 +616,7 @@ export const chatService = {
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (error) throw error;
-    const mapped = (data ?? []).map((conv: any) => ({
+    const mapped = (data ?? []).map((conv: VConversationRow) => ({
       id: conv.id,
       client_id: conv.client_id,
       professional_id: conv.professional_id,
