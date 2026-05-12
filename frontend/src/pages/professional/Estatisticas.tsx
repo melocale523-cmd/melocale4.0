@@ -1,7 +1,7 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
-import { Eye, TrendingUp, CheckCircle2, DollarSign, Loader2, Calendar } from 'lucide-react';
+import { Eye, TrendingUp, CheckCircle2, DollarSign, Loader2, Calendar, AlertCircle } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
 import { useInView } from '../../hooks/useInView';
@@ -23,19 +23,36 @@ function ChartsSkeleton() {
 
 export default function ProfessionalEstatisticas() {
   const [range, setRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
 
   const [chartsRef, chartsInView] = useInView({ threshold: 0, rootMargin: '200px' });
 
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, isError } = useQuery({
     queryKey: ['professionalStats', range],
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: () => leadService.getProfessionalStats(range),
   });
 
+  useEffect(() => {
+    if (!isLoading) { setLoadingTimedOut(false); return; }
+    const t = setTimeout(() => setLoadingTimedOut(true), 10_000);
+    return () => clearTimeout(t);
+  }, [isLoading, range]);
+
   const seriesData = useDeepMemo(() => stats?.seriesData ?? [], [stats?.seriesData]);
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading && !loadingTimedOut) return <LoadingSpinner />;
+
+  if (isError || loadingTimedOut) {
+    return (
+      <div className="max-w-6xl mx-auto flex flex-col items-center justify-center py-24 gap-4">
+        <AlertCircle size={40} className="text-red-400" />
+        <p className="text-white font-bold text-lg">Sem dados disponíveis</p>
+        <p className="text-[#4A6580] text-sm">Não foi possível carregar as estatísticas. Tente novamente.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -107,7 +124,16 @@ export default function ProfessionalEstatisticas() {
 
       {/* Gráficos — vendor-charts só é baixado quando esta div entra na viewport */}
       <div ref={chartsRef}>
-        {chartsInView ? (
+        {seriesData.length === 0 ? (
+          <div className="grid lg:grid-cols-2 gap-6">
+            {[0, 1].map((i) => (
+              <div key={i} className="bg-[#1C3454] border border-[#1C3050] rounded-3xl p-8 h-[420px] flex flex-col items-center justify-center gap-3">
+                <AlertCircle size={28} className="text-[#4A6580]" />
+                <p className="text-[#4A6580] text-sm font-bold">Sem dados disponíveis</p>
+              </div>
+            ))}
+          </div>
+        ) : chartsInView ? (
           <Suspense fallback={<ChartsSkeleton />}>
             <EstatisticasCharts
               key={range}

@@ -6,30 +6,30 @@ export default function AdminPlanos() {
   const planos = [
     {
       id: 1,
-      nome: 'Básico',
-      preco: '49.90',
-      moedas: 10,
-      leads: 10,
+      nome: 'Starter',
+      preco: '37',
+      moedas: 30,
+      desconto: '25%',
       ativo: true,
-      features: ['Suporte por email', 'Perfil básico']
+      features: ['25% desconto em moedas avulsas', 'Badge ✅ VERIFICADO', 'Perfil público visível', 'Suporte por chat']
     },
     {
       id: 2,
-      nome: 'Profissional',
-      preco: '99.90',
-      moedas: 25,
-      leads: 25,
+      nome: 'PRO',
+      preco: '67',
+      moedas: 80,
+      desconto: '40%',
       ativo: true,
-      features: ['Suporte prioritário', 'Perfil destacado', 'Estatísticas avançadas']
+      features: ['40% desconto em moedas avulsas', 'Badge ⚡ PRO em destaque', '2x mais visível nas buscas', 'Moedas nunca expiram', 'Suporte prioritário (2h)']
     },
     {
       id: 3,
-      nome: 'Premium',
-      preco: '199.90',
-      moedas: 60,
-      leads: 60,
+      nome: 'Elite',
+      preco: '127',
+      moedas: 200,
+      desconto: '55%',
       ativo: true,
-      features: ['Suporte 24/7', 'Perfil premium', 'Estatísticas completas', 'Badge exclusivo']
+      features: ['55% desconto em moedas avulsas', 'Badge 🏆 ELITE dourado', 'Topo absoluto das buscas', 'Até 3 profissionais na conta', 'Gerente de conta dedicado']
     }
   ];
 
@@ -85,11 +85,11 @@ export default function AdminPlanos() {
              <div className="space-y-3 mb-8 flex-1">
                 <div className="flex items-center gap-3 text-yellow-500">
                   <div className="w-5 h-5 rounded-full bg-yellow-500/10 flex items-center justify-center font-bold text-xs shrink-0">C</div>
-                  <span className="text-slate-300 font-medium">{plano.moedas} moedas/mês</span>
+                  <span className="text-slate-300 font-medium">{plano.moedas} moedas boas-vindas</span>
                 </div>
                 <div className="flex items-center gap-3 text-slate-300">
                   <Check size={18} className="text-blue-500 shrink-0" />
-                  <span>{plano.leads} leads por mês</span>
+                  <span>{plano.desconto} desconto em moedas avulsas</span>
                 </div>
                 {plano.features.map((feature, idx) => (
                   <div key={idx} className="flex items-center gap-3 text-slate-300">
