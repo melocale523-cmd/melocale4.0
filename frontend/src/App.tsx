@@ -12,6 +12,7 @@ import AuthInitializer from './components/auth/AuthInitializer';
 import RouteProgressBar from './components/RouteProgressBar';
 import RealtimeNotificationHandler from './components/RealtimeNotificationHandler';
 import AiChatWidget from './components/AiChat/AiChatWidget';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 import { Toaster } from 'sonner';
 
 // Lazy-loaded pages — client
@@ -88,6 +89,7 @@ function RootLayout() {
     <>
       <RouteProgressBar />
       <AiChatWidget />
+      <PWAInstallPrompt />
       <Outlet />
     </>
   );
