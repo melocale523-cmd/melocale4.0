@@ -162,7 +162,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Suspense fallback={<PageLoader />}><LandingPage /></Suspense>
+        element: <AuthRedirect><Suspense fallback={<PageLoader />}><LandingPage /></Suspense></AuthRedirect>
       },
       {
         path: '/checkout/success',
