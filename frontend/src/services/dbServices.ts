@@ -443,13 +443,15 @@ export const proposalService = {
 
         if (!chatId) {
           const leadId = purchase.lead_id ?? null;
-          const { data: existingConv } = await supabase
+          const baseQuery = supabase
             .from('conversations')
             .select('id')
             .eq('professional_id', profAuthId)
-            .eq('client_id', purchase.client_id)
-            .is('lead_id', leadId)
-            .maybeSingle();
+            .eq('client_id', purchase.client_id);
+          const { data: existingConv } = await (leadId
+            ? baseQuery.eq('lead_id', leadId)
+            : baseQuery.is('lead_id', null)
+          ).maybeSingle();
 
           if (existingConv?.id) {
             chatId = existingConv.id;
@@ -501,13 +503,15 @@ export const proposalService = {
     const clientId = purchase?.client_id;
     const leadId = purchase?.lead_id ?? null;
 
-    const { data: existingConv } = await supabase
+    const baseQuery = supabase
       .from('conversations')
       .select('id')
       .eq('professional_id', profId)
-      .eq('client_id', clientId)
-      .is('lead_id', leadId)
-      .maybeSingle();
+      .eq('client_id', clientId);
+    const { data: existingConv } = await (leadId
+      ? baseQuery.eq('lead_id', leadId)
+      : baseQuery.is('lead_id', null)
+    ).maybeSingle();
 
     const convId = existingConv?.id ?? (await supabase
       .from('conversations')
