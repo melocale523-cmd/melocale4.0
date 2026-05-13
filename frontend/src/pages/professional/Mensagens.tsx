@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download, CalendarPlus, MapPin } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download, CalendarPlus, MapPin, ChevronLeft } from 'lucide-react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
@@ -48,6 +48,7 @@ export default function ProfessionalMensagens() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [showChat, setShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -385,7 +386,7 @@ export default function ProfessionalMensagens() {
       />
 
       {/* Sidebar */}
-      <div className="w-full md:w-80 lg:w-96 border-r border-[#1C3050] flex flex-col shrink-0 bg-[#0E1C32]">
+      <div className={`${showChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 lg:w-96 border-r border-[#1C3050] flex-col shrink-0 bg-[#0E1C32]`}>
         <div className="p-6 border-b border-[#1C3050] bg-[#1C3454]/40 backdrop-blur-xl">
           <h2 className="text-xl font-bold text-white mb-4">Mensagens</h2>
           <div className="relative group">
@@ -422,7 +423,7 @@ export default function ProfessionalMensagens() {
               return (
                 <button
                   key={conv.id}
-                  onClick={() => setActiveConversationId(conv.id)}
+                  onClick={() => { setActiveConversationId(conv.id); setShowChat(true); }}
                   className={cn(
                     'w-full p-6 flex items-start gap-4 transition-all border-b border-white/[0.02] relative',
                     activeConversationId === conv.id ? 'bg-emerald-500/5' : 'hover:bg-white/[0.02]',
@@ -475,12 +476,15 @@ export default function ProfessionalMensagens() {
 
       {/* Área do Chat */}
       {activeConversation ? (
-        <div className="flex-1 flex flex-col bg-[#0E1C32]/30 relative overflow-hidden">
+        <div className={`${showChat ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-[#0E1C32]/30 relative overflow-hidden`}>
           <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-500/5 blur-[120px] pointer-events-none rounded-full" />
 
           {/* Header */}
           <div className="p-4 sm:p-6 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]/80 backdrop-blur-xl z-10">
             <div className="flex items-center gap-4">
+              <button onClick={() => setShowChat(false)} className="md:hidden text-[#4A6580] hover:text-white transition-colors">
+                <ChevronLeft size={22} />
+              </button>
               <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050] overflow-hidden">
                 {otherAvatar
                   ? <img src={otherAvatar} alt={otherName} className="w-full h-full object-cover" />

@@ -24,24 +24,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  currentMode: (sessionStorage.getItem('auth_mode') as any) || null,
+  currentMode: (localStorage.getItem('auth_mode') as any) || null,
 
   setAuth: (user) => set((state) => {
     const newMode = state.currentMode || user?.role || null;
-    if (newMode) sessionStorage.setItem('auth_mode', newMode);
+    if (newMode) localStorage.setItem('auth_mode', newMode);
     return { user, isAuthenticated: !!user, isLoading: false, currentMode: newMode };
   }),
 
   setLoading: (loading) => set({ isLoading: loading }),
 
   setMode: (mode) => {
-    if (mode) sessionStorage.setItem('auth_mode', mode);
-    else sessionStorage.removeItem('auth_mode');
+    if (mode) localStorage.setItem('auth_mode', mode);
+    else localStorage.removeItem('auth_mode');
     set({ currentMode: mode });
   },
 
   logout: () => {
-    sessionStorage.removeItem('auth_mode');
+    localStorage.removeItem('auth_mode');
     set({ user: null, isAuthenticated: false, isLoading: false, currentMode: null });
   },
 }));
