@@ -277,11 +277,6 @@ export default function ProfessionalMensagens() {
     const convId = activeConversationId;
     const recpId = recipientId;
     try {
-      const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-      if (permission.state === 'denied') {
-        toast.error('Permissão de microfone negada. Verifique as configurações do navegador.');
-        return;
-      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -315,8 +310,14 @@ export default function ProfessionalMensagens() {
       setIsRecording(true);
       setRecordingTime(0);
       timerRef.current = setInterval(() => setRecordingTime(prev => prev + 1), 1000);
-    } catch (err) {
-      toast.error('Erro ao acessar microfone. Verifique as permissões.');
+    } catch (err: any) {
+      if (err?.name === 'NotAllowedError') {
+        toast.error('Permissão de microfone negada. Habilite nas configurações do navegador.');
+      } else if (err?.name === 'NotFoundError') {
+        toast.error('Nenhum microfone encontrado.');
+      } else {
+        toast.error('Erro ao acessar microfone: ' + (err?.message ?? err));
+      }
       console.error(err);
     }
   };
