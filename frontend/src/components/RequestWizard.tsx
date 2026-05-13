@@ -451,7 +451,7 @@ export default function RequestWizard({
                         step={500}
                         value={data.budget_min}
                         onChange={e => setField('budget_min', e.target.value)}
-                        className="w-full accent-emerald-500"
+                        className="w-full accent-yellow-400"
                       />
                     </div>
                     <div className="space-y-1">
@@ -477,7 +477,7 @@ export default function RequestWizard({
                         step={500}
                         value={data.budget_max}
                         onChange={e => setField('budget_max', e.target.value)}
-                        className="w-full accent-emerald-500"
+                        className="w-full accent-yellow-400"
                       />
                     </div>
                   </div>
