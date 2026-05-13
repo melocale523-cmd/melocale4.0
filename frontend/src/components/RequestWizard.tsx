@@ -427,17 +427,27 @@ export default function RequestWizard({
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Orçamento</label>
                 <div className="bg-[#0E1C32] border border-[#1C3050] rounded-2xl p-5 space-y-4">
-                  <div className="flex justify-between text-sm font-bold text-white">
-                    <span>Mín: {formatBRL(Number(data.budget_min))}</span>
-                    <span>Máx: {formatBRL(Number(data.budget_max))}</span>
-                  </div>
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-widest">Mínimo</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-widest">Mínimo</p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-[#4A6580] font-bold">R$</span>
+                          <input
+                            type="number"
+                            step={50}
+                            min={0}
+                            max={Number(data.budget_max)}
+                            value={data.budget_min}
+                            onChange={e => setField('budget_min', String(Math.min(Number(e.target.value), Number(data.budget_max))))}
+                            className="w-24 bg-transparent border-b border-[#243F6A] text-white text-right text-sm font-bold focus:outline-none focus:border-emerald-500 transition-colors"
+                          />
+                        </div>
+                      </div>
                       <input
                         type="range"
                         min={0}
-                        max={50000}
+                        max={Number(data.budget_max)}
                         step={500}
                         value={data.budget_min}
                         onChange={e => setField('budget_min', e.target.value)}
@@ -445,10 +455,24 @@ export default function RequestWizard({
                       />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-widest">Máximo</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-widest">Máximo</p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-[#4A6580] font-bold">R$</span>
+                          <input
+                            type="number"
+                            step={50}
+                            min={Number(data.budget_min)}
+                            max={50000}
+                            value={data.budget_max}
+                            onChange={e => setField('budget_max', String(Math.max(Number(e.target.value), Number(data.budget_min))))}
+                            className="w-24 bg-transparent border-b border-[#243F6A] text-white text-right text-sm font-bold focus:outline-none focus:border-emerald-500 transition-colors"
+                          />
+                        </div>
+                      </div>
                       <input
                         type="range"
-                        min={0}
+                        min={Number(data.budget_min)}
                         max={50000}
                         step={500}
                         value={data.budget_max}
