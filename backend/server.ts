@@ -69,7 +69,7 @@ const chatRateLimit = rateLimit({
   legacyHeaders: false,
   message: { error: 'Limite de mensagens atingido. Tente novamente em 1 hora.' },
   keyGenerator: (req) => {
-    return req.ip || (req.headers['x-forwarded-for'] as string) || 'unknown';
+    return req.ip ?? (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ?? 'unknown';
   },
 });
 
@@ -86,6 +86,7 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 async function startServer() {
   const app = express();
+  app.set('trust proxy', 1);
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
   const EXTRA_ORIGINS = (process.env.FRONTEND_URL ?? '')
