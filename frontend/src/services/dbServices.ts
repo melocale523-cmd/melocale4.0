@@ -438,31 +438,33 @@ export const proposalService = {
           .eq('id', purchase.professional_id)
           .single();
         const profAuthId = prof?.user_id ?? purchase.professional_id;
+        // professionals.id (FK for conversations) vs auth UUID (for notifications)
+        const profTableId = purchase.professional_id;
 
         let chatId: string | null = purchase.chat_id ?? null;
 
         if (!chatId) {
           const leadId = purchase.lead_id ?? null;
 
-          const selQ = supabase.from('conversations').select('id').eq('professional_id', profAuthId);
+          const selQ = supabase.from('conversations').select('id').eq('professional_id', profTableId);
           const { data: existing } = await (leadId
             ? selQ.eq('lead_id', leadId)
             : selQ.is('lead_id', null)
           ).maybeSingle();
 
-          console.error('[conv-debug] respondProposal SELECT result', { existing, professional_id: profAuthId, lead_id: leadId });
+          console.error('[conv-debug] respondProposal SELECT result', { existing, professional_id: profTableId, lead_id: leadId });
 
           if (existing?.id) {
             chatId = existing.id;
           } else {
-            console.error('[conv-debug] INSERT', { professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId });
+            console.error('[conv-debug] INSERT', { professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId });
             const { data: conv, error: insertErr } = await supabase
               .from('conversations')
-              .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId })
+              .insert({ professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId })
               .select('id').single();
             if (insertErr) {
               console.error('[conv-debug] insertErr', insertErr);
-              const retryQ = supabase.from('conversations').select('id').eq('professional_id', profAuthId);
+              const retryQ = supabase.from('conversations').select('id').eq('professional_id', profTableId);
               const { data: retry } = await (leadId
                 ? retryQ.eq('lead_id', leadId)
                 : retryQ.is('lead_id', null)
@@ -503,22 +505,16 @@ export const proposalService = {
     if (!lp) return null;
     if (lp.chat_id) return lp.chat_id;
 
+    // rawProfId is professionals.id — the correct FK for conversations.professional_id
     const { professional_id: rawProfId, client_id: clientId, lead_id: leadId } = lp;
 
-    const { data: prof } = await supabase
-      .from('professionals')
-      .select('user_id')
-      .eq('id', rawProfId)
-      .single();
-    const profId = prof?.user_id ?? rawProfId;
-
-    const selQ = supabase.from('conversations').select('id').eq('professional_id', profId);
+    const selQ = supabase.from('conversations').select('id').eq('professional_id', rawProfId);
     const { data: existing } = await (leadId
       ? selQ.eq('lead_id', leadId)
       : selQ.is('lead_id', null)
     ).maybeSingle();
 
-    console.error('[conv-debug] ensureChatForPurchase SELECT result', { existing, professional_id: profId, lead_id: leadId });
+    console.error('[conv-debug] ensureChatForPurchase SELECT result', { existing, professional_id: rawProfId, lead_id: leadId });
 
     if (existing?.id) {
       await supabase.from('lead_purchases')
@@ -526,16 +522,16 @@ export const proposalService = {
       return existing.id;
     }
 
-    console.error('[conv-debug] INSERT', { professional_id: profId, client_id: clientId, lead_id: leadId ?? null });
+    console.error('[conv-debug] INSERT', { professional_id: rawProfId, client_id: clientId, lead_id: leadId ?? null });
     const { data: conv, error: insertErr } = await supabase
       .from('conversations')
-      .insert({ professional_id: profId, client_id: clientId, lead_id: leadId ?? null })
+      .insert({ professional_id: rawProfId, client_id: clientId, lead_id: leadId ?? null })
       .select('id').single();
 
     let finalId = conv?.id ?? null;
     if (insertErr) {
       console.error('[conv-debug] insertErr', insertErr);
-      const retryQ = supabase.from('conversations').select('id').eq('professional_id', profId);
+      const retryQ = supabase.from('conversations').select('id').eq('professional_id', rawProfId);
       const { data: retry } = await (leadId
         ? retryQ.eq('lead_id', leadId)
         : retryQ.is('lead_id', null)
