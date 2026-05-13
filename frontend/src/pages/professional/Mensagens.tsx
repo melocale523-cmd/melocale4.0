@@ -59,6 +59,8 @@ export default function ProfessionalMensagens() {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [appointmentClient, setAppointmentClient] = useState<{ id: string; name: string } | null>(null);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [scheduleForm, setScheduleForm] = useState({
     title: '',
@@ -108,6 +110,8 @@ export default function ProfessionalMensagens() {
     onSuccess: () => {
       toast.success('Agendamento criado! O cliente foi notificado.');
       setScheduleModalOpen(false);
+      setShowAppointmentModal(false);
+      setAppointmentClient(null);
       setScheduleForm({ title: '', date: format(new Date(), 'yyyy-MM-dd'), time: '09:00', location: '' });
     },
     onError: () => toast.error('Erro ao criar agendamento'),
@@ -500,35 +504,50 @@ export default function ProfessionalMensagens() {
               </div>
             </div>
 
-            <div className="relative">
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2.5 text-[#4A6580] hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all"
+                onClick={() => {
+                  setAppointmentClient({
+                    id: activeConversation.client_id,
+                    name: activeConversation.client_profile?.full_name || 'Cliente'
+                  })
+                  setShowAppointmentModal(true)
+                }}
+                className="p-2 rounded-xl hover:bg-white/5 text-[#4A6580] hover:text-emerald-400 transition-colors"
+                title="Agendar serviço"
               >
-                <MoreVertical size={20} />
+                <CalendarPlus size={18} />
               </button>
+              <div className="relative">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="p-2.5 text-[#4A6580] hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all"
+                >
+                  <MoreVertical size={20} />
+                </button>
 
-              {isMenuOpen && (
-                <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
-                <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
-                  <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
-                    <User size={16} /> Ver Perfil do Cliente
-                  </button>
-                  <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
-                    <Clock size={16} /> Mensagens Temporárias
-                  </button>
-                  <div className="h-px bg-white/5 mx-3" />
-                  <button
-                    onClick={() => deleteChatMutation.mutate(activeConversationId!)}
-                    disabled={deleteChatMutation.isPending}
-                    className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold disabled:opacity-50"
-                  >
-                    <Trash2 size={16} /> {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir Conversa'}
-                  </button>
-                </div>
-                </>
-              )}
+                {isMenuOpen && (
+                  <>
+                  <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
+                    <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
+                      <User size={16} /> Ver Perfil do Cliente
+                    </button>
+                    <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
+                      <Clock size={16} /> Mensagens Temporárias
+                    </button>
+                    <div className="h-px bg-white/5 mx-3" />
+                    <button
+                      onClick={() => deleteChatMutation.mutate(activeConversationId!)}
+                      disabled={deleteChatMutation.isPending}
+                      className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold disabled:opacity-50"
+                    >
+                      <Trash2 size={16} /> {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir Conversa'}
+                    </button>
+                  </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -749,9 +768,9 @@ export default function ProfessionalMensagens() {
       )}
 
       {/* Schedule Modal */}
-      {scheduleModalOpen && activeConversation && (
+      {(scheduleModalOpen || showAppointmentModal) && activeConversation && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setScheduleModalOpen(false)} />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => { setScheduleModalOpen(false); setShowAppointmentModal(false); setAppointmentClient(null); }} />
           <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -760,7 +779,7 @@ export default function ProfessionalMensagens() {
                 </div>
                 Agendar Visita
               </h2>
-              <button onClick={() => setScheduleModalOpen(false)} className="text-[#4A6580] hover:text-white transition-colors">
+              <button onClick={() => { setScheduleModalOpen(false); setShowAppointmentModal(false); setAppointmentClient(null); }} className="text-[#4A6580] hover:text-white transition-colors">
                 <X size={22} />
               </button>
             </div>
