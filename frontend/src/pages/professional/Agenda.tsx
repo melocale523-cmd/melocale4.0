@@ -61,6 +61,7 @@ interface AvailableClient {
   conversationId: string;
   clientId: string;
   clientName: string;
+  clientCity: string;
 }
 
 export default function ProfessionalAgenda() {
@@ -105,35 +106,33 @@ export default function ProfessionalAgenda() {
   });
 
   const { data: availableClients = [] } = useQuery<AvailableClient[]>({
-    queryKey: ['schedule_clients', user?.id],
+    queryKey: ['schedule_clients', professional?.id],
     queryFn: async () => {
-      const { data: convs } = await supabase
-        .from('conversations')
-        .select('id,client_id')
-        .eq('professional_id', user!.id);
-      if (!convs?.length) return [];
+      const { data: purchases } = await supabase
+        .from('lead_purchases')
+        .select('client_id')
+        .eq('professional_id', professional!.id);
+      if (!purchases?.length) return [];
 
       const seen = new Set<string>();
-      const unique = convs.filter(c => {
-        if (seen.has(c.client_id)) return false;
-        seen.add(c.client_id);
-        return true;
-      });
+      const uniqueClientIds = purchases
+        .map(p => p.client_id)
+        .filter(id => { if (seen.has(id)) return false; seen.add(id); return true; });
 
-      const clientIds = unique.map(c => c.client_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id,full_name')
-        .in('id', clientIds);
+        .select('id,full_name,city')
+        .in('id', uniqueClientIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
 
-      return unique.map(c => ({
-        conversationId: c.id,
-        clientId: c.client_id,
-        clientName: profileMap[c.client_id]?.full_name || 'Cliente',
+      return uniqueClientIds.map(clientId => ({
+        conversationId: '',
+        clientId,
+        clientName: profileMap[clientId]?.full_name || 'Cliente',
+        clientCity: profileMap[clientId]?.city || '',
       }));
     },
-    enabled: !!user?.id,
+    enabled: !!professional?.id,
   });
 
   // === Mutations ===
@@ -672,8 +671,13 @@ export default function ProfessionalAgenda() {
                     required
                     value={formData.clientId}
                     onChange={e => {
-                      const conv = availableClients.find(c => c.clientId === e.target.value);
-                      setFormData({ ...formData, clientId: e.target.value, conversationId: conv?.conversationId || '' });
+                      const c = availableClients.find(cl => cl.clientId === e.target.value);
+                      setFormData({
+                        ...formData,
+                        clientId: e.target.value,
+                        conversationId: c?.conversationId || '',
+                        location: c?.clientCity || formData.location,
+                      });
                     }}
                     className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
                   >
