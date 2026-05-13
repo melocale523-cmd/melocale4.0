@@ -614,7 +614,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         .limit(1)
         .maybeSingle();
 
-      if (subErr || !sub) return res.status(404).json({ error: "Assinatura não encontrada." });
+      if (subErr || !sub) return res.status(200).json({ status: 'none', plan: null });
 
       console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
 
