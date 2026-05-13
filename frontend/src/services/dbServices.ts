@@ -456,7 +456,7 @@ export const proposalService = {
           } else {
             const { data: conv } = await supabase
               .from('conversations')
-              .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId })
+              .upsert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId }, { onConflict: 'professional_id,lead_id' })
               .select('id').single();
             chatId = conv?.id ?? null;
           }
@@ -515,7 +515,7 @@ export const proposalService = {
 
     const { data: conv } = await supabase
       .from('conversations')
-      .insert({ professional_id: profId, client_id: clientId, lead_id: leadId ?? null })
+      .upsert({ professional_id: profId, client_id: clientId, lead_id: leadId ?? null }, { onConflict: 'professional_id,lead_id' })
       .select('id').single();
 
     if (conv?.id) {
