@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Loader2, ImagePlus, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
@@ -117,6 +117,16 @@ export default function RequestWizard({
   });
 
   const uploading = localUploading || isUploading;
+
+  useEffect(() => {
+    if (initialData?.location) return;
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from('profiles').select('city').eq('id', user.id).single().then(({ data }) => {
+        if (data?.city) setData(prev => prev.location ? prev : { ...prev, location: data.city });
+      });
+    });
+  }, [initialData?.location]);
 
   const setField = <K extends keyof InternalData>(key: K, value: InternalData[K]) => {
     setData(prev => ({ ...prev, [key]: value }));
