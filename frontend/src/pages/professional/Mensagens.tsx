@@ -476,7 +476,7 @@ export default function ProfessionalMensagens() {
 
       {/* Área do Chat */}
       {activeConversation ? (
-        <div className="flex-1 flex flex-col bg-[#0E1C32]/30 relative overflow-hidden">
+        <div className={`${showChat ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-[#0E1C32]/30 relative overflow-hidden`}>
           <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-500/5 blur-[120px] pointer-events-none rounded-full" />
 
           {/* Header */}
