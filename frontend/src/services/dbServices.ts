@@ -443,26 +443,23 @@ export const proposalService = {
 
         if (!chatId) {
           const leadId = purchase.lead_id ?? null;
+
+          // INSERT first — ignore 409 if already exists (RLS may hide it from SELECT)
+          await supabase
+            .from('conversations')
+            .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId });
+
+          // Always SELECT after — works regardless of who triggered the insert
           const baseQuery = supabase
             .from('conversations')
             .select('id')
             .eq('professional_id', profAuthId)
             .eq('client_id', purchase.client_id);
-          const { data: existingConv } = await (leadId
+          const { data: conv } = await (leadId
             ? baseQuery.eq('lead_id', leadId)
             : baseQuery.is('lead_id', null)
           ).maybeSingle();
-
-          if (existingConv?.id) {
-            chatId = existingConv.id;
-          } else {
-            const { data: conv } = await supabase
-              .from('conversations')
-              .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId })
-              .select('id')
-              .single();
-            chatId = conv?.id ?? null;
-          }
+          chatId = conv?.id ?? null;
 
           if (chatId) {
             await supabase
@@ -503,22 +500,22 @@ export const proposalService = {
     const clientId = purchase?.client_id;
     const leadId = purchase?.lead_id ?? null;
 
+    // INSERT first — ignore 409 if already exists (RLS may hide it from SELECT)
+    await supabase
+      .from('conversations')
+      .insert({ professional_id: profId, client_id: clientId, lead_id: leadId });
+
+    // Always SELECT after — works regardless of who triggered the insert
     const baseQuery = supabase
       .from('conversations')
       .select('id')
       .eq('professional_id', profId)
       .eq('client_id', clientId);
-    const { data: existingConv } = await (leadId
+    const { data: conv } = await (leadId
       ? baseQuery.eq('lead_id', leadId)
       : baseQuery.is('lead_id', null)
     ).maybeSingle();
-
-    const convId = existingConv?.id ?? (await supabase
-      .from('conversations')
-      .insert({ professional_id: profId, client_id: clientId, lead_id: leadId })
-      .select('id')
-      .single()
-    ).data?.id ?? null;
+    const convId = conv?.id ?? null;
 
     if (!convId) return null;
 
