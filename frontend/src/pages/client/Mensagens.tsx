@@ -41,6 +41,7 @@ interface ConversationWithProfiles {
   prof_user_id: string | null;
   prof_profile: ProfileData | null;
   client_profile: ProfileData | null;
+  leadTitle?: string | null;
 }
 
 export default function ClientMensagens() {
@@ -356,7 +357,8 @@ export default function ClientMensagens() {
               const q = searchQuery.toLowerCase();
               return (
                 conv.prof_profile?.full_name?.toLowerCase().includes(q) ||
-                conv.last_message?.toLowerCase().includes(q)
+                conv.last_message?.toLowerCase().includes(q) ||
+                conv.leadTitle?.toLowerCase().includes(q)
               );
             }).map(conv => {
               const profName = conv.prof_profile?.full_name || 'Profissional';
@@ -391,6 +393,9 @@ export default function ClientMensagens() {
                         {new Date(conv.last_message_at ?? conv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
+                    {conv.leadTitle && (
+                      <p className="text-xs text-emerald-400/70 truncate mt-0.5">📋 {conv.leadTitle}</p>
+                    )}
                     <div className="flex justify-between items-center gap-2">
                       <p className="text-xs text-[#4A6580] truncate font-medium">
                         {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
@@ -475,6 +480,15 @@ export default function ClientMensagens() {
               )}
             </div>
           </div>
+
+          {/* Lead banner */}
+          {activeConversation?.leadTitle && (
+            <div className="px-4 py-2 bg-[#0E1C32] border-b border-[#1C3050] flex items-center gap-2 z-10">
+              <span className="text-xs text-emerald-400">📋</span>
+              <span className="text-xs text-[#94A3B8]">Pedido:</span>
+              <span className="text-xs font-medium text-white truncate">{activeConversation.leadTitle}</span>
+            </div>
+          )}
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar relative z-10">
