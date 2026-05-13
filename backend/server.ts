@@ -62,6 +62,17 @@ if (!process.env.ANTHROPIC_API_KEY) {
 }
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+const chatRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Limite de mensagens atingido. Tente novamente em 1 hora.' },
+  keyGenerator: (req) => {
+    return req.ip || (req.headers['x-forwarded-for'] as string) || 'unknown';
+  },
+});
+
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
@@ -240,7 +251,7 @@ async function startServer() {
   });
 
   // API route for AI Chat
-  app.post("/api/chat", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  app.post("/api/chat", chatRateLimit, requireAuth, async (req: Request, res: Response, next: NextFunction) => {
     const SUSPICIOUS_PATTERN = /ignore|system\s*prompt|assistant|jailbreak|prompt\s*injection/i;
 
     function sanitizeUserData(raw: Record<string, unknown>): {

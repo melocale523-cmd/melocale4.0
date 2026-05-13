@@ -509,37 +509,75 @@ export const proposalService = {
   }
 };
 
+interface MessageRow {
+  conversation_id: string;
+  sender_type: string;
+  created_at: string;
+}
+
+async function calcAvgResponseTime(): Promise<string> {
+  const { data } = await supabase
+    .from('messages')
+    .select('conversation_id, sender_type, created_at')
+    .order('created_at', { ascending: true })
+    .limit(500);
+
+  if (!data || data.length === 0) return '—';
+
+  const byConv: Record<string, MessageRow[]> = {};
+  (data as MessageRow[]).forEach(m => {
+    if (!byConv[m.conversation_id]) byConv[m.conversation_id] = [];
+    byConv[m.conversation_id].push(m);
+  });
+
+  const times: number[] = [];
+  Object.values(byConv).forEach(msgs => {
+    const clientMsg = msgs.find(m => m.sender_type === 'client');
+    if (!clientMsg) return;
+    const profMsg = msgs.find(m => m.sender_type === 'professional' && m.created_at > clientMsg.created_at);
+    if (!profMsg) return;
+    const diff = (new Date(profMsg.created_at).getTime() - new Date(clientMsg.created_at).getTime()) / 60000;
+    if (diff > 0 && diff < 1440) times.push(diff);
+  });
+
+  if (times.length === 0) return '—';
+  const avg = times.reduce((a, b) => a + b, 0) / times.length;
+  if (avg < 60) return `${Math.round(avg)}m`;
+  return `${Math.floor(avg / 60)}h ${Math.round(avg % 60)}m`;
+}
+
 // === Admin ===
 export const adminService = {
   async getDashboardSummary() {
     let usersCount = 0, pendingCount = 0, activeLeadsCount = 0, pendingDisputesCount = 0, totalRevenue = 0;
+    let avgResponseTime = '—';
     try {
-      const { data: profs } = await supabase.from('profiles').select('*');
-      if (profs) {
-        usersCount = profs.length;
-        pendingCount = (profs as ProfileRow[]).filter((p) => p.status === 'pending').length;
-      }
+      const [profsRes, leadsRes, disputesRes, purchasesRes, avgTime] = await Promise.all([
+        supabase.from('profiles').select('*'),
+        supabase.from('leads').select('*'),
+        supabase.from('disputes').select('*'),
+        supabase
+          .from('lead_purchases')
+          .select('price')
+          .not('price', 'is', null)
+          .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+        calcAvgResponseTime(),
+      ]);
 
-      const { data: leads } = await supabase.from('leads').select('*');
-      if (leads) {
-        activeLeadsCount = (leads as LeadStatusRow[]).filter((l) => l.status === 'open').length;
+      if (profsRes.data) {
+        usersCount = profsRes.data.length;
+        pendingCount = (profsRes.data as ProfileRow[]).filter((p) => p.status === 'pending').length;
       }
-
-      const { data: disputes } = await supabase.from('disputes').select('*');
-      if (disputes) {
-        pendingDisputesCount = (disputes as LeadStatusRow[]).filter((d) => d.status === 'pending').length;
+      if (leadsRes.data) {
+        activeLeadsCount = (leadsRes.data as LeadStatusRow[]).filter((l) => l.status === 'open').length;
       }
-
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const { data: purchases } = await supabase
-        .from('lead_purchases')
-        .select('price')
-        .not('price', 'is', null)
-        .gte('created_at', startOfMonth);
-      if (purchases) {
-        totalRevenue = (purchases as { price: number | null }[]).reduce((acc, p) => acc + Number(p.price ?? 0), 0);
+      if (disputesRes.data) {
+        pendingDisputesCount = (disputesRes.data as LeadStatusRow[]).filter((d) => d.status === 'pending').length;
       }
+      if (purchasesRes.data) {
+        totalRevenue = (purchasesRes.data as { price: number | null }[]).reduce((acc, p) => acc + Number(p.price ?? 0), 0);
+      }
+      avgResponseTime = avgTime;
     } catch {}
 
     return {
@@ -547,7 +585,7 @@ export const adminService = {
       activeLeads: activeLeadsCount || 0,
       estimatedRevenue: totalRevenue,
       pendingVerifications: pendingCount || 0,
-      avgResponseTime: '12m',
+      avgResponseTime,
       pendingDisputes: pendingDisputesCount || 0
     };
   },
