@@ -444,11 +444,10 @@ export const proposalService = {
         if (!chatId) {
           const leadId = purchase.lead_id ?? null;
 
-          const baseQuery = supabase.from('conversations').select('id')
-            .eq('professional_id', profAuthId).eq('client_id', purchase.client_id);
+          const selQ = supabase.from('conversations').select('id').eq('professional_id', profAuthId);
           const { data: existing } = await (leadId
-            ? baseQuery.eq('lead_id', leadId)
-            : baseQuery.is('lead_id', null)
+            ? selQ.eq('lead_id', leadId)
+            : selQ.is('lead_id', null)
           ).maybeSingle();
 
           if (existing?.id) {
@@ -459,8 +458,7 @@ export const proposalService = {
               .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId })
               .select('id').single();
             if (insertErr) {
-              const retryQ = supabase.from('conversations').select('id')
-                .eq('professional_id', profAuthId).eq('client_id', purchase.client_id);
+              const retryQ = supabase.from('conversations').select('id').eq('professional_id', profAuthId);
               const { data: retry } = await (leadId
                 ? retryQ.eq('lead_id', leadId)
                 : retryQ.is('lead_id', null)
@@ -510,11 +508,10 @@ export const proposalService = {
       .single();
     const profId = prof?.user_id ?? rawProfId;
 
-    const baseQuery = supabase.from('conversations').select('id')
-      .eq('professional_id', profId).eq('client_id', clientId);
+    const selQ = supabase.from('conversations').select('id').eq('professional_id', profId);
     const { data: existing } = await (leadId
-      ? baseQuery.eq('lead_id', leadId)
-      : baseQuery.is('lead_id', null)
+      ? selQ.eq('lead_id', leadId)
+      : selQ.is('lead_id', null)
     ).maybeSingle();
 
     if (existing?.id) {
@@ -530,8 +527,7 @@ export const proposalService = {
 
     let finalId = conv?.id ?? null;
     if (insertErr) {
-      const retryQ = supabase.from('conversations').select('id')
-        .eq('professional_id', profId).eq('client_id', clientId);
+      const retryQ = supabase.from('conversations').select('id').eq('professional_id', profId);
       const { data: retry } = await (leadId
         ? retryQ.eq('lead_id', leadId)
         : retryQ.is('lead_id', null)
