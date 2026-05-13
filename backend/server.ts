@@ -643,7 +643,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       });
     } catch (err: any) {
       console.error("Erro em /api/subscription-status:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro ao buscar status da assinatura." });
+      return res.status(200).json({ status: 'none', plan: null });
     }
   });
 

@@ -454,11 +454,21 @@ export const proposalService = {
           if (existing?.id) {
             chatId = existing.id;
           } else {
-            const { data: conv } = await supabase
+            const { data: conv, error: insertErr } = await supabase
               .from('conversations')
-              .upsert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId }, { onConflict: 'professional_id,lead_id' })
+              .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId })
               .select('id').single();
-            chatId = conv?.id ?? null;
+            if (insertErr) {
+              const retryQ = supabase.from('conversations').select('id')
+                .eq('professional_id', profAuthId).eq('client_id', purchase.client_id);
+              const { data: retry } = await (leadId
+                ? retryQ.eq('lead_id', leadId)
+                : retryQ.is('lead_id', null)
+              ).maybeSingle();
+              chatId = retry?.id ?? null;
+            } else {
+              chatId = conv?.id ?? null;
+            }
           }
 
           if (chatId) {
@@ -513,15 +523,26 @@ export const proposalService = {
       return existing.id;
     }
 
-    const { data: conv } = await supabase
+    const { data: conv, error: insertErr } = await supabase
       .from('conversations')
-      .upsert({ professional_id: profId, client_id: clientId, lead_id: leadId ?? null }, { onConflict: 'professional_id,lead_id' })
+      .insert({ professional_id: profId, client_id: clientId, lead_id: leadId ?? null })
       .select('id').single();
 
-    if (conv?.id) {
+    let finalId = conv?.id ?? null;
+    if (insertErr) {
+      const retryQ = supabase.from('conversations').select('id')
+        .eq('professional_id', profId).eq('client_id', clientId);
+      const { data: retry } = await (leadId
+        ? retryQ.eq('lead_id', leadId)
+        : retryQ.is('lead_id', null)
+      ).maybeSingle();
+      finalId = retry?.id ?? null;
+    }
+
+    if (finalId) {
       await supabase.from('lead_purchases')
-        .update({ chat_id: conv.id }).eq('id', purchaseId);
-      return conv.id;
+        .update({ chat_id: finalId }).eq('id', purchaseId);
+      return finalId;
     }
 
     return null;
