@@ -68,9 +68,6 @@ const chatRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Limite de mensagens atingido. Tente novamente em 1 hora.' },
-  keyGenerator: (req) => {
-    return req.ip ?? (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ?? 'unknown';
-  },
 });
 
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
