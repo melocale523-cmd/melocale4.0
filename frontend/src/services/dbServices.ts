@@ -444,22 +444,22 @@ export const proposalService = {
         if (!chatId) {
           const leadId = purchase.lead_id ?? null;
 
-          // INSERT first — ignore 409 if already exists (RLS may hide it from SELECT)
-          await supabase
-            .from('conversations')
-            .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId });
-
-          // Always SELECT after — works regardless of who triggered the insert
-          const baseQuery = supabase
-            .from('conversations')
-            .select('id')
-            .eq('professional_id', profAuthId)
-            .eq('client_id', purchase.client_id);
-          const { data: conv } = await (leadId
+          const baseQuery = supabase.from('conversations').select('id')
+            .eq('professional_id', profAuthId).eq('client_id', purchase.client_id);
+          const { data: existing } = await (leadId
             ? baseQuery.eq('lead_id', leadId)
             : baseQuery.is('lead_id', null)
           ).maybeSingle();
-          chatId = conv?.id ?? null;
+
+          if (existing?.id) {
+            chatId = existing.id;
+          } else {
+            const { data: conv } = await supabase
+              .from('conversations')
+              .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId })
+              .select('id').single();
+            chatId = conv?.id ?? null;
+          }
 
           if (chatId) {
             await supabase
@@ -482,49 +482,49 @@ export const proposalService = {
   },
 
   async ensureChatForPurchase(purchaseId: string): Promise<string | null> {
-    const { data: purchase } = await supabase
+    const { data: lp } = await supabase
       .from('lead_purchases')
-      .select('chat_id, professional_id, client_id, lead_id')
+      .select('chat_id, lead_id, client_id, professional_id')
       .eq('id', purchaseId)
       .single();
 
-    if (purchase?.chat_id) return purchase.chat_id;
+    if (!lp) return null;
+    if (lp.chat_id) return lp.chat_id;
+
+    const { professional_id: rawProfId, client_id: clientId, lead_id: leadId } = lp;
 
     const { data: prof } = await supabase
       .from('professionals')
       .select('user_id')
-      .eq('id', purchase?.professional_id)
+      .eq('id', rawProfId)
       .single();
+    const profId = prof?.user_id ?? rawProfId;
 
-    const profId = prof?.user_id ?? purchase?.professional_id;
-    const clientId = purchase?.client_id;
-    const leadId = purchase?.lead_id ?? null;
-
-    // INSERT first — ignore 409 if already exists (RLS may hide it from SELECT)
-    await supabase
-      .from('conversations')
-      .insert({ professional_id: profId, client_id: clientId, lead_id: leadId });
-
-    // Always SELECT after — works regardless of who triggered the insert
-    const baseQuery = supabase
-      .from('conversations')
-      .select('id')
-      .eq('professional_id', profId)
-      .eq('client_id', clientId);
-    const { data: conv } = await (leadId
+    const baseQuery = supabase.from('conversations').select('id')
+      .eq('professional_id', profId).eq('client_id', clientId);
+    const { data: existing } = await (leadId
       ? baseQuery.eq('lead_id', leadId)
       : baseQuery.is('lead_id', null)
     ).maybeSingle();
-    const convId = conv?.id ?? null;
 
-    if (!convId) return null;
+    if (existing?.id) {
+      await supabase.from('lead_purchases')
+        .update({ chat_id: existing.id }).eq('id', purchaseId);
+      return existing.id;
+    }
 
-    await supabase
-      .from('lead_purchases')
-      .update({ chat_id: convId })
-      .eq('id', purchaseId);
+    const { data: conv } = await supabase
+      .from('conversations')
+      .insert({ professional_id: profId, client_id: clientId, lead_id: leadId ?? null })
+      .select('id').single();
 
-    return convId;
+    if (conv?.id) {
+      await supabase.from('lead_purchases')
+        .update({ chat_id: conv.id }).eq('id', purchaseId);
+      return conv.id;
+    }
+
+    return null;
   }
 };
 
@@ -692,15 +692,25 @@ export const chatService = {
         full_name: conv.client_full_name ?? null,
         avatar_url: conv.client_avatar_url ?? null,
       },
+      leadTitle: null as string | null,
     }));
-    // Deduplicate: keep only the most recent conversation per professional+client pair
-    const seen = new Set<string>();
-    return mapped.filter((conv) => {
-      const key = `${conv.professional_id}:${conv.client_id}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+
+    // Enrich with lead titles in a single batch query
+    const leadIds = [...new Set(mapped.map(c => c.lead_id).filter((id): id is string => !!id))];
+    if (leadIds.length > 0) {
+      const { data: leads } = await supabase
+        .from('leads')
+        .select('id, title')
+        .in('id', leadIds);
+      if (leads) {
+        const leadMap = Object.fromEntries(
+          (leads as { id: string; title: string | null }[]).map(l => [l.id, l.title])
+        );
+        mapped.forEach(c => { c.leadTitle = c.lead_id ? (leadMap[c.lead_id] ?? null) : null; });
+      }
+    }
+
+    return mapped;
   },
 
   async uploadChatFile(conversationId: string, file: File): Promise<string> {
