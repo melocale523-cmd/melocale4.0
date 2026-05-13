@@ -48,6 +48,7 @@ export default function ProfessionalMensagens() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [showChat, setShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -385,7 +386,7 @@ export default function ProfessionalMensagens() {
       />
 
       {/* Sidebar */}
-      <div className="w-full md:w-80 lg:w-96 border-r border-[#1C3050] flex flex-col shrink-0 bg-[#0E1C32]">
+      <div className={`${showChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 lg:w-96 border-r border-[#1C3050] flex-col shrink-0 bg-[#0E1C32]`}>
         <div className="p-6 border-b border-[#1C3050] bg-[#1C3454]/40 backdrop-blur-xl">
           <h2 className="text-xl font-bold text-white mb-4">Mensagens</h2>
           <div className="relative group">
@@ -422,7 +423,7 @@ export default function ProfessionalMensagens() {
               return (
                 <button
                   key={conv.id}
-                  onClick={() => setActiveConversationId(conv.id)}
+                  onClick={() => { setActiveConversationId(conv.id); setShowChat(true); }}
                   className={cn(
                     'w-full p-6 flex items-start gap-4 transition-all border-b border-white/[0.02] relative',
                     activeConversationId === conv.id ? 'bg-emerald-500/5' : 'hover:bg-white/[0.02]',
