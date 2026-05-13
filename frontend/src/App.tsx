@@ -78,9 +78,9 @@ function RootLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    const msg = sessionStorage.getItem('redirect_msg');
+    const msg = localStorage.getItem("redirect_msg");
     if (msg) {
-      sessionStorage.removeItem('redirect_msg');
+      localStorage.removeItem("redirect_msg");
       toast.info(msg);
     }
   }, [location.pathname]);
@@ -126,7 +126,7 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
       professional: 'Sua conta é profissional. Redirecionando para sua área...',
       admin: 'Acesso restrito. Redirecionando...',
     };
-    sessionStorage.setItem('redirect_msg', msgs[userRole]);
+    localStorage.setItem("redirect_msg", msgs[userRole]);
     return <Navigate to={dashboard} replace />;
   }
 
