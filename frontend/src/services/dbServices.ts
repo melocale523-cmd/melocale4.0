@@ -450,14 +450,18 @@ export const proposalService = {
             : selQ.is('lead_id', null)
           ).maybeSingle();
 
+          console.error('[conv-debug] respondProposal SELECT result', { existing, professional_id: profAuthId, lead_id: leadId });
+
           if (existing?.id) {
             chatId = existing.id;
           } else {
+            console.error('[conv-debug] INSERT', { professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId });
             const { data: conv, error: insertErr } = await supabase
               .from('conversations')
               .insert({ professional_id: profAuthId, client_id: purchase.client_id, lead_id: leadId })
               .select('id').single();
             if (insertErr) {
+              console.error('[conv-debug] insertErr', insertErr);
               const retryQ = supabase.from('conversations').select('id').eq('professional_id', profAuthId);
               const { data: retry } = await (leadId
                 ? retryQ.eq('lead_id', leadId)
@@ -514,12 +518,15 @@ export const proposalService = {
       : selQ.is('lead_id', null)
     ).maybeSingle();
 
+    console.error('[conv-debug] ensureChatForPurchase SELECT result', { existing, professional_id: profId, lead_id: leadId });
+
     if (existing?.id) {
       await supabase.from('lead_purchases')
         .update({ chat_id: existing.id }).eq('id', purchaseId);
       return existing.id;
     }
 
+    console.error('[conv-debug] INSERT', { professional_id: profId, client_id: clientId, lead_id: leadId ?? null });
     const { data: conv, error: insertErr } = await supabase
       .from('conversations')
       .insert({ professional_id: profId, client_id: clientId, lead_id: leadId ?? null })
@@ -527,6 +534,7 @@ export const proposalService = {
 
     let finalId = conv?.id ?? null;
     if (insertErr) {
+      console.error('[conv-debug] insertErr', insertErr);
       const retryQ = supabase.from('conversations').select('id').eq('professional_id', profId);
       const { data: retry } = await (leadId
         ? retryQ.eq('lead_id', leadId)
