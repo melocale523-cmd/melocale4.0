@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download, CalendarPlus, MapPin } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, CheckCheck, Check, Loader2, Mic, Image as ImageIcon, Trash2, Clock, X, Square, Download, CalendarPlus, MapPin, ChevronLeft } from 'lucide-react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
@@ -482,6 +482,9 @@ export default function ProfessionalMensagens() {
           {/* Header */}
           <div className="p-4 sm:p-6 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]/80 backdrop-blur-xl z-10">
             <div className="flex items-center gap-4">
+              <button onClick={() => setShowChat(false)} className="md:hidden text-[#4A6580] hover:text-white transition-colors">
+                <ChevronLeft size={22} />
+              </button>
               <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050] overflow-hidden">
                 {otherAvatar
                   ? <img src={otherAvatar} alt={otherName} className="w-full h-full object-cover" />
