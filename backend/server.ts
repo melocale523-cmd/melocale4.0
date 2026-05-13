@@ -92,7 +92,7 @@ async function startServer() {
     .filter(Boolean);
 
   const ALLOWED_ORIGINS_EXACT = new Set([
-    'https://melocale4-0.vercel.app',
+    'https://www.melocale.com.br',
     'http://localhost:5173',
     ...EXTRA_ORIGINS,
   ]);
@@ -435,7 +435,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         return res.status(403).json({ error: "Não autorizado." });
       }
 
-      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
+      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://www.melocale.com.br").replace(/\/$/, "");
 
       // --- Fluxo de assinatura mensal ---
       if (type === "subscription" || package_id in SUBSCRIPTION_PLANS) {
@@ -561,7 +561,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         return res.status(400).json({ error: "amount deve ser um número positivo em centavos." });
       }
 
-      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://melocale4-0.vercel.app").replace(/\/$/, "");
+      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://www.melocale.com.br").replace(/\/$/, "");
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
