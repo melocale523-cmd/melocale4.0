@@ -277,6 +277,11 @@ export default function ProfessionalMensagens() {
     const convId = activeConversationId;
     const recpId = recipientId;
     try {
+      const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      if (permission.state === 'denied') {
+        toast.error('Permissão de microfone negada. Verifique as configurações do navegador.');
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -653,8 +658,43 @@ export default function ProfessionalMensagens() {
               </div>
             )}
 
-            <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-white/5 py-1 px-1.5 rounded-[1.25rem] border border-[#1C3050] shadow-inner">
+            <form onSubmit={handleSendMessage} className="flex flex-col gap-2">
+              {/* Input row */}
+              <div className="flex items-center gap-2">
+                <div className="flex-1 relative group">
+                  <input
+                    value={messageInput}
+                    onChange={e => {
+                      setMessageInput(e.target.value);
+                      if (typingChannel.current && currentUser) {
+                        typingChannel.current.send({
+                          type: 'broadcast',
+                          event: 'typing',
+                          payload: { userId: currentUser.id },
+                        });
+                      }
+                    }}
+                    placeholder="Escreva algo para o cliente..."
+                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-[1.25rem] py-4 px-6 pr-14 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-inner"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className={cn('absolute right-4 top-1/2 -translate-y-1/2 transition-colors', showEmojiPicker ? 'text-yellow-500' : 'text-slate-600 hover:text-yellow-500')}
+                  >
+                    <Smile size={24} />
+                  </button>
+                </div>
+                <button
+                  disabled={!messageInput.trim() || sendMessageMutation.isPending}
+                  type="submit"
+                  className="w-14 h-14 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[1.25rem] flex items-center justify-center transition-all shadow-xl shadow-emerald-500/20 disabled:grayscale disabled:opacity-30 disabled:cursor-not-allowed shrink-0 relative active:scale-90"
+                >
+                  <Send size={22} className="translate-x-0.5 -translate-y-0.5" />
+                </button>
+              </div>
+              {/* Toolbar row */}
+              <div className="flex items-center gap-1 px-1">
                 {isRecording ? (
                   <div className="flex items-center gap-3 px-4 py-2 bg-red-500/10 rounded-xl border border-red-500/20 animate-pulse">
                     <div className="w-2 h-2 bg-red-500 rounded-full" />
@@ -667,79 +707,21 @@ export default function ProfessionalMensagens() {
                   </div>
                 ) : (
                   <>
-                    <button
-                      type="button"
-                      onClick={startRecording}
-                      disabled={isUploading}
-                      className="p-3 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50"
-                      title="Gravar Áudio"
-                    >
+                    <button type="button" onClick={startRecording} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Gravar Áudio">
                       {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Mic size={20} />}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => imageInputRef.current?.click()}
-                      disabled={isUploading}
-                      className="p-3 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50"
-                      title="Enviar Foto"
-                    >
+                    <button type="button" onClick={() => imageInputRef.current?.click()} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Foto">
                       <ImageIcon size={20} />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isUploading}
-                      className="p-3 text-[#4A6580] hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all disabled:opacity-50"
-                      title="Enviar Arquivo"
-                    >
+                    <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Arquivo">
                       <Paperclip size={20} />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setScheduleModalOpen(true)}
-                      disabled={isUploading}
-                      className="p-3 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50"
-                      title="Agendar Visita"
-                    >
+                    <button type="button" onClick={() => setScheduleModalOpen(true)} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Agendar Visita">
                       <CalendarPlus size={20} />
                     </button>
                   </>
                 )}
               </div>
-
-              <div className="flex-1 relative group">
-                <input
-                  value={messageInput}
-                  onChange={e => {
-                    setMessageInput(e.target.value);
-                    if (typingChannel.current && currentUser) {
-                      typingChannel.current.send({
-                        type: 'broadcast',
-                        event: 'typing',
-                        payload: { userId: currentUser.id },
-                      });
-                    }
-                  }}
-                  placeholder="Escreva algo para o cliente..."
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-[1.25rem] py-4 px-6 pr-14 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-inner"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  className={cn('absolute right-4 top-1/2 -translate-y-1/2 transition-colors', showEmojiPicker ? 'text-yellow-500' : 'text-slate-600 hover:text-yellow-500')}
-                >
-                  <Smile size={24} />
-                </button>
-              </div>
-
-              <button
-                disabled={!messageInput.trim() || sendMessageMutation.isPending}
-                type="submit"
-                className="w-14 h-14 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[1.25rem] flex items-center justify-center transition-all shadow-xl shadow-emerald-500/20 disabled:grayscale disabled:opacity-30 disabled:cursor-not-allowed shrink-0 relative active:scale-90"
-              >
-                <Send size={22} className="translate-x-0.5 -translate-y-0.5" />
-                {sendMessageMutation.isPending && <div className="absolute inset-0 bg-emerald-500/20 rounded-[1.25rem] animate-pulse" />}
-              </button>
             </form>
             <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-4 text-center">As mensagens são criptografadas de ponta a ponta</p>
           </div>
