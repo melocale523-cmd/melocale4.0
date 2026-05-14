@@ -6,7 +6,8 @@ import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { useClientProfile } from '../hooks/useClientProfile';
 import NotificationBell from '../components/NotificationBell';
-import PushPermissionModal from '../components/PushPermissionModal';
+import ClientPushModal from '../components/ClientPushModal';
+import PushFloatingBanner from '../components/PushFloatingBanner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function ClientLayout() {
@@ -15,6 +16,7 @@ export default function ClientLayout() {
   const user = useAuthStore((state) => state.user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: profile } = useClientProfile();
@@ -274,7 +276,8 @@ export default function ClientLayout() {
         </div>
       </main>
 
-      <PushPermissionModal />
+      <ClientPushModal onDismiss={() => setShowBanner(true)} />
+      {showBanner && <PushFloatingBanner />}
     </div>
   );
 }
