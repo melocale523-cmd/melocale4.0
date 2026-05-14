@@ -180,7 +180,9 @@ export default function Pedidos() {
 
   const filteredPedidos = ((pedidos as PedidoItem[]) ?? []).filter(p =>
     (statusFilter === 'todos' ||
-      (statusFilter === 'Aberto' && p.status === 'open') ||
+      (statusFilter === 'Aberto' && (p.status === 'open' || p.status === 'aberto')) ||
+      (statusFilter === 'Orçando' && p.status === 'orçando') ||
+      (statusFilter === 'Finalizado' && p.status === 'finalizado') ||
       p.status === statusFilter) &&
     (p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.category.toLowerCase().includes(searchTerm.toLowerCase()))
