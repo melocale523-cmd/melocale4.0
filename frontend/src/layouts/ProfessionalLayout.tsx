@@ -9,7 +9,8 @@ import { api } from '../lib/api';
 import { walletService } from '../services/dbServices';
 import { useProfile } from '../hooks/useProfile';
 import NotificationBell from '../components/NotificationBell';
-import PushPermissionModal from '../components/PushPermissionModal';
+import ProfessionalPushModal from '../components/ProfessionalPushModal';
+import PushFloatingBanner from '../components/PushFloatingBanner';
 
 export default function ProfessionalLayout() {
   const location = useLocation();
@@ -18,6 +19,7 @@ export default function ProfessionalLayout() {
   const logout = useAuthStore((state) => state.logout);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: profile } = useProfile();
@@ -288,7 +290,8 @@ export default function ProfessionalLayout() {
         </div>
       </main>
 
-      <PushPermissionModal />
+      <ProfessionalPushModal onDismiss={() => setShowBanner(true)} />
+      {showBanner && <PushFloatingBanner />}
     </div>
   );
 }
