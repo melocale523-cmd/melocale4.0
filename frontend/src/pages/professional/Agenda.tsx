@@ -17,7 +17,7 @@ import {
 import { ptBR } from 'date-fns/locale';
 import {
   Calendar as CalendarIcon, List, Plus, ChevronLeft, ChevronRight,
-  X, Clock, User, MapPin, CheckCircle2, Loader2,
+  X, Clock, User, MapPin, CheckCircle2, Loader2, RefreshCw, AlertTriangle,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
@@ -33,6 +33,7 @@ const STATUS_LABEL: Record<AppStatus, string> = {
   confirmed: 'Confirmado',
   cancelled: 'Cancelado',
   completed: 'Concluído',
+  rescheduled: 'Reagendando',
 };
 
 const STATUS_BADGE: Record<AppStatus, string> = {
@@ -40,6 +41,7 @@ const STATUS_BADGE: Record<AppStatus, string> = {
   confirmed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   completed: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
   cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
+  rescheduled: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
 };
 
 const DOT_COLOR: Record<AppStatus, string> = {
@@ -47,11 +49,12 @@ const DOT_COLOR: Record<AppStatus, string> = {
   confirmed: 'bg-emerald-500',
   completed: 'bg-slate-400',
   cancelled: 'bg-red-500',
+  rescheduled: 'bg-orange-400',
 };
 
 function getDayDotColor(appts: Appointment[]): string | null {
   if (!appts.length) return null;
-  for (const s of ['confirmed', 'scheduled', 'completed', 'cancelled'] as AppStatus[]) {
+  for (const s of ['rescheduled', 'confirmed', 'scheduled', 'completed', 'cancelled'] as AppStatus[]) {
     if (appts.some(a => a.status === s)) return DOT_COLOR[s];
   }
   return null;
@@ -74,6 +77,9 @@ export default function ProfessionalAgenda() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [viewingAppointment, setViewingAppointment] = useState<Appointment | null>(null);
+  const [proposeModalAppt, setProposeModalAppt] = useState<Appointment | null>(null);
+  const [proposeDate, setProposeDate] = useState('');
+  const [proposeTime, setProposeTime] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -135,11 +141,13 @@ export default function ProfessionalAgenda() {
     enabled: !!professional?.id,
   });
 
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['professional_appointments', professional?.id] });
+
   // === Mutations ===
   const createMutation = useMutation({
     mutationFn: appointmentService.createAppointment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['professional_appointments', professional?.id] });
+      invalidate();
       setIsModalOpen(false);
       setFormData({ title: '', clientId: '', conversationId: '', date: format(new Date(), 'yyyy-MM-dd'), time: '09:00', location: '', description: '' });
       toast.success('Agendamento criado com sucesso!');
@@ -151,13 +159,43 @@ export default function ProfessionalAgenda() {
     mutationFn: ({ id, status, notifyUserId }: { id: string; status: 'confirmed' | 'cancelled' | 'completed'; notifyUserId?: string }) =>
       appointmentService.updateAppointmentStatus(id, status, { notifyUserId }),
     onSuccess: (_, { status }) => {
-      queryClient.invalidateQueries({ queryKey: ['professional_appointments', professional?.id] });
+      invalidate();
       if (status === 'completed') toast.success('Compromisso concluído!');
       else if (status === 'cancelled') toast.info('Compromisso cancelado');
       setDetailsModalOpen(false);
     },
     onError: () => toast.error('Erro ao atualizar status'),
   });
+
+  const proposeMutation = useMutation({
+    mutationFn: ({ appt, proposedAt }: { appt: Appointment; proposedAt: string }) =>
+      appointmentService.proposeReschedule(appt.id, proposedAt, 'professional', appt.client_id),
+    onSuccess: () => {
+      invalidate();
+      toast.success('Proposta de reagendamento enviada!');
+      setProposeModalAppt(null);
+      setProposeDate('');
+      setProposeTime('');
+      setDetailsModalOpen(false);
+    },
+    onError: () => toast.error('Erro ao propor reagendamento'),
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: (appt: Appointment) =>
+      appointmentService.acceptReschedule(appt.id, appt.client_id),
+    onSuccess: () => { invalidate(); toast.success('Reagendamento aceito!'); },
+    onError: () => toast.error('Erro ao aceitar reagendamento'),
+  });
+
+  const declineMutation = useMutation({
+    mutationFn: (appt: Appointment) =>
+      appointmentService.declineReschedule(appt.id, appt.client_id),
+    onSuccess: () => { invalidate(); toast.info('Reagendamento recusado.'); },
+    onError: () => toast.error('Erro ao recusar reagendamento'),
+  });
+
+  const anyPending = updateMutation.isPending || proposeMutation.isPending || acceptMutation.isPending || declineMutation.isPending;
 
   // === Derived ===
   const monthStart = startOfMonth(currentMonth);
@@ -170,7 +208,7 @@ export default function ProfessionalAgenda() {
 
   const stats = useMemo(() => ({
     total: appointments.length,
-    pending: appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length,
+    pending: appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed' || a.status === 'rescheduled').length,
     completed: appointments.filter(a => a.status === 'completed').length,
     today: appointments.filter(a => isToday(new Date(a.scheduled_at))).length,
   }), [appointments]);
@@ -213,13 +251,20 @@ export default function ProfessionalAgenda() {
     });
   };
 
-  const openDetails = (app: Appointment) => { setViewingAppointment(app); setDetailsModalOpen(true); };
+  const handleProposeSubmit = () => {
+    if (!proposeModalAppt || !proposeDate || !proposeTime) {
+      toast.error('Preencha data e horário.');
+      return;
+    }
+    const proposedAt = new Date(`${proposeDate}T${proposeTime}`).toISOString();
+    proposeMutation.mutate({ appt: proposeModalAppt, proposedAt });
+  };
 
+  const openDetails = (app: Appointment) => { setViewingAppointment(app); setDetailsModalOpen(true); };
   const openModalForDate = (date: Date) => {
     setFormData(f => ({ ...f, date: format(date, 'yyyy-MM-dd') }));
     setIsModalOpen(true);
   };
-
   const isActive = (s: AppStatus) => s === 'scheduled' || s === 'confirmed';
 
   return (
@@ -334,7 +379,7 @@ export default function ProfessionalAgenda() {
               </div>
 
               <div className="flex flex-wrap gap-6 mt-10 p-4 bg-[#0E1C32] rounded-2xl border border-[#1C3050]">
-                {(['scheduled', 'confirmed', 'completed', 'cancelled'] as AppStatus[]).map(s => (
+                {(['scheduled', 'confirmed', 'rescheduled', 'completed', 'cancelled'] as AppStatus[]).map(s => (
                   <div key={s} className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
                     <div className={cn('w-2.5 h-2.5 rounded-full', DOT_COLOR[s])} />
                     {STATUS_LABEL[s]}
@@ -427,50 +472,106 @@ export default function ProfessionalAgenda() {
 
           <div className="flex-1 space-y-4 relative z-10">
             {selectedDayAppointments.length > 0 ? (
-              selectedDayAppointments.map(app => (
-                <div key={app.id} className="bg-[#0E1C32] border border-[#1C3050] p-5 rounded-2xl space-y-3 hover:border-emerald-500/30 transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2 px-2 py-1 bg-emerald-500/10 rounded-lg text-emerald-500 text-[10px] font-bold font-mono">
-                      <Clock size={12} /> {format(new Date(app.scheduled_at), 'HH:mm')}
+              selectedDayAppointments.map(app => {
+                const clientRequestedReschedule = app.status === 'rescheduled' && app.proposed_by === 'client';
+                const profRequestedReschedule = app.status === 'rescheduled' && app.proposed_by === 'professional';
+                return (
+                  <div key={app.id} className="bg-[#0E1C32] border border-[#1C3050] p-5 rounded-2xl space-y-3 hover:border-emerald-500/30 transition-all">
+                    {/* Client requested reschedule banner */}
+                    {clientRequestedReschedule && app.proposed_at && (
+                      <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle size={12} className="text-orange-400 shrink-0" />
+                          <p className="text-[10px] font-bold text-orange-400 uppercase tracking-widest">Cliente propôs nova data</p>
+                        </div>
+                        <p className="text-xs text-orange-300 mb-3">
+                          {format(new Date(app.proposed_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => acceptMutation.mutate(app)}
+                            disabled={anyPending}
+                            className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-[10px] font-bold rounded-lg transition-all disabled:opacity-50"
+                          >
+                            {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : <CheckCircle2 size={10} />}
+                            Aceitar
+                          </button>
+                          <button
+                            onClick={() => declineMutation.mutate(app)}
+                            disabled={anyPending}
+                            className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold rounded-lg border border-red-500/20 transition-all disabled:opacity-50"
+                          >
+                            <X size={10} /> Recusar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pro proposed reschedule — waiting */}
+                    {profRequestedReschedule && app.proposed_at && (
+                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
+                        <div className="flex items-center gap-2">
+                          <RefreshCw size={11} className="text-blue-400" />
+                          <p className="text-[10px] font-bold text-blue-400">Aguardando cliente</p>
+                        </div>
+                        <p className="text-xs text-blue-300 mt-1">
+                          Proposta: {format(new Date(app.proposed_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2 px-2 py-1 bg-emerald-500/10 rounded-lg text-emerald-500 text-[10px] font-bold font-mono">
+                        <Clock size={12} /> {format(new Date(app.scheduled_at), 'HH:mm')}
+                      </div>
+                      {isActive(app.status) && (
+                        <button onClick={() => handleUpdateStatus(app.id, 'cancelled', app.client_id)} className="text-slate-700 hover:text-red-500 transition-colors">
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
-                    {isActive(app.status) && (
-                      <button onClick={() => handleUpdateStatus(app.id, 'cancelled', app.client_id)} className="text-slate-700 hover:text-red-500 transition-colors">
-                        <X size={14} />
-                      </button>
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="text-white font-bold text-base">{app.title}</h4>
-                    <p className="text-[#4A6580] text-sm flex items-center gap-2 mt-1">
-                      <User size={14} /> {app.client?.full_name || 'Cliente'}
-                    </p>
-                    {app.location && (
-                      <p className="text-[#4A6580] text-xs flex items-center gap-1 mt-1">
-                        <MapPin size={12} /> {app.location}
+                    <div>
+                      <h4 className="text-white font-bold text-base">{app.title}</h4>
+                      <p className="text-[#4A6580] text-sm flex items-center gap-2 mt-1">
+                        <User size={14} /> {app.client?.full_name || 'Cliente'}
                       </p>
-                    )}
-                    {app.status === 'completed' && (
-                      <p className="text-emerald-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-1">
-                        <CheckCircle2 size={12} /> Concluído
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex gap-2 pt-2">
-                    <button onClick={() => openDetails(app)} className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-lg border border-[#243F6A] transition-all">
-                      Detalhes
-                    </button>
-                    {isActive(app.status) && (
-                      <button
-                        onClick={() => handleUpdateStatus(app.id, 'completed', app.client_id)}
-                        className="p-2 bg-emerald-500/10 hover:bg-emerald-500 hover:text-black text-emerald-500 rounded-lg border border-emerald-500/20 transition-all"
-                        title="Concluir"
-                      >
-                        <CheckCircle2 size={16} />
+                      {app.location && (
+                        <p className="text-[#4A6580] text-xs flex items-center gap-1 mt-1">
+                          <MapPin size={12} /> {app.location}
+                        </p>
+                      )}
+                      {app.status === 'completed' && (
+                        <p className="text-emerald-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-1">
+                          <CheckCircle2 size={12} /> Concluído
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button onClick={() => openDetails(app)} className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-lg border border-[#243F6A] transition-all">
+                        Detalhes
                       </button>
-                    )}
+                      {isActive(app.status) && (
+                        <>
+                          <button
+                            onClick={() => { setProposeModalAppt(app); setProposeDate(''); setProposeTime(''); }}
+                            className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg border border-blue-500/20 transition-all"
+                            title="Propor nova data"
+                          >
+                            <RefreshCw size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleUpdateStatus(app.id, 'completed', app.client_id)}
+                            className="p-2 bg-emerald-500/10 hover:bg-emerald-500 hover:text-black text-emerald-500 rounded-lg border border-emerald-500/20 transition-all"
+                            title="Concluir"
+                          >
+                            <CheckCircle2 size={16} />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="flex flex-col items-center justify-center text-center py-12">
                 <div className="w-20 h-20 bg-[#0E1C32] rounded-full flex items-center justify-center mb-6 border border-[#1C3050] shadow-inner">
@@ -505,7 +606,7 @@ export default function ProfessionalAgenda() {
       {detailsModalOpen && viewingAppointment && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDetailsModalOpen(false)} />
-          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <div className="p-2.5 bg-emerald-500/20 text-emerald-500 rounded-xl"><List size={24} /></div>
@@ -515,6 +616,35 @@ export default function ProfessionalAgenda() {
                 <X size={24} />
               </button>
             </div>
+
+            {/* Client proposed reschedule banner in modal */}
+            {viewingAppointment.status === 'rescheduled' && viewingAppointment.proposed_by === 'client' && viewingAppointment.proposed_at && (
+              <div className="mb-6 bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle size={16} className="text-orange-400" />
+                  <p className="text-sm font-bold text-orange-400">Cliente solicitou reagendamento para:</p>
+                </div>
+                <p className="text-sm text-orange-300 mb-4">
+                  {format(new Date(viewingAppointment.proposed_at), "eeee, dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { acceptMutation.mutate(viewingAppointment); setDetailsModalOpen(false); }}
+                    disabled={anyPending}
+                    className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 size={16} /> Aceitar
+                  </button>
+                  <button
+                    onClick={() => { declineMutation.mutate(viewingAppointment); setDetailsModalOpen(false); }}
+                    disabled={anyPending}
+                    className="flex-1 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <X size={16} /> Recusar
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-8">
               <div className="grid grid-cols-2 gap-4">
@@ -598,14 +728,21 @@ export default function ProfessionalAgenda() {
                   <>
                     <button
                       onClick={() => handleUpdateStatus(viewingAppointment.id, 'completed', viewingAppointment.client_id)}
-                      disabled={updateMutation.isPending}
+                      disabled={anyPending}
                       className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
                     >
                       Concluir Atendimento
                     </button>
                     <button
+                      onClick={() => { setProposeModalAppt(viewingAppointment); setProposeDate(''); setProposeTime(''); setDetailsModalOpen(false); }}
+                      disabled={anyPending}
+                      className="flex-1 py-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-bold rounded-2xl border border-blue-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      <RefreshCw size={16} /> Propor Nova Data
+                    </button>
+                    <button
                       onClick={() => handleUpdateStatus(viewingAppointment.id, 'cancelled', viewingAppointment.client_id)}
-                      disabled={updateMutation.isPending}
+                      disabled={anyPending}
                       className="flex-1 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-2xl border border-red-500/20 transition-all disabled:opacity-50"
                     >
                       Cancelar
@@ -628,7 +765,63 @@ export default function ProfessionalAgenda() {
         </div>
       )}
 
-      {/* Create Modal */}
+      {/* Propose reschedule modal */}
+      {proposeModalAppt && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setProposeModalAppt(null)} />
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <RefreshCw size={16} className="text-blue-400" /> Propor Nova Data
+              </h3>
+              <button onClick={() => setProposeModalAppt(null)} className="text-[#4A6580] hover:text-white transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="text-xs text-[#94A3B8] mb-4">
+              O cliente receberá uma notificação e deverá aceitar ou recusar a nova data.
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-1 block">Nova Data</label>
+                <input
+                  type="date"
+                  value={proposeDate}
+                  onChange={e => setProposeDate(e.target.value)}
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-1 block">Novo Horário</label>
+                <input
+                  type="time"
+                  value={proposeTime}
+                  onChange={e => setProposeTime(e.target.value)}
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button
+                onClick={handleProposeSubmit}
+                disabled={proposeMutation.isPending || !proposeDate || !proposeTime}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+              >
+                {proposeMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                Enviar Proposta
+              </button>
+              <button
+                onClick={() => setProposeModalAppt(null)}
+                className="px-4 py-3 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Appointment Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsModalOpen(false)} />
@@ -644,7 +837,6 @@ export default function ProfessionalAgenda() {
             </div>
 
             <form onSubmit={handleCreateAppointment} className="space-y-5">
-              {/* Title */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Título / Serviço *</label>
                 <input
@@ -657,7 +849,6 @@ export default function ProfessionalAgenda() {
                 />
               </div>
 
-              {/* Client */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                   <User size={14} /> Cliente *
@@ -689,7 +880,6 @@ export default function ProfessionalAgenda() {
                 )}
               </div>
 
-              {/* Date + Time */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
@@ -717,7 +907,6 @@ export default function ProfessionalAgenda() {
                 </div>
               </div>
 
-              {/* Location */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                   <MapPin size={14} /> Endereço
@@ -731,7 +920,6 @@ export default function ProfessionalAgenda() {
                 />
               </div>
 
-              {/* Description */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Observações</label>
                 <textarea

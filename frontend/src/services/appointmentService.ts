@@ -27,9 +27,11 @@ export interface Appointment {
   scheduled_at: string;
   duration_minutes: number;
   location: string | null;
-  status: 'scheduled' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'scheduled' | 'confirmed' | 'cancelled' | 'completed' | 'rescheduled';
   cancelled_reason: string | null;
   conversation_id: string | null;
+  proposed_at: string | null;
+  proposed_by: 'client' | 'professional' | null;
   client_id: string;
   professional_id: string;
   created_at: string;
@@ -38,11 +40,13 @@ export interface Appointment {
   professional?: AppointmentProfessional | null;
 }
 
+const APPT_SELECT = 'id,title,description,scheduled_at,duration_minutes,location,status,cancelled_reason,conversation_id,proposed_at,proposed_by,client_id,professional_id,created_at,updated_at';
+
 export const appointmentService = {
   async getProfessionalAppointments(professionalId: string): Promise<Appointment[]> {
     const { data, error } = await supabase
       .from('appointments')
-      .select('id,title,description,scheduled_at,duration_minutes,location,status,cancelled_reason,conversation_id,client_id,professional_id,created_at,updated_at')
+      .select(APPT_SELECT)
       .eq('professional_id', professionalId)
       .order('scheduled_at', { ascending: true });
     if (error) throw error;
@@ -61,7 +65,7 @@ export const appointmentService = {
   async getClientAppointments(clientUserId: string): Promise<Appointment[]> {
     const { data, error } = await supabase
       .from('appointments')
-      .select('id,title,description,scheduled_at,duration_minutes,location,status,cancelled_reason,conversation_id,professional_id,client_id,created_at,updated_at')
+      .select(APPT_SELECT)
       .eq('client_id', clientUserId)
       .order('scheduled_at', { ascending: true });
     if (error) throw error;
@@ -135,7 +139,6 @@ export const appointmentService = {
       .single();
     if (error) throw error;
 
-    // B: appointment completed → lead finalizado (via conversation.lead_id)
     if (status === 'completed' && (appt as Appointment).conversation_id) {
       const { data: conv } = await supabase
         .from('conversations')
@@ -158,6 +161,112 @@ export const appointmentService = {
         title: labels[status] ?? 'Agendamento atualizado',
         body: opts.cancelledReason ? `Motivo: ${opts.cancelledReason}` : 'Status do agendamento foi atualizado',
         data: { appointment_id: appointmentId, type: 'appointment' },
+      });
+    }
+
+    return appt as Appointment;
+  },
+
+  async proposeReschedule(
+    appointmentId: string,
+    proposedAt: string,
+    proposedBy: 'client' | 'professional',
+    notifyUserId?: string,
+  ): Promise<Appointment> {
+    const { data: appt, error } = await supabase
+      .from('appointments')
+      .update({
+        status: 'rescheduled',
+        proposed_at: proposedAt,
+        proposed_by: proposedBy,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', appointmentId)
+      .select()
+      .single();
+    if (error) throw error;
+
+    if (notifyUserId) {
+      const dt = new Date(proposedAt);
+      const dateStr = dt.toLocaleDateString('pt-BR');
+      const timeStr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const who = proposedBy === 'professional' ? 'O profissional' : 'O cliente';
+      void supabase.from('notifications').insert({
+        user_id: notifyUserId,
+        title: 'Proposta de reagendamento',
+        body: `${who} propôs nova data: ${dateStr} às ${timeStr}. Acesse sua agenda para aceitar ou recusar.`,
+        data: { appointment_id: appointmentId, type: 'reschedule_proposed' },
+      });
+    }
+
+    return appt as Appointment;
+  },
+
+  async acceptReschedule(
+    appointmentId: string,
+    notifyUserId?: string,
+  ): Promise<Appointment> {
+    // Read proposed_at first so we can move it to scheduled_at
+    const { data: current, error: fetchErr } = await supabase
+      .from('appointments')
+      .select('proposed_at,proposed_by,client_id,professional_id')
+      .eq('id', appointmentId)
+      .single();
+    if (fetchErr) throw fetchErr;
+    if (!current?.proposed_at) throw new Error('Nenhuma proposta de reagendamento encontrada.');
+
+    const { data: appt, error } = await supabase
+      .from('appointments')
+      .update({
+        status: 'confirmed',
+        scheduled_at: current.proposed_at,
+        proposed_at: null,
+        proposed_by: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', appointmentId)
+      .select()
+      .single();
+    if (error) throw error;
+
+    if (notifyUserId) {
+      const dt = new Date(current.proposed_at);
+      const dateStr = dt.toLocaleDateString('pt-BR');
+      const timeStr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      void supabase.from('notifications').insert({
+        user_id: notifyUserId,
+        title: 'Reagendamento aceito ✅',
+        body: `A nova data foi confirmada: ${dateStr} às ${timeStr}.`,
+        data: { appointment_id: appointmentId, type: 'reschedule_accepted' },
+      });
+    }
+
+    return appt as Appointment;
+  },
+
+  async declineReschedule(
+    appointmentId: string,
+    notifyUserId?: string,
+  ): Promise<Appointment> {
+    const { data: appt, error } = await supabase
+      .from('appointments')
+      .update({
+        status: 'confirmed',
+        proposed_at: null,
+        proposed_by: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', appointmentId)
+      .select()
+      .single();
+    if (error) throw error;
+
+    if (notifyUserId) {
+      void supabase.from('notifications').insert({
+        user_id: notifyUserId,
+        title: 'Reagendamento recusado',
+        body: 'A proposta de nova data foi recusada. O agendamento continua na data original.',
+        data: { appointment_id: appointmentId, type: 'reschedule_declined' },
       });
     }
 
