@@ -17,6 +17,13 @@ interface LastMessage {
   sender_type: string;
 }
 
+function formatMessageBody(body: string): string {
+  if (!body.startsWith('http://') && !body.startsWith('https://')) return body;
+  if (/\.webm|audio/i.test(body)) return '🎵 Áudio enviado';
+  if (/\.jpe?g|\.png|\.gif/i.test(body)) return '📷 Foto enviada';
+  return '📎 Arquivo enviado';
+}
+
 function relativeTime(isoDate: string): string {
   const diff = Date.now() - new Date(isoDate).getTime();
   const mins = Math.floor(diff / 60000);
@@ -417,7 +424,7 @@ export default function Pedidos() {
               <div
                 key={pedido.id}
                 onClick={() => openProposals(pedido)}
-                className="p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all cursor-pointer group active:bg-white/[0.04]"
+                className="p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all cursor-pointer group active:bg-white/[0.04] overflow-hidden"
               >
                 <div className="flex items-start gap-6">
                   <div className="w-16 h-16 bg-[#0E1C32] rounded-2xl flex items-center justify-center border border-[#1C3050] text-[#4A6580] group-hover:text-emerald-500 group-hover:border-emerald-500/30 transition-all shrink-0 shadow-inner">
@@ -455,9 +462,9 @@ export default function Pedidos() {
                       </div>
                     </div>
                     {lastMessages[pedido.id] && (
-                      <div className="flex items-center gap-1.5 text-xs text-[#4A6580] mt-1.5 min-w-0">
+                      <div className="flex items-center gap-1.5 text-xs text-[#4A6580] mt-1.5 min-w-0 max-w-full overflow-hidden">
                         <MessageCircle size={11} className="shrink-0 text-emerald-500/70" />
-                        <span className="truncate">{lastMessages[pedido.id].body}</span>
+                        <span className="truncate min-w-0 flex-1">{formatMessageBody(lastMessages[pedido.id].body)}</span>
                         <span className="shrink-0">·</span>
                         <span className="shrink-0 whitespace-nowrap">{relativeTime(lastMessages[pedido.id].created_at)}</span>
                       </div>
@@ -465,13 +472,13 @@ export default function Pedidos() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-[#1C3050] pt-6 lg:pt-0">
-                  <div className="text-right hidden md:block">
+                <div className="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-[#1C3050] pt-6 lg:pt-0 shrink-0">
+                  <div className="text-right hidden md:block shrink-0">
                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Interessados</p>
                     <p className="text-white font-black">{pedido.interested_count ?? 0} Profissionais</p>
                   </div>
 
-                  <div className="md:hidden text-left">
+                  <div className="md:hidden text-left shrink-0">
                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-0.5">Interessados</p>
                     <p className="text-white font-black text-sm">{pedido.interested_count ?? 0} Profissionais</p>
                   </div>
