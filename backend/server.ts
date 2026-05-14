@@ -111,17 +111,15 @@ async function startServer() {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const ALLOWED_ORIGINS_EXACT = new Set([
+  const ALLOWED_ORIGINS = new Set([
     'https://www.melocale.com.br',
+    'https://melocale.com.br',
     'http://localhost:5173',
+    'http://localhost:4173',
     ...EXTRA_ORIGINS,
   ]);
 
-  // Matches preview deployments of this project only (e.g. melocale4-0-<hash>.vercel.app)
-  const VERCEL_PREVIEW_RE = /^https:\/\/melocale4-0-[^.]+\.vercel\.app$/i;
-
-  const isOriginAllowed = (origin: string) =>
-    ALLOWED_ORIGINS_EXACT.has(origin) || VERCEL_PREVIEW_RE.test(origin);
+  const isOriginAllowed = (origin: string) => ALLOWED_ORIGINS.has(origin);
 
   const corsOptions: Parameters<typeof cors>[0] = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
