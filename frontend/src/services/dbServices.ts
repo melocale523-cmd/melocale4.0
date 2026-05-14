@@ -5,3 +5,4 @@ export * from './messageService';
 export * from './profileService';
 export * from './appointmentService';
 export * from './statsService';
+export * from './reviewService';
