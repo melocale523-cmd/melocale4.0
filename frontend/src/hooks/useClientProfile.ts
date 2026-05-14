@@ -1,3 +1,7 @@
+// useClientProfile — for clients only.
+// Fetches `profiles` table only (id, full_name, phone, avatar_url, city, cep).
+// Does NOT call ensure_professional_exists or touch the professionals table.
+// For professional profile data (bio, category, serviceRadius) use useProfile instead.
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -12,6 +16,15 @@ export interface ClientProfileData {
   cep: string;
 }
 
+interface ProfileRow {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  city: string | null;
+  cep: string | null;
+}
+
 async function fetchClientProfile(userId: string): Promise<ClientProfileData> {
   const { data, error } = await supabase
     .from('profiles')
@@ -24,13 +37,14 @@ async function fetchClientProfile(userId: string): Promise<ClientProfileData> {
     throw new Error('Erro ao carregar perfil. Tente novamente.');
   }
 
+  const row = data as ProfileRow;
   return {
-    id: data.id,
-    full_name: data.full_name || '',
-    phone: data.phone || '',
-    avatar_url: data.avatar_url || '',
-    city: data.city || '',
-    cep: (data as any).cep || '',
+    id: row.id,
+    full_name: row.full_name || '',
+    phone: row.phone || '',
+    avatar_url: row.avatar_url || '',
+    city: row.city || '',
+    cep: row.cep || '',
   };
 }
 

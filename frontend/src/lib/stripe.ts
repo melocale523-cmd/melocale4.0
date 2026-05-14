@@ -14,6 +14,9 @@ let stripePromise: Promise<Stripe | null> | null = null;
 export const getStripe = () => {
   if (!stripePromise) {
     const publicKey = requireEnvVar('VITE_STRIPE_PUBLIC_KEY');
+    if (!publicKey.startsWith('pk_')) {
+      throw new Error("❌ VITE_STRIPE_PUBLIC_KEY inválida: deve começar com 'pk_'");
+    }
     stripePromise = loadStripe(publicKey);
   }
   return stripePromise;

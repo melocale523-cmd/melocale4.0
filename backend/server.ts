@@ -9,6 +9,7 @@ import { createClient } from "@supabase/supabase-js";
 import Anthropic from '@anthropic-ai/sdk';
 import rateLimit from "express-rate-limit";
 import cors from "cors";
+import { z } from "zod";
 
 // Proteção global contra crashes (uncaught e unhandled)
 process.on("uncaughtException", (err) => {
@@ -57,6 +58,17 @@ if (!supabaseServiceKey) {
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+let coinPackagesCache: Record<string, { coins: number; name: string; price: number }> = {};
+
+async function loadCoinPackages() {
+  const { data } = await supabaseAdmin.from('coin_packages')
+    .select('id, name, coins, price').eq('is_active', true);
+  if (data?.length) {
+    coinPackagesCache = Object.fromEntries(data.map((p: { id: string; name: string; coins: number; price: number }) => [p.id, p]));
+    console.log('[startup] coin packages loaded:', Object.keys(coinPackagesCache));
+  }
+}
+
 if (!process.env.ANTHROPIC_API_KEY) {
   throw new Error('❌ ERRO CRÍTICO: ANTHROPIC_API_KEY não definida — servidor não pode subir');
 }
@@ -100,17 +112,15 @@ async function startServer() {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const ALLOWED_ORIGINS_EXACT = new Set([
+  const ALLOWED_ORIGINS = new Set([
     'https://www.melocale.com.br',
+    'https://melocale.com.br',
     'http://localhost:5173',
+    'http://localhost:4173',
     ...EXTRA_ORIGINS,
   ]);
 
-  // Matches preview deployments of this project only (e.g. melocale4-0-<hash>.vercel.app)
-  const VERCEL_PREVIEW_RE = /^https:\/\/melocale4-0-[^.]+\.vercel\.app$/i;
-
-  const isOriginAllowed = (origin: string) =>
-    ALLOWED_ORIGINS_EXACT.has(origin) || VERCEL_PREVIEW_RE.test(origin);
+  const isOriginAllowed = (origin: string) => ALLOWED_ORIGINS.has(origin);
 
   const corsOptions: Parameters<typeof cors>[0] = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -138,12 +148,6 @@ async function startServer() {
     } catch (err) {
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
-
-    const COIN_PACKAGES: Record<string, { coins: number; name: string }> = {
-      'pack_starter': { coins: 60,  name: 'Básico'        },
-      'pack_pro':     { coins: 200, name: 'Popular'       },
-      'pack_premium': { coins: 560, name: 'Máximo'        },
-    };
 
     const PLAN_WELCOME_COINS: Record<string, number> = {
       plan_basic:     30,
@@ -182,9 +186,9 @@ async function startServer() {
       if (sessionType === "subscription" && packageId) {
         coinsAmount = PLAN_WELCOME_COINS[packageId] ?? 0;
         coinLabel = `boas-vindas:${packageId}`;
-      } else if (packageId && COIN_PACKAGES[packageId]) {
-        coinsAmount = COIN_PACKAGES[packageId].coins;
-        coinLabel = COIN_PACKAGES[packageId].name;
+      } else if (packageId && coinPackagesCache[packageId]) {
+        coinsAmount = coinPackagesCache[packageId].coins;
+        coinLabel = coinPackagesCache[packageId].name;
       } else {
         coinsAmount = parseInt(session.metadata?.coins || session.metadata?.coinsAmount || "0", 10);
       }
@@ -211,8 +215,8 @@ async function startServer() {
           created_at: new Date().toISOString(),
         });
         if (txErr) {
-          if ((txErr as any).code === '23505') {
-            console.log(`[webhook] evento ${event.id} já processado (unique conflict) — ignorando`);
+          if ((txErr as { code?: string }).code === '23505') {
+            if (process.env.NODE_ENV !== 'production') console.log(`[webhook] evento ${event.id} já processado (unique conflict) — ignorando`);
             return res.json({ received: true });
           }
           console.error("Erro ao inserir wallet_transaction:", txErr);
@@ -248,8 +252,16 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  const chatSchema = z.object({
+    messages: z.array(z.object({ role: z.string(), text: z.string() })).min(1),
+    context: z.string().optional(),
+    userData: z.record(z.string(), z.unknown()).optional(),
+  });
+
   // API route for AI Chat
   app.post("/api/chat", chatRateLimit, requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const parsed = chatSchema.safeParse(req.body);
+    if (!parsed.success) return void res.status(400).json({ error: 'Dados inválidos.' });
     const SUSPICIOUS_PATTERN = /ignore|system\s*prompt|assistant|jailbreak|prompt\s*injection/i;
 
     function sanitizeUserData(raw: Record<string, unknown>): {
@@ -302,7 +314,7 @@ async function startServer() {
       };
     }
 
-    const buildSystemPrompt = (context: string, userData: Record<string, any>) => {
+    const buildSystemPrompt = (context: string, userData: Record<string, unknown>) => {
       const name = userData.name || 'usuário';
 
       const BASE = `Você é o Assistente MeloCalé — amigável, direto e focado em ajudar. Use linguagem simples. Respostas curtas (máx 3 parágrafos). Sempre termine com uma ação clara. Use no máximo 2 emojis por resposta. Nunca invente informações.`;
@@ -314,9 +326,9 @@ MOEDAS: Básico 60 por R$24,90 | Popular 200 por R$59,90 | Máximo 560 por R$119
 LEADS: custam 10-150 moedas dependendo de orçamento, urgência e categoria.`;
 
       if (context === 'professional') {
-        const balance = userData.coinBalance ?? 0;
-        const plan = userData.activePlan;
-        const leads = userData.leadsBought ?? 0;
+        const balance = Number(userData.coinBalance ?? 0);
+        const plan = typeof userData.activePlan === 'string' ? userData.activePlan : null;
+        const leads = Number(userData.leadsBought ?? 0);
         const planNames: Record<string, string> = { plan_basic: 'Starter', plan_pro: 'PRO', plan_business: 'Elite' };
 
         return `${BASE}
@@ -433,14 +445,19 @@ COMPORTAMENTO NESTE CONTEXTO:
     plan_business: { name: "Elite",     price: 12700, description: "Plano Elite MeloCale — 55% desconto em moedas" },
   };
 
+  const checkoutSchema = z.object({
+    type: z.enum(['coins', 'plan', 'one_time', 'subscription']).optional(),
+    package_id: z.string().min(1),
+    user_id: z.string().uuid(),
+  });
+
   app.post("/api/create-checkout-session", requireAuth, async (req: AuthRequest, res: Response) => {
+    const parsed = checkoutSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
+
     try {
       const authUser = req.authUser!;
-      const { type, package_id, user_id } = req.body || {};
-
-      if (!package_id || !user_id) {
-        return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
-      }
+      const { type, package_id, user_id } = parsed.data;
 
       if (user_id !== authUser.id) {
         return res.status(403).json({ error: "Não autorizado." });
@@ -547,12 +564,12 @@ COMPORTAMENTO NESTE CONTEXTO:
       });
 
       return res.json({ id: session.id, url: session.url });
-    } catch (err: any) {
-      console.error("Erro em /api/create-checkout-session:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/create-checkout-session:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
-  
+
   // ============================================
   // Stripe Checkout Session - Pagamento de serviço a profissional
   // ============================================
@@ -606,8 +623,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       });
 
       return res.json({ id: session.id, url: session.url });
-    } catch (err: any) {
-      console.error("Erro em /api/create-service-payment:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/create-service-payment:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
@@ -631,7 +648,7 @@ COMPORTAMENTO NESTE CONTEXTO:
 
       if (subErr || !sub) return res.status(200).json({ status: 'none', plan: null });
 
-      console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
+      if (process.env.NODE_ENV !== 'production') console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
 
       if (!sub.stripe_subscription_id) {
         return res.json({
@@ -647,7 +664,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       // cast to any: Stripe SDK v22 removed current_period_end from the TS type
       // but the Stripe API still returns it at runtime
       const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id) as any;
-      console.log("[subscription-status] stripe current_period_end:", stripeSub.current_period_end, "status:", stripeSub.status);
+      if (process.env.NODE_ENV !== 'production') console.log("[subscription-status] stripe current_period_end:", stripeSub.current_period_end, "status:", stripeSub.status);
       return res.json({
         status: stripeSub.status,
         package_id: sub.package_id,
@@ -656,8 +673,8 @@ COMPORTAMENTO NESTE CONTEXTO:
         current_period_end: stripeSub.current_period_end ?? null,
         cancel_at_period_end: stripeSub.cancel_at_period_end ?? false,
       });
-    } catch (err: any) {
-      console.error("Erro em /api/subscription-status:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/subscription-status:", err instanceof Error ? err.message : String(err));
       return res.status(200).json({ status: 'none', plan: null });
     }
   });
@@ -695,15 +712,22 @@ COMPORTAMENTO NESTE CONTEXTO:
         .eq("user_id", String(user_id));
 
       return res.json({ success: true });
-    } catch (err: any) {
-      console.error("Erro em /api/cancel-subscription:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/cancel-subscription:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
 
+  const supportTicketSchema = z.object({
+    email: z.string().email().optional(),
+    conversation: z.string().min(1),
+  });
+
   app.post("/api/support-ticket", requireAuth, async (req: Request, res: Response) => {
+    const parsed = supportTicketSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
     try {
-      const { email, conversation } = req.body;
+      const { email, conversation } = parsed.data;
       const user_id = (req as AuthRequest).authUser!.id;
       const { data, error } = await supabaseAdmin
         .from('support_tickets')
@@ -712,15 +736,16 @@ COMPORTAMENTO NESTE CONTEXTO:
         .single();
       if (error) throw error;
       return res.json({ ticket_id: data.id });
-    } catch (err: any) {
-      console.error("Erro em /api/support-ticket:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/support-ticket:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = typeof err?.status === 'number' ? err.status : 500;
-    res.status(status).json({ error: err?.message || 'Erro interno' });
+  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : 500;
+    const message = err instanceof Error ? err.message : 'Erro interno';
+    res.status(status).json({ error: message });
   });
 
   // Garante constraint única em stripe_event_id para deduplicação atômica no banco.
@@ -732,6 +757,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       console.error('[startup] constraint uq_stripe_event_id:', error.message);
     }
   });
+
+  await loadCoinPackages();
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);

@@ -1,3 +1,6 @@
+// useProfile — for professionals only.
+// Fetches both `profiles` and `professionals` tables (calls ensure_professional_exists RPC).
+// For client-only profile data (cep, no professional row) use useClientProfile instead.
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
