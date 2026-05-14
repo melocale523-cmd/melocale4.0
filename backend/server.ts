@@ -535,7 +535,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       return res.json({ id: session.id, url: session.url });
     } catch (err: any) {
       console.error("Erro em /api/create-checkout-session:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro interno ao criar sessao de checkout." });
+      return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
   
@@ -594,7 +594,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       return res.json({ id: session.id, url: session.url });
     } catch (err: any) {
       console.error("Erro em /api/create-service-payment:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro interno ao criar sessão de pagamento." });
+      return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
 
@@ -681,7 +681,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       return res.json({ success: true });
     } catch (err: any) {
       console.error("Erro em /api/cancel-subscription:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Erro ao cancelar assinatura." });
+      return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
 
@@ -697,7 +697,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       if (error) throw error;
       return res.json({ ticket_id: data.id });
     } catch (err: any) {
-      return res.status(500).json({ error: err.message });
+      console.error("Erro em /api/support-ticket:", err?.message || err);
+      return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
 
