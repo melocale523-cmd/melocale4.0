@@ -10,7 +10,11 @@ export default defineConfig(({ mode: _mode }) => {
       react(),
       tailwindcss(),
       VitePWA({
+        strategies: 'injectManifest',
+        srcDir: 'src',
+        filename: 'sw.ts',
         registerType: 'autoUpdate',
+        injectRegister: 'auto',
         includeAssets: ['favicon-32.png', 'apple-touch-icon.png', 'icon.svg'],
         manifest: {
           name: 'MeloCalé',
@@ -24,6 +28,10 @@ export default defineConfig(({ mode: _mode }) => {
             { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
             { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
           ],
+        },
+        devOptions: {
+          enabled: true,
+          type: 'module',
         },
       }),
     ],
