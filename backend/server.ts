@@ -81,6 +81,15 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Request timeout after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
 async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
@@ -394,12 +403,15 @@ COMPORTAMENTO NESTE CONTEXTO:
             : '',
         }))
         .filter((m, idx) => !(idx === 0 && m.role === 'assistant'));
-      const response = await anthropic.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: mapped,
-      });
+      const response = await withTimeout(
+        anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: mapped,
+        }),
+        15000
+      );
       const text = response.content[0].type === 'text' ? response.content[0].text : '';
       res.json({ response: text });
     } catch (error) {
@@ -470,12 +482,14 @@ COMPORTAMENTO NESTE CONTEXTO:
       }
 
       // --- Fluxo de compra de moedas ---
-      const { data: pkg, error: pkgErr } = await supabaseAdmin
-        .from("coin_packages")
-        .select("id, name, coins, price, is_active")
-        .eq("id", package_id)
-        .eq("is_active", true)
-        .single();
+      const { data: pkg, error: pkgErr } = await withTimeout(
+        supabaseAdmin
+          .from("coin_packages")
+          .select("id, name, coins, price, is_active")
+          .eq("id", package_id)
+          .eq("is_active", true)
+          .single()
+      );
 
       if (pkgErr || !pkg) {
         console.error("Pacote nao encontrado:", package_id, pkgErr);
@@ -605,13 +619,15 @@ COMPORTAMENTO NESTE CONTEXTO:
     try {
       const userId = req.authUser!.id;
 
-      const { data: sub, error: subErr } = await supabaseAdmin
-        .from("user_subscriptions")
-        .select("*")
-        .eq("user_id", userId)
-        .order("started_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const { data: sub, error: subErr } = await withTimeout(
+        supabaseAdmin
+          .from("user_subscriptions")
+          .select("*")
+          .eq("user_id", userId)
+          .order("started_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      );
 
       if (subErr || !sub) return res.status(200).json({ status: 'none', plan: null });
 
