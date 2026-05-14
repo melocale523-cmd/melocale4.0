@@ -81,9 +81,9 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
+function withTimeout<T>(promise: PromiseLike<T>, ms = 8000): Promise<T> {
   return Promise.race([
-    promise,
+    Promise.resolve(promise),
     new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error(`Request timeout after ${ms}ms`)), ms)
     ),
@@ -446,7 +446,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         return res.status(403).json({ error: "Não autorizado." });
       }
 
-      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://www.melocale.com.br").replace(/\/$/, "");
+      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://www.melocale.com.br").replace(/\/$/,  "");
 
       // --- Fluxo de assinatura mensal ---
       if (type === "subscription" || package_id in SUBSCRIPTION_PLANS) {
