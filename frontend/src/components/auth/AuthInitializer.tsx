@@ -31,6 +31,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
       }
 
       if (processingIdRef.current === userId) return;
+      if (!isMounted) return;
       processingIdRef.current = userId;
 
       if (isMounted) setLoading(true);
@@ -74,10 +75,8 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
           setAuth({ id: userId, email: session.user.email || '', role: 'client' });
         }
       } finally {
-        if (isMounted) {
-          processingIdRef.current = null;
-          setLoading(false);
-        }
+        if (processingIdRef.current === userId) processingIdRef.current = null;
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -112,6 +111,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
 
     return () => {
       isMounted = false;
+      processingIdRef.current = null;
       subscription.unsubscribe();
     };
   }, [setAuth, setLoading]);
