@@ -9,6 +9,7 @@ import ClientLayout from './layouts/ClientLayout';
 import ProfessionalLayout from './layouts/ProfessionalLayout';
 import AdminLayout from './layouts/AdminLayout';
 import AuthInitializer from './components/auth/AuthInitializer';
+import ErrorBoundary from './components/ErrorBoundary';
 import RouteProgressBar from './components/RouteProgressBar';
 import RealtimeNotificationHandler from './components/RealtimeNotificationHandler';
 import AiChatWidget from './components/AiChat/AiChatWidget';
@@ -162,15 +163,15 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <AuthRedirect><Suspense fallback={<PageLoader />}><LandingPage /></Suspense></AuthRedirect>
+        element: <AuthRedirect><ErrorBoundary><Suspense fallback={<PageLoader />}><LandingPage /></Suspense></ErrorBoundary></AuthRedirect>
       },
       {
         path: '/checkout/success',
-        element: <Suspense fallback={<PageLoader />}><CheckoutSuccess /></Suspense>
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><CheckoutSuccess /></Suspense></ErrorBoundary>
       },
       {
         path: '/checkout/cancel',
-        element: <Suspense fallback={<PageLoader />}><CheckoutCancel /></Suspense>
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><CheckoutCancel /></Suspense></ErrorBoundary>
       },
       {
         element: <AuthLayout />,
@@ -179,7 +180,7 @@ const router = createBrowserRouter([
             path: '/login',
             element: (
               <AuthRedirect>
-                <Suspense fallback={<PageLoader />}><Login /></Suspense>
+                <ErrorBoundary><Suspense fallback={<PageLoader />}><Login /></Suspense></ErrorBoundary>
               </AuthRedirect>
             )
           },
@@ -189,12 +190,12 @@ const router = createBrowserRouter([
         path: '/cliente',
         element: <ProtectedRoute role="client"><ClientLayout /></ProtectedRoute>,
         children: [
-          { path: 'dashboard', element: <Suspense fallback={<PageLoader />}><ClientDashboard /></Suspense> },
-          { path: 'pedidos', element: <Suspense fallback={<PageLoader />}><ClientPedidos /></Suspense> },
-          { path: 'mensagens', element: <Suspense fallback={<PageLoader />}><ClientMensagens /></Suspense> },
-          { path: 'perfil', element: <Suspense fallback={<PageLoader />}><ClientPerfil /></Suspense> },
-          { path: 'agenda', element: <Suspense fallback={<PageLoader />}><ClientAgenda /></Suspense> },
-          { path: 'configuracoes', element: <Suspense fallback={<PageLoader />}><ClientConfiguracoes /></Suspense> },
+          { path: 'dashboard', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientDashboard /></Suspense></ErrorBoundary> },
+          { path: 'pedidos', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientPedidos /></Suspense></ErrorBoundary> },
+          { path: 'mensagens', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientMensagens /></Suspense></ErrorBoundary> },
+          { path: 'perfil', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientPerfil /></Suspense></ErrorBoundary> },
+          { path: 'agenda', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientAgenda /></Suspense></ErrorBoundary> },
+          { path: 'configuracoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientConfiguracoes /></Suspense></ErrorBoundary> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
@@ -202,18 +203,18 @@ const router = createBrowserRouter([
         path: '/profissional',
         element: <ProtectedRoute role="professional"><ProfessionalLayout /></ProtectedRoute>,
         children: [
-          { path: 'dashboard', element: <Suspense fallback={<PageLoader />}><ProfessionalDashboard /></Suspense> },
-          { path: 'leads', element: <Suspense fallback={<PageLoader />}><ProfessionalLeads /></Suspense> },
-          { path: 'meus-leads', element: <Suspense fallback={<PageLoader />}><ProfessionalCompras /></Suspense> },
+          { path: 'dashboard', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalDashboard /></Suspense></ErrorBoundary> },
+          { path: 'leads', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalLeads /></Suspense></ErrorBoundary> },
+          { path: 'meus-leads', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalCompras /></Suspense></ErrorBoundary> },
           { path: 'clientes-disponiveis', element: <Navigate to="/profissional/leads" replace /> },
           { path: 'meus-clientes', element: <Navigate to="/profissional/meus-leads" replace /> },
-          { path: 'agenda', element: <Suspense fallback={<PageLoader />}><ProfessionalAgenda /></Suspense> },
-          { path: 'mensagens', element: <Suspense fallback={<PageLoader />}><ProfessionalMensagens /></Suspense> },
-          { path: 'estatisticas', element: <Suspense fallback={<PageLoader />}><ProfessionalEstatisticas /></Suspense> },
-          { path: 'carteira', element: <Suspense fallback={<PageLoader />}><ProfessionalWallet /></Suspense> },
-          { path: 'assinatura', element: <Suspense fallback={<PageLoader />}><ProfessionalAssinatura /></Suspense> },
-          { path: 'perfil', element: <Suspense fallback={<PageLoader />}><ProfessionalPerfil /></Suspense> },
-          { path: 'configuracoes', element: <Suspense fallback={<PageLoader />}><ProfessionalConfiguracoes /></Suspense> },
+          { path: 'agenda', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalAgenda /></Suspense></ErrorBoundary> },
+          { path: 'mensagens', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalMensagens /></Suspense></ErrorBoundary> },
+          { path: 'estatisticas', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalEstatisticas /></Suspense></ErrorBoundary> },
+          { path: 'carteira', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalWallet /></Suspense></ErrorBoundary> },
+          { path: 'assinatura', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalAssinatura /></Suspense></ErrorBoundary> },
+          { path: 'perfil', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalPerfil /></Suspense></ErrorBoundary> },
+          { path: 'configuracoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalConfiguracoes /></Suspense></ErrorBoundary> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
@@ -221,28 +222,28 @@ const router = createBrowserRouter([
         path: '/admin',
         element: <ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>,
         children: [
-          { path: 'dashboard', element: <Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense> },
-          { path: 'observabilidade', element: <Suspense fallback={<PageLoader />}><AdminObservabilidade /></Suspense> },
-          { path: 'disputas', element: <Suspense fallback={<PageLoader />}><AdminDisputas /></Suspense> },
-          { path: 'usuarios', element: <Suspense fallback={<PageLoader />}><AdminUsuarios /></Suspense> },
-          { path: 'pendentes', element: <Suspense fallback={<PageLoader />}><AdminPendentes /></Suspense> },
-          { path: 'aprovados', element: <Suspense fallback={<PageLoader />}><AdminAprovados /></Suspense> },
-          { path: 'clientes', element: <Suspense fallback={<PageLoader />}><AdminClientes /></Suspense> },
-          { path: 'planos', element: <Suspense fallback={<PageLoader />}><AdminPlanos /></Suspense> },
-          { path: 'pacotes', element: <Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense> },
-          { path: 'transacoes', element: <Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense> },
+          { path: 'dashboard', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense></ErrorBoundary> },
+          { path: 'observabilidade', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminObservabilidade /></Suspense></ErrorBoundary> },
+          { path: 'disputas', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminDisputas /></Suspense></ErrorBoundary> },
+          { path: 'usuarios', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminUsuarios /></Suspense></ErrorBoundary> },
+          { path: 'pendentes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPendentes /></Suspense></ErrorBoundary> },
+          { path: 'aprovados', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminAprovados /></Suspense></ErrorBoundary> },
+          { path: 'clientes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminClientes /></Suspense></ErrorBoundary> },
+          { path: 'planos', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPlanos /></Suspense></ErrorBoundary> },
+          { path: 'pacotes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense></ErrorBoundary> },
+          { path: 'transacoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense></ErrorBoundary> },
           { path: 'financeiro-auditoria', element: <div className="p-8 text-[#94A3B8]">Auditoria Financeira (Em breve)</div> },
           { path: 'auditoria-logs', element: <div className="p-8 text-[#94A3B8]">Auditoria Logs (Em breve)</div> },
           { path: 'equipe', element: <div className="p-8 text-[#94A3B8]">Equipe (Em breve)</div> },
           { path: 'simulador', element: <div className="p-8 text-[#94A3B8]">Simulador (Em breve)</div> },
-          { path: 'suporte', element: <Suspense fallback={<PageLoader />}><AdminSuporte /></Suspense> },
+          { path: 'suporte', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSuporte /></Suspense></ErrorBoundary> },
           { path: 'configuracoes', element: <div className="p-8 text-[#94A3B8]">Configurações (Em breve)</div> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
       {
         path: '*',
-        element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense>
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><NotFound /></Suspense></ErrorBoundary>
       }
     ]
   }
