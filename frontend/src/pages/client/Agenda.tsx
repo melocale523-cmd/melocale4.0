@@ -3,14 +3,13 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2, User,
-  RefreshCw, Send, Star,
+  RefreshCw, Star, AlertTriangle,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { appointmentService, type Appointment, reviewService } from '../../services/dbServices';
-import { supabase } from '../../lib/supabase';
 import ReviewModal from '../../components/ReviewModal';
 
 type AppStatus = Appointment['status'];
@@ -20,6 +19,7 @@ const STATUS_LABEL: Record<AppStatus, string> = {
   confirmed: 'Confirmado',
   cancelled: 'Cancelado',
   completed: 'Concluído',
+  rescheduled: 'Reagendando',
 };
 
 const STATUS_BADGE: Record<AppStatus, string> = {
@@ -27,6 +27,7 @@ const STATUS_BADGE: Record<AppStatus, string> = {
   confirmed: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
   cancelled: 'bg-red-500/20 text-red-400 border-red-500/30',
   completed: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+  rescheduled: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
 };
 
 const CARD_BG: Record<AppStatus, string> = {
@@ -34,6 +35,7 @@ const CARD_BG: Record<AppStatus, string> = {
   confirmed: 'bg-emerald-500/5 border-emerald-500/20',
   cancelled: 'bg-[#0E1C32] border-[#1C3050]',
   completed: 'bg-[#0E1C32] border-[#1C3050]',
+  rescheduled: 'bg-orange-500/5 border-orange-500/30',
 };
 
 export default function ClientAgenda() {
@@ -45,8 +47,9 @@ export default function ClientAgenda() {
   const [reschedulingAppt, setReschedulingAppt] = useState<Appointment | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
-  const [isSendingReschedule, setIsSendingReschedule] = useState(false);
   const [reviewingAppt, setReviewingAppt] = useState<Appointment | null>(null);
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['client_appointments', user?.id] });
 
   const { data: appointments = [], isLoading } = useQuery<Appointment[]>({
     queryKey: ['client_appointments', user?.id],
@@ -76,13 +79,40 @@ export default function ClientAgenda() {
       notifyUserId?: string;
     }) => appointmentService.updateAppointmentStatus(id, status, { cancelledReason: reason, notifyUserId }),
     onSuccess: (_, { status }) => {
-      queryClient.invalidateQueries({ queryKey: ['client_appointments', user?.id] });
+      invalidate();
       if (status === 'confirmed') toast.success('Agendamento confirmado!');
       else toast.info('Agendamento cancelado.');
       setCancellingId(null);
       setCancelReason('');
     },
     onError: () => toast.error('Erro ao atualizar agendamento'),
+  });
+
+  const rescheduleMutation = useMutation({
+    mutationFn: ({ appt, proposedAt }: { appt: Appointment; proposedAt: string }) =>
+      appointmentService.proposeReschedule(appt.id, proposedAt, 'client', appt.professional?.user_id),
+    onSuccess: () => {
+      invalidate();
+      toast.success('Proposta de reagendamento enviada!');
+      setReschedulingAppt(null);
+      setRescheduleDate('');
+      setRescheduleTime('');
+    },
+    onError: () => toast.error('Erro ao propor reagendamento'),
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: (appt: Appointment) =>
+      appointmentService.acceptReschedule(appt.id, appt.professional?.user_id),
+    onSuccess: () => { invalidate(); toast.success('Reagendamento aceito!'); },
+    onError: () => toast.error('Erro ao aceitar reagendamento'),
+  });
+
+  const declineMutation = useMutation({
+    mutationFn: (appt: Appointment) =>
+      appointmentService.declineReschedule(appt.id, appt.professional?.user_id),
+    onSuccess: () => { invalidate(); toast.info('Reagendamento recusado.'); },
+    onError: () => toast.error('Erro ao recusar reagendamento'),
   });
 
   const handleConfirm = (appt: Appointment) => {
@@ -98,35 +128,13 @@ export default function ClientAgenda() {
     });
   };
 
-  const handleRescheduleSubmit = async () => {
+  const handleRescheduleSubmit = () => {
     if (!reschedulingAppt || !rescheduleDate || !rescheduleTime) {
       toast.error('Preencha data e horário para reagendar.');
       return;
     }
-    if (!reschedulingAppt.conversation_id) {
-      toast.error('Este agendamento não possui conversa associada.');
-      return;
-    }
-    setIsSendingReschedule(true);
-    const formatted = format(
-      new Date(`${rescheduleDate}T${rescheduleTime}`),
-      "dd/MM/yyyy 'às' HH:mm",
-      { locale: ptBR },
-    );
-    const { error } = await supabase.from('messages').insert({
-      conversation_id: reschedulingAppt.conversation_id,
-      sender_id: user!.id,
-      content: `Olá! Gostaria de reagendar nosso encontro para ${formatted}. Por favor, confirme se está disponível.`,
-    });
-    setIsSendingReschedule(false);
-    if (error) {
-      toast.error('Erro ao enviar solicitação de reagendamento.');
-    } else {
-      toast.success('Solicitação de reagendamento enviada!');
-      setReschedulingAppt(null);
-      setRescheduleDate('');
-      setRescheduleTime('');
-    }
+    const proposedAt = new Date(`${rescheduleDate}T${rescheduleTime}`).toISOString();
+    rescheduleMutation.mutate({ appt: reschedulingAppt, proposedAt });
   };
 
   const stats = useMemo(() => ({
@@ -139,6 +147,8 @@ export default function ClientAgenda() {
     () => [...appointments].sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()),
     [appointments],
   );
+
+  const anyPending = updateMutation.isPending || rescheduleMutation.isPending || acceptMutation.isPending || declineMutation.isPending;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -196,12 +206,61 @@ export default function ClientAgenda() {
               const isCancelling = cancellingId === appt.id;
               const canCancel = appt.status !== 'completed' && appt.status !== 'cancelled';
               const canReview = appt.status === 'completed' && !reviewedIds.includes(appt.id);
+              const profProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'professional';
+              const clientProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'client';
 
               return (
                 <div
                   key={appt.id}
                   className={cn('rounded-2xl border transition-all', CARD_BG[appt.status])}
                 >
+                  {/* Reschedule banner — professional proposed */}
+                  {profProposedReschedule && appt.proposed_at && (
+                    <div className="mx-4 mt-4 bg-orange-500/10 border border-orange-500/30 rounded-xl p-3">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle size={14} className="text-orange-400 mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-orange-400">Profissional propôs nova data</p>
+                          <p className="text-xs text-orange-300 mt-0.5">
+                            {format(new Date(appt.proposed_at), "eeee, dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => acceptMutation.mutate(appt)}
+                          disabled={anyPending}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                        >
+                          {acceptMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                          Aceitar
+                        </button>
+                        <button
+                          onClick={() => declineMutation.mutate(appt)}
+                          disabled={anyPending}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
+                        >
+                          <X size={12} /> Recusar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reschedule banner — waiting for professional response */}
+                  {clientProposedReschedule && appt.proposed_at && (
+                    <div className="mx-4 mt-4 bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
+                      <div className="flex items-center gap-2">
+                        <RefreshCw size={13} className="text-blue-400 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-blue-400">Aguardando resposta do profissional</p>
+                          <p className="text-xs text-blue-300 mt-0.5">
+                            Sua proposta: {format(new Date(appt.proposed_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-4 p-4">
                     {/* Date badge */}
                     <div className="flex flex-col items-center justify-center min-w-[52px] h-14 rounded-xl bg-[#132540] border border-[#1C3050] shrink-0">
@@ -250,7 +309,7 @@ export default function ClientAgenda() {
                           {appt.status === 'scheduled' && (
                             <button
                               onClick={() => handleConfirm(appt)}
-                              disabled={updateMutation.isPending}
+                              disabled={anyPending}
                               className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
                             >
                               {updateMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
@@ -260,7 +319,7 @@ export default function ClientAgenda() {
                           {(appt.status === 'scheduled' || appt.status === 'confirmed') && (
                             <button
                               onClick={() => { setReschedulingAppt(appt); setRescheduleDate(''); setRescheduleTime(''); }}
-                              disabled={updateMutation.isPending}
+                              disabled={anyPending}
                               className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold rounded-xl border border-blue-500/20 transition-all disabled:opacity-50"
                             >
                               <RefreshCw size={13} /> Reagendar
@@ -269,7 +328,7 @@ export default function ClientAgenda() {
                           {canCancel && (
                             <button
                               onClick={() => { setCancellingId(appt.id); setCancelReason(''); }}
-                              disabled={updateMutation.isPending}
+                              disabled={anyPending}
                               className="flex items-center gap-1.5 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
                             >
                               <X size={13} /> Cancelar
@@ -309,7 +368,7 @@ export default function ClientAgenda() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleCancelSubmit(appt)}
-                              disabled={updateMutation.isPending}
+                              disabled={anyPending}
                               className="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-400 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
                             >
                               {updateMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
@@ -351,14 +410,14 @@ export default function ClientAgenda() {
           <div className="relative bg-[#132540] border border-[#1C3050] rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <RefreshCw size={16} className="text-blue-400" /> Reagendar
+                <RefreshCw size={16} className="text-blue-400" /> Propor Reagendamento
               </h3>
               <button onClick={() => setReschedulingAppt(null)} className="text-[#4A6580] hover:text-white transition-colors">
                 <X size={18} />
               </button>
             </div>
             <p className="text-xs text-[#94A3B8] mb-4">
-              Enviaremos uma mensagem no chat sugerindo o novo horário. O profissional precisará confirmar.
+              O profissional receberá uma notificação e deverá aceitar ou recusar a nova data.
             </p>
             <div className="space-y-3">
               <div>
@@ -383,11 +442,11 @@ export default function ClientAgenda() {
             <div className="flex gap-2 mt-5">
               <button
                 onClick={handleRescheduleSubmit}
-                disabled={isSendingReschedule || !rescheduleDate || !rescheduleTime}
+                disabled={rescheduleMutation.isPending || !rescheduleDate || !rescheduleTime}
                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
               >
-                {isSendingReschedule ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-                Enviar Sugestão
+                {rescheduleMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                Enviar Proposta
               </button>
               <button
                 onClick={() => setReschedulingAppt(null)}
