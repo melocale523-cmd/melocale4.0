@@ -5,7 +5,7 @@ import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calend
 import { payProfessional } from '../../lib/stripe';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
@@ -25,6 +25,80 @@ interface PedidoItem {
 }
 
 const STATUS_TABS = ['Todos', 'Aberto', 'Orçando', 'Finalizado'] as const;
+
+interface TimelineStage {
+  label: string;
+  icon: ReactNode;
+  done: boolean;
+  date?: string;
+}
+
+function LeadTimeline({ pedido, appointment }: {
+  pedido: PedidoItem;
+  appointment: { scheduled_at: string } | null | undefined;
+}) {
+  const isInterested = pedido.status === 'orçando' || pedido.status === 'finalizado';
+  const isScheduled = !!appointment;
+  const isCompleted = pedido.status === 'finalizado';
+
+  const stages: TimelineStage[] = [
+    {
+      label: 'Publicado',
+      icon: <FileText size={13} />,
+      done: true,
+      date: new Date(pedido.created_at).toLocaleDateString('pt-BR'),
+    },
+    {
+      label: 'Com Interesse',
+      icon: <User size={13} />,
+      done: isInterested,
+    },
+    {
+      label: 'Agendado',
+      icon: <Calendar size={13} />,
+      done: isScheduled,
+      date: isScheduled ? new Date(appointment!.scheduled_at).toLocaleDateString('pt-BR') : undefined,
+    },
+    {
+      label: 'Concluído',
+      icon: <CheckCircle size={13} />,
+      done: isCompleted,
+    },
+  ];
+
+  return (
+    <div className="w-full py-2">
+      <div className="flex items-center">
+        {stages.map((stage, i) => (
+          <div key={stage.label} className={cn('flex items-center', i < stages.length - 1 ? 'flex-1' : '')}>
+            <div className="flex flex-col items-center gap-1 shrink-0">
+              <div className={cn(
+                'w-8 h-8 rounded-full flex items-center justify-center border-2 shrink-0',
+                stage.done
+                  ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                  : 'bg-[#0E1C32] border-[#1C3050] text-[#4A6580]',
+              )}>
+                {stage.icon}
+              </div>
+              <p className={cn('text-[9px] font-bold text-center whitespace-nowrap', stage.done ? 'text-emerald-400' : 'text-[#4A6580]')}>
+                {stage.label}
+              </p>
+              <p className="text-[8px] text-[#4A6580] text-center whitespace-nowrap h-3">
+                {stage.date ?? ''}
+              </p>
+            </div>
+            {i < stages.length - 1 && (
+              <div className={cn(
+                'h-0.5 flex-1 mx-2 -mt-7 rounded-full',
+                stage.done ? 'bg-emerald-500/50' : 'bg-[#1C3050]',
+              )} />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const proposalStatusConfig: Record<string, { label: string; className: string }> = {
   'Proposta Enviada': { label: 'Aguardando', className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' },
@@ -53,6 +127,25 @@ export default function Pedidos() {
     queryKey: ['proposals', selectedPedido?.id],
     queryFn: () => selectedPedido ? proposalService.getProposalsForLead(selectedPedido.id) : Promise.resolve([]),
     enabled: !!selectedPedido && isProposalsModalOpen,
+  });
+
+  const { data: linkedAppointment } = useQuery({
+    queryKey: ['lead_appointment', selectedPedido?.id],
+    queryFn: async () => {
+      const { data: convs } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('lead_id', selectedPedido!.id);
+      if (!convs?.length) return null;
+      const { data } = await supabase
+        .from('appointments')
+        .select('scheduled_at')
+        .in('conversation_id', convs.map((c: { id: string }) => c.id))
+        .limit(1)
+        .maybeSingle();
+      return data ?? null;
+    },
+    enabled: !!selectedPedido?.id && isProposalsModalOpen,
   });
 
   const createRequestMutation = useMutation({
@@ -381,6 +474,11 @@ export default function Pedidos() {
               >
                 <X size={24} />
               </button>
+            </div>
+
+            <div className="px-8 py-4 border-b border-[#1C3050] bg-[#0E1C32]/20">
+              <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest mb-2">Progresso do pedido</p>
+              <LeadTimeline pedido={selectedPedido} appointment={linkedAppointment} />
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar bg-[#0E1C32]/30">
