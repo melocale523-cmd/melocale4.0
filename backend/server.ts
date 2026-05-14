@@ -181,10 +181,9 @@ async function jobLembrete24h() {
   }
 }
 
-async function startServer() {
+export function createApp() {
   const app = express();
   app.set('trust proxy', 1);
-  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
   const EXTRA_ORIGINS = (process.env.FRONTEND_URL ?? '')
     .split(',')
@@ -873,6 +872,13 @@ COMPORTAMENTO NESTE CONTEXTO:
     res.status(status).json({ error: message });
   });
 
+  return app;
+}
+
+async function startServer() {
+  const app = createApp();
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+
   // Garante constraint única em stripe_event_id para deduplicação atômica no banco.
   // IF NOT EXISTS garante idempotência em restarts.
   await supabaseAdmin.rpc('exec_sql' as never, {
@@ -894,4 +900,6 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 }
 
-startServer();
+if (!process.env.VITEST) {
+  startServer();
+}
