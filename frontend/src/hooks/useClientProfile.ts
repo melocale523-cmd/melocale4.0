@@ -1,3 +1,7 @@
+// useClientProfile — for clients only.
+// Fetches `profiles` table only (id, full_name, phone, avatar_url, city, cep).
+// Does NOT call ensure_professional_exists or touch the professionals table.
+// For professional profile data (bio, category, serviceRadius) use useProfile instead.
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
