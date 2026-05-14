@@ -256,7 +256,13 @@ async function startServer() {
     } {
       const stripTags = (v: unknown, max: number): string => {
         if (typeof v !== 'string') return '';
-        return v.replace(/<[^>]*>/g, '').replace(/\n|\r/g, ' ').trim().slice(0, max);
+        return v
+          .replace(/<[^>]*>/g, '')
+          .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+          .replace(/\r/g, '')
+          .replace(/\n/g, ' ')
+          .trim()
+          .slice(0, max);
       };
 
       const name = stripTags(raw.name, 100);
@@ -383,7 +389,9 @@ COMPORTAMENTO NESTE CONTEXTO:
           role: (m.role === 'model' || m.role === 'bot' || m.role === 'assistant')
             ? 'assistant' as const
             : 'user' as const,
-          content: m.text,
+          content: typeof m.text === 'string'
+            ? m.text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').replace(/\r/g, '').slice(0, 4000)
+            : '',
         }))
         .filter((m, idx) => !(idx === 0 && m.role === 'assistant'));
       const response = await anthropic.messages.create({
