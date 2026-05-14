@@ -934,7 +934,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     data: z.record(z.string(), z.unknown()).optional(),
   });
 
-  app.post("/api/notifications/push", requireAuth, async (req: AuthRequest, res: Response) => {
+  app.post("/api/notifications/push", async (req: Request, res: Response) => {
     const parsed = notifPushSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
     void sendPushToUser(parsed.data.user_id, {
