@@ -99,8 +99,8 @@ export default function ClientAgenda() {
     );
     const { error } = await supabase.from('messages').insert({
       conversation_id: reschedulingAppt.conversation_id,
-      sender_id: user!.id,
-      content: `Olá! Gostaria de reagendar nosso encontro para ${formatted}. Por favor, confirme se está disponível.`,
+      sender_type: 'client',
+      body: `Olá! Gostaria de reagendar nosso encontro para ${formatted}. Por favor, confirme se está disponível.`,
     });
     setIsSendingReschedule(false);
     if (error) {
