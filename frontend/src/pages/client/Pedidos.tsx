@@ -1,14 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
-import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, MoreVertical, Pencil, Archive } from 'lucide-react';
 import { payProfessional } from '../../lib/stripe';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
-import { useState, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
+
+interface LastMessage {
+  body: string;
+  created_at: string;
+  read_at: string | null;
+  sender_type: string;
+}
+
+function relativeTime(isoDate: string): string {
+  const diff = Date.now() - new Date(isoDate).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'agora';
+  if (mins < 60) return `${mins}min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h atrás`;
+  return `${Math.floor(hours / 24)}d atrás`;
+}
 
 interface PedidoItem {
   id: string;
@@ -148,6 +165,37 @@ export default function Pedidos() {
     enabled: !!selectedPedido?.id && isProposalsModalOpen,
   });
 
+  const pedidoIds = useMemo(() => ((pedidos as PedidoItem[]) ?? []).map(p => p.id), [pedidos]);
+
+  const { data: lastMessages = {} } = useQuery<Record<string, LastMessage>>({
+    queryKey: ['pedidos_last_messages', pedidoIds],
+    queryFn: async () => {
+      if (!pedidoIds.length) return {};
+      const { data: convs } = await supabase
+        .from('conversations')
+        .select('id, lead_id')
+        .in('lead_id', pedidoIds);
+      if (!convs?.length) return {};
+      const convIds = convs.map((c: { id: string }) => c.id);
+      const { data: msgs } = await supabase
+        .from('messages')
+        .select('conversation_id, body, created_at, read_at, sender_type')
+        .in('conversation_id', convIds)
+        .order('created_at', { ascending: false });
+      const convToLead = Object.fromEntries(
+        convs.map((c: { id: string; lead_id: string }) => [c.id, c.lead_id]),
+      );
+      const result: Record<string, LastMessage> = {};
+      for (const msg of (msgs ?? [])) {
+        const leadId = convToLead[msg.conversation_id];
+        if (leadId && !result[leadId]) result[leadId] = msg;
+      }
+      return result;
+    },
+    enabled: pedidoIds.length > 0,
+  });
+
+
   const createRequestMutation = useMutation({
     mutationFn: leadService.createRequest,
     onSuccess: () => {
@@ -271,14 +319,36 @@ export default function Pedidos() {
     setIsProposalsModalOpen(true);
   };
 
-  const filteredPedidos = ((pedidos as PedidoItem[]) ?? []).filter(p =>
-    (statusFilter === 'todos' ||
-      (statusFilter === 'Aberto' && (p.status === 'open' || p.status === 'aberto')) ||
-      (statusFilter === 'Orçando' && p.status === 'orçando') ||
-      (statusFilter === 'Finalizado' && p.status === 'finalizado') ||
-      p.status === statusFilter) &&
-    (p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  const hasArchived = useMemo(
+    () => ((pedidos as PedidoItem[]) ?? []).some(p => p.status === 'arquivado'),
+    [pedidos],
+  );
+
+  const filteredPedidos = ((pedidos as PedidoItem[]) ?? []).filter(p => {
+    const matchesStatus =
+      statusFilter === 'todos'       ? p.status !== 'arquivado' :
+      statusFilter === 'Aberto'      ? (p.status === 'open' || p.status === 'aberto') :
+      statusFilter === 'Orçando'     ? p.status === 'orçando' :
+      statusFilter === 'Finalizado'  ? p.status === 'finalizado' :
+      statusFilter === 'Arquivados'  ? p.status === 'arquivado' :
+      p.status === statusFilter;
+    const matchesSearch =
+      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.category.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  const sortedFilteredPedidos = useMemo(() =>
+    [...filteredPedidos].sort((a, b) => {
+      const aTime = lastMessages[a.id]?.created_at
+        ? new Date(lastMessages[a.id].created_at).getTime()
+        : new Date(a.created_at).getTime();
+      const bTime = lastMessages[b.id]?.created_at
+        ? new Date(lastMessages[b.id].created_at).getTime()
+        : new Date(b.created_at).getTime();
+      return bTime - aTime;
+    }),
+    [filteredPedidos, lastMessages],
   );
 
   const wizardInitialData: Partial<WizardData> | undefined = editingPedido ? {
@@ -319,7 +389,7 @@ export default function Pedidos() {
           />
         </div>
         <div className="flex gap-2 flex-wrap">
-          {STATUS_TABS.map(tab => (
+          {[...STATUS_TABS, ...(hasArchived ? ['Arquivados'] : [])].map(tab => (
             <button
               key={tab}
               onClick={() => setStatusFilter(tab === 'Todos' ? 'todos' : tab)}
@@ -343,7 +413,7 @@ export default function Pedidos() {
           </div>
         ) : (
           <div className="divide-y divide-white/[0.03]">
-            {filteredPedidos.map((pedido) => (
+            {sortedFilteredPedidos.map((pedido) => (
               <div
                 key={pedido.id}
                 onClick={() => openProposals(pedido)}
@@ -354,7 +424,7 @@ export default function Pedidos() {
                     <FileText size={28} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{pedido.title}</h3>
                       <span className={cn(
                         "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/5 text-emerald-500 border border-emerald-500/10",
@@ -363,6 +433,9 @@ export default function Pedidos() {
                       )}>
                         {pedido.status === 'open' ? 'Aberto' : pedido.status}
                       </span>
+                      {lastMessages[pedido.id]?.read_at === null && lastMessages[pedido.id]?.sender_type === 'professional' && (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-500 text-black shrink-0">NOVO</span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-y-2 gap-x-4">
                       <div className="flex items-center text-xs text-[#4A6580] font-bold">
@@ -381,6 +454,14 @@ export default function Pedidos() {
                         {new Date(pedido.created_at).toLocaleDateString('pt-BR')}
                       </div>
                     </div>
+                    {lastMessages[pedido.id] && (
+                      <div className="flex items-center gap-1.5 text-xs text-[#4A6580] mt-1.5 min-w-0">
+                        <MessageCircle size={11} className="shrink-0 text-emerald-500/70" />
+                        <span className="truncate">{lastMessages[pedido.id].body}</span>
+                        <span className="shrink-0">·</span>
+                        <span className="shrink-0 whitespace-nowrap">{relativeTime(lastMessages[pedido.id].created_at)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -426,9 +507,9 @@ export default function Pedidos() {
                           </button>
                           <button
                             onClick={() => handleDelete(pedido)}
-                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-red-500/10 transition-all text-left"
+                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-slate-300 hover:bg-white/5 transition-all text-left"
                           >
-                            <Trash2 size={14} className="shrink-0" /> Excluir
+                            <Archive size={14} className="text-[#94A3B8] shrink-0" /> Arquivar
                           </button>
                         </div>
                       )}
@@ -441,7 +522,7 @@ export default function Pedidos() {
                 </div>
               </div>
             ))}
-            {filteredPedidos.length === 0 && (
+            {sortedFilteredPedidos.length === 0 && (
               <div className="p-20 text-center flex flex-col items-center justify-center gap-4 grayscale opacity-40">
                 <Inbox size={64} className="text-slate-600" />
                 <div>
