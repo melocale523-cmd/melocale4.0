@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { leadService, walletService } from '../../services/dbServices';
 import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, ArrowRight, Navigation, Coins, Search, X, DollarSign, Plus, Trash2, Filter, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
@@ -64,6 +64,35 @@ export default function ProfessionalLeads() {
 
   const [purchasedLead, setPurchasedLead] = useState<{ title: string, price: number } | null>(null);
   const [lightboxImg, setLightboxImg] = useState<{ images: string[]; index: number } | null>(null);
+  const viewedLeads = useRef(new Set<string>());
+
+  const handleLeadView = async (leadId: string) => {
+    if (viewedLeads.current.has(leadId)) return;
+    viewedLeads.current.add(leadId);
+
+    const { data: leadData } = await supabase
+      .from('leads')
+      .select('visualizacoes, client_id')
+      .eq('id', leadId)
+      .maybeSingle();
+
+    const newCount = (leadData?.visualizacoes ?? 0) + 1;
+    supabase.from('leads').update({ visualizacoes: newCount }).eq('id', leadId).then(({ error }) => {
+      if (error) console.error('[views] increment error', error);
+    });
+
+    if (newCount === 1 && leadData?.client_id) {
+      supabase.from('notifications').insert({
+        user_id: leadData.client_id,
+        title: 'Seu pedido foi visualizado!',
+        body: 'Um profissional está analisando seu pedido.',
+        data: { lead_id: leadId, type: 'lead_viewed' },
+        is_read: false,
+      }).then(({ error }) => {
+        if (error) console.error('[notif] lead_viewed error', error);
+      });
+    }
+  };
 
   useEffect(() => {
     if (!lightboxImg) return;
@@ -384,8 +413,8 @@ export default function ProfessionalLeads() {
           </div>
         ) : (
           filteredLeads?.map((lead) => (
-             <div key={lead.id} className={cn(
-                "bg-[#1C3454] border rounded-[2rem] p-5 flex flex-col transition-all group relative overflow-hidden text-left",
+             <div key={lead.id} onClick={() => handleLeadView(lead.id)} className={cn(
+                "bg-[#1C3454] border rounded-[2rem] p-5 flex flex-col transition-all group relative overflow-hidden text-left cursor-pointer",
                 getBadges(lead).some(b => b.label === 'Urgente')
                   ? "border-red-500/40 animate-pulse"
                   : "border-[#1C3050] hover:border-emerald-500/30"

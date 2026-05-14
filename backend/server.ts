@@ -81,6 +81,58 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+async function runNoInterestAlert() {
+  try {
+    const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+
+    // Leads open for >48h
+    const { data: staleLeads, error: leadsErr } = await supabaseAdmin
+      .from('leads')
+      .select('id, client_id')
+      .eq('status', 'open')
+      .lt('created_at', cutoff48h);
+
+    if (leadsErr || !staleLeads?.length) return;
+
+    // Lead IDs that already have purchases
+    const { data: purchased } = await supabaseAdmin
+      .from('lead_purchases')
+      .select('lead_id')
+      .in('lead_id', staleLeads.map(l => l.id));
+
+    const purchasedIds = new Set((purchased ?? []).map((r: { lead_id: string }) => r.lead_id));
+
+    for (const lead of staleLeads) {
+      if (purchasedIds.has(lead.id)) continue;
+
+      // Skip if we already sent this alert for this lead in the last 48h
+      const { count: recentCount } = await supabaseAdmin
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', lead.client_id)
+        .gte('created_at', cutoff48h)
+        .filter('data->>type', 'eq', 'no_interest_alert')
+        .filter('data->>lead_id', 'eq', lead.id);
+
+      if ((recentCount ?? 0) > 0) continue;
+
+      const { error: notifErr } = await supabaseAdmin.from('notifications').insert({
+        user_id: lead.client_id,
+        title: 'Seu pedido ainda não recebeu propostas',
+        body: 'Tente atualizar a descrição ou reduzir o preço para atrair mais profissionais.',
+        data: { lead_id: lead.id, type: 'no_interest_alert' },
+        is_read: false,
+      });
+
+      if (notifErr) console.error(`[job] no_interest_alert insert error for lead ${lead.id}:`, notifErr.message);
+    }
+
+    console.log(`[job] no_interest_alert: checked ${staleLeads.length} leads`);
+  } catch (err: any) {
+    console.error('[job] no_interest_alert error:', err?.message || err);
+  }
+}
+
 async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
@@ -709,6 +761,9 @@ COMPORTAMENTO NESTE CONTEXTO:
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
   });
+
+  // Run no-interest alert job every hour
+  setInterval(runNoInterestAlert, 60 * 60 * 1000);
 }
 
 startServer();
