@@ -132,6 +132,10 @@ export const leadService = {
     });
     if (error) throw error;
     if (!data) throw new Error('purchase_lead returned no data');
+
+    // A: lead com ≥1 compra ativa → status = 'orçando'
+    void supabase.from('leads').update({ status: 'orçando' }).eq('id', leadId);
+
     return data as PurchaseLeadResult;
   },
 
@@ -1032,6 +1036,18 @@ export const appointmentService = {
       .select()
       .single();
     if (error) throw error;
+
+    // B: appointment completed → lead finalizado (via conversation.lead_id)
+    if (status === 'completed' && (appt as any).conversation_id) {
+      const { data: conv } = await supabase
+        .from('conversations')
+        .select('lead_id')
+        .eq('id', (appt as any).conversation_id)
+        .maybeSingle();
+      if (conv?.lead_id) {
+        void supabase.from('leads').update({ status: 'finalizado' }).eq('id', conv.lead_id);
+      }
+    }
 
     if (opts?.notifyUserId) {
       const labels: Record<string, string> = {
