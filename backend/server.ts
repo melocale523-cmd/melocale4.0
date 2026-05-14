@@ -10,6 +10,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 import { z } from "zod";
+import webpush from "web-push";
 
 // Proteção global contra crashes (uncaught e unhandled)
 process.on("uncaughtException", (err) => {
@@ -57,6 +58,53 @@ if (!supabaseServiceKey) {
 }
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+// Inicializa web-push com VAPID
+const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidEmail = process.env.VAPID_EMAIL;
+if (vapidPublicKey && vapidPrivateKey && vapidEmail) {
+  webpush.setVapidDetails(`mailto:${vapidEmail}`, vapidPublicKey, vapidPrivateKey);
+  console.log('[startup] web-push VAPID configurado');
+} else {
+  console.warn('[startup] VAPID keys ausentes — web push desativado');
+}
+
+async function sendPushToUser(userId: string, payload: { title: string; body: string; data?: Record<string, unknown> }) {
+  if (!vapidPublicKey || !vapidPrivateKey || !vapidEmail) return;
+  try {
+    const { data: subs } = await supabaseAdmin
+      .from('push_subscriptions')
+      .select('endpoint, p256dh, auth')
+      .eq('user_id', userId);
+    if (!subs?.length) return;
+
+    const payloadStr = JSON.stringify(payload);
+    await Promise.all(
+      subs.map(async (sub: { endpoint: string; p256dh: string; auth: string }) => {
+        try {
+          await webpush.sendNotification(
+            { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+            payloadStr
+          );
+        } catch (err: unknown) {
+          const status = (err as { statusCode?: number }).statusCode;
+          if (status === 410 || status === 404) {
+            await supabaseAdmin
+              .from('push_subscriptions')
+              .delete()
+              .eq('user_id', userId)
+              .eq('endpoint', sub.endpoint);
+          } else {
+            console.error('[push] sendNotification error:', err instanceof Error ? err.message : String(err));
+          }
+        }
+      })
+    );
+  } catch (err) {
+    console.error('[push] sendPushToUser error:', err instanceof Error ? err.message : String(err));
+  }
+}
 
 let coinPackagesCache: Record<string, { coins: number; name: string; price: number }> = {};
 
@@ -150,6 +198,11 @@ async function jobLembrete24h() {
             data: { appointment_id: apt.id, type: 'reminder_24h' },
           })
         );
+        void sendPushToUser(apt.client_id, {
+          title: '⏰ Lembrete de agendamento',
+          body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
+          data: { appointment_id: apt.id, type: 'reminder_24h' },
+        });
       }
 
       // --- Notificação para o profissional ---
@@ -173,6 +226,11 @@ async function jobLembrete24h() {
               data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
             })
           );
+          void sendPushToUser(profUserId, {
+            title: '⏰ Lembrete de agendamento',
+            body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
+            data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
+          });
         }
       }
     }
@@ -863,6 +921,54 @@ COMPORTAMENTO NESTE CONTEXTO:
     } catch (err: unknown) {
       console.error("Erro em /api/support-ticket:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
+    }
+  });
+
+  // ============================================
+  // POST /api/push/subscribe
+  // ============================================
+  const pushSubscribeSchema = z.object({
+    endpoint: z.string().url(),
+    keys: z.object({
+      p256dh: z.string().min(1),
+      auth: z.string().min(1),
+    }),
+  });
+
+  app.post("/api/push/subscribe", requireAuth, async (req: AuthRequest, res: Response) => {
+    const parsed = pushSubscribeSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
+    try {
+      const { endpoint, keys } = parsed.data;
+      const userId = req.authUser!.id;
+      const { error } = await supabaseAdmin
+        .from('push_subscriptions')
+        .upsert({ user_id: userId, endpoint, p256dh: keys.p256dh, auth: keys.auth }, { onConflict: 'user_id,endpoint' });
+      if (error) throw error;
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('[push] subscribe error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro ao salvar subscription.' });
+    }
+  });
+
+  // ============================================
+  // DELETE /api/push/unsubscribe
+  // ============================================
+  app.delete("/api/push/unsubscribe", requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const { endpoint } = req.body || {};
+      if (!endpoint) return res.status(400).json({ error: 'endpoint obrigatório.' });
+      const userId = req.authUser!.id;
+      await supabaseAdmin
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('endpoint', endpoint);
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('[push] unsubscribe error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro ao remover subscription.' });
     }
   });
 

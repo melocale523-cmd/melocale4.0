@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bell, X, Check } from 'lucide-react';
+import { Bell, X, Check, BellRing } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { cn } from '../lib/utils';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 interface Notification {
   id: string;
@@ -19,6 +20,7 @@ export default function NotificationBell() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { isSupported, isSubscribed, subscribe } = usePushNotifications();
 
   const { data: notifications = [] } = useQuery<Notification[]>({
     queryKey: ['notifications'],
@@ -95,6 +97,11 @@ export default function NotificationBell() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#1C3050]">
             <span className="text-sm font-black text-white">Notificações</span>
             <div className="flex items-center gap-2">
+              {isSupported && !isSubscribed && (
+                <button onClick={subscribe} className="text-[10px] text-yellow-400 hover:text-yellow-300 font-bold flex items-center gap-1" title="Ativar notificações push">
+                  <BellRing size={12} /> Ativar
+                </button>
+              )}
               {unread > 0 && (
                 <button onClick={markAllRead} className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1">
                   <Check size={12} /> Marcar todas lidas
