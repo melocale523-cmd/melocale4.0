@@ -6,6 +6,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("❌ VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY são obrigatórios no .env");
 }
+if (!supabaseUrl.startsWith('https://') || !supabaseUrl.includes('supabase.co')) {
+  throw new Error("❌ VITE_SUPABASE_URL inválida: deve começar com 'https://' e conter 'supabase.co'");
+}
+if (supabaseAnonKey.length <= 100) {
+  throw new Error("❌ VITE_SUPABASE_ANON_KEY inválida: JWT muito curto (esperado >100 caracteres)");
+}
 
 // Fixed: Wrapping fetch to avoid "Cannot set property fetch of #<Window> which has only a getter"
 // in environments that might have a read-only global fetch.

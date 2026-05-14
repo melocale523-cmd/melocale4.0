@@ -9,6 +9,7 @@ import { createClient } from "@supabase/supabase-js";
 import Anthropic from '@anthropic-ai/sdk';
 import rateLimit from "express-rate-limit";
 import cors from "cors";
+import { z } from "zod";
 
 // Proteção global contra crashes (uncaught e unhandled)
 process.on("uncaughtException", (err) => {
@@ -251,8 +252,16 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  const chatSchema = z.object({
+    messages: z.array(z.object({ role: z.string(), text: z.string() })).min(1),
+    context: z.string().optional(),
+    userData: z.record(z.string(), z.unknown()).optional(),
+  });
+
   // API route for AI Chat
   app.post("/api/chat", chatRateLimit, requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const parsed = chatSchema.safeParse(req.body);
+    if (!parsed.success) return void res.status(400).json({ error: 'Dados inválidos.' });
     const SUSPICIOUS_PATTERN = /ignore|system\s*prompt|assistant|jailbreak|prompt\s*injection/i;
 
     function sanitizeUserData(raw: Record<string, unknown>): {
@@ -436,14 +445,19 @@ COMPORTAMENTO NESTE CONTEXTO:
     plan_business: { name: "Elite",     price: 12700, description: "Plano Elite MeloCale — 55% desconto em moedas" },
   };
 
+  const checkoutSchema = z.object({
+    type: z.enum(['coins', 'plan', 'one_time', 'subscription']).optional(),
+    package_id: z.string().min(1),
+    user_id: z.string().uuid(),
+  });
+
   app.post("/api/create-checkout-session", requireAuth, async (req: AuthRequest, res: Response) => {
+    const parsed = checkoutSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
+
     try {
       const authUser = req.authUser!;
-      const { type, package_id, user_id } = req.body || {};
-
-      if (!package_id || !user_id) {
-        return res.status(400).json({ error: "package_id e user_id sao obrigatorios." });
-      }
+      const { type, package_id, user_id } = parsed.data;
 
       if (user_id !== authUser.id) {
         return res.status(403).json({ error: "Não autorizado." });
@@ -704,9 +718,16 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
   });
 
+  const supportTicketSchema = z.object({
+    email: z.string().email().optional(),
+    conversation: z.string().min(1),
+  });
+
   app.post("/api/support-ticket", requireAuth, async (req: Request, res: Response) => {
+    const parsed = supportTicketSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
     try {
-      const { email, conversation } = req.body;
+      const { email, conversation } = parsed.data;
       const user_id = (req as AuthRequest).authUser!.id;
       const { data, error } = await supabaseAdmin
         .from('support_tickets')
