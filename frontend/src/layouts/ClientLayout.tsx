@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { useClientProfile } from '../hooks/useClientProfile';
 import NotificationBell from '../components/NotificationBell';
+import PushPermissionModal from '../components/PushPermissionModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function ClientLayout() {
@@ -272,6 +273,8 @@ export default function ClientLayout() {
           <Outlet />
         </div>
       </main>
+
+      <PushPermissionModal />
     </div>
   );
 }
