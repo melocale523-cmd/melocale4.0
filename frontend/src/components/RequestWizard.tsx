@@ -132,9 +132,31 @@ export default function RequestWizard({
     setData(prev => ({ ...prev, [key]: value }));
   };
 
+  const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+  const MAX_FILE_SIZE_MB = 5;
+  const MAX_FILES = 5;
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+
+    if (data.images.length + fileArray.length > MAX_FILES) {
+      toast.error(`Máximo ${MAX_FILES} arquivos por pedido.`);
+      return;
+    }
+
+    for (const file of fileArray) {
+      if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        toast.error(`Tipo não permitido: ${file.name}. Use JPG, PNG, WebP, GIF ou PDF.`);
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+        toast.error(`${file.name} excede ${MAX_FILE_SIZE_MB}MB. Escolha um arquivo menor.`);
+        return;
+      }
+    }
 
     setLocalUploading(true);
     try {
@@ -142,7 +164,7 @@ export default function RequestWizard({
       if (!user) throw new Error('Usuário não autenticado');
 
       const urls: string[] = [];
-      for (const file of Array.from(files)) {
+      for (const file of fileArray) {
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
         const path = `${user.id}/leads/${Date.now()}-${safeName}`;
         const { error } = await supabase.storage.from('avatars').upload(path, file);
