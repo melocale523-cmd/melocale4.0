@@ -44,7 +44,7 @@ export default function PushFloatingBanner() {
   };
 
   return (
-    <div className="fixed bottom-6 right-4 z-[50] max-w-xs w-full bg-[#132540] border border-[#1C3050] rounded-2xl shadow-xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-4 duration-300">
+    <div className="mx-2 mb-2 bg-[#132540] border border-[#1C3050] rounded-xl shadow p-3 flex items-center gap-3">
       <BellRing size={18} className="text-amber-400 shrink-0" />
       <button
         onClick={handleActivate}

@@ -19,7 +19,6 @@ export default function ProfessionalLayout() {
   const logout = useAuthStore((state) => state.logout);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showBanner, setShowBanner] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: profile } = useProfile();
@@ -128,6 +127,7 @@ export default function ProfessionalLayout() {
           })}
         </nav>
 
+        <PushFloatingBanner />
         <div className="p-4 border-t border-slate-800/50">
            <button
              onClick={handleLogout}
@@ -290,8 +290,7 @@ export default function ProfessionalLayout() {
         </div>
       </main>
 
-      <ProfessionalPushModal onDismiss={() => setShowBanner(true)} />
-      {showBanner && <PushFloatingBanner />}
+      <ProfessionalPushModal onDismiss={() => {}} />
     </div>
   );
 }

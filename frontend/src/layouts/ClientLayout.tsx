@@ -16,7 +16,6 @@ export default function ClientLayout() {
   const user = useAuthStore((state) => state.user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showBanner, setShowBanner] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: profile } = useClientProfile();
@@ -134,6 +133,7 @@ export default function ClientLayout() {
           })}
         </nav>
 
+        <PushFloatingBanner />
         <div className="p-4 border-t border-slate-800/50">
           <button
             onClick={handleLogout}
@@ -276,8 +276,7 @@ export default function ClientLayout() {
         </div>
       </main>
 
-      <ClientPushModal onDismiss={() => setShowBanner(true)} />
-      {showBanner && <PushFloatingBanner />}
+      <ClientPushModal onDismiss={() => {}} />
     </div>
   );
 }
