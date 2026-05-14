@@ -20,72 +20,44 @@ export const getStripe = () => {
 };
 
 export const initiateCheckout = async (type: 'one_time' | 'subscription', id: string) => {
-  const stripe = await getStripe();
-
-  
-  // Pegar usuário atual para vínculo no Stripe
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Usuário não autenticado. Faça login para continuar.");
 
-  const payload = {
-    type,
-    package_id: id,
-    user_id: user.id
-  };
-  
   const VALID_IDS = ["pack_starter", "pack_pro", "pack_premium", "plan_basic", "plan_pro", "plan_business"];
-  
   if (!VALID_IDS.includes(id)) {
     throw new Error("ID inválido no frontend: " + id);
   }
+
+  const payload = { type, package_id: id, user_id: user.id };
 
   const response = await apiFetch('/api/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  
-  const session = await response.json();
-  
-  if (session.error) {
-    throw new Error(session.error);
-  }
 
-  if (session.url) {
-    window.location.assign(session.url);
-  } else if (stripe && session.id) {
-    await (stripe as any).redirectToCheckout({ sessionId: session.id });
-  } else {
-    throw new Error("Erro ao iniciar o Checkout.");
-  }
+  const session = await response.json();
+
+  if (session.error) throw new Error(session.error);
+  if (!session.url) throw new Error("Erro ao iniciar o Checkout.");
+
+  window.location.href = session.url;
 };
 
 export const payProfessional = async (amount: number, connectedAccountId: string, description: string) => {
-  const stripe = await getStripe();
   const { data: { user } } = await supabase.auth.getUser();
-  
   if (!user) throw new Error("Usuário não autenticado. Faça login para continuar.");
 
   const response = await apiFetch('/api/create-service-payment', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      amount, 
-      connectedAccountId, 
-      description,
-      user_id: user.id 
-    }),
+    body: JSON.stringify({ amount, connectedAccountId, description, user_id: user.id }),
   });
-  
-  const session = await response.json();
-  
-  if (session.error) {
-    throw new Error(session.error);
-  }
 
-  if (session.url) {
-    window.location.href = session.url;
-  } else if (stripe && session.id) {
-    await (stripe as any).redirectToCheckout({ sessionId: session.id });
-  }
+  const session = await response.json();
+
+  if (session.error) throw new Error(session.error);
+  if (!session.url) throw new Error("Erro ao processar o pagamento.");
+
+  window.location.href = session.url;
 };
