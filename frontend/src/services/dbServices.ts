@@ -136,6 +136,19 @@ export const leadService = {
     // A: lead com ≥1 compra ativa → status = 'orçando'
     void supabase.from('leads').update({ status: 'orçando' }).eq('id', leadId);
 
+    // E: notifica o cliente que há novo interesse no pedido
+    supabase.from('leads').select('client_id').eq('id', leadId).single().then(({ data: lead }) => {
+      if (lead?.client_id) {
+        void supabase.from('notifications').insert({
+          user_id: lead.client_id,
+          title: 'Novo interesse no seu pedido!',
+          body: 'Um profissional tem interesse no seu pedido. Acesse para ver.',
+          data: { lead_id: leadId, type: 'new_interest' },
+          is_read: false,
+        });
+      }
+    });
+
     return data as PurchaseLeadResult;
   },
 
