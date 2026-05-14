@@ -1,7 +1,8 @@
-import { Users, Briefcase, TrendingUp, AlertTriangle, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { Users, Briefcase, TrendingUp, AlertTriangle, Clock, CheckCircle, Loader2, Activity } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
+import { apiFetch } from '../../lib/api';
 
 export default function AdminDashboard() {
   const { data: summary, isLoading } = useQuery({
@@ -12,6 +13,15 @@ export default function AdminDashboard() {
   const { data: recentUsers } = useQuery({
     queryKey: ['adminRecentUsers'],
     queryFn: () => adminService.getUsers({ role: 'professional' })
+  });
+
+  const { data: activeUsers } = useQuery({
+    queryKey: ['adminActiveUsers'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/admin/active-users');
+      const json = await res.json();
+      return (json.count as number) ?? 0;
+    },
   });
 
   const { data: topCategories } = useQuery({
@@ -83,8 +93,11 @@ export default function AdminDashboard() {
         </div>
 
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">
+           <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-teal-500/10 rounded-lg text-teal-400"><Activity size={20} /></div>
+           </div>
            <h3 className="text-[#94A3B8] text-sm font-medium">Usuários Ativos (24h)</h3>
-           <p className="text-3xl font-bold text-white mt-1">N/A</p>
+           <p className="text-3xl font-bold text-white mt-1">{activeUsers ?? '—'}</p>
         </div>
 
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6">

@@ -143,7 +143,7 @@ export default function ProfessionalPerfil() {
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
             <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#1C3454] flex items-center justify-center text-slate-300 relative overflow-hidden">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" loading="lazy" />
               ) : (
                 <User size={32} />
               )}

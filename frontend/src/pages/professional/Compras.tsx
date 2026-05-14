@@ -352,7 +352,7 @@ export default function ProfessionalCompras() {
                       {(purchase.images as string[]).map((url, i) => (
                         <button key={i} onClick={() => setLightboxUrl(url)}
                           className="block w-12 h-12 rounded-lg overflow-hidden border border-[#243F6A] hover:border-emerald-500/40 transition-colors shrink-0">
-                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
@@ -497,6 +497,7 @@ export default function ProfessionalCompras() {
               <img
                 src={lightboxUrl}
                 alt="Foto do serviço"
+                loading="lazy"
                 className="w-full max-h-[70vh] object-contain rounded-xl"
               />
             </div>

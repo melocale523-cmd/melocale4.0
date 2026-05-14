@@ -553,7 +553,7 @@ export default function RequestWizard({
                   <div className="flex flex-wrap gap-2 pt-1">
                     {data.images.map((url, i) => (
                       <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-[#243F6A] group/thumb">
-                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => setData(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}

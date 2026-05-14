@@ -497,7 +497,7 @@ export default function Pedidos() {
                         <div className="flex items-center gap-4">
                           <div className="w-16 h-16 rounded-2xl border border-[#1C3050] relative shrink-0">
                             {(prop as any).profiles?.avatar_url ? (
-                              <img src={(prop as any).profiles.avatar_url} className="w-16 h-16 rounded-2xl object-cover" alt="avatar" />
+                              <img src={(prop as any).profiles.avatar_url} loading="lazy" className="w-16 h-16 rounded-2xl object-cover" alt="avatar" />
                             ) : (
                               <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center">
                                 <User className="text-[#4A6580]" size={32} />

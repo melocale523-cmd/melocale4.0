@@ -36,6 +36,7 @@ export default function ListingCard({ professional, index }: ListingCardProps) {
         <img
           src={professional.imageUrl}
           alt={professional.name}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
         />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -175,7 +176,7 @@ export default function ListingCard({ professional, index }: ListingCardProps) {
               </button>
               
               <div className="relative h-64 md:h-72 shrink-0">
-                <img src={professional.imageUrl} alt={professional.name} className="w-full h-full object-cover" />
+                <img src={professional.imageUrl} alt={professional.name} loading="lazy" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1C3454] via-[#1C3454]/40 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6 flex flex-col items-start gap-2">
                    <div className="flex gap-2 mb-1">

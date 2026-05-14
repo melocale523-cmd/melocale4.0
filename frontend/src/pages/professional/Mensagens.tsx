@@ -350,6 +350,7 @@ export default function ProfessionalMensagens() {
         <img
           src={msg.body}
           alt="Foto"
+          loading="lazy"
           className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
           onClick={() => window.open(msg.body, '_blank')}
         />
@@ -443,7 +444,7 @@ export default function ProfessionalMensagens() {
                   )}
                   <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050] relative overflow-hidden">
                     {clientAvatar
-                      ? <img src={clientAvatar} alt={clientName} className="w-full h-full object-cover" />
+                      ? <img src={clientAvatar} alt={clientName} loading="lazy" className="w-full h-full object-cover" />
                       : <User className="text-[#4A6580]" size={24} />
                     }
                     <div className={cn(
@@ -496,7 +497,7 @@ export default function ProfessionalMensagens() {
               </button>
               <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050] overflow-hidden">
                 {otherAvatar
-                  ? <img src={otherAvatar} alt={otherName} className="w-full h-full object-cover" />
+                  ? <img src={otherAvatar} alt={otherName} loading="lazy" className="w-full h-full object-cover" />
                   : <User className="text-[#4A6580]" size={24} />
                 }
               </div>
