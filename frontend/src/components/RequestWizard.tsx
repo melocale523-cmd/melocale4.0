@@ -570,7 +570,8 @@ export default function RequestWizard({
               <div className="flex gap-3">
                 <button
                   onClick={() => setStep(3)}
-                  className="flex-1 bg-[#0E1C32] border border-[#1C3050] hover:border-white/20 text-[#94A3B8] font-black py-4 rounded-2xl transition-all"
+                  disabled={uploading}
+                  className="flex-1 bg-[#0E1C32] border border-[#1C3050] hover:border-white/20 disabled:opacity-40 disabled:cursor-not-allowed text-[#94A3B8] font-black py-4 rounded-2xl transition-all"
                 >
                   ← Voltar
                 </button>
