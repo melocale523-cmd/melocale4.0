@@ -154,7 +154,7 @@ export default function ClientePerfil() {
               avatarBusy && "opacity-50"
             )}>
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" loading="lazy" />
               ) : (
                 <User size={32} />
               )}

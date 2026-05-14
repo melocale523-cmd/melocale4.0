@@ -50,7 +50,7 @@ export default function Testimonials() {
               <div className="relative z-10">
                 <p className="text-[#94A3B8] italic mb-8 leading-relaxed">"{t.content}"</p>
                 <div className="flex items-center gap-4">
-                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full border border-[#243F6A] shadow-sm" />
+                  <img src={t.avatar} alt={t.name} loading="lazy" className="w-12 h-12 rounded-full border border-[#243F6A] shadow-sm" />
                   <div>
                     <h4 className="font-bold text-white text-sm">{t.name}</h4>
                     <p className="text-xs text-emerald-500 font-bold uppercase tracking-widest">{t.role}</p>

@@ -327,8 +327,54 @@ async function startServer() {
     max: 100,
   }));
 
-  app.get("/api/health", (req: Request, res: Response) => {
-    res.json({ status: "ok" });
+  app.get("/api/health", async (_req: Request, res: Response) => {
+    let db: 'connected' | 'error' = 'error';
+    try {
+      await Promise.race([
+        supabaseAdmin.from('profiles').select('id').limit(1),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+      ]);
+      db = 'connected';
+    } catch {
+      db = 'error';
+    }
+    res.json({
+      status: 'ok',
+      uptime: process.uptime(),
+      version: process.env.npm_package_version ?? '0.0.0',
+      db,
+    });
+  });
+
+  app.get("/api/admin/active-users", requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.authUser!.id;
+      const { data: profile } = await withTimeout(
+        supabaseAdmin.from('profiles').select('role').eq('id', userId).single()
+      );
+      if (profile?.role !== 'admin') {
+        return res.status(403).json({ error: 'Acesso não autorizado.' });
+      }
+
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      let count = 0;
+      let page = 1;
+      while (true) {
+        const { data, error } = await withTimeout(
+          supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
+        );
+        if (error || !data?.users?.length) break;
+        count += data.users.filter(
+          (u) => u.last_sign_in_at && u.last_sign_in_at > cutoff
+        ).length;
+        if (data.users.length < 1000) break;
+        page++;
+      }
+      return res.json({ count });
+    } catch (err) {
+      console.error('/api/admin/active-users error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro ao buscar usuários ativos.' });
+    }
   });
 
   const chatSchema = z.object({

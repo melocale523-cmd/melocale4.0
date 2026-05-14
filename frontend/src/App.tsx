@@ -14,6 +14,7 @@ import RouteProgressBar from './components/RouteProgressBar';
 import RealtimeNotificationHandler from './components/RealtimeNotificationHandler';
 import AiChatWidget from './components/AiChat/AiChatWidget';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import AdminEmBreve from './components/AdminEmBreve';
 import { Toaster } from 'sonner';
 
 // Lazy-loaded pages — client
@@ -232,12 +233,12 @@ const router = createBrowserRouter([
           { path: 'planos', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPlanos /></Suspense></ErrorBoundary> },
           { path: 'pacotes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense></ErrorBoundary> },
           { path: 'transacoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense></ErrorBoundary> },
-          { path: 'financeiro-auditoria', element: <div className="p-8 text-[#94A3B8]">Auditoria Financeira (Em breve)</div> },
-          { path: 'auditoria-logs', element: <div className="p-8 text-[#94A3B8]">Auditoria Logs (Em breve)</div> },
-          { path: 'equipe', element: <div className="p-8 text-[#94A3B8]">Equipe (Em breve)</div> },
-          { path: 'simulador', element: <div className="p-8 text-[#94A3B8]">Simulador (Em breve)</div> },
+          { path: 'financeiro-auditoria', element: <AdminEmBreve /> },
+          { path: 'auditoria-logs', element: <AdminEmBreve /> },
+          { path: 'equipe', element: <AdminEmBreve /> },
+          { path: 'simulador', element: <AdminEmBreve /> },
           { path: 'suporte', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSuporte /></Suspense></ErrorBoundary> },
-          { path: 'configuracoes', element: <div className="p-8 text-[#94A3B8]">Configurações (Em breve)</div> },
+          { path: 'configuracoes', element: <AdminEmBreve /> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },

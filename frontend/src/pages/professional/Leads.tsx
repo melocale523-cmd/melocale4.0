@@ -459,6 +459,7 @@ export default function ProfessionalLeads() {
                             key={idx}
                             src={url}
                             alt={`Foto ${idx + 1}`}
+                            loading="lazy"
                             onClick={(e) => { e.stopPropagation(); setLightboxImg({ images: lead.images as string[], index: idx }); }}
                             className="w-20 h-20 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
                           />
@@ -518,6 +519,7 @@ export default function ProfessionalLeads() {
           <img
             src={lightboxImg.images[lightboxImg.index]}
             alt={`Foto ${lightboxImg.index + 1}`}
+            loading="lazy"
             onClick={(e) => e.stopPropagation()}
             className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
           />
