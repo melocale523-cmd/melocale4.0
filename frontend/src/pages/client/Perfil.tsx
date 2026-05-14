@@ -30,6 +30,7 @@ export default function ClientePerfil() {
   useEffect(() => {
     if (!profile) return;
     setFormData({ name: profile.full_name, phone: profile.phone, city: profile.city });
+    if (profile.cep) setCep(profile.cep);
   }, [profile]);
 
   const invalidateClientProfile = () =>
@@ -59,7 +60,7 @@ export default function ClientePerfil() {
   };
 
   const saveMutation = useMutation({
-    mutationFn: () => clientProfileService.saveProfile(user!.id, normalizeClientProfileData(formData)),
+    mutationFn: () => clientProfileService.saveProfile(user!.id, normalizeClientProfileData({ ...formData, cep })),
     onSuccess: () => {
       invalidateClientProfile();
       setSuccessMsg(true);

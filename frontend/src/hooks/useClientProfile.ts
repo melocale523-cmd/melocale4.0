@@ -9,12 +9,13 @@ export interface ClientProfileData {
   phone: string;
   avatar_url: string;
   city: string;
+  cep: string;
 }
 
 async function fetchClientProfile(userId: string): Promise<ClientProfileData> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, phone, avatar_url, city')
+    .select('id, full_name, phone, avatar_url, city, cep')
     .eq('id', userId)
     .single();
 
@@ -29,6 +30,7 @@ async function fetchClientProfile(userId: string): Promise<ClientProfileData> {
     phone: data.phone || '',
     avatar_url: data.avatar_url || '',
     city: data.city || '',
+    cep: (data as any).cep || '',
   };
 }
 

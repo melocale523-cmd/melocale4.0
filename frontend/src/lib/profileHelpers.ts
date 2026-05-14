@@ -71,11 +71,13 @@ export function normalizeClientProfileData(data: {
   name: string;
   phone: string;
   city: string;
+  cep?: string;
 }) {
   return {
     name: data.name.trim(),
     phone: data.phone.replace(/\D/g, ''),
     city: data.city.trim(),
+    cep: (data.cep ?? '').replace(/\D/g, ''),
   };
 }
 

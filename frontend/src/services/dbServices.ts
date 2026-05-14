@@ -834,8 +834,9 @@ export const profileService = {
 
 // === Profile (client) ===
 export const clientProfileService = {
-  async saveProfile(userId: string, data: { name: string; phone: string; city: string }) {
-    const payload = { id: userId, full_name: data.name, phone: data.phone, city: data.city };
+  async saveProfile(userId: string, data: { name: string; phone: string; city: string; cep?: string }) {
+    const payload: Record<string, unknown> = { id: userId, full_name: data.name, phone: data.phone, city: data.city };
+    if (data.cep !== undefined) payload.cep = data.cep;
     logService.info('clientProfileService', 'saving profile', payload);
     const { error } = await supabase
       .from('profiles')
