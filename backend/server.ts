@@ -57,6 +57,17 @@ if (!supabaseServiceKey) {
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+let coinPackagesCache: Record<string, { coins: number; name: string; price: number }> = {};
+
+async function loadCoinPackages() {
+  const { data } = await supabaseAdmin.from('coin_packages')
+    .select('id, name, coins, price').eq('is_active', true);
+  if (data?.length) {
+    coinPackagesCache = Object.fromEntries(data.map((p: { id: string; name: string; coins: number; price: number }) => [p.id, p]));
+    console.log('[startup] coin packages loaded:', Object.keys(coinPackagesCache));
+  }
+}
+
 if (!process.env.ANTHROPIC_API_KEY) {
   throw new Error('❌ ERRO CRÍTICO: ANTHROPIC_API_KEY não definida — servidor não pode subir');
 }
@@ -139,12 +150,6 @@ async function startServer() {
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
-    const COIN_PACKAGES: Record<string, { coins: number; name: string }> = {
-      'pack_starter': { coins: 60,  name: 'Básico'        },
-      'pack_pro':     { coins: 200, name: 'Popular'       },
-      'pack_premium': { coins: 560, name: 'Máximo'        },
-    };
-
     const PLAN_WELCOME_COINS: Record<string, number> = {
       plan_basic:     30,
       plan_pro:       80,
@@ -182,9 +187,9 @@ async function startServer() {
       if (sessionType === "subscription" && packageId) {
         coinsAmount = PLAN_WELCOME_COINS[packageId] ?? 0;
         coinLabel = `boas-vindas:${packageId}`;
-      } else if (packageId && COIN_PACKAGES[packageId]) {
-        coinsAmount = COIN_PACKAGES[packageId].coins;
-        coinLabel = COIN_PACKAGES[packageId].name;
+      } else if (packageId && coinPackagesCache[packageId]) {
+        coinsAmount = coinPackagesCache[packageId].coins;
+        coinLabel = coinPackagesCache[packageId].name;
       } else {
         coinsAmount = parseInt(session.metadata?.coins || session.metadata?.coinsAmount || "0", 10);
       }
@@ -733,6 +738,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       console.error('[startup] constraint uq_stripe_event_id:', error.message);
     }
   });
+
+  await loadCoinPackages();
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
