@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { apiFetch } from '../lib/api';
 
 interface LeadStatusRow { status: string }
 
@@ -99,6 +100,11 @@ export const leadService = {
           is_read: false,
         });
         if (notifErr) console.error('[notif] insert error', notifErr.message);
+        void apiFetch('api/notifications/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: lead.client_id, title: 'Novo interesse no seu pedido!', body: 'Um profissional tem interesse no seu pedido. Acesse para ver.', data: { lead_id: leadId, type: 'new_interest' } }),
+        });
       }
     } catch (err) {
       console.error('[notif] notification exception', err);
@@ -305,11 +311,19 @@ export const proposalService = {
     if (error) throw error;
 
     if (purchase?.client_id) {
+      const _title = 'Nova proposta recebida! 🎉';
+      const _body = `Um profissional enviou um orçamento de R$ ${proposal.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. Acesse Meus Pedidos para ver.`;
+      const _data = { type: 'proposal_received', purchaseId };
       await supabase.from('notifications').insert({
         user_id: purchase.client_id,
-        title: 'Nova proposta recebida! 🎉',
-        body: `Um profissional enviou um orçamento de R$ ${proposal.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. Acesse Meus Pedidos para ver.`,
-        data: { type: 'proposal_received', purchaseId },
+        title: _title,
+        body: _body,
+        data: _data,
+      });
+      void apiFetch('api/notifications/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: purchase.client_id, title: _title, body: _body, data: _data }),
       });
     }
 
@@ -421,11 +435,19 @@ export const proposalService = {
           }
         }
 
+        const _paTitle = 'Interesse confirmado! 🎉';
+        const _paBody = 'Um cliente aceitou sua proposta. Abra o chat para iniciar o serviço.';
+        const _paData = { type: 'proposal_accepted', purchaseId, chatId };
         await supabase.from('notifications').insert({
           user_id: profAuthId,
-          title: 'Interesse confirmado! 🎉',
-          body: 'Um cliente aceitou sua proposta. Abra o chat para iniciar o serviço.',
-          data: { type: 'proposal_accepted', purchaseId, chatId },
+          title: _paTitle,
+          body: _paBody,
+          data: _paData,
+        });
+        void apiFetch('api/notifications/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: profAuthId, title: _paTitle, body: _paBody, data: _paData }),
         });
       }
     }

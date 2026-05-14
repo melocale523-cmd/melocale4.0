@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { apiFetch } from '../lib/api';
 
 interface VConversationRow {
   id: string;
@@ -133,6 +134,11 @@ export const chatService = {
           title: 'Nova Mensagem',
           body: notifBody,
           data: { conversationId, type: 'message' },
+        });
+        void apiFetch('api/notifications/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: recipientId, title: 'Nova Mensagem', body: notifBody, data: { conversationId, type: 'message' } }),
         });
       } catch {}
     }
