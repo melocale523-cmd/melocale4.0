@@ -173,7 +173,10 @@ export const leadService = {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) return [];
-      return data ?? [];
+      return (data ?? []).map((row: any) => ({
+        ...row,
+        interested_count: row.interested_count ?? row.purchases_count ?? 0,
+      }));
     } catch {
       return [];
     }
