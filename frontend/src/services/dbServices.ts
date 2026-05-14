@@ -234,23 +234,25 @@ export const leadService = {
   async getClientSummary() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return { waiting: 0, in_progress: 0 };
+      if (!user) return { waiting: 0, in_progress: 0, orcando: 0, finalizado: 0 };
 
       const { data: requests, error } = await supabase
         .from('leads')
         .select('status')
         .eq('client_id', user.id);
 
-      if (error) return { waiting: 0, in_progress: 0 };
+      if (error) return { waiting: 0, in_progress: 0, orcando: 0, finalizado: 0 };
 
       const userRequests = requests || [];
 
       return {
-        waiting: userRequests.filter((r: LeadStatusRow) => r.status === 'open' || r.status === 'Orçando').length,
-        in_progress: userRequests.filter((r: LeadStatusRow) => r.status === 'in_progress' || r.status === 'Em Andamento').length
+        waiting: userRequests.filter((r: LeadStatusRow) => r.status === 'open' || r.status === 'aberto').length,
+        in_progress: userRequests.filter((r: LeadStatusRow) => r.status === 'orçando').length,
+        orcando: userRequests.filter((r: LeadStatusRow) => r.status === 'orçando').length,
+        finalizado: userRequests.filter((r: LeadStatusRow) => r.status === 'finalizado').length,
       };
     } catch {
-      return { waiting: 0, in_progress: 0 };
+      return { waiting: 0, in_progress: 0, orcando: 0, finalizado: 0 };
     }
   },
 

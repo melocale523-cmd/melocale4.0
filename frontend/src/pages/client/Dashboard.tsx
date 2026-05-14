@@ -1,9 +1,10 @@
 import { useClientProfile } from '../../hooks/useClientProfile';
 import { isClientProfileComplete } from '../../lib/profileHelpers';
-import { AlertCircle, ArrowRight, Plus, Hammer, Shield, Clock, TrendingUp, MessageCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, ArrowRight, Plus, Hammer, Shield, Clock, TrendingUp, MessageCircle, RefreshCw, CheckCircle2, CalendarCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
+import { supabase } from '../../lib/supabase';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
@@ -23,6 +24,24 @@ export default function ClientDashboard() {
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['clientSummary'],
     queryFn: leadService.getClientSummary,
+  });
+
+  const { data: nextAppointment, isLoading: apptLoading } = useQuery({
+    queryKey: ['clientNextAppointment'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase
+        .from('appointments')
+        .select('scheduled_at')
+        .eq('client_id', user.id)
+        .eq('status', 'confirmed')
+        .gt('scheduled_at', new Date().toISOString())
+        .order('scheduled_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
   });
 
   const createRequestMutation = useMutation({
@@ -148,23 +167,49 @@ export default function ClientDashboard() {
               <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
                 <TrendingUp size={24} />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A6580]">Hoje</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A6580]">Resumo</span>
             </div>
-            <h3 className="text-white font-black text-xl mb-1">Resumo do Painel</h3>
+            <h3 className="text-white font-black text-xl mb-1">Seus Pedidos</h3>
             <p className="text-sm text-[#4A6580] font-medium">Acompanhe seu progresso</p>
           </div>
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            <div className="bg-[#0E1C32] p-6 rounded-3xl border border-[#1C3050] hover:border-emerald-500/30 transition-all">
-              <div className="text-3xl font-black text-white mb-1">
-                {summaryLoading ? '...' : summary?.waiting || 0}
+          <div className="grid grid-cols-2 gap-3 mt-6">
+            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-emerald-500/30 transition-all">
+              <div className="text-2xl font-black text-white mb-1">
+                {summaryLoading ? '...' : summary?.waiting ?? 0}
               </div>
-              <div className="text-[10px] uppercase font-black text-emerald-500 tracking-widest">Aguardando</div>
+              <div className="flex items-center gap-1.5">
+                <Clock size={10} className="text-emerald-500" />
+                <span className="text-[9px] uppercase font-black text-emerald-500 tracking-widest">Aguardando</span>
+              </div>
             </div>
-            <div className="bg-[#0E1C32] p-6 rounded-3xl border border-[#1C3050] hover:border-cyan-500/30 transition-all">
-              <div className="text-3xl font-black text-white mb-1">
-                {summaryLoading ? '...' : summary?.in_progress || 0}
+            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-cyan-500/30 transition-all">
+              <div className="text-2xl font-black text-white mb-1">
+                {summaryLoading ? '...' : summary?.in_progress ?? 0}
               </div>
-              <div className="text-[10px] uppercase font-black text-cyan-500 tracking-widest">Em Andamento</div>
+              <div className="flex items-center gap-1.5">
+                <TrendingUp size={10} className="text-cyan-500" />
+                <span className="text-[9px] uppercase font-black text-cyan-500 tracking-widest">Em Andamento</span>
+              </div>
+            </div>
+            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-purple-500/30 transition-all col-span-2">
+              <div className="text-sm font-black text-white mb-1">
+                {apptLoading ? '...' : nextAppointment?.scheduled_at
+                  ? new Date(nextAppointment.scheduled_at).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                  : 'Nenhum'}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CalendarCheck size={10} className="text-purple-400" />
+                <span className="text-[9px] uppercase font-black text-purple-400 tracking-widest">Próximo Agendamento</span>
+              </div>
+            </div>
+            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-amber-500/30 transition-all col-span-2">
+              <div className="text-2xl font-black text-white mb-1">
+                {summaryLoading ? '...' : summary?.finalizado ?? 0}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={10} className="text-amber-500" />
+                <span className="text-[9px] uppercase font-black text-amber-500 tracking-widest">Concluídos</span>
+              </div>
             </div>
           </div>
         </div>
