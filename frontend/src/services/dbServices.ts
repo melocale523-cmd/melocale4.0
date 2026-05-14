@@ -134,25 +134,33 @@ export const leadService = {
     if (!data) throw new Error('purchase_lead returned no data');
 
     // A: lead com ≥1 compra ativa → status = 'orçando'
-    void supabase.from('leads').update({ status: 'orçando' }).eq('id', leadId);
+    try {
+      const { error: statusErr } = await supabase
+        .from('leads').update({ status: 'orçando' }).eq('id', leadId);
+      if (statusErr) console.error('[notif] status update error', statusErr.message);
+    } catch (err) {
+      console.error('[notif] status update exception', err);
+    }
 
     // E: notifica o cliente que há novo interesse no pedido
-    supabase.from('leads').select('client_id').eq('id', leadId).single()
-      .then(({ data: lead, error: leadErr }) => {
-        if (leadErr || !lead?.client_id) {
-          console.error('[notif] lead fetch error', leadErr);
-          return;
-        }
-        supabase.from('notifications').insert({
+    try {
+      const { data: lead, error: leadErr } = await supabase
+        .from('leads').select('client_id').eq('id', leadId).single();
+      if (leadErr || !lead?.client_id) {
+        if (leadErr) console.error('[notif] lead fetch error', leadErr.message);
+      } else {
+        const { error: notifErr } = await supabase.from('notifications').insert({
           user_id: lead.client_id,
           title: 'Novo interesse no seu pedido!',
           body: 'Um profissional tem interesse no seu pedido. Acesse para ver.',
           data: { lead_id: leadId, type: 'new_interest' },
           is_read: false,
-        }).then(({ error: notifErr }) => {
-          if (notifErr) console.error('[notif] insert error', notifErr);
         });
-      });
+        if (notifErr) console.error('[notif] insert error', notifErr.message);
+      }
+    } catch (err) {
+      console.error('[notif] notification exception', err);
+    }
 
     return data as PurchaseLeadResult;
   },
