@@ -1,10 +1,21 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 
 export default function RealtimeNotificationHandler() {
   const { user, isAuthenticated } = useAuthStore();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.volume = 0.3;
+    audioRef.current = audio;
+    return () => {
+      audio.pause();
+      audioRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
@@ -32,13 +43,11 @@ export default function RealtimeNotificationHandler() {
             duration: 5000,
           });
 
-          // Opcional: Tocar um som leve de alerta
-          try {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-            audio.volume = 0.3;
-            audio.play().catch(() => {}); // Browsers podem bloquear autoplay sem interação
-          } catch (e) {
-            // Ignora erros de áudio
+          // Tocar som de alerta reutilizando o elemento criado no mount
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(() => {});
           }
         }
       )
