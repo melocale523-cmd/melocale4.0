@@ -23,16 +23,17 @@ export default function ProfessionalConfiguracoes() {
 
   // Load persisted preferences on mount
   useEffect(() => {
+    let cancelled = false;
     async function loadPrefs() {
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
-      if (!userId) return;
+      if (!userId || cancelled) return;
       const { data } = await supabase
         .from('user_notification_preferences')
         .select('*')
         .eq('user_id', userId)
         .single();
-      if (data) {
+      if (data && !cancelled) {
         setNotifications(prev => ({
           ...prev,
           newLead: data.email_new_lead,
@@ -42,6 +43,7 @@ export default function ProfessionalConfiguracoes() {
       }
     }
     loadPrefs();
+    return () => { cancelled = true; };
   }, []);
 
   const handleSaveNotifications = async () => {

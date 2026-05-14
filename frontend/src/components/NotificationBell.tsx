@@ -50,7 +50,7 @@ export default function NotificationBell() {
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
       })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => { channel.unsubscribe(); supabase.removeChannel(channel); };
   }, [user?.id, queryClient]);
 
   useEffect(() => {

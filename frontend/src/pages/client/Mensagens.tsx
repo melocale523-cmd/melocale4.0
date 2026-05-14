@@ -70,9 +70,11 @@ export default function ClientMensagens() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setCurrentUser(user);
+      if (!cancelled && user) setCurrentUser(user);
     });
+    return () => { cancelled = true; };
   }, []);
 
   const { data: chats, isLoading: chatsLoading } = useQuery({
@@ -145,7 +147,7 @@ export default function ClientMensagens() {
         filter: `conversation_id=eq.${activeConversationId}`,
       }, invalidate)
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => { channel.unsubscribe(); supabase.removeChannel(channel); };
   }, [activeConversationId, queryClient]);
 
   // Typing indicator channel
@@ -162,6 +164,7 @@ export default function ClientMensagens() {
     }).subscribe();
     return () => {
       if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      ch.unsubscribe();
       supabase.removeChannel(ch);
       typingChannel.current = null;
     };
@@ -180,7 +183,7 @@ export default function ClientMensagens() {
         await ch.track({ user_id: currentUser.id, online_at: new Date().toISOString() });
       }
     });
-    return () => { supabase.removeChannel(ch); };
+    return () => { ch.unsubscribe(); supabase.removeChannel(ch); };
   }, [currentUser]);
 
   // Mark incoming messages as read when conversation opens

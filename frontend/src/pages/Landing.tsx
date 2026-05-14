@@ -12,14 +12,12 @@ export default function LandingPage() {
   const [userCity, setUserCity] = useState("São Paulo");
 
   useEffect(() => {
+    let cancelled = false;
     fetch('https://get.geojs.io/v1/ip/geo.json')
       .then(res => res.json())
-      .then(data => {
-        if (data && data.city) {
-          setUserCity(data.city);
-        }
-      })
-      .catch(console.error);
+      .then(data => { if (!cancelled && data?.city) setUserCity(data.city); })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   return (
