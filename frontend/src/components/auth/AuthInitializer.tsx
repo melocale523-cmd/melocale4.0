@@ -82,6 +82,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
     };
 
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (!isMounted) return;
       if (error) {
         console.warn('AuthInitializer: invalid session, clearing', error.message);
         supabase.auth.signOut();

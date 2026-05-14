@@ -61,59 +61,70 @@ export default function AiChatWidget() {
   useEffect(() => {
     if (!isOpen || !user) return;
     const context = getRouteContext();
+    let cancelled = false;
 
     const fetchUserData = async () => {
-      const profileRes = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .maybeSingle();
+      try {
+        const profileRes = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
 
-      const displayName = profileRes.data?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'você';
+        if (cancelled) return;
 
-      const data: Record<string, unknown> = {
-        name: displayName,
-        email: user.email,
-        role: user.role,
-      };
+        const displayName = profileRes.data?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'você';
 
-      if (context === 'professional') {
-        const [coinsRes, subRes, leadsRes] = await Promise.all([
-          supabase.from('professional_coins').select('balance').eq('professional_id', user.id).maybeSingle(),
-          supabase.from('user_subscriptions').select('package_id, status').eq('user_id', user.id).eq('status', 'active').maybeSingle(),
-          supabase.from('lead_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-        ]);
-        data.coinBalance = coinsRes.data?.balance ?? 0;
-        data.activePlan = subRes.data?.package_id ?? null;
-        data.leadsBought = leadsRes.count ?? 0;
+        const data: Record<string, unknown> = {
+          name: displayName,
+          email: user.email,
+          role: user.role,
+        };
+
+        if (context === 'professional') {
+          const [coinsRes, subRes, leadsRes] = await Promise.all([
+            supabase.from('professional_coins').select('balance').eq('professional_id', user.id).maybeSingle(),
+            supabase.from('user_subscriptions').select('package_id, status').eq('user_id', user.id).eq('status', 'active').maybeSingle(),
+            supabase.from('lead_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+          ]);
+          if (cancelled) return;
+          data.coinBalance = coinsRes.data?.balance ?? 0;
+          data.activePlan = subRes.data?.package_id ?? null;
+          data.leadsBought = leadsRes.count ?? 0;
+        }
+
+        if (context === 'client') {
+          const pedidosRes = await supabase.from('leads').select('id, status', { count: 'exact' }).eq('client_id', user.id);
+          if (cancelled) return;
+          data.totalPedidos = pedidosRes.count ?? 0;
+          data.pedidos = pedidosRes.data?.slice(0, 3) ?? [];
+        }
+
+        if (context === 'admin') {
+          const [ticketsRes, subsRes] = await Promise.all([
+            supabase.from('support_tickets').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+            supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+          ]);
+          if (cancelled) return;
+          data.openTickets = ticketsRes.count ?? 0;
+          data.activeSubscriptions = subsRes.count ?? 0;
+        }
+
+        if (displayName) {
+          setMessages(prev => prev.length === 1 ? [{
+            role: 'model' as const,
+            text: `Olá, ${displayName}! 👋 Sou o Assistente MeloCalé. Como posso te ajudar hoje?`,
+            time: getTime(),
+          }] : prev);
+        }
+        setUserData(data);
+      } catch {
+        // contexto de usuário é opcional; chat funciona sem ele
       }
-
-      if (context === 'client') {
-        const pedidosRes = await supabase.from('leads').select('id, status', { count: 'exact' }).eq('client_id', user.id);
-        data.totalPedidos = pedidosRes.count ?? 0;
-        data.pedidos = pedidosRes.data?.slice(0, 3) ?? [];
-      }
-
-      if (context === 'admin') {
-        const [ticketsRes, subsRes] = await Promise.all([
-          supabase.from('support_tickets').select('id', { count: 'exact', head: true }).eq('status', 'open'),
-          supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-        ]);
-        data.openTickets = ticketsRes.count ?? 0;
-        data.activeSubscriptions = subsRes.count ?? 0;
-      }
-
-      if (displayName) {
-        setMessages(prev => prev.length === 1 ? [{
-          role: 'model' as const,
-          text: `Olá, ${displayName}! 👋 Sou o Assistente MeloCalé. Como posso te ajudar hoje?`,
-          time: getTime(),
-        }] : prev);
-      }
-      setUserData(data);
     };
 
     fetchUserData();
+    return () => { cancelled = true; };
   }, [isOpen, user, location.pathname]);
 
   useEffect(() => {

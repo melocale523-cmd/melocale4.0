@@ -46,6 +46,7 @@ export default function RealtimeNotificationHandler() {
 
     return () => {
       if (import.meta.env.DEV) console.log('Limpando canal de notificações Realtime');
+      channel.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [user, isAuthenticated]);

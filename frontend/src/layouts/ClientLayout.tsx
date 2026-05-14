@@ -46,7 +46,7 @@ export default function ClientLayout() {
         queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
       })
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => { ch.unsubscribe(); supabase.removeChannel(ch); };
   }, [queryClient]);
 
   useEffect(() => {

@@ -81,7 +81,7 @@ export default function ProfessionalLayout() {
         queryClient.invalidateQueries({ queryKey: ['unread_count'] });
       })
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => { ch.unsubscribe(); supabase.removeChannel(ch); };
   }, [queryClient]);
 
   const handleLogout = async () => {
