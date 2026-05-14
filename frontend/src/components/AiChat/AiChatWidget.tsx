@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { MessageCircle, X, Send, Bot, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
@@ -34,13 +34,13 @@ export default function AiChatWidget() {
   const inputRef = useRef<HTMLInputElement>(null);
   const ticketCreatedRef = useRef(false);
 
-  const getRouteContext = () => {
+  const getRouteContext = useCallback(() => {
     const path = location.pathname;
     if (path.startsWith('/profissional')) return 'professional';
     if (path.startsWith('/cliente')) return 'client';
     if (path.startsWith('/admin')) return 'admin';
     return 'landing';
-  };
+  }, [location.pathname]);
 
   useEffect(() => {
     setMessages([{ role: 'model', text: 'Olá! Sou o Assistente MeloCalé. Como posso te ajudar hoje?', time: getTime() }]);
@@ -125,7 +125,7 @@ export default function AiChatWidget() {
 
     fetchUserData();
     return () => { cancelled = true; };
-  }, [isOpen, user, location.pathname]);
+  }, [isOpen, user, location.pathname, getRouteContext]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -136,7 +136,7 @@ export default function AiChatWidget() {
         : `💡 Oi ${userData.name}! Seu saldo está baixo (${coinBalance} moedas). Considere recarregar para não perder leads!`;
       setMessages(prev => [...prev, { role: 'model', text: alert, time: getTime() }]);
     }
-  }, [isOpen, userData]);
+  }, [isOpen, userData, getRouteContext]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
