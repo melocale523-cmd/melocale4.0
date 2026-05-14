@@ -123,7 +123,7 @@ export const appointmentService = {
       body: _notifBody,
       data: _notifData,
     });
-    void apiFetch('api/notifications/push', {
+    void apiFetch('/api/notifications/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: payload.client_id, title: _notifTitle, body: _notifBody, data: _notifData }),
@@ -174,7 +174,7 @@ export const appointmentService = {
         body: _body,
         data: _data,
       });
-      void apiFetch('api/notifications/push', {
+      void apiFetch('/api/notifications/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: opts.notifyUserId, title: _title, body: _body, data: _data }),
@@ -217,7 +217,7 @@ export const appointmentService = {
         body: _body,
         data: _data,
       });
-      void apiFetch('api/notifications/push', {
+      void apiFetch('/api/notifications/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: notifyUserId, title: _title, body: _body, data: _data }),
@@ -267,7 +267,7 @@ export const appointmentService = {
         body: _body,
         data: _data,
       });
-      void apiFetch('api/notifications/push', {
+      void apiFetch('/api/notifications/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: notifyUserId, title: _title, body: _body, data: _data }),
@@ -304,7 +304,7 @@ export const appointmentService = {
         body: _body,
         data: _data,
       });
-      void apiFetch('api/notifications/push', {
+      void apiFetch('/api/notifications/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: notifyUserId, title: _title, body: _body, data: _data }),

@@ -135,7 +135,7 @@ export const chatService = {
           body: notifBody,
           data: { conversationId, type: 'message' },
         });
-        void apiFetch('api/notifications/push', {
+        void apiFetch('/api/notifications/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: recipientId, title: 'Nova Mensagem', body: notifBody, data: { conversationId, type: 'message' } }),
