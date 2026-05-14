@@ -925,6 +925,27 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // POST /api/notifications/push
+  // ============================================
+  const notifPushSchema = z.object({
+    user_id: z.string().uuid(),
+    title: z.string().min(1),
+    body: z.string().min(1),
+    data: z.record(z.string(), z.unknown()).optional(),
+  });
+
+  app.post("/api/notifications/push", requireAuth, async (req: AuthRequest, res: Response) => {
+    const parsed = notifPushSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
+    void sendPushToUser(parsed.data.user_id, {
+      title: parsed.data.title,
+      body: parsed.data.body,
+      data: parsed.data.data as Record<string, unknown> | undefined,
+    });
+    return res.json({ ok: true });
+  });
+
+  // ============================================
   // POST /api/push/subscribe
   // ============================================
   const pushSubscribeSchema = z.object({
