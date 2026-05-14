@@ -102,6 +102,85 @@ function withTimeout<T>(promise: PromiseLike<T>, ms = 8000): Promise<T> {
   ]);
 }
 
+async function jobLembrete24h() {
+  try {
+    const { data: appointments, error } = await withTimeout(
+      supabaseAdmin
+        .from('appointments')
+        .select('id, title, scheduled_at, client_id, professional_id')
+        .in('status', ['confirmed', 'scheduled'])
+        .gte('scheduled_at', new Date(Date.now() + 23 * 60 * 60 * 1000).toISOString())
+        .lte('scheduled_at', new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString())
+    );
+
+    if (error) {
+      console.error('[job] lembrete24h query error:', error.message);
+      return;
+    }
+
+    for (const apt of appointments ?? []) {
+      // Resolve professional user_id
+      const { data: prof } = await withTimeout(
+        supabaseAdmin
+          .from('professionals')
+          .select('user_id')
+          .eq('id', apt.professional_id)
+          .maybeSingle()
+      );
+
+      const profUserId = prof?.user_id;
+
+      // --- Notificação para o cliente ---
+      const { data: existsClient } = await withTimeout(
+        supabaseAdmin
+          .from('notifications')
+          .select('id')
+          .eq('user_id', apt.client_id)
+          .eq('data->>appointment_id', apt.id)
+          .eq('data->>type', 'reminder_24h')
+          .maybeSingle()
+      );
+
+      if (!existsClient) {
+        await withTimeout(
+          supabaseAdmin.from('notifications').insert({
+            user_id: apt.client_id,
+            title: '⏰ Lembrete de agendamento',
+            body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
+            data: { appointment_id: apt.id, type: 'reminder_24h' },
+          })
+        );
+      }
+
+      // --- Notificação para o profissional ---
+      if (profUserId) {
+        const { data: existsProf } = await withTimeout(
+          supabaseAdmin
+            .from('notifications')
+            .select('id')
+            .eq('user_id', profUserId)
+            .eq('data->>appointment_id', apt.id)
+            .eq('data->>type', 'reminder_24h_prof')
+            .maybeSingle()
+        );
+
+        if (!existsProf) {
+          await withTimeout(
+            supabaseAdmin.from('notifications').insert({
+              user_id: profUserId,
+              title: '⏰ Lembrete de agendamento',
+              body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
+              data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
+            })
+          );
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[job] lembrete24h error:', err instanceof Error ? err.message : String(err));
+  }
+}
+
 async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
@@ -759,6 +838,10 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   await loadCoinPackages();
+
+  setInterval(jobLembrete24h, 60 * 60 * 1000);
+  void jobLembrete24h();
+  console.log('[job] lembrete24h iniciado');
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
