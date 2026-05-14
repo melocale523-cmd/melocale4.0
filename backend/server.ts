@@ -130,19 +130,6 @@ async function startServer() {
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
-    // Deduplicação persistente: verifica se este evento já foi processado no banco.
-    // Cobre o caso crítico de double-crediting após restart do servidor.
-    const { data: existingTx } = await supabaseAdmin
-      .from('wallet_transactions')
-      .select('id')
-      .eq('stripe_event_id', event.id)
-      .maybeSingle();
-
-    if (existingTx) {
-      console.log(`[webhook] evento ${event.id} já processado — ignorando`);
-      return res.json({ received: true });
-    }
-
     const COIN_PACKAGES: Record<string, { coins: number; name: string }> = {
       'pack_starter': { coins: 60,  name: 'Básico'        },
       'pack_pro':     { coins: 200, name: 'Popular'       },
@@ -215,6 +202,10 @@ async function startServer() {
           created_at: new Date().toISOString(),
         });
         if (txErr) {
+          if ((txErr as any).code === '23505') {
+            console.log(`[webhook] evento ${event.id} já processado (unique conflict) — ignorando`);
+            return res.json({ received: true });
+          }
           console.error("Erro ao inserir wallet_transaction:", txErr);
           return res.status(500).json({ error: "Falha ao creditar" });
         }
@@ -704,6 +695,16 @@ COMPORTAMENTO NESTE CONTEXTO:
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = typeof err?.status === 'number' ? err.status : 500;
     res.status(status).json({ error: err?.message || 'Erro interno' });
+  });
+
+  // Garante constraint única em stripe_event_id para deduplicação atômica no banco.
+  // IF NOT EXISTS garante idempotência em restarts.
+  await supabaseAdmin.rpc('exec_sql' as never, {
+    sql: `ALTER TABLE wallet_transactions ADD CONSTRAINT IF NOT EXISTS uq_stripe_event_id UNIQUE (stripe_event_id);`,
+  }).then(({ error }) => {
+    if (error && !error.message?.includes('already exists') && !error.message?.includes('could not find')) {
+      console.error('[startup] constraint uq_stripe_event_id:', error.message);
+    }
   });
 
   app.listen(PORT, "0.0.0.0", () => {

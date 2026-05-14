@@ -65,7 +65,7 @@ export default function AdminPendentes() {
                  <tr key={u.id} className="border-b border-[#1C3050] hover:bg-slate-800/20 transition-colors group">
                    <td className="p-4 pl-6 text-white font-medium">{u.name || 'Sem nome'}</td>
                    <td className="p-4 text-[#94A3B8]">{u.email || 'N/A'}</td>
-                   <td className="p-4 text-[#94A3B8]">{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                   <td className="p-4 text-[#94A3B8]">{new Date(u.created_at || '').toLocaleDateString('pt-BR')}</td>
                    <td className="p-4 pr-6 text-right">
                       <div className="flex justify-end gap-2 text-[#94A3B8] opacity-50 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'approved' })} className="hover:text-emerald-500 p-1" title="Aprovar">

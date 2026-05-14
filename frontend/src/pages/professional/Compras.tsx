@@ -284,7 +284,7 @@ export default function ProfessionalCompras() {
                   <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
                   <div className="flex items-center text-sm text-[#4A6580] mt-1">
                     <Calendar size={14} className="mr-1.5" />
-                    {new Date(purchase.created_at).toLocaleDateString('pt-BR')}
+                    {new Date(purchase.created_at || '').toLocaleDateString('pt-BR')}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2 text-right">

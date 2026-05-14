@@ -62,7 +62,7 @@ export default function AdminClientes() {
                        {u.status === 'approved' ? 'Ativo' : 'Pendente'}
                      </span>
                    </td>
-                   <td className="p-4 pr-6 text-[#94A3B8]">{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                   <td className="p-4 pr-6 text-[#94A3B8]">{new Date(u.created_at || '').toLocaleDateString('pt-BR')}</td>
                  </tr>
                ))}
                {filteredUsers.length === 0 && (

@@ -71,7 +71,7 @@ export default function AdminUsuarios() {
                    <td className="p-4 pl-6 text-white font-medium">{u.name || 'Sem nome'}</td>
                    <td className="p-4 text-[#94A3B8]">{u.email || 'N/A'}</td>
                    <td className="p-4 text-[#94A3B8] capitalize">{u.role}</td>
-                   <td className="p-4 text-[#94A3B8]">{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                   <td className="p-4 text-[#94A3B8]">{new Date(u.created_at || '').toLocaleDateString('pt-BR')}</td>
                    <td className="p-4">
                      <span className={`px-2.5 py-1 rounded text-xs font-bold ${
                        u.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 
