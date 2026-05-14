@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useProfile } from '../../hooks/useProfile';
-import { profileService, avatarService } from '../../services/dbServices';
-import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2 } from 'lucide-react';
+import { profileService, avatarService, reviewService } from '../../services/dbServices';
+import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function ProfessionalPerfil() {
   const { user } = useAuthStore();
@@ -112,6 +114,13 @@ export default function ProfessionalPerfil() {
     setValidationError(null);
     saveMutation.mutate();
   };
+
+  const { data: reviewsData } = useQuery({
+    queryKey: ['reviews', 'professional', profile?.professionalId],
+    queryFn: () => reviewService.getReviewsByProfessional(profile!.professionalId),
+    enabled: !!profile?.professionalId,
+    staleTime: 60_000,
+  });
 
   if (profileLoading) {
     return (
@@ -342,6 +351,67 @@ export default function ProfessionalPerfil() {
           </button>
         </div>
       </div>
+      {/* Reviews */}
+      {reviewsData && (
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-400">
+                <Star size={20} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-100">Avaliações dos Clientes</h2>
+                <p className="text-sm text-[#94A3B8]">{reviewsData.total} avaliação{reviewsData.total !== 1 ? 'ões' : ''} recebida{reviewsData.total !== 1 ? 's' : ''}</p>
+              </div>
+            </div>
+            {reviewsData.total > 0 && (
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <Star
+                      key={s}
+                      size={16}
+                      className={s <= Math.round(reviewsData.average) ? 'text-yellow-400 fill-yellow-400' : 'text-[#1C3050] fill-[#1C3050]'}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-bold text-yellow-400 mt-0.5">
+                  {reviewsData.average.toFixed(1)}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {reviewsData.reviews.length === 0 ? (
+            <p className="text-sm text-[#4A6580] text-center py-4">Nenhuma avaliação ainda.</p>
+          ) : (
+            <div className="space-y-3">
+              {reviewsData.reviews.map(review => (
+                <div key={review.id} className="bg-[#0E1C32] border border-slate-800 rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-slate-200">{review.client_name ?? 'Cliente'}</span>
+                    <span className="text-xs text-[#4A6580]">
+                      {format(new Date(review.created_at), "dd 'de' MMM, yyyy", { locale: ptBR })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star
+                        key={s}
+                        size={13}
+                        className={s <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-[#1C3050] fill-[#1C3050]'}
+                      />
+                    ))}
+                  </div>
+                  {review.comment && (
+                    <p className="text-sm text-[#94A3B8]">{review.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

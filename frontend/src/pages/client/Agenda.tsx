@@ -3,14 +3,15 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2, User,
-  RefreshCw, Send,
+  RefreshCw, Send, Star,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
-import { appointmentService, type Appointment } from '../../services/dbServices';
+import { appointmentService, type Appointment, reviewService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
+import ReviewModal from '../../components/ReviewModal';
 
 type AppStatus = Appointment['status'];
 
@@ -45,11 +46,26 @@ export default function ClientAgenda() {
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
   const [isSendingReschedule, setIsSendingReschedule] = useState(false);
+  const [reviewingAppt, setReviewingAppt] = useState<Appointment | null>(null);
 
   const { data: appointments = [], isLoading } = useQuery<Appointment[]>({
     queryKey: ['client_appointments', user?.id],
     queryFn: () => appointmentService.getClientAppointments(user!.id),
     enabled: !!user?.id,
+  });
+
+  const completedIds = useMemo(
+    () => appointments.filter(a => a.status === 'completed').map(a => a.id),
+    [appointments],
+  );
+  const { data: reviewedIds = [] } = useQuery<string[]>({
+    queryKey: ['reviews', 'client_completed', completedIds],
+    queryFn: async () => {
+      const results = await Promise.all(completedIds.map(id => reviewService.hasReview(id)));
+      return completedIds.filter((_, i) => results[i]);
+    },
+    enabled: completedIds.length > 0,
+    staleTime: 60_000,
   });
 
   const updateMutation = useMutation({
@@ -179,6 +195,7 @@ export default function ClientAgenda() {
               const profCategory = appt.professional?.category;
               const isCancelling = cancellingId === appt.id;
               const canCancel = appt.status !== 'completed' && appt.status !== 'cancelled';
+              const canReview = appt.status === 'completed' && !reviewedIds.includes(appt.id);
 
               return (
                 <div
@@ -263,6 +280,19 @@ export default function ClientAgenda() {
                               <CheckCircle2 size={13} /> Confirmado
                             </div>
                           )}
+                          {canReview && (
+                            <button
+                              onClick={() => setReviewingAppt(appt)}
+                              className="flex items-center gap-1.5 px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-xl border border-yellow-500/20 transition-all"
+                            >
+                              <Star size={13} /> Avaliar
+                            </button>
+                          )}
+                          {appt.status === 'completed' && reviewedIds.includes(appt.id) && (
+                            <div className="flex items-center gap-1.5 text-yellow-400 text-xs font-bold ml-1">
+                              <Star size={13} className="fill-yellow-400" /> Avaliado
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -302,6 +332,17 @@ export default function ClientAgenda() {
           </div>
         )}
       </div>
+
+      {/* Review modal */}
+      {reviewingAppt && (
+        <ReviewModal
+          appointmentId={reviewingAppt.id}
+          professionalId={reviewingAppt.professional_id}
+          clientId={user!.id}
+          professionalName={reviewingAppt.professional?.profile?.full_name ?? 'Profissional'}
+          onClose={() => setReviewingAppt(null)}
+        />
+      )}
 
       {/* Reschedule modal */}
       {reschedulingAppt && (
