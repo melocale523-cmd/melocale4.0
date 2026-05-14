@@ -9,6 +9,7 @@ import { api } from '../lib/api';
 import { walletService } from '../services/dbServices';
 import { useProfile } from '../hooks/useProfile';
 import NotificationBell from '../components/NotificationBell';
+import PushPermissionModal from '../components/PushPermissionModal';
 
 export default function ProfessionalLayout() {
   const location = useLocation();
@@ -286,6 +287,8 @@ export default function ProfessionalLayout() {
            <Outlet />
         </div>
       </main>
+
+      <PushPermissionModal />
     </div>
   );
 }
