@@ -81,9 +81,9 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
+function withTimeout<T>(promise: PromiseLike<T>, ms = 8000): Promise<T> {
   return Promise.race([
-    promise,
+    Promise.resolve(promise),
     new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error(`Request timeout after ${ms}ms`)), ms)
     ),
@@ -211,8 +211,8 @@ async function startServer() {
           created_at: new Date().toISOString(),
         });
         if (txErr) {
-          if ((txErr as any).code === '23505') {
-            console.log(`[webhook] evento ${event.id} já processado (unique conflict) — ignorando`);
+          if ((txErr as { code?: string }).code === '23505') {
+            if (process.env.NODE_ENV !== 'production') console.log(`[webhook] evento ${event.id} já processado (unique conflict) — ignorando`);
             return res.json({ received: true });
           }
           console.error("Erro ao inserir wallet_transaction:", txErr);
@@ -302,7 +302,7 @@ async function startServer() {
       };
     }
 
-    const buildSystemPrompt = (context: string, userData: Record<string, any>) => {
+    const buildSystemPrompt = (context: string, userData: Record<string, unknown>) => {
       const name = userData.name || 'usuário';
 
       const BASE = `Você é o Assistente MeloCalé — amigável, direto e focado em ajudar. Use linguagem simples. Respostas curtas (máx 3 parágrafos). Sempre termine com uma ação clara. Use no máximo 2 emojis por resposta. Nunca invente informações.`;
@@ -314,9 +314,9 @@ MOEDAS: Básico 60 por R$24,90 | Popular 200 por R$59,90 | Máximo 560 por R$119
 LEADS: custam 10-150 moedas dependendo de orçamento, urgência e categoria.`;
 
       if (context === 'professional') {
-        const balance = userData.coinBalance ?? 0;
-        const plan = userData.activePlan;
-        const leads = userData.leadsBought ?? 0;
+        const balance = Number(userData.coinBalance ?? 0);
+        const plan = typeof userData.activePlan === 'string' ? userData.activePlan : null;
+        const leads = Number(userData.leadsBought ?? 0);
         const planNames: Record<string, string> = { plan_basic: 'Starter', plan_pro: 'PRO', plan_business: 'Elite' };
 
         return `${BASE}
@@ -547,12 +547,12 @@ COMPORTAMENTO NESTE CONTEXTO:
       });
 
       return res.json({ id: session.id, url: session.url });
-    } catch (err: any) {
-      console.error("Erro em /api/create-checkout-session:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/create-checkout-session:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
-  
+
   // ============================================
   // Stripe Checkout Session - Pagamento de serviço a profissional
   // ============================================
@@ -606,8 +606,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       });
 
       return res.json({ id: session.id, url: session.url });
-    } catch (err: any) {
-      console.error("Erro em /api/create-service-payment:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/create-service-payment:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
@@ -631,7 +631,7 @@ COMPORTAMENTO NESTE CONTEXTO:
 
       if (subErr || !sub) return res.status(200).json({ status: 'none', plan: null });
 
-      console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
+      if (process.env.NODE_ENV !== 'production') console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
 
       if (!sub.stripe_subscription_id) {
         return res.json({
@@ -647,7 +647,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       // cast to any: Stripe SDK v22 removed current_period_end from the TS type
       // but the Stripe API still returns it at runtime
       const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id) as any;
-      console.log("[subscription-status] stripe current_period_end:", stripeSub.current_period_end, "status:", stripeSub.status);
+      if (process.env.NODE_ENV !== 'production') console.log("[subscription-status] stripe current_period_end:", stripeSub.current_period_end, "status:", stripeSub.status);
       return res.json({
         status: stripeSub.status,
         package_id: sub.package_id,
@@ -656,8 +656,8 @@ COMPORTAMENTO NESTE CONTEXTO:
         current_period_end: stripeSub.current_period_end ?? null,
         cancel_at_period_end: stripeSub.cancel_at_period_end ?? false,
       });
-    } catch (err: any) {
-      console.error("Erro em /api/subscription-status:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/subscription-status:", err instanceof Error ? err.message : String(err));
       return res.status(200).json({ status: 'none', plan: null });
     }
   });
@@ -695,8 +695,8 @@ COMPORTAMENTO NESTE CONTEXTO:
         .eq("user_id", String(user_id));
 
       return res.json({ success: true });
-    } catch (err: any) {
-      console.error("Erro em /api/cancel-subscription:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/cancel-subscription:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
@@ -712,15 +712,16 @@ COMPORTAMENTO NESTE CONTEXTO:
         .single();
       if (error) throw error;
       return res.json({ ticket_id: data.id });
-    } catch (err: any) {
-      console.error("Erro em /api/support-ticket:", err?.message || err);
+    } catch (err: unknown) {
+      console.error("Erro em /api/support-ticket:", err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
     }
   });
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = typeof err?.status === 'number' ? err.status : 500;
-    res.status(status).json({ error: err?.message || 'Erro interno' });
+  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : 500;
+    const message = err instanceof Error ? err.message : 'Erro interno';
+    res.status(status).json({ error: message });
   });
 
   // Garante constraint única em stripe_event_id para deduplicação atômica no banco.

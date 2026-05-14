@@ -11,7 +11,7 @@ function emit(entry: LogEntry) {
   const tag = `[${entry.context}]`;
   if (entry.level === 'error') console.error(tag, entry.message, entry.data ?? '');
   else if (entry.level === 'warn') console.warn(tag, entry.message, entry.data ?? '');
-  else console.log(tag, entry.message, entry.data ?? '');
+  else if (import.meta.env.DEV) console.log(tag, entry.message, entry.data ?? '');
   // Future: forward to Sentry / Datadog via entry.level + entry.context
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore, Role } from '../../store/authStore';
 
@@ -12,7 +13,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
   useEffect(() => {
     let isMounted = true;
 
-    const processSession = async (session: any) => {
+    const processSession = async (session: Session | null) => {
       if (!session?.user) {
         if (isMounted) {
           currentUserIdRef.current = null;
@@ -83,7 +84,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (!isMounted) return;
       if (error) {
-        console.warn('AuthInitializer: invalid session, clearing', error.message);
+        if (import.meta.env.DEV) console.warn('AuthInitializer: invalid session, clearing', error.message);
         supabase.auth.signOut();
         if (isMounted) {
           currentUserIdRef.current = null;

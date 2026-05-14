@@ -1,17 +1,28 @@
 import { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 
+interface SeriesEntry {
+  name: string;
+  total: number;
+  aceitas: number;
+  recusadas: number;
+  revenue: number;
+}
+
 interface Props {
-  seriesData: any[];
+  seriesData: SeriesEntry[];
   range: '7d' | '30d' | '90d' | '1y';
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+interface TooltipEntry { name: string; value: number; color: string }
+interface CustomTooltipProps { active?: boolean; payload?: TooltipEntry[]; label?: string }
+
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-[#1A1D24] border border-[#243F6A] p-3 rounded-xl shadow-2xl backdrop-blur-md">
       <p className="text-[#94A3B8] text-[10px] font-black uppercase tracking-widest mb-2">{label}</p>
-      {payload.map((entry: any, index: number) => (
+      {payload.map((entry, index: number) => (
         <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
           <p className="text-sm font-black text-white">
