@@ -679,10 +679,11 @@ COMPORTAMENTO NESTE CONTEXTO:
 
   app.post("/api/support-ticket", requireAuth, async (req: Request, res: Response) => {
     try {
-      const { user_id, email, conversation } = req.body;
+      const { email, conversation } = req.body;
+      const user_id = (req as AuthRequest).authUser!.id;
       const { data, error } = await supabaseAdmin
         .from('support_tickets')
-        .insert({ user_id: user_id || null, email: email || null, conversation, status: 'open' })
+        .insert({ user_id, email: email || null, conversation, status: 'open' })
         .select('id')
         .single();
       if (error) throw error;
