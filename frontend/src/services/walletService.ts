@@ -1,0 +1,77 @@
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
+
+interface WalletTxRow {
+  id: string;
+  kind: string;
+  amount: number;
+  reference?: string | null;
+  created_at: string;
+  [key: string]: unknown;
+}
+
+function formatWalletDescription(kind: string, reference?: string | null): string {
+  if (reference?.startsWith('lead_purchase:') || kind === 'debit_lead') return 'Compra de Lead';
+  if (kind === 'bonus') return 'Bônus de boas-vindas';
+  if (kind === 'subscription') return 'Assinatura';
+  if (kind === 'purchase' || kind === 'credit_purchase') return 'Compra de moedas';
+  return kind.charAt(0).toUpperCase() + kind.slice(1).replace(/_/g, ' ');
+}
+
+export const walletService = {
+  async getBalance() {
+    try {
+      const userId = useAuthStore.getState().user?.id;
+      if (!userId) return 0;
+
+      const { data, error } = await supabase
+        .from('v_wallet_balance')
+        .select('balance_coins')
+        .eq('user_id', userId)
+        .single();
+
+      if (error || !data) return 0;
+
+      return data.balance_coins || 0;
+    } catch {
+      return 0;
+    }
+  }
+};
+
+export const transactionService = {
+  async getWalletTransactions() {
+    const userId = useAuthStore.getState().user?.id;
+    if (!userId) throw new Error("User not authenticated");
+
+    const { data, error } = await supabase
+      .from('wallet_transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data ?? []).map((tx: WalletTxRow) => ({
+      ...tx,
+      type: tx.kind === 'credit_purchase' || tx.kind === 'deposit' || tx.kind === 'bonus' || tx.kind === 'subscription' ? 'deposit' : 'purchase',
+      description: formatWalletDescription(tx.kind, tx.reference),
+    }));
+  }
+};
+
+export const subscriptionService = {
+  async getCurrentSubscription() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('user_subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (error) return null;
+    return data;
+  }
+};
