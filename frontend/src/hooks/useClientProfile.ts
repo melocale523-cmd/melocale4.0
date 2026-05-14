@@ -42,7 +42,7 @@ export function useClientProfile() {
     queryKey: ['clientProfile', userId],
     queryFn: () => fetchClientProfile(userId!),
     enabled: !!userId,
-    staleTime: 0,
+    staleTime: 1000 * 60 * 2,
     retry: 1,
   });
 }
