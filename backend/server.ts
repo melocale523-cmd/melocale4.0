@@ -1020,12 +1020,6 @@ COMPORTAMENTO NESTE CONTEXTO:
     const TEST_PROF_EMAIL = 'jogersantos@gmail.com';
     const TEST_PROF_PASSWORD = '123456789';
 
-    const { createClient: createPublicClient } = await import('@supabase/supabase-js');
-    const supabasePublic = createPublicClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_ANON_KEY!
-    );
-
     let clientUserId: string | null = null;
     let profUserId: string | null = null;
     let createdLeadId: string | null = null;
@@ -1043,7 +1037,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
 
     await runTest('t1', 'Login cliente', async () => {
-      const { data, error } = await supabasePublic.auth.signInWithPassword({
+      const { data, error } = await supabaseAdmin.auth.signInWithPassword({
         email: TEST_CLIENT_EMAIL,
         password: TEST_CLIENT_PASSWORD,
       });
@@ -1053,7 +1047,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     });
 
     await runTest('t2', 'Login profissional', async () => {
-      const { data, error } = await supabasePublic.auth.signInWithPassword({
+      const { data, error } = await supabaseAdmin.auth.signInWithPassword({
         email: TEST_PROF_EMAIL,
         password: TEST_PROF_PASSWORD,
       });
