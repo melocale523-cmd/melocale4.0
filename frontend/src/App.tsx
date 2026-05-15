@@ -57,6 +57,8 @@ const AdminTestes = lazy(() => import('./pages/admin/Testes'));
 const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 const CheckoutCancel = lazy(() => import('./pages/checkout/CheckoutCancel'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Termos = lazy(() => import('./pages/Termos'));
+const Privacidade = lazy(() => import('./pages/Privacidade'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -174,6 +176,14 @@ const router = createBrowserRouter([
       {
         path: '/checkout/cancel',
         element: <ErrorBoundary><Suspense fallback={<PageLoader />}><CheckoutCancel /></Suspense></ErrorBoundary>
+      },
+      {
+        path: '/termos',
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Termos /></Suspense></ErrorBoundary>
+      },
+      {
+        path: '/privacidade',
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Privacidade /></Suspense></ErrorBoundary>
       },
       {
         element: <AuthLayout />,
