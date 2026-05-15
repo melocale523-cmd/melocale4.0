@@ -1107,7 +1107,7 @@ COMPORTAMENTO NESTE CONTEXTO:
           professional_id: prof.id,
           user_id: profUserId,
           client_id: clientUserId,
-          price_coins: 0,
+          price_coins: 1,
           idempotency_key: `e2e_test_direct_${Date.now()}`,
           status: 'Pendente Proposta',
         })
