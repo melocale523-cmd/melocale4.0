@@ -466,29 +466,31 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       </>
                     )}
 
-                    <button 
+                    {mode === 'signup' && (
+                      <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
+                        Ao continuar você declara que leu e concorda com nossos{' '}
+                        <a href="/termos" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a>
+                        {' '}e{' '}
+                        <a href="/privacidade" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
+                      </p>
+                    )}
+
+                    <button
                       disabled={isSubmitting}
                       type="submit"
                       className={cn(
                         "w-full h-16 rounded-[1.25rem] font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl mt-8 uppercase tracking-widest",
-                        mode === 'signup' 
-                          ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-500/20" 
+                        mode === 'signup'
+                          ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-500/20"
                           : "bg-emerald-500 hover:bg-emerald-600 text-black shadow-emerald-500/20"
                       )}
                     >
                       {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : (
-                        step === 'basics' && mode === 'signup' ? <>Próximo Passo <ChevronRight size={20} /></> : 
+                        step === 'basics' && mode === 'signup' ? <>Próximo Passo <ChevronRight size={20} /></> :
                         mode === 'signup' ? 'Concluir Cadastro' : 'Entrar na Plataforma'
                       )}
                     </button>
                   </form>
-
-                  <div className="p-8 bg-[#0E1C32] border-t border-[#1C3050] text-center">
-                    <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed">
-                      Ao continuar você declara que leu e concorda com nossos <br />
-                      <a href="/termos" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a> e <a href="/privacidade" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
-                    </p>
-                  </div>
                 </motion.div>
               )}
             </div>
