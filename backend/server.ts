@@ -1131,7 +1131,7 @@ COMPORTAMENTO NESTE CONTEXTO:
           body: '[TESTE E2E] Olá, mensagem automática de teste',
           sender_type: 'client',
           read_at: null,
-          attachments: null,
+          attachments: [],
         })
         .select('id')
         .single();
