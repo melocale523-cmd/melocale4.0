@@ -12,23 +12,20 @@ export default function PushFloatingBanner() {
 
   useEffect(() => {
     if (!isSupported || isSubscribed) return;
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') return;
+    if (!localStorage.getItem(MODAL_DISMISSED_KEY)) return;
 
-    const modalDismissed = localStorage.getItem(MODAL_DISMISSED_KEY);
     const bannerDismissed = localStorage.getItem(BANNER_DISMISSED_KEY);
 
-    if (modalDismissed && !bannerDismissed) {
-      // Modal was dismissed but banner hasn't been dismissed yet — show after 2s
+    if (!bannerDismissed) {
       const timer = setTimeout(() => setVisible(true), 2000);
       return () => clearTimeout(timer);
     }
 
-    if (bannerDismissed) {
-      const elapsed = Date.now() - Number(bannerDismissed);
-      if (elapsed >= THREE_DAYS_MS) {
-        const timer = setTimeout(() => setVisible(true), 2000);
-        return () => clearTimeout(timer);
-      }
-    }
+    const elapsed = Date.now() - Number(bannerDismissed);
+    const delay = elapsed >= THREE_DAYS_MS ? 2000 : THREE_DAYS_MS - elapsed + 2000;
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
   }, [isSupported, isSubscribed]);
 
   if (!visible || isSubscribed) return null;
