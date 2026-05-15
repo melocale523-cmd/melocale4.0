@@ -108,7 +108,7 @@ export default function ClientLayout() {
           </span>
         </div>
 
-        <nav className="flex-1 px-4 mt-6 space-y-2">
+        <nav className="flex-1 overflow-y-auto px-4 mt-6 space-y-2">
           {navItems.map((item) => {
             const isActive = location.pathname.startsWith(item.path);
             return (
