@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
-import { FileText, Loader2, ArrowRight, CreditCard, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { payProfessional } from '../../lib/stripe';
+import { FileText, Loader2, ArrowRight, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
 import { useState, type ReactNode } from 'react';
@@ -396,18 +395,6 @@ export default function Pedidos() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    {pedido.status === 'Finalizado' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          payProfessional(500, 'acct_mock', pedido.title);
-                        }}
-                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl flex items-center gap-2 transition-all shadow-xl shadow-emerald-500/20 uppercase tracking-widest active:scale-90"
-                      >
-                        <CreditCard size={14} />
-                        Pagar R$ 500
-                      </button>
-                    )}
 
                     <div className="relative z-20" onClick={e => e.stopPropagation()}>
                       <button

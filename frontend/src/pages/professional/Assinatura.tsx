@@ -717,19 +717,9 @@ export default function ProfessionalAssinatura() {
 
           <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-6">
             <h3 className="font-bold text-white text-center mb-1">Transações</h3>
-            <p className="text-[#4A6580] text-xs text-center mb-4">Histórico auditado</p>
-
-            <div className="space-y-3">
-              {[60, 200, 60, 560, 180].map((val, i) => (
-                <div key={i} className="flex justify-between text-xs font-mono bg-[#1C3454] p-2 rounded border border-[#1C3050] text-emerald-400">
-                  <div className="flex items-center gap-2 truncate">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-                    <span className="truncate">stripe:cs_test_a1{Math.random().toString(36).substr(2, 6).toUpperCase()}...</span>
-                  </div>
-                  <span className="flex-shrink-0 ml-2">{val}</span>
-                </div>
-              ))}
-            </div>
+            <p className="text-[#4A6580] text-xs text-center py-4">
+              Histórico de transações disponível em breve.
+            </p>
           </div>
         </div>
       </div>

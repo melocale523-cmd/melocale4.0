@@ -932,7 +932,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     data: z.record(z.string(), z.unknown()).optional(),
   });
 
-  app.post("/api/notifications/push", async (req: Request, res: Response) => {
+  app.post("/api/notifications/push", requireAuth, async (req: Request, res: Response) => {
     const parsed = notifPushSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
     void sendPushToUser(parsed.data.user_id, {
@@ -1015,10 +1015,10 @@ COMPORTAMENTO NESTE CONTEXTO:
       duration: number;
     }> = [];
 
-    const TEST_CLIENT_EMAIL = 'anajuliasantos@gmail.com';
-    const TEST_CLIENT_PASSWORD = '123456789';
-    const TEST_PROF_EMAIL = 'jogersantos@gmail.com';
-    const TEST_PROF_PASSWORD = '123456789';
+    const TEST_CLIENT_EMAIL    = process.env.E2E_CLIENT_EMAIL    ?? '';
+    const TEST_CLIENT_PASSWORD = process.env.E2E_CLIENT_PASSWORD ?? '';
+    const TEST_PROF_EMAIL      = process.env.E2E_PROF_EMAIL      ?? '';
+    const TEST_PROF_PASSWORD   = process.env.E2E_PROF_PASSWORD   ?? '';
 
     let clientUserId: string | null = null;
     let profUserId: string | null = null;
