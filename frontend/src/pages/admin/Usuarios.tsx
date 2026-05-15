@@ -22,9 +22,9 @@ export default function AdminUsuarios() {
     onError: (error: any) => toast.error(error.message)
   });
 
-  const filteredUsers = usuarios?.filter(u => 
-    u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = usuarios?.filter(u =>
+    (u.full_name ?? u.name ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.email ?? '').toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
   return (

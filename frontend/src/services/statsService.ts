@@ -97,11 +97,33 @@ export const adminService = {
 
   async getUsers(params?: { role?: string, status?: string }) {
     try {
-      const { data, error } = await supabase.from('profiles').select('*');
-      if (error) return [];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, role, account_type, created_at, updated_at');
+      if (profilesError) return [];
 
-      return (data as ProfileRow[] || [])
-        .filter((user) => (!params?.role || user.role === params.role) && (!params?.status || user.status === params.status))
+      const { data: clientsData } = await supabase
+        .from('clients')
+        .select('id, email, full_name');
+
+      const { data: profsData } = await supabase
+        .from('professionals')
+        .select('user_id, is_public');
+
+      const profiles = (profilesData || []).map(p => {
+        const client = clientsData?.find(c => c.id === p.id);
+        const prof = profsData?.find(pr => pr.user_id === p.id);
+        return {
+          ...p,
+          email: client?.email ?? null,
+          full_name: p.full_name ?? client?.full_name ?? null,
+          status: prof ? (prof.is_public ? 'approved' : 'pending') : 'approved',
+          name: p.full_name ?? client?.full_name ?? null,
+        };
+      });
+
+      return profiles
+        .filter(u => (!params?.role || u.role === params.role) && (!params?.status || u.status === params.status))
         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
     } catch {
       return [];
