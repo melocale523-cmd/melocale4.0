@@ -1,10 +1,65 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
+import { registerRoute, setCatchHandler } from 'workbox-routing'
+import { NetworkFirst, CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
+import { CacheableResponsePlugin } from 'workbox-cacheable-response'
+import { ExpirationPlugin } from 'workbox-expiration'
 
 declare const self: ServiceWorkerGlobalScope
 
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
+
+// HTML — NetworkFirst (app shell sempre atualizado, fallback offline)
+registerRoute(
+  ({ request }) => request.mode === 'navigate',
+  new NetworkFirst({
+    cacheName: 'pages-cache',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 10 }),
+    ],
+  })
+)
+
+// API backend — NetworkFirst, cache 5min
+registerRoute(
+  ({ url }) => url.hostname === 'melocale4-0.onrender.com',
+  new NetworkFirst({
+    cacheName: 'api-cache',
+    networkTimeoutSeconds: 5,
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 300 }),
+    ],
+  })
+)
+
+// Imagens — CacheFirst, 30 dias
+registerRoute(
+  ({ request }) => request.destination === 'image',
+  new CacheFirst({
+    cacheName: 'images-cache',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }),
+    ],
+  })
+)
+
+// JS/CSS — StaleWhileRevalidate
+registerRoute(
+  ({ request }) => request.destination === 'script' || request.destination === 'style',
+  new StaleWhileRevalidate({ cacheName: 'assets-cache' })
+)
+
+// Fallback offline para navegação
+setCatchHandler(({ request }) => {
+  if (request.mode === 'navigate') {
+    return caches.match('/') as Promise<Response>
+  }
+  return Promise.resolve(Response.error())
+})
 
 self.addEventListener('push', (event: PushEvent) => {
   const data = event.data?.json() as { title: string; body: string; data?: Record<string, unknown> }
