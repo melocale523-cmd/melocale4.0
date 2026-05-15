@@ -1072,8 +1072,9 @@ COMPORTAMENTO NESTE CONTEXTO:
           description: 'Teste automatizado — pode ser deletado',
           category: 'Pintura',
           location: 'São Paulo, SP',
-          status: 'active',
-          price_coins: 10,
+          budget_min: 100,
+          budget_max: 500,
+          status: 'open',
         })
         .select('id')
         .single();
@@ -1090,7 +1091,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         .eq('id', createdLeadId)
         .single();
       if (error) throw new Error(error.message);
-      if (data.status !== 'active') throw new Error(`Status inesperado: ${data.status}`);
+      if (data.status !== 'open') throw new Error(`Status inesperado: ${data.status}`);
       return `OK — "${data.title}" visível e ativo`;
     });
 
