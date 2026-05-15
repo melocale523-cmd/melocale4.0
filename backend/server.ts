@@ -1100,7 +1100,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       if (!prof) throw new Error('Perfil profissional não encontrado');
       const { data, error } = await supabaseAdmin.rpc('purchase_lead', {
         p_lead_id: createdLeadId,
-        p_professional_id: prof.id,
+        p_idempotency_key: `e2e_test_${Date.now()}`,
       });
       if (error) throw new Error(error.message);
       createdChatId = (data as { chat_id?: string } | null)?.chat_id ?? String(data);
