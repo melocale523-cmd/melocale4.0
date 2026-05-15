@@ -108,6 +108,17 @@ async function sendPushToUser(userId: string, payload: { title: string; body: st
 
 let coinPackagesCache: Record<string, { coins: number; name: string; price: number }> = {};
 
+const PLANS: Record<string, {
+  name: string;
+  price: number;
+  welcomeCoins: number;
+  coinDiscount: number;
+}> = {
+  plan_basic:    { name: 'Starter', price: 3700,  welcomeCoins: 30,  coinDiscount: 0.25 },
+  plan_pro:      { name: 'PRO',     price: 6700,  welcomeCoins: 80,  coinDiscount: 0.40 },
+  plan_business: { name: 'Elite',   price: 12700, welcomeCoins: 200, coinDiscount: 0.55 },
+};
+
 async function loadCoinPackages() {
   const { data } = await supabaseAdmin.from('coin_packages')
     .select('id, name, coins, price').eq('is_active', true);
@@ -285,12 +296,6 @@ export function createApp() {
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
-    const PLAN_WELCOME_COINS: Record<string, number> = {
-      plan_basic:     30,
-      plan_pro:       80,
-      plan_business:  200,
-    };
-
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId    = session.metadata?.user_id || session.metadata?.userId;
@@ -320,7 +325,7 @@ export function createApp() {
       let coinsAmount = 0;
       let coinLabel = "avulso";
       if (sessionType === "subscription" && packageId) {
-        coinsAmount = PLAN_WELCOME_COINS[packageId] ?? 0;
+        coinsAmount = PLANS[packageId]?.welcomeCoins ?? 0;
         coinLabel = `boas-vindas:${packageId}`;
       } else if (packageId && coinPackagesCache[packageId]) {
         coinsAmount = coinPackagesCache[packageId].coins;
@@ -511,14 +516,12 @@ LEADS: custam 10-150 moedas dependendo de orçamento, urgência e categoria.`;
         const balance = Number(userData.coinBalance ?? 0);
         const plan = typeof userData.activePlan === 'string' ? userData.activePlan : null;
         const leads = Number(userData.leadsBought ?? 0);
-        const planNames: Record<string, string> = { plan_basic: 'Starter', plan_pro: 'PRO', plan_business: 'Elite' };
-
         return `${BASE}
 
 CONTEXTO: Você está no painel PROFISSIONAL conversando com ${name}.
 DADOS REAIS DO USUÁRIO:
 - Saldo atual: ${balance} moedas${balance < 20 ? ' ⚠️ BAIXO' : ''}
-- Plano ativo: ${plan ? planNames[plan] || plan : 'Nenhum (sem desconto)'}
+- Plano ativo: ${plan ? PLANS[plan]?.name ?? plan : 'Nenhum (sem desconto)'}
 - Leads comprados: ${leads}
 
 ${PLATFORM_KNOWLEDGE}
@@ -621,11 +624,13 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
 
   // Planos mensais hardcoded (não ficam na tabela coin_packages)
-  const SUBSCRIPTION_PLANS: Record<string, { name: string; price: number; description: string }> = {
-    plan_basic:    { name: "Starter",  price: 3700,  description: "Plano Starter MeloCale — 25% desconto em moedas" },
-    plan_pro:      { name: "PRO",      price: 6700,  description: "Plano PRO MeloCale — 40% desconto em moedas" },
-    plan_business: { name: "Elite",     price: 12700, description: "Plano Elite MeloCale — 55% desconto em moedas" },
-  };
+  const SUBSCRIPTION_PLANS: Record<string, { name: string; price: number; description: string }> = Object.fromEntries(
+    Object.entries(PLANS).map(([k, v]) => [k, {
+      name: v.name,
+      price: v.price,
+      description: `Plano ${v.name} MeloCale`,
+    }])
+  );
 
   const checkoutSchema = z.object({
     type: z.enum(['coins', 'plan', 'one_time', 'subscription']).optional(),
@@ -695,13 +700,6 @@ COMPORTAMENTO NESTE CONTEXTO:
         return res.status(404).json({ error: "Pacote nao encontrado ou inativo." });
       }
 
-      // Mapa de desconto por plano
-      const PLAN_DISCOUNTS: Record<string, number> = {
-        plan_basic:    0.25,
-        plan_pro:      0.40,
-        plan_business: 0.55,
-      };
-
       // Busca plano ativo do usuário
       const { data: activeSub } = await supabaseAdmin
         .from("user_subscriptions")
@@ -711,7 +709,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         .maybeSingle();
 
       const discount = activeSub?.package_id
-        ? (PLAN_DISCOUNTS[activeSub.package_id] ?? 0)
+        ? (PLANS[activeSub.package_id]?.coinDiscount ?? 0)
         : 0;
 
       const originalPrice = Math.round(Number(pkg.price) * 100);
