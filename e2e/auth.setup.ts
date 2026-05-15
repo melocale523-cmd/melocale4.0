@@ -1,0 +1,17 @@
+import { test, expect } from '@playwright/test';
+
+test('cliente consegue logar', async ({ page }) => {
+  await page.goto('/login');
+  await page.fill('input[type="email"]', 'anajuliasantos@gmail.com');
+  await page.fill('input[type="password"]', '123456789');
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL(/cliente/, { timeout: 10000 });
+});
+
+test('profissional consegue logar', async ({ page }) => {
+  await page.goto('/login');
+  await page.fill('input[type="email"]', 'jogersantos@gmail.com');
+  await page.fill('input[type="password"]', '123456789');
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL(/profissional/, { timeout: 10000 });
+});

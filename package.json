@@ -4,8 +4,21 @@
   "version": "0.0.0",
   "scripts": {
     "backend:build": "cd backend && npm install && npm run build",
-    "backend:start": "cd backend && npm start"
+    "backend:start": "cd backend && npm start",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:report": "npx playwright show-report"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
+  },
+  "description": "<div align=\"center\"> <img width=\"1200\" height=\"475\" alt=\"GHBanner\" src=\"https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6\" /> </div>",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:32915/git/melocale523-cmd/melocale4.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
