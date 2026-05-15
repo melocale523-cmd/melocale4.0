@@ -1103,7 +1103,11 @@ COMPORTAMENTO NESTE CONTEXTO:
         p_idempotency_key: `e2e_test_${Date.now()}`,
       });
       if (error) throw new Error(error.message);
-      createdChatId = (data as { chat_id?: string } | null)?.chat_id ?? String(data);
+      const result = data as { chat_id?: string } | string | null;
+      createdChatId = typeof result === 'object' && result !== null
+        ? (result as { chat_id?: string }).chat_id ?? JSON.stringify(result)
+        : String(result ?? '');
+      if (!createdChatId || createdChatId === 'null') throw new Error('chat_id não retornado pelo purchase_lead');
       return `OK — chat_id: ${createdChatId}`;
     });
 
