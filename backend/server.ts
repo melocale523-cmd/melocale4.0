@@ -1103,11 +1103,18 @@ COMPORTAMENTO NESTE CONTEXTO:
         p_idempotency_key: `e2e_test_${Date.now()}`,
       });
       if (error) throw new Error(error.message);
-      const result = data as { chat_id?: string } | string | null;
-      createdChatId = typeof result === 'object' && result !== null
-        ? (result as { chat_id?: string }).chat_id ?? JSON.stringify(result)
-        : String(result ?? '');
-      if (!createdChatId || createdChatId === 'null') throw new Error('chat_id não retornado pelo purchase_lead');
+      const result = data as { success?: boolean; lead_purchase_id?: string; chat_id?: string } | null;
+      const leadPurchaseId = result?.lead_purchase_id ?? result?.chat_id ?? null;
+      if (!leadPurchaseId) throw new Error(`Resposta inesperada: ${JSON.stringify(data)}`);
+      // Busca o chat (conversation) a partir do lead_purchase
+      const { data: lp, error: lpErr } = await supabaseAdmin
+        .from('lead_purchases')
+        .select('chat_id')
+        .eq('id', leadPurchaseId)
+        .maybeSingle();
+      if (lpErr) throw new Error(lpErr.message);
+      createdChatId = lp?.chat_id ?? null;
+      if (!createdChatId) throw new Error('chat_id não encontrado em lead_purchases');
       return `OK — chat_id: ${createdChatId}`;
     });
 
