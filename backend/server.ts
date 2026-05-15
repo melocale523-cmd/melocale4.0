@@ -991,6 +991,186 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
   });
 
+  // ============================================
+  // GET /api/admin/run-tests — E2E test runner
+  // ============================================
+  app.get('/api/admin/run-tests', requireAuth, async (req: Request, res: Response) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
+    const { data: { user } } = await supabaseAdmin.auth.getUser(token!);
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', user!.id)
+      .single();
+    if (profile?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const results: Array<{
+      id: string;
+      name: string;
+      status: 'pass' | 'fail' | 'skip';
+      message: string;
+      duration: number;
+    }> = [];
+
+    const TEST_CLIENT_EMAIL = 'anajuliasantos@gmail.com';
+    const TEST_CLIENT_PASSWORD = '123456789';
+    const TEST_PROF_EMAIL = 'jogersantos@gmail.com';
+    const TEST_PROF_PASSWORD = '123456789';
+
+    const { createClient: createPublicClient } = await import('@supabase/supabase-js');
+    const supabasePublic = createPublicClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_ANON_KEY!
+    );
+
+    let clientUserId: string | null = null;
+    let profUserId: string | null = null;
+    let createdLeadId: string | null = null;
+    let createdChatId: string | null = null;
+
+    async function runTest(id: string, name: string, fn: () => Promise<string>) {
+      const start = Date.now();
+      try {
+        const message = await fn();
+        results.push({ id, name, status: 'pass', message, duration: Date.now() - start });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        results.push({ id, name, status: 'fail', message: msg, duration: Date.now() - start });
+      }
+    }
+
+    await runTest('t1', 'Login cliente', async () => {
+      const { data, error } = await supabasePublic.auth.signInWithPassword({
+        email: TEST_CLIENT_EMAIL,
+        password: TEST_CLIENT_PASSWORD,
+      });
+      if (error || !data.session) throw new Error(error?.message ?? 'Sem sessão');
+      clientUserId = data.user.id;
+      return `OK — user_id: ${clientUserId}`;
+    });
+
+    await runTest('t2', 'Login profissional', async () => {
+      const { data, error } = await supabasePublic.auth.signInWithPassword({
+        email: TEST_PROF_EMAIL,
+        password: TEST_PROF_PASSWORD,
+      });
+      if (error || !data.session) throw new Error(error?.message ?? 'Sem sessão');
+      profUserId = data.user.id;
+      return `OK — user_id: ${profUserId}`;
+    });
+
+    await runTest('t3', 'Cliente cria pedido', async () => {
+      if (!clientUserId) throw new Error('Depende do T1 — login cliente falhou');
+      const { data: clientProfile } = await supabaseAdmin
+        .from('clients')
+        .select('id')
+        .eq('id', clientUserId)
+        .maybeSingle();
+      if (!clientProfile) throw new Error('Perfil cliente não encontrado');
+      const { data, error } = await supabaseAdmin
+        .from('leads')
+        .insert({
+          client_id: clientUserId,
+          title: '[TESTE E2E] Pintura de sala',
+          description: 'Teste automatizado — pode ser deletado',
+          category: 'Pintura',
+          location: 'São Paulo, SP',
+          status: 'active',
+          price_coins: 10,
+        })
+        .select('id')
+        .single();
+      if (error) throw new Error(error.message);
+      createdLeadId = data.id;
+      return `OK — lead_id: ${createdLeadId}`;
+    });
+
+    await runTest('t4', 'Profissional vê lead disponível', async () => {
+      if (!createdLeadId) throw new Error('Depende do T3 — lead não criado');
+      const { data, error } = await supabaseAdmin
+        .from('leads')
+        .select('id, title, status')
+        .eq('id', createdLeadId)
+        .single();
+      if (error) throw new Error(error.message);
+      if (data.status !== 'active') throw new Error(`Status inesperado: ${data.status}`);
+      return `OK — "${data.title}" visível e ativo`;
+    });
+
+    await runTest('t5', 'Profissional compra lead', async () => {
+      if (!createdLeadId || !profUserId) throw new Error('Depende do T2 e T3');
+      const { data: prof } = await supabaseAdmin
+        .from('professionals')
+        .select('id')
+        .eq('user_id', profUserId)
+        .maybeSingle();
+      if (!prof) throw new Error('Perfil profissional não encontrado');
+      const { data, error } = await supabaseAdmin.rpc('purchase_lead', {
+        p_lead_id: createdLeadId,
+        p_professional_id: prof.id,
+      });
+      if (error) throw new Error(error.message);
+      createdChatId = (data as { chat_id?: string } | null)?.chat_id ?? String(data);
+      return `OK — chat_id: ${createdChatId}`;
+    });
+
+    await runTest('t6', 'Chat aberto após compra', async () => {
+      if (!createdChatId) throw new Error('Depende do T5 — compra não realizada');
+      const { data, error } = await supabaseAdmin
+        .from('conversations')
+        .select('id, professional_id, client_id')
+        .eq('id', createdChatId)
+        .single();
+      if (error) throw new Error(error.message);
+      return `OK — conversa entre cliente e profissional criada (id: ${data.id})`;
+    });
+
+    await runTest('t7', 'Enviar mensagem no chat', async () => {
+      if (!createdChatId) throw new Error('Depende do T6 — chat não existe');
+      const { data, error } = await supabaseAdmin
+        .from('messages')
+        .insert({
+          conversation_id: createdChatId,
+          body: '[TESTE E2E] Olá, mensagem automática de teste',
+          sender_type: 'client',
+          read_at: null,
+          attachments: null,
+        })
+        .select('id')
+        .single();
+      if (error) throw new Error(error.message);
+      return `OK — message_id: ${data.id}`;
+    });
+
+    try {
+      if (createdChatId) {
+        await supabaseAdmin.from('messages')
+          .delete()
+          .eq('conversation_id', createdChatId)
+          .like('body', '[TESTE E2E]%');
+        await supabaseAdmin.from('conversations').delete().eq('id', createdChatId);
+        await supabaseAdmin.from('lead_purchases').delete().eq('lead_id', createdLeadId!);
+      }
+      if (createdLeadId) {
+        await supabaseAdmin.from('leads').delete().eq('id', createdLeadId);
+      }
+    } catch (cleanupErr) {
+      console.error('Cleanup parcial:', cleanupErr);
+    }
+
+    const passed = results.filter(r => r.status === 'pass').length;
+    const failed = results.filter(r => r.status === 'fail').length;
+
+    return res.json({
+      summary: { total: results.length, passed, failed },
+      results,
+      ran_at: new Date().toISOString(),
+    });
+  });
+
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : 500;
     const message = err instanceof Error ? err.message : 'Erro interno';

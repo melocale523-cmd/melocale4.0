@@ -51,6 +51,7 @@ const AdminClientes = lazy(() => import('./pages/admin/Clientes'));
 const AdminUsuarios = lazy(() => import('./pages/admin/Usuarios'));
 const AdminPacotes = lazy(() => import('./pages/admin/Pacotes'));
 const AdminSuporte = lazy(() => import('./pages/admin/Suporte'));
+const AdminTestes = lazy(() => import('./pages/admin/Testes'));
 
 // Lazy-loaded pages — checkout
 const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
@@ -238,6 +239,7 @@ const router = createBrowserRouter([
           { path: 'equipe', element: <AdminEmBreve /> },
           { path: 'simulador', element: <AdminEmBreve /> },
           { path: 'suporte', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSuporte /></Suspense></ErrorBoundary> },
+          { path: 'testes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminTestes /></Suspense></ErrorBoundary> },
           { path: 'configuracoes', element: <AdminEmBreve /> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
