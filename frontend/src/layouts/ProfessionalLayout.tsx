@@ -101,15 +101,15 @@ export default function ProfessionalLayout() {
           </span>
         </div>
         
-        <nav className="flex-1 overflow-y-auto px-4 mt-6 space-y-2">
+        <nav className="flex-1 px-4 mt-3 space-y-1">
           {navItems.map((item) => {
             const isActive = location.pathname.startsWith(item.path);
             return (
-              <Link 
+              <Link
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
+                  "flex items-center gap-3 px-4 py-2 rounded-xl transition-all font-medium text-sm",
                   isActive 
                     ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none" 
                     : "text-[#94A3B8] hover:text-white hover:bg-[#1C3454]"
