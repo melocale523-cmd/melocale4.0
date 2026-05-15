@@ -8,11 +8,11 @@ export default function RealtimeNotificationHandler() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    audio.volume = 0.3;
-    audioRef.current = audio;
+    // TODO: adicionar /public/notification.mp3
+    // const audio = new Audio('/notification.mp3');
+    // audio.volume = 0.3;
+    // audioRef.current = audio;
     return () => {
-      audio.pause();
       audioRef.current = null;
     };
   }, []);

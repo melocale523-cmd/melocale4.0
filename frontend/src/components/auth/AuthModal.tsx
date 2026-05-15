@@ -490,7 +490,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
             <div className="p-8 bg-[#0E1C32] border-t border-[#1C3050] text-center">
               <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed">
                 Ao continuar você declara que leu e concorda com nossos <br /> 
-                <a href="#" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a> e <a href="#" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
+                <a href="/termos" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a> e <a href="/privacidade" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
               </p>
             </div>
           </motion.div>

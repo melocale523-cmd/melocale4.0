@@ -68,7 +68,7 @@ export default function AdminUsuarios() {
              <tbody>
                {filteredUsers.map(u => (
                  <tr key={u.id} className="border-b border-[#1C3050] hover:bg-slate-800/20 transition-colors group">
-                   <td className="p-4 pl-6 text-white font-medium">{u.name || 'Sem nome'}</td>
+                   <td className="p-4 pl-6 text-white font-medium">{u.full_name ?? u.name ?? 'Sem nome'}</td>
                    <td className="p-4 text-[#94A3B8]">{u.email || 'N/A'}</td>
                    <td className="p-4 text-[#94A3B8] capitalize">{u.role}</td>
                    <td className="p-4 text-[#94A3B8]">{new Date(u.created_at || '').toLocaleDateString('pt-BR')}</td>

@@ -95,8 +95,10 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
     url = '/cliente/agenda'
   } else if (type === 'reminder_24h_prof') {
     url = '/profissional/agenda'
+  } else if (type === 'message_client') {
+    url = '/cliente/mensagens'
   } else if (type === 'message') {
-    url = '/mensagens'
+    url = '/profissional/mensagens'
   }
 
   event.waitUntil(self.clients.openWindow(url))

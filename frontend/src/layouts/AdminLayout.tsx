@@ -37,12 +37,7 @@ export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  // Mock notifications for admin
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Nova Disputa Criada', message: 'O cliente "Maria Silva" abriu uma nova disputa.', time: 'há 5 min', read: false },
-    { id: 2, title: 'Alerta de Transação', message: 'Transação suspeita no valor de R$ 5000.', time: 'há 1 hora', read: false },
-    { id: 3, title: 'Cadastro Pendente', message: 'Temos 3 novos profissionais aguardando aprovação.', time: 'há 3 horas', read: true },
-  ]);
+  const [notifications, setNotifications] = useState<{ id: number; title: string; message: string; time: string; read: boolean }[]>([]);
 
   useEffect(() => {
     if (user && user.role !== 'admin') navigate('/', { replace: true });

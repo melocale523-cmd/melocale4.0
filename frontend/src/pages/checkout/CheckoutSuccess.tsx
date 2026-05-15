@@ -12,12 +12,12 @@ export default function CheckoutSuccess() {
 
   useEffect(() => {
     if (!sessionId) {
-      navigate('/dashboard', { replace: true });
+      navigate('/profissional/dashboard', { replace: true });
       return;
     }
 
     // Invalida o cache para recarregar o saldo quando o webhook processar
-    queryClient.invalidateQueries({ queryKey: ['wallet'] });
+    queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
 
     const timer = setTimeout(() => {
       navigate('/profissional/carteira');
