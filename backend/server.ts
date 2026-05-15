@@ -1064,22 +1064,17 @@ COMPORTAMENTO NESTE CONTEXTO:
         .eq('id', clientUserId)
         .maybeSingle();
       if (!clientProfile) throw new Error('Perfil cliente não encontrado');
-      const { data, error } = await supabaseAdmin
-        .from('leads')
-        .insert({
-          client_id: clientUserId,
-          title: '[TESTE E2E] Pintura de sala',
-          description: 'Teste automatizado — pode ser deletado',
-          category: 'Pintura',
-          location: 'São Paulo, SP',
-          budget_min: 100,
-          budget_max: 500,
-          status: 'open',
-        })
-        .select('id')
-        .single();
+      const { data, error } = await supabaseAdmin.rpc('e2e_insert_lead', {
+        p_client_id: clientUserId,
+        p_title: '[TESTE E2E] Pintura de sala',
+        p_description: 'Teste automatizado — pode ser deletado',
+        p_category: 'Pintura',
+        p_location: 'São Paulo, SP',
+        p_budget_min: 100,
+        p_budget_max: 500,
+      });
       if (error) throw new Error(error.message);
-      createdLeadId = data.id;
+      createdLeadId = data as string;
       return `OK — lead_id: ${createdLeadId}`;
     });
 
