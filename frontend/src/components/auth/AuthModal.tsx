@@ -213,7 +213,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className={cn(
-              "relative w-full bg-[#0E1C32] rounded-[2.5rem] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] border border-[#1C3050] my-auto transition-all duration-500",
+              "relative w-full bg-[#0E1C32] rounded-[2.5rem] overflow-y-auto max-h-[90vh] shadow-[0_0_80px_rgba(0,0,0,0.8)] border border-[#1C3050] my-auto transition-all duration-500",
               step === 'role' ? 'max-w-4xl' : 'max-w-xl'
             )}
           >
