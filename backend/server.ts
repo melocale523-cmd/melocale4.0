@@ -1099,35 +1099,15 @@ COMPORTAMENTO NESTE CONTEXTO:
         .maybeSingle();
       if (!prof) throw new Error('Perfil profissional não encontrado');
 
-      // Insere lead_purchase diretamente (bypassa auth.uid())
-      const { data: purchase, error: purchaseErr } = await supabaseAdmin
-        .from('lead_purchases')
-        .insert({
-          lead_id: createdLeadId,
-          professional_id: prof.id,
-          user_id: profUserId,
-          client_id: clientUserId,
-          price_coins: 1,
-          idempotency_key: `e2e_test_direct_${Date.now()}`,
-          status: 'Pendente Proposta',
-        })
-        .select('id')
-        .single();
-      if (purchaseErr) throw new Error(purchaseErr.message);
-
-      // Cria conversa (chat)
-      const { data: conv, error: convErr } = await supabaseAdmin
-        .from('conversations')
-        .insert({
-          professional_id: prof.id,
-          professional_user_id: profUserId,
-          client_id: clientUserId,
-          lead_id: createdLeadId,
-        })
-        .select('id')
-        .single();
-      if (convErr) throw new Error(convErr.message);
-      createdChatId = conv.id;
+      const { data: chatId, error } = await supabaseAdmin
+        .rpc('e2e_insert_lead_purchase', {
+          p_lead_id: createdLeadId,
+          p_professional_id: prof.id,
+          p_professional_user_id: profUserId,
+          p_client_id: clientUserId,
+        });
+      if (error) throw new Error(error.message);
+      createdChatId = chatId;
       return `OK — chat_id: ${createdChatId}`;
     });
 
