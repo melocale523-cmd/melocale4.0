@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
 import { Loader2, CheckCircle2, AlertCircle, X, Calendar, RefreshCw } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { toast } from 'sonner';
 
 const STATUS_LABELS: Record<string, { label: string; colorClass: string }> = {
   active:   { label: 'Ativo',              colorClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
@@ -201,7 +202,7 @@ export default function ProfessionalAssinatura() {
       await initiateCheckout(type, id);
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("Houve um erro ao processar o seu pedido. Por favor, tente novamente.");
+      toast.error("Houve um erro ao processar o seu pedido. Por favor, tente novamente.");
     } finally {
       setBuyingId(null);
     }

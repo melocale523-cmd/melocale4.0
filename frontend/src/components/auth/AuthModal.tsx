@@ -126,7 +126,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
     try {
       if (mode === 'signup') {
-        setMode(selectedRole as any);
+        setMode(selectedRole);
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -167,7 +167,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         onClose();
         navigate('/login');
       } else {
-        setMode(selectedRole as any);
+        setMode(selectedRole);
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,

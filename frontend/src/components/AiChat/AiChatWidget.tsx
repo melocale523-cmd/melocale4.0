@@ -327,12 +327,6 @@ export default function AiChatWidget() {
         {/* Online pulse ring */}
         <span className="absolute inset-0 rounded-full animate-ping bg-emerald-500/20 pointer-events-none" />
 
-        {/* Notification badge */}
-        {!isOpen && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#0E1C32] shadow">
-            1
-          </span>
-        )}
       </motion.button>
     </div>
   );

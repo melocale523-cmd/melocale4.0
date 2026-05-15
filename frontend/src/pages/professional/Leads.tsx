@@ -383,21 +383,22 @@ export default function ProfessionalLeads() {
              <LoadingSpinner size={32} label="Buscando novos clientes..." />
           </div>
         ) : (
-          filteredLeads?.map((lead) => (
-             <div key={lead.id} className={cn(
+          filteredLeads?.map((lead) => {
+             const badges = getBadges(lead);
+             return <div key={lead.id} className={cn(
                 "bg-[#1C3454] border rounded-[2rem] p-5 flex flex-col transition-all group relative overflow-hidden text-left",
-                getBadges(lead).some(b => b.label === 'Urgente')
+                badges.some(b => b.label === 'Urgente')
                   ? "border-red-500/40 animate-pulse"
                   : "border-[#1C3050] hover:border-emerald-500/30"
              )}>
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-all"></div>
-                
+
                 <div className="flex-1 relative z-10">
                   <div className="flex justify-between items-start mb-4">
                      <div>
-                       {getBadges(lead).length > 0 && (
+                       {badges.length > 0 && (
                          <div className="flex flex-wrap gap-1.5 mb-3">
-                           {getBadges(lead).map((b, i) => (
+                           {badges.map((b, i) => (
                              <span key={i} className={`px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-lg border ${b.color}`}>
                                {b.icon} {b.label}
                              </span>
@@ -476,8 +477,8 @@ export default function ProfessionalLeads() {
                 >
                    {purchaseMutation.isPending ? <Loader2 className="animate-spin" size={16}/> : <><ShoppingCart size={18} className="group-hover/btn:scale-110 transition-transform" /> Adquirir Cliente</>}
                 </button>
-             </div>
-          ))
+             </div>;
+          })
         )}
       </div>
 

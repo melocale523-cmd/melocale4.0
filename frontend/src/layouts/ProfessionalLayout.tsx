@@ -5,7 +5,6 @@ import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
 import { walletService } from '../services/dbServices';
 import { useProfile } from '../hooks/useProfile';
 import NotificationBell from '../components/NotificationBell';

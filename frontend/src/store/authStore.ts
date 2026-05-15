@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  currentMode: (localStorage.getItem('auth_mode') as any) || null,
+  currentMode: (localStorage.getItem('auth_mode') as 'client' | 'professional' | 'admin' | null) || null,
 
   setAuth: (user) => set((state) => {
     const newMode = state.currentMode || user?.role || null;
