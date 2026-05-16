@@ -477,6 +477,19 @@ export default function Login() {
               )}
             </button>
           </form>
+
+          {isSignUp && (
+            <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
+              Ao continuar você declara que leu e concorda com nossos{' '}
+              <a href="/termos" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">
+                Termos de Uso
+              </a>
+              {' '}e{' '}
+              <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">
+                Políticas de Privacidade
+              </a>.
+            </p>
+          )}
         </motion.div>
       </AnimatePresence>
     </div>
