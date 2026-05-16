@@ -69,6 +69,8 @@ export const subscriptionService = {
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', user.id)
+      .order('started_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     if (error) return null;
