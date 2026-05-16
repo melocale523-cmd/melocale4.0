@@ -462,6 +462,11 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                                 </div>
                               );
                             })()}
+                            {mode === 'signup' && (
+                              <p className="text-[10px] text-[#7A9EBF] mt-1.5 leading-relaxed">
+                                Mínimo 8 caracteres · uma letra maiúscula · um número
+                              </p>
+                            )}
                           </div>
                         </div>
                       </>

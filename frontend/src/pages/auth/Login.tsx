@@ -406,6 +406,11 @@ export default function Login() {
                       </div>
                     );
                   })()}
+                  {isSignUp && (
+                    <p className="text-[10px] text-[#7A9EBF] mt-1.5 leading-relaxed">
+                      Mínimo 8 caracteres · uma letra maiúscula · um número
+                    </p>
+                  )}
                 </div>
               </>
             )}
