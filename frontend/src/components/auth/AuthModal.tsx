@@ -473,7 +473,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                                 ].map(({ ok, label }) => (
                                   <span
                                     key={label}
-                                    className={`text-[11px] font-bold flex items-center gap-1 transition-colors ${ok ? 'text-emerald-400' : 'text-[#7A9EBF]'}`}
+                                    className={`text-[13px] font-bold flex items-center gap-1 transition-colors ${ok ? 'text-emerald-400' : 'text-[#7A9EBF]'}`}
                                   >
                                     <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-400' : 'bg-[#7A9EBF]'}`} />
                                     {label}
