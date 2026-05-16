@@ -104,22 +104,22 @@ export default function AdminUsuarios() {
                   <td className="p-4 text-[#94A3B8]">{new Date(u.created_at || '').toLocaleDateString('pt-BR')}</td>
                   <td className="p-4">
                     <span className={`px-2.5 py-1 rounded text-xs font-bold ${
-                      u.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
-                      u.status === 'pending'  ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
-                      'bg-red-500/10 text-red-500 border border-red-500/20'
+                      u.status === 'active'
+                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-500 border border-red-500/20'
                     }`}>
-                      {u.status === 'approved' ? 'Ativo' : u.status === 'pending' ? 'Pendente' : 'Rejeitado'}
+                      {u.status === 'active' ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="p-4 pr-6 text-right opacity-50 group-hover:opacity-100 transition-opacity">
                     <div className="flex justify-end gap-2 text-[#94A3B8]">
-                      {u.status !== 'approved' && (
-                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'approved' })} className="hover:text-emerald-500 p-1" title="Aprovar">
+                      {u.role === 'professional' && u.status !== 'active' && (
+                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'active' })} className="hover:text-emerald-500 p-1" title="Ativar">
                           <CheckCircle size={18} />
                         </button>
                       )}
-                      {u.status !== 'rejected' && (
-                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'rejected' })} className="hover:text-red-500 p-1" title="Rejeitar">
+                      {u.role === 'professional' && u.status === 'active' && (
+                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'inactive' })} className="hover:text-red-500 p-1" title="Desativar">
                           <XCircle size={18} />
                         </button>
                       )}

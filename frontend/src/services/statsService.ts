@@ -123,14 +123,30 @@ export const adminService = {
 
       const clientMap = Object.fromEntries((clientsRes.data ?? []).map(c => [c.id, c]));
 
+      let profMap: Record<string, { is_active: boolean }> = {};
+      try {
+        if (ids.length > 0) {
+          const { data, error } = await supabase
+            .from('professionals')
+            .select('user_id, is_active')
+            .in('user_id', ids);
+          if (!error && data) {
+            profMap = Object.fromEntries(data.map(p => [p.user_id, p]));
+          }
+        }
+      } catch {}
+
       const mapped = (profilesData ?? []).map(p => {
         const client = clientMap[p.id];
+        const prof = profMap[p.id];
         return {
           ...p,
           email: client?.email ?? null,
           full_name: p.full_name ?? client?.full_name ?? null,
           name: p.full_name ?? client?.full_name ?? null,
-          status: 'active',
+          status: prof !== undefined
+            ? (prof.is_active ? 'active' : 'inactive')
+            : 'active',
         };
       });
 
@@ -143,8 +159,13 @@ export const adminService = {
     }
   },
 
-  async updateUserStatus(_userId: string, _status: string) {
-    // profiles has no status column — no-op until schema is updated
+  async updateUserStatus(userId: string, status: string) {
+    const isActive = status === 'active';
+    const { error } = await supabase
+      .from('professionals')
+      .update({ is_active: isActive })
+      .eq('user_id', userId);
+    if (error) throw error;
     return true;
   },
 
