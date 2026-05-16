@@ -123,8 +123,8 @@ export default function Login() {
       setIsLockedMode(true);
     }
 
-    if (roleParam === 'professional' || roleParam === 'client' || roleParam === 'admin') {
-      setSelectedRole(roleParam as any);
+    if (roleParam === 'professional' || roleParam === 'client') {
+      setSelectedRole(roleParam as 'professional' | 'client');
     }
   }, []);
 
