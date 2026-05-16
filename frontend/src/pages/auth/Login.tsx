@@ -7,6 +7,13 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
+  if (!/[A-Z]/.test(password)) return 'Senha deve ter pelo menos uma letra maiúscula.';
+  if (!/[0-9]/.test(password)) return 'Senha deve ter pelo menos um número.';
+  return null;
+}
+
 async function fetchCepData(cep: string): Promise<{ city: string } | null> {
   try {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -50,6 +57,8 @@ export default function Login() {
       setError("Por favor, preencha os dados básicos para continuar.");
       return;
     }
+    const pwErr = validatePassword(formData.password);
+    if (pwErr) { setError(pwErr); return; }
     setAuthStep('details');
     setError(null);
   };
@@ -139,6 +148,11 @@ export default function Login() {
     if (!validateEmail(formData.email)) {
       setError("Por favor, insira um formato de e-mail válido.");
       return;
+    }
+
+    if (isSignUp) {
+      const pwErr = validatePassword(formData.password);
+      if (pwErr) { setError(pwErr); return; }
     }
 
     setIsSubmitting(true);
@@ -355,7 +369,7 @@ export default function Login() {
                     <input
                       required type={showPassword ? 'text' : 'password'} placeholder="••••••••"
                       className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
-                      value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
+                      value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8}
                     />
                     <button
                       type="button"
@@ -365,6 +379,17 @@ export default function Login() {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
+                  {isSignUp && formData.password.length > 0 && (
+                    <div className="flex gap-1 mt-2">
+                      {[
+                        formData.password.length >= 8,
+                        /[A-Z]/.test(formData.password),
+                        /[0-9]/.test(formData.password),
+                      ].map((ok, i) => (
+                        <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${ok ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </>
             )}

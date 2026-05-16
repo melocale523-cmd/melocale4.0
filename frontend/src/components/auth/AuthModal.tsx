@@ -7,6 +7,13 @@ import { useAuthStore, Role } from '../../store/authStore';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
+  if (!/[A-Z]/.test(password)) return 'Senha deve ter pelo menos uma letra maiúscula.';
+  if (!/[0-9]/.test(password)) return 'Senha deve ter pelo menos um número.';
+  return null;
+}
+
 async function fetchCepData(cep: string): Promise<{ city: string } | null> {
   try {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -52,9 +59,13 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
   const handleNextStep = () => {
     if (step === 'basics') {
-      if (!formData.email || !formData.password || !formData.name) {
+      if (!formData.email || !formData.password || (mode === 'signup' && !formData.name)) {
         setError("Por favor, preencha todos os campos.");
         return;
+      }
+      if (mode === 'signup') {
+        const pwErr = validatePassword(formData.password);
+        if (pwErr) { setError(pwErr); return; }
       }
       setStep('details');
       setError(null);
@@ -121,6 +132,11 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (mode === 'signup') {
+      const pwErr = validatePassword(formData.password);
+      if (pwErr) { setError(pwErr); return; }
+    }
 
     setIsSubmitting(true);
 
@@ -411,9 +427,9 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                             </div>
                             <div className="relative">
                               <input
-                                required type={showPassword ? 'text' : 'password'} placeholder="Mínimo 6 caracteres"
+                                required type={showPassword ? 'text' : 'password'} placeholder="Mínimo 8 caracteres"
                                 className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 pr-12 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
-                                value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
+                                value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8}
                               />
                               <button
                                 type="button"
@@ -423,6 +439,17 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
                             </div>
+                            {mode === 'signup' && formData.password.length > 0 && (
+                              <div className="flex gap-1 mt-2">
+                                {[
+                                  formData.password.length >= 8,
+                                  /[A-Z]/.test(formData.password),
+                                  /[0-9]/.test(formData.password),
+                                ].map((ok, i) => (
+                                  <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${ok ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </>
