@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, User, Briefcase, ChevronRight, Loader2, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -60,6 +60,18 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [legalModal, setLegalModal] = useState<'termos' | 'privacidade' | null>(null);
+  const [categorias, setCategorias] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('categories')
+      .select('name')
+      .eq('is_active', true)
+      .order('name')
+      .then(({ data }) => {
+        if (data?.length) setCategorias(data.map((c: { name: string }) => c.name));
+      });
+  }, []);
 
   const handleRoleSelect = (role: 'client' | 'professional') => {
     setSelectedRole(role);
@@ -521,11 +533,17 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                           {selectedRole === 'professional' && (
                             <div>
                               <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Área de Atuação</label>
-                              <input
-                                required type="text" placeholder="Ex: Eletricista, Pintor..."
-                                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-                                value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
-                              />
+                              <select
+                                required
+                                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium appearance-none cursor-pointer"
+                                value={formData.category}
+                                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                              >
+                                <option value="" disabled>Selecione sua área de atuação</option>
+                                {categorias.map(cat => (
+                                  <option key={cat} value={cat} className="bg-[#0E1C32] text-white">{cat}</option>
+                                ))}
+                              </select>
                             </div>
                           )}
                           {selectedRole === 'professional' && (

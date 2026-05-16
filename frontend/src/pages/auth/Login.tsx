@@ -60,6 +60,18 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [legalModal, setLegalModal] = useState<'termos' | 'privacidade' | null>(null);
+  const [categorias, setCategorias] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('categories')
+      .select('name')
+      .eq('is_active', true)
+      .order('name')
+      .then(({ data }) => {
+        if (data?.length) setCategorias(data.map((c: { name: string }) => c.name));
+      });
+  }, []);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -463,11 +475,17 @@ export default function Login() {
                 {selectedRole === 'professional' && (
                   <div>
                     <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Especialidade / Categoria</label>
-                    <input
-                      required type="text" placeholder="Ex: Pintura, Elétrica..."
-                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
-                      value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    />
+                    <select
+                      required
+                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
+                      value={formData.category}
+                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    >
+                      <option value="" disabled>Selecione sua especialidade</option>
+                      {categorias.map(cat => (
+                        <option key={cat} value={cat} className="bg-[#0E1C32] text-white">{cat}</option>
+                      ))}
+                    </select>
                   </div>
                 )}
                 {selectedRole === 'professional' && (
