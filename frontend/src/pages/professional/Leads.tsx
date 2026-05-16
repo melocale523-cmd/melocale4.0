@@ -461,6 +461,8 @@ export default function ProfessionalLeads() {
                             src={url}
                             alt={`Foto ${idx + 1}`}
                             loading="lazy"
+                            role="button"
+                            aria-label="Ver imagem em tela cheia"
                             onClick={(e) => { e.stopPropagation(); setLightboxImg({ images: lead.images as string[], index: idx }); }}
                             className="w-20 h-20 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
                           />

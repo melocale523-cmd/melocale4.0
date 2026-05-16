@@ -309,6 +309,7 @@ export default function AiChatWidget() {
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Abrir chat de suporte"
         className="relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 transition-colors"
         style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
       >

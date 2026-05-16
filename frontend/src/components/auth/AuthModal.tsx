@@ -447,6 +447,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                               <button
                                 type="button"
                                 onClick={() => setShowPassword(p => !p)}
+                                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#B0C4D8] hover:text-white transition-colors"
                               >
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
