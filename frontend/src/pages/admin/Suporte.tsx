@@ -33,7 +33,8 @@ async function fetchTickets(): Promise<Ticket[]> {
   const { data, error } = await supabase
     .from('support_tickets')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(100);
   if (error) throw error;
   return (data ?? []) as Ticket[];
 }
