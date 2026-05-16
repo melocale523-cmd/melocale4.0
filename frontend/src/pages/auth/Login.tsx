@@ -217,9 +217,8 @@ export default function Login() {
 
         if (signInError) throw signInError;
 
-        setMode(selectedRole as any);
         toast.success("Bem-vindo(a)!");
-        // Navigation will be handled by the useEffect once the auth store is updated by AuthInitializer
+        // Navigation handled by AuthInitializer → authStore → AuthRedirect using profiles.role
       }
     } catch (err: any) {
       const msg = (err.message || '').toLowerCase();
