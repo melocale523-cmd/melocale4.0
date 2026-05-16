@@ -8,7 +8,7 @@ export default function AdminAprovados() {
 
   const { data: usuarios, isLoading } = useQuery({
     queryKey: ['adminUsers', 'approved'],
-    queryFn: () => adminService.getUsers({ status: 'approved' })
+    queryFn: () => adminService.getUsers({ status: 'active' })
   });
 
   const filteredUsers = usuarios?.filter(u => 

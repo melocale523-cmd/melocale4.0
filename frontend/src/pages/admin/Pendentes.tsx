@@ -10,7 +10,7 @@ export default function AdminPendentes() {
 
   const { data: usuarios, isLoading } = useQuery({
     queryKey: ['adminUsers', 'pending'],
-    queryFn: () => adminService.getUsers({ status: 'pending' })
+    queryFn: () => adminService.getUsers({ status: 'inactive' })
   });
 
   const updateStatusMutation = useMutation({
@@ -68,10 +68,10 @@ export default function AdminPendentes() {
                    <td className="p-4 text-[#94A3B8]">{new Date(u.created_at || '').toLocaleDateString('pt-BR')}</td>
                    <td className="p-4 pr-6 text-right">
                       <div className="flex justify-end gap-2 text-[#94A3B8] opacity-50 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'approved' })} className="hover:text-emerald-500 p-1" title="Aprovar">
+                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'active' })} className="hover:text-emerald-500 p-1" title="Aprovar">
                           <CheckCircle size={18} />
                         </button>
-                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'rejected' })} className="hover:text-red-500 p-1" title="Rejeitar">
+                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'inactive' })} className="hover:text-red-500 p-1" title="Rejeitar">
                           <XCircle size={18} />
                         </button>
                       </div>

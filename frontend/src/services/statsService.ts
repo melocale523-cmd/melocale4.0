@@ -161,11 +161,24 @@ export const adminService = {
 
   async updateUserStatus(userId: string, status: string) {
     const isActive = status === 'active';
-    const { error } = await supabase
-      .from('professionals')
-      .update({ is_active: isActive })
-      .eq('user_id', userId);
-    if (error) throw error;
+    const API_URL = (import.meta as { env: Record<string, string> }).env.VITE_API_URL || 'https://melocale4-0.onrender.com';
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) throw new Error('Não autenticado');
+
+    const res = await fetch(`${API_URL}/api/admin/professional-status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ user_id: userId, is_active: isActive }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
+      throw new Error(err.error || 'Erro ao atualizar status');
+    }
     return true;
   },
 
