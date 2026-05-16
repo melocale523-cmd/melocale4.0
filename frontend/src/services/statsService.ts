@@ -54,13 +54,14 @@ async function calcAvgResponseTime(): Promise<string> {
 
 export const adminService = {
   async getDashboardSummary() {
-    let usersCount = 0, pendingCount = 0, activeLeadsCount = 0, pendingDisputesCount = 0, totalRevenue = 0;
+    let pendingCount = 0, totalRevenue = 0;
     let avgResponseTime = '—';
     try {
-      const [profsRes, leadsRes, disputesRes, purchasesRes, avgTime] = await Promise.all([
-        supabase.from('profiles').select('*'),
-        supabase.from('leads').select('*'),
-        supabase.from('disputes').select('*'),
+      const [totalUsersRes, activeLeadsRes, pendingDisputesRes, pendingProfsRes, purchasesRes, avgTime] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+        supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('profiles').select('id, status').eq('status', 'pending'),
         supabase
           .from('lead_purchases')
           .select('price')
@@ -69,62 +70,85 @@ export const adminService = {
         calcAvgResponseTime(),
       ]);
 
-      if (profsRes.data) {
-        usersCount = profsRes.data.length;
-        pendingCount = (profsRes.data as ProfileRow[]).filter((p) => p.status === 'pending').length;
-      }
-      if (leadsRes.data) {
-        activeLeadsCount = (leadsRes.data as LeadStatusRow[]).filter((l) => l.status === 'open').length;
-      }
-      if (disputesRes.data) {
-        pendingDisputesCount = (disputesRes.data as LeadStatusRow[]).filter((d) => d.status === 'pending').length;
+      if (pendingProfsRes.data) {
+        pendingCount = pendingProfsRes.data.length;
       }
       if (purchasesRes.data) {
         totalRevenue = (purchasesRes.data as { price: number | null }[]).reduce((acc, p) => acc + Number(p.price ?? 0), 0);
       }
       avgResponseTime = avgTime;
-    } catch {}
 
-    return {
-      totalUsers: usersCount || 0,
-      activeLeads: activeLeadsCount || 0,
-      estimatedRevenue: totalRevenue,
-      pendingVerifications: pendingCount || 0,
-      avgResponseTime,
-      pendingDisputes: pendingDisputesCount || 0
-    };
+      return {
+        totalUsers: totalUsersRes.count ?? 0,
+        activeLeads: activeLeadsRes.count ?? 0,
+        estimatedRevenue: totalRevenue,
+        pendingVerifications: pendingCount,
+        avgResponseTime,
+        pendingDisputes: pendingDisputesRes.count ?? 0,
+      };
+    } catch {
+      return {
+        totalUsers: 0,
+        activeLeads: 0,
+        estimatedRevenue: totalRevenue,
+        pendingVerifications: pendingCount,
+        avgResponseTime,
+        pendingDisputes: 0,
+      };
+    }
   },
 
-  async getUsers(params?: { role?: string, status?: string }) {
+  async getUsers(filters?: { role?: string; status?: string; search?: string; limit?: number }) {
     try {
-      const { data: profilesData, error: profilesError } = await supabase
+      const limit = filters?.limit ?? 100;
+
+      let query = supabase
         .from('profiles')
-        .select('id, full_name, role, account_type, created_at, updated_at');
+        .select('id, full_name, role, account_type, created_at, updated_at')
+        .limit(limit)
+        .order('created_at', { ascending: false });
+
+      if (filters?.role && filters.role !== 'all') {
+        query = query.eq('role', filters.role);
+      }
+
+      if (filters?.search) {
+        query = query.ilike('full_name', `%${filters.search}%`);
+      }
+
+      const { data: profilesData, error: profilesError } = await query;
       if (profilesError) return [];
 
-      const { data: clientsData } = await supabase
-        .from('clients')
-        .select('id, email, full_name');
+      const ids = (profilesData ?? []).map(p => p.id);
 
-      const { data: profsData } = await supabase
-        .from('professionals')
-        .select('user_id, is_public');
+      const [clientsRes, profsRes] = await Promise.all([
+        ids.length > 0
+          ? supabase.from('clients').select('id, email, full_name').in('id', ids)
+          : Promise.resolve({ data: [] as { id: string; email: string | null; full_name: string | null }[] }),
+        ids.length > 0
+          ? supabase.from('professionals').select('user_id, is_public').in('user_id', ids)
+          : Promise.resolve({ data: [] as { user_id: string; is_public: boolean }[] }),
+      ]);
 
-      const profiles = (profilesData || []).map(p => {
-        const client = clientsData?.find(c => c.id === p.id);
-        const prof = profsData?.find(pr => pr.user_id === p.id);
+      const clientMap = Object.fromEntries((clientsRes.data ?? []).map(c => [c.id, c]));
+      const profMap = Object.fromEntries((profsRes.data ?? []).map(p => [p.user_id, p]));
+
+      const mapped = (profilesData ?? []).map(p => {
+        const client = clientMap[p.id];
+        const prof = profMap[p.id];
         return {
           ...p,
           email: client?.email ?? null,
           full_name: p.full_name ?? client?.full_name ?? null,
-          status: prof ? (prof.is_public ? 'approved' : 'pending') : 'approved',
           name: p.full_name ?? client?.full_name ?? null,
+          status: prof ? (prof.is_public ? 'approved' : 'pending') : 'approved',
         };
       });
 
-      return profiles
-        .filter(u => (!params?.role || u.role === params.role) && (!params?.status || u.status === params.status))
-        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      if (filters?.status) {
+        return mapped.filter(u => u.status === filters.status);
+      }
+      return mapped;
     } catch {
       return [];
     }
