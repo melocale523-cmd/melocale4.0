@@ -314,6 +314,10 @@ export default function Login() {
       )}
 
       {selectedRole !== 'admin' && (
+        <>
+        <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-3">
+          {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
+        </p>
         <div className="grid grid-cols-2 gap-4 mb-8">
           <button
             onClick={() => setSelectedRole('client')}
@@ -330,6 +334,7 @@ export default function Login() {
             <span className="text-[10px] font-black uppercase tracking-widest">Sou Profissional</span>
           </button>
         </div>
+        </>
       )}
 
       <AnimatePresence mode="wait">
