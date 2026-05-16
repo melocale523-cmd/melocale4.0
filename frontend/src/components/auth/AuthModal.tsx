@@ -126,7 +126,6 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
     try {
       if (mode === 'signup') {
-        setMode(selectedRole);
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -143,6 +142,8 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         });
 
         if (signUpError) throw signUpError;
+
+        setMode(selectedRole);
 
         await supabase.from('profiles').upsert({
           id: signUpData.user?.id,
@@ -167,14 +168,14 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         onClose();
         navigate('/login');
       } else {
-        setMode(selectedRole);
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
-        
+
         if (signInError) throw signInError;
-        
+
+        setMode(selectedRole);
         toast.success("Bem-vindo(a) de volta!");
         onClose();
         // The router component (AuthRedirect or ProtectedRoute) handles redirection automatically

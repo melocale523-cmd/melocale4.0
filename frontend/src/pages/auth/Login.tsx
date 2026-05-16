@@ -145,7 +145,6 @@ export default function Login() {
 
     try {
       if (isSignUp) {
-        setMode(selectedRole as any);
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -162,6 +161,8 @@ export default function Login() {
         });
 
         if (signUpError) throw signUpError;
+
+        setMode(selectedRole as any);
 
         await supabase.from('profiles').upsert({
           id: signUpData.user?.id,
@@ -184,14 +185,14 @@ export default function Login() {
 
         toast.success("Conta criada! Verifique seu e-mail.");
       } else {
-        setMode(selectedRole as any);
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
-        
+
         if (signInError) throw signInError;
-        
+
+        setMode(selectedRole as any);
         toast.success("Bem-vindo(a)!");
         // Navigation will be handled by the useEffect once the auth store is updated by AuthInitializer
       }
