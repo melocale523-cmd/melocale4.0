@@ -163,7 +163,12 @@ export const leadService = {
     const payload = {
       ...request,
       client_id: user.id,
-      status: 'open'
+      status: 'open',
+      price_coins: 10,
+      max_purchases: 5,
+      purchases_count: 0,
+      metadata: request.metadata ?? {},
+      visualizacoes: 0,
     };
 
     const { data, error } = await supabase
