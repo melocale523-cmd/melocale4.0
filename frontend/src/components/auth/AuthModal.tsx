@@ -498,15 +498,6 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       </>
                     )}
 
-                    {mode === 'signup' && (
-                      <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
-                        Ao continuar você declara que leu e concorda com nossos{' '}
-                        <a href="/termos" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a>
-                        {' '}e{' '}
-                        <a href="/privacidade" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
-                      </p>
-                    )}
-
                     <button
                       disabled={isSubmitting}
                       type="submit"
@@ -523,6 +514,15 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       )}
                     </button>
                   </form>
+
+                  {mode === 'signup' && (
+                    <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
+                      Ao continuar você declara que leu e concorda com nossos{' '}
+                      <a href="/termos" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a>
+                      {' '}e{' '}
+                      <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
+                    </p>
+                  )}
                 </motion.div>
               )}
             </div>
