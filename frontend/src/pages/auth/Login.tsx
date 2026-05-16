@@ -463,10 +463,24 @@ export default function Login() {
                 {selectedRole === 'professional' && (
                   <div>
                     <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Especialidade / Categoria</label>
-                    <input 
-                      required type="text" placeholder="Ex: Pintura, Elétrica..." 
+                    <input
+                      required type="text" placeholder="Ex: Pintura, Elétrica..."
                       className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                       value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    />
+                  </div>
+                )}
+                {selectedRole === 'professional' && (
+                  <div>
+                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">
+                      Sobre você (opcional)
+                    </label>
+                    <textarea
+                      placeholder="Descreva brevemente sua experiência e serviços..."
+                      rows={3}
+                      className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium resize-none text-sm leading-relaxed"
+                      value={formData.bio}
+                      onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     />
                   </div>
                 )}

@@ -53,7 +53,6 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     cep: '',
     city: '',
     category: '',
-    specialty: '',
     bio: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -522,10 +521,24 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                           {selectedRole === 'professional' && (
                             <div>
                               <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Área de Atuação</label>
-                              <input 
-                                required type="text" placeholder="Ex: Eletricista, Pintor..." 
+                              <input
+                                required type="text" placeholder="Ex: Eletricista, Pintor..."
                                 className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                                 value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
+                              />
+                            </div>
+                          )}
+                          {selectedRole === 'professional' && (
+                            <div>
+                              <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">
+                                Sobre você (opcional)
+                              </label>
+                              <textarea
+                                placeholder="Descreva brevemente sua experiência e serviços..."
+                                rows={3}
+                                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none text-sm leading-relaxed"
+                                value={formData.bio}
+                                onChange={(e) => setFormData({...formData, bio: e.target.value})}
                               />
                             </div>
                           )}
