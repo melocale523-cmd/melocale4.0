@@ -53,6 +53,7 @@ export default function Login() {
     cep: '',
     city: '',
     category: '',
+    customCategory: '',
     bio: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,7 +70,13 @@ export default function Login() {
       .eq('is_active', true)
       .order('name')
       .then(({ data }) => {
-        if (data?.length) setCategorias(data.map((c: { name: string }) => c.name));
+        if (data?.length) {
+          const sorted = [
+            ...data.filter((c: { name: string }) => c.name === 'Outro'),
+            ...data.filter((c: { name: string }) => c.name !== 'Outro'),
+          ];
+          setCategorias(sorted.map((c: { name: string }) => c.name));
+        }
       });
   }, []);
 
@@ -177,12 +184,20 @@ export default function Login() {
     if (isSignUp) {
       const pwErr = validatePassword(formData.password);
       if (pwErr) { setError(pwErr); return; }
+      if (formData.category === 'Outro' && !formData.customCategory.trim()) {
+        setError('Por favor, descreva sua profissão.');
+        return;
+      }
     }
 
     setIsSubmitting(true);
 
     try {
       if (isSignUp) {
+        const finalCategory = formData.category === 'Outro'
+          ? formData.customCategory
+          : formData.category;
+
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -192,7 +207,7 @@ export default function Login() {
               role: selectedRole,
               phone: formData.phone,
               city: formData.city,
-              category: formData.category,
+              category: finalCategory,
               bio: formData.bio
             }
           }
@@ -216,7 +231,7 @@ export default function Login() {
             p_full_name: formData.name ?? '',
             p_phone: formData.phone ?? '',
             p_bio: formData.bio ?? '',
-            p_category: formData.category ?? '',
+            p_category: finalCategory ?? '',
             p_service_radius: 50,
           });
         }
@@ -486,6 +501,17 @@ export default function Login() {
                         <option key={cat} value={cat} className="bg-[#0E1C32] text-white">{cat}</option>
                       ))}
                     </select>
+                    {formData.category === 'Outro' && (
+                      <input
+                        type="text"
+                        required
+                        placeholder="Descreva sua profissão..."
+                        maxLength={100}
+                        className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium mt-3"
+                        value={formData.customCategory}
+                        onChange={(e) => setFormData({...formData, customCategory: e.target.value})}
+                      />
+                    )}
                   </div>
                 )}
                 {selectedRole === 'professional' && (
