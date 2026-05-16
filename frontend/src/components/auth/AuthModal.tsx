@@ -51,6 +51,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const handleRoleSelect = (role: 'client' | 'professional') => {
     setSelectedRole(role);
@@ -82,7 +83,9 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     const digits = cep.replace(/\D/g, '');
     setFormData(prev => ({ ...prev, cep }));
     if (digits.length === 8) {
+      setIsFetchingCep(true);
       const result = await fetchCepData(digits);
+      setIsFetchingCep(false);
       if (result) {
         setFormData(prev => ({ ...prev, city: result.city }));
       } else {
@@ -470,11 +473,16 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                           </div>
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">CEP</label>
-                            <input
-                              type="text" placeholder="00000-000" maxLength={9}
-                              className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-                              value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
-                            />
+                            <div className="relative">
+                              <input
+                                type="text" placeholder="00000-000" maxLength={9}
+                                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                                value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
+                              />
+                              {isFetchingCep && (
+                                <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-emerald-500" />
+                              )}
+                            </div>
                           </div>
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Cidade / Localização</label>

@@ -50,6 +50,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +68,9 @@ export default function Login() {
     const digits = cep.replace(/\D/g, '');
     setFormData(prev => ({ ...prev, cep }));
     if (digits.length === 8) {
+      setIsFetchingCep(true);
       const result = await fetchCepData(digits);
+      setIsFetchingCep(false);
       if (result) {
         setFormData(prev => ({ ...prev, city: result.city }));
       } else {
@@ -406,11 +409,16 @@ export default function Login() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">CEP</label>
-                  <input
-                    type="text" placeholder="00000-000" maxLength={9}
-                    className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
-                    value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input
+                      type="text" placeholder="00000-000" maxLength={9}
+                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                      value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
+                    />
+                    {isFetchingCep && (
+                      <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-emerald-500" />
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Sua Cidade</label>
