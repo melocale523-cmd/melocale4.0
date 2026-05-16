@@ -54,14 +54,13 @@ async function calcAvgResponseTime(): Promise<string> {
 
 export const adminService = {
   async getDashboardSummary() {
-    let pendingCount = 0, totalRevenue = 0;
+    let totalRevenue = 0;
     let avgResponseTime = '—';
     try {
-      const [totalUsersRes, activeLeadsRes, pendingDisputesRes, pendingProfsRes, purchasesRes, avgTime] = await Promise.all([
+      const [totalUsersRes, activeLeadsRes, pendingDisputesRes, purchasesRes, avgTime] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'open'),
         supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('profiles').select('id, status').eq('status', 'pending'),
         supabase
           .from('lead_purchases')
           .select('price')
@@ -70,9 +69,6 @@ export const adminService = {
         calcAvgResponseTime(),
       ]);
 
-      if (pendingProfsRes.data) {
-        pendingCount = pendingProfsRes.data.length;
-      }
       if (purchasesRes.data) {
         totalRevenue = (purchasesRes.data as { price: number | null }[]).reduce((acc, p) => acc + Number(p.price ?? 0), 0);
       }
@@ -82,7 +78,7 @@ export const adminService = {
         totalUsers: totalUsersRes.count ?? 0,
         activeLeads: activeLeadsRes.count ?? 0,
         estimatedRevenue: totalRevenue,
-        pendingVerifications: pendingCount,
+        pendingVerifications: 0,
         avgResponseTime,
         pendingDisputes: pendingDisputesRes.count ?? 0,
       };
@@ -91,7 +87,7 @@ export const adminService = {
         totalUsers: 0,
         activeLeads: 0,
         estimatedRevenue: totalRevenue,
-        pendingVerifications: pendingCount,
+        pendingVerifications: 0,
         avgResponseTime,
         pendingDisputes: 0,
       };
@@ -121,27 +117,20 @@ export const adminService = {
 
       const ids = (profilesData ?? []).map(p => p.id);
 
-      const [clientsRes, profsRes] = await Promise.all([
-        ids.length > 0
-          ? supabase.from('clients').select('id, email, full_name').in('id', ids)
-          : Promise.resolve({ data: [] as { id: string; email: string | null; full_name: string | null }[] }),
-        ids.length > 0
-          ? supabase.from('professionals').select('user_id, is_public').in('user_id', ids)
-          : Promise.resolve({ data: [] as { user_id: string; is_public: boolean }[] }),
-      ]);
+      const clientsRes = ids.length > 0
+        ? await supabase.from('clients').select('id, email, full_name').in('id', ids)
+        : { data: [] as { id: string; email: string | null; full_name: string | null }[] };
 
       const clientMap = Object.fromEntries((clientsRes.data ?? []).map(c => [c.id, c]));
-      const profMap = Object.fromEntries((profsRes.data ?? []).map(p => [p.user_id, p]));
 
       const mapped = (profilesData ?? []).map(p => {
         const client = clientMap[p.id];
-        const prof = profMap[p.id];
         return {
           ...p,
           email: client?.email ?? null,
           full_name: p.full_name ?? client?.full_name ?? null,
           name: p.full_name ?? client?.full_name ?? null,
-          status: prof ? (prof.is_public ? 'approved' : 'pending') : 'approved',
+          status: 'active',
         };
       });
 
@@ -154,9 +143,8 @@ export const adminService = {
     }
   },
 
-  async updateUserStatus(userId: string, status: string) {
-    const { error } = await supabase.from('profiles').update({ status }).eq('id', userId);
-    if (error) throw error;
+  async updateUserStatus(_userId: string, _status: string) {
+    // profiles has no status column — no-op until schema is updated
     return true;
   },
 
