@@ -119,6 +119,28 @@ export const adminService = {
 
       const clientMap = Object.fromEntries((clientsRes.data ?? []).map(c => [c.id, c]));
 
+      const missingEmailIds = (profilesData ?? [])
+        .filter(p => !clientMap[p.id]?.email)
+        .map(p => p.id);
+
+      let authEmails: Record<string, string> = {};
+      if (missingEmailIds.length > 0) {
+        try {
+          const API_URL = (import.meta as { env: Record<string, string> }).env.VITE_API_URL || 'https://melocale4-0.onrender.com';
+          const { data: { session } } = await supabase.auth.getSession();
+          const token = session?.access_token;
+          if (token) {
+            const res = await fetch(`${API_URL}/api/admin/user-emails?ids=${missingEmailIds.join(',')}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+              const json = await res.json() as { emails?: Record<string, string> };
+              authEmails = json.emails ?? {};
+            }
+          }
+        } catch {}
+      }
+
       let profMap: Record<string, { is_active: boolean }> = {};
       try {
         if (ids.length > 0) {
@@ -137,7 +159,7 @@ export const adminService = {
         const prof = profMap[p.id];
         return {
           ...p,
-          email: client?.email ?? null,
+          email: client?.email ?? authEmails[p.id] ?? null,
           full_name: p.full_name ?? client?.full_name ?? null,
           name: p.full_name ?? client?.full_name ?? null,
           status: prof !== undefined

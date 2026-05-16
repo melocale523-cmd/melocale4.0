@@ -1020,6 +1020,40 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // GET /api/admin/user-emails?ids=uuid1,uuid2,...
+  // ============================================
+  app.get('/api/admin/user-emails', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const { data: profile } = await withTimeout(
+        supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
+      );
+      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
+
+      const ids = (req.query.ids as string || '').split(',').filter(Boolean).slice(0, 100);
+      if (!ids.length) return res.json({ emails: {} });
+
+      const emails: Record<string, string> = {};
+      let page = 1;
+      while (true) {
+        const { data, error } = await withTimeout(
+          supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
+        );
+        if (error || !data?.users?.length) break;
+        data.users.forEach(u => {
+          if (ids.includes(u.id) && u.email) emails[u.id] = u.email;
+        });
+        if (data.users.length < 1000) break;
+        page++;
+      }
+
+      return res.json({ emails });
+    } catch (err) {
+      console.error('/api/admin/user-emails error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  // ============================================
   // GET /api/admin/run-tests — E2E test runner
   // ============================================
   app.get('/api/admin/run-tests', requireAuth, async (req: Request, res: Response) => {
