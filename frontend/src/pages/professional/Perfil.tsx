@@ -9,6 +9,7 @@ import { apiFetch } from '../../lib/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { supabase } from '../../lib/supabase';
 
 export default function ProfessionalPerfil() {
   const { user } = useAuthStore();
@@ -43,14 +44,32 @@ export default function ProfessionalPerfil() {
 
   const [successMsg, setSuccessMsg] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [categorias, setCategorias] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     email: user?.email || '',
     phone: '',
-    category: 'Pintura',
+    category: '',
     radius: '15',
     bio: '',
   });
+
+  useEffect(() => {
+    supabase
+      .from('categories')
+      .select('name')
+      .eq('is_active', true)
+      .order('name')
+      .then(({ data }) => {
+        if (data?.length) {
+          const sorted = [
+            ...data.filter((c: { name: string }) => c.name === 'Outro'),
+            ...data.filter((c: { name: string }) => c.name !== 'Outro'),
+          ];
+          setCategorias(sorted.map((c: { name: string }) => c.name));
+        }
+      });
+  }, []);
 
   useEffect(() => {
     if (!profile) return;
@@ -58,7 +77,7 @@ export default function ProfessionalPerfil() {
       ...prev,
       name: profile.full_name || '',
       phone: profile.phone || '',
-      category: profile.category || 'Pintura',
+      category: profile.category || '',
       radius: profile.serviceRadius ? String(profile.serviceRadius) : '15',
       bio: profile.bio || '',
     }));
@@ -249,14 +268,10 @@ export default function ProfessionalPerfil() {
                   onChange={handleChange}
                   className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all appearance-none"
                 >
-                  <option value="Pintura">Pintura e Acabamento</option>
-                  <option value="Eletrica">Elétrica</option>
-                  <option value="Encanamento">Encanamento</option>
-                  <option value="Montagem">Montagem de Móveis</option>
-                  <option value="Limpeza">Limpeza</option>
-                  <option value="Jardinagem">Jardinagem</option>
-                  <option value="Reformas">Reformas em Geral</option>
-                  <option value="Outro">Outro</option>
+                  <option value="" disabled>Selecione sua categoria</option>
+                  {categorias.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
                 </select>
               </div>
             </div>
