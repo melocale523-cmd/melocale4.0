@@ -992,6 +992,34 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // PATCH /api/admin/professional-status
+  // ============================================
+  app.patch('/api/admin/professional-status', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const { user_id, is_active } = req.body;
+      if (!user_id || typeof is_active !== 'boolean') {
+        return res.status(400).json({ error: 'user_id e is_active são obrigatórios.' });
+      }
+
+      const { data: profile } = await withTimeout(
+        supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
+      );
+      if (profile?.role !== 'admin') {
+        return res.status(403).json({ error: 'Acesso negado.' });
+      }
+
+      const { error } = await withTimeout(
+        supabaseAdmin.from('professionals').update({ is_active }).eq('user_id', user_id)
+      );
+      if (error) throw error;
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('/api/admin/professional-status error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  // ============================================
   // GET /api/admin/run-tests — E2E test runner
   // ============================================
   app.get('/api/admin/run-tests', requireAuth, async (req: Request, res: Response) => {
