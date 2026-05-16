@@ -395,14 +395,16 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                     {step === 'basics' && (
                       <>
                         <div className="space-y-5">
-                          <div>
-                            <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
-                            <input 
-                              required type="text" placeholder="Como devemos te chamar?" 
-                              className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
-                              value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            />
-                          </div>
+                          {mode === 'signup' && (
+                            <div>
+                              <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
+                              <input
+                                required type="text" placeholder="Como devemos te chamar?"
+                                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+                                value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
+                              />
+                            </div>
+                          )}
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">E-mail de Acesso</label>
                             <input 
