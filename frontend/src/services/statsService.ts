@@ -109,7 +109,9 @@ export const adminService = {
       }
 
       if (filters?.search) {
-        query = query.ilike('full_name', `%${filters.search}%`);
+        // include null full_name rows so users whose name lives only in
+        // clients table are not dropped before the join
+        query = query.or(`full_name.ilike.%${filters.search}%,full_name.is.null`);
       }
 
       const { data: profilesData, error: profilesError } = await query;
@@ -150,10 +152,15 @@ export const adminService = {
         };
       });
 
+      // post-join search on resolved full_name (catches client-only names)
+      const afterSearch = filters?.search
+        ? mapped.filter(u => (u.full_name ?? '').toLowerCase().includes(filters.search!.toLowerCase()))
+        : mapped;
+
       if (filters?.status) {
-        return mapped.filter(u => u.status === filters.status);
+        return afterSearch.filter(u => u.status === filters.status);
       }
-      return mapped;
+      return afterSearch;
     } catch {
       return [];
     }
