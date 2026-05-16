@@ -56,10 +56,10 @@ export default function AdminClientes() {
                    <td className="p-4 text-[#94A3B8]">{u.email || 'N/A'}</td>
                    <td className="p-4">
                      <span className={`px-2.5 py-1 rounded text-xs font-bold ${
-                       u.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 
-                       'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
+                       u.status === 'active' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                       'bg-red-500/10 text-red-500 border border-red-500/20'
                      }`}>
-                       {u.status === 'approved' ? 'Ativo' : 'Pendente'}
+                       {u.status === 'active' ? 'Ativo' : 'Inativo'}
                      </span>
                    </td>
                    <td className="p-4 pr-6 text-[#94A3B8]">{new Date(u.created_at || '').toLocaleDateString('pt-BR')}</td>
