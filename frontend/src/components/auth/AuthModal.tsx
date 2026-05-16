@@ -463,9 +463,21 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                               );
                             })()}
                             {mode === 'signup' && (
-                              <p className="text-[10px] text-[#7A9EBF] mt-1.5 leading-relaxed">
-                                Mínimo 8 caracteres · uma letra maiúscula · um número
-                              </p>
+                              <div className="flex items-center gap-3 mt-2">
+                                {[
+                                  { ok: formData.password.length >= 8, label: '8+ chars' },
+                                  { ok: /[A-Z]/.test(formData.password), label: 'Maiúscula' },
+                                  { ok: /[0-9]/.test(formData.password), label: 'Número' },
+                                ].map(({ ok, label }) => (
+                                  <span
+                                    key={label}
+                                    className={`text-[11px] font-bold flex items-center gap-1 transition-colors ${ok ? 'text-emerald-400' : 'text-[#7A9EBF]'}`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-400' : 'bg-[#7A9EBF]'}`} />
+                                    {label}
+                                  </span>
+                                ))}
+                              </div>
                             )}
                           </div>
                         </div>
