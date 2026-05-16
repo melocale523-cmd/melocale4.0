@@ -14,6 +14,14 @@ function validatePassword(password: string): string | null {
   return null;
 }
 
+function getPasswordStrength(password: string): 0 | 1 | 2 | 3 {
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  return score as 0 | 1 | 2 | 3;
+}
+
 async function fetchCepData(cep: string): Promise<{ city: string } | null> {
   try {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -444,17 +452,18 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
                             </div>
-                            {mode === 'signup' && formData.password.length > 0 && (
-                              <div className="flex gap-1 mt-2">
-                                {[
-                                  formData.password.length >= 8,
-                                  /[A-Z]/.test(formData.password),
-                                  /[0-9]/.test(formData.password),
-                                ].map((ok, i) => (
-                                  <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${ok ? 'bg-emerald-500' : 'bg-white/10'}`} />
-                                ))}
-                              </div>
-                            )}
+                            {mode === 'signup' && formData.password.length > 0 && (() => {
+                              const strength = getPasswordStrength(formData.password);
+                              const colors = { 0: 'bg-white/10', 1: 'bg-red-500', 2: 'bg-yellow-400', 3: 'bg-emerald-500' } as const;
+                              const activeColor = colors[strength];
+                              return (
+                                <div className="flex gap-1 mt-2">
+                                  {[0, 1, 2].map((i) => (
+                                    <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < strength ? activeColor : 'bg-white/10'}`} />
+                                  ))}
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       </>
