@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Search, Filter, MoreVertical, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Filter, MoreVertical, CheckCircle, XCircle, Loader2, Copy, User } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { adminService } from '../../services/dbServices';
 import { toast } from 'sonner';
 
@@ -8,26 +9,46 @@ type RoleFilter = 'all' | 'client' | 'professional';
 
 export default function AdminUsuarios() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [inputSearch, setInputSearch] = useState('');
   const [filterSearch, setFilterSearch] = useState('');
   const [filterRole, setFilterRole] = useState<RoleFilter>('all');
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: usuarios, isLoading } = useQuery({
-    queryKey: ['adminUsers', filterRole, filterSearch],
-    queryFn: () => adminService.getUsers({
-      role: filterRole,
-      search: filterSearch || undefined,
-      limit: 100,
-    }),
+    queryKey: ['adminUsers', filterRole],
+    queryFn: () => adminService.getUsers({ role: filterRole, limit: 100 }),
   });
 
+  // close dropdown on outside click
+  useEffect(() => {
+    if (!openMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openMenu]);
+
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string, status: string }) => adminService.updateUserStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      adminService.updateUserStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
       toast.success('Status atualizado com sucesso');
     },
-    onError: (error: any) => toast.error(error.message)
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const applySearch = () => setFilterSearch(inputSearch);
+
+  // client-side name filter applied after fetch
+  const filtered = (usuarios ?? []).filter(u => {
+    const name = (u.full_name ?? u.name ?? '').toLowerCase();
+    return filterSearch ? name.includes(filterSearch.toLowerCase()) : true;
   });
 
   const ROLE_LABELS: Record<RoleFilter, string> = {
@@ -50,7 +71,7 @@ export default function AdminUsuarios() {
             type="text"
             value={inputSearch}
             onChange={e => setInputSearch(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') setFilterSearch(inputSearch); }}
+            onKeyDown={e => { if (e.key === 'Enter') applySearch(); }}
             placeholder="Buscar por nome..."
             className="w-full bg-[#1C3454] border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
           />
@@ -73,7 +94,7 @@ export default function AdminUsuarios() {
         </div>
 
         <button
-          onClick={() => setFilterSearch(inputSearch)}
+          onClick={applySearch}
           className="flex items-center gap-2 px-6 py-3 bg-[#1C3454] border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-400 text-slate-300 rounded-xl transition-all"
         >
           <Filter size={20} /> Filtrar
@@ -82,7 +103,9 @@ export default function AdminUsuarios() {
 
       <div className="bg-[#1C3454] border border-slate-800 rounded-2xl overflow-hidden">
         {isLoading ? (
-          <div className="flex justify-center p-12"><Loader2 className="animate-spin text-emerald-500" size={32} /></div>
+          <div className="flex justify-center p-12">
+            <Loader2 className="animate-spin text-emerald-500" size={32} />
+          </div>
         ) : (
           <table className="w-full text-left">
             <thead>
@@ -96,7 +119,7 @@ export default function AdminUsuarios() {
               </tr>
             </thead>
             <tbody>
-              {(usuarios ?? []).map(u => (
+              {filtered.map(u => (
                 <tr key={u.id} className="border-b border-[#1C3050] hover:bg-slate-800/20 transition-colors group">
                   <td className="p-4 pl-6 text-white font-medium">{u.full_name ?? u.name ?? 'Sem nome'}</td>
                   <td className="p-4 text-[#94A3B8]">{u.email || 'N/A'}</td>
@@ -114,21 +137,61 @@ export default function AdminUsuarios() {
                   <td className="p-4 pr-6 text-right opacity-50 group-hover:opacity-100 transition-opacity">
                     <div className="flex justify-end gap-2 text-[#94A3B8]">
                       {u.role === 'professional' && u.status !== 'active' && (
-                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'active' })} className="hover:text-emerald-500 p-1" title="Ativar">
+                        <button
+                          onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'active' })}
+                          className="hover:text-emerald-500 p-1"
+                          title="Ativar"
+                        >
                           <CheckCircle size={18} />
                         </button>
                       )}
                       {u.role === 'professional' && u.status === 'active' && (
-                        <button onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'inactive' })} className="hover:text-red-500 p-1" title="Desativar">
+                        <button
+                          onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'inactive' })}
+                          className="hover:text-red-500 p-1"
+                          title="Desativar"
+                        >
                           <XCircle size={18} />
                         </button>
                       )}
-                      <button className="hover:text-white p-1 ml-2"><MoreVertical size={18} /></button>
+
+                      {/* ⋮ dropdown menu */}
+                      <div className="relative" ref={openMenu === u.id ? menuRef : undefined}>
+                        <button
+                          onClick={() => setOpenMenu(prev => prev === u.id ? null : u.id)}
+                          className="hover:text-white p-1 ml-2"
+                        >
+                          <MoreVertical size={18} />
+                        </button>
+
+                        {openMenu === u.id && (
+                          <div className="absolute right-0 top-8 z-50 w-44 bg-[#0F2237] border border-slate-700 rounded-xl shadow-xl overflow-hidden">
+                            <button
+                              onClick={() => {
+                                setOpenMenu(null);
+                                navigate(u.role === 'professional' ? '/admin/aprovados' : '/admin/clientes');
+                              }}
+                              className="flex items-center gap-2 w-full px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors"
+                            >
+                              <User size={15} /> Ver perfil
+                            </button>
+                            <button
+                              onClick={() => {
+                                setOpenMenu(null);
+                                navigator.clipboard.writeText(u.id).then(() => toast.success('ID copiado!'));
+                              }}
+                              className="flex items-center gap-2 w-full px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors"
+                            >
+                              <Copy size={15} /> Copiar ID
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>
               ))}
-              {(usuarios ?? []).length === 0 && (
+              {filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="p-8 text-center text-[#4A6580]">Nenhum usuário encontrado.</td>
                 </tr>
