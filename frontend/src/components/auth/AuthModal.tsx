@@ -202,11 +202,9 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
         if (signInError) throw signInError;
 
-        setMode(selectedRole);
         toast.success("Bem-vindo(a) de volta!");
         onClose();
-        // The router component (AuthRedirect or ProtectedRoute) handles redirection automatically
-        // thanks to AuthInitializer!
+        // Navigation handled by AuthInitializer → authStore → AuthRedirect using profiles.role
       }
     } catch (err: any) {
       const msg = (err.message || '').toLowerCase();
