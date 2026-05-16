@@ -183,7 +183,9 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
       }
     } catch (err: any) {
       const msg = (err.message || '').toLowerCase();
-      if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('email not confirmed')) {
+      if (msg.includes('email not confirmed')) {
+        setError('Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e clique no link que enviamos.');
+      } else if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
         setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.');
       } else if (msg.includes('too many requests')) {
         setError('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
