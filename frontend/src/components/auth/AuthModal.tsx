@@ -7,6 +7,13 @@ import { useAuthStore, Role } from '../../store/authStore';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
+  if (!/[A-Z]/.test(password)) return 'Senha deve ter pelo menos uma letra maiúscula.';
+  if (!/[0-9]/.test(password)) return 'Senha deve ter pelo menos um número.';
+  return null;
+}
+
 async function fetchCepData(cep: string): Promise<{ city: string } | null> {
   try {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -44,6 +51,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const handleRoleSelect = (role: 'client' | 'professional') => {
     setSelectedRole(role);
@@ -52,9 +60,13 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
   const handleNextStep = () => {
     if (step === 'basics') {
-      if (!formData.email || !formData.password || !formData.name) {
+      if (!formData.email || !formData.password || (mode === 'signup' && !formData.name)) {
         setError("Por favor, preencha todos os campos.");
         return;
+      }
+      if (mode === 'signup') {
+        const pwErr = validatePassword(formData.password);
+        if (pwErr) { setError(pwErr); return; }
       }
       setStep('details');
       setError(null);
@@ -71,7 +83,9 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     const digits = cep.replace(/\D/g, '');
     setFormData(prev => ({ ...prev, cep }));
     if (digits.length === 8) {
+      setIsFetchingCep(true);
       const result = await fetchCepData(digits);
+      setIsFetchingCep(false);
       if (result) {
         setFormData(prev => ({ ...prev, city: result.city }));
       } else {
@@ -122,11 +136,15 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     e.preventDefault();
     setError(null);
 
+    if (mode === 'signup') {
+      const pwErr = validatePassword(formData.password);
+      if (pwErr) { setError(pwErr); return; }
+    }
+
     setIsSubmitting(true);
 
     try {
       if (mode === 'signup') {
-        setMode(selectedRole);
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -143,6 +161,8 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         });
 
         if (signUpError) throw signUpError;
+
+        setMode(selectedRole);
 
         await supabase.from('profiles').upsert({
           id: signUpData.user?.id,
@@ -167,14 +187,14 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         onClose();
         navigate('/login');
       } else {
-        setMode(selectedRole);
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
-        
+
         if (signInError) throw signInError;
-        
+
+        setMode(selectedRole);
         toast.success("Bem-vindo(a) de volta!");
         onClose();
         // The router component (AuthRedirect or ProtectedRoute) handles redirection automatically
@@ -182,7 +202,9 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
       }
     } catch (err: any) {
       const msg = (err.message || '').toLowerCase();
-      if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('email not confirmed')) {
+      if (msg.includes('email not confirmed')) {
+        setError('Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e clique no link que enviamos.');
+      } else if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
         setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.');
       } else if (msg.includes('too many requests')) {
         setError('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
@@ -376,14 +398,16 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                     {step === 'basics' && (
                       <>
                         <div className="space-y-5">
-                          <div>
-                            <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
-                            <input 
-                              required type="text" placeholder="Como devemos te chamar?" 
-                              className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
-                              value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            />
-                          </div>
+                          {mode === 'signup' && (
+                            <div>
+                              <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
+                              <input
+                                required type="text" placeholder="Como devemos te chamar?"
+                                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+                                value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
+                              />
+                            </div>
+                          )}
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">E-mail de Acesso</label>
                             <input 
@@ -408,9 +432,9 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                             </div>
                             <div className="relative">
                               <input
-                                required type={showPassword ? 'text' : 'password'} placeholder="Mínimo 6 caracteres"
+                                required type={showPassword ? 'text' : 'password'} placeholder="Mínimo 8 caracteres"
                                 className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 pr-12 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
-                                value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
+                                value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8}
                               />
                               <button
                                 type="button"
@@ -420,6 +444,17 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
                             </div>
+                            {mode === 'signup' && formData.password.length > 0 && (
+                              <div className="flex gap-1 mt-2">
+                                {[
+                                  formData.password.length >= 8,
+                                  /[A-Z]/.test(formData.password),
+                                  /[0-9]/.test(formData.password),
+                                ].map((ok, i) => (
+                                  <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${ok ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </>
@@ -438,11 +473,16 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                           </div>
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">CEP</label>
-                            <input
-                              type="text" placeholder="00000-000" maxLength={9}
-                              className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-                              value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
-                            />
+                            <div className="relative">
+                              <input
+                                type="text" placeholder="00000-000" maxLength={9}
+                                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                                value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
+                              />
+                              {isFetchingCep && (
+                                <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-emerald-500" />
+                              )}
+                            </div>
                           </div>
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Cidade / Localização</label>
@@ -466,15 +506,6 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       </>
                     )}
 
-                    {mode === 'signup' && (
-                      <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
-                        Ao continuar você declara que leu e concorda com nossos{' '}
-                        <a href="/termos" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a>
-                        {' '}e{' '}
-                        <a href="/privacidade" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
-                      </p>
-                    )}
-
                     <button
                       disabled={isSubmitting}
                       type="submit"
@@ -491,6 +522,15 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                       )}
                     </button>
                   </form>
+
+                  {mode === 'signup' && (
+                    <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
+                      Ao continuar você declara que leu e concorda com nossos{' '}
+                      <a href="/termos" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">Termos de Uso</a>
+                      {' '}e{' '}
+                      <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">Políticas de Privacidade</a>.
+                    </p>
+                  )}
                 </motion.div>
               )}
             </div>

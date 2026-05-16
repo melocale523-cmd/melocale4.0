@@ -7,6 +7,13 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
+  if (!/[A-Z]/.test(password)) return 'Senha deve ter pelo menos uma letra maiúscula.';
+  if (!/[0-9]/.test(password)) return 'Senha deve ter pelo menos um número.';
+  return null;
+}
+
 async function fetchCepData(cep: string): Promise<{ city: string } | null> {
   try {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -43,6 +50,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +58,8 @@ export default function Login() {
       setError("Por favor, preencha os dados básicos para continuar.");
       return;
     }
+    const pwErr = validatePassword(formData.password);
+    if (pwErr) { setError(pwErr); return; }
     setAuthStep('details');
     setError(null);
   };
@@ -58,7 +68,9 @@ export default function Login() {
     const digits = cep.replace(/\D/g, '');
     setFormData(prev => ({ ...prev, cep }));
     if (digits.length === 8) {
+      setIsFetchingCep(true);
       const result = await fetchCepData(digits);
+      setIsFetchingCep(false);
       if (result) {
         setFormData(prev => ({ ...prev, city: result.city }));
       } else {
@@ -123,8 +135,8 @@ export default function Login() {
       setIsLockedMode(true);
     }
 
-    if (roleParam === 'professional' || roleParam === 'client' || roleParam === 'admin') {
-      setSelectedRole(roleParam as any);
+    if (roleParam === 'professional' || roleParam === 'client') {
+      setSelectedRole(roleParam as 'professional' | 'client');
     }
   }, []);
 
@@ -141,11 +153,15 @@ export default function Login() {
       return;
     }
 
+    if (isSignUp) {
+      const pwErr = validatePassword(formData.password);
+      if (pwErr) { setError(pwErr); return; }
+    }
+
     setIsSubmitting(true);
 
     try {
       if (isSignUp) {
-        setMode(selectedRole as any);
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -162,6 +178,8 @@ export default function Login() {
         });
 
         if (signUpError) throw signUpError;
+
+        setMode(selectedRole as any);
 
         await supabase.from('profiles').upsert({
           id: signUpData.user?.id,
@@ -184,20 +202,22 @@ export default function Login() {
 
         toast.success("Conta criada! Verifique seu e-mail.");
       } else {
-        setMode(selectedRole as any);
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
-        
+
         if (signInError) throw signInError;
-        
+
+        setMode(selectedRole as any);
         toast.success("Bem-vindo(a)!");
         // Navigation will be handled by the useEffect once the auth store is updated by AuthInitializer
       }
     } catch (err: any) {
       const msg = (err.message || '').toLowerCase();
-      if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('email not confirmed')) {
+      if (msg.includes('email not confirmed')) {
+        setError('Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e clique no link que enviamos.');
+      } else if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
         setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.');
       } else if (msg.includes('too many requests')) {
         setError('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
@@ -352,7 +372,7 @@ export default function Login() {
                     <input
                       required type={showPassword ? 'text' : 'password'} placeholder="••••••••"
                       className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
-                      value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={6}
+                      value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8}
                     />
                     <button
                       type="button"
@@ -362,6 +382,17 @@ export default function Login() {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
+                  {isSignUp && formData.password.length > 0 && (
+                    <div className="flex gap-1 mt-2">
+                      {[
+                        formData.password.length >= 8,
+                        /[A-Z]/.test(formData.password),
+                        /[0-9]/.test(formData.password),
+                      ].map((ok, i) => (
+                        <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${ok ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -378,11 +409,16 @@ export default function Login() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">CEP</label>
-                  <input
-                    type="text" placeholder="00000-000" maxLength={9}
-                    className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
-                    value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input
+                      type="text" placeholder="00000-000" maxLength={9}
+                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                      value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
+                    />
+                    {isFetchingCep && (
+                      <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-emerald-500" />
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Sua Cidade</label>
