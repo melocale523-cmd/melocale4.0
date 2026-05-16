@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { leadService, walletService } from '../../services/dbServices';
-import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, ArrowRight, Navigation, Coins, Search, X, DollarSign, Plus, Trash2, Filter, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, ArrowRight, Navigation, Coins, Search, X, DollarSign, Plus, Trash2, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -16,7 +16,6 @@ export default function ProfessionalLeads() {
   const [filters, setFilters] = useState({
     search: '',
     category: 'Todas',
-    specialty: 'Todas',
     city: '',
     radius: 30,
     minBudget: 0,
@@ -32,7 +31,6 @@ export default function ProfessionalLeads() {
   });
 
   const categories = ['Todas', ...new Set(leads?.map(l => l.category).filter(Boolean) || [])];
-  const specialties = ['Todas', 'Pintura', 'Elétrica', 'Hidráulica', 'Alvenaria', 'Gesso', 'Marcenaria', 'Jardinagem', 'Limpeza'];
 
   const filteredLeads = leads?.filter(lead => {
     const title = lead.title.toLowerCase();
@@ -42,17 +40,15 @@ export default function ProfessionalLeads() {
 
     const matchesSearch = !filters.search || title.includes(search) || location.includes(search);
     const matchesCategory = filters.category === 'Todas' || lead.category === filters.category;
-    const matchesSpecialty = filters.specialty === 'Todas' || lead.title.includes(filters.specialty) || lead.category === filters.specialty;
     const matchesCity = !filters.city || location.includes(city);
-    
+
     const price = lead.price_coins || lead.budget_coins || 0;
     const matchesCoinCost = price <= filters.coinCost;
-    
+
     const leadBudget = lead.budget_max || lead.budget_min || 0;
     const matchesBudget = leadBudget === 0 || (leadBudget >= filters.minBudget && leadBudget <= filters.maxBudget);
-    const matchesRadius = true;
 
-    return matchesSearch && matchesCategory && matchesSpecialty && matchesCity && matchesCoinCost && matchesBudget && matchesRadius;
+    return matchesSearch && matchesCategory && matchesCity && matchesCoinCost && matchesBudget;
   });
 
   const { data: balance, isLoading: walletLoading } = useQuery({
@@ -161,9 +157,9 @@ export default function ProfessionalLeads() {
              <SlidersHorizontal size={20} /> Filtros Avançados
           </button>
           
-          {(filters.search || filters.city || filters.category !== 'Todas' || filters.specialty !== 'Todas' || filters.minBudget > 0) && (
-            <button 
-              onClick={() => setFilters({ search: '', category: 'Todas', specialty: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
+          {(filters.search || filters.city || filters.category !== 'Todas' || filters.minBudget > 0) && (
+            <button
+              onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
               className="p-4 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-lg"
               title="Limpar todos os filtros"
             >
@@ -219,26 +215,6 @@ export default function ProfessionalLeads() {
                     <span>5km</span>
                     <span className="text-emerald-400 bg-emerald-500/10 px-2 rounded">{filters.radius}km</span>
                     <span>100km</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3 relative">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-2">
-                    <Star size={14} className="text-emerald-500" /> Especialidade
-                  </label>
-                  <div className="relative">
-                    <select 
-                      value={filters.specialty}
-                      onChange={(e) => setFilters(prev => ({ ...prev, specialty: e.target.value }))}
-                      className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none cursor-pointer appearance-none font-medium"
-                    >
-                      {specialties.map(spec => (
-                        <option key={spec} value={spec}>{spec}</option>
-                      ))}
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#4A6580]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </div>
                   </div>
                 </div>
 
@@ -309,9 +285,9 @@ export default function ProfessionalLeads() {
                 </div>
                 
                 <div className="pt-10 flex gap-4">
-                  <button 
+                  <button
                     onClick={() => {
-                      setFilters({ search: '', category: 'Todas', specialty: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 });
+                      setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 });
                     }}
                     className="flex-1 py-4 border border-[#1C3050] hover:bg-red-500/10 hover:text-red-500 text-[#94A3B8] font-bold rounded-2xl transition-all text-xs uppercase flex items-center justify-center gap-2"
                   >
@@ -490,7 +466,7 @@ export default function ProfessionalLeads() {
           <h3 className="text-xl font-bold text-slate-300 mb-2">Nenhum cliente encontrado</h3>
           <p className="text-[#4A6580] font-medium max-w-sm">Tente ajustar seus filtros para encontrar novos clientes em sua região.</p>
           <button
-            onClick={() => setFilters({ search: '', category: 'Todas', specialty: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
+            onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
             className="mt-8 text-emerald-500 font-bold text-sm hover:underline"
           >
             Limpar todos os filtros
