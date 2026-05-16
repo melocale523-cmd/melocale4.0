@@ -1,19 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, Filter, MoreVertical, CheckCircle, XCircle, Loader2, Copy, User } from 'lucide-react';
+import { Search, Filter, MoreVertical, CheckCircle, XCircle, Loader2, Copy, User, X } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import { adminService } from '../../services/dbServices';
 import { toast } from 'sonner';
 
 type RoleFilter = 'all' | 'client' | 'professional';
+type AdminUser = Awaited<ReturnType<typeof adminService.getUsers>>[number];
 
 export default function AdminUsuarios() {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [inputSearch, setInputSearch] = useState('');
   const [filterSearch, setFilterSearch] = useState('');
   const [filterRole, setFilterRole] = useState<RoleFilter>('all');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [profileModal, setProfileModal] = useState<AdminUser | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: usuarios, isLoading } = useQuery({
@@ -169,7 +169,7 @@ export default function AdminUsuarios() {
                             <button
                               onClick={() => {
                                 setOpenMenu(null);
-                                navigate(u.role === 'professional' ? '/admin/aprovados' : '/admin/clientes');
+                                setProfileModal(u);
                               }}
                               className="flex items-center gap-2 w-full px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors"
                             >
@@ -200,6 +200,78 @@ export default function AdminUsuarios() {
           </table>
         )}
       </div>
+
+      {/* Profile modal */}
+      {profileModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setProfileModal(null)} />
+          <div className="relative w-full max-w-md bg-[#0E1C32] border border-[#1C3050] rounded-3xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C3050]">
+              <h3 className="text-white font-black text-lg">Perfil do Usuário</h3>
+              <button
+                type="button"
+                onClick={() => setProfileModal(null)}
+                className="p-2 rounded-xl hover:bg-white/5 text-[#7A9EBF] hover:text-white transition-all"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {/* Avatar + nome */}
+            <div className="flex items-center gap-4 px-6 py-5 border-b border-[#1C3050]">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl font-black">
+                {(profileModal.full_name ?? profileModal.name ?? '?')[0].toUpperCase()}
+              </div>
+              <div>
+                <p className="text-white font-black text-lg">{profileModal.full_name ?? profileModal.name ?? 'Sem nome'}</p>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  profileModal.role === 'professional'
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : profileModal.role === 'admin'
+                    ? 'bg-purple-500/10 text-purple-400'
+                    : 'bg-blue-500/10 text-blue-400'
+                }`}>
+                  {profileModal.role === 'professional' ? 'Profissional' : profileModal.role === 'admin' ? 'Admin' : 'Cliente'}
+                </span>
+              </div>
+            </div>
+            {/* Dados */}
+            <div className="px-6 py-5 space-y-4">
+              {[
+                { label: 'E-mail', value: profileModal.email || 'N/A' },
+                { label: 'Status', value: profileModal.status === 'active' ? 'Ativo' : 'Inativo' },
+                { label: 'Cadastro', value: new Date(profileModal.created_at || '').toLocaleDateString('pt-BR') },
+                { label: 'ID', value: profileModal.id },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex justify-between items-center">
+                  <span className="text-[#7A9EBF] text-sm font-medium">{label}</span>
+                  <span className="text-white text-sm font-bold text-right max-w-[60%] truncate">{value}</span>
+                </div>
+              ))}
+            </div>
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-[#1C3050] flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(profileModal.id);
+                  toast.success('ID copiado!');
+                }}
+                className="flex-1 h-10 bg-white/5 hover:bg-white/10 text-[#B0C4D8] font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+              >
+                <Copy size={15} /> Copiar ID
+              </button>
+              <button
+                type="button"
+                onClick={() => setProfileModal(null)}
+                className="flex-1 h-10 bg-emerald-500 hover:bg-emerald-600 text-black font-black rounded-xl transition-all text-sm"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
