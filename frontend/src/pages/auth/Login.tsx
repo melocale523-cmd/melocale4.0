@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
-import { Loader2, AlertCircle, ArrowLeft, ChevronRight, Briefcase, User as UserIcon, Eye, EyeOff } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowLeft, ChevronRight, Briefcase, User as UserIcon, Eye, EyeOff, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -59,6 +59,7 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
+  const [legalModal, setLegalModal] = useState<'termos' | 'privacidade' | null>(null);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -493,17 +494,58 @@ export default function Login() {
           {isSignUp && (
             <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
               Ao continuar você declara que leu e concorda com nossos{' '}
-              <a href="/termos" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">
+              <button type="button" onClick={() => setLegalModal('termos')} className="text-[#B0C4D8] hover:text-white underline font-semibold">
                 Termos de Uso
-              </a>
+              </button>
               {' '}e{' '}
-              <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="text-[#B0C4D8] hover:text-white underline">
+              <button type="button" onClick={() => setLegalModal('privacidade')} className="text-[#B0C4D8] hover:text-white underline font-semibold">
                 Políticas de Privacidade
-              </a>.
+              </button>.
             </p>
           )}
         </motion.div>
       </AnimatePresence>
+
+      {legalModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setLegalModal(null)} />
+          <div className="relative w-full max-w-lg bg-[#0E1C32] border border-[#1C3050] rounded-3xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C3050] shrink-0">
+              <h3 className="text-white font-black text-lg">
+                {legalModal === 'termos' ? 'Termos de Uso' : 'Políticas de Privacidade'}
+              </h3>
+              <button type="button" onClick={() => setLegalModal(null)} className="p-2 rounded-xl hover:bg-white/5 text-[#7A9EBF] hover:text-white transition-all">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-6 text-[#94A3B8] text-sm leading-relaxed space-y-4">
+              {legalModal === 'termos' ? (
+                <>
+                  <section><h4 className="text-white font-bold mb-2">1. Aceitação dos Termos</h4><p>Ao acessar e usar o MeloCalé, você concorda com estes Termos de Uso. Se não concordar, não utilize a plataforma.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">2. Descrição do Serviço</h4><p>O MeloCalé é uma plataforma que conecta clientes que precisam de serviços domésticos a profissionais qualificados.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">3. Responsabilidades do Usuário</h4><p>Você é responsável por manter a confidencialidade de sua conta e senha, e por todas as atividades realizadas sob sua conta.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">4. Pagamentos</h4><p>Profissionais adquirem moedas para acessar leads. Valores e condições estão descritos na página de planos. Pagamentos são processados via Stripe.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">5. Alterações</h4><p>Reservamos o direito de modificar estes termos a qualquer momento. Alterações serão comunicadas via e-mail ou notificação na plataforma.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">6. Contato</h4><p>Dúvidas sobre os termos: contato@melocale.com.br</p></section>
+                </>
+              ) : (
+                <>
+                  <section><h4 className="text-white font-bold mb-2">1. Dados Coletados</h4><p>Coletamos nome, e-mail, telefone, localização e dados de uso para operar a plataforma e conectar clientes a profissionais.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">2. Uso dos Dados</h4><p>Seus dados são usados exclusivamente para prestação do serviço, comunicações relacionadas à plataforma e melhorias do produto.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">3. Compartilhamento</h4><p>Não vendemos seus dados. Compartilhamos apenas com parceiros essenciais para operação (processador de pagamento, provedor de e-mail).</p></section>
+                  <section><h4 className="text-white font-bold mb-2">4. Segurança</h4><p>Utilizamos criptografia e boas práticas de segurança para proteger seus dados. Autenticação gerenciada pelo Supabase Auth.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">5. Seus Direitos</h4><p>Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento pelo e-mail: contato@melocale.com.br</p></section>
+                </>
+              )}
+            </div>
+            <div className="px-6 py-4 border-t border-[#1C3050] shrink-0">
+              <button type="button" onClick={() => setLegalModal(null)} className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-black font-black rounded-2xl transition-all">
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
