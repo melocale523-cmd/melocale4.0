@@ -43,7 +43,7 @@ const STEP_SUBTITLES = [
   'Localização e Detalhes',
 ];
 
-const CATEGORIES = [
+const FALLBACK_CATEGORIES = [
   { label: 'Pintura', icon: '🎨' },
   { label: 'Elétrica', icon: '⚡' },
   { label: 'Hidráulica', icon: '🔧' },
@@ -54,6 +54,32 @@ const CATEGORIES = [
   { label: 'Marcenaria', icon: '🪚' },
   { label: 'Outro', icon: '➕' },
 ];
+
+function getCategoryIcon(slug: string): string {
+  const icons: Record<string, string> = {
+    'eletricista': '⚡',
+    'encanador': '🔧',
+    'pintor': '🎨',
+    'pedreiro-construcao': '🏗️',
+    'marceneiro-carpinteiro': '🪚',
+    'serralheiro': '🔩',
+    'vidraceiro': '🪟',
+    'gesseiro-drywall': '✨',
+    'impermeabilizacao': '💧',
+    'ar-condicionado': '❄️',
+    'dedetizacao': '🐛',
+    'limpeza-residencial': '🧹',
+    'jardinagem-paisagismo': '🌿',
+    'mudanca-carreto': '🚛',
+    'instalacao-moveis': '🛋️',
+    'chaveiro': '🔑',
+    'desentupimento': '🚿',
+    'reforma-geral': '🏠',
+    'telhado-telhadista': '🏘️',
+    'piscina-manutencao': '🏊',
+  };
+  return icons[slug] ?? '🔨';
+}
 
 const URGENCY_OPTIONS = [
   { value: 'hoje' as const, label: 'Hoje / Amanhã', icon: '🔥', desc: 'Preciso urgente' },
@@ -101,6 +127,7 @@ export default function RequestWizard({
 }: RequestWizardProps) {
   const [step, setStep] = useState(1);
   const [localUploading, setLocalUploading] = useState(false);
+  const [dbCategories, setDbCategories] = useState<{ name: string; slug: string }[]>([]);
   const [data, setData] = useState<InternalData>({
     title: initialData?.title ?? '',
     category: initialData?.category ?? '',
@@ -117,6 +144,17 @@ export default function RequestWizard({
   });
 
   const uploading = localUploading || isUploading;
+
+  useEffect(() => {
+    supabase
+      .from('categories')
+      .select('name, slug')
+      .eq('is_active', true)
+      .order('name')
+      .then(({ data }) => {
+        if (data?.length) setDbCategories(data);
+      });
+  }, []);
 
   useEffect(() => {
     if (initialData?.location) return;
@@ -245,7 +283,10 @@ export default function RequestWizard({
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest pl-1">Categoria</label>
                 <div className="grid grid-cols-3 gap-3">
-                  {CATEGORIES.map(cat => (
+                  {(dbCategories.length > 0
+                    ? dbCategories.map(c => ({ label: c.name, icon: getCategoryIcon(c.slug) }))
+                    : FALLBACK_CATEGORIES
+                  ).map(cat => (
                     <button
                       key={cat.label}
                       type="button"
