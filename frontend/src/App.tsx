@@ -51,6 +51,7 @@ const AdminAprovados = lazy(() => import('./pages/admin/Aprovados'));
 const AdminClientes = lazy(() => import('./pages/admin/Clientes'));
 const AdminUsuarios = lazy(() => import('./pages/admin/Usuarios'));
 const AdminPacotes = lazy(() => import('./pages/admin/Pacotes'));
+const AdminCategorias = lazy(() => import('./pages/admin/Categorias'));
 const AdminSuporte = lazy(() => import('./pages/admin/Suporte'));
 const AdminTestes = lazy(() => import('./pages/admin/Testes'));
 
@@ -248,6 +249,7 @@ const router = createBrowserRouter([
           { path: 'clientes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminClientes /></Suspense></ErrorBoundary> },
           { path: 'planos', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPlanos /></Suspense></ErrorBoundary> },
           { path: 'pacotes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense></ErrorBoundary> },
+          { path: 'categorias', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminCategorias /></Suspense></ErrorBoundary> },
           { path: 'transacoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense></ErrorBoundary> },
           { path: 'financeiro-auditoria', element: <AdminEmBreve /> },
           { path: 'auditoria-logs', element: <AdminEmBreve /> },

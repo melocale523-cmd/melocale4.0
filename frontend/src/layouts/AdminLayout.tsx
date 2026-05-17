@@ -5,7 +5,7 @@ import {
   Users, Briefcase, BarChart3, Settings, ShieldAlert,
   LogOut, ArrowLeft, Menu, Bell, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X, LifeBuoy, TestTube2
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X, LifeBuoy, TestTube2, Tag
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -21,6 +21,7 @@ const ADMIN_NAVIGATION = [
   { name: 'Clientes', href: '/admin/clientes', icon: UserCircle },
   { name: 'Planos', href: '/admin/planos', icon: FileText },
   { name: 'Pacotes', href: '/admin/pacotes', icon: Package },
+  { name: 'Categorias', href: '/admin/categorias', icon: Tag },
   { name: 'Transações', href: '/admin/transacoes', icon: DollarSign },
   { name: 'Financeiro Auditoria', href: '/admin/financeiro-auditoria', icon: Landmark },
   { name: 'Auditoria Logs', href: '/admin/auditoria-logs', icon: ShieldCheck },
