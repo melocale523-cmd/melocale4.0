@@ -1,6 +1,10 @@
 import { supabase } from './supabase';
 
-export const API_URL = import.meta.env.VITE_API_URL ?? 'https://melocale4-0.onrender.com';
+export const API_URL = import.meta.env.VITE_API_URL ?? '';
+
+if (!import.meta.env.VITE_API_URL && import.meta.env.DEV) {
+  console.warn('[api] VITE_API_URL não definido — requests vão para o mesmo origin');
+}
 
 export async function apiFetch(path: string, options?: RequestInit) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;

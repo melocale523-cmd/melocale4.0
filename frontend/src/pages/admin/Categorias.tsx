@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
+import { API_URL } from '../../lib/api';
 import { toast } from 'sonner';
 
 interface Category {
@@ -21,8 +22,6 @@ function toSlug(name: string): string {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 }
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://melocale4-0.onrender.com';
 
 async function getToken(): Promise<string> {
   const { data: { session } } = await supabase.auth.getSession();

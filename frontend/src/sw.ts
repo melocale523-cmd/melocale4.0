@@ -31,8 +31,9 @@ registerRoute(
 )
 
 // API backend — NetworkFirst, cache 5min
+const API_HOSTNAME = new URL(import.meta.env.VITE_API_URL || 'http://localhost').hostname;
 registerRoute(
-  ({ url }) => url.hostname === 'melocale4-0.onrender.com',
+  ({ url }) => !!API_HOSTNAME && url.hostname === API_HOSTNAME,
   new NetworkFirst({
     cacheName: 'api-cache',
     networkTimeoutSeconds: 5,
