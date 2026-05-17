@@ -266,6 +266,7 @@ export default function Pedidos() {
   const [statusFilter, setStatusFilter] = useState<string>('todos');
   const [editingPedido, setEditingPedido] = useState<PedidoItem | null>(null);
   const [contextMenuId, setContextMenuId] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<PedidoItem | null>(null);
   const [profileModal, setProfileModal] = useState<{
     userId: string;
     name: string;
@@ -377,8 +378,7 @@ export default function Pedidos() {
 
   const handleDelete = (pedido: PedidoItem) => {
     setContextMenuId(null);
-    if (!window.confirm(`Arquivar "${pedido.title}"?`)) return;
-    deleteMutation.mutate(pedido.id);
+    setDeleteConfirm(pedido);
   };
 
   const handleWizardSubmit = (wizardData: WizardData) => {
@@ -793,6 +793,42 @@ export default function Pedidos() {
           avatar={profileModal.avatar}
           onClose={() => setProfileModal(null)}
         />
+      )}
+
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)} />
+          <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-6">
+            <div className="text-center space-y-3">
+              <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto">
+                <Trash2 size={28} className="text-red-400" />
+              </div>
+              <h3 className="text-xl font-black text-white">Arquivar pedido?</h3>
+              <p className="text-[#94A3B8] text-sm">
+                "{deleteConfirm.title}" será arquivado e não aparecerá mais na lista.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 h-12 bg-white/5 hover:bg-white/10 text-[#B0C4D8] font-bold rounded-2xl transition-all text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  deleteMutation.mutate(deleteConfirm.id);
+                  setDeleteConfirm(null);
+                }}
+                className="flex-1 h-12 bg-red-600 hover:bg-red-500 text-white font-black rounded-2xl transition-all text-sm"
+              >
+                Arquivar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
