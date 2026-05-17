@@ -642,7 +642,18 @@ COMPORTAMENTO NESTE CONTEXTO:
     user_id: z.string().uuid(),
   });
 
-  app.post("/api/create-checkout-session", requireAuth, async (req: AuthRequest, res: Response) => {
+  // Rate limit por usuário autenticado — 10 sessões por hora.
+  // Usa authUser.id como chave para não punir usuários atrás do mesmo IP.
+  const checkoutRateLimit = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 10,
+    keyGenerator: (req) => (req as AuthRequest).authUser?.id ?? req.ip ?? 'unknown',
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Muitas tentativas de checkout. Aguarde 1 hora e tente novamente.' },
+  });
+
+  app.post("/api/create-checkout-session", requireAuth, checkoutRateLimit, async (req: AuthRequest, res: Response) => {
     const parsed = checkoutSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
