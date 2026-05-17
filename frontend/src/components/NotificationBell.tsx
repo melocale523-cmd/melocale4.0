@@ -51,6 +51,14 @@ export default function NotificationBell() {
       }, () => {
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
       })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`,
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      })
       .subscribe();
     return () => { channel.unsubscribe(); supabase.removeChannel(channel); };
   }, [user?.id, queryClient]);
@@ -62,6 +70,18 @@ export default function NotificationBell() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // Marca todas como lidas quando o dropdown abre (ação explícita do usuário).
+  // Não dispara no mount — só quando open muda de false → true.
+  useEffect(() => {
+    if (!open || !user?.id) return;
+    void supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+      .then(() => queryClient.invalidateQueries({ queryKey: ['notifications'] }));
+  }, [open, user?.id, queryClient]);
 
   const markAllRead = async () => {
     if (!user?.id) return;
