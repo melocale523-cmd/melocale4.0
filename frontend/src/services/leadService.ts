@@ -396,30 +396,17 @@ export const proposalService = {
         if (!chatId) {
           const leadId = purchase.lead_id ?? null;
 
-          const selQ = supabase.from('conversations').select('id').eq('professional_id', profTableId);
-          const { data: existing } = await (leadId
-            ? selQ.eq('lead_id', leadId)
-            : selQ.is('lead_id', null)
-          ).maybeSingle();
-
-          if (existing?.id) {
-            chatId = existing.id;
-          } else {
-            const { data: conv, error: insertErr } = await supabase
-              .from('conversations')
-              .insert({ professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId })
-              .select('id').single();
-            if (insertErr) {
-              const retryQ = supabase.from('conversations').select('id').eq('professional_id', profTableId);
-              const { data: retry } = await (leadId
-                ? retryQ.eq('lead_id', leadId)
-                : retryQ.is('lead_id', null)
-              ).maybeSingle();
-              chatId = retry?.id ?? null;
-            } else {
-              chatId = conv?.id ?? null;
-            }
-          }
+          // Upsert elimina TOCTOU: ON CONFLICT DO UPDATE SET client_id = EXCLUDED.client_id
+          // garante que RETURNING sempre retorna o id, seja novo ou existente.
+          const { data: conv } = await supabase
+            .from('conversations')
+            .upsert(
+              { professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId },
+              { onConflict: 'professional_id,lead_id', ignoreDuplicates: false }
+            )
+            .select('id')
+            .single();
+          chatId = conv?.id ?? null;
 
           if (chatId) {
             await supabase
@@ -462,33 +449,16 @@ export const proposalService = {
     // rawProfId is professionals.id — the correct FK for conversations.professional_id
     const { professional_id: rawProfId, client_id: clientId, lead_id: leadId } = lp;
 
-    const selQ = supabase.from('conversations').select('id').eq('professional_id', rawProfId);
-    const { data: existing } = await (leadId
-      ? selQ.eq('lead_id', leadId)
-      : selQ.is('lead_id', null)
-    ).maybeSingle();
-
-    if (existing?.id) {
-      await supabase.from('lead_purchases')
-        .update({ chat_id: existing.id }).eq('id', purchaseId);
-      return existing.id;
-    }
-
-    const { data: conv, error: insertErr } = await supabase
+    const { data: conv } = await supabase
       .from('conversations')
-      .insert({ professional_id: rawProfId, client_id: clientId, lead_id: leadId ?? null })
-      .select('id').single();
+      .upsert(
+        { professional_id: rawProfId, client_id: clientId, lead_id: leadId ?? null },
+        { onConflict: 'professional_id,lead_id', ignoreDuplicates: false }
+      )
+      .select('id')
+      .single();
 
-    let finalId = conv?.id ?? null;
-    if (insertErr) {
-      const retryQ = supabase.from('conversations').select('id').eq('professional_id', rawProfId);
-      const { data: retry } = await (leadId
-        ? retryQ.eq('lead_id', leadId)
-        : retryQ.is('lead_id', null)
-      ).maybeSingle();
-      finalId = retry?.id ?? null;
-    }
-
+    const finalId = conv?.id ?? null;
     if (finalId) {
       await supabase.from('lead_purchases')
         .update({ chat_id: finalId }).eq('id', purchaseId);
