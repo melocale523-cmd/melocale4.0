@@ -112,7 +112,7 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/login`,
+          redirectTo: `${window.location.origin}/login?oauth=1`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -264,11 +264,13 @@ export default function Login() {
     }
   };
 
-  if (loading) {
+  const isOAuth = new URLSearchParams(window.location.search).get('oauth') === '1';
+
+  if (loading || isOAuth) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-emerald-500">
         <Loader2 className="animate-spin mb-4" size={40} />
-        <p className="text-[#B0C4D8] font-medium">Carregando...</p>
+        <p className="text-[#B0C4D8] font-medium">{isOAuth ? 'Entrando com Google...' : 'Carregando...'}</p>
       </div>
     );
   }
