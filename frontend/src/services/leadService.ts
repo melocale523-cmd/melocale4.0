@@ -147,28 +147,27 @@ export const leadService = {
   },
 
   async createRequest(request: { title: string, description: string, category: string, location: string, budget_min: number, budget_max: number, images?: string[], metadata?: Record<string, string> }) {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) throw new Error("Sessão expirada. Faça login novamente.");
-
-    const payload = {
-      ...request,
-      client_id: user.id,
-      status: 'open',
-      price_coins: 10,
-      max_purchases: 5,
-      purchases_count: 0,
-      metadata: request.metadata ?? {},
-      visualizacoes: 0,
-    };
-
-    const { data, error } = await supabase
-      .from('leads')
-      .insert([payload])
-      .select('*')
-      .single();
-
-    if (error) throw error;
-    return data;
+    // price_coins é calculado no backend com base em budget_max e metadata.urgency.
+    // Nunca enviamos price_coins do frontend — o servidor ignora qualquer valor enviado.
+    const response = await apiFetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title:       request.title,
+        category:    request.category,
+        description: request.description,
+        location:    request.location,
+        budget_min:  request.budget_min,
+        budget_max:  request.budget_max,
+        images:      request.images ?? [],
+        metadata:    request.metadata ?? {},
+      }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error((err as { error?: string }).error ?? 'Erro ao criar pedido');
+    }
+    return response.json();
   },
 
   async updateRequest(id: string, updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number; images?: string[]; metadata?: Record<string, string> }) {

@@ -1172,6 +1172,76 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // POST /api/leads — criar lead com price_coins calculado no servidor
+  // ============================================
+
+  /** Calcula price_coins a partir do orçamento máximo declarado.
+   *  Urgência 'hoje' aplica multiplicador de 1.5 (arredondado para cima). */
+  function calcLeadPriceCoins(budgetMax: number, urgency: string): number {
+    let base: number;
+    if (budgetMax <= 500)        base = 10;
+    else if (budgetMax <= 2000)  base = 20;
+    else if (budgetMax <= 10000) base = 40;
+    else                          base = 80;
+
+    if (urgency === 'hoje') return Math.ceil(base * 1.5);
+    return base;
+  }
+
+  const createLeadSchema = z.object({
+    title:       z.string().min(1).max(200),
+    category:    z.string().min(1).max(100),
+    description: z.string().max(2000).optional().default(''),
+    location:    z.string().min(1).max(200),
+    budget_min:  z.number().min(0),
+    budget_max:  z.number().min(0),
+    images:      z.array(z.string().url()).max(10).optional().default([]),
+    metadata:    z.record(z.string(), z.string()).optional().default({}),
+  });
+
+  app.post('/api/leads', requireAuth, async (req: AuthRequest, res: Response) => {
+    const parsed = createLeadSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+
+    try {
+      const userId = req.authUser!.id;
+      const { title, category, description, location, budget_min, budget_max, images, metadata } = parsed.data;
+      const urgency = metadata.urgency ?? 'sem_pressa';
+      const price_coins = calcLeadPriceCoins(budget_max, urgency);
+
+      const { data, error } = await withTimeout(
+        supabaseAdmin
+          .from('leads')
+          .insert({
+            title,
+            category,
+            description,
+            location,
+            budget_min,
+            budget_max,
+            images,
+            metadata,
+            client_id:       userId,
+            status:          'open',
+            price_coins,
+            max_purchases:   5,
+            purchases_count: 0,
+            visualizacoes:   0,
+          })
+          .select()
+          .single()
+      );
+
+      if (error) throw error;
+      console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
+      return res.status(201).json(data);
+    } catch (err: unknown) {
+      console.error('/api/leads POST error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno ao criar pedido.' });
+    }
+  });
+
+  // ============================================
   // PATCH /api/admin/professional-status
   // ============================================
   app.patch('/api/admin/professional-status', requireAuth, async (req: AuthRequest, res: Response) => {
@@ -1459,6 +1529,24 @@ COMPORTAMENTO NESTE CONTEXTO:
     });
   });
 
+  // ============================================
+  // POST /api/admin/reload-coin-packages — recarrega cache manualmente
+  // ============================================
+  app.post('/api/admin/reload-coin-packages', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const { data: profile } = await withTimeout(
+        supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
+      );
+      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
+
+      await loadCoinPackages();
+      return res.json({ reloaded: true, packages: Object.keys(coinPackagesCache).length });
+    } catch (err: unknown) {
+      console.error('/api/admin/reload-coin-packages error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : 500;
     const message = err instanceof Error ? err.message : 'Erro interno';
@@ -1473,6 +1561,7 @@ async function startServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
   await loadCoinPackages();
+  setInterval(loadCoinPackages, 60 * 60 * 1000);
 
   setInterval(jobLembrete24h, 60 * 60 * 1000);
   void jobLembrete24h();

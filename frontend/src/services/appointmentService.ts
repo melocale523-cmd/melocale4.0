@@ -148,15 +148,9 @@ export const appointmentService = {
       .single();
     if (error) throw error;
 
-    if (status === 'completed' && (appt as Appointment).conversation_id) {
-      const { data: conv } = await supabase
-        .from('conversations')
-        .select('lead_id')
-        .eq('id', (appt as Appointment).conversation_id as string)
-        .maybeSingle();
-      if (conv?.lead_id) {
-        void supabase.from('leads').update({ status: 'finalizado' }).eq('id', conv.lead_id);
-      }
+    if (status === 'completed') {
+      // Use SECURITY DEFINER RPC — professionals cannot UPDATE leads via RLS directly
+      void supabase.rpc('finalize_lead', { p_appointment_id: appointmentId });
     }
 
     if (opts?.notifyUserId) {
