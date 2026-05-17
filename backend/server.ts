@@ -1370,6 +1370,10 @@ COMPORTAMENTO NESTE CONTEXTO:
     const TEST_PROF_EMAIL      = process.env.E2E_PROF_EMAIL      ?? '';
     const TEST_PROF_PASSWORD   = process.env.E2E_PROF_PASSWORD   ?? '';
 
+    const E2E_PREFIX = '[E2E-TEST]';
+    const startedAt = new Date().toISOString();
+    console.log(`[e2e] run-tests iniciado: ${startedAt}`);
+
     let clientUserId: string | null = null;
     let profUserId: string | null = null;
     let createdLeadId: string | null = null;
@@ -1416,8 +1420,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       if (!clientProfile) throw new Error('Perfil cliente não encontrado');
       const { data, error } = await supabaseAdmin.rpc('e2e_insert_lead', {
         p_client_id: clientUserId,
-        p_title: '[TESTE E2E] Pintura de sala',
-        p_description: 'Teste automatizado — pode ser deletado',
+        p_title: `${E2E_PREFIX} Pintura de sala`,
+        p_description: `${E2E_PREFIX} Teste automatizado — pode ser deletado`,
         p_category: 'Pintura',
         p_location: 'São Paulo, SP',
         p_budget_min: 100,
@@ -1478,7 +1482,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         .from('messages')
         .insert({
           conversation_id: createdChatId,
-          body: '[TESTE E2E] Olá, mensagem automática de teste',
+          body: `${E2E_PREFIX} Olá, mensagem automática de teste`,
           sender_type: 'client',
           read_at: null,
           attachments: [],
@@ -1489,29 +1493,39 @@ COMPORTAMENTO NESTE CONTEXTO:
       return `OK — message_id: ${data.id}`;
     });
 
+    // Cleanup robusto: apaga por prefixo [E2E-TEST], não apenas pelos IDs coletados.
+    // Isso garante que orphans de execuções anteriores com crash também sejam removidos.
     try {
+      // 1. Mensagens com prefixo em qualquer conversa do lead de teste
       if (createdChatId) {
         await supabaseAdmin.from('messages')
           .delete()
           .eq('conversation_id', createdChatId)
-          .like('body', '[TESTE E2E]%');
+          .like('body', `${E2E_PREFIX}%`);
         await supabaseAdmin.from('conversations').delete().eq('id', createdChatId);
         await supabaseAdmin.from('lead_purchases').delete().eq('lead_id', createdLeadId!);
       }
+      // 2. Lead pelo ID e por título com prefixo (catch de orphans)
       if (createdLeadId) {
         await supabaseAdmin.from('leads').delete().eq('id', createdLeadId);
       }
+      // 3. Sweep de qualquer lead com prefixo que tenha ficado órfão
+      await supabaseAdmin.from('leads').delete().like('title', `${E2E_PREFIX}%`);
+      console.log('[e2e] cleanup concluído');
     } catch (cleanupErr) {
-      console.error('Cleanup parcial:', cleanupErr);
+      console.error('[e2e] cleanup parcial:', cleanupErr instanceof Error ? cleanupErr.message : String(cleanupErr));
     }
 
     const passed = results.filter(r => r.status === 'pass').length;
     const failed = results.filter(r => r.status === 'fail').length;
+    const finishedAt = new Date().toISOString();
+    console.log(`[e2e] run-tests finalizado: ${finishedAt} — passed=${passed} failed=${failed}`);
 
     return res.json({
       summary: { total: results.length, passed, failed },
       results,
-      ran_at: new Date().toISOString(),
+      ran_at: startedAt,
+      finished_at: finishedAt,
     });
   });
 
