@@ -21,6 +21,7 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { isSupported, isSubscribed, subscribe } = usePushNotifications();
+  const hasBeenOpened = useRef(false);
 
   const { data: notifications = [] } = useQuery<Notification[]>({
     queryKey: ['notifications'],
@@ -77,7 +78,11 @@ export default function NotificationBell() {
   // Marca todas como lidas quando o dropdown abre (ação explícita do usuário).
   // Não dispara no mount — só quando open muda de false → true.
   useEffect(() => {
-    if (open || !user?.id) return;
+    if (open) {
+      hasBeenOpened.current = true;
+      return;
+    }
+    if (!hasBeenOpened.current || !user?.id) return;
     void supabase
       .from('notifications')
       .update({ is_read: true })
