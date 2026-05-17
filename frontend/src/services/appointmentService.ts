@@ -140,7 +140,8 @@ export const appointmentService = {
 
     if (status === 'completed') {
       // Use SECURITY DEFINER RPC — professionals cannot UPDATE leads via RLS directly
-      void supabase.rpc('finalize_lead', { p_appointment_id: appointmentId });
+      const { error: rpcErr } = await supabase.rpc('finalize_lead', { p_appointment_id: appointmentId });
+      if (rpcErr) throw new Error(`Falha ao finalizar lead: ${rpcErr.message}`);
     }
 
     if (opts?.notifyUserId) {
@@ -183,10 +184,6 @@ export const appointmentService = {
     if (error) throw error;
 
     if (notifyUserId) {
-      const dt = new Date(proposedAt);
-      const dateStr = dt.toLocaleDateString('pt-BR');
-      const timeStr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      const who = proposedBy === 'professional' ? 'O profissional' : 'O cliente';
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

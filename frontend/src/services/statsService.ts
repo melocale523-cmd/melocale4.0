@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { API_URL } from '../lib/api';
 
 interface LeadStatusRow { status: string }
 
@@ -126,7 +127,6 @@ export const adminService = {
       let authEmails: Record<string, string> = {};
       if (missingEmailIds.length > 0) {
         try {
-          const API_URL = (import.meta as { env: Record<string, string> }).env.VITE_API_URL || 'https://melocale4-0.onrender.com';
           const { data: { session } } = await supabase.auth.getSession();
           const token = session?.access_token;
           if (token) {
@@ -179,7 +179,6 @@ export const adminService = {
 
   async updateUserStatus(userId: string, status: string) {
     const isActive = status === 'active';
-    const API_URL = (import.meta as { env: Record<string, string> }).env.VITE_API_URL || 'https://melocale4-0.onrender.com';
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     if (!token) throw new Error('Não autenticado');

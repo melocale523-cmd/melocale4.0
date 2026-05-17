@@ -1087,7 +1087,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                 </button>
               </form>
             )}
-            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-4 text-center">As mensagens são criptografadas de ponta a ponta</p>
+            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-4 text-center">As mensagens são protegidas por SSL em trânsito</p>
           </div>
         </div>
       ) : (

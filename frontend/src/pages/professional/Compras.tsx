@@ -6,6 +6,7 @@ import { cn } from '../../lib/utils';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { toast } from 'sonner';
 
 export default function ProfessionalCompras() {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ export default function ProfessionalCompras() {
       setTimeout(() => setShowSuccess(false), 3000);
       setProposalData({ price: '', duration: '', durationUnit: 'dias', description: '', status: 'Proposta Enviada' });
     },
-    onError: (error: any) => alert(`Erro ao enviar proposta: ${error.message}`)
+    onError: (error: any) => toast.error(`Erro ao enviar proposta: ${error.message}`)
   });
 
   const STATUS_TABS = ['Todos', 'Pendente Proposta', 'Proposta Enviada', 'Aceita', 'Recusada'] as const;
@@ -94,11 +95,11 @@ export default function ProfessionalCompras() {
         trackContactMutation.mutate(purchase.id);
         window.open(`mailto:${safeEmail}`, '_blank');
       } else {
-        alert('Nenhum dado de contato disponível para este cliente.');
+        toast.error('Nenhum dado de contato disponível para este cliente.');
       }
     } catch (err) {
       console.error('[handleContact] unexpected error:', err);
-      alert('Erro ao abrir contato. Tente novamente.');
+      toast.error('Erro ao abrir contato. Tente novamente.');
     }
   };
 
