@@ -2,11 +2,12 @@ import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import ThemeToggle from '../components/ThemeToggle';
+import NotificationBell from '../components/NotificationBell';
 import {
   Users, Briefcase, BarChart3, Settings, ShieldAlert,
-  LogOut, ArrowLeft, Menu, Bell, Activity, AlertOctagon,
+  LogOut, ArrowLeft, Menu, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X, LifeBuoy, TestTube2, Tag, Download
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -38,9 +39,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
 
-  const [notifications, setNotifications] = useState<{ id: number; title: string; message: string; time: string; read: boolean }[]>([]);
 
   useEffect(() => {
     if (user && user.role !== 'admin') navigate('/', { replace: true });
@@ -61,10 +60,6 @@ export default function AdminLayout() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/login');
-  };
-
-  const markAllRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
 
   return (
@@ -141,41 +136,7 @@ export default function AdminLayout() {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <div className="relative">
-              <button onClick={() => setShowNotifications(!showNotifications)} className="relative p-2 text-slate-500 dark:text-[#94A3B8] hover:text-slate-700 dark:hover:text-slate-200 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/50">
-                <Bell size={20} />
-                {notifications.some(n => !n.read) && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0E1C32]"></span>
-                )}
-              </button>
-
-              {/* Notifications Popover */}
-              {showNotifications && (
-                <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-[#132540] border border-slate-200 dark:border-[#1C3050] rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-4">
-                  <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-                    <h3 className="font-bold text-white">Notificações</h3>
-                    <div className="flex items-center gap-2">
-                       <button onClick={markAllRead} className="text-xs text-blue-400 hover:underline">Marcar lidas</button>
-                       <button onClick={() => setShowNotifications(false)} className="text-[#94A3B8] hover:text-white p-1 rounded-full"><X size={16}/></button>
-                    </div>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {notifications.map(n => (
-                      <div key={n.id} className={`p-4 border-b border-[#1C3050] hover:bg-slate-800/30 transition-colors ${n.read ? 'opacity-70' : 'bg-red-500/5'}`}>
-                        <div className="flex justify-between items-start mb-1">
-                          <h4 className={`text-sm font-bold ${n.read ? 'text-slate-300' : 'text-red-400'}`}>{n.title}</h4>
-                          <span className="text-[10px] text-[#4A6580]">{n.time}</span>
-                        </div>
-                        <p className="text-xs text-[#94A3B8]">{n.message}</p>
-                      </div>
-                    ))}
-                    {notifications.length === 0 && (
-                      <div className="p-8 text-center text-[#4A6580] text-sm">Nenhuma notificação no momento.</div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+            <NotificationBell />
             
             <div className="h-8 w-8 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 flex items-center justify-center font-bold text-sm">
                {user?.email?.charAt(0) || 'A'}
