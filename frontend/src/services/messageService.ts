@@ -111,17 +111,23 @@ export const chatService = {
       .update({ last_message_at: new Date().toISOString() })
       .eq('id', conversationId);
 
-    if (recipientId && user && recipientId !== user.id) {
+    // Always notify — backend determines the target from the conversation.
+    // recipientId guard kept only to skip self-notifications (same user in both sides, edge case).
+    if (user && (!recipientId || recipientId !== user.id)) {
       const message_preview = type === 'text'
         ? (text.length > 100 ? text.substring(0, 97) + '...' : text)
         : type === 'image' ? '📷 Foto'
         : type === 'audio' ? '🎤 Áudio'
         : `📎 ${fileName || 'Arquivo'}`;
-      void apiFetch('/api/notifications/send-event', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId, message_preview }),
-      });
+      try {
+        await apiFetch('/api/notifications/send-event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId, message_preview }),
+        });
+      } catch (err) {
+        console.error('[sendMessage] send-event failed:', err);
+      }
     }
     return data;
   },

@@ -1075,6 +1075,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         data = { appointment_id: resource_id, type: event_type };
 
       } else if (event_type === 'message_sent') {
+        console.log('[send-event] message_sent caller:', callerId, 'conv:', resource_id);
         // Caller must be a participant — notify the other side.
         const { data: conv } = await supabaseAdmin
           .from('conversations')
