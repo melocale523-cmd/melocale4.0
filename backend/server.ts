@@ -1241,12 +1241,22 @@ COMPORTAMENTO NESTE CONTEXTO:
       const urgency = metadata.urgency ?? 'sem_pressa';
       const price_coins = calcLeadPriceCoins(budget_max, urgency);
 
+      const { data: categoryData } = await withTimeout(
+        supabaseAdmin
+          .from('categories')
+          .select('id')
+          .ilike('name', category)
+          .single()
+      );
+      const categoryId = categoryData?.id ?? null;
+
       const { data, error } = await withTimeout(
         supabaseAdmin
           .from('leads')
           .insert({
             title,
             category,
+            category_id:     categoryId,
             description,
             location,
             budget_min,
