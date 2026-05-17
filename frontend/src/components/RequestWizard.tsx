@@ -152,7 +152,12 @@ export default function RequestWizard({
       .select('name, slug')
       .eq('is_active', true)
       .order('name')
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('[RequestWizard] erro ao carregar categorias:', error);
+          toast.error('Não foi possível carregar as categorias. Usando lista padrão.');
+          return;
+        }
         if (data?.length) setDbCategories(data);
       });
   }, []);
