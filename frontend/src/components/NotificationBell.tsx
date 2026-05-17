@@ -36,7 +36,7 @@ export default function NotificationBell() {
       return (data ?? []) as Notification[];
     },
     enabled: !!user?.id,
-    staleTime: 0,
+    staleTime: 15_000,
     refetchInterval: 30000,
     refetchOnWindowFocus: true,
   });

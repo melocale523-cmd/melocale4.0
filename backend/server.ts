@@ -1,5 +1,5 @@
 // Trigger Render redeploy 2026-04-28
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction, RequestHandler } from "express";
 
 interface AuthRequest extends Request {
   authUser?: { id: string; email: string; role: string }
@@ -151,6 +151,25 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   (req as AuthRequest).authUser = user as { id: string; email: string; role: string };
   next();
 }
+
+const requireAdmin: RequestHandler = async (req, res, next) => {
+  try {
+    const { data: profile } = await withTimeout(
+      supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', (req as AuthRequest).authUser!.id)
+        .single()
+    );
+    if (profile?.role !== 'admin') {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
+    next();
+  } catch (err) {
+    console.error('[requireAdmin] erro:', err);
+    return res.status(500).json({ error: 'Erro interno.' });
+  }
+};
 
 function withTimeout<T>(promise: PromiseLike<T>, ms = 8000): Promise<T> {
   return Promise.race([
@@ -412,16 +431,8 @@ export function createApp() {
     });
   });
 
-  app.get("/api/admin/active-users", requireAuth, async (req: AuthRequest, res: Response) => {
+  app.get("/api/admin/active-users", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      const userId = req.authUser!.id;
-      const { data: profile } = await withTimeout(
-        supabaseAdmin.from('profiles').select('role').eq('id', userId).single()
-      );
-      if (profile?.role !== 'admin') {
-        return res.status(403).json({ error: 'Acesso não autorizado.' });
-      }
-
       const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       let count = 0;
       let page = 1;
@@ -1291,18 +1302,11 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // PATCH /api/admin/professional-status
   // ============================================
-  app.patch('/api/admin/professional-status', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.patch('/api/admin/professional-status', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
       const { user_id, is_active } = req.body;
       if (!user_id || typeof is_active !== 'boolean') {
         return res.status(400).json({ error: 'user_id e is_active são obrigatórios.' });
-      }
-
-      const { data: profile } = await withTimeout(
-        supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
-      );
-      if (profile?.role !== 'admin') {
-        return res.status(403).json({ error: 'Acesso negado.' });
       }
 
       const { error } = await withTimeout(
@@ -1319,13 +1323,8 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // GET /api/admin/user-emails?ids=uuid1,uuid2,...
   // ============================================
-  app.get('/api/admin/user-emails', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.get('/api/admin/user-emails', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      const { data: profile } = await withTimeout(
-        supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
-      );
-      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
-
       const ids = (req.query.ids as string || '').split(',').filter(Boolean).slice(0, 100);
       if (!ids.length) return res.json({ emails: {} });
 
@@ -1353,12 +1352,8 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // POST /api/admin/categories — inserir nova categoria
   // ============================================
-  app.post('/api/admin/categories', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.post('/api/admin/categories', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      const { data: profile } = await supabaseAdmin
-        .from('profiles').select('role').eq('id', req.authUser!.id).single();
-      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
-
       const { name, slug } = req.body;
       if (!name || !slug) return res.status(400).json({ error: 'name e slug obrigatórios.' });
 
@@ -1378,12 +1373,8 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // PATCH /api/admin/categories/:id — toggle is_active
   // ============================================
-  app.patch('/api/admin/categories/:id', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.patch('/api/admin/categories/:id', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      const { data: profile } = await supabaseAdmin
-        .from('profiles').select('role').eq('id', req.authUser!.id).single();
-      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
-
       const { id } = req.params;
       const { is_active } = req.body;
       if (typeof is_active !== 'boolean') return res.status(400).json({ error: 'is_active obrigatório.' });
@@ -1405,20 +1396,8 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // GET /api/admin/run-tests — E2E test runner
   // ============================================
-  app.get('/api/admin/run-tests', requireAuth, async (req: Request, res: Response) => {
+  app.get('/api/admin/run-tests', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.replace('Bearer ', '');
-    const { data: { user } } = await supabaseAdmin.auth.getUser(token!);
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', user!.id)
-      .single();
-    if (profile?.role !== 'admin') {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-
     const results: Array<{
       id: string;
       name: string;
@@ -1598,13 +1577,8 @@ COMPORTAMENTO NESTE CONTEXTO:
   // ============================================
   // POST /api/admin/reload-coin-packages — recarrega cache manualmente
   // ============================================
-  app.post('/api/admin/reload-coin-packages', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.post('/api/admin/reload-coin-packages', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      const { data: profile } = await withTimeout(
-        supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
-      );
-      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
-
       await loadCoinPackages();
       return res.json({ reloaded: true, packages: Object.keys(coinPackagesCache).length });
     } catch (err: unknown) {
@@ -1618,20 +1592,8 @@ COMPORTAMENTO NESTE CONTEXTO:
   // GET /api/admin/reports/leads
   // GET /api/admin/reports/transactions
   // ============================================
-  async function assertAdmin(req: AuthRequest, res: Response): Promise<boolean> {
-    const { data: profile } = await withTimeout(
-      supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
-    );
-    if (profile?.role !== 'admin') {
-      res.status(403).json({ error: 'Acesso negado.' });
-      return false;
-    }
-    return true;
-  }
-
-  app.get('/api/admin/reports/users', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.get('/api/admin/reports/users', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      if (!await assertAdmin(req, res)) return;
 
       const { data: profiles, error } = await withTimeout(
         supabaseAdmin
@@ -1672,9 +1634,8 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
   });
 
-  app.get('/api/admin/reports/leads', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.get('/api/admin/reports/leads', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      if (!await assertAdmin(req, res)) return;
       const { data, error } = await withTimeout(
         supabaseAdmin
           .from('leads')
@@ -1689,10 +1650,8 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
   });
 
-  app.get('/api/admin/reports/transactions', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.get('/api/admin/reports/transactions', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
     try {
-      if (!await assertAdmin(req, res)) return;
-
       const { data: txs, error } = await withTimeout(
         supabaseAdmin
           .from('wallet_transactions')
