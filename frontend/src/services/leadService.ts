@@ -88,7 +88,7 @@ export const leadService = {
     try {
       const { data, error } = await supabase
         .from('v_my_purchases')
-        .select('id,lead_id,status,created_at,expires_at,max_purchases,purchases_count,location,images,title,description,category,city,state,budget_min,budget_max,event_date,lead_status,client_id,client_name,client_email,client_phone,client_city,profiles')
+        .select('id,lead_id,status,created_at,expires_at,max_purchases,purchases_count,location,images,title,description,category,city,state,budget_min,budget_max,event_date,lead_status,client_id,client_name,client_email,client_phone,client_city')
         .order('created_at', { ascending: false });
       if (error) return [];
       return (data || []).map((row: PurchaseViewRow) => ({
