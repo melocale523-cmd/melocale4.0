@@ -1054,6 +1054,58 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // POST /api/admin/categories — inserir nova categoria
+  // ============================================
+  app.post('/api/admin/categories', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles').select('role').eq('id', req.authUser!.id).single();
+      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
+
+      const { name, slug } = req.body;
+      if (!name || !slug) return res.status(400).json({ error: 'name e slug obrigatórios.' });
+
+      const { data, error } = await supabaseAdmin
+        .from('categories')
+        .insert({ name, slug, is_active: true })
+        .select('*')
+        .single();
+      if (error) throw error;
+      return res.json(data);
+    } catch (err: unknown) {
+      console.error('/api/admin/categories POST error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  // ============================================
+  // PATCH /api/admin/categories/:id — toggle is_active
+  // ============================================
+  app.patch('/api/admin/categories/:id', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles').select('role').eq('id', req.authUser!.id).single();
+      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
+
+      const { id } = req.params;
+      const { is_active } = req.body;
+      if (typeof is_active !== 'boolean') return res.status(400).json({ error: 'is_active obrigatório.' });
+
+      const { data, error } = await supabaseAdmin
+        .from('categories')
+        .update({ is_active })
+        .eq('id', id)
+        .select('*')
+        .single();
+      if (error) throw error;
+      return res.json(data);
+    } catch (err: unknown) {
+      console.error('/api/admin/categories PATCH error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  // ============================================
   // GET /api/admin/run-tests — E2E test runner
   // ============================================
   app.get('/api/admin/run-tests', requireAuth, async (req: Request, res: Response) => {

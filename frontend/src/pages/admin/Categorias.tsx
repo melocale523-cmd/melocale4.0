@@ -22,6 +22,13 @@ function toSlug(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://melocale4-0.onrender.com';
+
+async function getToken(): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token ?? '';
+}
+
 export default function AdminCategorias() {
   const queryClient = useQueryClient();
   const [newName, setNewName] = useState('');
@@ -40,11 +47,13 @@ export default function AdminCategorias() {
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from('categories')
-        .update({ is_active: !is_active })
-        .eq('id', id);
-      if (error) throw error;
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ is_active: !is_active }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Erro');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminCategories'] });
@@ -56,10 +65,13 @@ export default function AdminCategorias() {
   const insertMutation = useMutation({
     mutationFn: async (name: string) => {
       const slug = toSlug(name);
-      const { error } = await supabase
-        .from('categories')
-        .insert({ name: name.trim(), slug, is_active: true });
-      if (error) throw error;
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/api/admin/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: name.trim(), slug }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Erro');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminCategories'] });
