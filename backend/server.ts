@@ -1132,27 +1132,32 @@ COMPORTAMENTO NESTE CONTEXTO:
     const parsed = notifPushSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
-    const callerId = (req as AuthRequest).authUser!.id;
-    const targetUserId = parsed.data.user_id;
+    try {
+      const callerId = (req as AuthRequest).authUser!.id;
+      const targetUserId = parsed.data.user_id;
 
-    if (callerId !== targetUserId) {
-      // authUser.role vem do JWT Postgres role ("authenticated"), não do app role.
-      // Para checar se o caller é admin, consultamos a tabela profiles — igual
-      // ao padrão usado em todas as outras rotas admin do servidor.
-      const { data: callerProfile } = await withTimeout(
-        supabaseAdmin.from('profiles').select('role').eq('id', callerId).single()
-      );
-      if (callerProfile?.role !== 'admin') {
-        return res.status(403).json({ error: 'Forbidden' });
+      if (callerId !== targetUserId) {
+        // authUser.role vem do JWT Postgres role ("authenticated"), não do app role.
+        // Para checar se o caller é admin, consultamos a tabela profiles — igual
+        // ao padrão usado em todas as outras rotas admin do servidor.
+        const { data: callerProfile } = await withTimeout(
+          supabaseAdmin.from('profiles').select('role').eq('id', callerId).single()
+        );
+        if (callerProfile?.role !== 'admin') {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
       }
-    }
 
-    void sendPushToUser(targetUserId, {
-      title: parsed.data.title,
-      body: parsed.data.body,
-      data: parsed.data.data as Record<string, unknown> | undefined,
-    });
-    return res.json({ ok: true });
+      void sendPushToUser(targetUserId, {
+        title: parsed.data.title,
+        body: parsed.data.body,
+        data: parsed.data.data as Record<string, unknown> | undefined,
+      });
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('[notifications/push] erro:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
   });
 
   // ============================================
@@ -1401,6 +1406,7 @@ COMPORTAMENTO NESTE CONTEXTO:
   // GET /api/admin/run-tests — E2E test runner
   // ============================================
   app.get('/api/admin/run-tests', requireAuth, async (req: Request, res: Response) => {
+    try {
     const authHeader = req.headers.authorization;
     const token = authHeader?.replace('Bearer ', '');
     const { data: { user } } = await supabaseAdmin.auth.getUser(token!);
@@ -1583,6 +1589,10 @@ COMPORTAMENTO NESTE CONTEXTO:
       ran_at: startedAt,
       finished_at: finishedAt,
     });
+    } catch (err: unknown) {
+      console.error('[admin/run-tests] erro:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
   });
 
   // ============================================
