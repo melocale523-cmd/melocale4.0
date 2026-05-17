@@ -73,16 +73,18 @@ export default function ProfessionalPerfil() {
   }, []);
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || categorias.length === 0) return;
+    const categoriaExiste = categorias.includes(profile.category || '');
     setFormData(prev => ({
       ...prev,
       name: profile.full_name || '',
       phone: profile.phone || '',
-      category: profile.category || '',
+      category: categoriaExiste ? (profile.category || '') : 'Outro',
+      customCategory: categoriaExiste ? '' : (profile.category || ''),
       radius: profile.serviceRadius ? String(profile.serviceRadius) : '15',
       bio: profile.bio || '',
     }));
-  }, [profile]);
+  }, [profile, categorias]);
 
   const saveMutation = useMutation({
     mutationFn: () => {

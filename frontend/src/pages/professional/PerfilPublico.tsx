@@ -39,7 +39,7 @@ export default function PerfilPublico() {
       const { data, error } = await supabase
         .from('professionals')
         .select('id, user_id, bio, category, city, is_active, profiles(full_name, avatar_url, city)')
-        .eq('id', id)
+        .eq('user_id', id)
         .single();
       if (error) throw error;
       return data as ProfessionalPublic;
@@ -48,12 +48,12 @@ export default function PerfilPublico() {
   });
 
   const { data: reviewsData } = useQuery<{ reviews: Review[]; average: number; total: number }>({
-    queryKey: ['publicReviews', id],
+    queryKey: ['publicReviews', prof?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('reviews')
         .select('id, rating, comment, created_at, client_name')
-        .eq('professional_id', id)
+        .eq('professional_id', prof!.id)
         .order('created_at', { ascending: false })
         .limit(10);
       const reviews = (data || []) as Review[];
@@ -61,7 +61,7 @@ export default function PerfilPublico() {
       const average = total > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / total : 0;
       return { reviews, average, total };
     },
-    enabled: !!id,
+    enabled: !!prof?.id,
   });
 
   if (isLoading) {
