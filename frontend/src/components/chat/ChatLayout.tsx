@@ -589,6 +589,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
   const emojis = ['👍', '🤝', '✅', '🏠', '🛠️', '🎨', '📐', '💰', '📅', '📍'];
 
   return (
+    <>
     <div className="h-[calc(100vh-140px)] flex bg-[#1C3454] border border-[#1C3050] rounded-3xl overflow-hidden shadow-2xl relative animate-in fade-in duration-500">
       {/* Hidden file inputs */}
       <input
@@ -790,10 +791,27 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
                     <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
-                      <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          if (role === 'client' && activeConversation?.prof_user_id) {
+                            setProfileModal({
+                              userId: activeConversation.prof_user_id,
+                              name: otherName,
+                              avatar: otherAvatar,
+                            });
+                          } else {
+                            toast('Em breve!');
+                          }
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
+                      >
                         <User size={16} /> {menuProfileLabel}
                       </button>
-                      <button className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors">
+                      <button
+                        onClick={() => { setIsMenuOpen(false); toast('Em breve!'); }}
+                        className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
+                      >
                         <Clock size={16} /> Mensagens Temporárias
                       </button>
                       <div className="h-px bg-white/5 mx-3" />
@@ -1173,58 +1191,60 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
         </div>
       )}
 
-      {showDeleteConvModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setShowDeleteConvModal(false)}
-          />
-          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="p-2 bg-red-500/20 text-red-500 rounded-lg">
-                  <Trash2 size={20} />
-                </div>
-                Excluir conversa?
-              </h2>
-              <button
-                onClick={() => setShowDeleteConvModal(false)}
-                className="text-[#4A6580] hover:text-white transition-colors"
-              >
-                <X size={22} />
-              </button>
-            </div>
-            <p className="text-sm text-[#94A3B8] mb-8 leading-relaxed">
-              Esta ação é permanente e não pode ser desfeita. Todo o histórico de mensagens será apagado.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteConvModal(false)}
-                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-slate-300 font-bold rounded-2xl transition-all"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => { deleteChatMutation.mutate(activeConversationId!); setShowDeleteConvModal(false); }}
-                disabled={deleteChatMutation.isPending}
-                className="flex-1 py-3 bg-red-500 hover:bg-red-400 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {deleteChatMutation.isPending && <Loader2 size={16} className="animate-spin" />}
-                {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir'}
-              </button>
-            </div>
+    </div>
+
+    {showDeleteConvModal && (
+      <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
+        <div
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          onClick={() => setShowDeleteConvModal(false)}
+        />
+        <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <div className="p-2 bg-red-500/20 text-red-500 rounded-lg">
+                <Trash2 size={20} />
+              </div>
+              Excluir conversa?
+            </h2>
+            <button
+              onClick={() => setShowDeleteConvModal(false)}
+              className="text-[#4A6580] hover:text-white transition-colors"
+            >
+              <X size={22} />
+            </button>
+          </div>
+          <p className="text-sm text-[#94A3B8] mb-8 leading-relaxed">
+            Esta ação é permanente e não pode ser desfeita. Todo o histórico de mensagens será apagado.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowDeleteConvModal(false)}
+              className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-slate-300 font-bold rounded-2xl transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() => { deleteChatMutation.mutate(activeConversationId!); setShowDeleteConvModal(false); }}
+              disabled={deleteChatMutation.isPending}
+              className="flex-1 py-3 bg-red-500 hover:bg-red-400 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {deleteChatMutation.isPending && <Loader2 size={16} className="animate-spin" />}
+              {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir'}
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
-      {profileModal && (
-        <ProfileModal
-          userId={profileModal.userId}
-          name={profileModal.name}
-          avatar={profileModal.avatar}
-          onClose={() => setProfileModal(null)}
-        />
-      )}
-    </div>
+    {profileModal && (
+      <ProfileModal
+        userId={profileModal.userId}
+        name={profileModal.name}
+        avatar={profileModal.avatar}
+        onClose={() => setProfileModal(null)}
+      />
+    )}
+    </>
   );
 }
