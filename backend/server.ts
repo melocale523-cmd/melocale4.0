@@ -1308,16 +1308,6 @@ async function startServer() {
   const app = createApp();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-  // Garante constraint única em stripe_event_id para deduplicação atômica no banco.
-  // IF NOT EXISTS garante idempotência em restarts.
-  await supabaseAdmin.rpc('exec_sql' as never, {
-    sql: `ALTER TABLE wallet_transactions ADD CONSTRAINT IF NOT EXISTS uq_stripe_event_id UNIQUE (stripe_event_id);`,
-  }).then(({ error }) => {
-    if (error && !error.message?.includes('already exists') && !error.message?.includes('could not find')) {
-      console.error('[startup] constraint uq_stripe_event_id:', error.message);
-    }
-  });
-
   await loadCoinPackages();
 
   setInterval(jobLembrete24h, 60 * 60 * 1000);
