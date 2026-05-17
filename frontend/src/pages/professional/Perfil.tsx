@@ -3,6 +3,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useProfile } from '../../hooks/useProfile';
 import { profileService, avatarService, reviewService } from '../../services/dbServices';
+import { compressImage } from '../../lib/compressImage';
 import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
@@ -16,6 +17,7 @@ export default function ProfessionalPerfil() {
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [compressing, setCompressing] = useState(false);
 
   const invalidateProfile = () => queryClient.invalidateQueries({ queryKey: ['profile'] });
 
@@ -31,16 +33,20 @@ export default function ProfessionalPerfil() {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = '';
     if (!file.type.startsWith('image/')) { toast.error('Apenas imagens são permitidas.'); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error('Imagem deve ter no máximo 5MB.'); return; }
-    uploadMutation.mutate(file);
+    setCompressing(true);
+    let toUpload = file;
+    try { toUpload = await compressImage(file); } catch { /* fallback silencioso */ }
+    finally { setCompressing(false); }
+    uploadMutation.mutate(toUpload);
   };
 
-  const avatarBusy = uploadMutation.isPending || removeMutation.isPending;
+  const avatarBusy = uploadMutation.isPending || removeMutation.isPending || compressing;
 
   const [successMsg, setSuccessMsg] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
