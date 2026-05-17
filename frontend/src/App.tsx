@@ -3,6 +3,7 @@ import { RouterProvider, createBrowserRouter, Navigate, Outlet, useLocation } fr
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
+import { useTheme } from './hooks/useTheme';
 import { toast } from 'sonner';
 import AuthLayout from './layouts/AuthLayout';
 import ClientLayout from './layouts/ClientLayout';
@@ -272,6 +273,8 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
+  useTheme(); // apply persisted/system theme on initialization
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthInitializer>

@@ -9,6 +9,7 @@ import {
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
+import { compressImage } from '../../lib/compressImage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { chatService, appointmentService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
@@ -517,7 +518,11 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
     if (!activeConversationId) return;
     setIsUploading(true);
     try {
-      const url = await chatService.uploadChatFile(activeConversationId, file);
+      let fileToUpload = file;
+      if (type === 'image') {
+        try { fileToUpload = await compressImage(file); } catch { /* fallback silencioso */ }
+      }
+      const url = await chatService.uploadChatFile(activeConversationId, fileToUpload);
       await chatService.sendMessage(activeConversationId, url, type, file.name, recipientId, role);
       queryClient.invalidateQueries({ queryKey: ['messages', activeConversationId] });
       queryClient.invalidateQueries({ queryKey: ['chats'] });
