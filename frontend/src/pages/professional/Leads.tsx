@@ -60,6 +60,11 @@ export default function ProfessionalLeads() {
 
   const [purchasedLead, setPurchasedLead] = useState<{ title: string, price: number } | null>(null);
   const [lightboxImg, setLightboxImg] = useState<{ images: string[]; index: number } | null>(null);
+  const [purchaseConfirm, setPurchaseConfirm] = useState<{
+    id: string;
+    price_coins: number;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!lightboxImg) return;
@@ -90,7 +95,17 @@ export default function ProfessionalLeads() {
       toast.error(`Saldo insuficiente. Você tem ${coinBalance} moedas e este lead custa ${leadPrice}.`);
       return;
     }
-    purchaseMutation.mutate({ id: lead.id, price: leadPrice, title: lead.title });
+    setPurchaseConfirm({ id: lead.id, price_coins: leadPrice, title: lead.title });
+  };
+
+  const confirmPurchase = () => {
+    if (!purchaseConfirm) return;
+    purchaseMutation.mutate({
+      id: purchaseConfirm.id,
+      price: purchaseConfirm.price_coins,
+      title: purchaseConfirm.title,
+    });
+    setPurchaseConfirm(null);
   };
 
   const getBadges = (lead: { expires_at?: string; created_at: string; budget_max?: number; category?: string; city?: string; location?: string }): { label: string; color: string; icon: string }[] => {
@@ -523,6 +538,44 @@ export default function ProfessionalLeads() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {purchaseConfirm && (
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPurchaseConfirm(null)} />
+          <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-6">
+            <div className="text-center space-y-3">
+              <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto">
+                <ShoppingCart size={28} className="text-emerald-400" />
+              </div>
+              <h3 className="text-xl font-black text-white">Confirmar aquisição?</h3>
+              <p className="text-[#94A3B8] text-sm leading-relaxed">
+                Você irá adquirir o cliente <span className="text-white font-bold">"{purchaseConfirm.title}"</span> por{' '}
+                <span className="text-emerald-400 font-black">{purchaseConfirm.price_coins} moedas</span>.
+              </p>
+              <p className="text-[#4A6580] text-xs">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setPurchaseConfirm(null)}
+                className="flex-1 h-12 bg-white/5 hover:bg-white/10 text-[#B0C4D8] font-bold rounded-2xl transition-all text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmPurchase}
+                disabled={purchaseMutation.isPending}
+                className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all text-sm flex items-center justify-center gap-2"
+              >
+                {purchaseMutation.isPending
+                  ? <Loader2 size={16} className="animate-spin" />
+                  : 'Confirmar'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
