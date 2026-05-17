@@ -218,6 +218,9 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   // --- Role-derived values ---
   const otherLabel = role === 'professional' ? 'Cliente' : 'Profissional';
@@ -779,52 +782,20 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                   <CalendarPlus size={18} />
                 </button>
               )}
-              <div className="relative">
+              <div>
                 <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  ref={menuButtonRef}
+                  onClick={() => {
+                    if (!isMenuOpen && menuButtonRef.current) {
+                      const rect = menuButtonRef.current.getBoundingClientRect();
+                      setMenuPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+                    }
+                    setIsMenuOpen(!isMenuOpen);
+                  }}
                   className="p-2.5 text-[#4A6580] hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all"
                 >
                   <MoreVertical size={20} />
                 </button>
-
-                {isMenuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-20 overflow-hidden animate-in zoom-in-95 duration-200">
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          if (role === 'client' && activeConversation?.prof_user_id) {
-                            setProfileModal({
-                              userId: activeConversation.prof_user_id,
-                              name: otherName,
-                              avatar: otherAvatar,
-                            });
-                          } else {
-                            toast('Em breve!');
-                          }
-                        }}
-                        className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
-                      >
-                        <User size={16} /> {menuProfileLabel}
-                      </button>
-                      <button
-                        onClick={() => { setIsMenuOpen(false); toast('Em breve!'); }}
-                        className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
-                      >
-                        <Clock size={16} /> Mensagens Temporárias
-                      </button>
-                      <div className="h-px bg-white/5 mx-3" />
-                      <button
-                        onClick={() => { setIsMenuOpen(false); setShowDeleteConvModal(true); }}
-                        disabled={deleteChatMutation.isPending}
-                        className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold disabled:opacity-50"
-                      >
-                        <Trash2 size={16} /> Excluir Conversa
-                      </button>
-                    </div>
-                  </>
-                )}
               </div>
             </div>
           </div>
@@ -1244,6 +1215,48 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
         avatar={profileModal.avatar}
         onClose={() => setProfileModal(null)}
       />
+    )}
+
+    {isMenuOpen && menuPos && (
+      <>
+        <div className="fixed inset-0 z-[350]" onClick={() => setIsMenuOpen(false)} />
+        <div
+          style={{ top: menuPos.top, right: menuPos.right }}
+          className="fixed w-56 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl z-[360] overflow-hidden animate-in zoom-in-95 duration-200"
+        >
+          <button
+            onClick={() => {
+              setIsMenuOpen(false);
+              if (role === 'client' && activeConversation?.prof_user_id) {
+                setProfileModal({
+                  userId: activeConversation.prof_user_id,
+                  name: otherName,
+                  avatar: otherAvatar,
+                });
+              } else {
+                toast('Em breve!');
+              }
+            }}
+            className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
+          >
+            <User size={16} /> {menuProfileLabel}
+          </button>
+          <button
+            onClick={() => { setIsMenuOpen(false); toast('Em breve!'); }}
+            className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
+          >
+            <Clock size={16} /> Mensagens Temporárias
+          </button>
+          <div className="h-px bg-white/5 mx-3" />
+          <button
+            onClick={() => { setIsMenuOpen(false); setShowDeleteConvModal(true); }}
+            disabled={deleteChatMutation.isPending}
+            className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold disabled:opacity-50"
+          >
+            <Trash2 size={16} /> Excluir Conversa
+          </button>
+        </div>
+      </>
     )}
     </>
   );
