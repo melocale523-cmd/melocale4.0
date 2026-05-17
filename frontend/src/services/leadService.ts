@@ -55,7 +55,7 @@ export const leadService = {
   async getAvailableLeads() {
     const { data, error } = await supabase
       .from('v_available_leads')
-      .select('*');
+      .select('id,title,description,category,location,city,budget_min,budget_max,price_coins,images,event_date,expires_at,created_at,max_purchases,purchases_count');
 
     if (error) {
       console.error('[getAvailableLeads] view error:', error.message);
@@ -107,7 +107,7 @@ export const leadService = {
     try {
       const { data, error } = await supabase
         .from('v_my_purchases')
-        .select('*')
+        .select('id,lead_id,status,created_at,expires_at,max_purchases,purchases_count,location,images,title,description,category,city,state,budget_min,budget_max,event_date,lead_status,client_id,client_name,client_email,client_phone,client_city,profiles')
         .order('created_at', { ascending: false });
       if (error) return [];
       return (data || []).map((row: PurchaseViewRow) => ({

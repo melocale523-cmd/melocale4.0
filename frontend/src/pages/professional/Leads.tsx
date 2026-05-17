@@ -42,7 +42,7 @@ export default function ProfessionalLeads() {
     const matchesCategory = filters.category === 'Todas' || lead.category === filters.category;
     const matchesCity = !filters.city || location.includes(city);
 
-    const price = lead.price_coins || lead.budget_coins || 0;
+    const price = lead.price_coins || 0;
     const matchesCoinCost = price <= filters.coinCost;
 
     const leadBudget = lead.budget_max || lead.budget_min || 0;

@@ -25,7 +25,7 @@ export const chatService = {
 
     const { data, error } = await supabase
       .from('v_conversations')
-      .select('*')
+      .select('id,client_id,professional_id,professional_user_id,lead_id,last_message_at,created_at,unread_for_prof,unread_for_client,last_message,prof_full_name,prof_avatar_url,client_full_name,client_avatar_url')
       .or(`client_id.eq.${user.id},professional_user_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
@@ -81,7 +81,7 @@ export const chatService = {
   async getMessages(conversationId: string) {
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select('id,conversation_id,body,sender_type,attachments,read_at,created_at')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
     if (error) throw error;
@@ -113,7 +113,7 @@ export const chatService = {
         sender_type: senderType,
         attachments: type !== 'text' ? [{ type, fileName, url: text }] : [],
       })
-      .select('*')
+      .select('id,conversation_id,body,sender_type,attachments,read_at,created_at')
       .single();
     if (error) throw error;
 
