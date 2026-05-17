@@ -26,6 +26,17 @@ interface ProfessionalProfile {
   is_active: boolean;
 }
 
+interface ClientProfile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  city: string | null;
+  state: string | null;
+  created_at: string;
+  total_leads: number;
+  recent_leads: { id: string; title: string; status: string; created_at: string }[];
+}
+
 interface ProfessionalReview {
   id: string;
   rating: number;
@@ -214,6 +225,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
+  const [clientProfileModal, setClientProfileModal] = useState<ClientProfile | null>(null);
 
   // Professional-only state
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
@@ -478,6 +490,20 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       }
     });
   }, [activeConversationId, role, queryClient]);
+
+  const loadClientProfile = async (clientId: string) => {
+    const [profileRes, leadsRes, countRes] = await Promise.all([
+      supabase.from('profiles').select('id, full_name, avatar_url, city, state, created_at').eq('id', clientId).single(),
+      supabase.from('leads').select('id, title, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }).limit(5),
+      supabase.from('leads').select('id', { count: 'exact', head: true }).eq('client_id', clientId),
+    ]);
+    if (profileRes.error || !profileRes.data) return;
+    setClientProfileModal({
+      ...profileRes.data,
+      total_leads: countRes.count ?? 0,
+      recent_leads: leadsRes.data ?? [],
+    });
+  };
 
   const handleSendMessage = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -1233,6 +1259,85 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       />
     )}
 
+    {clientProfileModal && (
+      <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setClientProfileModal(null)} />
+        <div className="relative w-full max-w-md bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+          <div className="h-20 bg-gradient-to-r from-slate-800 to-blue-900/30 shrink-0" />
+          <button type="button" onClick={() => setClientProfileModal(null)}
+            className="absolute top-4 right-4 p-2 rounded-xl bg-black/30 hover:bg-black/50 text-white transition-all">
+            <X size={18} />
+          </button>
+          {/* Avatar + nome */}
+          <div className="px-6 -mt-10 pb-4 border-b border-slate-700/50 shrink-0">
+            <div className="flex items-end gap-4 mb-3">
+              <div className="w-20 h-20 rounded-full border-4 border-[#1C3454] bg-blue-600 flex items-center justify-center text-white font-bold text-xl overflow-hidden shrink-0">
+                {clientProfileModal.avatar_url
+                  ? <img src={clientProfileModal.avatar_url} alt={clientProfileModal.full_name ?? ''} className="w-full h-full object-cover" />
+                  : (clientProfileModal.full_name ?? 'C').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                }
+              </div>
+              <div className="pb-1">
+                <h3 className="text-xl font-black text-white">{clientProfileModal.full_name ?? 'Cliente'}</h3>
+                {(clientProfileModal.city || clientProfileModal.state) && (
+                  <span className="text-xs text-[#94A3B8] flex items-center gap-1 mt-1">
+                    <MapPin size={12} />
+                    {[clientProfileModal.city, clientProfileModal.state].filter(Boolean).join(', ')}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          {/* Dados */}
+          <div className="overflow-y-auto flex-1 p-6 space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-[#0E1C32] rounded-xl p-4">
+                <p className="text-xs text-[#4A6580] uppercase tracking-widest mb-1">Membro desde</p>
+                <p className="text-white font-bold text-sm">{new Date(clientProfileModal.created_at).toLocaleDateString('pt-BR')}</p>
+              </div>
+              <div className="bg-[#0E1C32] rounded-xl p-4">
+                <p className="text-xs text-[#4A6580] uppercase tracking-widest mb-1">Total de pedidos</p>
+                <p className="text-white font-bold text-sm">{clientProfileModal.total_leads}</p>
+              </div>
+            </div>
+            {clientProfileModal.recent_leads.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-[#4A6580] uppercase tracking-widest mb-3">Últimos pedidos</p>
+                <div className="space-y-2">
+                  {clientProfileModal.recent_leads.map(lead => {
+                    const statusColors: Record<string, string> = {
+                      open:       'bg-blue-500/10 text-blue-400 border-blue-500/20',
+                      'orçando':  'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+                      finalizado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+                      cancelado:  'bg-red-500/10 text-red-400 border-red-500/20',
+                    };
+                    const colorClass = statusColors[lead.status] ?? 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                    return (
+                      <div key={lead.id} className="bg-[#0E1C32] rounded-xl p-3 flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-white font-medium truncate">{lead.title}</p>
+                          <p className="text-xs text-[#4A6580]">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                        <span className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-bold border ${colorClass}`}>
+                          {lead.status}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="px-6 py-4 border-t border-slate-700/50 shrink-0">
+            <button type="button" onClick={() => setClientProfileModal(null)}
+              className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all text-sm">
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     {isMenuOpen && menuPos && (
       <>
         <div className="fixed inset-0 z-[350]" onClick={() => setIsMenuOpen(false)} />
@@ -1249,8 +1354,8 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                   name: otherName,
                   avatar: otherAvatar,
                 });
-              } else {
-                toast('Em breve!');
+              } else if (role === 'professional' && activeConversation?.client_id) {
+                void loadClientProfile(activeConversation.client_id);
               }
             }}
             className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3 transition-colors"

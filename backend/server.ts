@@ -1589,6 +1589,98 @@ COMPORTAMENTO NESTE CONTEXTO:
     }
   });
 
+  // ============================================
+  // GET /api/admin/reports/users
+  // GET /api/admin/reports/leads
+  // GET /api/admin/reports/transactions
+  // ============================================
+  async function assertAdmin(req: AuthRequest, res: Response): Promise<boolean> {
+    const { data: profile } = await withTimeout(
+      supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
+    );
+    if (profile?.role !== 'admin') {
+      res.status(403).json({ error: 'Acesso negado.' });
+      return false;
+    }
+    return true;
+  }
+
+  app.get('/api/admin/reports/users', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      if (!await assertAdmin(req, res)) return;
+      const { data, error } = await withTimeout(
+        supabaseAdmin
+          .from('profiles')
+          .select('id, full_name, email, role, created_at, city, state')
+          .order('created_at', { ascending: false })
+      );
+      if (error) throw error;
+
+      const profIds = (data ?? []).map(p => p.id).filter(Boolean);
+      const { data: profs } = profIds.length
+        ? await withTimeout(supabaseAdmin.from('professionals').select('user_id, is_active, category').in('user_id', profIds))
+        : { data: [] };
+      const profMap = Object.fromEntries((profs ?? []).map(p => [p.user_id, p]));
+
+      const rows = (data ?? []).map(p => ({
+        ...p,
+        is_active: profMap[p.id]?.is_active ?? null,
+        category:  profMap[p.id]?.category  ?? null,
+      }));
+      return res.json(rows);
+    } catch (err: unknown) {
+      console.error('/api/admin/reports/users error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  app.get('/api/admin/reports/leads', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      if (!await assertAdmin(req, res)) return;
+      const { data, error } = await withTimeout(
+        supabaseAdmin
+          .from('leads')
+          .select('id, title, category, location, status, price_coins, budget_min, budget_max, purchases_count, created_at')
+          .order('created_at', { ascending: false })
+      );
+      if (error) throw error;
+      return res.json(data ?? []);
+    } catch (err: unknown) {
+      console.error('/api/admin/reports/leads error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  app.get('/api/admin/reports/transactions', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      if (!await assertAdmin(req, res)) return;
+      const { data, error } = await withTimeout(
+        supabaseAdmin
+          .from('wallet_transactions')
+          .select('id, user_id, kind, amount, reference, created_at, profiles(full_name, email)')
+          .order('created_at', { ascending: false })
+      );
+      if (error) throw error;
+      const rows = (data ?? []).map((tx: Record<string, unknown>) => {
+        const p = tx.profiles as { full_name?: string; email?: string } | null;
+        return {
+          id:         tx.id,
+          user_id:    tx.user_id,
+          full_name:  p?.full_name ?? null,
+          email:      p?.email ?? null,
+          kind:       tx.kind,
+          amount:     tx.amount,
+          reference:  tx.reference,
+          created_at: tx.created_at,
+        };
+      });
+      return res.json(rows);
+    } catch (err: unknown) {
+      console.error('/api/admin/reports/transactions error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : 500;
     const message = err instanceof Error ? err.message : 'Erro interno';
