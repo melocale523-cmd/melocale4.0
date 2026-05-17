@@ -5,7 +5,7 @@ import { FileText, Loader2, ArrowRight, Plus, X, MapPin, Tag, Calendar, Search, 
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
 import { useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 
@@ -495,6 +495,14 @@ export default function Pedidos() {
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
                               <h4 className="text-xl font-black text-white">{(prop as any).profiles?.full_name || 'Profissional'}</h4>
+                              {(prop as any).profiles?.id && (
+                                <Link
+                                  to={`/profissional/${(prop as any).profiles.id}/perfil`}
+                                  className="text-[10px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-2 py-0.5 rounded-full transition-all"
+                                >
+                                  Ver perfil
+                                </Link>
+                              )}
                               {(() => {
                                 const cfg = proposalStatusConfig[prop.status] ?? { label: 'Aguardando', className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' };
                                 return (
