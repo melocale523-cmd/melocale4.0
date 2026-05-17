@@ -76,15 +76,6 @@ export const leadService = {
     if (error) throw error;
     if (!data) throw new Error('purchase_lead returned no data');
 
-    // A: lead com ≥1 compra ativa → status = 'orçando'
-    try {
-      const { error: statusErr } = await supabase
-        .from('leads').update({ status: 'orçando' }).eq('id', leadId);
-      if (statusErr) console.error('[notif] status update error', statusErr.message);
-    } catch (err) {
-      console.error('[notif] status update exception', err);
-    }
-
     // E: notifica o cliente que há novo interesse no pedido
     try {
       const { data: lead, error: leadErr } = await supabase
