@@ -18,6 +18,22 @@ interface ChatLayoutProps {
   role: 'professional' | 'client';
 }
 
+interface ProfessionalProfile {
+  id: string;
+  bio: string | null;
+  category: string | null;
+  city: string | null;
+  is_active: boolean;
+}
+
+interface ProfessionalReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  client_name?: string | null;
+}
+
 interface MessageAttachments {
   type: 'image' | 'file' | 'audio';
   fileName?: string;
@@ -60,8 +76,8 @@ function ProfileModal({ userId, name, avatar, onClose }: {
   avatar: string | null | undefined;
   onClose: () => void;
 }) {
-  const [prof, setProf] = useState<any>(null);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [prof, setProf] = useState<ProfessionalProfile | null>(null);
+  const [reviews, setReviews] = useState<ProfessionalReview[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
