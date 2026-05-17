@@ -126,8 +126,8 @@ export default function ListingCard({ professional, index }: ListingCardProps) {
               </span>
             </div>
             <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-              <Link 
-                to={`/profissional/${professional.id}`} 
+              <Link
+                to={`/profissional/${professional.id}/perfil`}
                 className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all text-xs uppercase tracking-widest border border-[#243F6A] flex items-center justify-center text-center"
               >
                 Ver Detalhes

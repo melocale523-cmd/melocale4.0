@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Search, Send, User, MoreVertical, Paperclip, Smile,
   CheckCheck, Check, Loader2, Mic, Image as ImageIcon,
@@ -56,6 +56,7 @@ interface ConversationWithProfiles {
 export default function ChatLayout({ role }: ChatLayoutProps) {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState('');
@@ -531,9 +532,20 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                     )} />
                   </div>
                   <div className="flex-1 text-left min-w-0">
-                    <div className="flex justify-between items-center mb-1">
-                      <h4 className="text-sm font-bold text-white truncate">{name}</h4>
-                      <span className="text-[10px] text-[#4A6580] font-bold">
+                    <div className="flex justify-between items-center mb-1 gap-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <h4 className="text-sm font-bold text-white truncate">{name}</h4>
+                        {role === 'client' && conv.prof_user_id && (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); navigate(`/profissional/${conv.prof_user_id}/perfil`); }}
+                            className="text-[9px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-1.5 py-0.5 rounded-full transition-all shrink-0"
+                          >
+                            Ver perfil
+                          </button>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-[#4A6580] font-bold shrink-0">
                         {new Date(conv.last_message_at ?? conv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
