@@ -1608,24 +1608,38 @@ COMPORTAMENTO NESTE CONTEXTO:
   app.get('/api/admin/reports/users', requireAuth, async (req: AuthRequest, res: Response) => {
     try {
       if (!await assertAdmin(req, res)) return;
-      const { data, error } = await withTimeout(
+
+      const { data: profiles, error } = await withTimeout(
         supabaseAdmin
           .from('profiles')
-          .select('id, full_name, email, role, created_at, city, state')
+          .select('id, full_name, role, created_at, city')
           .order('created_at', { ascending: false })
       );
       if (error) throw error;
 
-      const profIds = (data ?? []).map(p => p.id).filter(Boolean);
-      const { data: profs } = profIds.length
-        ? await withTimeout(supabaseAdmin.from('professionals').select('user_id, is_active, category').in('user_id', profIds))
-        : { data: [] };
-      const profMap = Object.fromEntries((profs ?? []).map(p => [p.user_id, p]));
+      const ids = (profiles ?? []).map(p => p.id);
 
-      const rows = (data ?? []).map(p => ({
-        ...p,
-        is_active: profMap[p.id]?.is_active ?? null,
-        category:  profMap[p.id]?.category  ?? null,
+      const { data: clients } = ids.length
+        ? await withTimeout(supabaseAdmin.from('clients').select('id, email, state').in('id', ids))
+        : { data: [] };
+
+      const { data: profs } = ids.length
+        ? await withTimeout(supabaseAdmin.from('professionals').select('user_id, is_active, category').in('user_id', ids))
+        : { data: [] };
+
+      const clientMap = Object.fromEntries((clients ?? []).map(c => [c.id, c]));
+      const profMap   = Object.fromEntries((profs   ?? []).map(p => [p.user_id, p]));
+
+      const rows = (profiles ?? []).map(p => ({
+        id:        p.id,
+        full_name: p.full_name,
+        email:     clientMap[p.id]?.email     ?? null,
+        role:      p.role,
+        created_at: p.created_at,
+        city:      p.city,
+        state:     clientMap[p.id]?.state     ?? null,
+        is_active: profMap[p.id]?.is_active   ?? null,
+        category:  profMap[p.id]?.category    ?? null,
       }));
       return res.json(rows);
     } catch (err: unknown) {
@@ -1654,26 +1668,38 @@ COMPORTAMENTO NESTE CONTEXTO:
   app.get('/api/admin/reports/transactions', requireAuth, async (req: AuthRequest, res: Response) => {
     try {
       if (!await assertAdmin(req, res)) return;
-      const { data, error } = await withTimeout(
+
+      const { data: txs, error } = await withTimeout(
         supabaseAdmin
           .from('wallet_transactions')
-          .select('id, user_id, kind, amount, reference, created_at, profiles(full_name, email)')
+          .select('id, user_id, kind, amount, reference, created_at')
           .order('created_at', { ascending: false })
       );
       if (error) throw error;
-      const rows = (data ?? []).map((tx: Record<string, unknown>) => {
-        const p = tx.profiles as { full_name?: string; email?: string } | null;
-        return {
-          id:         tx.id,
-          user_id:    tx.user_id,
-          full_name:  p?.full_name ?? null,
-          email:      p?.email ?? null,
-          kind:       tx.kind,
-          amount:     tx.amount,
-          reference:  tx.reference,
-          created_at: tx.created_at,
-        };
-      });
+
+      const userIds = [...new Set((txs ?? []).map(t => t.user_id).filter(Boolean))];
+
+      const { data: clients } = userIds.length
+        ? await withTimeout(supabaseAdmin.from('clients').select('id, full_name, email').in('id', userIds))
+        : { data: [] };
+
+      const { data: profilesMap } = userIds.length
+        ? await withTimeout(supabaseAdmin.from('profiles').select('id, full_name').in('id', userIds))
+        : { data: [] };
+
+      const clientMap  = Object.fromEntries((clients     ?? []).map(c => [c.id, c]));
+      const profileMap = Object.fromEntries((profilesMap ?? []).map(p => [p.id, p]));
+
+      const rows = (txs ?? []).map(tx => ({
+        id:         tx.id,
+        user_id:    tx.user_id,
+        full_name:  clientMap[tx.user_id]?.full_name ?? profileMap[tx.user_id]?.full_name ?? null,
+        email:      clientMap[tx.user_id]?.email     ?? null,
+        kind:       tx.kind,
+        amount:     tx.amount,
+        reference:  tx.reference,
+        created_at: tx.created_at,
+      }));
       return res.json(rows);
     } catch (err: unknown) {
       console.error('/api/admin/reports/transactions error:', err instanceof Error ? err.message : String(err));
