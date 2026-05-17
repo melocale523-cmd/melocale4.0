@@ -91,10 +91,10 @@ export const leadService = {
           is_read: false,
         });
         if (notifErr) console.error('[notif] insert error', notifErr.message);
-        void apiFetch('/api/notifications/push', {
+        void apiFetch('/api/notifications/send-event', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: lead.client_id, title: 'Novo interesse no seu pedido!', body: 'Um profissional tem interesse no seu pedido. Acesse para ver.', data: { lead_id: leadId, type: 'new_interest' } }),
+          body: JSON.stringify({ event_type: 'lead_purchased', resource_id: leadId }),
         });
       }
     } catch (err) {
@@ -316,10 +316,10 @@ export const proposalService = {
         body: _body,
         data: _data,
       });
-      void apiFetch('/api/notifications/push', {
+      void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: purchase.client_id, title: _title, body: _body, data: _data }),
+        body: JSON.stringify({ event_type: 'proposal_sent', resource_id: purchaseId }),
       });
     }
 
@@ -440,10 +440,10 @@ export const proposalService = {
           body: _paBody,
           data: _paData,
         });
-        void apiFetch('/api/notifications/push', {
+        void apiFetch('/api/notifications/send-event', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: profAuthId, title: _paTitle, body: _paBody, data: _paData }),
+          body: JSON.stringify({ event_type: 'proposal_accepted', resource_id: purchaseId }),
         });
       }
     }

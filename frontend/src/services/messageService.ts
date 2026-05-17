@@ -135,10 +135,10 @@ export const chatService = {
           body: notifBody,
           data: { conversationId, type: 'message' },
         });
-        void apiFetch('/api/notifications/push', {
+        void apiFetch('/api/notifications/send-event', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: recipientId, title: 'Nova Mensagem', body: notifBody, data: { conversationId, type: 'message' } }),
+          body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId }),
         });
       } catch {}
     }

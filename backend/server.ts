@@ -932,6 +932,151 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // POST /api/notifications/send-event
+  // ============================================
+  const sendEventSchema = z.object({
+    event_type: z.enum([
+      'lead_purchased', 'proposal_sent', 'proposal_accepted',
+      'appointment_created', 'appointment_updated',
+      'appointment_cancelled', 'message_sent',
+    ]),
+    resource_id: z.string().uuid(),
+  });
+
+  app.post("/api/notifications/send-event", requireAuth, async (req: Request, res: Response) => {
+    const parsed = sendEventSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
+
+    const callerId = (req as AuthRequest).authUser!.id;
+    const { event_type, resource_id } = parsed.data;
+
+    let targetUserId: string | null = null;
+    let title = '';
+    let body = '';
+    let data: Record<string, unknown> = {};
+
+    try {
+      if (event_type === 'lead_purchased') {
+        // Caller must be the professional who purchased this lead.
+        const { data: lp } = await supabaseAdmin
+          .from('lead_purchases')
+          .select('client_id')
+          .eq('lead_id', resource_id)
+          .eq('user_id', callerId)
+          .maybeSingle();
+        if (!lp?.client_id) return res.status(403).json({ error: 'Forbidden' });
+        targetUserId = lp.client_id;
+        title = 'Novo interesse no seu pedido!';
+        body = 'Um profissional tem interesse no seu pedido. Acesse para ver.';
+        data = { lead_id: resource_id, type: 'new_interest' };
+
+      } else if (event_type === 'proposal_sent') {
+        // Caller must be the professional (user_id on lead_purchases).
+        const { data: lp } = await supabaseAdmin
+          .from('lead_purchases')
+          .select('client_id, user_id')
+          .eq('id', resource_id)
+          .maybeSingle();
+        if (!lp || lp.user_id !== callerId) return res.status(403).json({ error: 'Forbidden' });
+        targetUserId = lp.client_id;
+        title = 'Nova proposta recebida! 🎉';
+        body = 'Um profissional enviou um orçamento. Acesse Meus Pedidos para ver.';
+        data = { type: 'proposal_received', purchaseId: resource_id };
+
+      } else if (event_type === 'proposal_accepted') {
+        // Caller must be the client who accepted.
+        const { data: lp } = await supabaseAdmin
+          .from('lead_purchases')
+          .select('client_id, professional_id')
+          .eq('id', resource_id)
+          .maybeSingle();
+        if (!lp || lp.client_id !== callerId) return res.status(403).json({ error: 'Forbidden' });
+        const { data: prof } = await supabaseAdmin
+          .from('professionals')
+          .select('user_id')
+          .eq('id', lp.professional_id)
+          .maybeSingle();
+        targetUserId = prof?.user_id ?? null;
+        title = 'Interesse confirmado! 🎉';
+        body = 'Um cliente aceitou sua proposta. Abra o chat para iniciar o serviço.';
+        data = { type: 'proposal_accepted', purchaseId: resource_id };
+
+      } else if (event_type === 'appointment_created') {
+        // Caller must be the professional who created the appointment.
+        const { data: appt } = await supabaseAdmin
+          .from('appointments')
+          .select('client_id, professional_id, scheduled_at')
+          .eq('id', resource_id)
+          .maybeSingle();
+        if (!appt) return res.status(403).json({ error: 'Forbidden' });
+        const { data: prof } = await supabaseAdmin
+          .from('professionals')
+          .select('user_id')
+          .eq('id', appt.professional_id)
+          .maybeSingle();
+        if (prof?.user_id !== callerId) return res.status(403).json({ error: 'Forbidden' });
+        targetUserId = appt.client_id;
+        const dt = new Date(appt.scheduled_at as string);
+        title = 'Novo agendamento';
+        body = `Visita agendada para ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+        data = { appointment_id: resource_id, type: 'appointment_created' };
+
+      } else if (event_type === 'appointment_updated' || event_type === 'appointment_cancelled') {
+        // Caller must be either the client or professional — notify the other side.
+        const { data: appt } = await supabaseAdmin
+          .from('appointments')
+          .select('client_id, professional_id')
+          .eq('id', resource_id)
+          .maybeSingle();
+        if (!appt) return res.status(403).json({ error: 'Forbidden' });
+        const { data: prof } = await supabaseAdmin
+          .from('professionals')
+          .select('user_id')
+          .eq('id', appt.professional_id)
+          .maybeSingle();
+        const profUserId = prof?.user_id;
+        const isClient = callerId === appt.client_id;
+        const isProfessional = callerId === profUserId;
+        if (!isClient && !isProfessional) return res.status(403).json({ error: 'Forbidden' });
+        targetUserId = isClient ? (profUserId ?? null) : appt.client_id;
+        title = event_type === 'appointment_cancelled' ? 'Agendamento cancelado' : 'Agendamento atualizado';
+        body = 'Status do agendamento foi atualizado';
+        data = { appointment_id: resource_id, type: event_type };
+
+      } else if (event_type === 'message_sent') {
+        // Caller must be a participant — notify the other side.
+        const { data: conv } = await supabaseAdmin
+          .from('conversations')
+          .select('client_id, professional_id')
+          .eq('id', resource_id)
+          .maybeSingle();
+        if (!conv) return res.status(403).json({ error: 'Forbidden' });
+        const { data: prof } = await supabaseAdmin
+          .from('professionals')
+          .select('user_id')
+          .eq('id', conv.professional_id)
+          .maybeSingle();
+        const profUserId = prof?.user_id;
+        const isClient = callerId === conv.client_id;
+        const isProfessional = callerId === profUserId;
+        if (!isClient && !isProfessional) return res.status(403).json({ error: 'Forbidden' });
+        targetUserId = isClient ? (profUserId ?? null) : conv.client_id;
+        title = 'Nova Mensagem';
+        body = 'Você recebeu uma nova mensagem';
+        data = { conversationId: resource_id, type: 'message' };
+      }
+
+      if (targetUserId) {
+        void sendPushToUser(targetUserId, { title, body, data });
+      }
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('[send-event] error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  // ============================================
   // POST /api/notifications/push
   // ============================================
   const notifPushSchema = z.object({
