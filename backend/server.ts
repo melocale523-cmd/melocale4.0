@@ -190,58 +190,44 @@ async function jobLembrete24h() {
       const profUserId = prof?.user_id;
 
       // --- Notificação para o cliente ---
-      const { data: existsClient } = await withTimeout(
-        supabaseAdmin
-          .from('notifications')
-          .select('id')
-          .eq('user_id', apt.client_id)
-          .eq('data->>appointment_id', apt.id)
-          .eq('data->>type', 'reminder_24h')
-          .maybeSingle()
+      // INSERT ON CONFLICT DO NOTHING via unique partial index notifications_reminder_dedup.
+      // Se outra instância já inseriu (race em scale-out), o erro 23505 é ignorado silenciosamente.
+      const { error: clientNotifErr } = await withTimeout(
+        supabaseAdmin.from('notifications').insert({
+          user_id: apt.client_id,
+          title: '⏰ Lembrete de agendamento',
+          body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
+          data: { appointment_id: apt.id, type: 'reminder_24h' },
+        })
       );
-
-      if (!existsClient) {
-        await withTimeout(
-          supabaseAdmin.from('notifications').insert({
-            user_id: apt.client_id,
-            title: '⏰ Lembrete de agendamento',
-            body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
-            data: { appointment_id: apt.id, type: 'reminder_24h' },
-          })
-        );
+      if (!clientNotifErr) {
         void sendPushToUser(apt.client_id, {
           title: '⏰ Lembrete de agendamento',
           body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
           data: { appointment_id: apt.id, type: 'reminder_24h' },
         });
+      } else if ((clientNotifErr as { code?: string }).code !== '23505') {
+        console.error('[job] lembrete24h client notif error:', clientNotifErr.message);
       }
 
       // --- Notificação para o profissional ---
       if (profUserId) {
-        const { data: existsProf } = await withTimeout(
-          supabaseAdmin
-            .from('notifications')
-            .select('id')
-            .eq('user_id', profUserId)
-            .eq('data->>appointment_id', apt.id)
-            .eq('data->>type', 'reminder_24h_prof')
-            .maybeSingle()
+        const { error: profNotifErr } = await withTimeout(
+          supabaseAdmin.from('notifications').insert({
+            user_id: profUserId,
+            title: '⏰ Lembrete de agendamento',
+            body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
+            data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
+          })
         );
-
-        if (!existsProf) {
-          await withTimeout(
-            supabaseAdmin.from('notifications').insert({
-              user_id: profUserId,
-              title: '⏰ Lembrete de agendamento',
-              body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
-              data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
-            })
-          );
+        if (!profNotifErr) {
           void sendPushToUser(profUserId, {
             title: '⏰ Lembrete de agendamento',
             body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
             data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
           });
+        } else if ((profNotifErr as { code?: string }).code !== '23505') {
+          console.error('[job] lembrete24h prof notif error:', profNotifErr.message);
         }
       }
     }
