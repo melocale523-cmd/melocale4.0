@@ -58,17 +58,16 @@ export const leadService = {
       .select('*');
 
     if (error) {
-      const fallback = await supabase.from('leads').select('*');
-      return (fallback.data || []).filter((l: LeadStatusRow) => l.status === 'open');
+      console.error('[getAvailableLeads] view error:', error.message);
+      return [];
     }
     return data || [];
   },
 
-  async purchaseLead(leadId: string): Promise<PurchaseLeadResult> {
+  async purchaseLead(leadId: string, idempotencyKey: string): Promise<PurchaseLeadResult> {
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!UUID_RE.test(leadId)) throw new Error(`Invalid lead UUID: ${leadId}`);
-
-    const idempotencyKey = crypto.randomUUID();
+    if (!UUID_RE.test(idempotencyKey)) throw new Error(`Invalid idempotencyKey UUID: ${idempotencyKey}`);
     const { data, error } = await supabase.rpc('purchase_lead', {
       p_lead_id: leadId,
       p_idempotency_key: idempotencyKey

@@ -24,6 +24,7 @@ vi.mock('../lib/supabase', () => ({
 import { leadService } from '../services/leadService';
 
 const VALID_LEAD_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
+const VALID_IDEM_KEY = 'bbbbbbbb-0000-0000-0000-000000000002';
 const INVALID_LEAD_ID = 'not-a-uuid';
 
 describe('leadService.purchaseLead', () => {
@@ -47,11 +48,11 @@ describe('leadService.purchaseLead', () => {
   });
 
   it('throws for an invalid UUID', async () => {
-    await expect(leadService.purchaseLead(INVALID_LEAD_ID)).rejects.toThrow('Invalid lead UUID');
+    await expect(leadService.purchaseLead(INVALID_LEAD_ID, VALID_IDEM_KEY)).rejects.toThrow('Invalid lead UUID');
   });
 
   it('calls purchase_lead RPC with the correct lead id', async () => {
-    await leadService.purchaseLead(VALID_LEAD_ID);
+    await leadService.purchaseLead(VALID_LEAD_ID, VALID_IDEM_KEY);
 
     expect(mockRpc).toHaveBeenCalledWith(
       'purchase_lead',
@@ -63,20 +64,20 @@ describe('leadService.purchaseLead', () => {
     const rpcError = { message: 'insufficient coins', code: 'P0001' };
     mockRpc.mockResolvedValue({ data: null, error: rpcError });
 
-    await expect(leadService.purchaseLead(VALID_LEAD_ID)).rejects.toEqual(rpcError);
+    await expect(leadService.purchaseLead(VALID_LEAD_ID, VALID_IDEM_KEY)).rejects.toEqual(rpcError);
   });
 
   it('throws if RPC returns no data', async () => {
     mockRpc.mockResolvedValue({ data: null, error: null });
 
-    await expect(leadService.purchaseLead(VALID_LEAD_ID)).rejects.toThrow('purchase_lead returned no data');
+    await expect(leadService.purchaseLead(VALID_LEAD_ID, VALID_IDEM_KEY)).rejects.toThrow('purchase_lead returned no data');
   });
 
   it('returns the purchase result on success', async () => {
     const expected = { purchase_id: 'purchase-1', lead_id: VALID_LEAD_ID };
     mockRpc.mockResolvedValue({ data: expected, error: null });
 
-    const result = await leadService.purchaseLead(VALID_LEAD_ID);
+    const result = await leadService.purchaseLead(VALID_LEAD_ID, VALID_IDEM_KEY);
     expect(result).toEqual(expected);
   });
 
@@ -88,7 +89,7 @@ describe('leadService.purchaseLead', () => {
       return makeChain();
     });
 
-    await leadService.purchaseLead(VALID_LEAD_ID);
+    await leadService.purchaseLead(VALID_LEAD_ID, VALID_IDEM_KEY);
 
     expect(mockFrom).toHaveBeenCalledWith('leads');
   });

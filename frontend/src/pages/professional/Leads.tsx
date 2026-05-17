@@ -60,10 +60,11 @@ export default function ProfessionalLeads() {
 
   const [purchasedLead, setPurchasedLead] = useState<{ title: string, price: number } | null>(null);
   const [lightboxImg, setLightboxImg] = useState<{ images: string[]; index: number } | null>(null);
-  const [purchaseConfirm, setPurchaseConfirm] = useState<{
+  const [pendingPurchase, setPendingPurchase] = useState<{
     id: string;
     price_coins: number;
     title: string;
+    idempotencyKey: string;
   } | null>(null);
 
   useEffect(() => {
@@ -78,8 +79,8 @@ export default function ProfessionalLeads() {
   }, [lightboxImg]);
 
   const purchaseMutation = useMutation({
-    mutationFn: ({ id, price, title }: { id: string, price: number, title: string }) =>
-      leadService.purchaseLead(id).then(() => ({ id, price, title })),
+    mutationFn: ({ id, price, title, idempotencyKey }: { id: string, price: number, title: string, idempotencyKey: string }) =>
+      leadService.purchaseLead(id, idempotencyKey).then(() => ({ id, price, title })),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
@@ -95,17 +96,18 @@ export default function ProfessionalLeads() {
       toast.error(`Saldo insuficiente. Você tem ${coinBalance} moedas e este lead custa ${leadPrice}.`);
       return;
     }
-    setPurchaseConfirm({ id: lead.id, price_coins: leadPrice, title: lead.title });
+    setPendingPurchase({ id: lead.id, price_coins: leadPrice, title: lead.title, idempotencyKey: crypto.randomUUID() });
   };
 
   const confirmPurchase = () => {
-    if (!purchaseConfirm) return;
+    if (!pendingPurchase) return;
     purchaseMutation.mutate({
-      id: purchaseConfirm.id,
-      price: purchaseConfirm.price_coins,
-      title: purchaseConfirm.title,
+      id: pendingPurchase.id,
+      price: pendingPurchase.price_coins,
+      title: pendingPurchase.title,
+      idempotencyKey: pendingPurchase.idempotencyKey,
     });
-    setPurchaseConfirm(null);
+    setPendingPurchase(null);
   };
 
   const getBadges = (lead: { expires_at?: string; created_at: string; budget_max?: number; category?: string; city?: string; location?: string }): { label: string; color: string; icon: string }[] => {
@@ -541,9 +543,9 @@ export default function ProfessionalLeads() {
         </div>
       )}
 
-      {purchaseConfirm && (
+      {pendingPurchase && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPurchaseConfirm(null)} />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPendingPurchase(null)} />
           <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-6">
             <div className="text-center space-y-3">
               <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto">
@@ -551,15 +553,15 @@ export default function ProfessionalLeads() {
               </div>
               <h3 className="text-xl font-black text-white">Confirmar aquisição?</h3>
               <p className="text-[#94A3B8] text-sm leading-relaxed">
-                Você irá adquirir o cliente <span className="text-white font-bold">"{purchaseConfirm.title}"</span> por{' '}
-                <span className="text-emerald-400 font-black">{purchaseConfirm.price_coins} moedas</span>.
+                Você irá adquirir o cliente <span className="text-white font-bold">"{pendingPurchase.title}"</span> por{' '}
+                <span className="text-emerald-400 font-black">{pendingPurchase.price_coins} moedas</span>.
               </p>
               <p className="text-[#4A6580] text-xs">Esta ação não pode ser desfeita.</p>
             </div>
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setPurchaseConfirm(null)}
+                onClick={() => setPendingPurchase(null)}
                 className="flex-1 h-12 bg-white/5 hover:bg-white/10 text-[#B0C4D8] font-bold rounded-2xl transition-all text-sm"
               >
                 Cancelar

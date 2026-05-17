@@ -197,6 +197,8 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
+
   // Professional-only state
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [appointmentClient, setAppointmentClient] = useState<{ id: string; name: string } | null>(null);
@@ -796,11 +798,11 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                       </button>
                       <div className="h-px bg-white/5 mx-3" />
                       <button
-                        onClick={() => deleteChatMutation.mutate(activeConversationId!)}
+                        onClick={() => { setIsMenuOpen(false); setShowDeleteConvModal(true); }}
                         disabled={deleteChatMutation.isPending}
                         className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold disabled:opacity-50"
                       >
-                        <Trash2 size={16} /> {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir Conversa'}
+                        <Trash2 size={16} /> Excluir Conversa
                       </button>
                     </div>
                   </>
@@ -1167,6 +1169,50 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                 {scheduleMutation.isPending ? 'Salvando...' : 'Criar Agendamento'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConvModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowDeleteConvModal(false)}
+          />
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <div className="p-2 bg-red-500/20 text-red-500 rounded-lg">
+                  <Trash2 size={20} />
+                </div>
+                Excluir conversa?
+              </h2>
+              <button
+                onClick={() => setShowDeleteConvModal(false)}
+                className="text-[#4A6580] hover:text-white transition-colors"
+              >
+                <X size={22} />
+              </button>
+            </div>
+            <p className="text-sm text-[#94A3B8] mb-8 leading-relaxed">
+              Esta ação é permanente e não pode ser desfeita. Todo o histórico de mensagens será apagado.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConvModal(false)}
+                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-slate-300 font-bold rounded-2xl transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => { deleteChatMutation.mutate(activeConversationId!); setShowDeleteConvModal(false); }}
+                disabled={deleteChatMutation.isPending}
+                className="flex-1 py-3 bg-red-500 hover:bg-red-400 text-white font-bold rounded-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleteChatMutation.isPending && <Loader2 size={16} className="animate-spin" />}
+                {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir'}
+              </button>
+            </div>
           </div>
         </div>
       )}
