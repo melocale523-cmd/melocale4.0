@@ -55,7 +55,7 @@ export const leadService = {
   async getAvailableLeads() {
     const { data, error } = await supabase
       .from('v_available_leads')
-      .select('*');
+      .select('id,title,description,category,location,city,budget_min,budget_max,price_coins,images,event_date,expires_at,created_at,max_purchases,purchases_count');
 
     if (error) {
       console.error('[getAvailableLeads] view error:', error.message);
@@ -75,30 +75,11 @@ export const leadService = {
     if (error) throw error;
     if (!data) throw new Error('purchase_lead returned no data');
 
-    // E: notifica o cliente que há novo interesse no pedido
-    try {
-      const { data: lead, error: leadErr } = await supabase
-        .from('leads').select('client_id').eq('id', leadId).single();
-      if (leadErr || !lead?.client_id) {
-        if (leadErr) console.error('[notif] lead fetch error', leadErr.message);
-      } else {
-        const { error: notifErr } = await supabase.from('notifications').insert({
-          user_id: lead.client_id,
-          title: 'Novo interesse no seu pedido!',
-          body: 'Um profissional tem interesse no seu pedido. Acesse para ver.',
-          data: { lead_id: leadId, type: 'new_interest' },
-          is_read: false,
-        });
-        if (notifErr) console.error('[notif] insert error', notifErr.message);
-        void apiFetch('/api/notifications/send-event', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_type: 'lead_purchased', resource_id: leadId }),
-        });
-      }
-    } catch (err) {
-      console.error('[notif] notification exception', err);
-    }
+    void apiFetch('/api/notifications/send-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_type: 'lead_purchased', resource_id: leadId }),
+    });
 
     return data as PurchaseLeadResult;
   },
@@ -107,7 +88,7 @@ export const leadService = {
     try {
       const { data, error } = await supabase
         .from('v_my_purchases')
-        .select('*')
+        .select('id,lead_id,status,created_at,expires_at,max_purchases,purchases_count,location,images,title,description,category,city,state,budget_min,budget_max,event_date,lead_status,client_id,client_name,client_email,client_phone,client_city,profiles')
         .order('created_at', { ascending: false });
       if (error) return [];
       return (data || []).map((row: PurchaseViewRow) => ({
@@ -305,15 +286,6 @@ export const proposalService = {
     if (error) throw error;
 
     if (purchase?.client_id) {
-      const _title = 'Nova proposta recebida! 🎉';
-      const _body = `Um profissional enviou um orçamento de R$ ${proposal.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. Acesse Meus Pedidos para ver.`;
-      const _data = { type: 'proposal_received', purchaseId };
-      await supabase.from('notifications').insert({
-        user_id: purchase.client_id,
-        title: _title,
-        body: _body,
-        data: _data,
-      });
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -396,30 +368,17 @@ export const proposalService = {
         if (!chatId) {
           const leadId = purchase.lead_id ?? null;
 
-          const selQ = supabase.from('conversations').select('id').eq('professional_id', profTableId);
-          const { data: existing } = await (leadId
-            ? selQ.eq('lead_id', leadId)
-            : selQ.is('lead_id', null)
-          ).maybeSingle();
-
-          if (existing?.id) {
-            chatId = existing.id;
-          } else {
-            const { data: conv, error: insertErr } = await supabase
-              .from('conversations')
-              .insert({ professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId })
-              .select('id').single();
-            if (insertErr) {
-              const retryQ = supabase.from('conversations').select('id').eq('professional_id', profTableId);
-              const { data: retry } = await (leadId
-                ? retryQ.eq('lead_id', leadId)
-                : retryQ.is('lead_id', null)
-              ).maybeSingle();
-              chatId = retry?.id ?? null;
-            } else {
-              chatId = conv?.id ?? null;
-            }
-          }
+          // Upsert elimina TOCTOU: ON CONFLICT DO UPDATE SET client_id = EXCLUDED.client_id
+          // garante que RETURNING sempre retorna o id, seja novo ou existente.
+          const { data: conv } = await supabase
+            .from('conversations')
+            .upsert(
+              { professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId },
+              { onConflict: 'professional_id,lead_id', ignoreDuplicates: false }
+            )
+            .select('id')
+            .single();
+          chatId = conv?.id ?? null;
 
           if (chatId) {
             await supabase
@@ -429,15 +388,6 @@ export const proposalService = {
           }
         }
 
-        const _paTitle = 'Interesse confirmado! 🎉';
-        const _paBody = 'Um cliente aceitou sua proposta. Abra o chat para iniciar o serviço.';
-        const _paData = { type: 'proposal_accepted', purchaseId, chatId };
-        await supabase.from('notifications').insert({
-          user_id: profAuthId,
-          title: _paTitle,
-          body: _paBody,
-          data: _paData,
-        });
         void apiFetch('/api/notifications/send-event', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -462,33 +412,16 @@ export const proposalService = {
     // rawProfId is professionals.id — the correct FK for conversations.professional_id
     const { professional_id: rawProfId, client_id: clientId, lead_id: leadId } = lp;
 
-    const selQ = supabase.from('conversations').select('id').eq('professional_id', rawProfId);
-    const { data: existing } = await (leadId
-      ? selQ.eq('lead_id', leadId)
-      : selQ.is('lead_id', null)
-    ).maybeSingle();
-
-    if (existing?.id) {
-      await supabase.from('lead_purchases')
-        .update({ chat_id: existing.id }).eq('id', purchaseId);
-      return existing.id;
-    }
-
-    const { data: conv, error: insertErr } = await supabase
+    const { data: conv } = await supabase
       .from('conversations')
-      .insert({ professional_id: rawProfId, client_id: clientId, lead_id: leadId ?? null })
-      .select('id').single();
+      .upsert(
+        { professional_id: rawProfId, client_id: clientId, lead_id: leadId ?? null },
+        { onConflict: 'professional_id,lead_id', ignoreDuplicates: false }
+      )
+      .select('id')
+      .single();
 
-    let finalId = conv?.id ?? null;
-    if (insertErr) {
-      const retryQ = supabase.from('conversations').select('id').eq('professional_id', rawProfId);
-      const { data: retry } = await (leadId
-        ? retryQ.eq('lead_id', leadId)
-        : retryQ.is('lead_id', null)
-      ).maybeSingle();
-      finalId = retry?.id ?? null;
-    }
-
+    const finalId = conv?.id ?? null;
     if (finalId) {
       await supabase.from('lead_purchases')
         .update({ chat_id: finalId }).eq('id', purchaseId);

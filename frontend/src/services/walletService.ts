@@ -46,7 +46,7 @@ export const transactionService = {
 
     const { data, error } = await supabase
       .from('wallet_transactions')
-      .select('*')
+      .select('id,kind,amount,reference,created_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -67,7 +67,7 @@ export const subscriptionService = {
 
     const { data, error } = await supabase
       .from('user_subscriptions')
-      .select('*')
+      .select('id,user_id,stripe_subscription_id,package_id,status,started_at,updated_at')
       .eq('user_id', user.id)
       .order('started_at', { ascending: false })
       .limit(1)

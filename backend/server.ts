@@ -190,58 +190,44 @@ async function jobLembrete24h() {
       const profUserId = prof?.user_id;
 
       // --- Notificação para o cliente ---
-      const { data: existsClient } = await withTimeout(
-        supabaseAdmin
-          .from('notifications')
-          .select('id')
-          .eq('user_id', apt.client_id)
-          .eq('data->>appointment_id', apt.id)
-          .eq('data->>type', 'reminder_24h')
-          .maybeSingle()
+      // INSERT ON CONFLICT DO NOTHING via unique partial index notifications_reminder_dedup.
+      // Se outra instância já inseriu (race em scale-out), o erro 23505 é ignorado silenciosamente.
+      const { error: clientNotifErr } = await withTimeout(
+        supabaseAdmin.from('notifications').insert({
+          user_id: apt.client_id,
+          title: '⏰ Lembrete de agendamento',
+          body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
+          data: { appointment_id: apt.id, type: 'reminder_24h' },
+        })
       );
-
-      if (!existsClient) {
-        await withTimeout(
-          supabaseAdmin.from('notifications').insert({
-            user_id: apt.client_id,
-            title: '⏰ Lembrete de agendamento',
-            body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
-            data: { appointment_id: apt.id, type: 'reminder_24h' },
-          })
-        );
+      if (!clientNotifErr) {
         void sendPushToUser(apt.client_id, {
           title: '⏰ Lembrete de agendamento',
           body: `Seu agendamento "${apt.title}" é amanhã. Confirme sua disponibilidade.`,
           data: { appointment_id: apt.id, type: 'reminder_24h' },
         });
+      } else if ((clientNotifErr as { code?: string }).code !== '23505') {
+        console.error('[job] lembrete24h client notif error:', clientNotifErr.message);
       }
 
       // --- Notificação para o profissional ---
       if (profUserId) {
-        const { data: existsProf } = await withTimeout(
-          supabaseAdmin
-            .from('notifications')
-            .select('id')
-            .eq('user_id', profUserId)
-            .eq('data->>appointment_id', apt.id)
-            .eq('data->>type', 'reminder_24h_prof')
-            .maybeSingle()
+        const { error: profNotifErr } = await withTimeout(
+          supabaseAdmin.from('notifications').insert({
+            user_id: profUserId,
+            title: '⏰ Lembrete de agendamento',
+            body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
+            data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
+          })
         );
-
-        if (!existsProf) {
-          await withTimeout(
-            supabaseAdmin.from('notifications').insert({
-              user_id: profUserId,
-              title: '⏰ Lembrete de agendamento',
-              body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
-              data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
-            })
-          );
+        if (!profNotifErr) {
           void sendPushToUser(profUserId, {
             title: '⏰ Lembrete de agendamento',
             body: `Você tem o agendamento "${apt.title}" amanhã. Prepare-se!`,
             data: { appointment_id: apt.id, type: 'reminder_24h_prof' },
           });
+        } else if ((profNotifErr as { code?: string }).code !== '23505') {
+          console.error('[job] lembrete24h prof notif error:', profNotifErr.message);
         }
       }
     }
@@ -656,7 +642,18 @@ COMPORTAMENTO NESTE CONTEXTO:
     user_id: z.string().uuid(),
   });
 
-  app.post("/api/create-checkout-session", requireAuth, async (req: AuthRequest, res: Response) => {
+  // Rate limit por usuário autenticado — 10 sessões por hora.
+  // Usa authUser.id como chave para não punir usuários atrás do mesmo IP.
+  const checkoutRateLimit = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 10,
+    keyGenerator: (req) => (req as AuthRequest).authUser?.id ?? req.ip ?? 'unknown',
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Muitas tentativas de checkout. Aguarde 1 hora e tente novamente.' },
+  });
+
+  app.post("/api/create-checkout-session", requireAuth, checkoutRateLimit, async (req: AuthRequest, res: Response) => {
     const parsed = checkoutSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
@@ -951,6 +948,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       'appointment_cancelled', 'message_sent',
     ]),
     resource_id: z.string().uuid(),
+    cancelled_reason: z.string().max(500).optional(),
+    message_preview: z.string().max(200).optional(),
   });
 
   app.post("/api/notifications/send-event", requireAuth, async (req: Request, res: Response) => {
@@ -958,7 +957,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
     const callerId = (req as AuthRequest).authUser!.id;
-    const { event_type, resource_id } = parsed.data;
+    const { event_type, resource_id, cancelled_reason, message_preview } = parsed.data;
 
     let targetUserId: string | null = null;
     let title = '';
@@ -1035,7 +1034,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         // Caller must be either the client or professional — notify the other side.
         const { data: appt } = await supabaseAdmin
           .from('appointments')
-          .select('client_id, professional_id')
+          .select('client_id, professional_id, status, proposed_at, proposed_by')
           .eq('id', resource_id)
           .maybeSingle();
         if (!appt) return res.status(403).json({ error: 'Forbidden' });
@@ -1049,8 +1048,29 @@ COMPORTAMENTO NESTE CONTEXTO:
         const isProfessional = callerId === profUserId;
         if (!isClient && !isProfessional) return res.status(403).json({ error: 'Forbidden' });
         targetUserId = isClient ? (profUserId ?? null) : appt.client_id;
-        title = event_type === 'appointment_cancelled' ? 'Agendamento cancelado' : 'Agendamento atualizado';
-        body = 'Status do agendamento foi atualizado';
+        const apptStatus = appt.status as string | undefined;
+        if (apptStatus === 'cancelled') {
+          title = 'Agendamento cancelado';
+          body = cancelled_reason ? `Motivo: ${cancelled_reason}` : 'O agendamento foi cancelado.';
+        } else if (apptStatus === 'confirmed' && appt.proposed_at) {
+          const dt = new Date(appt.proposed_at as string);
+          title = 'Reagendamento aceito ✅';
+          body = `Nova data confirmada: ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}.`;
+        } else if (apptStatus === 'confirmed') {
+          title = 'Agendamento confirmado ✅';
+          body = 'Status do agendamento foi atualizado.';
+        } else if (apptStatus === 'rescheduled' && appt.proposed_at) {
+          const dt = new Date(appt.proposed_at as string);
+          const who = (appt.proposed_by as string) === 'professional' ? 'O profissional' : 'O cliente';
+          title = 'Proposta de reagendamento';
+          body = `${who} propôs nova data: ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}.`;
+        } else if (apptStatus === 'completed') {
+          title = 'Atendimento concluído ✅';
+          body = 'O atendimento foi marcado como concluído.';
+        } else {
+          title = 'Agendamento atualizado';
+          body = 'Status do agendamento foi atualizado.';
+        }
         data = { appointment_id: resource_id, type: event_type };
 
       } else if (event_type === 'message_sent') {
@@ -1072,11 +1092,19 @@ COMPORTAMENTO NESTE CONTEXTO:
         if (!isClient && !isProfessional) return res.status(403).json({ error: 'Forbidden' });
         targetUserId = isClient ? (profUserId ?? null) : conv.client_id;
         title = 'Nova Mensagem';
-        body = 'Você recebeu uma nova mensagem';
+        body = message_preview ?? 'Você recebeu uma nova mensagem';
         data = { conversationId: resource_id, type: 'message' };
       }
 
       if (targetUserId) {
+        // Notification insert centralizado no backend — frontend não escreve mais em notifications
+        void supabaseAdmin.from('notifications').insert({
+          user_id: targetUserId,
+          title,
+          body,
+          data,
+          is_read: false,
+        });
         void sendPushToUser(targetUserId, { title, body, data });
       }
       return res.json({ ok: true });
@@ -1384,6 +1412,10 @@ COMPORTAMENTO NESTE CONTEXTO:
     const TEST_PROF_EMAIL      = process.env.E2E_PROF_EMAIL      ?? '';
     const TEST_PROF_PASSWORD   = process.env.E2E_PROF_PASSWORD   ?? '';
 
+    const E2E_PREFIX = '[E2E-TEST]';
+    const startedAt = new Date().toISOString();
+    console.log(`[e2e] run-tests iniciado: ${startedAt}`);
+
     let clientUserId: string | null = null;
     let profUserId: string | null = null;
     let createdLeadId: string | null = null;
@@ -1430,8 +1462,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       if (!clientProfile) throw new Error('Perfil cliente não encontrado');
       const { data, error } = await supabaseAdmin.rpc('e2e_insert_lead', {
         p_client_id: clientUserId,
-        p_title: '[TESTE E2E] Pintura de sala',
-        p_description: 'Teste automatizado — pode ser deletado',
+        p_title: `${E2E_PREFIX} Pintura de sala`,
+        p_description: `${E2E_PREFIX} Teste automatizado — pode ser deletado`,
         p_category: 'Pintura',
         p_location: 'São Paulo, SP',
         p_budget_min: 100,
@@ -1492,7 +1524,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         .from('messages')
         .insert({
           conversation_id: createdChatId,
-          body: '[TESTE E2E] Olá, mensagem automática de teste',
+          body: `${E2E_PREFIX} Olá, mensagem automática de teste`,
           sender_type: 'client',
           read_at: null,
           attachments: [],
@@ -1503,29 +1535,39 @@ COMPORTAMENTO NESTE CONTEXTO:
       return `OK — message_id: ${data.id}`;
     });
 
+    // Cleanup robusto: apaga por prefixo [E2E-TEST], não apenas pelos IDs coletados.
+    // Isso garante que orphans de execuções anteriores com crash também sejam removidos.
     try {
+      // 1. Mensagens com prefixo em qualquer conversa do lead de teste
       if (createdChatId) {
         await supabaseAdmin.from('messages')
           .delete()
           .eq('conversation_id', createdChatId)
-          .like('body', '[TESTE E2E]%');
+          .like('body', `${E2E_PREFIX}%`);
         await supabaseAdmin.from('conversations').delete().eq('id', createdChatId);
         await supabaseAdmin.from('lead_purchases').delete().eq('lead_id', createdLeadId!);
       }
+      // 2. Lead pelo ID e por título com prefixo (catch de orphans)
       if (createdLeadId) {
         await supabaseAdmin.from('leads').delete().eq('id', createdLeadId);
       }
+      // 3. Sweep de qualquer lead com prefixo que tenha ficado órfão
+      await supabaseAdmin.from('leads').delete().like('title', `${E2E_PREFIX}%`);
+      console.log('[e2e] cleanup concluído');
     } catch (cleanupErr) {
-      console.error('Cleanup parcial:', cleanupErr);
+      console.error('[e2e] cleanup parcial:', cleanupErr instanceof Error ? cleanupErr.message : String(cleanupErr));
     }
 
     const passed = results.filter(r => r.status === 'pass').length;
     const failed = results.filter(r => r.status === 'fail').length;
+    const finishedAt = new Date().toISOString();
+    console.log(`[e2e] run-tests finalizado: ${finishedAt} — passed=${passed} failed=${failed}`);
 
     return res.json({
       summary: { total: results.length, passed, failed },
       results,
-      ran_at: new Date().toISOString(),
+      ran_at: startedAt,
+      finished_at: finishedAt,
     });
   });
 

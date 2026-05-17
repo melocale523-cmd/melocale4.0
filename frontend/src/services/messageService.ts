@@ -25,7 +25,7 @@ export const chatService = {
 
     const { data, error } = await supabase
       .from('v_conversations')
-      .select('*')
+      .select('id,client_id,professional_id,professional_user_id,lead_id,last_message_at,created_at,unread_for_prof,unread_for_client,last_message,prof_full_name,prof_avatar_url,client_full_name,client_avatar_url')
       .or(`client_id.eq.${user.id},professional_user_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
@@ -81,29 +81,18 @@ export const chatService = {
   async getMessages(conversationId: string) {
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select('id,conversation_id,body,sender_type,attachments,read_at,created_at')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
     if (error) throw error;
     return data || [];
   },
 
-  async sendMessage(conversationId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string) {
+  async sendMessage(conversationId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string, role?: 'client' | 'professional') {
     const { data: { user } } = await supabase.auth.getUser();
 
-    let senderType = 'user';
-    if (user) {
-      const { data: conv } = await supabase
-        .from('conversations')
-        .select('client_id, professional_user_id')
-        .eq('id', conversationId)
-        .single();
-      if (conv?.client_id === user.id) {
-        senderType = 'client';
-      } else if (conv?.professional_user_id === user.id) {
-        senderType = 'professional';
-      }
-    }
+    // role is passed by callers who already know it (eliminates the extra DB round-trip).
+    const senderType = role ?? 'user';
 
     const { data, error } = await supabase
       .from('messages')
@@ -113,7 +102,7 @@ export const chatService = {
         sender_type: senderType,
         attachments: type !== 'text' ? [{ type, fileName, url: text }] : [],
       })
-      .select('*')
+      .select('id,conversation_id,body,sender_type,attachments,read_at,created_at')
       .single();
     if (error) throw error;
 
@@ -123,24 +112,16 @@ export const chatService = {
       .eq('id', conversationId);
 
     if (recipientId && user && recipientId !== user.id) {
-      try {
-        const notifBody = type === 'text'
-          ? (text.length > 50 ? text.substring(0, 47) + '...' : text)
-          : type === 'image' ? '📷 Foto'
-          : type === 'audio' ? '🎤 Áudio'
-          : `📎 ${fileName || 'Arquivo'}`;
-        await supabase.from('notifications').insert({
-          user_id: recipientId,
-          title: 'Nova Mensagem',
-          body: notifBody,
-          data: { conversationId, type: 'message' },
-        });
-        void apiFetch('/api/notifications/send-event', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId }),
-        });
-      } catch {}
+      const message_preview = type === 'text'
+        ? (text.length > 100 ? text.substring(0, 97) + '...' : text)
+        : type === 'image' ? '📷 Foto'
+        : type === 'audio' ? '🎤 Áudio'
+        : `📎 ${fileName || 'Arquivo'}`;
+      void apiFetch('/api/notifications/send-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId, message_preview }),
+      });
     }
     return data;
   },
