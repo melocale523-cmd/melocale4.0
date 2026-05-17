@@ -354,7 +354,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
   // --- Mutations ---
   const sendMessageMutation = useMutation({
     mutationFn: ({ text }: { text: string }) =>
-      chatService.sendMessage(activeConversationId!, text, 'text', undefined, recipientId),
+      chatService.sendMessage(activeConversationId!, text, 'text', undefined, recipientId, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages', activeConversationId] });
       queryClient.invalidateQueries({ queryKey: ['chats'] });
@@ -474,7 +474,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
     setIsUploading(true);
     try {
       const url = await chatService.uploadChatFile(activeConversationId, file);
-      await chatService.sendMessage(activeConversationId, url, type, file.name, recipientId);
+      await chatService.sendMessage(activeConversationId, url, type, file.name, recipientId, role);
       queryClient.invalidateQueries({ queryKey: ['messages', activeConversationId] });
       queryClient.invalidateQueries({ queryKey: ['chats'] });
       scrollToBottom();
@@ -507,7 +507,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
         try {
           const file = new File([blob], `audio_${Date.now()}.webm`, { type: 'audio/webm' });
           const url = await chatService.uploadChatFile(convId, file);
-          await chatService.sendMessage(convId, url, 'audio', file.name, recpId);
+          await chatService.sendMessage(convId, url, 'audio', file.name, recpId, role);
           queryClient.invalidateQueries({ queryKey: ['messages', convId] });
           queryClient.invalidateQueries({ queryKey: ['chats'] });
           scrollToBottom();

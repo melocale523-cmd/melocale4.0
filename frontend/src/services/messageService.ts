@@ -88,22 +88,11 @@ export const chatService = {
     return data || [];
   },
 
-  async sendMessage(conversationId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string) {
+  async sendMessage(conversationId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string, role?: 'client' | 'professional') {
     const { data: { user } } = await supabase.auth.getUser();
 
-    let senderType = 'user';
-    if (user) {
-      const { data: conv } = await supabase
-        .from('conversations')
-        .select('client_id, professional_user_id')
-        .eq('id', conversationId)
-        .single();
-      if (conv?.client_id === user.id) {
-        senderType = 'client';
-      } else if (conv?.professional_user_id === user.id) {
-        senderType = 'professional';
-      }
-    }
+    // role is passed by callers who already know it (eliminates the extra DB round-trip).
+    const senderType = role ?? 'user';
 
     const { data, error } = await supabase
       .from('messages')
