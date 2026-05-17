@@ -324,14 +324,14 @@ export function createApp() {
         // Passo 1: creditar professional_coins com lock (RPC SECURITY DEFINER).
         // O RPC não insere em wallet_transactions — essa responsabilidade é exclusiva
         // do Passo 2, que usa o schema correto com user_id, kind e reference.
-        const { error: rpcErr } = await supabaseAdmin.rpc("credit_wallet", {
+        const { error: rpcErr } = await supabaseAdmin.rpc("credit_professional_coins", {
           p_user_id: userId,
           p_amount: coinsAmount,
           p_stripe_session_id: session.id,
           p_stripe_event_id: event.id
         });
         if (rpcErr) {
-          console.error("Erro no RPC credit_wallet:", rpcErr);
+          console.error("Erro no RPC credit_professional_coins:", rpcErr);
           return res.status(500).json({ error: "Falha ao creditar" });
         }
 
