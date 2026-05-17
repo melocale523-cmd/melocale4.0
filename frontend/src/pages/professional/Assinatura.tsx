@@ -10,10 +10,11 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { toast } from 'sonner';
 
 const STATUS_LABELS: Record<string, { label: string; colorClass: string }> = {
-  active:   { label: 'Ativo',              colorClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  canceled: { label: 'Cancelado',          colorClass: 'bg-red-500/10 text-red-400 border-red-500/20'            },
-  past_due: { label: 'Pagamento Pendente', colorClass: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'   },
-  trialing: { label: 'Em Teste',           colorClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20'         },
+  active:    { label: 'Ativo',                    colorClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+  canceling: { label: 'Cancela no fim do período', colorClass: 'bg-orange-500/10 text-orange-400 border-orange-500/20'  },
+  canceled:  { label: 'Cancelado',                colorClass: 'bg-red-500/10 text-red-400 border-red-500/20'            },
+  past_due:  { label: 'Pagamento Pendente',        colorClass: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'  },
+  trialing:  { label: 'Em Teste',                 colorClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20'         },
 };
 
 const PLAN_NAMES: Record<string, string> = {

@@ -84,7 +84,7 @@ export default function AiChatWidget() {
         if (context === 'professional') {
           const [coinsRes, subRes, leadsRes] = await Promise.all([
             supabase.from('professional_coins').select('balance').eq('professional_id', user.id).maybeSingle(),
-            supabase.from('user_subscriptions').select('package_id, status').eq('user_id', user.id).eq('status', 'active').maybeSingle(),
+            supabase.from('user_subscriptions').select('package_id, status').eq('user_id', user.id).in('status', ['active', 'canceling']).maybeSingle(),
             supabase.from('lead_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
           ]);
           if (cancelled) return;
@@ -103,7 +103,7 @@ export default function AiChatWidget() {
         if (context === 'admin') {
           const [ticketsRes, subsRes] = await Promise.all([
             supabase.from('support_tickets').select('id', { count: 'exact', head: true }).eq('status', 'open'),
-            supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+            supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'canceling']),
           ]);
           if (cancelled) return;
           data.openTickets = ticketsRes.count ?? 0;
