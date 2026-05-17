@@ -77,7 +77,7 @@ export default function NotificationBell() {
   // Marca todas como lidas quando o dropdown abre (ação explícita do usuário).
   // Não dispara no mount — só quando open muda de false → true.
   useEffect(() => {
-    if (!open || !user?.id) return;
+    if (open || !user?.id) return;
     void supabase
       .from('notifications')
       .update({ is_read: true })
