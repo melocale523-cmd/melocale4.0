@@ -113,16 +113,6 @@ export const appointmentService = {
       .single();
     if (error) throw error;
 
-    const dt = new Date(payload.scheduled_at);
-    const _notifTitle = 'Novo agendamento';
-    const _notifBody = `Visita agendada para ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
-    const _notifData = { appointment_id: appt.id, type: 'appointment_created' };
-    void supabase.from('notifications').insert({
-      user_id: payload.client_id,
-      title: _notifTitle,
-      body: _notifBody,
-      data: _notifData,
-    });
     void apiFetch('/api/notifications/send-event', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -159,19 +149,14 @@ export const appointmentService = {
         cancelled: 'Agendamento cancelado',
         completed: 'Atendimento concluído ✅',
       };
-      const _title = labels[status] ?? 'Agendamento atualizado';
-      const _body = opts.cancelledReason ? `Motivo: ${opts.cancelledReason}` : 'Status do agendamento foi atualizado';
-      const _data = { appointment_id: appointmentId, type: 'appointment' };
-      void supabase.from('notifications').insert({
-        user_id: opts.notifyUserId,
-        title: _title,
-        body: _body,
-        data: _data,
-      });
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_type: 'appointment_updated', resource_id: appointmentId }),
+        body: JSON.stringify({
+          event_type: status === 'cancelled' ? 'appointment_cancelled' : 'appointment_updated',
+          resource_id: appointmentId,
+          ...(opts.cancelledReason ? { cancelled_reason: opts.cancelledReason } : {}),
+        }),
       });
     }
 
@@ -202,15 +187,6 @@ export const appointmentService = {
       const dateStr = dt.toLocaleDateString('pt-BR');
       const timeStr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
       const who = proposedBy === 'professional' ? 'O profissional' : 'O cliente';
-      const _title = 'Proposta de reagendamento';
-      const _body = `${who} propôs nova data: ${dateStr} às ${timeStr}. Acesse sua agenda para aceitar ou recusar.`;
-      const _data = { appointment_id: appointmentId, type: 'reschedule_proposed', proposed_by: proposedBy };
-      void supabase.from('notifications').insert({
-        user_id: notifyUserId,
-        title: _title,
-        body: _body,
-        data: _data,
-      });
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -252,15 +228,6 @@ export const appointmentService = {
       const dt = new Date(current.proposed_at);
       const dateStr = dt.toLocaleDateString('pt-BR');
       const timeStr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      const _title = 'Reagendamento aceito ✅';
-      const _body = `A nova data foi confirmada: ${dateStr} às ${timeStr}.`;
-      const _data = { appointment_id: appointmentId, type: 'reschedule_accepted' };
-      void supabase.from('notifications').insert({
-        user_id: notifyUserId,
-        title: _title,
-        body: _body,
-        data: _data,
-      });
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -289,19 +256,10 @@ export const appointmentService = {
     if (error) throw error;
 
     if (notifyUserId) {
-      const _title = 'Reagendamento recusado';
-      const _body = 'A proposta de nova data foi recusada. O agendamento continua na data original.';
-      const _data = { appointment_id: appointmentId, type: 'reschedule_declined' };
-      void supabase.from('notifications').insert({
-        user_id: notifyUserId,
-        title: _title,
-        body: _body,
-        data: _data,
-      });
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_type: 'appointment_cancelled', resource_id: appointmentId }),
+        body: JSON.stringify({ event_type: 'appointment_updated', resource_id: appointmentId }),
       });
     }
 

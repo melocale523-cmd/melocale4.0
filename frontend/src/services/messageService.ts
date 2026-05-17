@@ -123,24 +123,16 @@ export const chatService = {
       .eq('id', conversationId);
 
     if (recipientId && user && recipientId !== user.id) {
-      try {
-        const notifBody = type === 'text'
-          ? (text.length > 50 ? text.substring(0, 47) + '...' : text)
-          : type === 'image' ? '📷 Foto'
-          : type === 'audio' ? '🎤 Áudio'
-          : `📎 ${fileName || 'Arquivo'}`;
-        await supabase.from('notifications').insert({
-          user_id: recipientId,
-          title: 'Nova Mensagem',
-          body: notifBody,
-          data: { conversationId, type: 'message' },
-        });
-        void apiFetch('/api/notifications/send-event', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId }),
-        });
-      } catch {}
+      const message_preview = type === 'text'
+        ? (text.length > 100 ? text.substring(0, 97) + '...' : text)
+        : type === 'image' ? '📷 Foto'
+        : type === 'audio' ? '🎤 Áudio'
+        : `📎 ${fileName || 'Arquivo'}`;
+      void apiFetch('/api/notifications/send-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId, message_preview }),
+      });
     }
     return data;
   },

@@ -937,6 +937,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       'appointment_cancelled', 'message_sent',
     ]),
     resource_id: z.string().uuid(),
+    cancelled_reason: z.string().max(500).optional(),
+    message_preview: z.string().max(200).optional(),
   });
 
   app.post("/api/notifications/send-event", requireAuth, async (req: Request, res: Response) => {
@@ -944,7 +946,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
     const callerId = (req as AuthRequest).authUser!.id;
-    const { event_type, resource_id } = parsed.data;
+    const { event_type, resource_id, cancelled_reason, message_preview } = parsed.data;
 
     let targetUserId: string | null = null;
     let title = '';
@@ -1021,7 +1023,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         // Caller must be either the client or professional — notify the other side.
         const { data: appt } = await supabaseAdmin
           .from('appointments')
-          .select('client_id, professional_id')
+          .select('client_id, professional_id, status, proposed_at, proposed_by')
           .eq('id', resource_id)
           .maybeSingle();
         if (!appt) return res.status(403).json({ error: 'Forbidden' });
@@ -1035,8 +1037,29 @@ COMPORTAMENTO NESTE CONTEXTO:
         const isProfessional = callerId === profUserId;
         if (!isClient && !isProfessional) return res.status(403).json({ error: 'Forbidden' });
         targetUserId = isClient ? (profUserId ?? null) : appt.client_id;
-        title = event_type === 'appointment_cancelled' ? 'Agendamento cancelado' : 'Agendamento atualizado';
-        body = 'Status do agendamento foi atualizado';
+        const apptStatus = appt.status as string | undefined;
+        if (apptStatus === 'cancelled') {
+          title = 'Agendamento cancelado';
+          body = cancelled_reason ? `Motivo: ${cancelled_reason}` : 'O agendamento foi cancelado.';
+        } else if (apptStatus === 'confirmed' && appt.proposed_at) {
+          const dt = new Date(appt.proposed_at as string);
+          title = 'Reagendamento aceito ✅';
+          body = `Nova data confirmada: ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}.`;
+        } else if (apptStatus === 'confirmed') {
+          title = 'Agendamento confirmado ✅';
+          body = 'Status do agendamento foi atualizado.';
+        } else if (apptStatus === 'rescheduled' && appt.proposed_at) {
+          const dt = new Date(appt.proposed_at as string);
+          const who = (appt.proposed_by as string) === 'professional' ? 'O profissional' : 'O cliente';
+          title = 'Proposta de reagendamento';
+          body = `${who} propôs nova data: ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}.`;
+        } else if (apptStatus === 'completed') {
+          title = 'Atendimento concluído ✅';
+          body = 'O atendimento foi marcado como concluído.';
+        } else {
+          title = 'Agendamento atualizado';
+          body = 'Status do agendamento foi atualizado.';
+        }
         data = { appointment_id: resource_id, type: event_type };
 
       } else if (event_type === 'message_sent') {
@@ -1058,11 +1081,19 @@ COMPORTAMENTO NESTE CONTEXTO:
         if (!isClient && !isProfessional) return res.status(403).json({ error: 'Forbidden' });
         targetUserId = isClient ? (profUserId ?? null) : conv.client_id;
         title = 'Nova Mensagem';
-        body = 'Você recebeu uma nova mensagem';
+        body = message_preview ?? 'Você recebeu uma nova mensagem';
         data = { conversationId: resource_id, type: 'message' };
       }
 
       if (targetUserId) {
+        // Notification insert centralizado no backend — frontend não escreve mais em notifications
+        void supabaseAdmin.from('notifications').insert({
+          user_id: targetUserId,
+          title,
+          body,
+          data,
+          is_read: false,
+        });
         void sendPushToUser(targetUserId, { title, body, data });
       }
       return res.json({ ok: true });
