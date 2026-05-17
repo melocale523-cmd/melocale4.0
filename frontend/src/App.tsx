@@ -38,6 +38,7 @@ const ProfessionalEstatisticas = lazy(() => import('./pages/professional/Estatis
 const ProfessionalAssinatura = lazy(() => import('./pages/professional/Assinatura'));
 const ProfessionalMensagens = lazy(() => import('./pages/professional/Mensagens'));
 const ProfessionalConfiguracoes = lazy(() => import('./pages/professional/Configuracoes'));
+const PerfilPublico = lazy(() => import('./pages/professional/PerfilPublico'));
 
 // Lazy-loaded pages — admin
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -184,6 +185,10 @@ const router = createBrowserRouter([
       {
         path: '/privacidade',
         element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Privacidade /></Suspense></ErrorBoundary>
+      },
+      {
+        path: '/profissional/:id/perfil',
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><PerfilPublico /></Suspense></ErrorBoundary>
       },
       {
         element: <AuthLayout />,
