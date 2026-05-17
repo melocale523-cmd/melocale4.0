@@ -50,6 +50,7 @@ export default function ProfessionalPerfil() {
     email: user?.email || '',
     phone: '',
     category: '',
+    customCategory: '',
     radius: '15',
     bio: '',
   });
@@ -84,14 +85,18 @@ export default function ProfessionalPerfil() {
   }, [profile]);
 
   const saveMutation = useMutation({
-    mutationFn: () =>
-      profileService.saveProfile(user!.id, {
+    mutationFn: () => {
+      const finalCategory = formData.category === 'Outro'
+        ? formData.customCategory
+        : formData.category;
+      return profileService.saveProfile(user!.id, {
         name: formData.name,
         phone: formData.phone,
         bio: formData.bio,
-        category: formData.category,
+        category: finalCategory,
         serviceRadius: formData.radius,
-      }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       setSuccessMsg(true);
@@ -117,6 +122,8 @@ export default function ProfessionalPerfil() {
       return 'Nome deve ter pelo menos 3 caracteres.';
     if (!formData.category)
       return 'Selecione uma categoria.';
+    if (formData.category === 'Outro' && !formData.customCategory.trim())
+      return 'Por favor, descreva sua profissão.';
     const phoneDigits = formData.phone.replace(/\D/g, '');
     if (!phoneDigits || phoneDigits.length < 10 || phoneDigits.length > 11)
       return 'Telefone inválido. Use o formato (11) 90000-0000.';
@@ -274,6 +281,16 @@ export default function ProfessionalPerfil() {
                   ))}
                 </select>
               </div>
+              {formData.category === 'Outro' && (
+                <input
+                  type="text"
+                  placeholder="Descreva sua profissão..."
+                  maxLength={100}
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all mt-2"
+                  value={formData.customCategory}
+                  onChange={e => setFormData(prev => ({ ...prev, customCategory: e.target.value }))}
+                />
+              )}
             </div>
           </div>
 
