@@ -76,7 +76,7 @@ function ProfileModal({ userId, name, avatar, onClose }: {
         if (profData?.id) {
           supabase
             .from('reviews')
-            .select('id, rating, comment, created_at, client_name')
+            .select('id, rating, comment, created_at')
             .eq('professional_id', profData.id)
             .order('created_at', { ascending: false })
             .limit(5)
