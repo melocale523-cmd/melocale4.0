@@ -35,6 +35,9 @@ export default function NotificationBell() {
       return (data ?? []) as Notification[];
     },
     enabled: !!user?.id,
+    staleTime: 0,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
 
   const unread = notifications.filter(n => !n.is_read).length;
