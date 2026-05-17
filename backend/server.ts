@@ -369,7 +369,16 @@ export function createApp() {
     // --- Sincronizar status de assinatura ---
     if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
-      const newStatus = event.type === "customer.subscription.deleted" ? "canceled" : subscription.status;
+      let newStatus: string;
+      if (event.type === "customer.subscription.deleted") {
+        newStatus = "canceled";
+      } else if (subscription.cancel_at_period_end) {
+        // Stripe keeps status="active" while scheduled for cancellation;
+        // we use "canceling" so the frontend can distinguish the two states.
+        newStatus = "canceling";
+      } else {
+        newStatus = subscription.status;
+      }
       try {
         await supabaseAdmin.from("user_subscriptions")
           .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -705,7 +714,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         .from("user_subscriptions")
         .select("package_id")
         .eq("user_id", user_id)
-        .eq("status", "active")
+        .in("status", ["active", "canceling"])
         .maybeSingle();
 
       const discount = activeSub?.package_id
@@ -888,7 +897,7 @@ COMPORTAMENTO NESTE CONTEXTO:
 
       await supabaseAdmin
         .from("user_subscriptions")
-        .update({ status: "canceled", updated_at: new Date().toISOString() })
+        .update({ status: "canceling", updated_at: new Date().toISOString() })
         .eq("user_id", String(user_id));
 
       return res.json({ success: true });
