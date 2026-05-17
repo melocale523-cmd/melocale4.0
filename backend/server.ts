@@ -1529,6 +1529,24 @@ COMPORTAMENTO NESTE CONTEXTO:
     });
   });
 
+  // ============================================
+  // POST /api/admin/reload-coin-packages — recarrega cache manualmente
+  // ============================================
+  app.post('/api/admin/reload-coin-packages', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const { data: profile } = await withTimeout(
+        supabaseAdmin.from('profiles').select('role').eq('id', req.authUser!.id).single()
+      );
+      if (profile?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado.' });
+
+      await loadCoinPackages();
+      return res.json({ reloaded: true, packages: Object.keys(coinPackagesCache).length });
+    } catch (err: unknown) {
+      console.error('/api/admin/reload-coin-packages error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : 500;
     const message = err instanceof Error ? err.message : 'Erro interno';
@@ -1543,6 +1561,7 @@ async function startServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
   await loadCoinPackages();
+  setInterval(loadCoinPackages, 60 * 60 * 1000);
 
   setInterval(jobLembrete24h, 60 * 60 * 1000);
   void jobLembrete24h();
