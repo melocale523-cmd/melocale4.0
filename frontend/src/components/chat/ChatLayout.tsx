@@ -321,6 +321,8 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       queryClient.invalidateQueries({ queryKey: ['chats'] });
       if (role === 'client') {
         queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
+      } else if (role === 'professional') {
+        queryClient.invalidateQueries({ queryKey: ['unread_count'] });
       }
     });
   }, [activeConversationId]);
