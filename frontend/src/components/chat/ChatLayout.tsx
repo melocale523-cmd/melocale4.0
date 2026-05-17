@@ -461,7 +461,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
         queryClient.invalidateQueries({ queryKey: ['unread_count'] });
       }
     });
-  }, [activeConversationId]);
+  }, [activeConversationId, role, queryClient]);
 
   const handleSendMessage = (e?: React.FormEvent) => {
     e?.preventDefault();
