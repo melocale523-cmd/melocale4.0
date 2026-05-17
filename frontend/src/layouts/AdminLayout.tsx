@@ -5,7 +5,7 @@ import {
   Users, Briefcase, BarChart3, Settings, ShieldAlert,
   LogOut, ArrowLeft, Menu, Bell, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X, LifeBuoy, TestTube2, Tag
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, X, LifeBuoy, TestTube2, Tag, Download
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -29,6 +29,7 @@ const ADMIN_NAVIGATION = [
   { name: 'Simulador', href: '/admin/simulador', icon: Zap },
   { name: 'Suporte', href: '/admin/suporte', icon: LifeBuoy },
   { name: 'Testes E2E', href: '/admin/testes', icon: TestTube2 },
+  { name: 'Relatórios', href: '/admin/relatorios', icon: Download },
 ];
 
 export default function AdminLayout() {
