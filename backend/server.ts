@@ -935,6 +935,13 @@ COMPORTAMENTO NESTE CONTEXTO:
   app.post("/api/notifications/push", requireAuth, async (req: Request, res: Response) => {
     const parsed = notifPushSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
+
+    // Apenas admin pode enviar push para outros usuários.
+    // Usuários comuns só podem disparar notificações via eventos de sistema.
+    if (parsed.data.user_id !== (req as AuthRequest).authUser!.id && (req as AuthRequest).authUser!.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     void sendPushToUser(parsed.data.user_id, {
       title: parsed.data.title,
       body: parsed.data.body,
