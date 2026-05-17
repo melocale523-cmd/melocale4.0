@@ -885,6 +885,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         .from("user_subscriptions")
         .select("stripe_subscription_id")
         .eq("user_id", String(user_id))
+        .in("status", ["active", "canceling"])
         .order("started_at", { ascending: false })
         .limit(1)
         .maybeSingle();
