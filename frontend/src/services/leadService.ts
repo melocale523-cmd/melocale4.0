@@ -58,8 +58,8 @@ export const leadService = {
       .select('*');
 
     if (error) {
-      const fallback = await supabase.from('leads').select('*');
-      return (fallback.data || []).filter((l: LeadStatusRow) => l.status === 'open');
+      console.error('[getAvailableLeads] view error:', error.message);
+      return [];
     }
     return data || [];
   },
