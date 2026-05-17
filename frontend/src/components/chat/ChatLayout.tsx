@@ -428,10 +428,10 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
     };
   }, [activeConversationId, currentUser]);
 
-  // --- Presence ---
+  // --- Presence (canal por conversa — não cresce com o número de usuários globais) ---
   useEffect(() => {
-    if (!currentUser) return;
-    const ch = supabase.channel('online_users');
+    if (!currentUser || !activeConversationId) return;
+    const ch = supabase.channel(`presence:conv:${activeConversationId}`);
     ch.on('presence', { event: 'sync' }, () => {
       const state = ch.presenceState();
       const ids = Object.values(state).flat().map((p) => (p as unknown as { user_id: string }).user_id);
@@ -442,7 +442,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       }
     });
     return () => { ch.unsubscribe(); supabase.removeChannel(ch); };
-  }, [currentUser]);
+  }, [activeConversationId, currentUser]);
 
   // --- Mark messages as read ---
   useEffect(() => {
