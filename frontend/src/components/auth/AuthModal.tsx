@@ -143,6 +143,11 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
   const handleGoogleLogin = async () => {
     try {
+      // Persist the role selected before the OAuth redirect so AuthInitializer
+      // can assign it on the callback (user_metadata.role is not set by Google).
+      if (selectedRole) {
+        localStorage.setItem('pending_oauth_role', selectedRole);
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -155,6 +160,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
       });
       if (error) throw error;
     } catch (err: any) {
+      localStorage.removeItem('pending_oauth_role');
       toast.error("Erro ao entrar com Google: " + err.message);
     }
   };

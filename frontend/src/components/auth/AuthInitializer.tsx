@@ -49,8 +49,14 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
 
         if (!profile) {
           const metaRole = session.user.user_metadata?.role as Role | undefined;
+          // For Google OAuth, user_metadata.role is not set by the provider.
+          // AuthModal stores the user's selection in localStorage before redirecting.
+          const pendingRole = localStorage.getItem('pending_oauth_role') as Role | null;
+          localStorage.removeItem('pending_oauth_role'); // clean up before any await
           const roleToSet: Role =
-            metaRole === 'professional' || metaRole === 'admin' ? metaRole : 'client';
+            metaRole === 'professional' || metaRole === 'admin' ? metaRole :
+            pendingRole === 'professional' || pendingRole === 'admin' ? pendingRole :
+            'client';
           finalRole = roleToSet;
           await supabase.from('profiles').upsert({
             id: userId,
