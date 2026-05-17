@@ -3,6 +3,7 @@ import { X, Loader2, ImagePlus, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { compressImage } from '../lib/compressImage';
 
 export interface WizardData {
   title: string;
@@ -203,9 +204,13 @@ export default function RequestWizard({
 
       const urls: string[] = [];
       for (const file of fileArray) {
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        let fileToUpload = file;
+        if (file.type.startsWith('image/')) {
+          try { fileToUpload = await compressImage(file); } catch { /* fallback silencioso */ }
+        }
+        const safeName = fileToUpload.name.replace(/[^a-zA-Z0-9._-]/g, '_');
         const path = `${user.id}/leads/${Date.now()}-${safeName}`;
-        const { error } = await supabase.storage.from('avatars').upload(path, file);
+        const { error } = await supabase.storage.from('avatars').upload(path, fileToUpload);
         if (error) throw error;
         const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
         urls.push(publicUrl);

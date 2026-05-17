@@ -5,6 +5,7 @@ import { useClientProfile } from '../../hooks/useClientProfile';
 import { clientProfileService, avatarService } from '../../services/dbServices';
 import { validateClientProfileForm, normalizeClientProfileData, ClientFieldErrors } from '../../lib/profileHelpers';
 import { logService } from '../../lib/logService';
+import { compressImage } from '../../lib/compressImage';
 import { User, MapPin, Phone, Mail, Settings, CheckCircle2, AlertCircle, Loader2, Hash, Camera, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -19,6 +20,7 @@ export default function ClientePerfil() {
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useClientProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [compressing, setCompressing] = useState(false);
 
   const [formData, setFormData] = useState({ name: '', phone: '', city: '' });
   const [fieldErrors, setFieldErrors] = useState<ClientFieldErrors>({});
@@ -48,15 +50,19 @@ export default function ClientePerfil() {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const avatarBusy = uploadMutation.isPending || removeMutation.isPending;
+  const avatarBusy = uploadMutation.isPending || removeMutation.isPending || compressing;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = '';
     if (!file.type.startsWith('image/')) { toast.error('Apenas imagens são permitidas.'); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error('Imagem deve ter no máximo 5MB.'); return; }
-    uploadMutation.mutate(file);
+    setCompressing(true);
+    let toUpload = file;
+    try { toUpload = await compressImage(file); } catch { /* fallback silencioso */ }
+    finally { setCompressing(false); }
+    uploadMutation.mutate(toUpload);
   };
 
   const saveMutation = useMutation({
