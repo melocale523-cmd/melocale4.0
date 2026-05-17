@@ -1091,13 +1091,22 @@ COMPORTAMENTO NESTE CONTEXTO:
     const parsed = notifPushSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
-    // Apenas admin pode enviar push para outros usuários.
-    // Usuários comuns só podem disparar notificações via eventos de sistema.
-    if (parsed.data.user_id !== (req as AuthRequest).authUser!.id && (req as AuthRequest).authUser!.role !== 'admin') {
-      return res.status(403).json({ error: 'Forbidden' });
+    const callerId = (req as AuthRequest).authUser!.id;
+    const targetUserId = parsed.data.user_id;
+
+    if (callerId !== targetUserId) {
+      // authUser.role vem do JWT Postgres role ("authenticated"), não do app role.
+      // Para checar se o caller é admin, consultamos a tabela profiles — igual
+      // ao padrão usado em todas as outras rotas admin do servidor.
+      const { data: callerProfile } = await withTimeout(
+        supabaseAdmin.from('profiles').select('role').eq('id', callerId).single()
+      );
+      if (callerProfile?.role !== 'admin') {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
     }
 
-    void sendPushToUser(parsed.data.user_id, {
+    void sendPushToUser(targetUserId, {
       title: parsed.data.title,
       body: parsed.data.body,
       data: parsed.data.data as Record<string, unknown> | undefined,
