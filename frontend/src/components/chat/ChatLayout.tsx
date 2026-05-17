@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Search, Send, User, MoreVertical, Paperclip, Smile,
   CheckCheck, Check, Loader2, Mic, Image as ImageIcon,
   Trash2, Clock, X, Square, Download, CalendarPlus, MapPin, ChevronLeft,
+  Star, Briefcase,
 } from 'lucide-react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { cn } from '../../lib/utils';
@@ -53,10 +54,136 @@ interface ConversationWithProfiles {
   leadTitle?: string | null;
 }
 
+function ProfileModal({ userId, name, avatar, onClose }: {
+  userId: string;
+  name: string;
+  avatar: string | null | undefined;
+  onClose: () => void;
+}) {
+  const [prof, setProf] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    supabase
+      .from('professionals')
+      .select('id, bio, category, city, is_active')
+      .eq('user_id', userId)
+      .single()
+      .then(({ data: profData }) => {
+        setProf(profData);
+        if (profData?.id) {
+          supabase
+            .from('reviews')
+            .select('id, rating, comment, created_at, client_name')
+            .eq('professional_id', profData.id)
+            .order('created_at', { ascending: false })
+            .limit(5)
+            .then(({ data }) => setReviews(data || []));
+        }
+        setLoading(false);
+      });
+  }, [userId]);
+
+  const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+  const avgRating = reviews.length > 0
+    ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+    : 0;
+
+  return (
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+        <div className="h-20 bg-gradient-to-r from-slate-800 to-emerald-900/30 shrink-0" />
+        <button type="button" onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-xl bg-black/30 hover:bg-black/50 text-white transition-all">
+          <X size={18} />
+        </button>
+        <div className="px-6 -mt-10 pb-4 border-b border-slate-700/50 shrink-0">
+          <div className="flex items-end gap-4 mb-3">
+            <div className="w-20 h-20 rounded-full border-4 border-[#1C3454] bg-emerald-600 flex items-center justify-center text-white font-bold text-xl overflow-hidden shrink-0">
+              {avatar ? <img src={avatar} alt={name} className="w-full h-full object-cover" /> : initials}
+            </div>
+            <div className="pb-1">
+              <h3 className="text-xl font-black text-white">{name}</h3>
+              {prof && (
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {prof.category && <span className="text-xs text-emerald-400 font-medium flex items-center gap-1"><Briefcase size={12} /> {prof.category}</span>}
+                  {prof.city && <span className="text-xs text-[#94A3B8] flex items-center gap-1"><MapPin size={12} /> {prof.city}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+          {reviews.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex">
+                {[1,2,3,4,5].map(s => (
+                  <Star key={s} size={14} className={s <= Math.round(avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600 fill-slate-600'} />
+                ))}
+              </div>
+              <span className="text-yellow-400 font-bold text-sm">{avgRating.toFixed(1)}</span>
+              <span className="text-[#4A6580] text-xs">({reviews.length} avaliação{reviews.length !== 1 ? 'ões' : ''})</span>
+            </div>
+          )}
+        </div>
+        <div className="overflow-y-auto flex-1 p-6 space-y-4">
+          {loading ? (
+            <div className="flex justify-center py-8"><Loader2 className="animate-spin text-emerald-500" size={28} /></div>
+          ) : (
+            <>
+              {prof?.bio && (
+                <div>
+                  <p className="text-xs font-bold text-[#4A6580] uppercase tracking-widest mb-2">Sobre</p>
+                  <p className="text-sm text-[#94A3B8] leading-relaxed">{prof.bio}</p>
+                </div>
+              )}
+              {reviews.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold text-[#4A6580] uppercase tracking-widest mb-3">Avaliações</p>
+                  <div className="space-y-3">
+                    {reviews.map(r => (
+                      <div key={r.id} className="bg-[#0E1C32] rounded-xl p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-slate-200">{r.client_name ?? 'Cliente'}</span>
+                          <span className="text-xs text-[#4A6580]">{new Date(r.created_at).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        <div className="flex">
+                          {[1,2,3,4,5].map(s => (
+                            <Star key={s} size={12} className={s <= r.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'} />
+                          ))}
+                        </div>
+                        {r.comment && <p className="text-xs text-[#94A3B8]">{r.comment}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {!prof?.bio && reviews.length === 0 && !loading && (
+                <p className="text-center text-[#4A6580] text-sm py-4">Nenhuma informação adicional disponível.</p>
+              )}
+            </>
+          )}
+        </div>
+        <div className="px-6 py-4 border-t border-slate-700/50 shrink-0">
+          <button type="button" onClick={onClose}
+            className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all text-sm">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ChatLayout({ role }: ChatLayoutProps) {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [profileModal, setProfileModal] = useState<{
+    userId: string;
+    name: string;
+    avatar: string | null | undefined;
+  } | null>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState('');
@@ -322,6 +449,9 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       queryClient.invalidateQueries({ queryKey: ['chats'] });
       if (role === 'client') {
         queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ['client_unread_count'] });
+        }, 1500);
       } else if (role === 'professional') {
         queryClient.invalidateQueries({ queryKey: ['unread_count'] });
       }
@@ -538,7 +668,14 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                         {role === 'client' && conv.prof_user_id && (
                           <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); navigate(`/profissional/${conv.prof_user_id}/perfil`); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProfileModal({
+                                userId: conv.prof_user_id!,
+                                name: getOtherName(conv),
+                                avatar: getOtherAvatar(conv),
+                              });
+                            }}
                             className="text-[9px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-1.5 py-0.5 rounded-full transition-all shrink-0"
                           >
                             Ver perfil
@@ -592,7 +729,22 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                 }
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white leading-tight">{otherName}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-white leading-tight">{otherName}</h3>
+                  {role === 'client' && activeConversation.prof_user_id && (
+                    <button
+                      type="button"
+                      onClick={() => setProfileModal({
+                        userId: activeConversation.prof_user_id!,
+                        name: otherName,
+                        avatar: otherAvatar,
+                      })}
+                      className="text-[10px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-2 py-0.5 rounded-full transition-all shrink-0"
+                    >
+                      Ver perfil
+                    </button>
+                  )}
+                </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <div className={cn(
                     'w-1.5 h-1.5 rounded-full',
@@ -1017,6 +1169,15 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
             </form>
           </div>
         </div>
+      )}
+
+      {profileModal && (
+        <ProfileModal
+          userId={profileModal.userId}
+          name={profileModal.name}
+          avatar={profileModal.avatar}
+          onClose={() => setProfileModal(null)}
+        />
       )}
     </div>
   );
