@@ -905,7 +905,8 @@ COMPORTAMENTO NESTE CONTEXTO:
       await supabaseAdmin
         .from("user_subscriptions")
         .update({ status: "canceling", updated_at: new Date().toISOString() })
-        .eq("user_id", String(user_id));
+        .eq("user_id", String(user_id))
+        .eq("stripe_subscription_id", sub.stripe_subscription_id);
 
       return res.json({ success: true });
     } catch (err: unknown) {
@@ -1093,7 +1094,9 @@ COMPORTAMENTO NESTE CONTEXTO:
         targetUserId = isClient ? (profUserId ?? null) : conv.client_id;
         title = 'Nova Mensagem';
         body = message_preview ?? 'Você recebeu uma nova mensagem';
-        data = { conversationId: resource_id, type: 'message' };
+        // Roteamento diferenciado: cliente vai para /cliente/mensagens,
+        // profissional vai para /profissional/mensagens (ver sw.ts)
+        data = { conversationId: resource_id, type: isClient ? 'message' : 'message_client' };
       }
 
       if (targetUserId) {
