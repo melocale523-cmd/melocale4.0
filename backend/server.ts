@@ -340,9 +340,8 @@ export function createApp() {
       }
 
       if (userId && coinsAmount > 0) {
-        // Passo 1: creditar professional_coins com lock (RPC SECURITY DEFINER).
-        // O RPC não insere em wallet_transactions — essa responsabilidade é exclusiva
-        // do Passo 2, que usa o schema correto com user_id, kind e reference.
+        // RPC único: credita saldo e registra wallet_transaction em transação atômica.
+        // Idempotência garantida pelo RPC via stripe_event_id.
         const { error: rpcErr } = await supabaseAdmin.rpc("credit_professional_coins", {
           p_user_id: userId,
           p_amount: coinsAmount,
@@ -350,33 +349,10 @@ export function createApp() {
           p_stripe_event_id: event.id
         });
         if (rpcErr) {
-          console.error("Erro no RPC credit_professional_coins:", rpcErr);
+          console.error("Erro no RPC credit_professional_coins:", rpcErr instanceof Error ? rpcErr.message : String(rpcErr));
           return res.status(500).json({ error: "Falha ao creditar" });
         }
-
-        // Passo 2: registrar a transação (única inserção em wallet_transactions).
-        // Em caso de reentrada do webhook (Stripe retenta eventos), o unique constraint
-        // em stripe_event_id retorna 23505 — tratamos como idempotência esperada.
-        const txKind = sessionType === "subscription" ? "bonus" : "deposit";
-        const { error: txErr } = await supabaseAdmin.from("wallet_transactions").insert({
-          user_id: userId,
-          kind: txKind,
-          amount: coinsAmount,
-          reference: `Stripe — ${coinLabel} — ${session.id}`,
-          stripe_session_id: session.id,
-          stripe_event_id: event.id,
-          created_at: new Date().toISOString(),
-        });
-        if (txErr) {
-          if ((txErr as { code?: string }).code === '23505') {
-            console.log(`[webhook] evento ${event.id} já processado (idempotência) — ignorando`);
-            return res.json({ received: true });
-          }
-          console.error("Erro ao inserir wallet_transaction:", txErr);
-          return res.status(500).json({ error: "Falha ao creditar" });
-        }
-
-        if (process.env.NODE_ENV !== 'production') console.log(`[webhook] wallet_transaction registrada: userId=${userId} coins=${coinsAmount} kind=${txKind} sessionId=${session.id}`);
+        if (process.env.NODE_ENV !== 'production') console.log(`[webhook] coins creditados: userId=${userId} coins=${coinsAmount} sessionId=${session.id}`);
       }
     }
 
