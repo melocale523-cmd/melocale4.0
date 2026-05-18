@@ -73,11 +73,10 @@ export const avatarService = {
     }
 
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
-    const displayUrl = `${publicUrl}?t=${Date.now()}`;
 
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ avatar_url: displayUrl })
+      .update({ avatar_url: publicUrl })
       .eq('id', userId);
 
     if (updateError) {
@@ -85,7 +84,8 @@ export const avatarService = {
       throw new Error('Foto enviada, mas não foi possível salvar. Tente novamente.');
     }
 
-    return displayUrl;
+    // Return cache-busted URL for immediate display; clean URL is stored in DB
+    return `${publicUrl}?t=${Date.now()}`;
   },
 
   async remove(userId: string): Promise<void> {
