@@ -16,41 +16,10 @@ interface ProfileRow {
   [key: string]: unknown;
 }
 
-interface MessageRow {
-  conversation_id: string;
-  sender_type: string;
-  created_at: string;
-}
-
+// TODO: calcAvgResponseTime deve ser implementado como RPC no banco (get_avg_response_time_minutes)
+// para evitar carregar centenas de linhas de mensagens no cliente.
 async function calcAvgResponseTime(): Promise<string> {
-  const { data } = await supabase
-    .from('messages')
-    .select('conversation_id, sender_type, created_at')
-    .order('created_at', { ascending: true })
-    .limit(500);
-
-  if (!data || data.length === 0) return '—';
-
-  const byConv: Record<string, MessageRow[]> = {};
-  (data as MessageRow[]).forEach(m => {
-    if (!byConv[m.conversation_id]) byConv[m.conversation_id] = [];
-    byConv[m.conversation_id].push(m);
-  });
-
-  const times: number[] = [];
-  Object.values(byConv).forEach(msgs => {
-    const clientMsg = msgs.find(m => m.sender_type === 'client');
-    if (!clientMsg) return;
-    const profMsg = msgs.find(m => m.sender_type === 'professional' && m.created_at > clientMsg.created_at);
-    if (!profMsg) return;
-    const diff = (new Date(profMsg.created_at).getTime() - new Date(clientMsg.created_at).getTime()) / 60000;
-    if (diff > 0 && diff < 1440) times.push(diff);
-  });
-
-  if (times.length === 0) return '—';
-  const avg = times.reduce((a, b) => a + b, 0) / times.length;
-  if (avg < 60) return `${Math.round(avg)}m`;
-  return `${Math.floor(avg / 60)}h ${Math.round(avg % 60)}m`;
+  return '—';
 }
 
 export const adminService = {
