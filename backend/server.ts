@@ -1391,6 +1391,31 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // DELETE /api/admin/professionals/:userId — rejeitar profissional pendente
+  // Remove o registro de professionals e reverte role para 'client'.
+  // ============================================
+  app.delete('/api/admin/professionals/:userId', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+    try {
+      const { userId } = req.params;
+
+      const { error: delErr } = await withTimeout(
+        supabaseAdmin.from('professionals').delete().eq('user_id', userId)
+      );
+      if (delErr) throw delErr;
+
+      const { error: roleErr } = await withTimeout(
+        supabaseAdmin.from('profiles').update({ role: 'client' }).eq('id', userId)
+      );
+      if (roleErr) throw roleErr;
+
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('/api/admin/professionals DELETE error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  // ============================================
   // GET /api/admin/user-emails?ids=uuid1,uuid2,...
   // ============================================
   app.get('/api/admin/user-emails', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {

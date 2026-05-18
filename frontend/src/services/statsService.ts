@@ -168,6 +168,22 @@ export const adminService = {
     return true;
   },
 
+  async rejectProfessional(userId: string) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) throw new Error('Não autenticado');
+
+    const res = await fetch(`${API_URL}/api/admin/professionals/${userId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
+      throw new Error(err.error || 'Erro ao rejeitar profissional');
+    }
+    return true;
+  },
+
   async getCoinPackages() {
     try {
       const { data, error } = await supabase.from('coin_packages').select('*');
