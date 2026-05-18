@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../../store/authStore';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
 import { FileText, Loader2, ArrowRight, Plus, X, MapPin, Tag, Calendar, Search, Inbox, User, DollarSign, Clock, CheckCircle, MessageCircle, Send, MoreVertical, Pencil, Trash2, Star, Briefcase } from 'lucide-react';
@@ -259,6 +260,7 @@ function ProfileModal({ userId, name, avatar, onClose }: {
 export default function Pedidos() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoItem | null>(null);
   const [isProposalsModalOpen, setIsProposalsModalOpen] = useState(false);
@@ -274,7 +276,7 @@ export default function Pedidos() {
   } | null>(null);
 
   const { data: pedidos, isLoading } = useQuery({
-    queryKey: ['pedidos'],
+    queryKey: ['pedidos', user?.id],
     queryFn: leadService.getMyRequests,
   });
 

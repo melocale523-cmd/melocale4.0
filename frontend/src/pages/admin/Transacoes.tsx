@@ -7,6 +7,7 @@ interface Transaction {
   id: string;
   kind: string;
   amount: number | null;
+  balance_after: number | null;
   reference: string | null;
   created_at: string;
   professionals?: {

@@ -154,38 +154,25 @@ export const adminService = {
 
   async updateUserStatus(userId: string, status: string) {
     const isActive = status === 'active';
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
-    if (!token) throw new Error('Não autenticado');
-
-    const res = await fetch(`${API_URL}/api/admin/professional-status`, {
+    const res = await apiFetch('/api/admin/professional-status', {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, is_active: isActive }),
     });
-
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
-      throw new Error(err.error || 'Erro ao atualizar status');
+      throw new Error((err as { error?: string }).error || 'Erro ao atualizar status');
     }
     return true;
   },
 
   async rejectProfessional(userId: string) {
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
-    if (!token) throw new Error('Não autenticado');
-
-    const res = await fetch(`${API_URL}/api/admin/professionals/${userId}`, {
+    const res = await apiFetch(`/api/admin/professionals/${userId}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
-      throw new Error(err.error || 'Erro ao rejeitar profissional');
+      throw new Error((err as { error?: string }).error || 'Erro ao rejeitar profissional');
     }
     return true;
   },
