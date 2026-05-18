@@ -376,7 +376,7 @@ export function createApp() {
           return res.status(500).json({ error: "Falha ao creditar" });
         }
 
-        console.log(`[webhook] wallet_transaction registrada: userId=${userId} coins=${coinsAmount} kind=${txKind} sessionId=${session.id}`);
+        if (process.env.NODE_ENV !== 'production') console.log(`[webhook] wallet_transaction registrada: userId=${userId} coins=${coinsAmount} kind=${txKind} sessionId=${session.id}`);
       }
     }
 
@@ -676,7 +676,17 @@ COMPORTAMENTO NESTE CONTEXTO:
         return res.status(403).json({ error: "Não autorizado." });
       }
 
-      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://www.melocale.com.br").replace(/\/$/,  "");
+      const ALLOWED_ORIGINS = [
+        "https://www.melocale.com.br",
+        "https://melocale.com.br",
+        process.env.FRONTEND_URL,
+      ].filter(Boolean) as string[];
+      const requestOrigin = req.headers.origin ?? "";
+      const frontendUrl = (
+        ALLOWED_ORIGINS.includes(requestOrigin)
+          ? requestOrigin
+          : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
+      ).replace(/\/$/, "");
 
       // --- Fluxo de assinatura mensal ---
       if (type === "subscription" || package_id in SUBSCRIPTION_PLANS) {
@@ -797,7 +807,17 @@ COMPORTAMENTO NESTE CONTEXTO:
         return res.status(400).json({ error: "amount deve ser um número positivo em centavos." });
       }
 
-      const frontendUrl = (process.env.FRONTEND_URL || req.headers.origin || "https://www.melocale.com.br").replace(/\/$/, "");
+      const ALLOWED_ORIGINS_SVC = [
+        "https://www.melocale.com.br",
+        "https://melocale.com.br",
+        process.env.FRONTEND_URL,
+      ].filter(Boolean) as string[];
+      const requestOriginSvc = req.headers.origin ?? "";
+      const frontendUrl = (
+        ALLOWED_ORIGINS_SVC.includes(requestOriginSvc)
+          ? requestOriginSvc
+          : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
+      ).replace(/\/$/, "");
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
@@ -1086,7 +1106,7 @@ COMPORTAMENTO NESTE CONTEXTO:
         data = { appointment_id: resource_id, type: event_type };
 
       } else if (event_type === 'message_sent') {
-        console.log('[send-event] message_sent caller:', callerId, 'conv:', resource_id);
+        if (process.env.NODE_ENV !== 'production') console.log('[send-event] message_sent caller:', callerId, 'conv:', resource_id);
         // Caller must be a participant — notify the other side.
         const { data: conv } = await supabaseAdmin
           .from('conversations')
@@ -1291,7 +1311,7 @@ COMPORTAMENTO NESTE CONTEXTO:
       );
 
       if (error) throw error;
-      console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
+      if (process.env.NODE_ENV !== 'production') console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
       return res.status(201).json(data);
     } catch (err: unknown) {
       console.error('/api/leads POST error:', err instanceof Error ? err.message : String(err));
