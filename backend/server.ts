@@ -121,11 +121,20 @@ const PLANS: Record<string, {
 };
 
 async function loadCoinPackages() {
-  const { data } = await supabaseAdmin.from('coin_packages')
-    .select('id, name, coins, price').eq('is_active', true);
-  if (data?.length) {
-    coinPackagesCache = Object.fromEntries(data.map((p: { id: string; name: string; coins: number; price: number }) => [p.id, p]));
-    console.log('[startup] coin packages loaded:', Object.keys(coinPackagesCache));
+  try {
+    const { data, error } = await supabaseAdmin.from('coin_packages')
+      .select('id, name, coins, price').eq('is_active', true);
+    if (error) {
+      console.error('[startup] loadCoinPackages error:', error.message);
+      return;
+    }
+    if (data?.length) {
+      coinPackagesCache = Object.fromEntries(data.map((p: { id: string; name: string; coins: number; price: number }) => [p.id, p]));
+      console.log('[startup] coin packages loaded:', Object.keys(coinPackagesCache));
+    }
+  } catch (err) {
+    console.error('[startup] loadCoinPackages exception:', err instanceof Error ? err.message : String(err));
+    // manter cache anterior em memória; não propagar — servidor continua de pé
   }
 }
 
@@ -154,11 +163,22 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
 
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Token inválido' });
+  try {
+    const { data: { user }, error } = await withTimeout(
+      supabaseAdmin.auth.getUser(token),
+      8000
+    );
+    if (error || !user) return res.status(401).json({ error: 'Token inválido' });
 
-  (req as AuthRequest).authUser = user as { id: string; email: string; role: string };
-  next();
+    (req as AuthRequest).authUser = user as { id: string; email: string; role: string };
+    next();
+  } catch (err) {
+    const isTimeout = err instanceof Error && err.message.startsWith('Request timeout');
+    console.error('[requireAuth] erro:', err instanceof Error ? err.message : String(err));
+    return res.status(isTimeout ? 503 : 500).json({
+      error: isTimeout ? 'Serviço de autenticação indisponível. Tente novamente.' : 'Erro interno de autenticação.',
+    });
+  }
 }
 
 const requireAdmin: RequestHandler = async (req, res, next) => {
