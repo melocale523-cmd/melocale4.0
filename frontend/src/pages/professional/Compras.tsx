@@ -113,6 +113,11 @@ export default function ProfessionalCompras() {
   const handleSendProposal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPurchase) return;
+    const price = parseFloat(proposalData.price);
+    if (!proposalData.price || isNaN(price) || price <= 0) {
+      toast.error('O valor da proposta deve ser maior que zero.');
+      return;
+    }
     sendProposalMutation.mutate({
       purchaseId: selectedPurchase.id,
       data: proposalData,
@@ -148,9 +153,11 @@ export default function ProfessionalCompras() {
                 <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
                    <DollarSign size={14} /> Valor Estimado (R$)
                 </label>
-                <input 
+                <input
                   required
-                  type="number" 
+                  type="number"
+                  min="0.01"
+                  step="0.01"
                   placeholder="Ex: 1200"
                   value={proposalData.price}
                   onChange={e => setProposalData(prev => ({ ...prev, price: e.target.value }))}
