@@ -19,12 +19,14 @@ export interface ProfileData {
   isActive: boolean;
 }
 
-async function fetchProfileData(userId: string): Promise<ProfileData> {
-  // Step 1: guarantee the professional row exists (idempotent, DB-level uniqueness)
-  const { error: rpcError } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
-  if (rpcError) {
-    logService.error('useProfile', 'ensure_professional_exists failed', rpcError);
-    throw new Error('Não foi possível preparar os dados profissionais. Tente novamente.');
+async function fetchProfileData(userId: string, hasProfessionalId: boolean): Promise<ProfileData> {
+  // Step 1: guarantee the professional row exists — skip if professionalId is already in store
+  if (!hasProfessionalId) {
+    const { error: rpcError } = await supabase.rpc('ensure_professional_exists', { p_user_id: userId });
+    if (rpcError) {
+      logService.error('useProfile', 'ensure_professional_exists failed', rpcError);
+      throw new Error('Não foi possível preparar os dados profissionais. Tente novamente.');
+    }
   }
 
   // Step 2: fetch both rows — professional row is guaranteed to exist now
@@ -64,10 +66,11 @@ async function fetchProfileData(userId: string): Promise<ProfileData> {
 export function useProfile() {
   const { user } = useAuthStore();
   const userId = user?.id;
+  const hasProfessionalId = !!user?.professionalId;
 
   return useQuery({
     queryKey: ['profile', userId],
-    queryFn: () => fetchProfileData(userId!),
+    queryFn: () => fetchProfileData(userId!, hasProfessionalId),
     enabled: !!userId,
     staleTime: 1000 * 60 * 2,
     retry: 1,
