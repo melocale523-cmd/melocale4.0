@@ -187,7 +187,7 @@ export const leadService = {
 
       return {
         waiting: userRequests.filter((r: LeadStatusRow) => r.status === 'open' || r.status === 'aberto').length,
-        in_progress: userRequests.filter((r: LeadStatusRow) => r.status === 'orçando').length,
+        in_progress: userRequests.filter((r: LeadStatusRow) => r.status === 'available').length,
         orcando: userRequests.filter((r: LeadStatusRow) => r.status === 'orçando').length,
         finalizado: userRequests.filter((r: LeadStatusRow) => r.status === 'finalizado').length,
       };
