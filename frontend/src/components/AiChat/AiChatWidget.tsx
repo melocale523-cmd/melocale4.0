@@ -289,6 +289,7 @@ export default function AiChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Digite sua mensagem..."
+                  maxLength={2000}
                   className="flex-1 bg-transparent text-white text-sm placeholder:text-slate-600 focus:outline-none"
                 />
                 <button

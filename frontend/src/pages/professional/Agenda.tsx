@@ -845,6 +845,7 @@ export default function ProfessionalAgenda() {
                   placeholder="Ex: Instalação elétrica"
                   value={formData.title}
                   onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  maxLength={255}
                   className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
@@ -916,6 +917,7 @@ export default function ProfessionalAgenda() {
                   placeholder="Rua, número, bairro..."
                   value={formData.location}
                   onChange={e => setFormData({ ...formData, location: e.target.value })}
+                  maxLength={255}
                   className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
@@ -927,6 +929,7 @@ export default function ProfessionalAgenda() {
                   placeholder="Detalhes do serviço..."
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  maxLength={500}
                   className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"
                 />
               </div>

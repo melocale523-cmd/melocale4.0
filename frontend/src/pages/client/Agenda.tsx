@@ -363,6 +363,7 @@ export default function ClientAgenda() {
                             placeholder="Motivo do cancelamento (opcional)..."
                             value={cancelReason}
                             onChange={e => setCancelReason(e.target.value)}
+                            maxLength={500}
                             className="w-full bg-[#0E1C32] border border-red-500/20 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/40 transition-colors resize-none placeholder:text-[#4A6580]"
                           />
                           <div className="flex gap-2">

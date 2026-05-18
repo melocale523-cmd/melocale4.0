@@ -57,11 +57,11 @@ export default function AdminPlanos() {
                 <button onClick={() => setShowModal(false)} className="text-[#94A3B8] hover:text-white"><X size={20} /></button>
               </div>
               <div className="space-y-4">
-                 <input type="text" placeholder="Nome do plano" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
+                 <input type="text" placeholder="Nome do plano" maxLength={255} className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
                  <input type="number" placeholder="Preço (R$)" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
                  <input type="number" placeholder="Quantidade de Moedas" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
                  <input type="number" placeholder="Quantidade de Leads" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white" />
-                 <textarea placeholder="Funcionalidades (uma por linha)" className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white h-24" />
+                 <textarea placeholder="Funcionalidades (uma por linha)" maxLength={500} className="w-full bg-[#0E1C32] border border-slate-700 p-3 rounded-lg text-white h-24" />
                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold">Salvar Plano</button>
               </div>
            </div>

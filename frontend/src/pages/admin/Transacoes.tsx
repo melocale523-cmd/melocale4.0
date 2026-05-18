@@ -72,6 +72,7 @@ export default function AdminTransacoes() {
             placeholder="Buscar profissional, tipo..."
             value={search}
             onChange={e => setSearch(e.target.value)}
+            maxLength={255}
             className="w-full bg-[#1C3454] border border-slate-800 rounded-lg pl-10 pr-4 py-3 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
           />
         </div>

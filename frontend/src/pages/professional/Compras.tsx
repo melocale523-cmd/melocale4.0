@@ -196,6 +196,7 @@ export default function ProfessionalCompras() {
                   placeholder="Descreva como você pretende realizar o serviço, materiais inclusos, etc..."
                   value={proposalData.description}
                   onChange={e => setProposalData(prev => ({ ...prev, description: e.target.value }))}
+                  maxLength={2000}
                   className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all resize-none"
                 />
               </div>
