@@ -1613,6 +1613,7 @@ COMPORTAMENTO NESTE CONTEXTO:
           .from('profiles')
           .select('id, full_name, role, created_at, city')
           .order('created_at', { ascending: false })
+          .limit(5000)
       );
       if (error) throw error;
 
@@ -1654,6 +1655,7 @@ COMPORTAMENTO NESTE CONTEXTO:
           .from('leads')
           .select('id, title, category, location, status, price_coins, budget_min, budget_max, purchases_count, created_at')
           .order('created_at', { ascending: false })
+          .limit(5000)
       );
       if (error) throw error;
       return res.json(data ?? []);
@@ -1670,6 +1672,7 @@ COMPORTAMENTO NESTE CONTEXTO:
           .from('wallet_transactions')
           .select('id, user_id, kind, amount, reference, created_at')
           .order('created_at', { ascending: false })
+          .limit(5000)
       );
       if (error) throw error;
 
