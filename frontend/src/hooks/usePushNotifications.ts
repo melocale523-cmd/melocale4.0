@@ -42,7 +42,7 @@ export function usePushNotifications() {
       })
 
       const json = sub.toJSON() as { endpoint: string; keys: { p256dh: string; auth: string } }
-      const res = await apiFetch('api/push/subscribe', {
+      const res = await apiFetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys }),
@@ -61,7 +61,7 @@ export function usePushNotifications() {
       if (!sub) return
       const endpoint = sub.endpoint
       await sub.unsubscribe()
-      await apiFetch('api/push/unsubscribe', {
+      await apiFetch('/api/push/unsubscribe', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ endpoint }),
