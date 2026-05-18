@@ -228,6 +228,11 @@ export default function ProfessionalConfiguracoes() {
                 }
                 setSavingPassword(true);
                 try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  const email = session?.user?.email;
+                  if (!email) throw new Error('Sessão expirada. Faça login novamente.');
+                  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: current });
+                  if (signInError) throw new Error('Senha atual incorreta.');
                   const { error } = await supabase.auth.updateUser({ password: newPass });
                   if (error) throw error;
                   toast.success('Senha alterada com sucesso!');
