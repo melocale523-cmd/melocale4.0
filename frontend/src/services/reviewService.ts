@@ -61,14 +61,11 @@ export const reviewService = {
       client_name: nameMap[r.client_id] ?? null,
     }));
 
-    const { data: agg } = await supabase
-      .from('reviews')
-      .select('rating')
-      .eq('professional_id', professional_id);
-    const total = agg?.length ?? 0;
-    const average = total > 0
-      ? (agg!.reduce((sum, r) => sum + r.rating, 0) / total)
-      : 0;
+    const { data: stats } = await supabase
+      .rpc('get_professional_review_stats', { p_professional_id: professional_id })
+      .single();
+    const total = Number((stats as { total_reviews?: number } | null)?.total_reviews ?? 0);
+    const average = Number((stats as { avg_rating?: number } | null)?.avg_rating ?? 0);
 
     return { reviews, average, total };
   },
