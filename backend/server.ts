@@ -1,4 +1,5 @@
 // Trigger Render redeploy 2026-04-28
+import helmet from "helmet";
 import express, { Request, Response, NextFunction, RequestHandler } from "express";
 
 interface AuthRequest extends Request {
@@ -266,6 +267,7 @@ async function jobLembrete24h() {
 export function createApp() {
   const app = express();
   app.set('trust proxy', 1);
+  app.use(helmet());
 
   const EXTRA_ORIGINS = (process.env.FRONTEND_URL ?? '')
     .split(',')
