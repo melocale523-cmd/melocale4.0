@@ -950,6 +950,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                   <div className="flex-1 relative group">
                     <input
                       value={messageInput}
+                      maxLength={2000}
                       onChange={e => {
                         setMessageInput(e.target.value);
                         if (typingChannel.current && currentUser) {
@@ -1057,6 +1058,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                 <div className="flex-1 relative group">
                   <input
                     value={messageInput}
+                    maxLength={2000}
                     onChange={e => {
                       setMessageInput(e.target.value);
                       if (typingChannel.current && currentUser) {
