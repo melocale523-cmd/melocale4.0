@@ -24,7 +24,7 @@ export default function ProfessionalLayout() {
   const { data: profile } = useProfile();
 
   const { data: balance, isLoading } = useQuery({
-    queryKey: ['walletBalance'],
+    queryKey: ['walletBalance', user?.id],
     queryFn: walletService.getBalance,
     refetchOnMount: true,
   });
@@ -61,7 +61,7 @@ export default function ProfessionalLayout() {
   const queryClient = useQueryClient();
 
   const { data: unreadCount } = useQuery({
-    queryKey: ['unread_count'],
+    queryKey: ['unread_count', user?.id],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;

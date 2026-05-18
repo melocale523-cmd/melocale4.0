@@ -23,7 +23,7 @@ export default function ClientLayout() {
   const queryClient = useQueryClient();
 
   const { data: unreadCount } = useQuery({
-    queryKey: ['client_unread_count'],
+    queryKey: ['client_unread_count', user?.id],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;
