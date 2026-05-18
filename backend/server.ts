@@ -214,7 +214,7 @@ async function jobLembrete24h() {
     const { data: appointments, error } = await withTimeout(
       supabaseAdmin
         .from('appointments')
-        .select('id, title, scheduled_at, client_id, professional_id')
+        .select('id, title, scheduled_at, client_id, professional_id, professionals!inner(user_id)')
         .in('status', ['confirmed', 'scheduled'])
         .gte('scheduled_at', new Date(Date.now() + 23 * 60 * 60 * 1000).toISOString())
         .lte('scheduled_at', new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString())
@@ -226,16 +226,7 @@ async function jobLembrete24h() {
     }
 
     for (const apt of appointments ?? []) {
-      // Resolve professional user_id
-      const { data: prof } = await withTimeout(
-        supabaseAdmin
-          .from('professionals')
-          .select('user_id')
-          .eq('id', apt.professional_id)
-          .maybeSingle()
-      );
-
-      const profUserId = prof?.user_id;
+      const profUserId = (apt.professionals as unknown as { user_id: string } | null)?.user_id;
 
       // --- Notificação para o cliente ---
       // INSERT ON CONFLICT DO NOTHING via unique partial index notifications_reminder_dedup.
