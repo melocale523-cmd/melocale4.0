@@ -3,6 +3,18 @@ import { Search, X, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 
+interface Transaction {
+  id: string;
+  kind: string;
+  amount: number | null;
+  reference: string | null;
+  created_at: string;
+  professionals?: {
+    user_id?: string | null;
+    profiles?: { full_name?: string | null } | null;
+  } | null;
+}
+
 function formatKind(kind: string, reference?: string | null) {
   if (reference?.startsWith('lead_purchase:') || kind === 'debit_lead') return 'Compra de Lead';
   if (kind === 'credit_purchase' || kind === 'purchase') return 'Compra de moedas';
@@ -18,7 +30,7 @@ function kindColor(kind: string) {
 }
 
 export default function AdminTransacoes() {
-  const [selectedTx, setSelectedTx] = useState<any>(null);
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
   const [search, setSearch] = useState('');
 
   const { data: transacoes = [], isLoading } = useQuery({
@@ -36,14 +48,14 @@ export default function AdminTransacoes() {
     },
   });
 
-  const filtered = transacoes.filter((t: any) => {
+  const filtered = transacoes.filter((t: Transaction) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     const name = t.professionals?.profiles?.full_name?.toLowerCase() ?? '';
     return name.includes(q) || t.kind?.toLowerCase().includes(q) || t.reference?.toLowerCase().includes(q);
   });
 
-  const totals = transacoes.reduce((acc: Record<string, number>, t: any) => {
+  const totals = transacoes.reduce((acc: Record<string, number>, t: Transaction) => {
     acc[t.kind] = (acc[t.kind] ?? 0) + (t.amount ?? 0);
     return acc;
   }, {} as Record<string, number>);
@@ -95,7 +107,7 @@ export default function AdminTransacoes() {
               </tr>
             </thead>
             <tbody className="text-sm">
-              {filtered.map((t: any) => (
+              {filtered.map((t: Transaction) => (
                 <tr key={t.id} onClick={() => setSelectedTx(t)} className="border-b border-[#1C3050] hover:bg-slate-800/30 transition-colors cursor-pointer">
                   <td className="p-4 text-slate-300">
                     {new Date(t.created_at).toLocaleDateString('pt-BR')} {new Date(t.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
