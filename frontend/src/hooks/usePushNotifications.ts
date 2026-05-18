@@ -21,11 +21,12 @@ export function usePushNotifications() {
 
   useEffect(() => {
     if (!isSupported) return
-    navigator.serviceWorker.ready.then(reg => {
-      reg.pushManager.getSubscription().then(sub => {
-        setIsSubscribed(!!sub)
-      })
-    })
+    let cancelled = false
+    navigator.serviceWorker.ready
+      .then(reg => reg.pushManager.getSubscription())
+      .then(sub => { if (!cancelled) setIsSubscribed(!!sub) })
+      .catch(() => { if (!cancelled) setIsSubscribed(false) })
+    return () => { cancelled = true }
   }, [isSupported])
 
   async function subscribe() {
