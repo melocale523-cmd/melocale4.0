@@ -154,7 +154,7 @@ export default function RequestWizard({
       .order('name')
       .then(({ data, error }) => {
         if (error) {
-          console.error('[RequestWizard] erro ao carregar categorias:', error);
+          if (import.meta.env.DEV) console.error('[RequestWizard] erro ao carregar categorias:', error);
           toast.error('Não foi possível carregar as categorias. Usando lista padrão.');
           return;
         }

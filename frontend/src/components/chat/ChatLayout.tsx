@@ -588,7 +588,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       } else {
         toast.error('Erro ao acessar microfone. Verifique as permissões.');
       }
-      console.error(err);
+      if (import.meta.env.DEV) console.error('[startRecording]', err);
     }
   };
 

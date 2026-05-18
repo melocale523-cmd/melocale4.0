@@ -129,7 +129,7 @@ export const chatService = {
           body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId, message_preview }),
         });
       } catch (err) {
-        console.error('[sendMessage] send-event failed:', err);
+        if (import.meta.env.DEV) console.error('[sendMessage] send-event failed:', err);
       }
     }
     return data;

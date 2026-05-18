@@ -189,7 +189,7 @@ export default function ProfessionalAssinatura() {
       setBuyingId(id);
       await initiateCheckout(type, id);
     } catch (error) {
-      console.error("Checkout error:", error);
+      if (import.meta.env.DEV) console.error('[Checkout]', error);
       toast.error("Houve um erro ao processar o seu pedido. Por favor, tente novamente.");
     } finally {
       setBuyingId(null);

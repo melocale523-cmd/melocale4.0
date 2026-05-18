@@ -58,7 +58,7 @@ export const leadService = {
       .select('id,title,description,category,location,city,budget_min,budget_max,price_coins,images,event_date,expires_at,created_at,max_purchases,purchases_count');
 
     if (error) {
-      console.error('[getAvailableLeads] view error:', error.message);
+      if (import.meta.env.DEV) console.error('[getAvailableLeads] view error:', error.message);
       return [];
     }
     return data || [];

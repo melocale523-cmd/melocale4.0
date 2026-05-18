@@ -98,7 +98,7 @@ export default function ProfessionalCompras() {
         toast.error('Nenhum dado de contato disponível para este cliente.');
       }
     } catch (err) {
-      console.error('[handleContact] unexpected error:', err);
+      if (import.meta.env.DEV) console.error('[handleContact]', err);
       toast.error('Erro ao abrir contato. Tente novamente.');
     }
   };
