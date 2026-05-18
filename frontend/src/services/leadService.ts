@@ -312,22 +312,40 @@ export const proposalService = {
 
     const professionalIds = (data || []).map(p => p.professional_id).filter(Boolean);
 
-    const { data: professionals } = professionalIds.length
-      ? await supabase.from('professionals').select('id, user_id').in('id', professionalIds)
-      : { data: [] };
+    const [profRes, reviewsRes] = await Promise.all([
+      professionalIds.length
+        ? supabase.from('professionals').select('id, user_id').in('id', professionalIds)
+        : Promise.resolve({ data: [] as { id: string; user_id: string }[] }),
+      professionalIds.length
+        ? supabase.from('reviews').select('professional_id, rating').in('professional_id', professionalIds)
+        : Promise.resolve({ data: [] as { professional_id: string; rating: number }[] }),
+    ]);
 
-    const profMap = Object.fromEntries((professionals || []).map(p => [p.id, p.user_id]));
+    const profMap = Object.fromEntries((profRes.data || []).map(p => [p.id, p.user_id]));
     const userIds = Object.values(profMap).filter(Boolean);
 
     const { data: profiles } = userIds.length
       ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', userIds)
-      : { data: [] };
+      : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
 
     const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]));
+
+    // Aggregate avg rating per professional_id from reviews
+    const ratingMap: Record<string, { avg: number; total: number }> = {};
+    for (const r of reviewsRes.data || []) {
+      if (!ratingMap[r.professional_id]) ratingMap[r.professional_id] = { avg: 0, total: 0 };
+      ratingMap[r.professional_id].total += 1;
+      ratingMap[r.professional_id].avg += r.rating;
+    }
+    for (const id of Object.keys(ratingMap)) {
+      ratingMap[id].avg = ratingMap[id].avg / ratingMap[id].total;
+    }
 
     return (data || []).map(p => ({
       ...p,
       profiles: profileMap[profMap[p.professional_id]] || null,
+      avg_rating: ratingMap[p.professional_id]?.avg ?? null,
+      reviews_count: ratingMap[p.professional_id]?.total ?? 0,
     }));
   },
 

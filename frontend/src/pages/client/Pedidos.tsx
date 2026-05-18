@@ -674,12 +674,20 @@ export default function Pedidos() {
                             </div>
                             <p className="text-blue-500 font-bold text-sm">Especialista verificado</p>
                             <div className="flex items-center gap-3 mt-1">
-                              <div className="flex items-center gap-1">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <div key={i} className={cn("w-2 h-2 rounded-full", i < 4 ? "bg-amber-500" : "bg-slate-800")}></div>
-                                ))}
-                              </div>
-                              <span className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest">4.8 • {prop.lead_purchases?.professional?.completed_services || 0} serviços</span>
+                              {(prop as { avg_rating?: number | null; reviews_count?: number }).avg_rating != null ? (
+                                <>
+                                  <div className="flex items-center gap-1">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                      <div key={i} className={cn("w-2 h-2 rounded-full", i < Math.round((prop as { avg_rating: number }).avg_rating) ? "bg-amber-500" : "bg-slate-800")}></div>
+                                    ))}
+                                  </div>
+                                  <span className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest">
+                                    {((prop as { avg_rating: number }).avg_rating).toFixed(1)} • {(prop as { reviews_count?: number }).reviews_count ?? 0} avaliação{((prop as { reviews_count?: number }).reviews_count ?? 0) !== 1 ? 'ões' : ''}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-[10px] font-black text-[#4A6580] uppercase tracking-widest">Sem avaliações</span>
+                              )}
                             </div>
                           </div>
                         </div>
