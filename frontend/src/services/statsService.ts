@@ -68,6 +68,18 @@ export const adminService = {
     try {
       const limit = filters?.limit ?? 100;
 
+      // If a status filter is given, resolve matching user_ids from professionals table first
+      let allowedIds: string[] | null = null;
+      if (filters?.status) {
+        const isActive = filters.status === 'active';
+        const { data: profRows } = await supabase
+          .from('professionals')
+          .select('user_id')
+          .eq('is_active', isActive);
+        allowedIds = (profRows ?? []).map(r => r.user_id);
+        if (allowedIds.length === 0) return [];
+      }
+
       let query = supabase
         .from('profiles')
         .select('id, full_name, role, account_type, created_at, updated_at')
@@ -76,6 +88,9 @@ export const adminService = {
 
       if (filters?.role && filters.role !== 'all') {
         query = query.eq('role', filters.role);
+      }
+      if (allowedIds !== null) {
+        query = query.in('id', allowedIds);
       }
 
       const { data: profilesData, error: profilesError } = await query;
@@ -137,9 +152,6 @@ export const adminService = {
         };
       });
 
-      if (filters?.status) {
-        return mapped.filter(u => u.status === filters.status);
-      }
       return mapped;
     } catch {
       return [];
