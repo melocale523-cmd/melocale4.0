@@ -102,7 +102,7 @@ function ProfileModal({ userId, name, avatar, onClose }: {
       .then(({ data: profData }) => {
         setProf(profData);
         if (profData?.id) {
-          supabase
+          return supabase
             .from('reviews')
             .select('id, rating, comment, created_at')
             .eq('professional_id', profData.id)
@@ -110,8 +110,8 @@ function ProfileModal({ userId, name, avatar, onClose }: {
             .limit(5)
             .then(({ data }) => setReviews(data || []));
         }
-        setLoading(false);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [userId]);
 
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -390,6 +390,9 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       setMessageInput('');
       scrollToBottom();
     },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : 'Erro ao enviar mensagem. Tente novamente.');
+    },
   });
 
   const deleteChatMutation = useMutation({
@@ -399,6 +402,9 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       setActiveConversationId(null);
       setIsMenuOpen(false);
       toast.success('Conversa excluída com sucesso!');
+    },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : 'Erro ao excluir conversa. Tente novamente.');
     },
   });
 
