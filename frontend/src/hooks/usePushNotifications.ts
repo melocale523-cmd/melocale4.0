@@ -21,11 +21,12 @@ export function usePushNotifications() {
 
   useEffect(() => {
     if (!isSupported) return
-    navigator.serviceWorker.ready.then(reg => {
-      reg.pushManager.getSubscription().then(sub => {
-        setIsSubscribed(!!sub)
-      })
-    })
+    let cancelled = false
+    navigator.serviceWorker.ready
+      .then(reg => reg.pushManager.getSubscription())
+      .then(sub => { if (!cancelled) setIsSubscribed(!!sub) })
+      .catch(() => { if (!cancelled) setIsSubscribed(false) })
+    return () => { cancelled = true }
   }, [isSupported])
 
   async function subscribe() {
@@ -41,7 +42,7 @@ export function usePushNotifications() {
       })
 
       const json = sub.toJSON() as { endpoint: string; keys: { p256dh: string; auth: string } }
-      const res = await apiFetch('api/push/subscribe', {
+      const res = await apiFetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys }),
@@ -60,7 +61,7 @@ export function usePushNotifications() {
       if (!sub) return
       const endpoint = sub.endpoint
       await sub.unsubscribe()
-      await apiFetch('api/push/unsubscribe', {
+      await apiFetch('/api/push/unsubscribe', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ endpoint }),

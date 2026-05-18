@@ -111,7 +111,7 @@ function ProfileModal({ userId, name, avatar, onClose }: {
             .then(({ data }) => setReviews(data || []));
         }
       })
-      .finally(() => setLoading(false));
+      .then(() => setLoading(false), () => setLoading(false));
   }, [userId]);
 
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -360,7 +360,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
 
   // --- Queries ---
   const { data: chats, isLoading: chatsLoading } = useQuery({
-    queryKey: ['chats'],
+    queryKey: ['chats', currentUser?.id],
     queryFn: chatService.getChats,
     ...queryOptions,
   });
