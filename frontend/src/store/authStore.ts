@@ -24,11 +24,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  // auth_mode é apenas hint de navegação de UI (tab ativa). Nenhuma decisão de permissão
+  // ou rota usa este valor — todas usam user.role (vindo do Supabase via setAuth).
   currentMode: (localStorage.getItem('auth_mode') as 'client' | 'professional' | 'admin' | null) || null,
 
   setAuth: (user) => set((state) => {
-    const newMode = state.currentMode || user?.role || null;
+    // currentMode segue user.role após autenticação; localStorage só persiste preferência de UI.
+    const newMode = user?.role ?? state.currentMode ?? null;
     if (newMode) localStorage.setItem('auth_mode', newMode);
+    else localStorage.removeItem('auth_mode');
     return { user, isAuthenticated: !!user, isLoading: false, currentMode: newMode };
   }),
 

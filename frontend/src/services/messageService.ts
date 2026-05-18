@@ -83,7 +83,8 @@ export const chatService = {
       .from('messages')
       .select('id,conversation_id,body,sender_type,attachments,read_at,created_at')
       .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .range(0, 99);
     if (error) throw error;
     return data || [];
   },

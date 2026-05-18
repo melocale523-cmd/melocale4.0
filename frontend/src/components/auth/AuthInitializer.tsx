@@ -53,10 +53,10 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
           // AuthModal stores the user's selection in localStorage before redirecting.
           const pendingRole = localStorage.getItem('pending_oauth_role') as Role | null;
           localStorage.removeItem('pending_oauth_role'); // clean up before any await
-          const roleToSet: Role =
-            metaRole === 'professional' || metaRole === 'admin' ? metaRole :
-            pendingRole === 'professional' || pendingRole === 'admin' ? pendingRole :
-            'client';
+          // admin nunca deve ser atribuível via fluxo de registro do cliente.
+          const safeMetaRole: Role = metaRole === 'professional' ? 'professional' : 'client';
+          const safePendingRole: Role = pendingRole === 'professional' ? 'professional' : 'client';
+          const roleToSet: Role = metaRole ? safeMetaRole : safePendingRole;
           finalRole = roleToSet;
           await supabase.from('profiles').upsert({
             id: userId,

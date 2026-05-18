@@ -1,4 +1,5 @@
 // Trigger Render redeploy 2026-04-28
+import helmet from "helmet";
 import express, { Request, Response, NextFunction, RequestHandler } from "express";
 
 interface AuthRequest extends Request {
@@ -141,6 +142,14 @@ const chatRateLimit = rateLimit({
   message: { error: 'Limite de mensagens atingido. Tente novamente em 1 hora.' },
 });
 
+const sensitiveLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas requisições. Tente novamente em alguns minutos.' },
+});
+
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
@@ -258,6 +267,7 @@ async function jobLembrete24h() {
 export function createApp() {
   const app = express();
   app.set('trust proxy', 1);
+  app.use(helmet());
 
   const EXTRA_ORIGINS = (process.env.FRONTEND_URL ?? '')
     .split(',')
@@ -322,7 +332,7 @@ export function createApp() {
             updated_at: new Date().toISOString(),
           }, { onConflict: "user_id" });
         } catch (subErr) {
-          console.error("Erro ao gravar user_subscription:", subErr);
+          console.error("Erro ao gravar user_subscription:", subErr instanceof Error ? subErr.message : String(subErr));
         }
       }
 
@@ -340,9 +350,8 @@ export function createApp() {
       }
 
       if (userId && coinsAmount > 0) {
-        // Passo 1: creditar professional_coins com lock (RPC SECURITY DEFINER).
-        // O RPC não insere em wallet_transactions — essa responsabilidade é exclusiva
-        // do Passo 2, que usa o schema correto com user_id, kind e reference.
+        // RPC único: credita saldo e registra wallet_transaction em transação atômica.
+        // Idempotência garantida pelo RPC via stripe_event_id.
         const { error: rpcErr } = await supabaseAdmin.rpc("credit_professional_coins", {
           p_user_id: userId,
           p_amount: coinsAmount,
@@ -350,33 +359,10 @@ export function createApp() {
           p_stripe_event_id: event.id
         });
         if (rpcErr) {
-          console.error("Erro no RPC credit_professional_coins:", rpcErr);
+          console.error("Erro no RPC credit_professional_coins:", rpcErr instanceof Error ? rpcErr.message : String(rpcErr));
           return res.status(500).json({ error: "Falha ao creditar" });
         }
-
-        // Passo 2: registrar a transação (única inserção em wallet_transactions).
-        // Em caso de reentrada do webhook (Stripe retenta eventos), o unique constraint
-        // em stripe_event_id retorna 23505 — tratamos como idempotência esperada.
-        const txKind = sessionType === "subscription" ? "bonus" : "deposit";
-        const { error: txErr } = await supabaseAdmin.from("wallet_transactions").insert({
-          user_id: userId,
-          kind: txKind,
-          amount: coinsAmount,
-          reference: `Stripe — ${coinLabel} — ${session.id}`,
-          stripe_session_id: session.id,
-          stripe_event_id: event.id,
-          created_at: new Date().toISOString(),
-        });
-        if (txErr) {
-          if ((txErr as { code?: string }).code === '23505') {
-            console.log(`[webhook] evento ${event.id} já processado (idempotência) — ignorando`);
-            return res.json({ received: true });
-          }
-          console.error("Erro ao inserir wallet_transaction:", txErr);
-          return res.status(500).json({ error: "Falha ao creditar" });
-        }
-
-        if (process.env.NODE_ENV !== 'production') console.log(`[webhook] wallet_transaction registrada: userId=${userId} coins=${coinsAmount} kind=${txKind} sessionId=${session.id}`);
+        if (process.env.NODE_ENV !== 'production') console.log(`[webhook] coins creditados: userId=${userId} coins=${coinsAmount} sessionId=${session.id}`);
       }
     }
 
@@ -398,7 +384,7 @@ export function createApp() {
           .update({ status: newStatus, updated_at: new Date().toISOString() })
           .eq("stripe_subscription_id", subscription.id);
       } catch (updErr) {
-        console.error("Erro ao atualizar user_subscription:", updErr);
+        console.error("Erro ao atualizar user_subscription:", updErr instanceof Error ? updErr.message : String(updErr));
       }
     }
 
@@ -792,20 +778,27 @@ COMPORTAMENTO NESTE CONTEXTO:
   app.post("/api/create-service-payment", requireAuth, async (req: AuthRequest, res: Response) => {
     try {
       const authUser = req.authUser!;
-      const { amount, connectedAccountId, description, user_id } = req.body || {};
+      const { amount, description } = req.body || {};
 
-      if (!amount || !connectedAccountId || !user_id) {
-        return res.status(400).json({ error: "amount, connectedAccountId e user_id são obrigatórios." });
-      }
-
-      if (user_id !== authUser.id) {
-        return res.status(403).json({ error: "Não autorizado." });
+      if (!amount) {
+        return res.status(400).json({ error: "amount é obrigatório." });
       }
 
       const amountInCents = Math.round(Number(amount));
       if (isNaN(amountInCents) || amountInCents <= 0) {
         return res.status(400).json({ error: "amount deve ser um número positivo em centavos." });
       }
+
+      // Buscar stripe_account_id do profissional autenticado — nunca aceitar do body.
+      const { data: prof, error: profErr } = await supabaseAdmin
+        .from('professionals')
+        .select('stripe_account_id')
+        .eq('user_id', authUser.id)
+        .single();
+      if (profErr || !prof?.stripe_account_id) {
+        return res.status(400).json({ error: 'Conta Stripe não configurada para este profissional.' });
+      }
+      const connectedAccountId = prof.stripe_account_id;
 
       const ALLOWED_ORIGINS_SVC = [
         "https://www.melocale.com.br",
@@ -840,8 +833,8 @@ COMPORTAMENTO NESTE CONTEXTO:
           },
         },
         metadata: {
-          user_id: String(user_id),
-          connected_account_id: String(connectedAccountId),
+          user_id: authUser.id,
+          connected_account_id: connectedAccountId,
           type: "service_payment",
         },
         success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -951,7 +944,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     conversation: z.string().min(1),
   });
 
-  app.post("/api/support-ticket", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/support-ticket", sensitiveLimiter, requireAuth, async (req: Request, res: Response) => {
     const parsed = supportTicketSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
     try {
@@ -984,7 +977,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     message_preview: z.string().max(200).optional(),
   });
 
-  app.post("/api/notifications/send-event", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/notifications/send-event", sensitiveLimiter, requireAuth, async (req: Request, res: Response) => {
     const parsed = sendEventSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
@@ -1159,7 +1152,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     data: z.record(z.string(), z.unknown()).optional(),
   });
 
-  app.post("/api/notifications/push", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/notifications/push", sensitiveLimiter, requireAuth, async (req: Request, res: Response) => {
     const parsed = notifPushSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
 
@@ -1202,7 +1195,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     }),
   });
 
-  app.post("/api/push/subscribe", requireAuth, async (req: AuthRequest, res: Response) => {
+  app.post("/api/push/subscribe", sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
     const parsed = pushSubscribeSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.' });
     try {
@@ -1267,7 +1260,7 @@ COMPORTAMENTO NESTE CONTEXTO:
     metadata:    z.record(z.string(), z.string()).optional().default({}),
   });
 
-  app.post('/api/leads', requireAuth, async (req: AuthRequest, res: Response) => {
+  app.post('/api/leads', sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
     const parsed = createLeadSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
 
