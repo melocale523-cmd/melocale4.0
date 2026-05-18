@@ -1856,7 +1856,7 @@ COMPORTAMENTO NESTE CONTEXTO:
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : 500;
-    const message = err instanceof Error ? err.message : 'Erro interno';
+    const message = process.env.NODE_ENV !== 'production' && err instanceof Error ? err.message : 'Erro interno';
     res.status(status).json({ error: message });
   });
 

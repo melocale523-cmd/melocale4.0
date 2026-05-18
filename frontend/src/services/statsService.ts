@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { API_URL } from '../lib/api';
+import { apiFetch } from '../lib/api';
 
 interface LeadStatusRow { status: string }
 
@@ -111,16 +111,10 @@ export const adminService = {
       let authEmails: Record<string, string> = {};
       if (missingEmailIds.length > 0) {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const token = session?.access_token;
-          if (token) {
-            const res = await fetch(`${API_URL}/api/admin/user-emails?ids=${missingEmailIds.join(',')}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-              const json = await res.json() as { emails?: Record<string, string> };
-              authEmails = json.emails ?? {};
-            }
+          const res = await apiFetch(`/api/admin/user-emails?ids=${missingEmailIds.join(',')}`);
+          if (res.ok) {
+            const json = await res.json() as { emails?: Record<string, string> };
+            authEmails = json.emails ?? {};
           }
         } catch {}
       }

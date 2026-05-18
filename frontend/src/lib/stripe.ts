@@ -39,6 +39,11 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
     body: JSON.stringify(payload),
   });
 
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error ?? 'Erro ao iniciar o Checkout.');
+  }
+
   const session = await response.json();
 
   if (session.error) throw new Error(session.error);
@@ -56,6 +61,11 @@ export const payProfessional = async (amount: number, connectedAccountId: string
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ amount, connectedAccountId, description, user_id: user.id }),
   });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error ?? 'Erro ao processar o pagamento.');
+  }
 
   const session = await response.json();
 

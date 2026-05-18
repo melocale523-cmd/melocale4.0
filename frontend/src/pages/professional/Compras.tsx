@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/authStore';
 import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap, Camera } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
@@ -10,7 +11,8 @@ import { toast } from 'sonner';
 
 export default function ProfessionalCompras() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [proposalData, setProposalData] = useState({
@@ -24,7 +26,7 @@ export default function ProfessionalCompras() {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const { data: purchases, isLoading } = useQuery({
-    queryKey: ['purchases'],
+    queryKey: ['purchases', user?.id],
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,

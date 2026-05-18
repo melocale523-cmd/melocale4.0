@@ -102,7 +102,8 @@ export default function NotificationBell() {
   };
 
   const markRead = async (id: string) => {
-    await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    if (!user?.id) return;
+    await supabase.from('notifications').update({ is_read: true }).eq('id', id).eq('user_id', user.id);
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 
