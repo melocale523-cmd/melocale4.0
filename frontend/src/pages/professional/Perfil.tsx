@@ -236,6 +236,7 @@ export default function ProfessionalPerfil() {
                 <User className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
                 <input
                   name="name"
+                  maxLength={100}
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -264,6 +265,7 @@ export default function ProfessionalPerfil() {
                 <Phone className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
                 <input
                   name="phone"
+                  maxLength={20}
                   value={formData.phone}
                   onChange={handleChange}
                   required
@@ -323,6 +325,7 @@ export default function ProfessionalPerfil() {
             <label className="text-sm font-medium text-slate-300">Resumo Profissional / Biografia</label>
             <textarea
               name="bio"
+              maxLength={500}
               value={formData.bio}
               onChange={handleChange}
               rows={4}

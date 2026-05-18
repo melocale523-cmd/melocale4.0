@@ -73,6 +73,7 @@ export default function AdminUsuarios() {
             onChange={e => setInputSearch(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') applySearch(); }}
             placeholder="Buscar por nome..."
+            maxLength={255}
             className="w-full bg-[#1C3454] border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
           />
         </div>

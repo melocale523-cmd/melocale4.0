@@ -284,6 +284,7 @@ export default function RequestWizard({
                 <input
                   type="text"
                   placeholder="Ex: Pintura completa de apartamento"
+                  maxLength={150}
                   value={data.title}
                   onChange={e => setField('title', e.target.value)}
                   className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
@@ -501,6 +502,7 @@ export default function RequestWizard({
                 <input
                   type="text"
                   placeholder="Ex: São Paulo, SP"
+                  maxLength={100}
                   value={data.location}
                   onChange={e => setField('location', e.target.value)}
                   className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
@@ -572,6 +574,7 @@ export default function RequestWizard({
                 <textarea
                   rows={3}
                   placeholder="Conte mais detalhes — quanto mais informações, melhores serão as propostas!"
+                  maxLength={2000}
                   value={data.description}
                   onChange={e => setField('description', e.target.value)}
                   className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none"

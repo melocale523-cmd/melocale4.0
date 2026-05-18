@@ -442,7 +442,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                             <div>
                               <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
                               <input
-                                required type="text" placeholder="Como devemos te chamar?"
+                                required type="text" placeholder="Como devemos te chamar?" maxLength={100}
                                 className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
                                 value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
                               />
@@ -450,8 +450,8 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                           )}
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">E-mail de Acesso</label>
-                            <input 
-                              required type="email" placeholder="seu@email.com" 
+                            <input
+                              required type="email" placeholder="seu@email.com" maxLength={254}
                               className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
                               value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                             />
@@ -474,7 +474,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                               <input
                                 required type={showPassword ? 'text' : 'password'} placeholder="Mínimo 8 caracteres"
                                 className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 pr-12 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
-                                value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8}
+                                value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8} maxLength={128}
                               />
                               <button
                                 type="button"
@@ -525,7 +525,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">WhatsApp para Contato</label>
                             <input
-                              required type="tel" placeholder="(00) 00000-0000"
+                              required type="tel" placeholder="(00) 00000-0000" maxLength={20}
                               className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                               value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                             />
@@ -546,7 +546,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                           <div>
                             <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Cidade / Localização</label>
                             <input
-                              required type="text" placeholder="Onde você está localizado?"
+                              required type="text" placeholder="Onde você está localizado?" maxLength={100}
                               className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                               value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
                             />
@@ -586,6 +586,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                               <textarea
                                 placeholder="Descreva brevemente sua experiência e serviços..."
                                 rows={3}
+                                maxLength={500}
                                 className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none text-sm leading-relaxed"
                                 value={formData.bio}
                                 onChange={(e) => setFormData({...formData, bio: e.target.value})}

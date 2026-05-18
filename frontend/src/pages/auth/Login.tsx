@@ -388,8 +388,8 @@ export default function Login() {
                 {isSignUp && (
                   <div>
                     <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Nome Completo</label>
-                    <input 
-                      required type="text" placeholder="João da Silva" 
+                    <input
+                      required type="text" placeholder="João da Silva" maxLength={100}
                       className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                       value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
                     />
@@ -397,8 +397,8 @@ export default function Login() {
                 )}
                 <div>
                   <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">E-mail</label>
-                  <input 
-                    required type="email" placeholder="seu@email.com" 
+                  <input
+                    required type="email" placeholder="seu@email.com" maxLength={254}
                     className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
@@ -414,7 +414,7 @@ export default function Login() {
                     <input
                       required type={showPassword ? 'text' : 'password'} placeholder="••••••••"
                       className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
-                      value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8}
+                      value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8} maxLength={128}
                     />
                     <button
                       type="button"
@@ -463,7 +463,7 @@ export default function Login() {
                 <div>
                   <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">WhatsApp de Contato</label>
                   <input
-                    required type="tel" placeholder="(11) 99999-9999"
+                    required type="tel" placeholder="(11) 99999-9999" maxLength={20}
                     className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
@@ -484,7 +484,7 @@ export default function Login() {
                 <div>
                   <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Sua Cidade</label>
                   <input
-                    required type="text" placeholder="Ex: São Paulo, SP"
+                    required type="text" placeholder="Ex: São Paulo, SP" maxLength={100}
                     className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
                   />
@@ -524,6 +524,7 @@ export default function Login() {
                     <textarea
                       placeholder="Descreva brevemente sua experiência e serviços..."
                       rows={3}
+                      maxLength={500}
                       className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium resize-none text-sm leading-relaxed"
                       value={formData.bio}
                       onChange={(e) => setFormData({...formData, bio: e.target.value})}

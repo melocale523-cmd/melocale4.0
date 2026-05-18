@@ -186,6 +186,7 @@ export default function AdminSuporte() {
                           value={noteVal}
                           onChange={(e) => setNotes(prev => ({ ...prev, [ticket.id]: e.target.value }))}
                           placeholder="Adicionar nota..."
+                          maxLength={500}
                           className="flex-1 bg-[#0E1C32] border border-[#243F6A] text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 resize-none"
                         />
                         <button

@@ -98,6 +98,7 @@ export default function ReviewModal({
             value={comment}
             onChange={e => setComment(e.target.value)}
             placeholder="Conte como foi a experiência..."
+            maxLength={500}
             className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors resize-none placeholder:text-[#4A6580]"
           />
         </div>

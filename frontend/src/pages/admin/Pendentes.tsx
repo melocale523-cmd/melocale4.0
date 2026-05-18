@@ -37,12 +37,13 @@ export default function AdminPendentes() {
       <div className="flex gap-4">
         <div className="flex-1 relative group">
            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
-           <input 
-             type="text" 
+           <input
+             type="text"
              value={searchTerm}
              onChange={e => setSearchTerm(e.target.value)}
-             placeholder="Buscar por nome ou email..." 
-             className="w-full bg-[#1C3454] border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors" 
+             placeholder="Buscar por nome ou email..."
+             maxLength={255}
+             className="w-full bg-[#1C3454] border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
            />
         </div>
       </div>

@@ -180,6 +180,7 @@ export default function ProfessionalConfiguracoes() {
                 value={passwordForm.current}
                 onChange={e => setPasswordForm(f => ({ ...f, current: e.target.value }))}
                 placeholder="••••••••"
+                maxLength={128}
                 className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
             </div>
@@ -190,6 +191,7 @@ export default function ProfessionalConfiguracoes() {
                 value={passwordForm.newPass}
                 onChange={e => setPasswordForm(f => ({ ...f, newPass: e.target.value }))}
                 placeholder="Mínimo 8 caracteres"
+                maxLength={128}
                 className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
             </div>
@@ -200,6 +202,7 @@ export default function ProfessionalConfiguracoes() {
                 value={passwordForm.confirm}
                 onChange={e => setPasswordForm(f => ({ ...f, confirm: e.target.value }))}
                 placeholder="Repita a nova senha"
+                maxLength={128}
                 className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
             </div>

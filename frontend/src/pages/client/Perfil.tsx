@@ -223,6 +223,7 @@ export default function ClientePerfil() {
             <input
               name="name"
               type="text"
+              maxLength={100}
               value={formData.name}
               onChange={handleChange}
               placeholder="Seu nome completo"
@@ -260,6 +261,7 @@ export default function ClientePerfil() {
             <input
               name="phone"
               type="tel"
+              maxLength={20}
               value={formData.phone}
               onChange={handleChange}
               placeholder="(11) 99999-9999"
@@ -311,6 +313,7 @@ export default function ClientePerfil() {
             <input
               name="city"
               type="text"
+              maxLength={100}
               value={formData.city}
               onChange={handleChange}
               placeholder="Sua cidade"
