@@ -793,6 +793,81 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // POST /api/create-connected-account — cria conta Stripe Express para o profissional
+  // ============================================
+  app.post('/api/create-connected-account', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const authUser = req.authUser!;
+      const { email } = req.body || {};
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: 'email é obrigatório.' });
+      }
+
+      const account = await stripe.accounts.create({
+        type: 'express',
+        country: 'BR',
+        email,
+        capabilities: { transfers: { requested: true } },
+      });
+
+      await withTimeout(
+        supabaseAdmin.from('professionals')
+          .update({ stripe_account_id: account.id })
+          .eq('user_id', authUser.id)
+      );
+
+      return res.json({ accountId: account.id });
+    } catch (err: unknown) {
+      console.error('[stripe-connect] create-connected-account error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro ao criar conta Stripe. Tente novamente.' });
+    }
+  });
+
+  // ============================================
+  // POST /api/create-account-link — gera URL de onboarding para o profissional autenticado
+  // accountId é buscado no banco — body é ignorado para evitar spoofing.
+  // ============================================
+  app.post('/api/create-account-link', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const authUser = req.authUser!;
+
+      const { data: prof, error: profErr } = await withTimeout(
+        supabaseAdmin.from('professionals')
+          .select('stripe_account_id')
+          .eq('user_id', authUser.id)
+          .single()
+      );
+      if (profErr || !prof?.stripe_account_id) {
+        return res.status(400).json({ error: 'Conta Stripe não encontrada. Crie uma conta primeiro.' });
+      }
+
+      const ALLOWED_ORIGINS_CONNECT = [
+        'https://www.melocale.com.br',
+        'https://melocale.com.br',
+        process.env.FRONTEND_URL,
+      ].filter(Boolean) as string[];
+      const requestOriginConnect = req.headers.origin ?? '';
+      const frontendUrl = (
+        ALLOWED_ORIGINS_CONNECT.includes(requestOriginConnect)
+          ? requestOriginConnect
+          : process.env.FRONTEND_URL ?? 'https://www.melocale.com.br'
+      ).replace(/\/$/, '');
+
+      const accountLink = await stripe.accountLinks.create({
+        account: prof.stripe_account_id,
+        refresh_url: `${frontendUrl}/profissional/perfil`,
+        return_url: `${frontendUrl}/profissional/perfil`,
+        type: 'account_onboarding',
+      });
+
+      return res.json({ url: accountLink.url });
+    } catch (err: unknown) {
+      console.error('[stripe-connect] create-account-link error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro ao gerar link de onboarding. Tente novamente.' });
+    }
+  });
+
+  // ============================================
   // Stripe Checkout Session - Pagamento de serviço a profissional
   // ============================================
   app.post("/api/create-service-payment", requireAuth, async (req: AuthRequest, res: Response) => {
