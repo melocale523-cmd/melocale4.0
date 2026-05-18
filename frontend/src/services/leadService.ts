@@ -151,12 +151,16 @@ export const leadService = {
     return response.json();
   },
 
-  async updateRequest(id: string, updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number; images?: string[]; metadata?: Record<string, string> }) {
-    const { error } = await supabase
-      .from('leads')
-      .update(updates)
-      .eq('id', id);
-    if (error) throw error;
+  async updateRequest(id: string, updates: { title?: string; description?: string; images?: string[]; metadata?: Record<string, string> }) {
+    const response = await apiFetch(`/api/leads/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error((err as { error?: string }).error ?? 'Erro ao atualizar pedido');
+    }
   },
 
   async deleteRequest(id: string) {
@@ -338,62 +342,32 @@ export const proposalService = {
     return data;
   },
 
-  async respondProposal(proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada') {
-    const { error } = await supabase
-      .from('lead_purchases')
-      .update({ status })
-      .eq('id', purchaseId);
+  async respondProposal(_proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada') {
+    const action = status === 'Aceita' ? 'accept' : 'reject';
+
+    const { data, error } = await supabase.rpc('respond_proposal', {
+      p_purchase_id: purchaseId,
+      p_action: action,
+    });
 
     if (error) throw error;
 
-    if (status === 'Aceita') {
-      const { data: purchase } = await supabase
-        .from('lead_purchases')
-        .select('professional_id, client_id, lead_id, chat_id')
-        .eq('id', purchaseId)
-        .single();
+    if (!data?.success) {
+      const code = data?.error as string | undefined;
+      const messages: Record<string, string> = {
+        purchase_not_found: 'Proposta não encontrada.',
+        invalid_status: 'Esta proposta não pode ser respondida no estado atual.',
+        conversation_creation_failed: 'Erro ao criar conversa. Tente novamente.',
+      };
+      throw new Error(messages[code ?? ''] ?? 'Erro ao responder proposta.');
+    }
 
-      if (purchase) {
-        const { data: prof } = await supabase
-          .from('professionals')
-          .select('user_id')
-          .eq('id', purchase.professional_id)
-          .single();
-        const profAuthId = prof?.user_id ?? purchase.professional_id;
-        // professionals.id (FK for conversations) vs auth UUID (for notifications)
-        const profTableId = purchase.professional_id;
-
-        let chatId: string | null = purchase.chat_id ?? null;
-
-        if (!chatId) {
-          const leadId = purchase.lead_id ?? null;
-
-          // Upsert elimina TOCTOU: ON CONFLICT DO UPDATE SET client_id = EXCLUDED.client_id
-          // garante que RETURNING sempre retorna o id, seja novo ou existente.
-          const { data: conv } = await supabase
-            .from('conversations')
-            .upsert(
-              { professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId },
-              { onConflict: 'professional_id,lead_id', ignoreDuplicates: false }
-            )
-            .select('id')
-            .single();
-          chatId = conv?.id ?? null;
-
-          if (chatId) {
-            await supabase
-              .from('lead_purchases')
-              .update({ chat_id: chatId })
-              .eq('id', purchaseId);
-          }
-        }
-
-        void apiFetch('/api/notifications/send-event', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_type: 'proposal_accepted', resource_id: purchaseId }),
-        });
-      }
+    if (action === 'accept') {
+      void apiFetch('/api/notifications/send-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: 'proposal_accepted', resource_id: purchaseId }),
+      });
     }
 
     return true;
