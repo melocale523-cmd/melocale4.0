@@ -87,6 +87,7 @@ export default function ProfessionalLayout() {
   }, [queryClient]);
 
   const handleLogout = async () => {
+    logout();
     await supabase.auth.signOut();
     navigate('/');
   };
@@ -273,7 +274,7 @@ export default function ProfessionalLayout() {
                   </button>
                   <div className="border-t border-slate-200 dark:border-[#1C3050] my-1" />
                   <button
-                    onClick={() => { setMenuOpen(false); supabase.auth.signOut(); navigate('/'); }}
+                    onClick={() => { setMenuOpen(false); handleLogout(); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left"
                   >
                     <LogOut size={16} className="shrink-0" />
