@@ -1333,6 +1333,43 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // PATCH /api/leads/:id — editar pedido do próprio cliente
+  // ============================================
+  const updateLeadSchema = z.object({
+    title:       z.string().min(1).max(200).optional(),
+    description: z.string().max(2000).optional(),
+    images:      z.array(z.string().url()).max(10).optional(),
+    metadata:    z.record(z.string(), z.string()).optional(),
+  });
+
+  app.patch('/api/leads/:id', sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
+    const parsed = updateLeadSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+
+    try {
+      const userId = req.authUser!.id;
+      const leadId = req.params.id;
+
+      const { data: existing, error: fetchErr } = await withTimeout(
+        supabaseAdmin.from('leads').select('client_id').eq('id', leadId).maybeSingle()
+      );
+      if (fetchErr || !existing) return res.status(404).json({ error: 'Pedido não encontrado.' });
+      if (existing.client_id !== userId) return res.status(403).json({ error: 'Não autorizado.' });
+
+      const updates = parsed.data;
+      const { error } = await withTimeout(
+        supabaseAdmin.from('leads').update(updates).eq('id', leadId)
+      );
+      if (error) throw error;
+
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('/api/leads PATCH error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno ao atualizar pedido.' });
+    }
+  });
+
+  // ============================================
   // PATCH /api/admin/professional-status
   // ============================================
   app.patch('/api/admin/professional-status', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
