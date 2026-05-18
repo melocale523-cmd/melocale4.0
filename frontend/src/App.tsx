@@ -142,6 +142,25 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
   return <>{children}</>;
 }
 
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
+        <Loader2 className="animate-spin mb-4" size={40} />
+        <p className="text-[#94A3B8] font-medium">Verificando acesso...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 function AuthRedirect({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading } = useAuthStore();
 
@@ -175,11 +194,11 @@ const router = createBrowserRouter([
       },
       {
         path: '/checkout/success',
-        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><CheckoutSuccess /></Suspense></ErrorBoundary>
+        element: <AuthGuard><ErrorBoundary><Suspense fallback={<PageLoader />}><CheckoutSuccess /></Suspense></ErrorBoundary></AuthGuard>
       },
       {
         path: '/checkout/cancel',
-        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><CheckoutCancel /></Suspense></ErrorBoundary>
+        element: <AuthGuard><ErrorBoundary><Suspense fallback={<PageLoader />}><CheckoutCancel /></Suspense></ErrorBoundary></AuthGuard>
       },
       {
         path: '/termos',
