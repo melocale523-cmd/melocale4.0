@@ -9,14 +9,14 @@ export function useDashboardData() {
   const { data: profile, isLoading: profileLoading } = useProfile();
 
   const { data: balance, isLoading: balanceLoading } = useQuery({
-    queryKey: ['walletBalance'],
+    queryKey: ['walletBalance', user?.id],
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: walletService.getBalance,
   });
 
   const { data: purchases, isLoading: purchasesLoading } = useQuery({
-    queryKey: ['myPurchases'],
+    queryKey: ['myPurchases', user?.id],
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,

@@ -80,6 +80,7 @@ export default function ProfessionalAgenda() {
   const [proposeModalAppt, setProposeModalAppt] = useState<Appointment | null>(null);
   const [proposeDate, setProposeDate] = useState('');
   const [proposeTime, setProposeTime] = useState('');
+  const [cancelTarget, setCancelTarget] = useState<{ id: string; clientId: string } | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -260,6 +261,8 @@ export default function ProfessionalAgenda() {
     proposeMutation.mutate({ appt: proposeModalAppt, proposedAt });
   };
 
+  const today = format(new Date(), 'yyyy-MM-dd');
+
   const openDetails = (app: Appointment) => { setViewingAppointment(app); setDetailsModalOpen(true); };
   const openModalForDate = (date: Date) => {
     setFormData(f => ({ ...f, date: format(date, 'yyyy-MM-dd') }));
@@ -425,7 +428,7 @@ export default function ProfessionalAgenda() {
                           </span>
                           {isActive(app.status) && (
                             <button
-                              onClick={() => handleUpdateStatus(app.id, 'cancelled', app.client_id)}
+                              onClick={() => setCancelTarget({ id: app.id, clientId: app.client_id })}
                               className="p-2 text-[#4A6580] hover:text-red-500 transition-colors"
                               title="Cancelar"
                             >
@@ -525,7 +528,7 @@ export default function ProfessionalAgenda() {
                         <Clock size={12} /> {format(new Date(app.scheduled_at), 'HH:mm')}
                       </div>
                       {isActive(app.status) && (
-                        <button onClick={() => handleUpdateStatus(app.id, 'cancelled', app.client_id)} className="text-slate-700 hover:text-red-500 transition-colors">
+                        <button onClick={() => setCancelTarget({ id: app.id, clientId: app.client_id })} className="text-slate-700 hover:text-red-500 transition-colors">
                           <X size={14} />
                         </button>
                       )}
@@ -741,7 +744,7 @@ export default function ProfessionalAgenda() {
                       <RefreshCw size={16} /> Propor Nova Data
                     </button>
                     <button
-                      onClick={() => handleUpdateStatus(viewingAppointment.id, 'cancelled', viewingAppointment.client_id)}
+                      onClick={() => { setCancelTarget({ id: viewingAppointment.id, clientId: viewingAppointment.client_id }); setDetailsModalOpen(false); }}
                       disabled={anyPending}
                       className="flex-1 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-2xl border border-red-500/20 transition-all disabled:opacity-50"
                     >
@@ -786,6 +789,7 @@ export default function ProfessionalAgenda() {
                 <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-1 block">Nova Data</label>
                 <input
                   type="date"
+                  min={today}
                   value={proposeDate}
                   onChange={e => setProposeDate(e.target.value)}
                   className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
@@ -815,6 +819,40 @@ export default function ProfessionalAgenda() {
                 className="px-4 py-3 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
               >
                 Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {cancelTarget && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setCancelTarget(null)} />
+          <div className="relative bg-[#1C3454] border border-red-500/30 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-500/10 rounded-xl">
+                <AlertTriangle size={20} className="text-red-400" />
+              </div>
+              <h3 className="text-base font-bold text-white">Cancelar Agendamento</h3>
+            </div>
+            <p className="text-sm text-[#94A3B8] mb-6">
+              Tem certeza que deseja cancelar este agendamento? O cliente será notificado.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCancelTarget(null)}
+                className="flex-1 py-3 text-[#94A3B8] hover:text-white text-sm font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
+              >
+                Voltar
+              </button>
+              <button
+                onClick={() => { handleUpdateStatus(cancelTarget.id, 'cancelled', cancelTarget.clientId); setCancelTarget(null); }}
+                disabled={updateMutation.isPending}
+                className="flex-1 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {updateMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
+                Cancelar agendamento
               </button>
             </div>
           </div>
@@ -889,6 +927,7 @@ export default function ProfessionalAgenda() {
                   <input
                     type="date"
                     required
+                    min={today}
                     value={formData.date}
                     onChange={e => setFormData({ ...formData, date: e.target.value })}
                     className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"

@@ -58,6 +58,7 @@ export default function AdminLayout() {
   });
 
   const handleLogout = async () => {
+    logout();
     await supabase.auth.signOut();
     navigate('/login');
   };

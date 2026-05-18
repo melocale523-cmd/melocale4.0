@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
-import { walletService, adminService, subscriptionService } from '../../services/dbServices';
+import { walletService, subscriptionService } from '../../services/dbServices';
 import { initiateCheckout } from '../../lib/stripe';
 import { apiFetch } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
@@ -168,19 +168,6 @@ export default function ProfessionalAssinatura() {
     },
   });
 
-  useQuery({
-    queryKey: ['coinPackages'],
-    retry: false,
-    refetchOnWindowFocus: false,
-    queryFn: async () => {
-      try {
-        const data = await adminService.getCoinPackages();
-        return (data || []).sort((a: any, b: any) => (a.price || 0) - (b.price || 0));
-      } catch {
-        return [];
-      }
-    }
-  });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -202,7 +189,7 @@ export default function ProfessionalAssinatura() {
       setBuyingId(id);
       await initiateCheckout(type, id);
     } catch (error) {
-      console.error("Checkout error:", error);
+      if (import.meta.env.DEV) console.error('[Checkout]', error);
       toast.error("Houve um erro ao processar o seu pedido. Por favor, tente novamente.");
     } finally {
       setBuyingId(null);

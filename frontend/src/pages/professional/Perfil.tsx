@@ -370,22 +370,13 @@ export default function ProfessionalPerfil() {
           <button
             onClick={async () => {
               try {
-                const res = await apiFetch('/api/create-connected-account', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: user?.email }),
-                });
-                const { accountId } = await res.json();
-                const linkRes = await apiFetch('/api/create-account-link', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ accountId }),
-                });
-                const { url } = await linkRes.json();
+                const { connectProfessionalAccount, createOnboardingLink } = await import('../../lib/stripeConnect');
+                await connectProfessionalAccount(user?.email ?? '');
+                const { url } = await createOnboardingLink();
                 window.location.href = url;
               } catch (e) {
-                console.error('Stripe Connect Error:', e);
-                alert('Erro ao iniciar conexão com Stripe.');
+                if (import.meta.env.DEV) console.error('[Stripe Connect]', e);
+                toast.error(e instanceof Error ? e.message : 'Erro ao iniciar conexão com Stripe.');
               }
             }}
             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"

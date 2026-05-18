@@ -6,14 +6,23 @@ export const connectProfessionalAccount = async (email: string) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   });
-  return response.json();
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || `HTTP ${response.status}`);
+  }
+  return response.json() as Promise<{ accountId: string }>;
 };
 
-export const createOnboardingLink = async (accountId: string) => {
+// accountId is no longer sent in the body — the backend fetches it from DB
+// using the authenticated user's identity, preventing spoofing.
+export const createOnboardingLink = async () => {
   const response = await apiFetch('/api/create-account-link', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accountId }),
   });
-  return response.json();
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || `HTTP ${response.status}`);
+  }
+  return response.json() as Promise<{ url: string }>;
 };

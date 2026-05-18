@@ -24,7 +24,7 @@ export default function NotificationBell() {
   const hasBeenOpened = useRef(false);
 
   const { data: notifications = [] } = useQuery<Notification[]>({
-    queryKey: ['notifications'],
+    queryKey: ['notifications', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       const { data } = await supabase

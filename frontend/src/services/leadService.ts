@@ -58,7 +58,7 @@ export const leadService = {
       .select('id,title,description,category,location,city,budget_min,budget_max,price_coins,images,event_date,expires_at,created_at,max_purchases,purchases_count');
 
     if (error) {
-      console.error('[getAvailableLeads] view error:', error.message);
+      if (import.meta.env.DEV) console.error('[getAvailableLeads] view error:', error.message);
       return [];
     }
     return data || [];
@@ -151,12 +151,16 @@ export const leadService = {
     return response.json();
   },
 
-  async updateRequest(id: string, updates: { title: string; description: string; category: string; location: string; budget_min: number; budget_max: number; images?: string[]; metadata?: Record<string, string> }) {
-    const { error } = await supabase
-      .from('leads')
-      .update(updates)
-      .eq('id', id);
-    if (error) throw error;
+  async updateRequest(id: string, updates: { title?: string; description?: string; images?: string[]; metadata?: Record<string, string> }) {
+    const response = await apiFetch(`/api/leads/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error((err as { error?: string }).error ?? 'Erro ao atualizar pedido');
+    }
   },
 
   async deleteRequest(id: string) {
@@ -183,7 +187,7 @@ export const leadService = {
 
       return {
         waiting: userRequests.filter((r: LeadStatusRow) => r.status === 'open' || r.status === 'aberto').length,
-        in_progress: userRequests.filter((r: LeadStatusRow) => r.status === 'orçando').length,
+        in_progress: userRequests.filter((r: LeadStatusRow) => r.status === 'available').length,
         orcando: userRequests.filter((r: LeadStatusRow) => r.status === 'orçando').length,
         finalizado: userRequests.filter((r: LeadStatusRow) => r.status === 'finalizado').length,
       };
@@ -308,22 +312,40 @@ export const proposalService = {
 
     const professionalIds = (data || []).map(p => p.professional_id).filter(Boolean);
 
-    const { data: professionals } = professionalIds.length
-      ? await supabase.from('professionals').select('id, user_id').in('id', professionalIds)
-      : { data: [] };
+    const [profRes, reviewsRes] = await Promise.all([
+      professionalIds.length
+        ? supabase.from('professionals').select('id, user_id').in('id', professionalIds)
+        : Promise.resolve({ data: [] as { id: string; user_id: string }[] }),
+      professionalIds.length
+        ? supabase.from('reviews').select('professional_id, rating').in('professional_id', professionalIds)
+        : Promise.resolve({ data: [] as { professional_id: string; rating: number }[] }),
+    ]);
 
-    const profMap = Object.fromEntries((professionals || []).map(p => [p.id, p.user_id]));
+    const profMap = Object.fromEntries((profRes.data || []).map(p => [p.id, p.user_id]));
     const userIds = Object.values(profMap).filter(Boolean);
 
     const { data: profiles } = userIds.length
       ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', userIds)
-      : { data: [] };
+      : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
 
     const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]));
+
+    // Aggregate avg rating per professional_id from reviews
+    const ratingMap: Record<string, { avg: number; total: number }> = {};
+    for (const r of reviewsRes.data || []) {
+      if (!ratingMap[r.professional_id]) ratingMap[r.professional_id] = { avg: 0, total: 0 };
+      ratingMap[r.professional_id].total += 1;
+      ratingMap[r.professional_id].avg += r.rating;
+    }
+    for (const id of Object.keys(ratingMap)) {
+      ratingMap[id].avg = ratingMap[id].avg / ratingMap[id].total;
+    }
 
     return (data || []).map(p => ({
       ...p,
       profiles: profileMap[profMap[p.professional_id]] || null,
+      avg_rating: ratingMap[p.professional_id]?.avg ?? null,
+      reviews_count: ratingMap[p.professional_id]?.total ?? 0,
     }));
   },
 
@@ -338,62 +360,32 @@ export const proposalService = {
     return data;
   },
 
-  async respondProposal(proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada') {
-    const { error } = await supabase
-      .from('lead_purchases')
-      .update({ status })
-      .eq('id', purchaseId);
+  async respondProposal(_proposalId: string, purchaseId: string, status: 'Aceita' | 'Recusada') {
+    const action = status === 'Aceita' ? 'accept' : 'reject';
+
+    const { data, error } = await supabase.rpc('respond_proposal', {
+      p_purchase_id: purchaseId,
+      p_action: action,
+    });
 
     if (error) throw error;
 
-    if (status === 'Aceita') {
-      const { data: purchase } = await supabase
-        .from('lead_purchases')
-        .select('professional_id, client_id, lead_id, chat_id')
-        .eq('id', purchaseId)
-        .single();
+    if (!data?.success) {
+      const code = data?.error as string | undefined;
+      const messages: Record<string, string> = {
+        purchase_not_found: 'Proposta não encontrada.',
+        invalid_status: 'Esta proposta não pode ser respondida no estado atual.',
+        conversation_creation_failed: 'Erro ao criar conversa. Tente novamente.',
+      };
+      throw new Error(messages[code ?? ''] ?? 'Erro ao responder proposta.');
+    }
 
-      if (purchase) {
-        const { data: prof } = await supabase
-          .from('professionals')
-          .select('user_id')
-          .eq('id', purchase.professional_id)
-          .single();
-        const profAuthId = prof?.user_id ?? purchase.professional_id;
-        // professionals.id (FK for conversations) vs auth UUID (for notifications)
-        const profTableId = purchase.professional_id;
-
-        let chatId: string | null = purchase.chat_id ?? null;
-
-        if (!chatId) {
-          const leadId = purchase.lead_id ?? null;
-
-          // Upsert elimina TOCTOU: ON CONFLICT DO UPDATE SET client_id = EXCLUDED.client_id
-          // garante que RETURNING sempre retorna o id, seja novo ou existente.
-          const { data: conv } = await supabase
-            .from('conversations')
-            .upsert(
-              { professional_id: profTableId, client_id: purchase.client_id, lead_id: leadId },
-              { onConflict: 'professional_id,lead_id', ignoreDuplicates: false }
-            )
-            .select('id')
-            .single();
-          chatId = conv?.id ?? null;
-
-          if (chatId) {
-            await supabase
-              .from('lead_purchases')
-              .update({ chat_id: chatId })
-              .eq('id', purchaseId);
-          }
-        }
-
-        void apiFetch('/api/notifications/send-event', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_type: 'proposal_accepted', resource_id: purchaseId }),
-        });
-      }
+    if (action === 'accept') {
+      void apiFetch('/api/notifications/send-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: 'proposal_accepted', resource_id: purchaseId }),
+      });
     }
 
     return true;

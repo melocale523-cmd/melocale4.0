@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit2, XCircle, Loader2 } from 'lucide-react';
+import { Plus, Edit2, XCircle, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../services/dbServices';
 import { toast } from 'sonner';
@@ -15,12 +15,13 @@ export default function AdminPacotes() {
   });
 
   const toggleStatusMutation = useMutation({
-    mutationFn: ({ id }: { id: string }) => adminService.updateCoinPackage(id, {}),
+    mutationFn: ({ id, currentActive }: { id: string; currentActive: boolean }) =>
+      adminService.updateCoinPackage(id, { is_active: !currentActive }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminPacotes'] });
       toast.success('Pacote atualizado com sucesso');
     },
-    onError: (error: any) => toast.error(error.message)
+    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'Erro ao atualizar pacote'),
   });
 
   return (
@@ -52,8 +53,8 @@ export default function AdminPacotes() {
                <div className="flex justify-between items-start mb-6 z-10 relative">
                   <div>
                     <h3 className="text-xl font-bold text-white">{pacote.name}</h3>
-                    <span className={`inline-block mt-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border bg-emerald-500/10 text-emerald-500 border-emerald-500/20`}>
-                      Ativo
+                    <span className={`inline-block mt-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border ${pacote.is_active ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                      {pacote.is_active ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
                   <div className="text-right">
@@ -78,8 +79,16 @@ export default function AdminPacotes() {
                 </div>
 
                <div className="flex items-center gap-3 mt-auto pt-6 border-t border-[#1C3050] z-10 relative">
-                  <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-colors text-sm font-medium">
+                  <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-colors text-sm font-medium">
                     <Edit2 size={16} /> Editar
+                  </button>
+                  <button
+                    onClick={() => toggleStatusMutation.mutate({ id: pacote.id, currentActive: pacote.is_active })}
+                    disabled={toggleStatusMutation.isPending}
+                    className={`flex items-center justify-center gap-1 py-2.5 px-3 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 ${pacote.is_active ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'}`}
+                    title={pacote.is_active ? 'Desativar' : 'Ativar'}
+                  >
+                    {toggleStatusMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : pacote.is_active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
                   </button>
                </div>
              </div>

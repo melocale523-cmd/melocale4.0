@@ -89,11 +89,13 @@ export const chatService = {
     return data || [];
   },
 
-  async sendMessage(conversationId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string, role?: 'client' | 'professional') {
+  async sendMessage(conversationId: string, text: string, type: string = 'text', fileName?: string, recipientId?: string, role: 'client' | 'professional' = 'client') {
+    if (role !== 'client' && role !== 'professional') {
+      throw new Error(`sender_type inválido: '${role}'. Deve ser 'client' ou 'professional'.`);
+    }
     const { data: { user } } = await supabase.auth.getUser();
 
-    // role is passed by callers who already know it (eliminates the extra DB round-trip).
-    const senderType = role ?? 'user';
+    const senderType = role;
 
     const { data, error } = await supabase
       .from('messages')
@@ -127,7 +129,7 @@ export const chatService = {
           body: JSON.stringify({ event_type: 'message_sent', resource_id: conversationId, message_preview }),
         });
       } catch (err) {
-        console.error('[sendMessage] send-event failed:', err);
+        if (import.meta.env.DEV) console.error('[sendMessage] send-event failed:', err);
       }
     }
     return data;

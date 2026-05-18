@@ -15,9 +15,9 @@ interface Category {
 
 function toSlug(name: string): string {
   return name
-    .toLowerCase()
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
     .replace(/[^a-z0-9]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');

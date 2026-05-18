@@ -121,11 +121,20 @@ const PLANS: Record<string, {
 };
 
 async function loadCoinPackages() {
-  const { data } = await supabaseAdmin.from('coin_packages')
-    .select('id, name, coins, price').eq('is_active', true);
-  if (data?.length) {
-    coinPackagesCache = Object.fromEntries(data.map((p: { id: string; name: string; coins: number; price: number }) => [p.id, p]));
-    console.log('[startup] coin packages loaded:', Object.keys(coinPackagesCache));
+  try {
+    const { data, error } = await supabaseAdmin.from('coin_packages')
+      .select('id, name, coins, price').eq('is_active', true);
+    if (error) {
+      console.error('[startup] loadCoinPackages error:', error.message);
+      return;
+    }
+    if (data?.length) {
+      coinPackagesCache = Object.fromEntries(data.map((p: { id: string; name: string; coins: number; price: number }) => [p.id, p]));
+      console.log('[startup] coin packages loaded:', Object.keys(coinPackagesCache));
+    }
+  } catch (err) {
+    console.error('[startup] loadCoinPackages exception:', err instanceof Error ? err.message : String(err));
+    // manter cache anterior em memória; não propagar — servidor continua de pé
   }
 }
 
@@ -154,11 +163,22 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
 
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Token inválido' });
+  try {
+    const { data: { user }, error } = await withTimeout(
+      supabaseAdmin.auth.getUser(token),
+      8000
+    );
+    if (error || !user) return res.status(401).json({ error: 'Token inválido' });
 
-  (req as AuthRequest).authUser = user as { id: string; email: string; role: string };
-  next();
+    (req as AuthRequest).authUser = user as { id: string; email: string; role: string };
+    next();
+  } catch (err) {
+    const isTimeout = err instanceof Error && err.message.startsWith('Request timeout');
+    console.error('[requireAuth] erro:', err instanceof Error ? err.message : String(err));
+    return res.status(isTimeout ? 503 : 500).json({
+      error: isTimeout ? 'Serviço de autenticação indisponível. Tente novamente.' : 'Erro interno de autenticação.',
+    });
+  }
 }
 
 const requireAdmin: RequestHandler = async (req, res, next) => {
@@ -194,7 +214,7 @@ async function jobLembrete24h() {
     const { data: appointments, error } = await withTimeout(
       supabaseAdmin
         .from('appointments')
-        .select('id, title, scheduled_at, client_id, professional_id')
+        .select('id, title, scheduled_at, client_id, professional_id, professionals!inner(user_id)')
         .in('status', ['confirmed', 'scheduled'])
         .gte('scheduled_at', new Date(Date.now() + 23 * 60 * 60 * 1000).toISOString())
         .lte('scheduled_at', new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString())
@@ -206,16 +226,7 @@ async function jobLembrete24h() {
     }
 
     for (const apt of appointments ?? []) {
-      // Resolve professional user_id
-      const { data: prof } = await withTimeout(
-        supabaseAdmin
-          .from('professionals')
-          .select('user_id')
-          .eq('id', apt.professional_id)
-          .maybeSingle()
-      );
-
-      const profUserId = prof?.user_id;
+      const profUserId = (apt.professionals as unknown as { user_id: string } | null)?.user_id;
 
       // --- Notificação para o cliente ---
       // INSERT ON CONFLICT DO NOTHING via unique partial index notifications_reminder_dedup.
@@ -773,6 +784,81 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // POST /api/create-connected-account — cria conta Stripe Express para o profissional
+  // ============================================
+  app.post('/api/create-connected-account', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const authUser = req.authUser!;
+      const { email } = req.body || {};
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: 'email é obrigatório.' });
+      }
+
+      const account = await stripe.accounts.create({
+        type: 'express',
+        country: 'BR',
+        email,
+        capabilities: { transfers: { requested: true } },
+      });
+
+      await withTimeout(
+        supabaseAdmin.from('professionals')
+          .update({ stripe_account_id: account.id })
+          .eq('user_id', authUser.id)
+      );
+
+      return res.json({ accountId: account.id });
+    } catch (err: unknown) {
+      console.error('[stripe-connect] create-connected-account error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro ao criar conta Stripe. Tente novamente.' });
+    }
+  });
+
+  // ============================================
+  // POST /api/create-account-link — gera URL de onboarding para o profissional autenticado
+  // accountId é buscado no banco — body é ignorado para evitar spoofing.
+  // ============================================
+  app.post('/api/create-account-link', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const authUser = req.authUser!;
+
+      const { data: prof, error: profErr } = await withTimeout(
+        supabaseAdmin.from('professionals')
+          .select('stripe_account_id')
+          .eq('user_id', authUser.id)
+          .single()
+      );
+      if (profErr || !prof?.stripe_account_id) {
+        return res.status(400).json({ error: 'Conta Stripe não encontrada. Crie uma conta primeiro.' });
+      }
+
+      const ALLOWED_ORIGINS_CONNECT = [
+        'https://www.melocale.com.br',
+        'https://melocale.com.br',
+        process.env.FRONTEND_URL,
+      ].filter(Boolean) as string[];
+      const requestOriginConnect = req.headers.origin ?? '';
+      const frontendUrl = (
+        ALLOWED_ORIGINS_CONNECT.includes(requestOriginConnect)
+          ? requestOriginConnect
+          : process.env.FRONTEND_URL ?? 'https://www.melocale.com.br'
+      ).replace(/\/$/, '');
+
+      const accountLink = await stripe.accountLinks.create({
+        account: prof.stripe_account_id,
+        refresh_url: `${frontendUrl}/profissional/perfil`,
+        return_url: `${frontendUrl}/profissional/perfil`,
+        type: 'account_onboarding',
+      });
+
+      return res.json({ url: accountLink.url });
+    } catch (err: unknown) {
+      console.error('[stripe-connect] create-account-link error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro ao gerar link de onboarding. Tente novamente.' });
+    }
+  });
+
+  // ============================================
   // Stripe Checkout Session - Pagamento de serviço a profissional
   // ============================================
   app.post("/api/create-service-payment", requireAuth, async (req: AuthRequest, res: Response) => {
@@ -1313,6 +1399,43 @@ COMPORTAMENTO NESTE CONTEXTO:
   });
 
   // ============================================
+  // PATCH /api/leads/:id — editar pedido do próprio cliente
+  // ============================================
+  const updateLeadSchema = z.object({
+    title:       z.string().min(1).max(200).optional(),
+    description: z.string().max(2000).optional(),
+    images:      z.array(z.string().url()).max(10).optional(),
+    metadata:    z.record(z.string(), z.string()).optional(),
+  });
+
+  app.patch('/api/leads/:id', sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
+    const parsed = updateLeadSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+
+    try {
+      const userId = req.authUser!.id;
+      const leadId = req.params.id;
+
+      const { data: existing, error: fetchErr } = await withTimeout(
+        supabaseAdmin.from('leads').select('client_id').eq('id', leadId).maybeSingle()
+      );
+      if (fetchErr || !existing) return res.status(404).json({ error: 'Pedido não encontrado.' });
+      if (existing.client_id !== userId) return res.status(403).json({ error: 'Não autorizado.' });
+
+      const updates = parsed.data;
+      const { error } = await withTimeout(
+        supabaseAdmin.from('leads').update(updates).eq('id', leadId)
+      );
+      if (error) throw error;
+
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('/api/leads PATCH error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno ao atualizar pedido.' });
+    }
+  });
+
+  // ============================================
   // PATCH /api/admin/professional-status
   // ============================================
   app.patch('/api/admin/professional-status', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
@@ -1329,6 +1452,31 @@ COMPORTAMENTO NESTE CONTEXTO:
       return res.json({ ok: true });
     } catch (err: unknown) {
       console.error('/api/admin/professional-status error:', err instanceof Error ? err.message : String(err));
+      return res.status(500).json({ error: 'Erro interno.' });
+    }
+  });
+
+  // ============================================
+  // DELETE /api/admin/professionals/:userId — rejeitar profissional pendente
+  // Remove o registro de professionals e reverte role para 'client'.
+  // ============================================
+  app.delete('/api/admin/professionals/:userId', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+    try {
+      const { userId } = req.params;
+
+      const { error: delErr } = await withTimeout(
+        supabaseAdmin.from('professionals').delete().eq('user_id', userId)
+      );
+      if (delErr) throw delErr;
+
+      const { error: roleErr } = await withTimeout(
+        supabaseAdmin.from('profiles').update({ role: 'client' }).eq('id', userId)
+      );
+      if (roleErr) throw roleErr;
+
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('/api/admin/professionals DELETE error:', err instanceof Error ? err.message : String(err));
       return res.status(500).json({ error: 'Erro interno.' });
     }
   });
