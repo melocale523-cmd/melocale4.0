@@ -39,6 +39,8 @@ export default function ProfessionalConfiguracoes() {
           newLead: data.email_new_lead,
           messages: data.email_messages,
           promotions: data.push_enabled,
+          appointmentConfirmed: data.appointment_confirmed,
+          appointmentCancelled: data.appointment_cancelled,
         }));
       }
     }
@@ -59,6 +61,8 @@ export default function ProfessionalConfiguracoes() {
           email_new_lead: notifications.newLead,
           email_messages: notifications.messages,
           push_enabled: notifications.promotions,
+          appointment_confirmed: notifications.appointmentConfirmed,
+          appointment_cancelled: notifications.appointmentCancelled,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
       if (error) throw error;
