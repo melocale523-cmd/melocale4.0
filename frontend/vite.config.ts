@@ -4,7 +4,10 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig(({ mode: _mode }) => {
+export default defineConfig(({ mode }) => {
+  if (mode === 'production' && !process.env.VITE_API_URL) {
+    throw new Error('VITE_API_URL deve estar definido em builds de produção. O Service Worker não funcionará sem ele.');
+  }
   return {
     plugins: [
       react(),
