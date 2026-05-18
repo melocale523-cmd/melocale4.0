@@ -76,7 +76,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
           setAuth({ id: userId, professionalId, email: session.user.email || '', role: finalRole });
         }
       } catch (err) {
-        console.error('AuthInitializer: critical failure', err);
+        if (import.meta.env.DEV) console.error('AuthInitializer: critical failure', err);
         if (isMounted) {
           currentUserIdRef.current = userId;
           setAuth({ id: userId, email: session.user.email || '', role: 'client' });
