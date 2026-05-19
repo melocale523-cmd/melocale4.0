@@ -4,7 +4,7 @@ test.describe('Fluxo completo — cliente cria pedido', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('input[type="email"]', 'anajuliasantos@gmail.com');
-    await page.fill('input[type="password"]', '123456789');
+    await page.fill('input[type="password"]', process.env.E2E_CLIENT_PASSWORD ?? '');
     await page.click('button[type="submit"]');
     await page.waitForURL(/cliente/, { timeout: 10000 });
   });
@@ -23,7 +23,7 @@ test.describe('Fluxo completo — profissional vê leads', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('input[type="email"]', 'jogersantos@gmail.com');
-    await page.fill('input[type="password"]', '123456789');
+    await page.fill('input[type="password"]', process.env.E2E_PROF_PASSWORD ?? '');
     await page.click('button[type="submit"]');
     await page.waitForURL(/profissional/, { timeout: 10000 });
   });

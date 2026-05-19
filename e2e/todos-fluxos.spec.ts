@@ -1,18 +1,18 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
-async function loginCliente(page: any) {
+async function loginCliente(page: Page) {
   await page.goto('/login');
   await page.fill('input[type="email"]', 'anajuliasantos@gmail.com');
-  await page.fill('input[type="password"]', '123456789');
+  await page.fill('input[type="password"]', process.env.E2E_CLIENT_PASSWORD ?? '');
   await page.click('button[type="submit"]');
   await page.waitForURL(/cliente/, { timeout: 15000 });
 }
 
-async function loginProfissional(page: any) {
+async function loginProfissional(page: Page) {
   await page.goto('/login');
   await page.fill('input[type="email"]', 'jogersantos@gmail.com');
-  await page.fill('input[type="password"]', '123456789');
+  await page.fill('input[type="password"]', process.env.E2E_PROF_PASSWORD ?? '');
   await page.click('button[type="submit"]');
   await page.waitForURL(/profissional/, { timeout: 15000 });
 }
@@ -129,7 +129,7 @@ test.describe('Admin', () => {
     // Admin usa login do profissional de teste (ajustar se houver usuário admin dedicado)
     await page.goto('/login');
     await page.fill('input[type="email"]', 'jogersantos@gmail.com');
-    await page.fill('input[type="password"]', '123456789');
+    await page.fill('input[type="password"]', process.env.E2E_PROF_PASSWORD ?? '');
     await page.click('button[type="submit"]');
     await page.waitForTimeout(3000);
   });

@@ -5,9 +5,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const fromCalls: Array<{ table: string; op: string; data?: unknown }> = [];
 
-function makeChain(resolvedData: unknown = null, resolvedError: unknown = null) {
+interface MockChain {
+  select: ReturnType<typeof vi.fn>;
+  insert: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  single: ReturnType<typeof vi.fn>;
+  maybeSingle: ReturnType<typeof vi.fn>;
+  _getLastData: () => Record<string, unknown>;
+}
+
+function makeChain(resolvedData: unknown = null, resolvedError: unknown = null): MockChain {
   let lastData: Record<string, unknown> = {};
-  const chain: any = {};
+  const chain = {} as MockChain;
   chain.select = vi.fn(() => chain);
   chain.insert = vi.fn((d: unknown) => { lastData = d as Record<string, unknown>; return chain; });
   chain.update = vi.fn((d: unknown) => { lastData = d as Record<string, unknown>; return chain; });
@@ -22,6 +32,11 @@ const mockFrom = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/supabase', () => ({
   supabase: { from: mockFrom },
+}));
+
+vi.mock('../lib/api', () => ({
+  API_URL: '',
+  apiFetch: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
 import { appointmentService } from '../services/appointmentService';
