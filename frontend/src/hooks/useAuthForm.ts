@@ -193,8 +193,8 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
         await supabase.from('profiles').upsert({
           id: signUpData.user?.id,
           full_name: formData.name,
-          phone: formData.phone,
-          city: formData.city,
+          phone: formData.phone || null,
+          city: formData.city || null,
           role: selectedRole,
         }, { onConflict: 'id' });
 

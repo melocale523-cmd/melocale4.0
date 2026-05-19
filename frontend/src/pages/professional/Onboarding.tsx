@@ -11,7 +11,7 @@ const STEP_LABELS = ['Foto', 'Perfil', 'Como funciona'];
 
 export default function Onboarding() {
   const [step, setStep] = useState<Step>(1);
-  const { categorias, avatarMutation, bioMutation, completeMutation } = useOnboarding();
+  const { avatarMutation, bioMutation, completeMutation } = useOnboarding();
 
   return (
     <div className="min-h-screen bg-[#0E1C32] flex items-center justify-center p-4">
@@ -58,7 +58,6 @@ export default function Onboarding() {
           {step === 2 && (
             <StepBio
               bioMutation={bioMutation}
-              categorias={categorias}
               onNext={() => setStep(3)}
               onBack={() => setStep(1)}
             />
