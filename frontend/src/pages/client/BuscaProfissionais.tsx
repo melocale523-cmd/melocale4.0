@@ -1,22 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, Tag, Star, UserCircle, Inbox, Loader2, ExternalLink } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useBuscaProfissionais, type ProfissionalResult } from '../../hooks/useBuscaProfissionais';
+import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
 
-const CATEGORIAS = [
-  'Eletricista',
-  'Encanador',
-  'Pintor',
-  'Pedreiro',
-  'Marceneiro',
-  'Jardineiro',
-  'Diarista',
-  'Cuidador',
-  'Fotógrafo',
-  'Designer',
-];
+interface Category {
+  id: string;
+  name: string;
+}
 
 function StarRow({ rating, count }: { rating: number; count: number }) {
   const filled = Math.round(rating);
@@ -106,6 +100,19 @@ export default function BuscaProfissionais() {
   const [category, setCategory] = useState('');
   const [city, setCity] = useState('');
 
+  const { data: categories } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name');
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: professionals, isLoading } = useBuscaProfissionais(
     { search, category, city },
     user?.id,
@@ -140,8 +147,8 @@ export default function BuscaProfissionais() {
           className="bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all sm:w-48"
         >
           <option value="">Todas as categorias</option>
-          {CATEGORIAS.map(c => (
-            <option key={c} value={c}>{c}</option>
+          {(categories ?? []).map(c => (
+            <option key={c.id} value={c.name}>{c.name}</option>
           ))}
         </select>
 
