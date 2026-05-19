@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import express from "express";
 import Stripe from "stripe";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { z } from "zod";
 import {
   stripe,
@@ -107,7 +107,7 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
 const checkoutRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
-  keyGenerator: (req) => (req as AuthRequest).authUser?.id ?? req.ip ?? "unknown",
+  keyGenerator: (req) => (req as AuthRequest).authUser?.id ?? ipKeyGenerator(req.ip ?? "unknown"),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Muitas tentativas de checkout. Aguarde 1 hora e tente novamente." },
