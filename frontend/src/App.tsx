@@ -10,6 +10,7 @@ import ClientLayout from './layouts/ClientLayout';
 import ProfessionalLayout from './layouts/ProfessionalLayout';
 import AdminLayout from './layouts/AdminLayout';
 import AuthInitializer from './components/auth/AuthInitializer';
+import { OnboardingGuard } from './components/auth/OnboardingGuard';
 import ErrorBoundary from './components/ErrorBoundary';
 import RouteProgressBar from './components/RouteProgressBar';
 import RealtimeNotificationHandler from './components/RealtimeNotificationHandler';
@@ -39,6 +40,7 @@ const ProfessionalEstatisticas = lazy(() => import('./pages/professional/Estatis
 const ProfessionalAssinatura = lazy(() => import('./pages/professional/Assinatura'));
 const ProfessionalMensagens = lazy(() => import('./pages/professional/Mensagens'));
 const ProfessionalConfiguracoes = lazy(() => import('./pages/professional/Configuracoes'));
+const ProfessionalOnboarding = lazy(() => import('./pages/professional/Onboarding'));
 const PerfilPublico = lazy(() => import('./pages/professional/PerfilPublico'));
 
 // Lazy-loaded pages — admin
@@ -239,8 +241,16 @@ const router = createBrowserRouter([
         ]
       },
       {
+        path: '/profissional/onboarding',
+        element: (
+          <ProtectedRoute role="professional">
+            <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalOnboarding /></Suspense></ErrorBoundary>
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/profissional',
-        element: <ProtectedRoute role="professional"><ProfessionalLayout /></ProtectedRoute>,
+        element: <ProtectedRoute role="professional"><OnboardingGuard><ProfessionalLayout /></OnboardingGuard></ProtectedRoute>,
         children: [
           { path: 'dashboard', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalDashboard /></Suspense></ErrorBoundary> },
           { path: 'leads', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalLeads /></Suspense></ErrorBoundary> },
