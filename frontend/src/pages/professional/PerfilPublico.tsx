@@ -42,7 +42,7 @@ export default function PerfilPublico() {
         .eq('user_id', id)
         .single();
       if (error) throw error;
-      return data as ProfessionalPublic;
+      return data as unknown as ProfessionalPublic;
     },
     enabled: !!id,
   });
