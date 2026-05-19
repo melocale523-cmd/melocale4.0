@@ -71,9 +71,9 @@ setCatchHandler(({ request }) => {
 })
 
 self.addEventListener('push', (event: PushEvent) => {
-  const data = event.data?.json() as { title: string; body: string; data?: Record<string, unknown> }
+  const data = (event.data?.json() ?? {}) as { title?: string; body?: string; data?: Record<string, unknown> }
   event.waitUntil(
-    self.registration.showNotification(data.title, {
+    self.registration.showNotification(data.title ?? 'MeloCalé', {
       body: data.body,
       icon: '/icon-192.png',
       badge: '/icon-192.png',
@@ -88,6 +88,8 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
   const type = data?.type as string | undefined
   const proposedBy = data?.proposed_by as string | undefined
 
+  const dataUrl = data?.url as string | undefined
+
   let url = '/'
   if (type === 'new_interest' || type === 'proposal_accepted') {
     url = '/profissional/leads'
@@ -95,6 +97,9 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
     url = '/cliente/pedidos'
   } else if (type === 'appointment_created' || type === 'appointment') {
     url = '/cliente/agenda'
+  } else if (type === 'appointment_updated' || type === 'appointment_cancelled') {
+    // url included in payload tells us which side the recipient is
+    url = dataUrl ?? '/cliente/agenda'
   } else if (type === 'reschedule_proposed') {
     // proposed_by tells us who sent the proposal; the recipient is the other party
     url = proposedBy === 'professional' ? '/cliente/agenda' : '/profissional/agenda'
@@ -108,6 +113,8 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
     url = '/cliente/mensagens'
   } else if (type === 'message') {
     url = '/profissional/mensagens'
+  } else if (dataUrl) {
+    url = dataUrl
   }
 
   event.waitUntil(self.clients.openWindow(url))
