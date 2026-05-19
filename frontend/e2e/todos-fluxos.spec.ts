@@ -126,7 +126,7 @@ test.describe('Profissional', () => {
 
   test('perfil profissional — página editar carrega', async ({ page }) => {
     await page.goto('/profissional/perfil');
-    await expect(page.locator('input, textarea').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Nome Completo')).toBeVisible({ timeout: 10000 });
   });
 
   test('carteira/moedas carrega', async ({ page }) => {
@@ -141,7 +141,7 @@ test.describe('Profissional', () => {
 
   test('compra pacote moedas — botão comprar visível', async ({ page }) => {
     await page.goto('/profissional/carteira');
-    await expect(page.locator('button, a').filter({ hasText: /comprar|moedas|pacote/i }).first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('button, a').filter({ hasText: /adicionar saldo|adicionar/i }).first()).toBeVisible({ timeout: 10000 });
   });
 });
 
