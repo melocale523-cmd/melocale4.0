@@ -1,8 +1,16 @@
 import { test, expect, type Page } from '@playwright/test';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
+// The app uses a /login page (no modal). The Navbar "Entrar" button navigates
+// to /login?mode=login. We go to / first then follow that link so the test
+// exercises the real user-facing flow.
 async function loginCliente(page: Page) {
-  await page.goto('/login');
+  await page.goto('/');
+  // Wait for the Navbar to render and click the "Entrar" link
+  await page.waitForSelector('a[href="/login?mode=login"]', { timeout: 10000 });
+  await page.click('a[href="/login?mode=login"]');
+  // Wait for the login form to appear (auth loading state may briefly show a spinner)
+  await page.waitForSelector('input[type="email"]', { timeout: 10000 });
   await page.fill('input[type="email"]', 'anajuliasantos@gmail.com');
   await page.fill('input[type="password"]', process.env.E2E_CLIENT_PASSWORD ?? '');
   await page.click('button[type="submit"]');
@@ -10,7 +18,10 @@ async function loginCliente(page: Page) {
 }
 
 async function loginProfissional(page: Page) {
-  await page.goto('/login');
+  await page.goto('/');
+  await page.waitForSelector('a[href="/login?mode=login"]', { timeout: 10000 });
+  await page.click('a[href="/login?mode=login"]');
+  await page.waitForSelector('input[type="email"]', { timeout: 10000 });
   await page.fill('input[type="email"]', 'jogersantos@gmail.com');
   await page.fill('input[type="password"]', process.env.E2E_PROF_PASSWORD ?? '');
   await page.click('button[type="submit"]');
@@ -26,19 +37,22 @@ test.describe('Auth', () => {
   });
 
   test('recuperação de senha — campo email aceita input', async ({ page }) => {
-    await page.goto('/esqueci-senha');
+    await page.goto('/login');
+    await page.waitForSelector('input[type="email"]', { timeout: 10000 });
     await page.fill('input[type="email"]', 'anajuliasantos@gmail.com');
-    await page.click('button[type="submit"]');
+    await page.click('button:has-text("Esqueci a senha")');
     await expect(page.locator('text=/enviamos|verifique|e-mail/i').first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('cadastro cliente — página carrega', async ({ page }) => {
-    await page.goto('/cadastro');
+  test('cadastro cliente — página /login?mode=signup carrega', async ({ page }) => {
+    await page.goto('/login?mode=signup');
+    await page.waitForSelector('input[type="email"]', { timeout: 10000 });
     await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 
-  test('cadastro profissional — página carrega', async ({ page }) => {
-    await page.goto('/cadastro/profissional');
+  test('cadastro profissional — página /login?mode=signup&role=professional carrega', async ({ page }) => {
+    await page.goto('/login?mode=signup&role=professional');
+    await page.waitForSelector('input[type="email"]', { timeout: 10000 });
     await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 });
@@ -58,7 +72,7 @@ test.describe('Cliente', () => {
   });
 
   test('formulário criar pedido carrega', async ({ page }) => {
-    await page.goto('/cliente/novo-pedido');
+    await page.goto('/cliente/pedidos');
     await expect(page.locator('input, textarea, select').first()).toBeVisible({ timeout: 10000 });
   });
 
@@ -73,8 +87,8 @@ test.describe('Cliente', () => {
   });
 
   test('busca de profissionais carrega', async ({ page }) => {
-    await page.goto('/buscar');
-    await expect(page.locator('input[type="search"], input[placeholder]').first()).toBeVisible({ timeout: 10000 });
+    await page.goto('/cliente/busca');
+    await expect(page.locator('input[placeholder]').first()).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -112,9 +126,9 @@ test.describe('Profissional', () => {
     await expect(page).toHaveURL(/carteira/);
   });
 
-  test('planos carrega', async ({ page }) => {
-    await page.goto('/profissional/planos');
-    await expect(page.locator('text=/Starter|PRO|Elite/i').first()).toBeVisible({ timeout: 10000 });
+  test('planos/assinatura carrega', async ({ page }) => {
+    await page.goto('/profissional/assinatura');
+    await expect(page).toHaveURL(/assinatura/);
   });
 
   test('compra pacote moedas — botão comprar visível', async ({ page }) => {
@@ -127,7 +141,10 @@ test.describe('Profissional', () => {
 test.describe('Admin', () => {
   test.beforeEach(async ({ page }) => {
     // Admin usa login do profissional de teste (ajustar se houver usuário admin dedicado)
-    await page.goto('/login');
+    await page.goto('/');
+    await page.waitForSelector('a[href="/login?mode=login"]', { timeout: 10000 });
+    await page.click('a[href="/login?mode=login"]');
+    await page.waitForSelector('input[type="email"]', { timeout: 10000 });
     await page.fill('input[type="email"]', 'jogersantos@gmail.com');
     await page.fill('input[type="password"]', process.env.E2E_PROF_PASSWORD ?? '');
     await page.click('button[type="submit"]');
@@ -166,6 +183,7 @@ test.describe('Mobile (390x844)', () => {
 
   test('login carrega no mobile', async ({ page }) => {
     await page.goto('/login');
+    await page.waitForSelector('input[type="email"]', { timeout: 10000 });
     await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 
