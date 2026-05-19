@@ -1,15 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Supabase chain helper
-function makeChain(overrides: Partial<Record<string, unknown>> = {}) {
-  const chain: any = {};
-  const r = () => chain;
+type ChainFn = () => MockChain;
+
+interface MockChain {
+  select: ChainFn;
+  insert: ChainFn;
+  update: ChainFn;
+  eq: ChainFn;
+  single: ReturnType<typeof vi.fn>;
+  maybeSingle: ReturnType<typeof vi.fn>;
+}
+
+function makeChain(overrides: Partial<Record<string, unknown>> = {}): MockChain {
+  const chain = {} as MockChain;
+  const r: ChainFn = () => chain;
   chain.select = r;
   chain.insert = r;
   chain.update = r;
   chain.eq = r;
-  chain.single = vi.fn().mockResolvedValue(overrides.single ?? { data: null, error: null });
-  chain.maybeSingle = vi.fn().mockResolvedValue(overrides.maybeSingle ?? { data: null, error: null });
+  chain.single = vi.fn().mockResolvedValue(overrides['single'] ?? { data: null, error: null });
+  chain.maybeSingle = vi.fn().mockResolvedValue(overrides['maybeSingle'] ?? { data: null, error: null });
   return chain;
 }
 
@@ -18,6 +28,11 @@ const mockFrom = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/supabase', () => ({
   supabase: { rpc: mockRpc, from: mockFrom },
+}));
+
+vi.mock('../lib/api', () => ({
+  API_URL: '',
+  apiFetch: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
 // leadService imports supabase — import AFTER mock
@@ -38,7 +53,7 @@ describe('leadService.purchaseLead', () => {
     const updateChain = makeChain();
     const leadChain = makeChain({ single: { data: { client_id: 'client-1' }, error: null } });
     const notifChain = makeChain();
-    notifChain.insert = vi.fn().mockResolvedValue({ data: null, error: null });
+    notifChain.insert = vi.fn().mockResolvedValue({ data: null, error: null }) as ChainFn;
 
     mockFrom.mockImplementation((table: string) => {
       if (table === 'leads') return { ...updateChain, ...leadChain };
@@ -81,16 +96,16 @@ describe('leadService.purchaseLead', () => {
     expect(result).toEqual(expected);
   });
 
-  it('updates lead status to orçando after purchase', async () => {
-    const updateSpy = vi.fn().mockResolvedValue({ data: null, error: null });
-    const eqSpy = vi.fn().mockReturnValue({ error: null });
-    mockFrom.mockImplementation((table: string) => {
-      if (table === 'leads') return { update: updateSpy, eq: eqSpy, select: vi.fn(() => ({ single: vi.fn().mockResolvedValue({ data: { client_id: 'c1' }, error: null }) })) };
-      return makeChain();
-    });
+  it('fires purchase_lead RPC which handles lead status update server-side', async () => {
+    const expected = { purchase_id: 'purchase-1', lead_id: VALID_LEAD_ID };
+    mockRpc.mockResolvedValue({ data: expected, error: null });
 
-    await leadService.purchaseLead(VALID_LEAD_ID, VALID_IDEM_KEY);
+    const result = await leadService.purchaseLead(VALID_LEAD_ID, VALID_IDEM_KEY);
 
-    expect(mockFrom).toHaveBeenCalledWith('leads');
+    expect(mockRpc).toHaveBeenCalledWith(
+      'purchase_lead',
+      expect.objectContaining({ p_lead_id: VALID_LEAD_ID })
+    );
+    expect(result).toEqual(expected);
   });
 });
