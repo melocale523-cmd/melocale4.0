@@ -53,6 +53,9 @@ export function useOnboarding() {
     },
     onSuccess: () => {
       queryClient.setQueryData(['onboarding_status', user?.id], true);
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['professional'] });
+      queryClient.invalidateQueries({ queryKey: ['my_professional_id'] });
       navigate('/profissional/dashboard');
     },
     onError: (err: Error) => toast.error(err.message),
