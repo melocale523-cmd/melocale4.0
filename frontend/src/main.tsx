@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 import * as Sentry from '@sentry/react';
 import App from './App.tsx';
 import './index.css';
@@ -29,8 +30,10 @@ Sentry.init({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Sentry.ErrorBoundary fallback={<p>Ocorreu um erro inesperado.</p>}>
-      <App />
-    </Sentry.ErrorBoundary>
+    <HelmetProvider>
+      <Sentry.ErrorBoundary fallback={<p>Ocorreu um erro inesperado.</p>}>
+        <App />
+      </Sentry.ErrorBoundary>
+    </HelmetProvider>
   </StrictMode>,
 );

@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../../lib/supabase';
 import { MapPin, Briefcase, Star, ArrowLeft, Loader2, MessageCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -87,8 +88,23 @@ export default function PerfilPublico() {
   const city = prof.city || prof.profiles?.city;
   const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
+  const categoryLabel = prof.category ?? 'Serviços';
+  const cityLabel = city ?? '';
+  const bioSnippet = prof.bio?.slice(0, 120) ?? '';
+  const profileUrl = `https://melocale.com.br/profissional/${prof.user_id}/perfil`;
+
   return (
     <div className="min-h-screen bg-[#0E1C32]">
+      <Helmet>
+        <title>{name} — {categoryLabel}{cityLabel ? ` em ${cityLabel}` : ''} | MeloCalé</title>
+        <meta name="description" content={`${name} oferece serviços de ${categoryLabel}${cityLabel ? ` em ${cityLabel}` : ''}. ${bioSnippet}`} />
+        <meta property="og:title" content={`${name} — ${categoryLabel} | MeloCalé`} />
+        <meta property="og:description" content={`Profissional de ${categoryLabel}${cityLabel ? ` em ${cityLabel}` : ''}.`} />
+        <meta property="og:url" content={profileUrl} />
+        <meta property="og:type" content="profile" />
+        <meta name="twitter:card" content="summary" />
+        <link rel="canonical" href={profileUrl} />
+      </Helmet>
       <div className="max-w-3xl mx-auto px-4 py-8">
         <Link
           to={user ? (user.role === 'client' ? '/cliente/dashboard' : '/') : '/'}
