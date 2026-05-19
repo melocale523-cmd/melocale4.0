@@ -3,8 +3,10 @@ import { Plus, Search, Inbox, FileText } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { type WizardData } from '../../components/RequestWizard';
+import ReviewModal from '../../components/ReviewModal';
 import { cn } from '../../lib/utils';
 import { usePedidosData, type PedidoItem } from '../../hooks/usePedidosData';
+import { useLeadReviewable, type ReviewableInfo } from '../../hooks/useLeadReviewable';
 import { PedidoCard } from './pedidos/PedidoCard';
 import { ProposalsModal } from './pedidos/ProposalsModal';
 import { ProfessionalProfileModal } from './pedidos/ProfessionalProfileModal';
@@ -18,6 +20,8 @@ interface ProfileModalState {
   avatar: string | null;
 }
 
+type ReviewModalState = Pick<ReviewableInfo, 'appointmentId' | 'professionalId' | 'professionalName'>;
+
 export default function Pedidos() {
   const { user } = useAuthStore();
 
@@ -30,6 +34,7 @@ export default function Pedidos() {
   const [contextMenuId, setContextMenuId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<PedidoItem | null>(null);
   const [profileModal, setProfileModal] = useState<ProfileModalState | null>(null);
+  const [reviewModal, setReviewModal] = useState<ReviewModalState | null>(null);
 
   const {
     pedidos,
@@ -47,6 +52,13 @@ export default function Pedidos() {
     selectedPedidoId: selectedPedido?.id,
     isProposalsModalOpen,
   });
+
+  const finalizedLeadIds = useMemo(
+    () => pedidos.filter(p => p.status === 'finalizado').map(p => p.id),
+    [pedidos],
+  );
+
+  const { data: reviewableMap } = useLeadReviewable(finalizedLeadIds, user?.id);
 
   const filteredPedidos = useMemo(() => pedidos.filter(p =>
     (statusFilter === 'todos' ||
@@ -186,7 +198,9 @@ export default function Pedidos() {
           </div>
         ) : (
           <div className="divide-y divide-white/[0.03]">
-            {filteredPedidos.map(pedido => (
+            {filteredPedidos.map(pedido => {
+              const reviewable = reviewableMap?.[pedido.id];
+              return (
               <PedidoCard
                 key={pedido.id}
                 pedido={pedido}
@@ -195,8 +209,14 @@ export default function Pedidos() {
                 onOpenEdit={openEditModal}
                 onDelete={handleDelete}
                 onSetContextMenuId={setContextMenuId}
+                onReview={
+                  reviewable && !reviewable.hasReview
+                    ? () => setReviewModal(reviewable)
+                    : undefined
+                }
               />
-            ))}
+              );
+            })}
             {filteredPedidos.length === 0 && (
               <div className="p-20 text-center flex flex-col items-center justify-center gap-4 grayscale opacity-40">
                 <Inbox size={64} className="text-slate-600" />
@@ -255,6 +275,16 @@ export default function Pedidos() {
             deleteMutation.mutate(id);
             setDeleteConfirm(null);
           }}
+        />
+      )}
+
+      {reviewModal && user && (
+        <ReviewModal
+          appointmentId={reviewModal.appointmentId}
+          professionalId={reviewModal.professionalId}
+          clientId={user.id}
+          professionalName={reviewModal.professionalName}
+          onClose={() => setReviewModal(null)}
         />
       )}
     </div>
