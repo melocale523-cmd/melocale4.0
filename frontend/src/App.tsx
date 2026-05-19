@@ -28,6 +28,7 @@ const ClientMensagens = lazy(() => import('./pages/client/Mensagens'));
 const ClientPerfil = lazy(() => import('./pages/client/Perfil'));
 const ClientAgenda = lazy(() => import('./pages/client/Agenda'));
 const ClientConfiguracoes = lazy(() => import('./pages/client/Configuracoes'));
+const ClientBuscaProfissionais = lazy(() => import('./pages/client/BuscaProfissionais'));
 
 // Lazy-loaded pages — professional
 const ProfessionalDashboard = lazy(() => import('./pages/professional/Dashboard'));
@@ -237,6 +238,7 @@ const router = createBrowserRouter([
           { path: 'perfil', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientPerfil /></Suspense></ErrorBoundary> },
           { path: 'agenda', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientAgenda /></Suspense></ErrorBoundary> },
           { path: 'configuracoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientConfiguracoes /></Suspense></ErrorBoundary> },
+          { path: 'busca', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientBuscaProfissionais /></Suspense></ErrorBoundary> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
