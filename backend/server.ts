@@ -1,4 +1,5 @@
 // Trigger Render redeploy 2026-04-28
+import * as Sentry from "@sentry/node";
 import helmet from "helmet";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
@@ -6,7 +7,16 @@ import { loadCoinPackages } from "./src/config.js";
 import { registerRoutes } from "./src/routes/index.js";
 import { startJobs } from "./src/jobs/reminders.js";
 
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV ?? "development",
+  enabled: process.env.NODE_ENV === "production",
+  tracesSampleRate: 0.1,
+  integrations: [Sentry.expressIntegration()],
+});
+
 process.on("uncaughtException", (err) => {
+  Sentry.captureException(err);
   console.error(JSON.stringify({
     level: "error",
     event: "uncaughtException",
@@ -19,6 +29,7 @@ process.on("uncaughtException", (err) => {
 
 process.on("unhandledRejection", (reason, promise) => {
   void promise;
+  Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)));
   console.error(JSON.stringify({
     level: "error",
     event: "unhandledRejection",
@@ -64,6 +75,8 @@ export function createApp() {
   app.use(cors(corsOptions));
 
   registerRoutes(app);
+
+  Sentry.setupExpressErrorHandler(app);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const status = typeof (err as { status?: unknown })?.status === "number" ? (err as { status: number }).status : 500;
