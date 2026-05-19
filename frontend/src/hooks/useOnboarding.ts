@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { avatarService } from '../services/profileService';
@@ -10,33 +10,16 @@ export function useOnboarding() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const { data: categorias = [] } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('categories')
-        .select('name')
-        .eq('is_active', true)
-        .order('name');
-      if (!data?.length) return [];
-      return [
-        ...data.filter((c: { name: string }) => c.name === 'Outro'),
-        ...data.filter((c: { name: string }) => c.name !== 'Outro'),
-      ].map((c: { name: string }) => c.name);
-    },
-    staleTime: 1000 * 60 * 10,
-  });
-
   const avatarMutation = useMutation({
     mutationFn: (file: File) => avatarService.upload(user!.id, file),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const bioMutation = useMutation({
-    mutationFn: async ({ bio, category }: { bio: string; category: string }) => {
+    mutationFn: async (bio: string) => {
       const { error } = await supabase
         .from('professionals')
-        .update({ bio: bio || null, category: category || null })
+        .update({ bio: bio || null })
         .eq('user_id', user!.id);
       if (error) throw error;
     },
@@ -61,5 +44,5 @@ export function useOnboarding() {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  return { categorias, avatarMutation, bioMutation, completeMutation };
+  return { avatarMutation, bioMutation, completeMutation };
 }
