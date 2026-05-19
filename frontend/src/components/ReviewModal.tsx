@@ -37,6 +37,7 @@ export default function ReviewModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['client_appointments'] });
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['lead_reviewable'] });
       toast.success('Avaliação enviada!');
       onClose();
     },
