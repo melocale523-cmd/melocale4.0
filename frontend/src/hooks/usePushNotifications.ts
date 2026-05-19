@@ -49,7 +49,7 @@ export function usePushNotifications() {
       })
       if (res.ok) setIsSubscribed(true)
     } catch (err) {
-      console.error('[push] subscribe error:', err)
+      if (import.meta.env.DEV) console.error('[push] subscribe error:', err)
     }
   }
 
@@ -68,7 +68,7 @@ export function usePushNotifications() {
       })
       setIsSubscribed(false)
     } catch (err) {
-      console.error('[push] unsubscribe error:', err)
+      if (import.meta.env.DEV) console.error('[push] unsubscribe error:', err)
     }
   }
 

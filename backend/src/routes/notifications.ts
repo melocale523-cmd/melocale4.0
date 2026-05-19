@@ -132,7 +132,9 @@ router.post("/notifications/send-event", sensitiveLimiter, requireAuth, async (r
         title = "Agendamento atualizado";
         body = "Status do agendamento foi atualizado.";
       }
-      data = { appointment_id: resource_id, type: event_type };
+      // url tells the SW which agenda to open — recipient is the opposite party of the caller
+      const targetUrl = isClient ? "/profissional/agenda" : "/cliente/agenda";
+      data = { appointment_id: resource_id, type: event_type, url: targetUrl };
 
     } else if (event_type === "message_sent") {
       if (process.env.NODE_ENV !== "production") {
