@@ -35,13 +35,14 @@ export interface Appointment {
   proposed_by: 'client' | 'professional' | null;
   client_id: string;
   professional_id: string;
+  confirmed_at: string | null;
   created_at: string;
   updated_at: string;
   client?: AppointmentClient | null;
   professional?: AppointmentProfessional | null;
 }
 
-const APPT_SELECT = 'id,title,description,scheduled_at,duration_minutes,location,status,cancelled_reason,conversation_id,proposed_at,proposed_by,client_id,professional_id,created_at,updated_at';
+const APPT_SELECT = 'id,title,description,scheduled_at,duration_minutes,location,status,cancelled_reason,conversation_id,proposed_at,proposed_by,client_id,professional_id,confirmed_at,created_at,updated_at';
 
 export const appointmentService = {
   async getProfessionalAppointments(professionalId: string): Promise<Appointment[]> {

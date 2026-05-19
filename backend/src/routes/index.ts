@@ -4,6 +4,7 @@ import { supabaseAdmin } from "../config.js";
 import stripeRouter from "./stripe.js";
 import notificationsRouter from "./notifications.js";
 import leadsRouter from "./leads.js";
+import appointmentsRouter from "./appointments.js";
 import chatRouter from "./chat.js";
 import supportRouter from "./support.js";
 import adminRouter from "./admin.js";
@@ -40,6 +41,7 @@ export function registerRoutes(app: Application) {
 
   app.use("/api", notificationsRouter);
   app.use("/api", leadsRouter);
+  app.use("/api", appointmentsRouter);
   app.use("/api", chatRouter);
   app.use("/api", supportRouter);
   app.use("/api/admin", adminRouter);

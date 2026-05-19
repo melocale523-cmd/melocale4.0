@@ -11,6 +11,7 @@ export async function jobLembrete24h() {
         .in("status", ["confirmed", "scheduled"])
         .gte("scheduled_at", new Date(Date.now() + 23 * 60 * 60 * 1000).toISOString())
         .lte("scheduled_at", new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString())
+        .is("reminder_sent_at", null)
     );
 
     if (error) {
@@ -59,6 +60,14 @@ export async function jobLembrete24h() {
           console.error("[job] lembrete24h prof notif error:", profNotifErr.message);
         }
       }
+
+      // Mark as sent so appointmentReminder.ts (cron job) skips this appointment
+      await withTimeout(
+        supabaseAdmin
+          .from("appointments")
+          .update({ reminder_sent_at: new Date().toISOString() })
+          .eq("id", apt.id)
+      );
     }
   } catch (err) {
     console.error("[job] lembrete24h error:", err instanceof Error ? err.message : String(err));
