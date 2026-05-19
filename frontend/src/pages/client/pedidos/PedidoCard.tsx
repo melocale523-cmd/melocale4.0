@@ -1,4 +1,4 @@
-import { FileText, MapPin, Tag, Calendar, ArrowRight, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { FileText, MapPin, Tag, Calendar, ArrowRight, MoreVertical, Pencil, Trash2, Star } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import type { PedidoItem } from '../../../hooks/usePedidosData';
 
@@ -9,6 +9,7 @@ interface PedidoCardProps {
   onOpenEdit: (pedido: PedidoItem) => void;
   onDelete: (pedido: PedidoItem) => void;
   onSetContextMenuId: (id: string | null) => void;
+  onReview?: () => void;
 }
 
 export function PedidoCard({
@@ -18,6 +19,7 @@ export function PedidoCard({
   onOpenEdit,
   onDelete,
   onSetContextMenuId,
+  onReview,
 }: PedidoCardProps) {
   return (
     <div
@@ -71,6 +73,15 @@ export function PedidoCard({
         </div>
 
         <div className="flex items-center gap-4">
+          {onReview && (
+            <button
+              onClick={e => { e.stopPropagation(); onReview(); }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 hover:border-yellow-500/40 text-yellow-400 text-xs font-bold rounded-xl transition-all"
+            >
+              <Star size={13} className="fill-yellow-400" />
+              Avaliar
+            </button>
+          )}
           <div className="relative z-20" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => onSetContextMenuId(contextMenuId === pedido.id ? null : pedido.id)}
