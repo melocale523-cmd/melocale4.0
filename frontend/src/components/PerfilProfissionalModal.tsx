@@ -11,7 +11,7 @@ interface Review {
   rating: number;
   comment: string | null;
   created_at: string;
-  client_name: string | null;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
 }
 
 interface Props {
@@ -42,11 +42,11 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
     queryFn: async () => {
       const { data } = await supabase
         .from('reviews')
-        .select('id, rating, comment, created_at, client_name')
+        .select('id, rating, comment, created_at, profiles!reviews_client_id_fkey(full_name, avatar_url)')
         .eq('professional_id', prof.id)
         .order('created_at', { ascending: false })
         .limit(3);
-      return (data ?? []) as Review[];
+      return (data ?? []) as unknown as Review[];
     },
     enabled: open,
   });
@@ -141,7 +141,7 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
                       <div className="flex items-center gap-2">
                         <StarsFull rating={review.rating} size={12} />
                         <span className="text-xs font-semibold text-slate-300">
-                          {review.client_name ?? 'Cliente'}
+                          {review.profiles?.full_name ?? 'Cliente'}
                         </span>
                       </div>
                       <span className="text-[11px] text-[#4A6580] shrink-0">
