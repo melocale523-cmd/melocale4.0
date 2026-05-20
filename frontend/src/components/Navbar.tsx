@@ -6,6 +6,7 @@ import { cn } from '../lib/utils';
 import AuthModal from './auth/AuthModal';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -81,22 +82,23 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
+            <ThemeToggle />
             {!isAuthenticated ? (
               <>
-                <Link 
+                <Link
                   to="/login?mode=signup"
                   className="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-black rounded-xl text-sm font-black transition-all shadow-lg shadow-yellow-500/10 uppercase tracking-wider"
                 >
                   Cadastrar
                 </Link>
-                <Link 
+                <Link
                   to="/login?mode=login"
                   className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl text-sm font-black transition-all shadow-lg shadow-emerald-500/10 uppercase tracking-wider"
                 >
                   Entrar
                 </Link>
                 <div className="w-px h-6 bg-white/10 mx-1" />
-                <Link 
+                <Link
                   to="/login?role=admin"
                   className="p-2.5 bg-white/5 hover:bg-white/10 text-[#4A6580] hover:text-slate-300 rounded-xl transition-all border border-[#1C3050]"
                   title="Acesso Restrito"
@@ -113,7 +115,7 @@ export default function Navbar() {
                 >
                   Minha Área
                 </Link>
-                <button 
+                <button
                   onClick={handleLogout}
                   className="p-2 text-[#94A3B8] hover:text-red-400 transition-colors cursor-pointer"
                   title="Sair da conta"
@@ -151,9 +153,12 @@ export default function Navbar() {
                 </a>
               ))}
               <div className="flex flex-col gap-3 mt-4">
+                <div className="flex justify-end">
+                  <ThemeToggle />
+                </div>
                 {!isAuthenticated ? (
                   <div className="flex flex-col gap-3">
-                    <Link 
+                    <Link
                       to="/login?mode=signup"
                       onClick={() => setMobileMenuOpen(false)}
                       className="w-full bg-yellow-400 text-black py-4 rounded-xl font-black flex items-center justify-center gap-2 uppercase tracking-widest shadow-lg shadow-yellow-500/10 transition-all active:scale-95"
@@ -161,18 +166,18 @@ export default function Navbar() {
                       Cadastrar
                     </Link>
                     <div className="flex gap-2">
-                      <Link 
+                      <Link
                         to="/login?mode=login"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="flex-1 bg-emerald-500 text-black py-4 rounded-xl font-black flex items-center justify-center gap-2 uppercase tracking-widest shadow-lg shadow-emerald-500/10 transition-all active:scale-95 transition-all"
+                        className="flex-1 bg-emerald-500 text-black py-4 rounded-xl font-black flex items-center justify-center gap-2 uppercase tracking-widest shadow-lg shadow-emerald-500/10 transition-all active:scale-95"
                       >
                         <User size={20} />
                         Entrar
                       </Link>
-                      <Link 
+                      <Link
                         to="/login?role=admin"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="w-14 bg-white/5 border border-[#1C3050] text-[#4A6580] py-4 rounded-xl font-bold flex items-center justify-center transition-all active:scale-95 transition-all"
+                        className="w-14 bg-white/5 border border-[#1C3050] text-[#4A6580] py-4 rounded-xl font-bold flex items-center justify-center transition-all active:scale-95"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
                       </Link>
