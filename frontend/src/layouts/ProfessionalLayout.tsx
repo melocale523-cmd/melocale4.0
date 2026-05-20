@@ -93,9 +93,9 @@ export default function ProfessionalLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-[#0E1C32] text-slate-900 dark:text-white">
+    <div className="flex h-screen dark:bg-[#0E1C32] text-slate-900 dark:text-white">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-slate-200 dark:border-[#1C3050] bg-white dark:bg-[#132540] flex flex-col hidden md:flex">
+      <aside className="w-64 border-r border-white/20 dark:border-[#1C3050] bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none flex flex-col hidden md:flex">
         <div className="p-6">
            <span className="text-xl font-bold tracking-tight uppercase text-emerald-400">
             Melocale <span className="text-white text-xs ml-1 bg-white/10 px-2 py-0.5 rounded ml-2">PRO</span>
@@ -111,9 +111,9 @@ export default function ProfessionalLayout() {
                 to={item.path}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2 rounded-xl transition-all font-medium text-sm",
-                  isActive 
+                  isActive
                     ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
-                    : "text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1C3454]"
+                    : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-white/20 dark:hover:bg-[#1C3454]"
                 )}
               >
                 <item.icon size={18} />
@@ -129,10 +129,10 @@ export default function ProfessionalLayout() {
         </nav>
 
         <PushFloatingBanner />
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800/50">
+        <div className="p-4 border-t border-white/20 dark:border-slate-800/50">
            <button
              onClick={handleLogout}
-             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-500 dark:text-[#94A3B8] hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
+             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
            >
              <LogOut size={18} />
              <span>Sair do perfil</span>
@@ -144,12 +144,12 @@ export default function ProfessionalLayout() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="w-64 bg-white dark:bg-[#132540] border-r border-slate-200 dark:border-[#1C3050] relative flex flex-col pt-4">
-             <div className="p-4 flex justify-between items-center border-b border-slate-200 dark:border-[#1C3050]">
+          <aside className="w-64 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] relative flex flex-col pt-4">
+             <div className="p-4 flex justify-between items-center border-b border-white/20 dark:border-[#1C3050]">
                 <span className="text-lg font-bold tracking-tight uppercase text-emerald-400">
                   Melocale <span className="text-white text-xs ml-1 bg-white/10 px-1 py-0.5 rounded ml-1">PRO</span>
                 </span>
-                <button onClick={() => setMobileMenuOpen(false)} className="text-[#94A3B8] p-1">
+                <button onClick={() => setMobileMenuOpen(false)} className="text-white/70 dark:text-[#94A3B8] p-1">
                   <X size={20} />
                 </button>
              </div>
@@ -165,7 +165,7 @@ export default function ProfessionalLayout() {
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
                       isActive
                         ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
-                        : "text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white"
+                        : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white"
                     )}
                   >
                     <item.icon size={18} />
@@ -179,10 +179,10 @@ export default function ProfessionalLayout() {
                 )
               })}
              </nav>
-             <div className="p-4 border-t border-slate-200 dark:border-[#1C3050]">
+             <div className="p-4 border-t border-white/20 dark:border-[#1C3050]">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-500 dark:text-[#94A3B8] hover:text-emerald-400 transition-all"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-emerald-400 transition-all"
                 >
                   <LogOut size={18} />
                   <span>Sair do perfil</span>
@@ -195,14 +195,14 @@ export default function ProfessionalLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="h-16 border-b border-slate-200 dark:border-[#1C3050] bg-white dark:bg-[#132540] backdrop-blur-md flex items-center justify-between px-4 sm:px-6 z-10 w-full shrink-0">
+        <header className="h-16 border-b border-white/20 dark:border-[#1C3050] bg-white/10 backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none flex items-center justify-between px-4 sm:px-6 z-10 w-full shrink-0">
           <div className="flex items-center gap-2 sm:gap-4">
-             <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#94A3B8] p-1">
+             <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-white/70 dark:text-[#94A3B8] p-1">
                <Menu size={22} />
              </button>
-             <button 
-               onClick={() => navigate(-1)} 
-               className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-[#94A3B8] hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+             <button
+               onClick={() => navigate(-1)}
+               className="hidden sm:flex items-center gap-2 text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 transition-colors"
              >
                <ArrowLeft size={16} /> Voltar
              </button>
@@ -210,20 +210,20 @@ export default function ProfessionalLayout() {
           <div className="flex-1" />
           <div className="flex items-center gap-6">
             {/* Wallet balance quick view */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-               <Wallet size={16} className="text-yellow-400" />
-               <span className="text-lg font-mono font-bold text-yellow-400">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/20 border border-white/40 dark:bg-yellow-500/10 dark:border-yellow-500/20 rounded-lg">
+               <Wallet size={16} className="text-white dark:text-yellow-400" />
+               <span className="text-lg font-mono font-bold text-white dark:text-yellow-400">
                  {isLoading ? '...' : (typeof balance === 'object' && balance !== null && 'balance_coins' in balance ? Math.floor(balance.balance_coins) : Math.floor(typeof balance === 'number' ? balance : 0))} moedas
                </span>
             </div>
             <ThemeToggle />
             <NotificationBell />
-            <div className="relative border-l border-slate-200 dark:border-[#243F6A] pl-6" ref={menuRef}>
+            <div className="relative border-l border-white/30 dark:border-[#243F6A] pl-6" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(v => !v)}
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               >
-                <span className="text-sm font-medium text-slate-300 hidden sm:block">{user?.email}</span>
+                <span className="text-sm font-medium text-white/80 dark:text-slate-300 hidden sm:block">{user?.email}</span>
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="avatar" className="w-8 h-8 rounded-full object-cover shrink-0" />
                 ) : (
@@ -245,7 +245,7 @@ export default function ProfessionalLayout() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{profile?.full_name || user?.email || '—'}</p>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{profile?.full_name || user?.email || '—'}</p>
                       {profile?.city && (
                         <p className="text-xs text-[#4A6580] truncate">{profile.city}</p>
                       )}

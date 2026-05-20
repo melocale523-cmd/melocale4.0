@@ -14,7 +14,7 @@
 
 @layer base {
   body {
-    @apply antialiased bg-slate-50 text-slate-900 dark:bg-[#0A0B0D] dark:text-white;
+    @apply antialiased text-slate-900 dark:bg-[#0A0B0D] dark:text-white;
   }
 }
 
@@ -34,3 +34,53 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   LIGHT MODE — global theme overrides
+   Only active when <html> does NOT have the .dark class.
+   Dark mode classes (dark:*) are completely unaffected.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Gradient background on body */
+html:not(.dark) body {
+  background: radial-gradient(ellipse at 50% 40%, #90D8F5 0%, #37a3e4 35%, #0E5C8A 100%) fixed;
+  min-height: 100vh;
+}
+
+/* Main container backgrounds → transparent so gradient shows through */
+html:not(.dark) .bg-\[\#0E1C32\],
+html:not(.dark) .bg-\[\#0A0B0D\] {
+  background-color: transparent;
+}
+
+/* Card / surface backgrounds → white with soft shadow */
+html:not(.dark) .bg-\[\#1C3454\] {
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Secondary surfaces → translucent white */
+html:not(.dark) .bg-\[\#1C3050\] {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Inner dark containers sitting on top of white cards → light gray */
+html:not(.dark) .bg-\[\#1C3454\] .bg-\[\#0E1C32\] {
+  background-color: #f1f5f9;
+}
+
+/* Borders */
+html:not(.dark) .border-\[\#1C3050\] { border-color: rgba(255, 255, 255, 0.7); }
+html:not(.dark) .border-\[\#243F6A\] { border-color: rgba(255, 255, 255, 0.5); }
+
+/* Heading and paragraph text-white inside white cards → dark navy */
+html:not(.dark) .bg-\[\#1C3454\] h1.text-white,
+html:not(.dark) .bg-\[\#1C3454\] h2.text-white,
+html:not(.dark) .bg-\[\#1C3454\] h3.text-white,
+html:not(.dark) .bg-\[\#1C3454\] h4.text-white,
+html:not(.dark) .bg-\[\#1C3454\] p.text-white {
+  color: #0A3D5C;
+}
+
+/* Muted text inside white cards → medium blue */
+html:not(.dark) .bg-\[\#1C3454\] .text-\[\#94A3B8\] { color: #0369A1; }
+html:not(.dark) .bg-\[\#1C3454\] .text-\[\#4A6580\] { color: #0369A1; }
