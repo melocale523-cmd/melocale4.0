@@ -86,23 +86,29 @@ html:not(.dark) .bg-\[\#1C3454\] p.text-white {
   color: #ffffff;
 }
 
-/* Muted label text inside glass cards → sky blue */
-html:not(.dark) .bg-\[\#1C3454\] .text-\[\#94A3B8\] { color: rgba(120,210,255,0.85); }
-html:not(.dark) .bg-\[\#1C3454\] .text-\[\#4A6580\] { color: rgba(120,210,255,0.75); }
+/* Muted label text inside glass cards — higher contrast */
+html:not(.dark) .bg-\[\#1C3454\] .text-\[\#94A3B8\] { color: #BAE6FD; }
+html:not(.dark) .bg-\[\#1C3454\] .text-\[\#4A6580\] { color: #93C5FD; }
 
-/* Emerald links inside glass cards → sky blue CTA */
-html:not(.dark) .bg-\[\#1C3454\] .text-emerald-500 { color: #38BDF8; }
-html:not(.dark) .bg-\[\#1C3454\] .hover\:text-emerald-400:hover { color: #7DD3FC; }
+/* Emerald links inside glass cards */
+html:not(.dark) .bg-\[\#1C3454\] .text-emerald-500 { color: #34D399; }
+html:not(.dark) .bg-\[\#1C3454\] .hover\:text-emerald-400:hover { color: #6EE7B7; }
+
+/* text-white in glass cards — subtle shadow for depth */
+html:not(.dark) .bg-\[\#1C3454\] .text-white {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
 
 /* Inputs in light mode → dark translucent with white text */
 html:not(.dark) input,
 html:not(.dark) textarea,
 html:not(.dark) select {
-  background: rgba(0,20,45,0.60) !important;
-  border-color: rgba(55,163,228,0.35) !important;
+  background: rgba(0,20,45,0.70) !important;
+  border-color: rgba(55,163,228,0.55) !important;
   color: #ffffff !important;
 }
 html:not(.dark) input::placeholder,
 html:not(.dark) textarea::placeholder {
-  color: rgba(120,210,255,0.55) !important;
+  color: rgba(186,230,253,0.75) !important;
 }
