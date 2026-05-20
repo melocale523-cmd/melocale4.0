@@ -66,6 +66,7 @@ const CheckoutCancel = lazy(() => import('./pages/checkout/CheckoutCancel'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Termos = lazy(() => import('./pages/Termos'));
 const Privacidade = lazy(() => import('./pages/Privacidade'));
+const Seguranca = lazy(() => import('./pages/Seguranca'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -210,6 +211,10 @@ const router = createBrowserRouter([
       {
         path: '/privacidade',
         element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Privacidade /></Suspense></ErrorBoundary>
+      },
+      {
+        path: '/seguranca',
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Seguranca /></Suspense></ErrorBoundary>
       },
       {
         path: '/profissional/:id/perfil',
