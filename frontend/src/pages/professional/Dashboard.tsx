@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
 import { leadService } from '../../services/dbServices';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
@@ -24,6 +25,9 @@ export default function ProfessionalDashboard() {
     queryFn: () => leadService.getProfessionalStats('30d'),
     staleTime: 1000 * 60 * 5,
   });
+
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const conversionRate = stats && stats.totalProposals > 0
     ? Math.round((stats.acceptedProposalsCount / stats.totalProposals) * 100)
@@ -58,7 +62,15 @@ export default function ProfessionalDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#065F46] border-0 dark:bg-[#1C3454] dark:border dark:border-[#1C3050] rounded-2xl p-6">
+        <div
+          className="rounded-2xl p-6 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
+          style={!isDark ? {
+            background: 'linear-gradient(180deg, rgba(0,40,30,0.92) 0%, rgba(0,80,60,0.75) 100%)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
+            border: '0.5px solid rgba(52,211,153,0.35)',
+          } : undefined}
+        >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[#6EE7B7] dark:text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Saldo de Moedas</h3>
             <Wallet size={16} className="text-[#6EE7B7] dark:text-emerald-500" />
