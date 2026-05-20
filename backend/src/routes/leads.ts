@@ -142,13 +142,14 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
       lead_id: existingLeadId,
     } = parsed.data;
 
-    // Check for existing conversation
+    // Check for existing conversation (matches the partial unique index columns)
     if (existingLeadId) {
       const { data: existingConv } = await withTimeout(
         supabaseAdmin
           .from("conversations")
           .select("id")
           .eq("professional_id", professional_id)
+          .eq("client_id", clientId)
           .eq("lead_id", existingLeadId)
           .maybeSingle()
       );
@@ -187,19 +188,33 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
       leadId = newLead.id as string;
     }
 
-    // Upsert conversation
-    const { data: conv, error: convErr } = await withTimeout(
+    // Check for existing conversation against the real partial unique index
+    // (professional_id, client_id, lead_id) WHERE lead_id IS NOT NULL
+    const { data: existingConv2 } = await withTimeout(
       supabaseAdmin
         .from("conversations")
-        .upsert(
-          { professional_id, client_id: clientId, lead_id: leadId },
-          { onConflict: "professional_id,lead_id", ignoreDuplicates: false }
-        )
         .select("id")
-        .single()
+        .eq("professional_id", professional_id)
+        .eq("client_id", clientId)
+        .eq("lead_id", leadId)
+        .maybeSingle()
     );
-    if (convErr || !conv) throw convErr ?? new Error("Falha ao criar conversa.");
-    const conversationId = conv.id as string;
+
+    let conversationId: string;
+
+    if (existingConv2) {
+      conversationId = existingConv2.id as string;
+    } else {
+      const { data: conv, error: convErr } = await withTimeout(
+        supabaseAdmin
+          .from("conversations")
+          .insert({ professional_id, client_id: clientId, lead_id: leadId })
+          .select("id")
+          .single()
+      );
+      if (convErr || !conv) throw convErr ?? new Error("Falha ao criar conversa.");
+      conversationId = conv.id as string;
+    }
 
     // Insert auto message from client
     const body = `Olá! Gostaria de solicitar um orçamento.\n\n*Serviço:* ${title}\n*Descrição:* ${description}${city ? `\n*Local:* ${city}` : ""}`;
