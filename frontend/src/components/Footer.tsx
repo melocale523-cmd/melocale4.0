@@ -71,7 +71,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/#precos" className="hover:text-emerald-400 transition-colors">
+                <a href="/#planos" className="hover:text-emerald-400 transition-colors">
                   Preços
                 </a>
               </li>
