@@ -120,7 +120,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="text-xs text-[#4A6580] mt-1">
-                Seg–Sex, 9h–18h
+                Atendimento 24h / 7 dias por semana
               </li>
             </ul>
           </div>
