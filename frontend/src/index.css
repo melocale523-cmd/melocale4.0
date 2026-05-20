@@ -136,3 +136,60 @@ html:not(.dark) input::placeholder,
 html:not(.dark) textarea::placeholder {
   color: rgba(186,230,253,0.75) !important;
 }
+
+/* ── Muted text in light mode — larger, bolder, brighter ── */
+
+/* Card uppercase labels (SALDO DE MOEDAS, LEADS COMPRADOS, etc.) */
+html:not(.dark) .bg-\[\#1C3454\] .text-xs.font-bold.uppercase,
+html:not(.dark) .bg-\[\#1C3454\] .text-xs.uppercase,
+html:not(.dark) .bg-\[\#1C3454\] [class*="tracking-widest"] {
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  color: rgba(255,255,255,0.90) !important;
+}
+
+/* Info text inside cards (location, email, budget lines) */
+html:not(.dark) .text-\[\#94A3B8\] {
+  color: rgba(255,255,255,0.88) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+html:not(.dark) .text-\[\#4A6580\] {
+  color: rgba(255,255,255,0.80) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+/* Slate secondary text */
+html:not(.dark) .text-slate-400 {
+  color: rgba(255,255,255,0.80) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+html:not(.dark) .text-slate-500 {
+  color: rgba(255,255,255,0.85) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+/* Small muted text (OFFLINE, timestamps, chat metadata) */
+html:not(.dark) .text-xs.text-\[\#94A3B8\],
+html:not(.dark) .text-xs.text-\[\#4A6580\],
+html:not(.dark) .text-xs.text-slate-400,
+html:not(.dark) .text-xs.text-slate-500 {
+  color: rgba(255,255,255,0.85) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+/* Page subtitles (p and span carrying muted classes) */
+html:not(.dark) p.text-\[\#94A3B8\],
+html:not(.dark) p.text-\[\#4A6580\],
+html:not(.dark) span.text-\[\#94A3B8\],
+html:not(.dark) span.text-\[\#4A6580\] {
+  color: rgba(255,255,255,0.88) !important;
+  font-weight: 500 !important;
+}
