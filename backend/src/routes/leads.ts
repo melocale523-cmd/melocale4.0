@@ -3,6 +3,7 @@ import { z } from "zod";
 import { AuthRequest, requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin, sensitiveLimiter } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
+import { sendPushToUser } from "../lib/push.js";
 
 const router = Router();
 
@@ -113,6 +114,124 @@ router.patch("/leads/:id", sensitiveLimiter, requireAuth, async (req: AuthReques
   } catch (err: unknown) {
     console.error("/api/leads PATCH error:", err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro interno ao atualizar pedido." });
+  }
+});
+
+const solicitarOrcamentoSchema = z.object({
+  professional_id:      z.string().uuid(),
+  professional_user_id: z.string().uuid(),
+  title:       z.string().min(5).max(200),
+  description: z.string().min(10).max(2000),
+  category:    z.string().min(1).max(100),
+  city:        z.string().max(200).optional().default(""),
+  budget_min:  z.number().min(0).nullable().optional(),
+  budget_max:  z.number().min(0).nullable().optional(),
+  lead_id:     z.string().uuid().optional(),
+});
+
+router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
+  const parsed = solicitarOrcamentoSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Dados inválidos.", details: parsed.error.flatten() });
+
+  try {
+    const clientId = req.authUser!.id;
+    const {
+      professional_id, professional_user_id,
+      title, description, category, city,
+      budget_min, budget_max,
+      lead_id: existingLeadId,
+    } = parsed.data;
+
+    // Check for existing conversation
+    if (existingLeadId) {
+      const { data: existingConv } = await withTimeout(
+        supabaseAdmin
+          .from("conversations")
+          .select("id")
+          .eq("professional_id", professional_id)
+          .eq("lead_id", existingLeadId)
+          .maybeSingle()
+      );
+      if (existingConv) {
+        return res.json({ lead_id: existingLeadId, conversation_id: existingConv.id, already_exists: true });
+      }
+    }
+
+    // Create lead if not reusing one
+    let leadId = existingLeadId;
+    if (!leadId) {
+      const location = city || "Não informado";
+      const { data: newLead, error: leadErr } = await withTimeout(
+        supabaseAdmin
+          .from("leads")
+          .insert({
+            title,
+            category,
+            description,
+            location,
+            budget_min:      budget_min ?? 0,
+            budget_max:      budget_max ?? 0,
+            images:          [],
+            metadata:        {},
+            client_id:       clientId,
+            status:          "open",
+            price_coins:     0,
+            max_purchases:   1,
+            purchases_count: 0,
+            visualizacoes:   0,
+          })
+          .select("id")
+          .single()
+      );
+      if (leadErr || !newLead) throw leadErr ?? new Error("Falha ao criar pedido.");
+      leadId = newLead.id as string;
+    }
+
+    // Upsert conversation
+    const { data: conv, error: convErr } = await withTimeout(
+      supabaseAdmin
+        .from("conversations")
+        .upsert(
+          { professional_id, client_id: clientId, lead_id: leadId },
+          { onConflict: "professional_id,lead_id", ignoreDuplicates: false }
+        )
+        .select("id")
+        .single()
+    );
+    if (convErr || !conv) throw convErr ?? new Error("Falha ao criar conversa.");
+    const conversationId = conv.id as string;
+
+    // Insert auto message from client
+    const body = `Olá! Gostaria de solicitar um orçamento.\n\n*Serviço:* ${title}\n*Descrição:* ${description}${city ? `\n*Local:* ${city}` : ""}`;
+    await withTimeout(
+      supabaseAdmin.from("messages").insert({
+        conversation_id: conversationId,
+        body,
+        sender_type: "client",
+        attachments: [],
+      })
+    );
+    await withTimeout(
+      supabaseAdmin
+        .from("conversations")
+        .update({ last_message_at: new Date().toISOString() })
+        .eq("id", conversationId)
+    );
+
+    // Notify professional
+    void sendPushToUser(professional_user_id, {
+      title: "Novo orçamento solicitado",
+      body: `Um cliente solicitou orçamento: ${title}`,
+      data: { type: "new_lead_conversation", conversation_id: conversationId },
+    });
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[leads] solicitar-orcamento: lead=${leadId} conv=${conversationId} client=${clientId}`);
+    }
+    return res.status(201).json({ lead_id: leadId, conversation_id: conversationId, already_exists: false });
+  } catch (err: unknown) {
+    console.error("/api/leads/solicitar-orcamento POST error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro interno ao solicitar orçamento." });
   }
 });
 

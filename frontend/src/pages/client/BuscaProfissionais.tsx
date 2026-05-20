@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Search, MapPin, Tag, Star, UserCircle, Inbox, Loader2, ExternalLink, ChevronDown,
 } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useBuscaProfissionais, type ProfissionalResult } from '../../hooks/useBuscaProfissionais';
 import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
+import SolicitarOrcamentoModal from '../../components/SolicitarOrcamentoModal';
 
 interface Category {
   id: string;
@@ -48,65 +49,76 @@ function RatingBadge({ avg, count }: { avg: number; count: number }) {
 }
 
 function ProfCard({ prof }: { prof: ProfissionalResult }) {
-  const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-5 flex flex-col gap-4 hover:border-emerald-500/30 transition-all">
-      <div className="flex items-start gap-4">
-        {prof.avatarUrl ? (
-          <img
-            src={prof.avatarUrl}
-            alt={prof.fullName}
-            className="w-14 h-14 rounded-xl object-cover shrink-0 border border-[#1C3050]"
-          />
-        ) : (
-          <div className="w-14 h-14 rounded-xl bg-[#0E1C32] border border-[#1C3050] flex items-center justify-center shrink-0">
-            <UserCircle size={28} className="text-[#4A6580]" />
+    <>
+      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-5 flex flex-col gap-4 hover:border-emerald-500/30 transition-all">
+        <div className="flex items-start gap-4">
+          {prof.avatarUrl ? (
+            <img
+              src={prof.avatarUrl}
+              alt={prof.fullName}
+              className="w-14 h-14 rounded-xl object-cover shrink-0 border border-[#1C3050]"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-xl bg-[#0E1C32] border border-[#1C3050] flex items-center justify-center shrink-0">
+              <UserCircle size={28} className="text-[#4A6580]" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="text-base font-bold text-white truncate">{prof.fullName || 'Profissional'}</h3>
+              <RatingBadge avg={prof.avgRating} count={prof.reviewCount} />
+            </div>
+            <StarRow rating={prof.avgRating} count={prof.reviewCount} />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
+              {prof.category && (
+                <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
+                  <Tag size={11} className="text-emerald-500 shrink-0" />
+                  {prof.category}
+                </span>
+              )}
+              {prof.city && (
+                <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
+                  <MapPin size={11} className="text-[#4A6580] shrink-0" />
+                  {prof.city}
+                </span>
+              )}
+            </div>
           </div>
+        </div>
+
+        {prof.bio && (
+          <p className="text-xs text-[#94A3B8] line-clamp-2 leading-relaxed">{prof.bio}</p>
         )}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-bold text-white truncate">{prof.fullName || 'Profissional'}</h3>
-            <RatingBadge avg={prof.avgRating} count={prof.reviewCount} />
-          </div>
-          <StarRow rating={prof.avgRating} count={prof.reviewCount} />
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
-            {prof.category && (
-              <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
-                <Tag size={11} className="text-emerald-500 shrink-0" />
-                {prof.category}
-              </span>
-            )}
-            {prof.city && (
-              <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
-                <MapPin size={11} className="text-[#4A6580] shrink-0" />
-                {prof.city}
-              </span>
-            )}
-          </div>
+
+        <div className="flex gap-2 mt-auto">
+          <Link
+            to={`/profissional/${prof.userId}/perfil`}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-xs font-bold rounded-xl transition-all"
+          >
+            <ExternalLink size={12} />
+            Ver perfil
+          </Link>
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all"
+          >
+            Solicitar orçamento
+          </button>
         </div>
       </div>
 
-      {prof.bio && (
-        <p className="text-xs text-[#94A3B8] line-clamp-2 leading-relaxed">{prof.bio}</p>
-      )}
-
-      <div className="flex gap-2 mt-auto">
-        <Link
-          to={`/profissional/${prof.userId}/perfil`}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-xs font-bold rounded-xl transition-all"
-        >
-          <ExternalLink size={12} />
-          Ver perfil
-        </Link>
-        <button
-          onClick={() => navigate('/cliente/pedidos')}
-          className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all"
-        >
-          Solicitar orçamento
-        </button>
-      </div>
-    </div>
+      <SolicitarOrcamentoModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        professionalId={prof.id}
+        professionalUserId={prof.userId}
+        professionalName={prof.fullName || 'Profissional'}
+        defaultCategory={prof.category ?? ''}
+      />
+    </>
   );
 }
 

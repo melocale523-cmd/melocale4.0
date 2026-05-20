@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '../../lib/supabase';
-import { MapPin, Briefcase, Star, ArrowLeft, Loader2, MessageCircle } from 'lucide-react';
+import { MapPin, Briefcase, Star, ArrowLeft, Loader2, MessageCircle, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAuthStore } from '../../store/authStore';
+import SolicitarOrcamentoModal from '../../components/SolicitarOrcamentoModal';
 
 interface ProfessionalPublic {
   id: string;
@@ -32,6 +34,7 @@ interface Review {
 export default function PerfilPublico() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuthStore();
+  const [orcamentoModalOpen, setOrcamentoModalOpen] = useState(false);
 
   const { data: prof, isLoading } = useQuery<ProfessionalPublic | null>({
     queryKey: ['publicProfile', id],
@@ -162,11 +165,17 @@ export default function PerfilPublico() {
               </p>
             )}
 
-            {user?.role === 'client' && (
-              <div className="mt-4">
+            {user?.role === 'client' && prof && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={() => setOrcamentoModalOpen(true)}
+                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
+                >
+                  <FileText size={16} /> Solicitar orçamento
+                </button>
                 <Link
                   to="/cliente/mensagens"
-                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
+                  className="inline-flex items-center gap-2 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
                 >
                   <MessageCircle size={16} /> Enviar mensagem
                 </Link>
@@ -208,6 +217,17 @@ export default function PerfilPublico() {
           </div>
         )}
       </div>
+
+      {prof && (
+        <SolicitarOrcamentoModal
+          open={orcamentoModalOpen}
+          onClose={() => setOrcamentoModalOpen(false)}
+          professionalId={prof.id}
+          professionalUserId={prof.user_id}
+          professionalName={name}
+          defaultCategory={prof.category ?? ''}
+        />
+      )}
     </div>
   );
 }
