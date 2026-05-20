@@ -213,10 +213,13 @@ export default function BuscaProfissionais() {
                   onClick={() => setMinRating(minRating === s ? 0 : s)}
                   className={cn(
                     'p-1 rounded transition-all',
-                    s <= minRating ? 'text-yellow-400' : 'text-[#1C3050] hover:text-yellow-400/60',
+                    s <= minRating ? 'text-yellow-400' : 'text-slate-500 hover:text-yellow-400/70',
                   )}
                 >
-                  <Star size={16} className={s <= minRating ? 'fill-yellow-400' : 'fill-current'} />
+                  <Star
+                    size={16}
+                    className={s <= minRating ? 'fill-yellow-400' : 'fill-slate-500'}
+                  />
                 </button>
               ))}
             </div>
