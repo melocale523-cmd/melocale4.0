@@ -116,16 +116,24 @@ export function ConversationList({
                     <div className="flex items-center gap-1.5 min-w-0">
                       <h4 className="text-sm font-bold text-white truncate">{name}</h4>
                       {role === 'client' && conv.prof_user_id && (
-                        <button
-                          type="button"
+                        <span
+                          role="button"
+                          tabIndex={0}
                           onClick={(e) => {
                             e.stopPropagation();
                             onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), getOtherAvatar(conv, role));
                           }}
-                          className="text-[9px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-1.5 py-0.5 rounded-full transition-all shrink-0"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), getOtherAvatar(conv, role));
+                            }
+                          }}
+                          className="text-[9px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-1.5 py-0.5 rounded-full transition-all shrink-0 cursor-pointer select-none"
                         >
                           Ver perfil
-                        </button>
+                        </span>
                       )}
                     </div>
                     <span className="text-[10px] text-[#4A6580] font-bold shrink-0">
