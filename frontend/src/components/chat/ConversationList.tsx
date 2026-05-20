@@ -89,6 +89,11 @@ export function ConversationList({
             const avatar = getOtherAvatar(conv, role);
             const isOnline = onlineUsers.includes(getOtherUserId(conv, role) ?? '');
             const unread = getUnreadCount(conv, role);
+            const isNewOrcamento =
+              role === 'professional' &&
+              conv.lead_id !== null &&
+              (conv.unread_for_prof ?? 0) > 0 &&
+              Date.now() - new Date(conv.created_at).getTime() < 48 * 60 * 60 * 1000;
             return (
               <button
                 key={conv.id}
@@ -96,10 +101,18 @@ export function ConversationList({
                 className={cn(
                   'w-full p-6 flex items-start gap-4 transition-all border-b border-white/[0.02] relative',
                   activeConversationId === conv.id ? 'bg-emerald-500/5' : 'hover:bg-white/[0.02]',
+                  isNewOrcamento && activeConversationId !== conv.id ? 'bg-emerald-500/[0.03]' : '',
                 )}
               >
                 {activeConversationId === conv.id && (
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+                )}
+                {isNewOrcamento && (
+                  <div className="absolute top-2 right-2">
+                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-1.5 py-0.5 rounded-full">
+                      NOVO
+                    </span>
+                  </div>
                 )}
                 <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050] relative overflow-hidden">
                   {avatar
@@ -153,6 +166,23 @@ export function ConversationList({
                       </span>
                     )}
                   </div>
+                  {isNewOrcamento && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); onSelectConversation(conv.id); }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onSelectConversation(conv.id);
+                        }
+                      }}
+                      className="mt-2 block w-full py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold rounded-lg transition-all text-center cursor-pointer select-none"
+                    >
+                      Responder orçamento →
+                    </span>
+                  )}
                 </div>
               </button>
             );

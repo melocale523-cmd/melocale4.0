@@ -1,11 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Loader2, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react';
+import { X, Loader2, CheckCircle2, ChevronRight, ArrowLeft, Clock } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
+
+const TITLE_SUGGESTIONS: Record<string, string[]> = {
+  'Eletricista':     ['Instalação elétrica', 'Troca de tomadas', 'Curto circuito', 'Instalação de chuveiro'],
+  'Encanador':       ['Vazamento de água', 'Entupimento', 'Instalação de torneira', 'Troca de cano'],
+  'Pintor':          ['Pintura de quarto', 'Pintura externa', 'Pintura de apartamento', 'Reforma de pintura'],
+  'Pedreiro':        ['Reforma de banheiro', 'Quebra de parede', 'Reboco', 'Construção de muro'],
+  'Marceneiro':      ['Montagem de móveis', 'Conserto de móveis', 'Armário planejado', 'Mesa sob medida'],
+  'Chaveiro':        ['Cópia de chave', 'Troca de fechadura', 'Abertura de porta', 'Fechadura digital'],
+  'Ar-condicionado': ['Instalação de ar-condicionado', 'Limpeza de ar-condicionado', 'Manutenção de ar-condicionado'],
+  'Diarista':        ['Limpeza residencial', 'Faxina completa', 'Limpeza semanal', 'Organização de casa'],
+};
 
 interface Props {
   open: boolean;
@@ -27,6 +38,7 @@ interface SolicitarResult {
   lead_id: string;
   conversation_id: string;
   already_exists: boolean;
+  avg_response_hours: number | null;
 }
 
 type Step = 'choose' | 'form' | 'success';
@@ -69,6 +81,7 @@ export default function SolicitarOrcamentoModal({
       const body: Record<string, unknown> = {
         professional_id:      professionalId,
         professional_user_id: professionalUserId,
+        professional_name:    professionalName,
         title:       title || (selectedLeadId && existingLeads?.find(l => l.id === selectedLeadId)?.title) || 'Orçamento',
         description: description || 'Solicitação de orçamento via perfil.',
         category:    category || defaultCategory || 'Geral',
@@ -224,6 +237,20 @@ export default function SolicitarOrcamentoModal({
                   minLength={5}
                   maxLength={200}
                 />
+                {TITLE_SUGGESTIONS[category] && !title && (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {TITLE_SUGGESTIONS[category].map(s => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setTitle(s)}
+                        className="text-[11px] px-2.5 py-1 bg-[#0E1C32] border border-[#1C3050] hover:border-emerald-500/40 text-[#94A3B8] hover:text-emerald-400 rounded-lg transition-all"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -333,6 +360,21 @@ export default function SolicitarOrcamentoModal({
                     : `${professionalName} receberá sua solicitação e entrará em contato.`}
                 </p>
               </div>
+              {result.avg_response_hours !== null && result.avg_response_hours > 0 && (
+                <div className="flex items-center justify-center gap-2 text-sm text-[#94A3B8] bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5">
+                  <Clock size={14} className="text-emerald-400 shrink-0" />
+                  <span>
+                    {professionalName} costuma responder em{' '}
+                    <strong className="text-white">
+                      {result.avg_response_hours < 1
+                        ? 'menos de 1 hora'
+                        : result.avg_response_hours === 1
+                        ? '1 hora'
+                        : `${result.avg_response_hours} horas`}
+                    </strong>
+                  </span>
+                </div>
+              )}
               <button
                 onClick={() => {
                   handleClose();
