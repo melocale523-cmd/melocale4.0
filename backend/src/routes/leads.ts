@@ -120,6 +120,7 @@ router.patch("/leads/:id", sensitiveLimiter, requireAuth, async (req: AuthReques
 const solicitarOrcamentoSchema = z.object({
   professional_id:      z.string().uuid(),
   professional_user_id: z.string().uuid(),
+  professional_name:    z.string().max(100).optional().default(""),
   title:       z.string().min(5).max(200),
   description: z.string().min(10).max(2000),
   category:    z.string().min(1).max(100),
@@ -136,7 +137,7 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
   try {
     const clientId = req.authUser!.id;
     const {
-      professional_id, professional_user_id,
+      professional_id, professional_user_id, professional_name,
       title, description, category, city,
       budget_min, budget_max,
       lead_id: existingLeadId,
@@ -154,7 +155,7 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
           .maybeSingle()
       );
       if (existingConv) {
-        return res.json({ lead_id: existingLeadId, conversation_id: existingConv.id, already_exists: true });
+        return res.json({ lead_id: existingLeadId, conversation_id: existingConv.id, already_exists: true, avg_response_hours: null });
       }
     }
 
@@ -216,12 +217,31 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
       conversationId = conv.id as string;
     }
 
-    // Insert auto message from client
-    const body = `Olá! Gostaria de solicitar um orçamento.\n\n*Serviço:* ${title}\n*Descrição:* ${description}${city ? `\n*Local:* ${city}` : ""}`;
+    // Insert auto message from client (conversion-optimised copy)
+    const budgetLine = budget_max
+      ? `💰 *Orçamento:* R$ ${budget_min ?? 0} – R$ ${budget_max}`
+      : budget_min
+      ? `💰 *Orçamento:* a partir de R$ ${budget_min}`
+      : "";
+    const profFirstName = professional_name ? professional_name.split(" ")[0] : "";
+    const greeting = profFirstName ? `Olá, ${profFirstName}! 👋` : "Olá! 👋";
+    const messageBody = [
+      greeting,
+      "",
+      "Vi seu perfil e gostei do seu trabalho! Preciso de um orçamento para:",
+      "",
+      `🔧 *${title}*`,
+      `📝 ${description}`,
+      city ? `📍 *Local:* ${city}` : "",
+      budgetLine,
+      "",
+      "Quando teria disponibilidade? Aguardo seu retorno! 😊",
+    ].filter(Boolean).join("\n");
+
     await withTimeout(
       supabaseAdmin.from("messages").insert({
         conversation_id: conversationId,
-        body,
+        body: messageBody,
         sender_type: "client",
         attachments: [],
       })
@@ -233,17 +253,78 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
         .eq("id", conversationId)
     );
 
-    // Notify professional
+    // Push + DB notification for professional
+    const budgetText = budget_max
+      ? `R$ ${budget_min ?? 0}–${budget_max}`
+      : budget_min
+      ? `A partir de R$ ${budget_min}`
+      : "Orçamento a combinar";
+
     void sendPushToUser(professional_user_id, {
-      title: "Novo orçamento solicitado",
-      body: `Um cliente solicitou orçamento: ${title}`,
-      data: { type: "new_lead_conversation", conversation_id: conversationId },
+      title: `💼 Novo orçamento — ${category}`,
+      body: `${title}${city ? ` · ${city}` : ""} · ${budgetText}. Toque para responder!`,
+      data: {
+        type: "new_lead_conversation",
+        conversation_id: conversationId,
+        url: `/profissional/mensagens?chatId=${conversationId}`,
+      },
     });
 
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`[leads] solicitar-orcamento: lead=${leadId} conv=${conversationId} client=${clientId}`);
+    void withTimeout(
+      supabaseAdmin.from("notifications").insert({
+        user_id:  professional_user_id,
+        title:    `💼 Novo orçamento — ${category}`,
+        body:     `${title}${city ? ` em ${city}` : ""}. Toque para ver.`,
+        data:     { type: "new_lead_conversation", conversation_id: conversationId },
+        is_read:  false,
+      })
+    );
+
+    // Avg response time (best-effort, non-blocking)
+    let avg_response_hours: number | null = null;
+    try {
+      const { data: recentConvs } = await withTimeout(
+        supabaseAdmin
+          .from("conversations")
+          .select("id")
+          .eq("professional_id", professional_id)
+          .order("created_at", { ascending: false })
+          .limit(20)
+      );
+      if (recentConvs?.length) {
+        type MsgRow = { conversation_id: string; created_at: string };
+        const convIds = (recentConvs as { id: string }[]).map(c => c.id);
+        const [{ data: clientMsgs }, { data: profMsgs }] = await Promise.all([
+          supabaseAdmin.from("messages").select("conversation_id, created_at").in("conversation_id", convIds).eq("sender_type", "client").order("created_at", { ascending: true }),
+          supabaseAdmin.from("messages").select("conversation_id, created_at").in("conversation_id", convIds).eq("sender_type", "professional").order("created_at", { ascending: true }),
+        ]);
+        const firstClient: Record<string, Date> = {};
+        for (const m of (clientMsgs ?? []) as MsgRow[]) {
+          if (!firstClient[m.conversation_id]) firstClient[m.conversation_id] = new Date(m.created_at);
+        }
+        const firstProf: Record<string, Date> = {};
+        for (const m of (profMsgs ?? []) as MsgRow[]) {
+          if (!firstProf[m.conversation_id]) firstProf[m.conversation_id] = new Date(m.created_at);
+        }
+        const diffs: number[] = [];
+        for (const cid of convIds) {
+          if (firstClient[cid] && firstProf[cid]) {
+            const diff = (firstProf[cid].getTime() - firstClient[cid].getTime()) / 3_600_000;
+            if (diff > 0 && diff < 720) diffs.push(diff);
+          }
+        }
+        if (diffs.length > 0) {
+          avg_response_hours = Math.round((diffs.reduce((a, b) => a + b, 0) / diffs.length) * 10) / 10;
+        }
+      }
+    } catch {
+      // non-critical — return null
     }
-    return res.status(201).json({ lead_id: leadId, conversation_id: conversationId, already_exists: false });
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[leads] solicitar-orcamento: lead=${leadId} conv=${conversationId} client=${clientId} avg_h=${avg_response_hours}`);
+    }
+    return res.status(201).json({ lead_id: leadId, conversation_id: conversationId, already_exists: false, avg_response_hours });
   } catch (err: unknown) {
     console.error("/api/leads/solicitar-orcamento POST error:", err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro interno ao solicitar orçamento." });
