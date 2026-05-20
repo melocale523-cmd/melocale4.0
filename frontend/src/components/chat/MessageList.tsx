@@ -51,7 +51,7 @@ function renderMessageContent(msg: Message) {
       </a>
     );
   }
-  return <span>{msg.body}</span>;
+  return <span className="whitespace-pre-wrap">{msg.body}</span>;
 }
 
 export function MessageList({
