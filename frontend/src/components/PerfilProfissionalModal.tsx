@@ -11,7 +11,8 @@ interface Review {
   rating: number;
   comment: string | null;
   created_at: string;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  client_id: string;
+  clientName?: string | null;
 }
 
 interface Props {
@@ -40,13 +41,30 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
   const { data: reviews, isLoading: reviewsLoading } = useQuery<Review[]>({
     queryKey: ['prof-modal-reviews', prof.id],
     queryFn: async () => {
-      const { data } = await supabase
+      type RawReview = { id: string; rating: number; comment: string | null; created_at: string; client_id: string };
+
+      const { data: rawReviews, error } = await supabase
         .from('reviews')
-        .select('id, rating, comment, created_at, profiles!reviews_client_id_fkey(full_name, avatar_url)')
+        .select('id, rating, comment, created_at, client_id')
         .eq('professional_id', prof.id)
         .order('created_at', { ascending: false })
         .limit(3);
-      return (data ?? []) as unknown as Review[];
+
+      if (error || !rawReviews?.length) return [];
+
+      const rows = rawReviews as unknown as RawReview[];
+      const clientIds = rows.map(r => r.client_id);
+
+      const { data: profileRows } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', clientIds);
+
+      const profileMap: Record<string, string | null> = Object.fromEntries(
+        (profileRows ?? []).map(p => [p.id, p.full_name])
+      );
+
+      return rows.map(r => ({ ...r, clientName: profileMap[r.client_id] ?? null }));
     },
     enabled: open,
   });
@@ -141,7 +159,7 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
                       <div className="flex items-center gap-2">
                         <StarsFull rating={review.rating} size={12} />
                         <span className="text-xs font-semibold text-slate-300">
-                          {review.profiles?.full_name ?? 'Cliente'}
+                          {review.clientName ?? 'Cliente'}
                         </span>
                       </div>
                       <span className="text-[11px] text-[#4A6580] shrink-0">
