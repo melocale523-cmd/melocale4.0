@@ -40,6 +40,30 @@
    Dark mode classes (dark:*) are completely unaffected.
    ═══════════════════════════════════════════════════════════ */
 
+/* ── Global text colors in light mode (on the gradient background) ── */
+html:not(.dark) .text-\[\#94A3B8\] { color: rgba(255,255,255,0.80) !important; }
+html:not(.dark) .text-\[\#4A6580\] { color: rgba(255,255,255,0.70) !important; }
+html:not(.dark) .text-white        { color: #ffffff !important; }
+html:not(.dark) .text-slate-900    { color: #ffffff !important; }
+html:not(.dark) .text-slate-700    { color: rgba(255,255,255,0.85) !important; }
+html:not(.dark) .text-slate-500    { color: rgba(255,255,255,0.70) !important; }
+html:not(.dark) .text-slate-400    { color: rgba(255,255,255,0.65) !important; }
+
+/* Page headings outside cards */
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3 { color: #ffffff !important; }
+
+/* Emerald links / CTAs — green everywhere */
+html:not(.dark) .text-emerald-500  { color: #34D399 !important; }
+html:not(.dark) .text-emerald-400  { color: #6EE7B7 !important; }
+html:not(.dark) a.text-emerald-500 { color: #34D399 !important; }
+html:not(.dark) a.hover\:text-emerald-400:hover { color: #6EE7B7 !important; }
+
+/* Purple / violet links → sky blue */
+html:not(.dark) .text-purple-400   { color: #7DD3FC !important; }
+html:not(.dark) .text-violet-400   { color: #7DD3FC !important; }
+
 /* Gradient background on body */
 html:not(.dark) body {
   background: radial-gradient(ellipse at 50% 40%, #90D8F5 0%, #37a3e4 35%, #0E5C8A 100%) fixed;
@@ -86,9 +110,9 @@ html:not(.dark) .bg-\[\#1C3454\] p.text-white {
   color: #ffffff;
 }
 
-/* Muted label text inside glass cards — higher contrast */
-html:not(.dark) .bg-\[\#1C3454\] .text-\[\#94A3B8\] { color: #BAE6FD; }
-html:not(.dark) .bg-\[\#1C3454\] .text-\[\#4A6580\] { color: #93C5FD; }
+/* Muted label text inside glass cards — bright white-tinted */
+html:not(.dark) .bg-\[\#1C3454\] .text-\[\#94A3B8\] { color: rgba(255,255,255,0.82) !important; }
+html:not(.dark) .bg-\[\#1C3454\] .text-\[\#4A6580\] { color: rgba(255,255,255,0.72) !important; }
 
 /* Emerald links inside glass cards */
 html:not(.dark) .bg-\[\#1C3454\] .text-emerald-500 { color: #34D399; }
