@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Search, MapPin, Tag, Star, UserCircle, Inbox, Loader2, ExternalLink, ChevronDown,
 } from 'lucide-react';
@@ -9,6 +8,7 @@ import { useBuscaProfissionais, type ProfissionalResult } from '../../hooks/useB
 import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
 import SolicitarOrcamentoModal from '../../components/SolicitarOrcamentoModal';
+import PerfilProfissionalModal from '../../components/PerfilProfissionalModal';
 
 interface Category {
   id: string;
@@ -49,7 +49,8 @@ function RatingBadge({ avg, count }: { avg: number; count: number }) {
 }
 
 function ProfCard({ prof }: { prof: ProfissionalResult }) {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [perfilOpen, setPerfilOpen] = useState(false);
+  const [orcamentoOpen, setOrcamentoOpen] = useState(false);
 
   return (
     <>
@@ -94,15 +95,15 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
         )}
 
         <div className="flex gap-2 mt-auto">
-          <Link
-            to={`/profissional/${prof.userId}/perfil`}
+          <button
+            onClick={() => setPerfilOpen(true)}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-xs font-bold rounded-xl transition-all"
           >
             <ExternalLink size={12} />
             Ver perfil
-          </Link>
+          </button>
           <button
-            onClick={() => setModalOpen(true)}
+            onClick={() => setOrcamentoOpen(true)}
             className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all"
           >
             Solicitar orçamento
@@ -110,9 +111,18 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
         </div>
       </div>
 
+      <PerfilProfissionalModal
+        open={perfilOpen}
+        onClose={() => setPerfilOpen(false)}
+        prof={prof}
+        onSolicitarOrcamento={() => {
+          setPerfilOpen(false);
+          setOrcamentoOpen(true);
+        }}
+      />
       <SolicitarOrcamentoModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        open={orcamentoOpen}
+        onClose={() => setOrcamentoOpen(false)}
         professionalId={prof.id}
         professionalUserId={prof.userId}
         professionalName={prof.fullName || 'Profissional'}
