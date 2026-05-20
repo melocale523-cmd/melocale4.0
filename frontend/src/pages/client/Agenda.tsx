@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { appointmentService, type Appointment, reviewService } from '../../services/dbServices';
+import { apiFetch } from '../../lib/api';
 import ReviewModal from '../../components/ReviewModal';
 
 type AppStatus = Appointment['status'];
@@ -115,6 +116,22 @@ export default function ClientAgenda() {
     onError: () => toast.error('Erro ao recusar reagendamento'),
   });
 
+  const confirmPresencaMutation = useMutation({
+    mutationFn: async (appointmentId: string) => {
+      const res = await apiFetch(`/api/appointments/${appointmentId}/confirm`, { method: 'PATCH' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(err.error ?? 'Erro ao confirmar presença');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success('Presença confirmada!');
+    },
+    onError: (err: Error) => toast.error(err.message || 'Não foi possível confirmar. Tente novamente.'),
+  });
+
   const handleConfirm = (appt: Appointment) => {
     updateMutation.mutate({ id: appt.id, status: 'confirmed', notifyUserId: appt.professional?.user_id });
   };
@@ -148,7 +165,12 @@ export default function ClientAgenda() {
     [appointments],
   );
 
-  const anyPending = updateMutation.isPending || rescheduleMutation.isPending || acceptMutation.isPending || declineMutation.isPending;
+  const anyPending =
+    updateMutation.isPending ||
+    rescheduleMutation.isPending ||
+    acceptMutation.isPending ||
+    declineMutation.isPending ||
+    confirmPresencaMutation.isPending;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -201,6 +223,7 @@ export default function ClientAgenda() {
           <div className="space-y-4">
             {sorted.map(appt => {
               const dt = new Date(appt.scheduled_at);
+              const hoursUntil = (dt.getTime() - Date.now()) / 3_600_000;
               const profName = appt.professional?.profile?.full_name || 'Profissional';
               const profCategory = appt.professional?.category;
               const isCancelling = cancellingId === appt.id;
@@ -208,6 +231,14 @@ export default function ClientAgenda() {
               const canReview = appt.status === 'completed' && !reviewedIds.includes(appt.id);
               const profProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'professional';
               const clientProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'client';
+              // Show "Confirmar Presença" within 48 h of the appointment, before it passes, and only once
+              const canConfirmPresenca =
+                (appt.status === 'scheduled' || appt.status === 'rescheduled') &&
+                hoursUntil > 0 &&
+                hoursUntil <= 48 &&
+                !appt.confirmed_at;
+              // Show regular "Confirmar" only when > 48 h away (presence button handles the close window)
+              const canConfirmStatus = appt.status === 'scheduled' && hoursUntil > 48;
 
               return (
                 <div
@@ -306,7 +337,23 @@ export default function ClientAgenda() {
                       {/* Action buttons */}
                       {!isCancelling && (
                         <div className="flex flex-wrap gap-2 mt-3">
-                          {appt.status === 'scheduled' && (
+                          {/* Presence confirmation — only within 48h window */}
+                          {canConfirmPresenca && (
+                            <button
+                              onClick={() => confirmPresencaMutation.mutate(appt.id)}
+                              disabled={anyPending}
+                              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                            >
+                              {confirmPresencaMutation.isPending ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : (
+                                <CheckCircle2 size={13} />
+                              )}
+                              Confirmar Presença
+                            </button>
+                          )}
+                          {/* Regular confirm — only when appointment is > 48 h away */}
+                          {canConfirmStatus && (
                             <button
                               onClick={() => handleConfirm(appt)}
                               disabled={anyPending}
@@ -336,7 +383,8 @@ export default function ClientAgenda() {
                           )}
                           {appt.status === 'confirmed' && (
                             <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold ml-1">
-                              <CheckCircle2 size={13} /> Confirmado
+                              <CheckCircle2 size={13} className="fill-emerald-400" />
+                              Confirmado ✓
                             </div>
                           )}
                           {canReview && (

@@ -6,6 +6,7 @@ import cors from "cors";
 import { loadCoinPackages } from "./src/config.js";
 import { registerRoutes } from "./src/routes/index.js";
 import { startJobs } from "./src/jobs/reminders.js";
+import { startAppointmentReminderJob } from "./src/jobs/appointmentReminder.js";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -95,6 +96,7 @@ async function startServer() {
   setInterval(loadCoinPackages, 60 * 60 * 1000);
 
   startJobs();
+  startAppointmentReminderJob();
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
