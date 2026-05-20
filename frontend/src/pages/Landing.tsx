@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
@@ -298,12 +299,7 @@ export default function LandingPage() {
 
       </main>
       
-      {/* Footer minimal */}
-      <footer className="border-t border-slate-800/50 py-12 bg-[#0E1C32] mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-[#4A6580] text-sm">
-          <p>&copy; {new Date().getFullYear()} MeloCalé. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
