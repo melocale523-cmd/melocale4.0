@@ -64,9 +64,9 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0E1C32] flex">
+    <div className="min-h-screen dark:bg-[#0E1C32] flex">
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:flex flex-col w-64 fixed inset-y-0 bg-white dark:bg-[#132540] border-r border-slate-200 dark:border-[#1C3050] z-50">
+      <aside className="hidden lg:flex flex-col w-64 fixed inset-y-0 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] z-50">
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
@@ -88,7 +88,7 @@ export default function AdminLayout() {
                   "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                   isActive
                     ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none"
-                    : "text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1C3454] border border-transparent"
+                    : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-[#1C3454] border border-transparent"
                 )}
               >
                 <item.icon size={18} className={cn(isActive ? "text-red-400" : "text-[#4A6580]")} />
@@ -103,10 +103,10 @@ export default function AdminLayout() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-200 dark:border-[#1C3050]">
+        <div className="p-4 border-t border-white/20 dark:border-[#1C3050]">
            <button
              onClick={handleLogout}
-             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-500 dark:text-[#94A3B8] hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
            >
              <LogOut size={18} />
              <span>Sair do perfil</span>
@@ -117,19 +117,19 @@ export default function AdminLayout() {
       {/* Main Content */}
       <main className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         {/* Topbar */}
-        <header className="h-16 lg:h-20 bg-white/80 dark:bg-[#0E1C32]/80 backdrop-blur-md border-b border-slate-200 dark:border-[#1C3050] sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between">
+        <header className="h-16 lg:h-20 bg-white/10 backdrop-blur-xl dark:bg-[#0E1C32]/80 dark:backdrop-blur-md border-b border-white/20 dark:border-[#1C3050] sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-             <button 
+             <button
                onClick={() => setMobileMenuOpen(true)}
-               className="lg:hidden p-2 text-[#94A3B8] hover:text-slate-200"
+               className="lg:hidden p-2 text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200"
              >
                <Menu size={24} />
              </button>
-             
+
              {/* Back Button present in every layout */}
-             <button 
-               onClick={() => navigate(-1)} 
-               className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-[#94A3B8] hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+             <button
+               onClick={() => navigate(-1)}
+               className="hidden sm:flex items-center gap-2 text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 transition-colors"
              >
                <ArrowLeft size={16} /> Voltar
              </button>
@@ -155,7 +155,7 @@ export default function AdminLayout() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
            <div className="fixed inset-0 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
-           <aside className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-[#132540] border-r border-slate-200 dark:border-[#1C3050] flex flex-col">
+           <aside className="fixed inset-y-0 left-0 w-64 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] flex flex-col">
               <div className="p-6">
                 <span className="text-lg font-bold text-white">MeloCalé <span className="text-red-500 text-xs">ADMIN</span></span>
               </div>
@@ -169,7 +169,7 @@ export default function AdminLayout() {
                         onClick={() => setMobileMenuOpen(false)}
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium",
-                          location.pathname.startsWith(item.href) ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none" : "text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-200"
+                          location.pathname.startsWith(item.href) ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none" : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200"
                         )}
                       >
                         <item.icon size={18} />
@@ -182,7 +182,7 @@ export default function AdminLayout() {
                       </Link>
                     );
                  })}
-                 <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#94A3B8] hover:text-red-400 mt-8">
+                 <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-red-400 mt-8">
                    <LogOut size={18} /> Sair do perfil
                  </button>
               </nav>

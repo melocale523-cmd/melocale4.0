@@ -58,13 +58,13 @@ export default function ProfessionalDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-6">
+        <div className="bg-[#065F46] border-0 dark:bg-[#1C3454] dark:border dark:border-[#1C3050] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Saldo de Moedas</h3>
-            <Wallet size={16} className="text-emerald-500" />
+            <h3 className="text-[#6EE7B7] dark:text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Saldo de Moedas</h3>
+            <Wallet size={16} className="text-[#6EE7B7] dark:text-emerald-500" />
           </div>
           <p className="text-3xl font-bold text-white mb-2">{balanceCoins} moedas</p>
-          <Link to="/profissional/carteira" className="text-emerald-500 hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
+          <Link to="/profissional/carteira" className="text-[#A7F3D0] hover:text-[#6EE7B7] dark:text-emerald-500 dark:hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
             Recarregar <ArrowRight size={12} />
           </Link>
         </div>

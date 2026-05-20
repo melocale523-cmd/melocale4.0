@@ -5,7 +5,7 @@ export default function AuthLayout() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#0E1C32] flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen dark:bg-[#0E1C32] flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
@@ -15,10 +15,10 @@ export default function AuthLayout() {
              MeloCalé
           </span>
         </div>
-        <div className="bg-[#132540] border border-[#2563eb33] p-8 rounded-3xl shadow-[0_0_40px_rgba(37,99,235,0.08)]">
+        <div className="bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] border border-white/30 dark:border-[#2563eb33] p-8 rounded-3xl shadow-[0_0_40px_rgba(37,99,235,0.08)]">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-[#B0C4D8] hover:text-white transition-colors text-sm font-medium mb-6 border border-[#243F6A] hover:border-[#2563eb] px-3 py-1.5 rounded-xl"
+            className="flex items-center gap-2 text-white/80 dark:text-[#B0C4D8] hover:text-white transition-colors text-sm font-medium mb-6 border border-white/30 dark:border-[#243F6A] hover:border-white/60 dark:hover:border-[#2563eb] px-3 py-1.5 rounded-xl"
           >
             <ArrowLeft size={15} />
             Voltar
