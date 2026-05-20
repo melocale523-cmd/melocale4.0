@@ -128,8 +128,8 @@ export default function Seguranca() {
               contato de forma responsável antes de divulgar publicamente:
             </p>
             <p className="mt-2">
-              <a href="mailto:seguranca@melocale.com.br" className="text-emerald-400 hover:underline font-medium">
-                seguranca@melocale.com.br
+              <a href="mailto:melocaleoficial@gmail.com" className="text-emerald-400 hover:underline font-medium">
+                melocaleoficial@gmail.com
               </a>
             </p>
             <p className="mt-2">
