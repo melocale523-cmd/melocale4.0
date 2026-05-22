@@ -9,6 +9,8 @@ import {
   supabaseAdmin,
   PLANS,
   SUBSCRIPTION_PLANS,
+  STRIPE_PRICE_IDS,
+  getPackagePriceId,
   coinPackagesCache,
 } from "../config.js";
 import { AuthRequest, requireAuth } from "../middleware/auth.js";
@@ -84,8 +86,16 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
         p_stripe_event_id: event.id,
       });
       if (rpcErr) {
-        console.error("Erro no RPC credit_professional_coins:", rpcErr instanceof Error ? rpcErr.message : String(rpcErr));
-        return res.status(500).json({ error: "Falha ao creditar" });
+        // Log estruturado para facilitar debugging
+        console.error('[webhook] CRÍTICO: falha ao creditar moedas', {
+          session_id: session.id,
+          user_id: userId,
+          package_id: packageId,
+          error: rpcErr.message,
+          timestamp: new Date().toISOString(),
+        });
+        // Retornar 500 faz o Stripe retentar o webhook automaticamente (por até 3 dias)
+        return res.status(500).json({ error: "credit_failed" });
       }
       if (process.env.NODE_ENV !== "production") {
         console.log(`[webhook] coins creditados: userId=${userId} coins=${coinsAmount} sessionId=${session.id}`);
@@ -161,20 +171,16 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
         return res.status(404).json({ error: "Plano de assinatura nao encontrado." });
       }
 
+      const priceId = STRIPE_PRICE_IDS[package_id];
+      if (!priceId) {
+        console.error(`[checkout] price_id não configurado para plano: ${package_id}`);
+        return res.status(400).json({ error: "invalid_plan" });
+      }
+
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
         payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: "brl",
-              product_data: { name: plan.name, description: plan.description },
-              unit_amount: plan.price,
-              recurring: { interval: "month" },
-            },
-            quantity: 1,
-          },
-        ],
+        line_items: [{ price: priceId, quantity: 1 }],
         metadata: {
           user_id: String(user_id),
           package_id: String(package_id),
@@ -201,6 +207,7 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
       return res.status(404).json({ error: "Pacote nao encontrado ou inativo." });
     }
 
+    // Verificar plano ativo para selecionar price_id com desconto quando disponível
     const { data: activeSub } = await supabaseAdmin
       .from("user_subscriptions")
       .select("package_id")
@@ -208,31 +215,16 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
       .in("status", ["active", "canceling"])
       .maybeSingle();
 
-    const discount = activeSub?.package_id
-      ? (PLANS[activeSub.package_id]?.coinDiscount ?? 0)
-      : 0;
-
-    const originalPrice = Math.round(Number(pkg.price) * 100);
-    const finalPrice = Math.round(originalPrice * (1 - discount));
+    const priceId = getPackagePriceId(package_id, activeSub?.package_id);
+    if (!priceId) {
+      console.error(`[checkout] price_id não encontrado para pacote: ${package_id}, plano: ${activeSub?.package_id}`);
+      return res.status(400).json({ error: "invalid_package" });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "brl",
-            product_data: {
-              name: pkg.name,
-              description: discount > 0
-                ? `${pkg.coins} moedas MeloCale — ${discount * 100}% OFF (plano ativo)`
-                : `${pkg.coins} moedas MeloCale`,
-            },
-            unit_amount: finalPrice,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       metadata: {
         user_id: String(user_id),
         package_id: String(pkg.id),

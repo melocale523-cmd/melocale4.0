@@ -39,6 +39,55 @@ export const PLANS: Record<string, {
   plan_business: { name: "Elite",   price: 12700, welcomeCoins: 200, coinDiscount: 0.55 },
 };
 
+// Mapa de package_id → Stripe price_id
+// Para pacotes de moedas avulsas, existe um price_id por combinação de pacote + plano ativo
+export const STRIPE_PRICE_IDS: Record<string, string> = {
+  // Planos mensais recorrentes
+  plan_basic:    process.env.STRIPE_PRICE_STARTER ?? '',
+  plan_pro:      process.env.STRIPE_PRICE_PRO     ?? '',
+  plan_business: process.env.STRIPE_PRICE_ELITE   ?? '',
+
+  // Pacotes de moedas — preço cheio (sem plano ativo)
+  pack_starter:  process.env.STRIPE_PRICE_PACK_BASIC   ?? '',
+  pack_pro:      process.env.STRIPE_PRICE_PACK_POPULAR ?? '',
+  pack_premium:  process.env.STRIPE_PRICE_PACK_MAX     ?? '',
+
+  // Pacotes de moedas — Básico (60 moedas) com desconto
+  pack_starter_plan_basic:    process.env.STRIPE_PRICE_PACK_BASIC_STARTER ?? '',
+  pack_starter_plan_pro:      process.env.STRIPE_PRICE_PACK_BASIC_PRO     ?? '',
+  pack_starter_plan_business: process.env.STRIPE_PRICE_PACK_BASIC_ELITE   ?? '',
+
+  // Pacotes de moedas — Popular (200 moedas) com desconto
+  pack_pro_plan_basic:    process.env.STRIPE_PRICE_PACK_POPULAR_STARTER ?? '',
+  pack_pro_plan_pro:      process.env.STRIPE_PRICE_PACK_POPULAR_PRO     ?? '',
+  pack_pro_plan_business: process.env.STRIPE_PRICE_PACK_POPULAR_ELITE   ?? '',
+
+  // Pacotes de moedas — Máximo (560 moedas) com desconto
+  pack_premium_plan_basic:    process.env.STRIPE_PRICE_PACK_MAX_STARTER ?? '',
+  pack_premium_plan_pro:      process.env.STRIPE_PRICE_PACK_MAX_PRO     ?? '',
+  pack_premium_plan_business: process.env.STRIPE_PRICE_PACK_MAX_ELITE   ?? '',
+};
+
+// Retorna o price_id correto para um pacote, considerando o plano ativo do usuário
+export function getPackagePriceId(packageId: string, activePlanId?: string | null): string {
+  if (activePlanId) {
+    const discountKey = `${packageId}_${activePlanId}`;
+    const discountedPrice = STRIPE_PRICE_IDS[discountKey];
+    if (discountedPrice) return discountedPrice;
+  }
+  // Fallback: preço cheio
+  return STRIPE_PRICE_IDS[packageId] ?? '';
+}
+
+// Validar que os price IDs obrigatórios estão configurados em produção
+if (process.env.NODE_ENV === 'production') {
+  const required = ['plan_basic', 'plan_pro', 'plan_business', 'pack_starter', 'pack_pro', 'pack_premium'];
+  const missing = required.filter(k => !STRIPE_PRICE_IDS[k]);
+  if (missing.length > 0) {
+    console.error('[stripe] ERRO: price IDs obrigatórios faltando para:', missing);
+  }
+}
+
 export const SUBSCRIPTION_PLANS: Record<string, { name: string; price: number; description: string }> = Object.fromEntries(
   Object.entries(PLANS).map(([k, v]) => [k, {
     name: v.name,
