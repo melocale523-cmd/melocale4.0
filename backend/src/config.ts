@@ -39,6 +39,28 @@ export const PLANS: Record<string, {
   plan_business: { name: "Elite",   price: 12700, welcomeCoins: 200, coinDiscount: 0.55 },
 };
 
+// Mapa de package_id para Stripe price_id
+// Usado para substituir price_data inline pelo price_id real do Stripe Dashboard
+export const STRIPE_PRICE_IDS: Record<string, string> = {
+  plan_basic:    process.env.STRIPE_PRICE_STARTER      ?? '',
+  plan_pro:      process.env.STRIPE_PRICE_PRO          ?? '',
+  plan_business: process.env.STRIPE_PRICE_ELITE        ?? '',
+  pack_starter:  process.env.STRIPE_PRICE_PACK_BASIC   ?? '',
+  pack_pro:      process.env.STRIPE_PRICE_PACK_POPULAR ?? '',
+  pack_premium:  process.env.STRIPE_PRICE_PACK_MAX     ?? '',
+};
+
+// Validar que todos os price IDs estão configurados em produção
+if (process.env.NODE_ENV === 'production') {
+  const missing = Object.entries(STRIPE_PRICE_IDS)
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  if (missing.length > 0) {
+    console.error('[stripe] ERRO: price IDs faltando para:', missing);
+    // Não encerrar o processo — apenas logar para não derrubar o servidor
+  }
+}
+
 export const SUBSCRIPTION_PLANS: Record<string, { name: string; price: number; description: string }> = Object.fromEntries(
   Object.entries(PLANS).map(([k, v]) => [k, {
     name: v.name,

@@ -35,6 +35,8 @@ const PLAN_PRICES: Record<string, string> = {
   plan_business: '127',
 };
 
+// ATENÇÃO: estes valores devem espelhar PLANS[x].coinDiscount em backend/src/config.ts
+// Se mudar lá, mudar aqui também. Futuramente buscar via API.
 const PLAN_DISCOUNTS: Record<string, number> = {
   plan_basic:    25,
   plan_pro:      40,
