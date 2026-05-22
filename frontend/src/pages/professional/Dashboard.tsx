@@ -1,10 +1,13 @@
-import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, TrendingUp, Users, Activity } from 'lucide-react';
+import { Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight, TrendingUp, Users, Activity, Star, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
 import { leadService } from '../../services/dbServices';
 import { useTheme } from '../../hooks/useTheme';
+import { apiFetch } from '../../lib/api';
 
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
@@ -28,6 +31,37 @@ export default function ProfessionalDashboard() {
 
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+
+  const [featuredBusy, setFeaturedBusy] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('featured') === 'success') {
+      toast.success('Destaque ativado! Você aparecerá no topo por 7 dias.');
+      window.history.replaceState({}, '', '/profissional/dashboard');
+    }
+  }, []);
+
+  const handleActivateFeatured = async () => {
+    setFeaturedBusy(true);
+    try {
+      const res = await apiFetch('/api/create-featured-checkout', { method: 'POST' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(err.error ?? `HTTP ${res.status}`);
+      }
+      const data = await res.json() as { url?: string };
+      if (data.url) window.location.href = data.url;
+    } catch (e) {
+      if (import.meta.env.DEV) console.error('[featured-checkout]', e);
+      toast.error(e instanceof Error ? e.message : 'Erro ao ativar destaque.');
+    } finally {
+      setFeaturedBusy(false);
+    }
+  };
+
+  const featuredUntil = profile?.featuredUntil ? new Date(profile.featuredUntil) : null;
+  const isFeaturedActive = featuredUntil !== null && featuredUntil > new Date();
 
   const conversionRate = stats && stats.totalProposals > 0
     ? Math.round((stats.acceptedProposalsCount / stats.totalProposals) * 100)
@@ -210,6 +244,39 @@ export default function ProfessionalDashboard() {
             </Link>
           </div>
         )}
+      </div>
+
+      {/* Destaque Pontual */}
+      <div className="bg-gradient-to-r from-[#1C1613] to-[#1C2A3A] border border-yellow-500/20 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
+            <Star size={22} className="text-yellow-400 fill-yellow-400/30" />
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-base">Destaque Pontual</h3>
+            <p className="text-[#94A3B8] text-sm">Apareça no topo das buscas por 7 dias</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 shrink-0">
+          {isFeaturedActive && featuredUntil ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-1.5">
+              <CheckCircle2 size={13} />
+              Ativo até {featuredUntil.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+            </span>
+          ) : (
+            <>
+              <span className="text-yellow-400 font-black text-lg">R$19</span>
+              <button
+                onClick={() => void handleActivateFeatured()}
+                disabled={featuredBusy}
+                className="bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-wait text-black text-sm font-black px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-yellow-500/20"
+              >
+                {featuredBusy ? <Loader2 size={15} className="animate-spin" /> : <Star size={15} className="fill-black/30" />}
+                Ativar Destaque
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Primeiros Passos — only while steps remain */}

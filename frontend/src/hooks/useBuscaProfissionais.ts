@@ -13,6 +13,7 @@ export interface ProfissionalResult {
   avgRating: number;
   reviewCount: number;
   createdAt: string;
+  featuredUntil: string | null;
 }
 
 export interface BuscaParams {
@@ -34,6 +35,7 @@ type ProfRow = {
   created_at: string;
   rating_avg: number | string | null;
   review_count: number | null;
+  featured_until: string | null;
 };
 
 type ProfileRow = { id: string; full_name: string | null; avatar_url: string | null };
@@ -63,13 +65,15 @@ export function useBuscaProfissionais(params: BuscaParams, userId: string | unde
       // without a typed Database generic, any table/column string is accepted.
       let q = supabase
         .from('professionals_with_rating' as never)
-        .select('id, user_id, bio, category, city, created_at, rating_avg, review_count')
+        .select('id, user_id, bio, category, city, created_at, rating_avg, review_count, featured_until')
         .eq('is_active', true)
         .eq('onboarding_completed', true);
 
       if (debounced.category) q = q.eq('category', debounced.category);
       if (debounced.city) q = q.ilike('city', `%${debounced.city}%`);
       if (debounced.minRating > 0) q = q.gte('rating_avg', debounced.minRating);
+
+      q = q.order('featured_until', { ascending: false, nullsFirst: false });
 
       if (debounced.sortBy === 'rating') {
         q = q.order('rating_avg', { ascending: false }).order('created_at', { ascending: false });
@@ -111,6 +115,7 @@ export function useBuscaProfissionais(params: BuscaParams, userId: string | unde
         avgRating: Number(p.rating_avg ?? 0),
         reviewCount: Number(p.review_count ?? 0),
         createdAt: p.created_at,
+        featuredUntil: p.featured_until ?? null,
       }));
 
       if (debounced.query) {

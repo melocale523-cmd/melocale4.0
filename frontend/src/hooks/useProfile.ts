@@ -17,6 +17,7 @@ export interface ProfileData {
   category: string;
   serviceRadius: number | null;
   isActive: boolean;
+  featuredUntil: string | null;
 }
 
 async function fetchProfileData(userId: string, hasProfessionalId: boolean): Promise<ProfileData> {
@@ -38,7 +39,7 @@ async function fetchProfileData(userId: string, hasProfessionalId: boolean): Pro
       .single(),
     supabase
       .from('professionals')
-      .select('id, bio, category, service_radius, is_active')
+      .select('id, bio, category, service_radius, is_active, featured_until')
       .eq('user_id', userId)
       .single(),
   ]);
@@ -60,6 +61,7 @@ async function fetchProfileData(userId: string, hasProfessionalId: boolean): Pro
     category: prof.category || '',
     serviceRadius: prof.service_radius ?? null,
     isActive: prof.is_active ?? true,
+    featuredUntil: (prof as { featured_until?: string | null }).featured_until ?? null,
   };
 }
 

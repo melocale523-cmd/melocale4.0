@@ -34,6 +34,21 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
     const packageId = session.metadata?.package_id;
     const sessionType = session.metadata?.type;
 
+    if (sessionType === "featured_spotlight" && userId) {
+      const { error: featErr } = await withTimeout(
+        supabaseAdmin.from("professionals")
+          .update({ featured_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() })
+          .eq("user_id", userId)
+      );
+      if (featErr) {
+        console.error("[webhook] falha ao ativar destaque:", featErr.message);
+        res.status(500).json({ error: "featured_update_failed" }); return;
+      }
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`[webhook] destaque ativado: userId=${userId}`);
+      }
+    }
+
     if (sessionType === "subscription" && userId && packageId) {
       const stripeSubId = typeof session.subscription === "string"
         ? session.subscription
@@ -515,6 +530,50 @@ router.post("/cancel-subscription", requireAuth, async (req: AuthRequest, res: R
   } catch (err: unknown) {
     console.error("Erro em /api/cancel-subscription:", err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro interno do servidor. Tente novamente." });
+  }
+});
+
+router.post("/create-featured-checkout", requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const authUser = req.authUser!;
+
+    const ALLOWED_ORIGINS_FEAT = [
+      "https://www.melocale.com.br",
+      "https://melocale.com.br",
+      process.env.FRONTEND_URL,
+    ].filter(Boolean) as string[];
+    const requestOriginFeat = req.headers.origin ?? "";
+    const frontendUrl = (
+      ALLOWED_ORIGINS_FEAT.includes(requestOriginFeat)
+        ? requestOriginFeat
+        : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
+    ).replace(/\/$/, "");
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "brl",
+            product_data: { name: "Destaque Pontual 7 dias" },
+            unit_amount: 1900,
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        type: "featured_spotlight",
+        user_id: authUser.id,
+      },
+      success_url: `${frontendUrl}/profissional/dashboard?featured=success`,
+      cancel_url: `${frontendUrl}/profissional/dashboard`,
+    });
+
+    return res.json({ url: session.url });
+  } catch (err: unknown) {
+    console.error("[stripe] create-featured-checkout error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao criar sessão de destaque. Tente novamente." });
   }
 });
 
