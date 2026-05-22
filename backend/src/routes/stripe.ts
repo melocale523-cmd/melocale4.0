@@ -49,6 +49,18 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
       } catch (subErr) {
         console.error("Erro ao gravar user_subscription:", subErr instanceof Error ? subErr.message : String(subErr));
       }
+
+      if (userId) {
+        try {
+          await fetch(`${process.env.BACKEND_URL ?? 'http://localhost:3001'}/api/referrals/convert`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ referredUserId: userId }),
+          });
+        } catch {
+          // silencioso — não deixar falha de indicação quebrar o webhook
+        }
+      }
     }
 
     let coinsAmount = 0;

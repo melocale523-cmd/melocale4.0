@@ -8,6 +8,7 @@ import appointmentsRouter from "./appointments.js";
 import chatRouter from "./chat.js";
 import supportRouter from "./support.js";
 import adminRouter from "./admin.js";
+import referralsRouter from "./referrals.js";
 
 export function registerRoutes(app: Application) {
   // CRITICAL: stripe webhook uses express.raw() — must be registered BEFORE express.json()
@@ -45,4 +46,5 @@ export function registerRoutes(app: Application) {
   app.use("/api", chatRouter);
   app.use("/api", supportRouter);
   app.use("/api/admin", adminRouter);
+  app.use("/api/referrals", referralsRouter);
 }

@@ -64,6 +64,7 @@ const AdminRelatorios = lazy(() => import('./pages/admin/Relatorios'));
 const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 const CheckoutCancel = lazy(() => import('./pages/checkout/CheckoutCancel'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Indicacao = lazy(() => import('./pages/Indicacao'));
 const Termos = lazy(() => import('./pages/Termos'));
 const Privacidade = lazy(() => import('./pages/Privacidade'));
 const Seguranca = lazy(() => import('./pages/Seguranca'));
@@ -146,6 +147,11 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
   return <>{children}</>;
 }
 
+function CadastroRedirect() {
+  const location = useLocation();
+  return <Navigate to={`/login${location.search}`} replace />;
+}
+
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
 
@@ -217,6 +223,10 @@ const router = createBrowserRouter([
         element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Seguranca /></Suspense></ErrorBoundary>
       },
       {
+        path: '/cadastro',
+        element: <CadastroRedirect />
+      },
+      {
         path: '/profissional/:id/perfil',
         element: <ErrorBoundary><Suspense fallback={<PageLoader />}><PerfilPublico /></Suspense></ErrorBoundary>
       },
@@ -244,6 +254,7 @@ const router = createBrowserRouter([
           { path: 'agenda', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientAgenda /></Suspense></ErrorBoundary> },
           { path: 'configuracoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientConfiguracoes /></Suspense></ErrorBoundary> },
           { path: 'busca', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientBuscaProfissionais /></Suspense></ErrorBoundary> },
+          { path: 'indicacao', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Indicacao /></Suspense></ErrorBoundary> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
@@ -271,6 +282,7 @@ const router = createBrowserRouter([
           { path: 'assinatura', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalAssinatura /></Suspense></ErrorBoundary> },
           { path: 'perfil', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalPerfil /></Suspense></ErrorBoundary> },
           { path: 'configuracoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ProfessionalConfiguracoes /></Suspense></ErrorBoundary> },
+          { path: 'indicacao', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Indicacao /></Suspense></ErrorBoundary> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },

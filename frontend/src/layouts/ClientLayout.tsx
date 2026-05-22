@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, ClipboardList, MessageSquare, UserCircle, LogOut, ArrowLeft, Menu, X, Calendar, Settings, Search } from 'lucide-react';
+import { Home, ClipboardList, MessageSquare, UserCircle, LogOut, ArrowLeft, Menu, X, Calendar, Settings, Search, Gift } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
@@ -74,6 +74,7 @@ export default function ClientLayout() {
     { name: 'Agenda', path: '/cliente/agenda', icon: Calendar },
     { name: 'Mensagens', path: '/cliente/mensagens', icon: MessageSquare },
     { name: 'Meu Perfil', path: '/cliente/perfil', icon: UserCircle },
+    { name: 'Indicações', path: '/cliente/indicacao', icon: Gift },
     { name: 'Configurações', path: '/cliente/configuracoes', icon: Settings },
   ];
 
