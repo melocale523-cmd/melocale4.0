@@ -1,6 +1,18 @@
 {
+  "functions": {
+    "api/[servico]-[cidade].ts": {
+      "runtime": "@vercel/edge"
+    }
+  },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/:categoria-:cidade",
+      "destination": "/api/[servico]-[cidade]"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
