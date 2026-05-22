@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, ArrowLeft, Calendar, MessageSquare, BarChart3, CreditCard, Settings, Menu, X, Wallet, LayoutDashboard, Target, ShoppingBag, UserCircle } from 'lucide-react';
+import { LogOut, ArrowLeft, Calendar, MessageSquare, BarChart3, CreditCard, Settings, Menu, X, Wallet, LayoutDashboard, Target, ShoppingBag, UserCircle, Gift } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
@@ -55,6 +55,7 @@ export default function ProfessionalLayout() {
     { name: 'Carteira', path: '/profissional/carteira', icon: Wallet },
     { name: 'Assinatura', path: '/profissional/assinatura', icon: CreditCard },
     { name: 'Perfil', path: '/profissional/perfil', icon: UserCircle },
+    { name: 'Indicações', path: '/profissional/indicacao', icon: Gift },
     { name: 'Configurações', path: '/profissional/configuracoes', icon: Settings },
   ];
 

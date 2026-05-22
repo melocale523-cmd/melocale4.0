@@ -6,6 +6,7 @@ import { Loader2, AlertCircle, ArrowLeft, ChevronRight, Briefcase, User as UserI
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
+import { API_URL } from '../../lib/api';
 
 function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -154,7 +155,8 @@ export default function Login() {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
     const roleParam = params.get('role');
-    
+    const refCode = params.get('ref');
+
     if (mode === 'signup') {
       setIsSignUp(true);
       setIsLockedMode(true);
@@ -166,6 +168,8 @@ export default function Login() {
     if (roleParam === 'professional' || roleParam === 'client') {
       setSelectedRole(roleParam as 'professional' | 'client');
     }
+
+    if (refCode) sessionStorage.setItem('melocale_ref', refCode);
   }, []);
 
   // Wait for the router logic located in AuthRedirect to decide where to go
@@ -234,6 +238,20 @@ export default function Login() {
             p_category: finalCategory ?? '',
             p_service_radius: 50,
           });
+        }
+
+        const pendingRef = sessionStorage.getItem('melocale_ref');
+        if (pendingRef && signUpData.user?.id) {
+          try {
+            await fetch(`${API_URL}/api/referrals/register`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code: pendingRef, newUserId: signUpData.user.id }),
+            });
+          } catch {
+            // silencioso — não bloquear o cadastro por falha de indicação
+          }
+          sessionStorage.removeItem('melocale_ref');
         }
 
         toast.success("Conta criada! Verifique seu e-mail.");
