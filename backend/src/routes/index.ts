@@ -1,6 +1,5 @@
 import express, { Application, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
-import { supabaseAdmin } from "../config.js";
 import stripeRouter, { stripeWebhookHandler } from "./stripe.js";
 import notificationsRouter from "./notifications.js";
 import leadsRouter from "./leads.js";
@@ -11,36 +10,28 @@ import adminRouter from "./admin.js";
 import referralsRouter from "./referrals.js";
 
 export function registerRoutes(app: Application) {
-  // Webhook precisa de raw body — registrar ANTES do express.json()
+  // Webhook precisa de raw body — registrar ANTES do express.json() e do rate limiter
+  // (Stripe não tem IP fixo, então o limiter global não pode bloquear webhooks legítimos)
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
 
   app.use(express.json());
 
-  // Demais rotas stripe com body já parseado
-  app.use("/api", stripeRouter);
-
+  // Rate limiter global ANTES de qualquer rota /api para que todas as rotas Stripe
+  // (create-connected-account, create-account-link, create-featured-checkout, etc.)
+  // estejam protegidas contra abuso.
   app.use("/api/", rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Muitas tentativas. Tente novamente em 15 minutos." },
   }));
 
-  app.get("/api/health", async (_req: Request, res: Response) => {
-    let db: "connected" | "error" = "error";
-    try {
-      await Promise.race([
-        supabaseAdmin.from("profiles").select("id").limit(1),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000)),
-      ]);
-      db = "connected";
-    } catch {
-      db = "error";
-    }
-    res.json({
-      status: "ok",
-      uptime: process.uptime(),
-      version: process.env.npm_package_version ?? "0.0.0",
-      db,
-    });
+  // Demais rotas stripe com body já parseado
+  app.use("/api", stripeRouter);
+
+  app.get("/api/health", (_req: Request, res: Response) => {
+    res.json({ status: "ok" });
   });
 
   app.use("/api", notificationsRouter);
