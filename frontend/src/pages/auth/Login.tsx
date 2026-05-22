@@ -121,8 +121,8 @@ export default function Login() {
         }
       });
       if (error) throw error;
-    } catch (err: any) {
-      toast.error("Erro no login com Google: " + err.message);
+    } catch (err: unknown) {
+      toast.error("Erro no login com Google: " + (err instanceof Error ? err.message : String(err)));
     }
   };
 
@@ -219,7 +219,7 @@ export default function Login() {
 
         if (signUpError) throw signUpError;
 
-        setMode(selectedRole as any);
+        setMode(selectedRole);
 
         await supabase.from('profiles').upsert({
           id: signUpData.user?.id,
@@ -266,8 +266,8 @@ export default function Login() {
         toast.success("Bem-vindo(a)!");
         // Navigation handled by AuthInitializer → authStore → AuthRedirect using profiles.role
       }
-    } catch (err: any) {
-      const msg = (err.message || '').toLowerCase();
+    } catch (err: unknown) {
+      const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
       if (msg.includes('email not confirmed')) {
         setError('Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e clique no link que enviamos.');
       } else if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
@@ -275,7 +275,7 @@ export default function Login() {
       } else if (msg.includes('too many requests')) {
         setError('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
       } else {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : String(err));
       }
     } finally {
       setIsSubmitting(false);

@@ -3,7 +3,6 @@ import { Home, Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
-import AuthModal from './auth/AuthModal';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import ThemeToggle from './ThemeToggle';
@@ -13,10 +12,6 @@ export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [authModal, setAuthModal] = useState<{ open: boolean; mode: 'login' | 'signup' }>({
-    open: false,
-    mode: 'login',
-  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,11 +27,6 @@ export default function Navbar() {
     { name: 'Como Funciona', href: '#como-funciona' },
     { name: 'Ser um Profissional', href: '/login?mode=signup&role=professional' },
   ];
-
-  const openAuth = (mode: 'login' | 'signup') => {
-    navigate('/login' + (mode === 'signup' ? '?mode=signup' : ''));
-    setMobileMenuOpen(false);
-  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -212,13 +202,6 @@ export default function Navbar() {
         </AnimatePresence>
       </nav>
 
-      {!isAuthenticated && (
-        <AuthModal 
-          isOpen={authModal.open} 
-          onClose={() => setAuthModal({ ...authModal, open: false })} 
-          mode={authModal.mode} 
-        />
-      )}
     </>
   );
 }

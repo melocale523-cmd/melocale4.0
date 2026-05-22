@@ -148,11 +148,6 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
     const authUser = req.authUser!;
     const { type, package_id, user_id } = parsed.data;
 
-    // DEBUG TEMPORÁRIO — remover após diagnóstico
-    console.log('[checkout-debug] body recebido:', JSON.stringify({ user_id, package_id, type }))
-    console.log('[checkout-debug] STRIPE_PRICE_STARTER env:', process.env.STRIPE_PRICE_STARTER ?? 'UNDEFINED')
-    console.log('[checkout-debug] STRIPE_PRICE_IDS[package_id]:', STRIPE_PRICE_IDS[String(package_id)] ?? 'UNDEFINED')
-
     if (user_id !== authUser.id) {
       return res.status(403).json({ error: "Não autorizado." });
     }

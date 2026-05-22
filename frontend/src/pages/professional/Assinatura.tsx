@@ -230,8 +230,8 @@ export default function ProfessionalAssinatura() {
       setCancelConfirm(false);
       queryClient.invalidateQueries({ queryKey: ['currentSubscription'] });
       queryClient.invalidateQueries({ queryKey: ['subscriptionStatus'] });
-    } catch (err: any) {
-      setStatusMessage({ type: 'error', text: err.message || 'Erro ao cancelar assinatura.' });
+    } catch (err: unknown) {
+      setStatusMessage({ type: 'error', text: err instanceof Error ? err.message : 'Erro ao cancelar assinatura.' });
     } finally {
       setCancelLoading(false);
     }

@@ -45,7 +45,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
           .eq('id', userId)
           .maybeSingle();
 
-        let finalRole: Role = ((profile as any)?.role as Role) || 'client';
+        let finalRole: Role = (profile?.role as Role | undefined) ?? 'client';
 
         if (!profile) {
           const metaRole = session.user.user_metadata?.role as Role | undefined;
