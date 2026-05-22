@@ -4,9 +4,9 @@ import { useAuthStore } from '../../store/authStore';
 import { useProfile } from '../../hooks/useProfile';
 import { profileService, avatarService, reviewService } from '../../services/dbServices';
 import { compressImage } from '../../lib/compressImage';
-import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CreditCard, AlertCircle, Trash2, Star } from 'lucide-react';
+import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CheckCircle, CreditCard, AlertCircle, Trash2, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { apiFetch } from '../../lib/api';
+import { getConnectStatus, connectProfessionalAccount, createOnboardingLink, type ConnectStatus } from '../../lib/stripeConnect';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -155,6 +155,33 @@ export default function ProfessionalPerfil() {
     enabled: !!profile?.professionalId,
     staleTime: 60_000,
   });
+
+  const { data: connectStatus, isLoading: connectLoading, refetch: refetchConnect } = useQuery({
+    queryKey: ['connectStatus'],
+    queryFn: getConnectStatus,
+    retry: false,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const connectStatusValue: ConnectStatus = connectStatus?.status ?? 'not_connected';
+
+  const [connectBusy, setConnectBusy] = useState(false);
+
+  const handleConnectStripe = async () => {
+    setConnectBusy(true);
+    try {
+      await connectProfessionalAccount(user?.email ?? '', connectStatusValue);
+      const { url } = await createOnboardingLink();
+      window.location.href = url;
+    } catch (e) {
+      if (import.meta.env.DEV) console.error('[Stripe Connect]', e);
+      toast.error(e instanceof Error ? e.message : 'Erro ao iniciar conexão com Stripe.');
+      void refetchConnect();
+    } finally {
+      setConnectBusy(false);
+    }
+  };
 
   if (profileLoading) {
     return (
@@ -362,27 +389,56 @@ export default function ProfessionalPerfil() {
           </div>
         </div>
 
-        <div className="p-4 bg-[#0E1C32] border border-slate-800 rounded-lg flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-slate-200">Status da Conta: <span className="text-amber-500">Pendente</span></p>
-            <p className="text-xs text-[#4A6580]">Para receber pagamentos, você precisa concluir o cadastro no Stripe.</p>
-          </div>
-          <button
-            onClick={async () => {
-              try {
-                const { connectProfessionalAccount, createOnboardingLink } = await import('../../lib/stripeConnect');
-                await connectProfessionalAccount(user?.email ?? '');
-                const { url } = await createOnboardingLink();
-                window.location.href = url;
-              } catch (e) {
-                if (import.meta.env.DEV) console.error('[Stripe Connect]', e);
-                toast.error(e instanceof Error ? e.message : 'Erro ao iniciar conexão com Stripe.');
-              }
-            }}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
-          >
-            Conectar com Stripe
-          </button>
+        <div className="p-4 bg-[#0E1C32] border border-slate-800 rounded-lg flex items-center justify-between gap-4">
+          {connectLoading ? (
+            <div className="flex items-center gap-2 text-[#4A6580] text-sm">
+              <Loader2 size={16} className="animate-spin" /> Verificando status...
+            </div>
+          ) : connectStatusValue === 'active' ? (
+            <div className="flex items-center gap-2">
+              <CheckCircle size={18} className="text-emerald-400 shrink-0" />
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium text-slate-200">
+                  Status da Conta: <span className="text-emerald-400">Ativo</span>
+                </p>
+                <p className="text-xs text-[#4A6580]">Sua conta Stripe está conectada e pronta para receber pagamentos.</p>
+              </div>
+            </div>
+          ) : connectStatusValue === 'pending' ? (
+            <>
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium text-slate-200">
+                  Status da Conta: <span className="text-amber-400">Pendente</span>
+                </p>
+                <p className="text-xs text-[#4A6580]">Complete o cadastro no Stripe para começar a receber pagamentos.</p>
+              </div>
+              <button
+                onClick={handleConnectStripe}
+                disabled={connectBusy}
+                className="shrink-0 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-wait text-black px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+              >
+                {connectBusy ? <Loader2 size={15} className="animate-spin" /> : null}
+                Continuar cadastro
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium text-slate-200">
+                  Status da Conta: <span className="text-slate-400">Não conectado</span>
+                </p>
+                <p className="text-xs text-[#4A6580]">Para receber pagamentos, você precisa concluir o cadastro no Stripe.</p>
+              </div>
+              <button
+                onClick={handleConnectStripe}
+                disabled={connectBusy}
+                className="shrink-0 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-wait text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+              >
+                {connectBusy ? <Loader2 size={15} className="animate-spin" /> : null}
+                Conectar com Stripe
+              </button>
+            </>
+          )}
         </div>
       </div>
       {/* Reviews */}
