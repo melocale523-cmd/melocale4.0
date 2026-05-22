@@ -707,10 +707,16 @@ export default function ProfessionalAssinatura() {
           </div>
 
           <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-6">
-            <h3 className="font-bold text-white text-center mb-1">Transações</h3>
-            <p className="text-[#4A6580] text-xs text-center py-4">
-              Histórico de transações disponível em breve.
+            <h3 className="font-bold text-white text-center mb-2">Transações</h3>
+            <p className="text-[#4A6580] text-xs text-center mb-4">
+              Veja o histórico completo de compras e créditos na sua carteira.
             </p>
+            <a
+              href="/profissional/carteira"
+              className="flex items-center justify-center gap-2 w-full bg-[#1C3050] hover:bg-[#243d63] border border-[#2a4a73] text-white text-sm font-medium py-3 rounded-xl transition-colors"
+            >
+              Ver histórico completo →
+            </a>
           </div>
         </div>
       </div>
