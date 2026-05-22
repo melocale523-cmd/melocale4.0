@@ -35,6 +35,36 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
     const sessionType = session.metadata?.type;
 
     if (sessionType === "featured_spotlight" && userId) {
+      // Idempotência: verificar se este evento já foi processado antes de atualizar.
+      const { data: alreadyDone } = await withTimeout(
+        supabaseAdmin
+          .from("stripe_processed_events")
+          .select("event_id")
+          .eq("event_id", event.id)
+          .maybeSingle()
+      );
+      if (alreadyDone) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[webhook] featured_spotlight ${event.id} já processado — ignorando retry`);
+        }
+        res.json({ received: true }); return;
+      }
+
+      // Registrar como processado ANTES do UPDATE para evitar duplo-processamento em caso de retry concorrente.
+      const { error: idempotErr } = await withTimeout(
+        supabaseAdmin
+          .from("stripe_processed_events")
+          .insert({ event_id: event.id, event_type: event.type })
+      );
+      if (idempotErr) {
+        // Conflito de chave primária significa que outro worker já processou — seguro ignorar.
+        if (idempotErr.code === "23505") {
+          res.json({ received: true }); return;
+        }
+        console.error("[webhook] falha ao registrar idempotência:", idempotErr.message);
+        res.status(500).json({ error: "idempotency_failed" }); return;
+      }
+
       const { error: featErr } = await withTimeout(
         supabaseAdmin.from("professionals")
           .update({ featured_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() })
@@ -259,9 +289,9 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
 router.post("/create-connected-account", requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const authUser = req.authUser!;
-    const { email } = req.body || {};
-    if (!email || typeof email !== "string") {
-      return res.status(400).json({ error: "email é obrigatório." });
+    const email = authUser.email;
+    if (!email) {
+      return res.status(400).json({ error: "Email não encontrado na sessão." });
     }
 
     const { data: existing } = await withTimeout(
@@ -377,14 +407,18 @@ router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res
     const authUser = req.authUser!;
     const { amount, description } = req.body || {};
 
-    if (!amount) {
-      return res.status(400).json({ error: "amount é obrigatório." });
+    if (typeof amount !== "number" || !Number.isFinite(amount)) {
+      return res.status(400).json({ error: "amount deve ser um número." });
+    }
+    const amountInCents = Math.round(amount);
+    if (amountInCents < 100 || amountInCents > 10_000_00) {
+      return res.status(400).json({ error: "Valor inválido. Mínimo R$1,00, máximo R$10.000,00." });
     }
 
-    const amountInCents = Math.round(Number(amount));
-    if (isNaN(amountInCents) || amountInCents <= 0) {
-      return res.status(400).json({ error: "amount deve ser um número positivo em centavos." });
+    if (typeof description !== "string" || description.trim().length < 1 || description.trim().length > 200) {
+      return res.status(400).json({ error: "Descrição inválida (entre 1 e 200 caracteres)." });
     }
+    const safeDescription = description.trim();
 
     const { data: prof, error: profErr } = await supabaseAdmin
       .from("professionals")
@@ -416,7 +450,7 @@ router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res
           price_data: {
             currency: "brl",
             product_data: {
-              name: description || "Pagamento de serviço",
+              name: safeDescription,
             },
             unit_amount: amountInCents,
           },
@@ -536,6 +570,17 @@ router.post("/cancel-subscription", requireAuth, async (req: AuthRequest, res: R
 router.post("/create-featured-checkout", requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const authUser = req.authUser!;
+
+    const { data: prof, error: profErr } = await withTimeout(
+      supabaseAdmin
+        .from("professionals")
+        .select("id")
+        .eq("user_id", authUser.id)
+        .single()
+    );
+    if (profErr || !prof) {
+      return res.status(403).json({ error: "Apenas profissionais podem adquirir destaque." });
+    }
 
     const ALLOWED_ORIGINS_FEAT = [
       "https://www.melocale.com.br",
