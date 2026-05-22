@@ -264,7 +264,7 @@ router.post("/create-connected-account", requireAuth, async (req: AuthRequest, r
       type: "express",
       country: "BR",
       email,
-      capabilities: { transfers: { requested: true } },
+      capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
     });
 
     await withTimeout(
