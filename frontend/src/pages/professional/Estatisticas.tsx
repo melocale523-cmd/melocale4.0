@@ -63,15 +63,15 @@ export default function ProfessionalEstatisticas() {
         </div>
 
         <div className="flex items-center bg-[#1C3454] p-1 rounded-xl border border-[#1C3050]">
-          {[
+          {([
             { id: '7d', label: '7 Dias' },
             { id: '30d', label: '30 Dias' },
             { id: '90d', label: '3 Meses' },
-            { id: '1y', label: 'Este Ano' }
-          ].map((item) => (
+            { id: '1y', label: 'Este Ano' },
+          ] as Array<{ id: '7d' | '30d' | '90d' | '1y'; label: string }>).map((item) => (
             <button
               key={item.id}
-              onClick={() => setRange(item.id as any)}
+              onClick={() => setRange(item.id)}
               className={cn(
                 "px-4 py-2 text-xs font-black uppercase tracking-widest transition-all rounded-lg",
                 range === item.id

@@ -9,11 +9,47 @@ import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { toast } from 'sonner';
 
+interface Purchase {
+  id: string;
+  lead_id: string;
+  status?: string | null;
+  created_at?: string | null;
+  expires_at?: string | null;
+  max_purchases?: number | null;
+  purchases_count?: number | null;
+  location?: string | null;
+  images?: string[] | null;
+  title?: string | null;
+  description?: string | null;
+  category?: string | null;
+  city?: string | null;
+  state?: string | null;
+  budget_min?: number | null;
+  budget_max?: number | null;
+  event_date?: string | null;
+  contacted_at?: string | null;
+  chat_id?: string | null;
+  leads?: {
+    title?: string | null;
+    location?: string | null;
+    clients?: { phone?: string | null; email?: string | null; full_name?: string | null; city?: string | null } | null;
+    profiles?: { phone?: string | null; email?: string | null; name?: string | null; address?: string | null } | null;
+  } | null;
+}
+
+interface ProposalInput {
+  price: string;
+  duration: string;
+  durationUnit: string;
+  description: string;
+  status: string;
+}
+
 export default function ProfessionalCompras() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null);
+  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [proposalData, setProposalData] = useState({
     price: '',
@@ -33,7 +69,7 @@ export default function ProfessionalCompras() {
   });
 
   const sendProposalMutation = useMutation({
-    mutationFn: ({ purchaseId, data }: { purchaseId: string, data: any }) =>
+    mutationFn: ({ purchaseId, data }: { purchaseId: string, data: ProposalInput }) =>
       proposalService.sendProposal(purchaseId, {
         price: parseFloat(data.price),
         duration: `${data.duration} ${data.durationUnit}`,
@@ -46,7 +82,7 @@ export default function ProfessionalCompras() {
       setTimeout(() => setShowSuccess(false), 3000);
       setProposalData({ price: '', duration: '', durationUnit: 'dias', description: '', status: 'Proposta Enviada' });
     },
-    onError: (error: any) => toast.error(`Erro ao enviar proposta: ${error.message}`)
+    onError: (error: Error) => toast.error(`Erro ao enviar proposta: ${error.message}`)
   });
 
   const STATUS_TABS = ['Todos', 'Pendente Proposta', 'Proposta Enviada', 'Aceita', 'Recusada'] as const;
@@ -80,7 +116,7 @@ export default function ProfessionalCompras() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['purchases'] }),
   });
 
-  const handleContact = (purchase: any) => {
+  const handleContact = (purchase: Purchase) => {
     try {
       const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
       const rawEmail = purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email;
@@ -105,7 +141,7 @@ export default function ProfessionalCompras() {
     }
   };
 
-  const openProposalModal = (purchase: any) => {
+  const openProposalModal = (purchase: Purchase) => {
     setSelectedPurchase(purchase);
     // Reset status to the current purchase status or default to current
     setProposalData(prev => ({ ...prev, status: purchase.status === 'Pendente Proposta' ? 'Proposta Enviada' : purchase.status }));
@@ -461,7 +497,7 @@ export default function ProfessionalCompras() {
                 )}
                 <button
                   onClick={async () => {
-                    let chatId = (purchase as any).chat_id as string | null;
+                    let chatId = purchase.chat_id ?? null;
                     if (!chatId) {
                       chatId = await proposalService.ensureChatForPurchase(purchase.id);
                     }
