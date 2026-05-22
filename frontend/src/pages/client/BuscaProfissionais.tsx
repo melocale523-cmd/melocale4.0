@@ -54,7 +54,19 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
 
   return (
     <>
-      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-5 flex flex-col gap-4 hover:border-emerald-500/30 transition-all">
+      <div className={cn(
+        "bg-[#132540] border rounded-2xl p-5 flex flex-col gap-4 transition-all",
+        prof.featuredUntil && new Date(prof.featuredUntil) > new Date()
+          ? "border-yellow-500/40 hover:border-yellow-400/60 shadow-lg shadow-yellow-500/5"
+          : "border-[#1C3050] hover:border-emerald-500/30",
+      )}>
+        {prof.featuredUntil && new Date(prof.featuredUntil) > new Date() && (
+          <div className="flex items-center gap-1.5 -mb-1">
+            <span className="inline-flex items-center gap-1 text-[11px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-lg px-2 py-0.5 uppercase tracking-wide">
+              <Star size={10} className="fill-yellow-400" /> Destaque
+            </span>
+          </div>
+        )}
         <div className="flex items-start gap-4">
           {prof.avatarUrl ? (
             <img
