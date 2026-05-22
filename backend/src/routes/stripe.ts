@@ -249,6 +249,17 @@ router.post("/create-connected-account", requireAuth, async (req: AuthRequest, r
       return res.status(400).json({ error: "email é obrigatório." });
     }
 
+    const { data: existing } = await withTimeout(
+      supabaseAdmin.from("professionals")
+        .select("stripe_account_id")
+        .eq("user_id", authUser.id)
+        .single()
+    );
+
+    if (existing?.stripe_account_id) {
+      return res.json({ accountId: existing.stripe_account_id });
+    }
+
     const account = await stripe.accounts.create({
       type: "express",
       country: "BR",
@@ -258,7 +269,7 @@ router.post("/create-connected-account", requireAuth, async (req: AuthRequest, r
 
     await withTimeout(
       supabaseAdmin.from("professionals")
-        .update({ stripe_account_id: account.id })
+        .update({ stripe_account_id: account.id, stripe_connect_status: "pending" })
         .eq("user_id", authUser.id)
     );
 
@@ -266,6 +277,43 @@ router.post("/create-connected-account", requireAuth, async (req: AuthRequest, r
   } catch (err: unknown) {
     console.error("[stripe-connect] create-connected-account error:", err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro ao criar conta Stripe. Tente novamente." });
+  }
+});
+
+router.get("/connect-status", requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const authUser = req.authUser!;
+
+    const { data: prof, error: profErr } = await withTimeout(
+      supabaseAdmin.from("professionals")
+        .select("stripe_account_id, stripe_connect_status")
+        .eq("user_id", authUser.id)
+        .single()
+    );
+
+    if (profErr || !prof) {
+      return res.json({ accountId: null, status: "not_connected" });
+    }
+
+    if (!prof.stripe_account_id) {
+      return res.json({ accountId: null, status: prof.stripe_connect_status ?? "not_connected" });
+    }
+
+    const account = await stripe.accounts.retrieve(prof.stripe_account_id as string);
+
+    if (account.charges_enabled) {
+      await withTimeout(
+        supabaseAdmin.from("professionals")
+          .update({ stripe_connect_status: "active" })
+          .eq("user_id", authUser.id)
+      );
+      return res.json({ accountId: prof.stripe_account_id, status: "active" });
+    }
+
+    return res.json({ accountId: prof.stripe_account_id, status: prof.stripe_connect_status ?? "pending" });
+  } catch (err: unknown) {
+    console.error("[stripe-connect] connect-status error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao verificar status da conta Stripe." });
   }
 });
 
