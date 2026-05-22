@@ -1,12 +1,7 @@
 {
-  "functions": {
-    "api/[servico]-[cidade].ts": {
-      "runtime": "@vercel/edge"
-    }
-  },
   "rewrites": [
     {
-      "source": "/:categoria-:cidade",
+      "source": "/:categoria-:cidade((?:[a-z]+-?)+)",
       "destination": "/api/[servico]-[cidade]"
     },
     {
