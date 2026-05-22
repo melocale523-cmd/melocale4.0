@@ -18,6 +18,22 @@ function formatWalletDescription(kind: string, reference?: string | null): strin
   return kind.charAt(0).toUpperCase() + kind.slice(1).replace(/_/g, ' ');
 }
 
+function txType(kind: string): 'deposit' | 'purchase' {
+  return kind === 'credit_purchase' || kind === 'deposit' || kind === 'bonus' || kind === 'subscription'
+    ? 'deposit'
+    : 'purchase';
+}
+
+async function getWalletId(professionalId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('wallets')
+    .select('id')
+    .eq('professional_id', professionalId)
+    .single();
+  if (error || !data) return null;
+  return data.id;
+}
+
 export const walletService = {
   async getBalance() {
     try {
@@ -41,23 +57,46 @@ export const walletService = {
 
 export const transactionService = {
   async getWalletTransactions() {
-    const userId = useAuthStore.getState().user?.id;
-    if (!userId) throw new Error("User not authenticated");
+    const professionalId = useAuthStore.getState().user?.professionalId;
+    if (!professionalId) throw new Error("Professional ID not found");
+
+    const walletId = await getWalletId(professionalId);
+    if (!walletId) throw new Error("Wallet not found");
 
     const { data, error } = await supabase
       .from('wallet_transactions')
       .select('id,kind,amount,reference,created_at')
-      .eq('user_id', userId)
+      .eq('wallet_id', walletId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
     return (data ?? []).map((tx: WalletTxRow) => ({
       ...tx,
-      type: tx.kind === 'credit_purchase' || tx.kind === 'deposit' || tx.kind === 'bonus' || tx.kind === 'subscription' ? 'deposit' : 'purchase',
+      type: txType(tx.kind),
       description: formatWalletDescription(tx.kind, tx.reference),
     }));
-  }
+  },
+
+  async getRecentTransactions(professionalId: string, limit = 5) {
+    const walletId = await getWalletId(professionalId);
+    if (!walletId) return [];
+
+    const { data, error } = await supabase
+      .from('wallet_transactions')
+      .select('id,kind,amount,reference,created_at')
+      .eq('wallet_id', walletId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (data ?? []).map((tx: WalletTxRow) => ({
+      ...tx,
+      type: txType(tx.kind),
+      description: formatWalletDescription(tx.kind, tx.reference),
+    }));
+  },
 };
 
 export const subscriptionService = {

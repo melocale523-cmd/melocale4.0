@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
-import { walletService, subscriptionService } from '../../services/dbServices';
+import { walletService, subscriptionService, transactionService } from '../../services/dbServices';
+import { useAuthStore } from '../../store/authStore';
 import { initiateCheckout } from '../../lib/stripe';
 import { apiFetch } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, AlertCircle, X, Calendar, RefreshCw } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, X, Calendar, RefreshCw, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { toast } from 'sonner';
 
@@ -140,6 +141,8 @@ export default function ProfessionalAssinatura() {
   const [cancelConfirm, setCancelConfirm] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
+  const professionalId = useAuthStore(state => state.user?.professionalId);
+
   const { data: balance, isLoading: balanceLoading } = useQuery({
     queryKey: ['walletBalance'],
     retry: false,
@@ -168,6 +171,15 @@ export default function ProfessionalAssinatura() {
         return null;
       }
     },
+  });
+
+  const { data: recentTransactions, isLoading: isTransactionsLoading } = useQuery({
+    queryKey: ['recentTransactions', professionalId],
+    enabled: !!professionalId,
+    retry: false,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    queryFn: () => transactionService.getRecentTransactions(professionalId!, 5),
   });
 
 
@@ -706,17 +718,55 @@ export default function ProfessionalAssinatura() {
             </button>
           </div>
 
-          <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-6">
-            <h3 className="font-bold text-white text-center mb-2">Transações</h3>
-            <p className="text-[#4A6580] text-xs text-center mb-4">
-              Veja o histórico completo de compras e créditos na sua carteira.
-            </p>
-            <a
-              href="/profissional/carteira"
-              className="flex items-center justify-center gap-2 w-full bg-[#1C3050] hover:bg-[#243d63] border border-[#2a4a73] text-white text-sm font-medium py-3 rounded-xl transition-colors"
-            >
-              Ver histórico completo →
-            </a>
+          <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-[#1C3050] flex items-center justify-between">
+              <h3 className="font-bold text-white text-sm">Últimas Transações</h3>
+              <a href="/profissional/carteira" className="text-[#4A6580] hover:text-white text-xs transition-colors">
+                Ver tudo →
+              </a>
+            </div>
+
+            {isTransactionsLoading ? (
+              <div className="flex justify-center py-6">
+                <Loader2 size={20} className="animate-spin text-emerald-500" />
+              </div>
+            ) : recentTransactions && recentTransactions.length > 0 ? (
+              <ul className="divide-y divide-[#1C3050]">
+                {recentTransactions.map((tx) => (
+                  <li key={tx.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
+                        tx.type === 'deposit' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-400'
+                      }`}>
+                        {tx.type === 'deposit' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-slate-200 truncate">{tx.description}</p>
+                        <p className="text-[11px] text-[#4A6580]">
+                          {new Date(tx.created_at).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                    </div>
+                    <span className={`text-sm font-semibold shrink-0 ${
+                      tx.type === 'deposit' ? 'text-emerald-400' : 'text-slate-300'
+                    }`}>
+                      {tx.type === 'deposit' ? '+' : '-'}{Math.abs(tx.amount)} moedas
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[#4A6580] text-xs text-center py-6">Nenhuma transação encontrada.</p>
+            )}
+
+            <div className="px-4 py-3 border-t border-[#1C3050]">
+              <a
+                href="/profissional/carteira"
+                className="flex items-center justify-center gap-2 w-full bg-[#1C3050] hover:bg-[#243d63] border border-[#2a4a73] text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
+              >
+                Ver histórico completo →
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -126,7 +126,7 @@ export default function ProfessionalWallet() {
                     "text-sm font-semibold",
                     tx.type === 'deposit' || tx.type === 'credit' ? "text-emerald-500" : "text-slate-300"
                   )}>
-                    {tx.type === 'deposit' || tx.type === 'credit' ? '+' : '-'} {tx.amount} moedas
+                    {tx.type === 'deposit' || tx.type === 'credit' ? '+' : '-'}{Math.abs(tx.amount)} moedas
                   </p>
                   <p className="text-xs text-emerald-500/70 mt-0.5 font-medium">Concluído</p>
                 </div>
