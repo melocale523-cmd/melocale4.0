@@ -18,15 +18,14 @@ import { withTimeout } from "../lib/timeout.js";
 
 const router = Router();
 
-// CRITICAL: registered with express.raw() — must be mounted BEFORE express.json() in routes/index.ts
-router.post("/stripe-webhook", express.raw({ type: "application/json" }), async (req: Request, res: Response) => {
+export async function stripeWebhookHandler(req: Request, res: Response): Promise<void> {
   const sig = req.headers["stripe-signature"] as string;
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET!);
   } catch (err) {
-    return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
+    res.status(400).send(`Webhook Error: ${(err as Error).message}`); return;
   }
 
   if (event.type === "checkout.session.completed") {
@@ -95,7 +94,7 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
           timestamp: new Date().toISOString(),
         });
         // Retornar 500 faz o Stripe retentar o webhook automaticamente (por até 3 dias)
-        return res.status(500).json({ error: "credit_failed" });
+        res.status(500).json({ error: "credit_failed" }); return;
       }
       if (process.env.NODE_ENV !== "production") {
         console.log(`[webhook] coins creditados: userId=${userId} coins=${coinsAmount} sessionId=${session.id}`);
@@ -123,7 +122,7 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
   }
 
   res.json({ received: true });
-});
+}
 
 // Rate limit por usuário autenticado — 10 sessões por hora.
 const checkoutRateLimit = rateLimit({

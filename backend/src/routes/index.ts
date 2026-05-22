@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import { supabaseAdmin } from "../config.js";
-import stripeRouter from "./stripe.js";
+import stripeRouter, { stripeWebhookHandler } from "./stripe.js";
 import notificationsRouter from "./notifications.js";
 import leadsRouter from "./leads.js";
 import appointmentsRouter from "./appointments.js";
@@ -11,10 +11,13 @@ import adminRouter from "./admin.js";
 import referralsRouter from "./referrals.js";
 
 export function registerRoutes(app: Application) {
-  // CRITICAL: stripe webhook uses express.raw() — must be registered BEFORE express.json()
-  app.use("/api", stripeRouter);
+  // Webhook precisa de raw body — registrar ANTES do express.json()
+  app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
 
   app.use(express.json());
+
+  // Demais rotas stripe com body já parseado
+  app.use("/api", stripeRouter);
 
   app.use("/api/", rateLimit({
     windowMs: 15 * 60 * 1000,
