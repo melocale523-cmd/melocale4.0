@@ -32,8 +32,8 @@ export default function Privacidade() {
             </p>
             <p className="mt-2">
               Contato para assuntos de privacidade:{' '}
-              <a href="mailto:melocaleoficial@gmail.com" className="text-emerald-400 hover:underline">
-                melocaleoficial@gmail.com
+              <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">
+                privacidade@melocale.com.br
               </a>
             </p>
           </section>
@@ -96,8 +96,8 @@ export default function Privacidade() {
             </ul>
             <p className="mt-2">
               Para exercer seus direitos, entre em contato:{' '}
-              <a href="mailto:melocaleoficial@gmail.com" className="text-emerald-400 hover:underline">
-                melocaleoficial@gmail.com
+              <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">
+                privacidade@melocale.com.br
               </a>
             </p>
           </section>
@@ -130,8 +130,8 @@ export default function Privacidade() {
             <h2 className="text-lg font-semibold text-white mb-3">10. Contato</h2>
             <p>
               Dúvidas sobre privacidade:{' '}
-              <a href="mailto:melocaleoficial@gmail.com" className="text-emerald-400 hover:underline">
-                melocaleoficial@gmail.com
+              <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">
+                privacidade@melocale.com.br
               </a>
             </p>
           </section>
