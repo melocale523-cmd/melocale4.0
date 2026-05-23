@@ -30,6 +30,15 @@ const CATEGORY_LABELS: Record<string, string> = {
   'piscina-manutencao':     'Manutenção de Piscina',
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function cidadeSlugParaNome(slug: string): string {
   return slug
     .split('-')
@@ -71,32 +80,41 @@ function renderHTML(
   categoriaSlug: string,
   cidadeSlug: string,
 ): string {
-  const title = `${categoriaLabel} em ${cidadeNome} — MeloCalé`
-  const description = profissionais.length > 0
-    ? `${profissionais.length} ${categoriaLabel.toLowerCase()}${profissionais.length > 1 ? 's' : ''} disponíve${profissionais.length > 1 ? 'is' : 'l'} em ${cidadeNome}. Contrate agora pelo MeloCalé — rápido, seguro e sem burocracia.`
-    : `Encontre ${categoriaLabel.toLowerCase()} em ${cidadeNome} pelo MeloCalé. Profissionais verificados, orçamento grátis.`
+  const safeCategoriaSlug = escapeHtml(categoriaSlug)
+  const safeCidadeSlug = escapeHtml(cidadeSlug)
+  const safeCidadeNome = escapeHtml(cidadeNome)
+  const safeCategoriaLabel = escapeHtml(categoriaLabel)
 
-  const canonical = `https://melocale.com.br/${categoriaSlug}-${cidadeSlug}`
+  const title = `${safeCategoriaLabel} em ${safeCidadeNome} — MeloCalé`
+  const description = profissionais.length > 0
+    ? `${profissionais.length} ${safeCategoriaLabel.toLowerCase()}${profissionais.length > 1 ? 's' : ''} disponíve${profissionais.length > 1 ? 'is' : 'l'} em ${safeCidadeNome}. Contrate agora pelo MeloCalé — rápido, seguro e sem burocracia.`
+    : `Encontre ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome} pelo MeloCalé. Profissionais verificados, orçamento grátis.`
+
+  const canonical = `https://melocale.com.br/${safeCategoriaSlug}-${safeCidadeSlug}`
   const appUrl = `https://melocale.com.br/busca?categoria=${encodeURIComponent(categoriaLabel)}&cidade=${encodeURIComponent(cidadeNome)}`
 
   const profListHTML = profissionais.map(p => {
+    const safeName     = escapeHtml(p.name ?? '')
+    const safeCategory = escapeHtml(p.category ?? '')
+    const safeCity     = escapeHtml(p.city ?? '')
+    const safeBio      = p.bio ? escapeHtml(p.bio) : null
     const stars = p.rating_avg ? '⭐'.repeat(Math.round(p.rating_avg)) : ''
     const rating = p.rating_avg ? `${Number(p.rating_avg).toFixed(1)} ${stars}` : 'Novo profissional'
     const reviews = p.review_count ? `(${p.review_count} avaliação${p.review_count > 1 ? 'ões' : ''})` : ''
     return `
       <div itemscope itemtype="https://schema.org/Person" style="border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;background:#fff">
-        <h2 itemprop="name" style="font-size:18px;font-weight:700;color:#111827;margin:0 0 6px">${p.name}</h2>
-        <p style="color:#6b7280;font-size:14px;margin:0 0 8px">${p.category} · ${p.city}</p>
-        ${p.bio ? `<p itemprop="description" style="color:#374151;font-size:14px;margin:0 0 10px;line-height:1.5">${p.bio}</p>` : ''}
+        <h2 itemprop="name" style="font-size:18px;font-weight:700;color:#111827;margin:0 0 6px">${safeName}</h2>
+        <p style="color:#6b7280;font-size:14px;margin:0 0 8px">${safeCategory} · ${safeCity}</p>
+        ${safeBio ? `<p itemprop="description" style="color:#374151;font-size:14px;margin:0 0 10px;line-height:1.5">${safeBio}</p>` : ''}
         <p style="font-size:14px;color:#f59e0b;margin:0">${rating} <span style="color:#6b7280">${reviews}</span></p>
-        <meta itemprop="jobTitle" content="${p.category}">
-        <meta itemprop="address" content="${p.city}, Bahia, Brasil">
+        <meta itemprop="jobTitle" content="${safeCategory}">
+        <meta itemprop="address" content="${safeCity}, Bahia, Brasil">
       </div>`
   }).join('')
 
   const emptyHTML = `
     <div style="text-align:center;padding:48px;color:#6b7280">
-      <p style="font-size:16px">Nenhum profissional cadastrado ainda em ${cidadeNome}.</p>
+      <p style="font-size:16px">Nenhum profissional cadastrado ainda em ${safeCidadeNome}.</p>
       <p style="font-size:14px">Seja o primeiro! Cadastre-se gratuitamente.</p>
     </div>`
 
@@ -147,7 +165,7 @@ function renderHTML(
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
-  <script type="application/ld+json">${JSON.stringify(jsonLD)}</script>
+  <script type="application/ld+json">${JSON.stringify(jsonLD).replace(/<\//g, '<\\/')}</script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #111827; }
@@ -166,14 +184,14 @@ function renderHTML(
 <body>
   <div class="header">
     <p style="font-size:13px;opacity:0.7;margin-bottom:8px">melocale.com.br</p>
-    <h1>${categoriaLabel} em ${cidadeNome}</h1>
+    <h1>${safeCategoriaLabel} em ${safeCidadeNome}</h1>
     <p>${description}</p>
   </div>
   <div class="container">
     <span class="badge">${profissionais.length} profissional${profissionais.length !== 1 ? 'is' : ''} encontrado${profissionais.length !== 1 ? 's' : ''}</span>
     <a href="${appUrl}" class="cta">Ver perfis completos e contratar →</a>
     ${profissionais.length > 0 ? profListHTML : emptyHTML}
-    <a href="${appUrl}" class="cta" style="margin-top:24px">Contratar ${categoriaLabel} em ${cidadeNome} →</a>
+    <a href="${appUrl}" class="cta" style="margin-top:24px">Contratar ${safeCategoriaLabel} em ${safeCidadeNome} →</a>
     <p style="text-align:center;font-size:12px;color:#9ca3af;margin-top:24px">
       MeloCalé · Profissionais de serviços domésticos · <a href="https://melocale.com.br" style="color:#0E5C8A">melocale.com.br</a>
     </p>

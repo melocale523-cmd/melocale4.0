@@ -12,9 +12,9 @@ export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 if (!STRIPE_WEBHOOK_SECRET) throw new Error("❌ ERRO CRÍTICO: STRIPE_WEBHOOK_SECRET está ausente nas variáveis de ambiente.");
 
 // --- Supabase Admin (Bypass RLS) ---
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!supabaseUrl) throw new Error("❌ ERRO CRÍTICO: SUPABASE_URL (ou VITE_SUPABASE_URL) está ausente nas variáveis de ambiente.");
+if (!supabaseUrl) throw new Error("❌ ERRO CRÍTICO: SUPABASE_URL está ausente nas variáveis de ambiente.");
 if (!supabaseServiceKey) throw new Error("❌ ERRO CRÍTICO: SUPABASE_SERVICE_ROLE_KEY está ausente nas variáveis de ambiente.");
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 

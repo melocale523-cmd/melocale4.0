@@ -23,7 +23,7 @@ process.on("uncaughtException", (err) => {
     event: "uncaughtException",
     message: "Ocorreu um erro crítico não tratado.",
     error: err.message,
-    stack: err.stack,
+    stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined,
   }));
   process.exit(1);
 });
@@ -54,8 +54,9 @@ export function createApp() {
   const ALLOWED_ORIGINS = new Set([
     "https://www.melocale.com.br",
     "https://melocale.com.br",
-    "http://localhost:5173",
-    "http://localhost:4173",
+    ...(process.env.NODE_ENV !== 'production'
+      ? ['http://localhost:5173', 'http://localhost:4173']
+      : []),
     ...EXTRA_ORIGINS,
   ]);
 
