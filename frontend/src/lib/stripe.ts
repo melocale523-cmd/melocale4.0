@@ -52,14 +52,14 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
   window.location.href = session.url;
 };
 
-export const payProfessional = async (amount: number, connectedAccountId: string, description: string) => {
+export const payProfessional = async (amount: number, professional_id: string, description: string) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Usuário não autenticado. Faça login para continuar.");
 
   const response = await apiFetch('/api/create-service-payment', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount, connectedAccountId, description, user_id: user.id }),
+    body: JSON.stringify({ amount, professional_id, description }),
   });
 
   if (!response.ok) {

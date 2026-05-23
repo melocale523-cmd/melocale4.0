@@ -10,7 +10,7 @@ interface MessageListProps {
   otherName: string;
   otherLabel: string;
   role: 'professional' | 'client';
-  messagesEndRef: RefObject<HTMLDivElement>;
+  messagesEndRef: RefObject<HTMLDivElement | null>;
 }
 
 function getFileName(url: string): string {

@@ -100,11 +100,29 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
 
       if (userId) {
         try {
-          await fetch(`${process.env.BACKEND_URL ?? 'http://localhost:3001'}/api/referrals/convert`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ referredUserId: userId }),
-          });
+          const { data: referral } = await supabaseAdmin
+            .from('referrals')
+            .select('id, status, referrer_role, referrer_id')
+            .eq('referred_id', userId)
+            .in('status', ['registered', 'converted'])
+            .single()
+          if (referral && referral.status !== 'credited') {
+            const rewardCoins = referral.referrer_role === 'professional' ? 60 : 30
+            const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc('credit_referral_reward', {
+              p_referral_id: referral.id,
+              p_reward_coins: rewardCoins,
+            })
+            if (!rpcErr && !rpcResult?.error) {
+              await supabaseAdmin.from('notifications').insert({
+                user_id: referral.referrer_id,
+                title: '🎉 Indicação recompensada!',
+                body: `Seu indicado ativou a conta. Você ganhou ${rewardCoins} moedas!`,
+                type: 'referral_reward',
+                is_read: false,
+                metadata: { referral_id: referral.id, coins: rewardCoins },
+              })
+            }
+          }
         } catch {
           // silencioso — não deixar falha de indicação quebrar o webhook
         }
@@ -407,7 +425,11 @@ router.post("/create-account-link", requireAuth, async (req: AuthRequest, res: R
 router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const authUser = req.authUser!;
-    const { amount, description } = req.body || {};
+    const { amount, description, professional_id } = req.body || {};
+
+    if (typeof professional_id !== "string" || !/^[0-9a-f-]{36}$/i.test(professional_id)) {
+      return res.status(400).json({ error: "professional_id inválido." });
+    }
 
     if (typeof amount !== "number" || !Number.isFinite(amount)) {
       return res.status(400).json({ error: "amount deve ser um número." });
@@ -424,11 +446,14 @@ router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res
 
     const { data: prof, error: profErr } = await supabaseAdmin
       .from("professionals")
-      .select("stripe_account_id")
-      .eq("user_id", authUser.id)
+      .select("stripe_account_id, user_id")
+      .eq("id", professional_id)
       .single();
     if (profErr || !prof?.stripe_account_id) {
       return res.status(400).json({ error: "Conta Stripe não configurada para este profissional." });
+    }
+    if (prof.user_id === authUser.id) {
+      return res.status(400).json({ error: "Profissional não pode pagar a si mesmo." });
     }
     const connectedAccountId = prof.stripe_account_id;
 
