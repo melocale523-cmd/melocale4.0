@@ -110,9 +110,9 @@ export default function ProfessionalWallet() {
                 <div className="flex items-center">
                   <div className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                    tx.type === 'deposit' || tx.type === 'credit' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-400"
+                    tx.type === 'deposit' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-400"
                   )}>
-                    {tx.type === 'deposit' || tx.type === 'credit' ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
+                    {tx.type === 'deposit' ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-slate-200">{tx.description || 'Transação'}</p>
@@ -124,9 +124,9 @@ export default function ProfessionalWallet() {
                 <div className="text-right">
                   <p className={cn(
                     "text-sm font-semibold",
-                    tx.type === 'deposit' || tx.type === 'credit' ? "text-emerald-500" : "text-slate-300"
+                    tx.type === 'deposit' ? "text-emerald-500" : "text-slate-300"
                   )}>
-                    {tx.type === 'deposit' || tx.type === 'credit' ? '+' : '-'}{Math.abs(tx.amount)} moedas
+                    {tx.type === 'deposit' ? '+' : '-'}{Math.abs(tx.amount)} moedas
                   </p>
                   <p className="text-xs text-emerald-500/70 mt-0.5 font-medium">Concluído</p>
                 </div>
