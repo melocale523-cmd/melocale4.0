@@ -6,6 +6,15 @@ import { withTimeout } from "../lib/timeout.js";
 
 const router = Router();
 
+const chatUsageMap = new Map<string, { count: number; resetAt: number }>()
+
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, val] of chatUsageMap.entries()) {
+    if (val.resetAt <= now) chatUsageMap.delete(key)
+  }
+}, 60 * 60 * 1000)
+
 const chatSchema = z.object({
   messages: z.array(z.object({ role: z.string(), text: z.string() })).min(1),
   context: z.string().optional(),
@@ -151,6 +160,18 @@ router.post("/chat", chatRateLimit, requireAuth, async (req: Request, res: Respo
   if (!parsed.success) return void res.status(400).json({ error: "Dados inválidos." });
 
   try {
+    const authUser = (req as AuthRequest).authUser!
+    const now = Date.now()
+    const usage = chatUsageMap.get(authUser.id)
+    if (usage && usage.resetAt > now && usage.count >= 20) {
+      return res.status(429).json({ error: 'Limite de uso do chat atingido. Tente novamente em 1 hora.' })
+    }
+    if (!usage || usage.resetAt <= now) {
+      chatUsageMap.set(authUser.id, { count: 1, resetAt: now + 60 * 60 * 1000 })
+    } else {
+      usage.count++
+    }
+
     const { messages, context = "landing", userData: rawUserData = {} } = req.body;
     const userData = sanitizeUserData(rawUserData as Record<string, unknown>);
     const systemPrompt = buildSystemPrompt(context, userData);
