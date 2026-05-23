@@ -14,7 +14,7 @@ export function registerRoutes(app: Application) {
   // (Stripe não tem IP fixo, então o limiter global não pode bloquear webhooks legítimos)
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
 
-  app.use(express.json());
+  app.use(express.json({ limit: '100kb' }));
 
   // Rate limiter global ANTES de qualquer rota /api para que todas as rotas Stripe
   // (create-connected-account, create-account-link, create-featured-checkout, etc.)
