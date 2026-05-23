@@ -94,17 +94,21 @@ function renderHTML(
   const appUrl = `https://melocale.com.br/busca?categoria=${encodeURIComponent(categoriaLabel)}&cidade=${encodeURIComponent(cidadeNome)}`
 
   const profListHTML = profissionais.map(p => {
+    const safeName     = escapeHtml(p.name ?? '')
+    const safeCategory = escapeHtml(p.category ?? '')
+    const safeCity     = escapeHtml(p.city ?? '')
+    const safeBio      = p.bio ? escapeHtml(p.bio) : null
     const stars = p.rating_avg ? '⭐'.repeat(Math.round(p.rating_avg)) : ''
     const rating = p.rating_avg ? `${Number(p.rating_avg).toFixed(1)} ${stars}` : 'Novo profissional'
     const reviews = p.review_count ? `(${p.review_count} avaliação${p.review_count > 1 ? 'ões' : ''})` : ''
     return `
       <div itemscope itemtype="https://schema.org/Person" style="border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;background:#fff">
-        <h2 itemprop="name" style="font-size:18px;font-weight:700;color:#111827;margin:0 0 6px">${p.name}</h2>
-        <p style="color:#6b7280;font-size:14px;margin:0 0 8px">${p.category} · ${p.city}</p>
-        ${p.bio ? `<p itemprop="description" style="color:#374151;font-size:14px;margin:0 0 10px;line-height:1.5">${p.bio}</p>` : ''}
+        <h2 itemprop="name" style="font-size:18px;font-weight:700;color:#111827;margin:0 0 6px">${safeName}</h2>
+        <p style="color:#6b7280;font-size:14px;margin:0 0 8px">${safeCategory} · ${safeCity}</p>
+        ${safeBio ? `<p itemprop="description" style="color:#374151;font-size:14px;margin:0 0 10px;line-height:1.5">${safeBio}</p>` : ''}
         <p style="font-size:14px;color:#f59e0b;margin:0">${rating} <span style="color:#6b7280">${reviews}</span></p>
-        <meta itemprop="jobTitle" content="${p.category}">
-        <meta itemprop="address" content="${p.city}, Bahia, Brasil">
+        <meta itemprop="jobTitle" content="${safeCategory}">
+        <meta itemprop="address" content="${safeCity}, Bahia, Brasil">
       </div>`
   }).join('')
 
@@ -161,7 +165,7 @@ function renderHTML(
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
-  <script type="application/ld+json">${JSON.stringify(jsonLD)}</script>
+  <script type="application/ld+json">${JSON.stringify(jsonLD).replace(/<\//g, '<\\/')}</script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #111827; }
