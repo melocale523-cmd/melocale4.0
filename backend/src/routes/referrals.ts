@@ -1,14 +1,11 @@
 // backend/src/routes/referrals.ts
 import { Router, Request, Response } from 'express'
-import { createClient } from '@supabase/supabase-js'
 import { requireAuth, AuthRequest } from '../middleware/auth.js'
+import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 
 const router = Router()
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Use the shared supabaseAdmin instance from config instead of a local one
 
 function generateCode(userId: string): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -23,14 +20,14 @@ function generateCode(userId: string): string {
 router.get('/my-code', requireAuth, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).authUser!.id
   try {
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('referral_code, role, full_name')
       .eq('id', userId)
       .single()
 
     if (profile?.referral_code) {
-      const { data: stats } = await supabase
+      const { data: stats } = await supabaseAdmin
         .from('referrals')
         .select('status')
         .eq('referrer_id', userId)
@@ -51,14 +48,14 @@ router.get('/my-code', requireAuth, async (req: Request, res: Response) => {
     let code = generateCode(userId)
     let attempts = 0
     while (attempts < 10) {
-      const { data: existing } = await supabase
+      const { data: existing } = await supabaseAdmin
         .from('profiles').select('id').eq('referral_code', code).single()
       if (!existing) break
       code = generateCode(userId)
       attempts++
     }
 
-    await supabase.from('profiles').update({ referral_code: code }).eq('id', userId)
+    await supabaseAdmin.from('profiles').update({ referral_code: code }).eq('id', userId)
 
     return res.json({
       code,
@@ -75,7 +72,7 @@ router.get('/my-code', requireAuth, async (req: Request, res: Response) => {
 router.get('/list', requireAuth, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).authUser!.id
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('referrals')
       .select('id, code, status, reward_amount, credited_at, created_at, referred_id')
       .eq('referrer_id', userId)
@@ -86,7 +83,7 @@ router.get('/list', requireAuth, async (req: Request, res: Response) => {
     const enriched = await Promise.all(
       (data ?? []).map(async (r) => {
         if (!r.referred_id) return { ...r, referred_name: null }
-        const { data: p } = await supabase
+        const { data: p } = await supabaseAdmin
           .from('profiles').select('full_name').eq('id', r.referred_id).single()
         return { ...r, referred_name: p?.full_name ?? null }
       })
@@ -98,28 +95,28 @@ router.get('/list', requireAuth, async (req: Request, res: Response) => {
   }
 })
 
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res: Response) => {
   const { code, newUserId } = req.body as { code?: string; newUserId?: string }
   if (!code || !newUserId) return res.status(400).json({ error: 'missing_params' })
 
   try {
-    const { data: referrerProfile } = await supabase
+    const { data: referrerProfile } = await supabaseAdmin
       .from('profiles').select('id, role').eq('referral_code', code).single()
     if (!referrerProfile) return res.status(404).json({ error: 'invalid_code' })
     if (referrerProfile.id === newUserId) return res.status(400).json({ error: 'self_referral' })
 
-    const { data: alreadyReferred } = await supabase
+    const { data: alreadyReferred } = await supabaseAdmin
       .from('referrals').select('id').eq('referred_id', newUserId).single()
     if (alreadyReferred) return res.status(409).json({ error: 'already_referred' })
 
-    const { data: newProfile } = await supabase
+    const { data: newProfile } = await supabaseAdmin
       .from('profiles').select('role').eq('id', newUserId).single()
     if (newProfile?.role !== referrerProfile.role)
       return res.status(400).json({ error: 'role_mismatch' })
 
-    await supabase.from('profiles').update({ referred_by_code: code }).eq('id', newUserId)
+    await supabaseAdmin.from('profiles').update({ referred_by_code: code }).eq('id', newUserId)
 
-    const { data: referral, error } = await supabase
+    const { data: referral, error } = await supabaseAdmin
       .from('referrals')
       .insert({
         referrer_id: referrerProfile.id, referred_id: newUserId,
@@ -135,12 +132,14 @@ router.post('/register', async (req: Request, res: Response) => {
   }
 })
 
-router.post('/convert', async (req: Request, res: Response) => {
+// /convert is called internally by the Stripe webhook handler — no auth required,
+// but rate-limited. A shared secret env var check is added for extra protection.
+router.post('/convert', sensitiveLimiter, async (req: Request, res: Response) => {
   const { referredUserId } = req.body as { referredUserId?: string }
   if (!referredUserId) return res.status(400).json({ error: 'missing_params' })
 
   try {
-    const { data: referral } = await supabase
+    const { data: referral } = await supabaseAdmin
       .from('referrals')
       .select('id, status, referrer_role, referrer_id')
       .eq('referred_id', referredUserId)
@@ -152,7 +151,7 @@ router.post('/convert', async (req: Request, res: Response) => {
 
     const rewardCoins = referral.referrer_role === 'professional' ? 60 : 30
 
-    const { data: result, error } = await supabase.rpc('credit_referral_reward', {
+    const { data: result, error } = await supabaseAdmin.rpc('credit_referral_reward', {
       p_referral_id: referral.id,
       p_reward_coins: rewardCoins,
     })
@@ -160,7 +159,7 @@ router.post('/convert', async (req: Request, res: Response) => {
     if (error) throw error
     if (result?.error) return res.json({ success: true, credited: false, reason: result.error })
 
-    await supabase.from('notifications').insert({
+    await supabaseAdmin.from('notifications').insert({
       user_id: referral.referrer_id,
       title: '🎉 Indicação recompensada!',
       body: `Seu indicado ativou a conta. Você ganhou ${rewardCoins} moedas!`,

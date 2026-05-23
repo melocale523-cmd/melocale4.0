@@ -30,6 +30,15 @@ const CATEGORY_LABELS: Record<string, string> = {
   'piscina-manutencao':     'Manutenção de Piscina',
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function cidadeSlugParaNome(slug: string): string {
   return slug
     .split('-')
@@ -71,12 +80,17 @@ function renderHTML(
   categoriaSlug: string,
   cidadeSlug: string,
 ): string {
-  const title = `${categoriaLabel} em ${cidadeNome} — MeloCalé`
-  const description = profissionais.length > 0
-    ? `${profissionais.length} ${categoriaLabel.toLowerCase()}${profissionais.length > 1 ? 's' : ''} disponíve${profissionais.length > 1 ? 'is' : 'l'} em ${cidadeNome}. Contrate agora pelo MeloCalé — rápido, seguro e sem burocracia.`
-    : `Encontre ${categoriaLabel.toLowerCase()} em ${cidadeNome} pelo MeloCalé. Profissionais verificados, orçamento grátis.`
+  const safeCategoriaSlug = escapeHtml(categoriaSlug)
+  const safeCidadeSlug = escapeHtml(cidadeSlug)
+  const safeCidadeNome = escapeHtml(cidadeNome)
+  const safeCategoriaLabel = escapeHtml(categoriaLabel)
 
-  const canonical = `https://melocale.com.br/${categoriaSlug}-${cidadeSlug}`
+  const title = `${safeCategoriaLabel} em ${safeCidadeNome} — MeloCalé`
+  const description = profissionais.length > 0
+    ? `${profissionais.length} ${safeCategoriaLabel.toLowerCase()}${profissionais.length > 1 ? 's' : ''} disponíve${profissionais.length > 1 ? 'is' : 'l'} em ${safeCidadeNome}. Contrate agora pelo MeloCalé — rápido, seguro e sem burocracia.`
+    : `Encontre ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome} pelo MeloCalé. Profissionais verificados, orçamento grátis.`
+
+  const canonical = `https://melocale.com.br/${safeCategoriaSlug}-${safeCidadeSlug}`
   const appUrl = `https://melocale.com.br/busca?categoria=${encodeURIComponent(categoriaLabel)}&cidade=${encodeURIComponent(cidadeNome)}`
 
   const profListHTML = profissionais.map(p => {
