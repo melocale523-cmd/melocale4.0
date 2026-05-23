@@ -21,7 +21,8 @@ interface PurchaseViewRow {
   max_purchases?: number | null;
   purchases_count?: number | null;
   location?: string | null;
-  images?: unknown;
+  images?: string[] | null;
+  chat_id?: string | null;
   title?: string | null;
   description?: string | null;
   category?: string | null;

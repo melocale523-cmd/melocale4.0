@@ -61,7 +61,7 @@ export default function ProfessionalCompras() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
-  const { data: purchases, isLoading } = useQuery({
+  const { data: purchases, isLoading } = useQuery<Purchase[]>({
     queryKey: ['purchases', user?.id],
     retry: false,
     refetchOnWindowFocus: false,
@@ -144,7 +144,7 @@ export default function ProfessionalCompras() {
   const openProposalModal = (purchase: Purchase) => {
     setSelectedPurchase(purchase);
     // Reset status to the current purchase status or default to current
-    setProposalData(prev => ({ ...prev, status: purchase.status === 'Pendente Proposta' ? 'Proposta Enviada' : purchase.status }));
+    setProposalData(prev => ({ ...prev, status: purchase.status === 'Pendente Proposta' ? 'Proposta Enviada' : (purchase.status ?? 'Proposta Enviada') }));
     setIsProposalModalOpen(true);
   };
 
