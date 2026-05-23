@@ -20,8 +20,8 @@ interface MessageInputProps {
   onStartRecording: () => void;
   onStopRecording: () => void;
   sendMessagePending: boolean;
-  imageInputRef: RefObject<HTMLInputElement>;
-  fileInputRef: RefObject<HTMLInputElement>;
+  imageInputRef: RefObject<HTMLInputElement | null>;
+  fileInputRef: RefObject<HTMLInputElement | null>;
   inputPlaceholder: string;
   onOpenScheduleModal?: () => void;
 }
