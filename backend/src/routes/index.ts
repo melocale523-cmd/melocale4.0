@@ -8,6 +8,7 @@ import chatRouter from "./chat.js";
 import supportRouter from "./support.js";
 import adminRouter from "./admin.js";
 import referralsRouter from "./referrals.js";
+import { PLANS } from "../config.js";
 
 export function registerRoutes(app: Application) {
   // Webhook precisa de raw body — registrar ANTES do express.json() e do rate limiter
@@ -32,6 +33,16 @@ export function registerRoutes(app: Application) {
 
   app.get("/api/health", (_req: Request, res: Response) => {
     res.json({ status: "ok" });
+  });
+
+  app.get("/api/plans", (_req: Request, res: Response) => {
+    const plans = Object.entries(PLANS).map(([id, p]) => ({
+      id,
+      name:         p.name,
+      coinDiscount: p.coinDiscount,
+      welcomeCoins: p.welcomeCoins,
+    }));
+    res.json(plans);
   });
 
   app.use("/api", notificationsRouter);
