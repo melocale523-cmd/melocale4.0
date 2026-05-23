@@ -50,7 +50,18 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
         res.json({ received: true }); return;
       }
 
-      // Registrar como processado ANTES do UPDATE para evitar duplo-processamento em caso de retry concorrente.
+      const { error: featErr } = await withTimeout(
+        supabaseAdmin.from("professionals")
+          .update({ featured_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() })
+          .eq("user_id", userId)
+      );
+      if (featErr) {
+        console.error("[webhook] falha ao ativar destaque:", featErr.message);
+        res.status(500).json({ error: "featured_update_failed" }); return;
+      }
+
+      // Registrar como processado APÓS o UPDATE bem-sucedido para garantir idempotência correta.
+      // Se o UPDATE falhar acima, não inserimos — o Stripe pode retentar com segurança.
       const { error: idempotErr } = await withTimeout(
         supabaseAdmin
           .from("stripe_processed_events")
@@ -62,18 +73,9 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
           res.json({ received: true }); return;
         }
         console.error("[webhook] falha ao registrar idempotência:", idempotErr.message);
-        res.status(500).json({ error: "idempotency_failed" }); return;
+        // Não retornar erro aqui: o UPDATE já foi feito com sucesso
       }
 
-      const { error: featErr } = await withTimeout(
-        supabaseAdmin.from("professionals")
-          .update({ featured_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() })
-          .eq("user_id", userId)
-      );
-      if (featErr) {
-        console.error("[webhook] falha ao ativar destaque:", featErr.message);
-        res.status(500).json({ error: "featured_update_failed" }); return;
-      }
       if (process.env.NODE_ENV !== "production") {
         console.log(`[webhook] destaque ativado: userId=${userId}`);
       }
@@ -442,6 +444,7 @@ router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res
         : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
     ).replace(/\/$/, "");
 
+    const idempotencyKey = `service-payment-${authUser.id}-${amountInCents}-${Math.floor(Date.now() / 60000)}`
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -469,7 +472,7 @@ router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res
       },
       success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendUrl}/checkout/cancel`,
-    });
+    }, { idempotencyKey });
 
     return res.json({ id: session.id, url: session.url });
   } catch (err: unknown) {
