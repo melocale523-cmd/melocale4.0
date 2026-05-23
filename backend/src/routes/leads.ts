@@ -119,7 +119,6 @@ router.patch("/leads/:id", sensitiveLimiter, requireAuth, async (req: AuthReques
 
 const solicitarOrcamentoSchema = z.object({
   professional_id:      z.string().uuid(),
-  professional_user_id: z.string().uuid(),
   professional_name:    z.string().max(100).optional().default(""),
   title:       z.string().min(5).max(200),
   description: z.string().min(10).max(2000),
@@ -137,11 +136,19 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
   try {
     const clientId = req.authUser!.id;
     const {
-      professional_id, professional_user_id, professional_name,
+      professional_id, professional_name,
       title, description, category, city,
       budget_min, budget_max,
       lead_id: existingLeadId,
     } = parsed.data;
+
+    const { data: prof, error: profError } = await supabaseAdmin
+      .from('professionals')
+      .select('user_id')
+      .eq('id', professional_id)
+      .single()
+    if (profError || !prof) return res.status(400).json({ error: 'Profissional não encontrado' })
+    const professionalUserId = prof.user_id as string
 
     // Check for existing conversation (matches the partial unique index columns)
     if (existingLeadId) {
@@ -260,7 +267,7 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
       ? `A partir de R$ ${budget_min}`
       : "Orçamento a combinar";
 
-    void sendPushToUser(professional_user_id, {
+    void sendPushToUser(professionalUserId, {
       title: `💼 Novo orçamento — ${category}`,
       body: `${title}${city ? ` · ${city}` : ""} · ${budgetText}. Toque para responder!`,
       data: {
@@ -272,7 +279,7 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
 
     void withTimeout(
       supabaseAdmin.from("notifications").insert({
-        user_id:  professional_user_id,
+        user_id:  professionalUserId,
         title:    `💼 Novo orçamento — ${category}`,
         body:     `${title}${city ? ` em ${city}` : ""}. Toque para ver.`,
         data:     { type: "new_lead_conversation", conversation_id: conversationId },
