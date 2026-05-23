@@ -36,13 +36,6 @@ const PLAN_PRICES: Record<string, string> = {
   plan_business: '127',
 };
 
-// ATENÇÃO: estes valores devem espelhar PLANS[x].coinDiscount em backend/src/config.ts
-// Se mudar lá, mudar aqui também. Futuramente buscar via API.
-const PLAN_DISCOUNTS: Record<string, number> = {
-  plan_basic:    25,
-  plan_pro:      40,
-  plan_business: 55,
-};
 
 const SUBSCRIPTION_PLANS = [
   {
@@ -181,6 +174,17 @@ export default function ProfessionalAssinatura() {
     refetchOnWindowFocus: false,
     queryFn: () => transactionService.getRecentTransactions(professionalId!, 5),
   });
+
+  const { data: plansApiData } = useQuery<Array<{ id: string; name: string; coinDiscount: number; welcomeCoins: number }>>({
+    queryKey: ['plans-config'],
+    queryFn: () => apiFetch('/api/plans').then(r => r.json()),
+    staleTime: Infinity,
+  });
+
+  const getPlanDiscount = (planId: string): number => {
+    const found = plansApiData?.find(p => p.id === planId);
+    return found ? Math.round(found.coinDiscount * 100) : 0;
+  };
 
 
   useEffect(() => {
