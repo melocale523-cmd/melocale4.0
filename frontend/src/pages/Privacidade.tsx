@@ -28,7 +28,8 @@ export default function Privacidade() {
             <p>
               O MeloCalé é uma plataforma digital que conecta clientes a profissionais de
               serviços domésticos (elétrica, hidráulica, pintura, entre outros), operada por
-              seus desenvolvedores com sede no Brasil.
+              seus desenvolvedores com sede no Brasil. Somos uma startup brasileira em fase de
+              crescimento, comprometida com a proteção de dados desde o início da operação.
             </p>
             <p className="mt-2">
               Contato para assuntos de privacidade:{' '}
@@ -108,6 +109,11 @@ export default function Privacidade() {
               Mantemos seus dados enquanto sua conta estiver ativa. Após o encerramento,
               os dados são excluídos em até 90 dias, salvo obrigação legal de retenção.
             </p>
+            <p className="mt-2">
+              Dados de leads recebidos e pedidos de serviço são retidos enquanto o profissional
+              mantiver conta ativa na plataforma, pois integram o histórico operacional da conta.
+              Após o encerramento, esses dados seguem o mesmo prazo de 90 dias acima.
+            </p>
           </section>
 
           <section>
@@ -116,13 +122,37 @@ export default function Privacidade() {
               Utilizamos apenas cookies essenciais para autenticação e funcionamento da
               plataforma. Não utilizamos cookies de rastreamento ou publicidade.
             </p>
+            <p className="mt-2">
+              Utilizamos o <strong className="text-white">Cloudflare</strong> como CDN (rede de
+              entrega de conteúdo) para desempenho e disponibilidade. O Cloudflare Insights coleta
+              dados de navegação de forma anônima e agregada (sem identificação individual) para
+              análise de tráfego. Esses dados não são vendidos nem usados para fins publicitários.
+            </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-white mb-3">9. Alterações nesta política</h2>
+
             <p>
               Podemos atualizar esta política periodicamente. Notificaremos usuários sobre
               mudanças significativas por e-mail ou notificação na plataforma.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-white mb-3">11. Transferência Internacional de Dados</h2>
+            <p>
+              Para operar a plataforma, seus dados podem ser transferidos e processados fora do
+              Brasil, com base nos Art. 33–36 da LGPD, pelos seguintes prestadores:
+            </p>
+            <ul className="list-disc list-inside space-y-1 mt-2">
+              <li><strong className="text-white">Supabase</strong> — banco de dados hospedado na AWS região us-east-1 (EUA), com certificação SOC 2 Type II</li>
+              <li><strong className="text-white">Stripe</strong> — processamento de pagamentos nos EUA, certificação PCI DSS Nível 1</li>
+              <li><strong className="text-white">Sentry</strong> — monitoramento de erros com servidores na Europa (Frankfurt), sujeito ao GDPR</li>
+            </ul>
+            <p className="mt-2">
+              Todas essas transferências são amparadas por cláusulas contratuais adequadas e os
+              dados tratados pelos subprocessadores ficam restritos às finalidades descritas nesta política.
             </p>
           </section>
 

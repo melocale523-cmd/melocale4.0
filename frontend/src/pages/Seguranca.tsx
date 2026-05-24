@@ -40,6 +40,7 @@ export default function Seguranca() {
               <li><strong className="text-white">Senhas</strong>: nunca armazenadas em texto simples — hashing com bcrypt via Supabase Auth</li>
               <li><strong className="text-white">Tokens JWT</strong>: sessões autenticadas com expiração e rotação automática</li>
               <li><strong className="text-white">Infraestrutura AWS</strong>: servidores em regiões com certificação SOC 2 Type II</li>
+              <li><strong className="text-white">Backups automáticos</strong>: o Supabase realiza backups diários do banco de dados, garantindo recuperação em caso de falha</li>
             </ul>
           </section>
 
@@ -99,7 +100,7 @@ export default function Seguranca() {
             <ul className="list-disc list-inside space-y-1 mt-3">
               <li>Alertas automáticos para anomalias e tentativas de acesso suspeito</li>
               <li>Rate limiting em endpoints sensíveis para prevenir ataques de força bruta</li>
-              <li>Logs de auditoria para operações críticas</li>
+              <li>Logs de auditoria para operações críticas, retidos por <strong className="text-white">30 dias</strong></li>
             </ul>
           </section>
 
@@ -118,6 +119,25 @@ export default function Seguranca() {
               <li>Verifique se o endereço na barra do navegador é <strong className="text-white">melocale.com.br</strong> antes de inserir seus dados</li>
               <li>Desconfie de e-mails ou mensagens pedindo sua senha — o MeloCalé nunca solicitará isso</li>
               <li>Mantenha seu e-mail de cadastro seguro, pois é usado para recuperação de conta</li>
+            </ul>
+          </section>
+
+          <section>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center text-orange-400">
+                <ShieldCheck size={18} />
+              </div>
+              <h2 className="text-lg font-semibold text-white">Cloudflare — CDN e Proteção de Rede</h2>
+            </div>
+            <p>
+              O MeloCalé utiliza o <strong className="text-white">Cloudflare</strong> como camada
+              de rede global, adicionando múltiplas proteções entre o usuário e nossos servidores.
+            </p>
+            <ul className="list-disc list-inside space-y-1 mt-3">
+              <li><strong className="text-white">CDN global</strong>: conteúdo estático entregue a partir do ponto de presença mais próximo, reduzindo latência</li>
+              <li><strong className="text-white">Proteção DDoS</strong>: mitigação automática de ataques de negação de serviço em larga escala</li>
+              <li><strong className="text-white">Web Application Firewall (WAF)</strong>: bloqueio de requisições maliciosas antes de chegarem à aplicação</li>
+              <li><strong className="text-white">SSL/TLS automático</strong>: certificado HTTPS emitido e renovado automaticamente pelo Cloudflare</li>
             </ul>
           </section>
 

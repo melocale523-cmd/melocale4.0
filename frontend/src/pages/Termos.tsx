@@ -76,8 +76,12 @@ export default function Termos() {
             <h2 className="text-lg font-semibold text-white mb-3">5. Pagamentos e Moedas</h2>
             <p>
               Profissionais adquirem moedas virtuais (MeloCoins) para acessar leads de clientes.
-              Valores e pacotes estão descritos na página de planos e sujeitos a alteração com aviso
-              prévio de 30 dias. Todos os pagamentos são processados com segurança via Stripe.
+              O custo de cada lead em moedas varia conforme a categoria do serviço solicitado —
+              os valores atualizados são exibidos antes da confirmação. O profissional <strong className="text-white">só é
+              debitado no momento em que aceita o lead</strong>; visualizar as informações básicas do
+              pedido não consome moedas. Valores e pacotes estão descritos na página de planos e
+              sujeitos a alteração com aviso prévio de 30 dias. Todos os pagamentos são processados
+              com segurança via Stripe.
             </p>
             <p className="mt-2">
               Clientes não pagam pela plataforma em si — os custos de contratação do serviço são
@@ -94,8 +98,9 @@ export default function Termos() {
               antecipado de assinaturas.
             </p>
             <p className="mt-2">
-              Para solicitar análise de reembolso por cobrança indevida, entre em contato em até
-              7 dias: <a href="mailto:financeiro@melocale.com.br" className="text-emerald-400 hover:underline">financeiro@melocale.com.br</a>
+              Para solicitar análise de reembolso por cobrança indevida ou abrir uma disputa de
+              cobrança, entre em contato em até 7 dias pelo canal exclusivo de financeiro:{' '}
+              <a href="mailto:financeiro@melocale.com.br" className="text-emerald-400 hover:underline">financeiro@melocale.com.br</a>
             </p>
           </section>
 
@@ -135,7 +140,8 @@ export default function Termos() {
               Você pode encerrar sua conta a qualquer momento nas configurações da plataforma.
               O MeloCalé pode suspender ou encerrar contas que violem estes termos, com ou sem
               aviso prévio dependendo da gravidade da violação. Saldos de moedas não utilizados
-              não são reembolsados em caso de encerramento por violação.
+              não são reembolsados em caso de encerramento por violação <strong className="text-white">nem em caso de
+              encerramento voluntário</strong> — as moedas têm validade vinculada à conta ativa.
             </p>
           </section>
 
@@ -149,7 +155,7 @@ export default function Termos() {
             </p>
             <p className="mt-2">
               Estes Termos são regidos pelas leis brasileiras. Fica eleito o foro da comarca de
-              São Paulo/SP para dirimir quaisquer controvérsias.
+              Jacobina/BA para dirimir quaisquer controvérsias.
             </p>
           </section>
 
