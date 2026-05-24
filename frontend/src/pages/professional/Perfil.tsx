@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useProfile } from '../../hooks/useProfile';
-import { profileService, avatarService, reviewService } from '../../services/dbServices';
+import { profileService, avatarService, reviewService, professionalAddressService } from '../../services/dbServices';
 import { compressImage } from '../../lib/compressImage';
-import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CheckCircle, CreditCard, AlertCircle, Trash2, Star } from 'lucide-react';
+import { logService } from '../../lib/logService';
+import { User, Mail, Phone, Briefcase, Camera, Loader2, CheckCircle2, CheckCircle, CreditCard, AlertCircle, Trash2, Star, MapPin, Hash } from 'lucide-react';
 import { toast } from 'sonner';
 import { getConnectStatus, connectProfessionalAccount, createOnboardingLink, type ConnectStatus } from '../../lib/stripeConnect';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -148,6 +149,82 @@ export default function ProfessionalPerfil() {
     setValidationError(null);
     saveMutation.mutate();
   };
+
+  // ─── Address section ─────────────────────────────────────────────────────────
+  const [addrCep, setAddrCep] = useState('');
+  const [addrCepLoading, setAddrCepLoading] = useState(false);
+  const [addrViacepFilled, setAddrViacepFilled] = useState(false);
+  const [addrForm, setAddrForm] = useState({
+    street: '', number: '', block: '', complement: '', neighborhood: '', addressCity: '', addressState: '',
+  });
+  const [addrSuccessMsg, setAddrSuccessMsg] = useState(false);
+
+  useEffect(() => {
+    if (!profile) return;
+    setAddrCep(profile.address_zipcode || '');
+    setAddrForm({
+      street: profile.address_street,
+      number: profile.address_number,
+      block: profile.address_block,
+      complement: profile.address_complement,
+      neighborhood: profile.address_neighborhood,
+      addressCity: profile.address_city,
+      addressState: profile.address_state,
+    });
+  }, [profile]);
+
+  const handleAddrCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+    setAddrCep(digits);
+    setAddrViacepFilled(false);
+    if (digits.length !== 8) return;
+
+    setAddrCepLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = await res.json() as { erro?: boolean; logradouro?: string; bairro?: string; localidade?: string; uf?: string };
+      if (data.erro) {
+        toast.error('CEP não encontrado — preencha manualmente');
+      } else {
+        setAddrForm(prev => ({
+          ...prev,
+          street: data.logradouro || prev.street,
+          neighborhood: data.bairro || prev.neighborhood,
+          addressCity: data.localidade || prev.addressCity,
+          addressState: data.uf || prev.addressState,
+        }));
+        setAddrViacepFilled(true);
+      }
+    } catch (err) {
+      logService.warn('CEP', 'ViaCEP lookup failed', err);
+      toast.error('CEP não encontrado — preencha manualmente');
+    } finally {
+      setAddrCepLoading(false);
+    }
+  };
+
+  const savAddressMutation = useMutation({
+    mutationFn: () => professionalAddressService.saveAddress(user!.id, {
+      cep: addrCep,
+      address_zipcode: addrCep || undefined,
+      address_street: addrForm.street.trim() || undefined,
+      address_number: addrForm.number.trim() || undefined,
+      address_block: addrForm.block.trim() || undefined,
+      address_complement: addrForm.complement.trim() || undefined,
+      address_neighborhood: addrForm.neighborhood.trim() || undefined,
+      address_city: addrForm.addressCity.trim() || undefined,
+      address_state: addrForm.addressState.trim() || undefined,
+      city: addrForm.addressCity && addrForm.addressState
+        ? `${addrForm.addressCity} - ${addrForm.addressState}`
+        : undefined,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      setAddrSuccessMsg(true);
+      setTimeout(() => setAddrSuccessMsg(false), 3000);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
 
   const { data: reviewsData } = useQuery({
     queryKey: ['reviews', 'professional', profile?.professionalId],
@@ -375,6 +452,156 @@ export default function ProfessionalPerfil() {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* Address */}
+      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
+            <MapPin size={20} />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-100">Endereço</h2>
+            <p className="text-sm text-[#94A3B8]">Localização para agendamentos de visitas.</p>
+          </div>
+        </div>
+
+        {addrSuccessMsg && (
+          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center text-sm">
+            <CheckCircle2 size={16} className="mr-2 shrink-0" /> Endereço salvo com sucesso!
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {/* CEP */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <Hash size={14} /> CEP
+              <span className="text-[#4A6580] text-xs font-normal">(preenche os campos automaticamente)</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={addrCep.length > 5 ? `${addrCep.slice(0, 5)}-${addrCep.slice(5)}` : addrCep}
+                onChange={handleAddrCepChange}
+                placeholder="00000-000"
+                maxLength={9}
+                className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all pr-8"
+              />
+              {addrCepLoading && (
+                <Loader2 size={14} className="animate-spin text-[#94A3B8] absolute right-3 top-3" />
+              )}
+            </div>
+          </div>
+
+          {/* Rua + Número */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2 space-y-1">
+              <label className="text-sm font-medium text-slate-300">Rua / Logradouro</label>
+              <input
+                type="text"
+                maxLength={200}
+                value={addrForm.street}
+                onChange={e => setAddrForm(prev => ({ ...prev, street: e.target.value }))}
+                placeholder="Rua das Flores"
+                className={`w-full border text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all ${addrViacepFilled && addrForm.street ? 'bg-[#162A3A] border-emerald-500/30' : 'bg-[#0E1C32] border-slate-800'}`}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-300">Número</label>
+              <input
+                type="text"
+                maxLength={20}
+                value={addrForm.number}
+                onChange={e => setAddrForm(prev => ({ ...prev, number: e.target.value }))}
+                placeholder="123"
+                className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Quadra + Complemento */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-300">
+                Quadra <span className="text-[#4A6580] text-xs font-normal">(opcional)</span>
+              </label>
+              <input
+                type="text"
+                maxLength={20}
+                value={addrForm.block}
+                onChange={e => setAddrForm(prev => ({ ...prev, block: e.target.value }))}
+                placeholder="Quadra A"
+                className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-300">Complemento</label>
+              <input
+                type="text"
+                maxLength={100}
+                value={addrForm.complement}
+                onChange={e => setAddrForm(prev => ({ ...prev, complement: e.target.value }))}
+                placeholder="Sala 2"
+                className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Bairro */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-300">Bairro</label>
+            <input
+              type="text"
+              maxLength={100}
+              value={addrForm.neighborhood}
+              onChange={e => setAddrForm(prev => ({ ...prev, neighborhood: e.target.value }))}
+              placeholder="Centro"
+              className={`w-full border text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all ${addrViacepFilled && addrForm.neighborhood ? 'bg-[#162A3A] border-emerald-500/30' : 'bg-[#0E1C32] border-slate-800'}`}
+            />
+          </div>
+
+          {/* Cidade + Estado */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2 space-y-1">
+              <label className="text-sm font-medium text-slate-300">Cidade</label>
+              <input
+                type="text"
+                maxLength={100}
+                value={addrForm.addressCity}
+                onChange={e => setAddrForm(prev => ({ ...prev, addressCity: e.target.value }))}
+                placeholder="Jacobina"
+                className={`w-full border text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all ${addrViacepFilled && addrForm.addressCity ? 'bg-[#162A3A] border-emerald-500/30' : 'bg-[#0E1C32] border-slate-800'}`}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-300">Estado</label>
+              <input
+                type="text"
+                maxLength={2}
+                value={addrForm.addressState}
+                onChange={e => setAddrForm(prev => ({ ...prev, addressState: e.target.value.toUpperCase() }))}
+                placeholder="BA"
+                className={`w-full border text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all ${addrViacepFilled && addrForm.addressState ? 'bg-[#162A3A] border-emerald-500/30' : 'bg-[#0E1C32] border-slate-800'}`}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="button"
+              onClick={() => savAddressMutation.mutate()}
+              disabled={savAddressMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            >
+              {savAddressMutation.isPending
+                ? <><Loader2 size={16} className="animate-spin" /> Salvando...</>
+                : 'Salvar Endereço'
+              }
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Stripe Connect */}

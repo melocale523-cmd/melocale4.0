@@ -44,9 +44,25 @@ export const profileService = {
 };
 
 export const clientProfileService = {
-  async saveProfile(userId: string, data: { name: string; phone: string; city: string; cep?: string }) {
+  async saveProfile(userId: string, data: {
+    name: string;
+    phone: string;
+    city: string;
+    cep?: string;
+    address_zipcode?: string;
+    address_street?: string;
+    address_number?: string;
+    address_block?: string;
+    address_complement?: string;
+    address_neighborhood?: string;
+    address_city?: string;
+    address_state?: string;
+  }) {
     const payload: Record<string, unknown> = { id: userId, full_name: data.name, phone: data.phone, city: data.city };
-    if (data.cep !== undefined) payload.cep = data.cep;
+    const optionalFields = ['cep', 'address_zipcode', 'address_street', 'address_number', 'address_block', 'address_complement', 'address_neighborhood', 'address_city', 'address_state'] as const;
+    for (const f of optionalFields) {
+      if (data[f] !== undefined) payload[f] = data[f];
+    }
     logService.info('clientProfileService', 'saving profile', { ...payload, phone: '[REDACTED]' });
     const { error } = await supabase
       .from('profiles')
@@ -54,6 +70,34 @@ export const clientProfileService = {
     if (error) {
       logService.error('clientProfileService', 'profiles upsert failed', error);
       throw new Error('Erro ao salvar perfil. Tente novamente.');
+    }
+    return true;
+  },
+};
+
+export const professionalAddressService = {
+  async saveAddress(userId: string, data: {
+    cep?: string;
+    address_zipcode?: string;
+    address_street?: string;
+    address_number?: string;
+    address_block?: string;
+    address_complement?: string;
+    address_neighborhood?: string;
+    address_city?: string;
+    address_state?: string;
+    city?: string;
+  }) {
+    const payload: Record<string, unknown> = { id: userId };
+    const fields = ['cep', 'address_zipcode', 'address_street', 'address_number', 'address_block', 'address_complement', 'address_neighborhood', 'address_city', 'address_state', 'city'] as const;
+    for (const f of fields) {
+      if (data[f] !== undefined) payload[f] = data[f];
+    }
+    logService.info('professionalAddressService', 'saving address');
+    const { error } = await supabase.from('profiles').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      logService.error('professionalAddressService', 'address upsert failed', error);
+      throw new Error('Erro ao salvar endereço. Tente novamente.');
     }
     return true;
   },

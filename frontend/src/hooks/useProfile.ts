@@ -18,6 +18,14 @@ export interface ProfileData {
   serviceRadius: number | null;
   isActive: boolean;
   featuredUntil: string | null;
+  address_zipcode: string;
+  address_street: string;
+  address_number: string;
+  address_block: string;
+  address_complement: string;
+  address_neighborhood: string;
+  address_city: string;
+  address_state: string;
 }
 
 async function fetchProfileData(userId: string, hasProfessionalId: boolean): Promise<ProfileData> {
@@ -34,7 +42,7 @@ async function fetchProfileData(userId: string, hasProfessionalId: boolean): Pro
   const [profileRes, profRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name, phone, avatar_url, city')
+      .select('id, full_name, phone, avatar_url, city, address_zipcode, address_street, address_number, address_block, address_complement, address_neighborhood, address_city, address_state')
       .eq('id', userId)
       .single(),
     supabase
@@ -62,6 +70,14 @@ async function fetchProfileData(userId: string, hasProfessionalId: boolean): Pro
     serviceRadius: prof.service_radius ?? null,
     isActive: prof.is_active ?? true,
     featuredUntil: (prof as { featured_until?: string | null }).featured_until ?? null,
+    address_zipcode: (profile as { address_zipcode?: string | null }).address_zipcode || '',
+    address_street: (profile as { address_street?: string | null }).address_street || '',
+    address_number: (profile as { address_number?: string | null }).address_number || '',
+    address_block: (profile as { address_block?: string | null }).address_block || '',
+    address_complement: (profile as { address_complement?: string | null }).address_complement || '',
+    address_neighborhood: (profile as { address_neighborhood?: string | null }).address_neighborhood || '',
+    address_city: (profile as { address_city?: string | null }).address_city || '',
+    address_state: (profile as { address_state?: string | null }).address_state || '',
   };
 }
 

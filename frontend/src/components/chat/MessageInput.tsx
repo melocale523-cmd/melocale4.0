@@ -96,7 +96,7 @@ export function MessageInput({
   return (
     <div className="p-6 pb-8 border-t border-[#1C3050] bg-[#1C3454]/80 backdrop-blur-xl z-20 relative">
       {showEmojiPicker && (
-        <div className="absolute bottom-28 left-6 right-6 p-4 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl flex flex-wrap gap-2 animate-in slide-in-from-bottom-4 duration-300 border-b-4 border-b-emerald-500/20">
+        <div className="absolute bottom-28 left-6 right-6 p-4 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl flex flex-wrap gap-2 animate-in slide-in-from-bottom-4 duration-300 border-b-4 border-b-emerald-500/20 z-50">
           {EMOJIS.map(emoji => (
             <button
               key={emoji}

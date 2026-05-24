@@ -15,6 +15,16 @@ function formatCep(digits: string) {
   return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
 }
 
+interface AddressForm {
+  street: string;
+  number: string;
+  block: string;
+  complement: string;
+  neighborhood: string;
+  addressCity: string;
+  addressState: string;
+}
+
 export default function ClientePerfil() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
@@ -26,13 +36,25 @@ export default function ClientePerfil() {
   const [fieldErrors, setFieldErrors] = useState<ClientFieldErrors>({});
   const [cep, setCep] = useState('');
   const [cepLoading, setCepLoading] = useState(false);
-  const [cepError, setCepError] = useState<string | null>(null);
+  const [address, setAddress] = useState<AddressForm>({
+    street: '', number: '', block: '', complement: '', neighborhood: '', addressCity: '', addressState: '',
+  });
+  const [viacepFilled, setViacepFilled] = useState(false);
   const [successMsg, setSuccessMsg] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
     setFormData({ name: profile.full_name, phone: profile.phone, city: profile.city });
     if (profile.cep) setCep(profile.cep);
+    setAddress({
+      street: profile.address_street,
+      number: profile.address_number,
+      block: profile.address_block,
+      complement: profile.address_complement,
+      neighborhood: profile.address_neighborhood,
+      addressCity: profile.address_city,
+      addressState: profile.address_state,
+    });
   }, [profile]);
 
   const invalidateClientProfile = () =>
@@ -66,7 +88,20 @@ export default function ClientePerfil() {
   };
 
   const saveMutation = useMutation({
-    mutationFn: () => clientProfileService.saveProfile(user!.id, normalizeClientProfileData({ ...formData, cep })),
+    mutationFn: () => clientProfileService.saveProfile(
+      user!.id,
+      normalizeClientProfileData({
+        ...formData,
+        cep,
+        addressStreet: address.street,
+        addressNumber: address.number,
+        addressBlock: address.block,
+        addressComplement: address.complement,
+        addressNeighborhood: address.neighborhood,
+        addressCity: address.addressCity,
+        addressState: address.addressState,
+      }),
+    ),
     onSuccess: () => {
       invalidateClientProfile();
       setSuccessMsg(true);
@@ -86,29 +121,41 @@ export default function ClientePerfil() {
     setFormData(prev => ({ ...prev, [name]: value }));
     if (fieldErrors[name as keyof ClientFieldErrors])
       setFieldErrors(prev => ({ ...prev, [name]: undefined }));
-    if (name === 'city') setCepError(null);
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAddress(prev => ({ ...prev, [name]: value }));
   };
 
   const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
     setCep(digits);
-    setCepError(null);
+    setViacepFilled(false);
     if (digits.length !== 8) return;
 
     setCepLoading(true);
     try {
       const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
-      const data = await res.json();
+      const data = await res.json() as { erro?: boolean; logradouro?: string; bairro?: string; localidade?: string; uf?: string };
       if (data.erro) {
-        setCepError('CEP não encontrado.');
+        toast.error('CEP não encontrado — preencha manualmente');
       } else {
-        const city = `${data.localidade} - ${data.uf}`;
-        setFormData(prev => ({ ...prev, city }));
+        const cityStr = `${data.localidade ?? ''} - ${data.uf ?? ''}`;
+        setFormData(prev => ({ ...prev, city: cityStr }));
         setFieldErrors(prev => ({ ...prev, city: undefined }));
+        setAddress(prev => ({
+          ...prev,
+          street: data.logradouro || prev.street,
+          neighborhood: data.bairro || prev.neighborhood,
+          addressCity: data.localidade || prev.addressCity,
+          addressState: data.uf || prev.addressState,
+        }));
+        setViacepFilled(true);
       }
     } catch (err) {
       logService.warn('CEP', 'ViaCEP lookup failed', err);
-      setCepError('Não foi possível consultar o CEP. Insira a cidade manualmente.');
+      toast.error('CEP não encontrado — preencha manualmente');
     } finally {
       setCepLoading(false);
     }
@@ -134,6 +181,9 @@ export default function ClientePerfil() {
     );
   }
 
+  const filledBg = 'bg-[#162A3A] border-emerald-500/30';
+  const normalBg = 'bg-[#0E1C32] border-slate-700/50';
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3 mb-6">
@@ -154,7 +204,6 @@ export default function ClientePerfil() {
               disabled={avatarBusy}
             />
 
-            {/* Avatar circle */}
             <div className={cn(
               "w-20 h-20 bg-slate-700 rounded-full border-4 border-[#1C3454] overflow-hidden flex items-center justify-center text-[#94A3B8]",
               avatarBusy && "opacity-50"
@@ -166,7 +215,6 @@ export default function ClientePerfil() {
               )}
             </div>
 
-            {/* Action buttons */}
             {avatarBusy ? (
               <div className="flex items-center gap-2 h-7">
                 <Loader2 size={14} className="text-[#94A3B8] animate-spin" />
@@ -227,10 +275,10 @@ export default function ClientePerfil() {
               value={formData.name}
               onChange={handleChange}
               placeholder="Seu nome completo"
-              className={`w-full bg-[#0E1C32] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
+              className={`w-full border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
                 fieldErrors.name
-                  ? 'border-red-500/60 focus:border-red-500'
-                  : 'border-slate-700/50 focus:border-emerald-500'
+                  ? 'bg-[#0E1C32] border-red-500/60 focus:border-red-500'
+                  : 'bg-[#0E1C32] border-slate-700/50 focus:border-emerald-500'
               }`}
             />
             {fieldErrors.name && (
@@ -265,10 +313,10 @@ export default function ClientePerfil() {
               value={formData.phone}
               onChange={handleChange}
               placeholder="(11) 99999-9999"
-              className={`w-full bg-[#0E1C32] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
+              className={`w-full border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
                 fieldErrors.phone
-                  ? 'border-red-500/60 focus:border-red-500'
-                  : 'border-slate-700/50 focus:border-emerald-500'
+                  ? 'bg-[#0E1C32] border-red-500/60 focus:border-red-500'
+                  : 'bg-[#0E1C32] border-slate-700/50 focus:border-emerald-500'
               }`}
             />
             {fieldErrors.phone && (
@@ -278,56 +326,159 @@ export default function ClientePerfil() {
             )}
           </div>
 
-          {/* CEP auto-fill */}
-          <div className="space-y-1">
-            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
-              <Hash size={14} /> CEP
-              <span className="text-slate-600 text-xs">(preenche a cidade automaticamente)</span>
-            </label>
-            <div className="relative">
+          {/* Address section */}
+          <div className="pt-2 border-t border-slate-700/40 space-y-4">
+            <p className="text-[#94A3B8] text-sm font-medium flex items-center gap-2">
+              <MapPin size={14} /> Endereço
+            </p>
+
+            {/* CEP */}
+            <div className="space-y-1">
+              <label className="text-[#94A3B8] text-xs flex items-center gap-2">
+                <Hash size={12} /> CEP
+                <span className="text-slate-600">(preenche os campos automaticamente)</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={formatCep(cep)}
+                  onChange={handleCepChange}
+                  placeholder="00000-000"
+                  maxLength={9}
+                  className="w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors pr-8"
+                />
+                {cepLoading && (
+                  <Loader2 size={14} className="animate-spin text-[#94A3B8] absolute right-3 top-3" />
+                )}
+              </div>
+            </div>
+
+            {/* Rua + Número */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2 space-y-1">
+                <label className="text-[#94A3B8] text-xs">Rua / Logradouro</label>
+                <input
+                  name="street"
+                  type="text"
+                  maxLength={200}
+                  value={address.street}
+                  onChange={handleAddressChange}
+                  placeholder="Rua das Flores"
+                  className={`w-full border rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors ${viacepFilled && address.street ? filledBg : normalBg}`}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[#94A3B8] text-xs">Número</label>
+                <input
+                  name="number"
+                  type="text"
+                  maxLength={20}
+                  value={address.number}
+                  onChange={handleAddressChange}
+                  placeholder="123"
+                  className="w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Quadra + Complemento */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[#94A3B8] text-xs">Quadra <span className="text-slate-600">(opcional)</span></label>
+                <input
+                  name="block"
+                  type="text"
+                  maxLength={20}
+                  value={address.block}
+                  onChange={handleAddressChange}
+                  placeholder="Quadra A"
+                  className="w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[#94A3B8] text-xs">Complemento</label>
+                <input
+                  name="complement"
+                  type="text"
+                  maxLength={100}
+                  value={address.complement}
+                  onChange={handleAddressChange}
+                  placeholder="Apto 4B"
+                  className="w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Bairro */}
+            <div className="space-y-1">
+              <label className="text-[#94A3B8] text-xs">Bairro</label>
               <input
+                name="neighborhood"
                 type="text"
-                inputMode="numeric"
-                value={formatCep(cep)}
-                onChange={handleCepChange}
-                placeholder="00000-000"
-                maxLength={9}
-                className="w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors pr-8"
+                maxLength={100}
+                value={address.neighborhood}
+                onChange={handleAddressChange}
+                placeholder="Centro"
+                className={`w-full border rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors ${viacepFilled && address.neighborhood ? filledBg : normalBg}`}
               />
-              {cepLoading && (
-                <Loader2 size={14} className="animate-spin text-[#94A3B8] absolute right-3 top-3" />
+            </div>
+
+            {/* Cidade + Estado */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2 space-y-1">
+                <label className="text-[#94A3B8] text-xs">Cidade</label>
+                <input
+                  name="addressCity"
+                  type="text"
+                  maxLength={100}
+                  value={address.addressCity}
+                  onChange={handleAddressChange}
+                  placeholder="Jacobina"
+                  className={`w-full border rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors ${viacepFilled && address.addressCity ? filledBg : normalBg}`}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[#94A3B8] text-xs">Estado</label>
+                <input
+                  name="addressState"
+                  type="text"
+                  maxLength={2}
+                  value={address.addressState}
+                  onChange={handleAddressChange}
+                  placeholder="BA"
+                  className={`w-full border rounded-lg px-3 py-2.5 text-white focus:border-emerald-500 outline-none transition-colors ${viacepFilled && address.addressState ? filledBg : normalBg}`}
+                />
+              </div>
+            </div>
+
+            {/* City (legacy field — kept for backward compat, derived from ViaCEP or address_city + state) */}
+            <div className="space-y-1">
+              <label className="text-[#94A3B8] text-xs flex items-center gap-2">
+                Cidade (exibição)
+                <span className="text-slate-600">— preenchida pelo CEP</span>
+              </label>
+              <input
+                name="city"
+                type="text"
+                maxLength={100}
+                value={formData.city}
+                onChange={handleChange}
+                placeholder="Ex: Jacobina - BA"
+                className={`w-full border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
+                  fieldErrors.city
+                    ? 'bg-[#0E1C32] border-red-500/60 focus:border-red-500'
+                    : viacepFilled && formData.city
+                      ? `${filledBg} focus:border-emerald-500`
+                      : 'bg-[#0E1C32] border-slate-700/50 focus:border-emerald-500'
+                }`}
+              />
+              {fieldErrors.city && (
+                <p className="text-red-400 text-xs flex items-center gap-1 mt-1">
+                  <AlertCircle size={11} /> {fieldErrors.city}
+                </p>
               )}
             </div>
-            {cepError && (
-              <p className="text-amber-400 text-xs flex items-center gap-1 mt-1">
-                <AlertCircle size={11} /> {cepError}
-              </p>
-            )}
-          </div>
-
-          {/* City */}
-          <div className="space-y-1">
-            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
-              <MapPin size={14} /> Cidade
-            </label>
-            <input
-              name="city"
-              type="text"
-              maxLength={100}
-              value={formData.city}
-              onChange={handleChange}
-              placeholder="Sua cidade"
-              className={`w-full bg-[#0E1C32] border rounded-lg px-3 py-2.5 text-white outline-none transition-colors ${
-                fieldErrors.city
-                  ? 'border-red-500/60 focus:border-red-500'
-                  : 'border-slate-700/50 focus:border-emerald-500'
-              }`}
-            />
-            {fieldErrors.city && (
-              <p className="text-red-400 text-xs flex items-center gap-1 mt-1">
-                <AlertCircle size={11} /> {fieldErrors.city}
-              </p>
-            )}
           </div>
 
           <button
