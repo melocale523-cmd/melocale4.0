@@ -14,7 +14,8 @@ Sentry.init({
     Sentry.replayIntegration({
       maskAllText: true,
       blockAllMedia: true,
-    }),
+      inlineStylesheet: false,
+    } as Parameters<typeof Sentry.replayIntegration>[0]),
   ],
   tracesSampleRate: 0.1,
   replaysSessionSampleRate: 0.05,
