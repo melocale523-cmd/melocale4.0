@@ -115,8 +115,8 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <Mail size={16} className="text-emerald-500 mt-0.5 shrink-0" />
-                <a href="mailto:contato@melocale.com.br" className="hover:text-emerald-400 transition-colors">
-                  contato@melocale.com.br
+                <a href="mailto:privacidade@melocale.com.br" className="hover:text-emerald-400 transition-colors">
+                  privacidade@melocale.com.br
                 </a>
               </li>
               <li className="text-xs text-[#4A6580] mt-1">
