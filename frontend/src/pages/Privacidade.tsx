@@ -140,7 +140,7 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">11. Transferência Internacional de Dados</h2>
+            <h2 className="text-lg font-semibold text-white mb-3">10. Transferência Internacional de Dados</h2>
             <p>
               Para operar a plataforma, seus dados podem ser transferidos e processados fora do
               Brasil, com base nos Art. 33–36 da LGPD, pelos seguintes prestadores:
@@ -157,7 +157,7 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">10. Contato</h2>
+            <h2 className="text-lg font-semibold text-white mb-3">11. Contato</h2>
             <p>
               Dúvidas sobre privacidade:{' '}
               <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">
