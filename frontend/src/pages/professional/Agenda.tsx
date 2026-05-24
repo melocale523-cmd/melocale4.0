@@ -4,6 +4,7 @@ import { Plus, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../store/authStore';
 import { useAgendaData } from '../../hooks/useAgendaData';
+import { useProfile } from '../../hooks/useProfile';
 import type { Appointment } from '../../services/appointmentService';
 
 import { AgendaStats } from './agenda/AgendaStats';
@@ -30,6 +31,19 @@ export default function ProfessionalAgenda() {
     declineMutation,
     anyPending,
   } = useAgendaData({ userId: user?.id });
+
+  const { data: profileData } = useProfile();
+
+  const defaultLocation = useMemo(() => {
+    if (!profileData?.address_street) return undefined;
+    return [
+      profileData.address_street,
+      profileData.address_number,
+      profileData.address_neighborhood,
+      profileData.address_city,
+      profileData.address_state,
+    ].filter(Boolean).join(', ');
+  }, [profileData]);
 
   // Navigation state
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -191,6 +205,7 @@ export default function ProfessionalAgenda() {
           onSubmit={payload => createMutation.mutate(payload, { onSuccess: () => setIsModalOpen(false) })}
           isPending={createMutation.isPending}
           professionalId={professional.id}
+          defaultLocation={defaultLocation}
         />
       )}
     </div>

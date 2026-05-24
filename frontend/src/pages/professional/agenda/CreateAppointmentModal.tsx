@@ -14,6 +14,7 @@ interface CreateAppointmentModalProps {
   onSubmit: (payload: CreatePayload) => void;
   isPending: boolean;
   professionalId: string;
+  defaultLocation?: string;
 }
 
 interface FormData {
@@ -33,6 +34,7 @@ export function CreateAppointmentModal({
   onSubmit,
   isPending,
   professionalId,
+  defaultLocation,
 }: CreateAppointmentModalProps) {
   const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -42,7 +44,7 @@ export function CreateAppointmentModal({
     conversationId: '',
     date: initialDate ?? today,
     time: '09:00',
-    location: '',
+    location: defaultLocation ?? '',
     description: '',
   });
 

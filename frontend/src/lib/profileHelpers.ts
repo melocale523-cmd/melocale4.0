@@ -72,12 +72,28 @@ export function normalizeClientProfileData(data: {
   phone: string;
   city: string;
   cep?: string;
+  addressStreet?: string;
+  addressNumber?: string;
+  addressBlock?: string;
+  addressComplement?: string;
+  addressNeighborhood?: string;
+  addressCity?: string;
+  addressState?: string;
 }) {
+  const zipcode = (data.cep ?? '').replace(/\D/g, '');
   return {
     name: data.name.trim(),
     phone: data.phone.replace(/\D/g, ''),
     city: data.city.trim(),
-    cep: (data.cep ?? '').replace(/\D/g, ''),
+    cep: zipcode,
+    address_zipcode: zipcode || undefined,
+    address_street: data.addressStreet?.trim() || undefined,
+    address_number: data.addressNumber?.trim() || undefined,
+    address_block: data.addressBlock?.trim() || undefined,
+    address_complement: data.addressComplement?.trim() || undefined,
+    address_neighborhood: data.addressNeighborhood?.trim() || undefined,
+    address_city: data.addressCity?.trim() || undefined,
+    address_state: data.addressState?.trim() || undefined,
   };
 }
 
