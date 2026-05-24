@@ -248,17 +248,11 @@ export default function ProfessionalCompras() {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
-                   <FileText size={14} /> 
+                   <FileText size={14} /> Status
                 </label>
-                <select 
-                  value={proposalData.status}
-                  onChange={e => setProposalData(prev => ({ ...prev, status: e.target.value }))}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
-                >
-                   <option value="Pendente Proposta">Pendente Proposta</option>
-                   <option value="Proposta Enviada">Proposta Enviada</option>
-                   <option value="Respondida pelo Cliente">Respondida pelo Cliente</option>
-                </select>
+                <div className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-blue-400 text-sm font-semibold">
+                  Proposta Enviada
+                </div>
               </div>
 
               <div className="pt-4">

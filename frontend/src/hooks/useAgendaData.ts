@@ -50,17 +50,17 @@ export function useAgendaData({ userId }: UseAgendaDataParams) {
         .map(p => p.client_id)
         .filter(id => { if (seen.has(id)) return false; seen.add(id); return true; });
 
-      const { data: profiles } = await supabase
-        .from('profiles')
+      const { data: clientRecords } = await supabase
+        .from('clients')
         .select('id,full_name,city')
         .in('id', uniqueClientIds);
-      const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
+      const clientMap = Object.fromEntries((clientRecords ?? []).map(c => [c.id, c]));
 
       return uniqueClientIds.map(clientId => ({
         conversationId: '',
         clientId,
-        clientName: profileMap[clientId]?.full_name || 'Cliente',
-        clientCity: profileMap[clientId]?.city || '',
+        clientName: clientMap[clientId]?.full_name || 'Cliente',
+        clientCity: clientMap[clientId]?.city || '',
       }));
     },
     enabled: !!professional?.id,
