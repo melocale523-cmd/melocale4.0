@@ -58,7 +58,9 @@ export const clientProfileService = {
     address_city?: string;
     address_state?: string;
   }) {
-    const payload: Record<string, unknown> = { id: userId, full_name: data.name, phone: data.phone, city: data.city };
+    // Use UPDATE (not upsert) — the profile row is always created by the auth trigger;
+    // upsert requires both INSERT and UPDATE RLS policies, UPDATE only needs the latter.
+    const payload: Record<string, unknown> = { full_name: data.name, phone: data.phone, city: data.city };
     const optionalFields = ['cep', 'address_zipcode', 'address_street', 'address_number', 'address_block', 'address_complement', 'address_neighborhood', 'address_city', 'address_state'] as const;
     for (const f of optionalFields) {
       if (data[f] !== undefined) payload[f] = data[f];
@@ -66,9 +68,10 @@ export const clientProfileService = {
     logService.info('clientProfileService', 'saving profile', { ...payload, phone: '[REDACTED]' });
     const { error } = await supabase
       .from('profiles')
-      .upsert(payload, { onConflict: 'id' });
+      .update(payload)
+      .eq('id', userId);
     if (error) {
-      logService.error('clientProfileService', 'profiles upsert failed', error);
+      logService.error('clientProfileService', 'profiles update failed', error);
       throw new Error('Erro ao salvar perfil. Tente novamente.');
     }
     return true;
@@ -88,15 +91,19 @@ export const professionalAddressService = {
     address_state?: string;
     city?: string;
   }) {
-    const payload: Record<string, unknown> = { id: userId };
+    // Use UPDATE (not upsert) — profile row always exists; avoids INSERT RLS check.
+    const payload: Record<string, unknown> = {};
     const fields = ['cep', 'address_zipcode', 'address_street', 'address_number', 'address_block', 'address_complement', 'address_neighborhood', 'address_city', 'address_state', 'city'] as const;
     for (const f of fields) {
       if (data[f] !== undefined) payload[f] = data[f];
     }
     logService.info('professionalAddressService', 'saving address');
-    const { error } = await supabase.from('profiles').upsert(payload, { onConflict: 'id' });
+    const { error } = await supabase
+      .from('profiles')
+      .update(payload)
+      .eq('id', userId);
     if (error) {
-      logService.error('professionalAddressService', 'address upsert failed', error);
+      logService.error('professionalAddressService', 'address update failed', error);
       throw new Error('Erro ao salvar endereço. Tente novamente.');
     }
     return true;
