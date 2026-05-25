@@ -14,7 +14,6 @@ interface CreateAppointmentModalProps {
   onSubmit: (payload: CreatePayload) => void;
   isPending: boolean;
   professionalId: string;
-  defaultLocation?: string;
 }
 
 interface FormData {
@@ -34,7 +33,6 @@ export function CreateAppointmentModal({
   onSubmit,
   isPending,
   professionalId,
-  defaultLocation,
 }: CreateAppointmentModalProps) {
   const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -44,7 +42,7 @@ export function CreateAppointmentModal({
     conversationId: '',
     date: initialDate ?? today,
     time: '09:00',
-    location: defaultLocation ?? '',
+    location: '',
     description: '',
   });
 
@@ -107,11 +105,12 @@ export function CreateAppointmentModal({
                 value={formData.clientId}
                 onChange={e => {
                   const c = availableClients.find(cl => cl.clientId === e.target.value);
+                  const clientLocation = [c?.clientCity, c?.clientState].filter(Boolean).join(' - ');
                   setFormData({
                     ...formData,
                     clientId: e.target.value,
                     conversationId: c?.conversationId || '',
-                    location: c?.clientCity || formData.location,
+                    location: clientLocation || formData.location,
                   });
                 }}
                 className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"

@@ -8,6 +8,7 @@ export interface AvailableClient {
   clientId: string;
   clientName: string;
   clientCity: string;
+  clientState: string;
 }
 
 interface UseAgendaDataParams {
@@ -52,7 +53,7 @@ export function useAgendaData({ userId }: UseAgendaDataParams) {
 
       const { data: clientRecords } = await supabase
         .from('clients')
-        .select('id,full_name,city')
+        .select('id,full_name,city,state')
         .in('id', uniqueClientIds);
       const clientMap = Object.fromEntries((clientRecords ?? []).map(c => [c.id, c]));
 
@@ -61,6 +62,7 @@ export function useAgendaData({ userId }: UseAgendaDataParams) {
         clientId,
         clientName: clientMap[clientId]?.full_name || 'Cliente',
         clientCity: clientMap[clientId]?.city || '',
+        clientState: clientMap[clientId]?.state || '',
       }));
     },
     enabled: !!professional?.id,
