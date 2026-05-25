@@ -1,9 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { X, CalendarPlus, Loader2, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { appointmentService } from '../../services/dbServices';
+import { supabase } from '../../lib/supabase';
 
 interface ChatScheduleModalProps {
   open: boolean;
@@ -35,6 +36,34 @@ export function ChatScheduleModal({
     time: '09:00',
     location: '',
   });
+
+  const { data: clientAddress } = useQuery({
+    queryKey: ['client_address', clientId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('clients')
+        .select('address_street,address_number,address_block,address_neighborhood,city,state')
+        .eq('id', clientId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!clientId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Pre-fill location whenever the modal opens or the address loads.
+  useEffect(() => {
+    if (!open || !clientAddress) return;
+    const cityState = [clientAddress.city, clientAddress.state].filter(Boolean).join(' - ');
+    const location = [
+      clientAddress.address_street,
+      clientAddress.address_number,
+      clientAddress.address_block,
+      clientAddress.address_neighborhood,
+      cityState,
+    ].filter(Boolean).join(', ');
+    if (location) setForm(prev => ({ ...prev, location }));
+  }, [clientAddress, open]);
 
   const scheduleMutation = useMutation({
     mutationFn: () =>
