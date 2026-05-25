@@ -56,9 +56,14 @@ registerRoute(
   })
 )
 
-// JS/CSS — StaleWhileRevalidate
+// JS/CSS — StaleWhileRevalidate, same-origin only.
+// Cross-origin scripts (e.g. Cloudflare beacon) and stylesheets (e.g. Google Fonts)
+// must NOT be intercepted: the SW's fetch() is bound by connect-src, which does not
+// list those origins. The browser handles cross-origin scripts/styles directly.
 registerRoute(
-  ({ request }) => request.destination === 'script' || request.destination === 'style',
+  ({ url, request }) =>
+    (request.destination === 'script' || request.destination === 'style') &&
+    url.origin === self.location.origin,
   new StaleWhileRevalidate({ cacheName: 'assets-cache' })
 )
 
