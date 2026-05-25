@@ -105,7 +105,14 @@ export function CreateAppointmentModal({
                 value={formData.clientId}
                 onChange={e => {
                   const c = availableClients.find(cl => cl.clientId === e.target.value);
-                  const clientLocation = [c?.clientCity, c?.clientState].filter(Boolean).join(' - ');
+                  const cityState = [c?.clientCity, c?.clientState].filter(Boolean).join(' - ');
+                  const clientLocation = [
+                    c?.clientStreet,
+                    c?.clientNumber,
+                    c?.clientBlock,
+                    c?.clientNeighborhood,
+                    cityState,
+                  ].filter(Boolean).join(', ');
                   setFormData({
                     ...formData,
                     clientId: e.target.value,

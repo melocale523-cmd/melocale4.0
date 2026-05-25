@@ -90,17 +90,20 @@ export default function ClientePerfil() {
   const saveMutation = useMutation({
     mutationFn: () => clientProfileService.saveProfile(
       user!.id,
-      normalizeClientProfileData({
-        ...formData,
-        cep,
-        addressStreet: address.street,
-        addressNumber: address.number,
-        addressBlock: address.block,
-        addressComplement: address.complement,
-        addressNeighborhood: address.neighborhood,
-        addressCity: address.addressCity,
-        addressState: address.addressState,
-      }),
+      {
+        ...normalizeClientProfileData({
+          ...formData,
+          cep,
+          addressStreet: address.street,
+          addressNumber: address.number,
+          addressBlock: address.block,
+          addressComplement: address.complement,
+          addressNeighborhood: address.neighborhood,
+          addressCity: address.addressCity,
+          addressState: address.addressState,
+        }),
+        userEmail: user?.email,
+      },
     ),
     onSuccess: () => {
       invalidateClientProfile();
