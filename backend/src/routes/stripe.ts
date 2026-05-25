@@ -575,7 +575,7 @@ router.post("/cancel-subscription", requireAuth, async (req: AuthRequest, res: R
 
     const { data: sub, error: subErr } = await supabaseAdmin
       .from("user_subscriptions")
-      .select("stripe_subscription_id")
+      .select("stripe_subscription_id, status")
       .eq("user_id", String(user_id))
       .in("status", ["active", "canceling"])
       .order("started_at", { ascending: false })
@@ -586,7 +586,19 @@ router.post("/cancel-subscription", requireAuth, async (req: AuthRequest, res: R
       return res.status(404).json({ error: "Assinatura ativa não encontrada." });
     }
 
-    await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true });
+    // Idempotent: skip Stripe call if already scheduled to cancel.
+    if (sub.status !== "canceling") {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true } as any);
+      } catch (stripeErr: unknown) {
+        if (stripeErr instanceof Stripe.errors.StripeInvalidRequestError) {
+          console.error("[cancel-subscription] Stripe error:", stripeErr.code, stripeErr.message);
+          return res.status(422).json({ error: stripeErr.message });
+        }
+        throw stripeErr;
+      }
+    }
 
     await supabaseAdmin
       .from("user_subscriptions")
