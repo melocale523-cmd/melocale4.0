@@ -522,9 +522,7 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
 
     if (subErr || !sub) return res.status(200).json({ status: "none", plan: null });
 
-    if (process.env.NODE_ENV !== "production") {
-      console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
-    }
+    console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
 
     if (!sub.stripe_subscription_id) {
       return res.json({
@@ -537,18 +535,26 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
       });
     }
 
+    console.log("[subscription-status] retrieving:", sub.stripe_subscription_id);
+
     // cast to any: Stripe SDK v22 removed current_period_end from the TS type but the API still returns it.
     // In API version 2024-09-30+, the field moved to subscription items; read from both locations.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id) as any;
+
+    console.log("[subscription-status] stripeSub keys:", Object.keys(stripeSub));
+    console.log("[subscription-status] top-level period_end:", stripeSub.current_period_end);
+    console.log("[subscription-status] items[0] period_end:", stripeSub.items?.data?.[0]?.current_period_end);
+    console.log("[subscription-status] items[0] keys:", stripeSub.items?.data?.[0] ? Object.keys(stripeSub.items.data[0]) : "no items");
+
     const currentPeriodEnd: number | null =
       stripeSub.current_period_end
       ?? stripeSub.items?.data?.[0]?.current_period_end
       ?? null;
     const cancelAtPeriodEnd: boolean = stripeSub.cancel_at_period_end ?? false;
-    if (process.env.NODE_ENV !== "production") {
-      console.log("[subscription-status] stripe current_period_end:", currentPeriodEnd, "status:", stripeSub.status);
-    }
+
+    console.log("[subscription-status] resolved current_period_end:", currentPeriodEnd, "cancel_at_period_end:", cancelAtPeriodEnd);
+
     return res.json({
       status: stripeSub.status,
       package_id: sub.package_id,
@@ -558,8 +564,12 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
       cancel_at_period_end: cancelAtPeriodEnd,
     });
   } catch (err: unknown) {
-    console.error("Erro em /api/subscription-status:", err instanceof Error ? err.message : String(err));
-    return res.status(200).json({ status: "none", plan: null });
+    if (err instanceof Stripe.errors.StripeInvalidRequestError) {
+      console.error("[subscription-status] Stripe error: code=%s message=%s", err.code, err.message);
+      return res.status(200).json({ status: "none", plan: null, _debug: err.code });
+    }
+    console.error("[subscription-status] unexpected error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro interno do servidor." });
   }
 });
 
