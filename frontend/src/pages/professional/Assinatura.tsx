@@ -605,9 +605,9 @@ export default function ProfessionalAssinatura() {
                   <div className="bg-[#0E1C32] rounded-xl p-3 border border-[#1C3050]">
                     <div className="flex items-center gap-1.5 text-[#4A6580] text-[10px] font-bold uppercase tracking-wider mb-1.5">
                       <RefreshCw size={10} />
-                      {subscriptionStatus?.cancel_at_period_end ? 'Expira em' : 'Próx. renovação'}
+                      {subscriptionStatus?.cancel_at_period_end ? 'Encerra em' : 'Próx. renovação'}
                     </div>
-                    <p className={`font-bold text-sm ${subscriptionStatus?.cancel_at_period_end ? 'text-red-400' : 'text-white'}`}>
+                    <p className={`font-bold text-sm ${subscriptionStatus?.cancel_at_period_end ? 'text-orange-400' : 'text-white'}`}>
                       {subscriptionStatus?.current_period_end
                         ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')
                         : '—'}
