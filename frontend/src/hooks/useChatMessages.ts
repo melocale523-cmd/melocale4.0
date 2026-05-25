@@ -67,8 +67,13 @@ export function useChatMessages({
 
   const deleteChatMutation = useMutation({
     mutationFn: chatService.deleteChat,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats'] });
+    onSuccess: (_data, conversationId) => {
+      // Remove optimistically so the list updates instantly without waiting for refetch.
+      queryClient.setQueryData(
+        ['chats', currentUser?.id],
+        (old: unknown) => Array.isArray(old) ? old.filter((c: { id: string }) => c.id !== conversationId) : old,
+      );
+      queryClient.invalidateQueries({ queryKey: ['chats', currentUser?.id] });
       onDeleteSuccess();
       toast.success('Conversa excluída com sucesso!');
     },
