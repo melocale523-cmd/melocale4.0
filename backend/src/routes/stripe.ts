@@ -535,17 +535,10 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
       });
     }
 
-    console.log("[subscription-status] retrieving:", sub.stripe_subscription_id);
-
     // cast to any: Stripe SDK v22 removed current_period_end from the TS type but the API still returns it.
     // In API version 2024-09-30+, the field moved to subscription items; read from both locations.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id) as any;
-
-    console.log("[subscription-status] stripeSub keys:", Object.keys(stripeSub));
-    console.log("[subscription-status] top-level period_end:", stripeSub.current_period_end);
-    console.log("[subscription-status] items[0] period_end:", stripeSub.items?.data?.[0]?.current_period_end);
-    console.log("[subscription-status] items[0] keys:", stripeSub.items?.data?.[0] ? Object.keys(stripeSub.items.data[0]) : "no items");
 
     const currentPeriodEnd: number | null =
       stripeSub.current_period_end
