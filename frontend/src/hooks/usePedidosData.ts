@@ -14,6 +14,7 @@ export interface PedidoItem {
   status: string;
   created_at: string;
   interested_count?: number;
+  purchases_count?: number;
   images?: string[];
 }
 
@@ -118,8 +119,21 @@ export function usePedidosData({ userId, selectedPedidoId, isProposalsModalOpen 
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => leadService.deleteRequest(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+    onSuccess: (_data, id) => {
+      queryClient.setQueryData(['pedidos', userId], (old: unknown) =>
+        Array.isArray(old) ? old.filter((p: { id: string }) => p.id !== id) : old);
+      queryClient.invalidateQueries({ queryKey: ['pedidos', userId] });
+      toast.success('Pedido excluído.');
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const archiveMutation = useMutation({
+    mutationFn: (id: string) => leadService.archiveRequest(id),
+    onSuccess: (_data, id) => {
+      queryClient.setQueryData(['pedidos', userId], (old: unknown) =>
+        Array.isArray(old) ? old.filter((p: { id: string }) => p.id !== id) : old);
+      queryClient.invalidateQueries({ queryKey: ['pedidos', userId] });
       toast.success('Pedido arquivado.');
     },
     onError: (error: Error) => toast.error(error.message),
@@ -155,6 +169,7 @@ export function usePedidosData({ userId, selectedPedidoId, isProposalsModalOpen 
     createRequestMutation,
     updateMutation,
     deleteMutation,
+    archiveMutation,
     acceptMutation,
     refuseMutation,
   };

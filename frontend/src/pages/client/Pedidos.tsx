@@ -45,6 +45,7 @@ export default function Pedidos() {
     createRequestMutation,
     updateMutation,
     deleteMutation,
+    archiveMutation,
     acceptMutation,
     refuseMutation,
   } = usePedidosData({
@@ -272,7 +273,11 @@ export default function Pedidos() {
           pedido={deleteConfirm}
           onClose={() => setDeleteConfirm(null)}
           onConfirm={id => {
-            deleteMutation.mutate(id);
+            if ((deleteConfirm.purchases_count ?? 0) > 0) {
+              archiveMutation.mutate(id);
+            } else {
+              deleteMutation.mutate(id);
+            }
             setDeleteConfirm(null);
           }}
         />
