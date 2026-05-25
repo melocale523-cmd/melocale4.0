@@ -122,6 +122,7 @@ export const leadService = {
       return (data ?? []).map((row: ClientLeadRow) => ({
         ...row,
         interested_count: row.interested_count ?? row.purchases_count ?? 0,
+        purchases_count: row.purchases_count ?? 0,
       }));
     } catch {
       return [];
@@ -164,10 +165,18 @@ export const leadService = {
     }
   },
 
-  async deleteRequest(id: string) {
+  async archiveRequest(id: string) {
     const { error } = await supabase
       .from('leads')
       .update({ status: 'arquivado' })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async deleteRequest(id: string) {
+    const { error } = await supabase
+      .from('leads')
+      .delete()
       .eq('id', id);
     if (error) throw error;
   },
