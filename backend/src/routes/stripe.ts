@@ -537,19 +537,25 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
       });
     }
 
-    // cast to any: Stripe SDK v22 removed current_period_end from the TS type but the API still returns it
+    // cast to any: Stripe SDK v22 removed current_period_end from the TS type but the API still returns it.
+    // In API version 2024-09-30+, the field moved to subscription items; read from both locations.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id) as any;
+    const currentPeriodEnd: number | null =
+      stripeSub.current_period_end
+      ?? stripeSub.items?.data?.[0]?.current_period_end
+      ?? null;
+    const cancelAtPeriodEnd: boolean = stripeSub.cancel_at_period_end ?? false;
     if (process.env.NODE_ENV !== "production") {
-      console.log("[subscription-status] stripe current_period_end:", stripeSub.current_period_end, "status:", stripeSub.status);
+      console.log("[subscription-status] stripe current_period_end:", currentPeriodEnd, "status:", stripeSub.status);
     }
     return res.json({
       status: stripeSub.status,
       package_id: sub.package_id,
       started_at: sub.started_at,
-      current_period_start: stripeSub.current_period_start ?? null,
-      current_period_end: stripeSub.current_period_end ?? null,
-      cancel_at_period_end: stripeSub.cancel_at_period_end ?? false,
+      current_period_start: stripeSub.current_period_start ?? stripeSub.items?.data?.[0]?.current_period_start ?? null,
+      current_period_end: currentPeriodEnd,
+      cancel_at_period_end: cancelAtPeriodEnd,
     });
   } catch (err: unknown) {
     console.error("Erro em /api/subscription-status:", err instanceof Error ? err.message : String(err));
