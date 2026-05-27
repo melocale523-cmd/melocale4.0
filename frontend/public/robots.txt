@@ -1,12 +1,6 @@
 User-agent: *
 Allow: /
-
-# Páginas SEO local
-Allow: /eletricista-jacobina
-Allow: /encanador-jacobina
-Allow: /eletricista-feira-de-santana
-Allow: /pintor-jacobina
-Allow: /encanador-sao-paulo
+Allow: /servicos/
 
 # Bloquear rotas privadas
 Disallow: /profissional/
