@@ -1,0 +1,174 @@
+import { Helmet } from 'react-helmet-async';
+import { Link, useParams, Navigate } from 'react-router-dom';
+import { ArrowLeft, CheckCircle2, MapPin, Star, Wrench } from 'lucide-react';
+import { seoPagesBySlug } from '../../data/seoPages';
+
+const BASE_URL = 'https://melocale.com.br';
+const CTA_URL = 'https://melocale.com.br/login?role=client';
+
+export default function ServiceCityPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const page = slug ? seoPagesBySlug.get(slug) : undefined;
+
+  if (!page) return <Navigate to="/404" replace />;
+
+  const canonicalUrl = `${BASE_URL}/servicos/${page.slug}`;
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: page.h1,
+    description: page.metaDescription,
+    url: canonicalUrl,
+    provider: {
+      '@type': 'Organization',
+      name: 'MeloCalé',
+      url: BASE_URL,
+    },
+    areaServed: {
+      '@type': 'City',
+      name: page.cidadeDisplay,
+      containedInPlace: {
+        '@type': 'State',
+        name: 'Bahia',
+        containedInPlace: {
+          '@type': 'Country',
+          name: 'Brasil',
+        },
+      },
+    },
+    serviceType: page.categoriaDisplay,
+    offers: {
+      '@type': 'Offer',
+      availability: 'https://schema.org/InStock',
+      url: CTA_URL,
+    },
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0E1C32] text-white">
+      <Helmet>
+        <title>{page.title}</title>
+        <meta name="description" content={page.metaDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={page.title} />
+        <meta property="og:description" content={page.metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify(schema)}</script>
+      </Helmet>
+
+      {/* Header */}
+      <header className="border-b border-[#1C3050] bg-[#0B1628]">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link to="/" className="text-xl font-bold text-emerald-400 tracking-tight">
+            MeloCalé
+          </Link>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-[#94A3B8] hover:text-white text-sm transition-colors"
+          >
+            <ArrowLeft size={15} /> Início
+          </Link>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 py-12">
+        {/* Breadcrumb */}
+        <nav className="text-sm text-[#94A3B8] mb-8" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-white transition-colors">Início</Link>
+          <span className="mx-2">/</span>
+          <span className="text-white">{page.h1}</span>
+        </nav>
+
+        {/* Hero */}
+        <section className="mb-10">
+          <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium mb-3">
+            <MapPin size={15} />
+            <span>{page.cidadeDisplay}, Bahia</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{page.h1}</h1>
+          {page.paragraphs.map((text, i) => (
+            <p key={i} className="text-[#94A3B8] leading-relaxed mb-4 text-base">
+              {text}
+            </p>
+          ))}
+        </section>
+
+        {/* Benefits */}
+        <section className="bg-[#0B1A2E] border border-[#1C3050] rounded-xl p-6 mb-10">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Star size={18} className="text-emerald-400" />
+            Por que usar o MeloCalé?
+          </h2>
+          <ul className="space-y-3">
+            {[
+              'Profissionais verificados e avaliados por clientes reais',
+              'Orçamento gratuito sem compromisso',
+              'Atendimento rápido na sua cidade',
+              'Plataforma 100% gratuita para quem contrata',
+              'Comunicação segura pelo chat integrado',
+            ].map((benefit) => (
+              <li key={benefit} className="flex items-start gap-3 text-[#94A3B8]">
+                <CheckCircle2 size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* CTA */}
+        <section className="bg-gradient-to-br from-emerald-900/40 to-[#0B1A2E] border border-emerald-800/40 rounded-xl p-8 text-center mb-12">
+          <Wrench size={32} className="text-emerald-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Precisa de {page.categoriaDisplay.toLowerCase()} em {page.cidadeDisplay}?
+          </h2>
+          <p className="text-[#94A3B8] mb-6 max-w-md mx-auto">
+            Crie seu pedido gratuitamente em menos de 2 minutos e receba propostas de profissionais da sua região.
+          </p>
+          <a
+            href={CTA_URL}
+            className="inline-block bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors text-base"
+          >
+            Criar pedido grátis
+          </a>
+          <p className="text-[#4A6580] text-xs mt-4">
+            Sem cadastro de cartão · Gratuito para clientes
+          </p>
+        </section>
+
+        {/* How it works */}
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold text-white mb-6">Como funciona</h2>
+          <ol className="space-y-4">
+            {[
+              { step: '1', title: 'Descreva o serviço', desc: 'Conte o que você precisa e onde fica o imóvel em ' + page.cidadeDisplay + '.' },
+              { step: '2', title: 'Receba propostas', desc: `Profissionais de ${page.categoriaDisplay.toLowerCase()} disponíveis entram em contato com orçamentos.` },
+              { step: '3', title: 'Escolha e contrate', desc: 'Compare avaliações e preços e contrate o melhor profissional para o seu caso.' },
+            ].map(({ step, title, desc }) => (
+              <li key={step} className="flex items-start gap-4">
+                <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0 text-sm">
+                  {step}
+                </span>
+                <div>
+                  <p className="font-semibold text-white">{title}</p>
+                  <p className="text-[#94A3B8] text-sm mt-0.5">{desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </main>
+
+      <footer className="border-t border-[#1C3050] mt-8">
+        <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[#4A6580] text-xs">
+          <p>© {new Date().getFullYear()} MeloCalé. Todos os direitos reservados.</p>
+          <nav className="flex gap-4">
+            <Link to="/termos" className="hover:text-white transition-colors">Termos</Link>
+            <Link to="/privacidade" className="hover:text-white transition-colors">Privacidade</Link>
+          </nav>
+        </div>
+      </footer>
+    </div>
+  );
+}
