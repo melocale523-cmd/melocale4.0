@@ -187,10 +187,6 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated && user) {
-    if (sessionStorage.getItem('melocale_needs_completion')) {
-      sessionStorage.removeItem('melocale_needs_completion');
-      return <Navigate to="/completar-perfil" replace />;
-    }
     const dashboard =
       user.role === 'admin' ? '/admin/dashboard'
       : user.role === 'professional' ? '/profissional/dashboard'

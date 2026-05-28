@@ -49,15 +49,16 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
         let finalRole: Role = (profile?.role as Role | undefined) ?? 'client';
 
         if (!profile) {
-          // New keys (from Login.tsx role buttons)
+          // Read role from sessionStorage (set before OAuth redirect) or localStorage (legacy).
+          // sessionStorage may be cleared during cross-origin OAuth redirects in Safari/some browsers,
+          // so localStorage is the reliable fallback.
           const signupRole = sessionStorage.getItem('melocale_signup_role') as Role | null;
-          const isSignupFlag = sessionStorage.getItem('melocale_is_signup') === 'true';
+          const pendingRole = localStorage.getItem('pending_oauth_role') as Role | null;
+
           // Clean up immediately before any await
           sessionStorage.removeItem('melocale_signup_role');
           sessionStorage.removeItem('melocale_is_signup');
           sessionStorage.removeItem('melocale_login_role');
-          // Backward compat key (kept for any old code paths)
-          const pendingRole = localStorage.getItem('pending_oauth_role') as Role | null;
           localStorage.removeItem('pending_oauth_role');
 
           const metaRole = session.user.user_metadata?.role as Role | undefined;
@@ -73,11 +74,13 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
             role: roleToSet,
           }, { onConflict: 'id' });
 
-          // New OAuth signup → mark for profile completion
-          if (isSignupFlag) {
-            sessionStorage.setItem('melocale_needs_completion', 'true');
-            sessionStorage.setItem('melocale_new_user_role', roleToSet);
-          }
+          // New OAuth users always need phone + address — redirect to completion page.
+          // Use window.location.replace() to avoid sessionStorage flag timing/browser issues:
+          // on the next load the profile EXISTS, AuthInitializer takes the else-branch,
+          // calls setAuth() normally, and CompletarPerfil renders for the authenticated user.
+          sessionStorage.setItem('melocale_new_user_role', roleToSet); // survives same-tab navigation
+          window.location.replace('/completar-perfil');
+          return;
         } else {
           // Clean up signup flags (no-op if not set)
           const loginRole = sessionStorage.getItem('melocale_login_role') as Role | null;
