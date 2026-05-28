@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore, Role } from '../../store/authStore';
+import { toast } from 'sonner';
 
 export default function AuthInitializer({ children }: { children: React.ReactNode }) {
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -48,21 +49,48 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
         let finalRole: Role = (profile?.role as Role | undefined) ?? 'client';
 
         if (!profile) {
-          const metaRole = session.user.user_metadata?.role as Role | undefined;
-          // For Google OAuth, user_metadata.role is not set by the provider.
-          // AuthModal stores the user's selection in localStorage before redirecting.
+          // New keys (from Login.tsx role buttons)
+          const signupRole = sessionStorage.getItem('melocale_signup_role') as Role | null;
+          const isSignupFlag = sessionStorage.getItem('melocale_is_signup') === 'true';
+          // Clean up immediately before any await
+          sessionStorage.removeItem('melocale_signup_role');
+          sessionStorage.removeItem('melocale_is_signup');
+          sessionStorage.removeItem('melocale_login_role');
+          // Backward compat key (kept for any old code paths)
           const pendingRole = localStorage.getItem('pending_oauth_role') as Role | null;
-          localStorage.removeItem('pending_oauth_role'); // clean up before any await
-          // admin nunca deve ser atribuível via fluxo de registro do cliente.
+          localStorage.removeItem('pending_oauth_role');
+
+          const metaRole = session.user.user_metadata?.role as Role | undefined;
           const safeMetaRole: Role = metaRole === 'professional' ? 'professional' : 'client';
+          const safeSignupRole: Role = signupRole === 'professional' ? 'professional' : 'client';
           const safePendingRole: Role = pendingRole === 'professional' ? 'professional' : 'client';
-          const roleToSet: Role = metaRole ? safeMetaRole : safePendingRole;
+          const roleToSet: Role = metaRole ? safeMetaRole : signupRole ? safeSignupRole : safePendingRole;
+
           finalRole = roleToSet;
           await supabase.from('profiles').upsert({
             id: userId,
             full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email || '',
             role: roleToSet,
           }, { onConflict: 'id' });
+
+          // New OAuth signup → mark for profile completion
+          if (isSignupFlag) {
+            sessionStorage.setItem('melocale_needs_completion', 'true');
+            sessionStorage.setItem('melocale_new_user_role', roleToSet);
+          }
+        } else {
+          // Clean up signup flags (no-op if not set)
+          const loginRole = sessionStorage.getItem('melocale_login_role') as Role | null;
+          sessionStorage.removeItem('melocale_login_role');
+          sessionStorage.removeItem('melocale_signup_role');
+          sessionStorage.removeItem('melocale_is_signup');
+          localStorage.removeItem('pending_oauth_role');
+
+          // Role mismatch toast for Google login
+          if (loginRole && loginRole !== (profile.role as Role)) {
+            const roleName = profile.role === 'professional' ? 'Profissional' : 'Cliente';
+            toast.info(`Você tem uma conta de ${roleName}. Redirecionando...`, { duration: 4000 });
+          }
         }
 
         let professionalId: string | undefined;

@@ -60,6 +60,8 @@ const AdminSuporte = lazy(() => import('./pages/admin/Suporte'));
 const AdminTestes = lazy(() => import('./pages/admin/Testes'));
 const AdminRelatorios = lazy(() => import('./pages/admin/Relatorios'));
 
+const CompletarPerfil = lazy(() => import('./pages/auth/CompletarPerfil'));
+
 // Lazy-loaded pages — checkout
 const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 const CheckoutCancel = lazy(() => import('./pages/checkout/CheckoutCancel'));
@@ -185,6 +187,10 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated && user) {
+    if (sessionStorage.getItem('melocale_needs_completion')) {
+      sessionStorage.removeItem('melocale_needs_completion');
+      return <Navigate to="/completar-perfil" replace />;
+    }
     const dashboard =
       user.role === 'admin' ? '/admin/dashboard'
       : user.role === 'professional' ? '/profissional/dashboard'
@@ -241,6 +247,10 @@ const router = createBrowserRouter([
                 <ErrorBoundary><Suspense fallback={<PageLoader />}><Login /></Suspense></ErrorBoundary>
               </AuthRedirect>
             )
+          },
+          {
+            path: '/completar-perfil',
+            element: <ErrorBoundary><Suspense fallback={<PageLoader />}><CompletarPerfil /></Suspense></ErrorBoundary>
           },
         ]
       },
