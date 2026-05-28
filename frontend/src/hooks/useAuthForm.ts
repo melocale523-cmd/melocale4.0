@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
+import { type AddressValue, emptyAddress } from '../components/AddressForm';
 
 export function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -19,25 +20,11 @@ export function getPasswordStrength(password: string): 0 | 1 | 2 | 3 {
   return score as 0 | 1 | 2 | 3;
 }
 
-async function fetchCepData(cep: string): Promise<{ city: string } | null> {
-  try {
-    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.erro) return null;
-    return { city: `${data.localidade}, ${data.uf}` };
-  } catch {
-    return null;
-  }
-}
-
 export interface AuthFormData {
   email: string;
   password: string;
   name: string;
   phone: string;
-  cep: string;
-  city: string;
   category: string;
   customCategory: string;
   bio: string;
@@ -58,16 +45,14 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
     password: '',
     name: '',
     phone: '',
-    cep: '',
-    city: '',
     category: '',
     customCategory: '',
     bio: '',
   });
+  const [address, setAddress] = useState<AddressValue>(emptyAddress);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [categorias, setCategorias] = useState<string[]>([]);
 
   useEffect(() => {
@@ -89,21 +74,6 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
 
   const onChange = (field: keyof AuthFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleCepChange = async (cep: string) => {
-    const digits = cep.replace(/\D/g, '');
-    setFormData(prev => ({ ...prev, cep }));
-    if (digits.length === 8) {
-      setIsFetchingCep(true);
-      const result = await fetchCepData(digits);
-      setIsFetchingCep(false);
-      if (result) {
-        setFormData(prev => ({ ...prev, city: result.city }));
-      } else {
-        toast.error('CEP não encontrado. Preencha a cidade manualmente.');
-      }
-    }
   };
 
   const handleForgotPassword = async () => {
@@ -171,6 +141,8 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
           ? formData.customCategory
           : formData.category;
 
+        const derivedCity = [address.city, address.state].filter(Boolean).join(' - ');
+
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -179,7 +151,7 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
               name: formData.name,
               role: selectedRole,
               phone: formData.phone,
-              city: formData.city,
+              city: derivedCity || null,
               category: finalCategory,
               bio: formData.bio,
             },
@@ -194,8 +166,17 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
           id: signUpData.user?.id,
           full_name: formData.name,
           phone: formData.phone || null,
-          city: formData.city || null,
+          city: derivedCity || null,
           role: selectedRole,
+          cep: address.cep || null,
+          address_zipcode: address.cep || null,
+          address_street: address.street || null,
+          address_number: address.number || null,
+          address_block: address.block || null,
+          address_complement: address.complement || null,
+          address_neighborhood: address.neighborhood || null,
+          address_city: address.city || null,
+          address_state: address.state || null,
         }, { onConflict: 'id' });
 
         if (selectedRole === 'professional' && signUpData.user) {
@@ -243,14 +224,14 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
   return {
     formData,
     onChange,
+    address,
+    onAddressChange: setAddress,
     isSubmitting,
     error,
     setError,
     showPassword,
     setShowPassword,
-    isFetchingCep,
     categorias,
-    handleCepChange,
     handleForgotPassword,
     handleGoogleLogin,
     handleSubmit,
