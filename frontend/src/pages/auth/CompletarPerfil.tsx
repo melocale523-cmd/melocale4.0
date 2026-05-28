@@ -80,8 +80,7 @@ export default function CompletarPerfil() {
       const derivedCity = [address.city, address.state].filter(Boolean).join(' - ');
       const finalCategory = formData.category === 'Outro' ? formData.customCategory : formData.category;
 
-      await supabase.from('profiles').upsert({
-        id: user.id,
+      const payload = {
         phone: formData.phone.trim(),
         city: derivedCity || null,
         cep: address.cep || null,
@@ -93,10 +92,25 @@ export default function CompletarPerfil() {
         address_neighborhood: address.neighborhood || null,
         address_city: address.city || null,
         address_state: address.state || null,
-      }, { onConflict: 'id' });
+      };
+
+      if (import.meta.env.DEV) console.log('[CompletarPerfil] update payload for', user.id, payload);
+
+      // Use update (not upsert) — the profile row is guaranteed to exist because
+      // AuthInitializer always creates it before navigating here.
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update(payload)
+        .eq('id', user.id);
+
+      if (updateError) {
+        if (import.meta.env.DEV) console.error('[CompletarPerfil] update error:', updateError);
+        throw new Error(updateError.message);
+      }
 
       if (role === 'professional' && finalCategory) {
-        await supabase.rpc('save_full_profile', {
+        if (import.meta.env.DEV) console.log('[CompletarPerfil] calling save_full_profile RPC');
+        const { error: rpcError } = await supabase.rpc('save_full_profile', {
           p_user_id: user.id,
           p_full_name: '',
           p_phone: formData.phone.trim(),
@@ -104,12 +118,17 @@ export default function CompletarPerfil() {
           p_category: finalCategory,
           p_service_radius: 50,
         });
+        if (rpcError) {
+          if (import.meta.env.DEV) console.error('[CompletarPerfil] save_full_profile error:', rpcError);
+          throw new Error(rpcError.message);
+        }
       }
 
       toast.success('Perfil concluído! Bem-vindo(a) ao MeloCalé 🎉');
       const dashboard = role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
       navigate(dashboard, { replace: true });
     } catch (err) {
+      if (import.meta.env.DEV) console.error('[CompletarPerfil] handleSubmit error:', err);
       setError(err instanceof Error ? err.message : 'Erro ao salvar. Tente novamente.');
     } finally {
       setIsSubmitting(false);
