@@ -49,13 +49,13 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
         let finalRole: Role = (profile?.role as Role | undefined) ?? 'client';
 
         if (!profile) {
-          // Read role from sessionStorage (set before OAuth redirect) or localStorage (legacy).
-          // sessionStorage may be cleared during cross-origin OAuth redirects in Safari/some browsers,
-          // so localStorage is the reliable fallback.
-          const signupRole = sessionStorage.getItem('melocale_signup_role') as Role | null;
+          // localStorage survives cross-origin OAuth redirects; sessionStorage may be cleared by Safari.
+          const lsRole = localStorage.getItem('melocale_signup_role_ls') as Role | null;
+          const signupRole = lsRole || (sessionStorage.getItem('melocale_signup_role') as Role | null);
           const pendingRole = localStorage.getItem('pending_oauth_role') as Role | null;
 
           // Clean up immediately before any await
+          localStorage.removeItem('melocale_signup_role_ls');
           sessionStorage.removeItem('melocale_signup_role');
           sessionStorage.removeItem('melocale_is_signup');
           sessionStorage.removeItem('melocale_login_role');
@@ -74,13 +74,11 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
             role: roleToSet,
           }, { onConflict: 'id' });
 
-          // New OAuth users always need phone + address — redirect to completion page.
-          // Use window.location.replace() to avoid sessionStorage flag timing/browser issues:
-          // on the next load the profile EXISTS, AuthInitializer takes the else-branch,
-          // calls setAuth() normally, and CompletarPerfil renders for the authenticated user.
-          sessionStorage.setItem('melocale_new_user_role', roleToSet); // survives same-tab navigation
-          window.location.replace('/completar-perfil');
-          return;
+          // Mark this user as needing profile completion; AuthRedirect (inside the router) will
+          // catch the flag after setAuth() and navigate to /completar-perfil. We cannot use
+          // window.location.replace() here because React Router always wins the navigation race.
+          localStorage.setItem('melocale_needs_completion', userId);
+          sessionStorage.setItem('melocale_new_user_role', roleToSet); // role hint for CompletarPerfil UI
         } else {
           // Clean up signup flags (no-op if not set)
           const loginRole = sessionStorage.getItem('melocale_login_role') as Role | null;
