@@ -38,34 +38,53 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
 
       if (isMounted) setLoading(true);
 
+      // Read storage flags synchronously BEFORE any await — sessionStorage can be
+      // cleared mid-flight by some browsers; localStorage survives OAuth redirects.
+      const lsRole = localStorage.getItem('melocale_signup_role_ls') as Role | null;
+      const ssSignupRole = sessionStorage.getItem('melocale_signup_role') as Role | null;
+      const signupRole: Role | null = lsRole || ssSignupRole;
+      const loginRole = sessionStorage.getItem('melocale_login_role') as Role | null;
+
+      if (import.meta.env.DEV) {
+        console.log('[Auth] processSession userId:', userId);
+        console.log('[Auth] lsRole (localStorage):', lsRole);
+        console.log('[Auth] ssSignupRole (sessionStorage):', ssSignupRole);
+        console.log('[Auth] signupRole resolved:', signupRole);
+        console.log('[Auth] user_metadata:', session.user.user_metadata);
+      }
+
       try {
-        // Only fetch what the store needs: role for routing decisions
+        // Fetch role AND phone so we can detect incomplete profiles
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, phone')
           .eq('id', userId)
           .maybeSingle();
 
+        if (import.meta.env.DEV) {
+          console.log('[Auth] profile from DB:', profile);
+        }
+
         let finalRole: Role = (profile?.role as Role | undefined) ?? 'client';
 
+        // Always clean up all signup/login storage flags in one place
+        localStorage.removeItem('melocale_signup_role_ls');
+        sessionStorage.removeItem('melocale_signup_role');
+        sessionStorage.removeItem('melocale_is_signup');
+        sessionStorage.removeItem('melocale_login_role');
+        localStorage.removeItem('pending_oauth_role');
+
         if (!profile) {
-          // localStorage survives cross-origin OAuth redirects; sessionStorage may be cleared by Safari.
-          const lsRole = localStorage.getItem('melocale_signup_role_ls') as Role | null;
-          const signupRole = lsRole || (sessionStorage.getItem('melocale_signup_role') as Role | null);
-          const pendingRole = localStorage.getItem('pending_oauth_role') as Role | null;
-
-          // Clean up immediately before any await
-          localStorage.removeItem('melocale_signup_role_ls');
-          sessionStorage.removeItem('melocale_signup_role');
-          sessionStorage.removeItem('melocale_is_signup');
-          sessionStorage.removeItem('melocale_login_role');
-          localStorage.removeItem('pending_oauth_role');
-
+          // ── Brand-new user ────────────────────────────────────────────────
           const metaRole = session.user.user_metadata?.role as Role | undefined;
-          const safeMetaRole: Role = metaRole === 'professional' ? 'professional' : 'client';
-          const safeSignupRole: Role = signupRole === 'professional' ? 'professional' : 'client';
-          const safePendingRole: Role = pendingRole === 'professional' ? 'professional' : 'client';
-          const roleToSet: Role = metaRole ? safeMetaRole : signupRole ? safeSignupRole : safePendingRole;
+          const roleToSet: Role =
+            metaRole === 'professional' ? 'professional'
+            : signupRole === 'professional' ? 'professional'
+            : 'client';
+
+          if (import.meta.env.DEV) {
+            console.log('[Auth] new user — metaRole:', metaRole, '— roleToSet:', roleToSet);
+          }
 
           finalRole = roleToSet;
           await supabase.from('profiles').upsert({
@@ -74,23 +93,48 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
             role: roleToSet,
           }, { onConflict: 'id' });
 
-          // Mark this user as needing profile completion; AuthRedirect (inside the router) will
-          // catch the flag after setAuth() and navigate to /completar-perfil. We cannot use
-          // window.location.replace() here because React Router always wins the navigation race.
+          // Signal AuthRedirect (inside router) to send user to /completar-perfil.
+          // Must be set BEFORE setAuth() so the first render after auth sees it.
           localStorage.setItem('melocale_needs_completion', userId);
-          sessionStorage.setItem('melocale_new_user_role', roleToSet); // role hint for CompletarPerfil UI
-        } else {
-          // Clean up signup flags (no-op if not set)
-          const loginRole = sessionStorage.getItem('melocale_login_role') as Role | null;
-          sessionStorage.removeItem('melocale_login_role');
-          sessionStorage.removeItem('melocale_signup_role');
-          sessionStorage.removeItem('melocale_is_signup');
-          localStorage.removeItem('pending_oauth_role');
+          sessionStorage.setItem('melocale_new_user_role', roleToSet);
 
-          // Role mismatch toast for Google login
-          if (loginRole && loginRole !== (profile.role as Role)) {
+          if (import.meta.env.DEV) {
+            console.log('[Auth] melocale_needs_completion SET (new user), role:', roleToSet);
+          }
+        } else {
+          // ── Existing profile ─────────────────────────────────────────────
+
+          // Role correction: user explicitly chose a role during this signup flow
+          // but the DB has a different (stale) role — update it.
+          if (signupRole && signupRole !== (profile.role as Role)) {
+            const safeSignupRole: Role = signupRole === 'professional' ? 'professional' : 'client';
+            if (import.meta.env.DEV) {
+              console.log('[Auth] role correction:', profile.role, '→', safeSignupRole);
+            }
+            finalRole = safeSignupRole;
+            await supabase.from('profiles').update({ role: safeSignupRole }).eq('id', userId);
+          }
+
+          // Role mismatch toast for Google login (not signup)
+          if (!signupRole && loginRole && loginRole !== (profile.role as Role)) {
             const roleName = profile.role === 'professional' ? 'Profissional' : 'Cliente';
             toast.info(`Você tem uma conta de ${roleName}. Redirecionando...`, { duration: 4000 });
+          }
+
+          // If the profile has no phone the user never finished onboarding —
+          // send them to /completar-perfil regardless of how they got here.
+          if (!profile.phone) {
+            localStorage.setItem('melocale_needs_completion', userId);
+            sessionStorage.setItem('melocale_new_user_role', finalRole);
+            if (import.meta.env.DEV) {
+              console.log('[Auth] melocale_needs_completion SET (existing profile, no phone)');
+            }
+          } else {
+            // Profile is complete — clear any stale flag from a previous incomplete session
+            localStorage.removeItem('melocale_needs_completion');
+            if (import.meta.env.DEV) {
+              console.log('[Auth] profile complete, going to dashboard');
+            }
           }
         }
 
@@ -100,12 +144,16 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
           professionalId = profId || undefined;
         }
 
+        if (import.meta.env.DEV) {
+          console.log('[Auth] calling setAuth — role:', finalRole, '| needs_completion in LS:', localStorage.getItem('melocale_needs_completion'));
+        }
+
         if (isMounted) {
           currentUserIdRef.current = userId;
           setAuth({ id: userId, professionalId, email: session.user.email || '', role: finalRole });
         }
       } catch (err) {
-        if (import.meta.env.DEV) console.error('AuthInitializer: critical failure', err);
+        if (import.meta.env.DEV) console.error('[Auth] critical failure', err);
         if (isMounted) {
           currentUserIdRef.current = userId;
           setAuth({ id: userId, email: session.user.email || '', role: 'client' });
@@ -119,7 +167,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (!isMounted) return;
       if (error) {
-        if (import.meta.env.DEV) console.warn('AuthInitializer: invalid session, clearing', error.message);
+        if (import.meta.env.DEV) console.warn('[Auth] invalid session, clearing', error.message);
         supabase.auth.signOut();
         if (isMounted) {
           currentUserIdRef.current = null;
