@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import { registerRoute, setCatchHandler } from 'workbox-routing'
-import { NetworkFirst, CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
+import { NetworkFirst, CacheFirst } from 'workbox-strategies'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { ExpirationPlugin } from 'workbox-expiration'
 
@@ -56,15 +56,21 @@ registerRoute(
   })
 )
 
-// JS/CSS — StaleWhileRevalidate, same-origin only.
-// Cross-origin scripts (e.g. Cloudflare beacon) and stylesheets (e.g. Google Fonts)
-// must NOT be intercepted: the SW's fetch() is bound by connect-src, which does not
-// list those origins. The browser handles cross-origin scripts/styles directly.
+// JS/CSS — NetworkFirst, same-origin only.
+// Always fetches the latest from the network; falls back to cache when offline.
+// Cross-origin scripts/styles are not intercepted (SW's connect-src doesn't list them).
 registerRoute(
   ({ url, request }) =>
     (request.destination === 'script' || request.destination === 'style') &&
     url.origin === self.location.origin,
-  new StaleWhileRevalidate({ cacheName: 'assets-cache' })
+  new NetworkFirst({
+    cacheName: 'assets-cache',
+    networkTimeoutSeconds: 3,
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 }),
+    ],
+  })
 )
 
 // Fallback offline para navegação

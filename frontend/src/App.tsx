@@ -328,6 +328,22 @@ const router = createBrowserRouter([
 export default function App() {
   useTheme(); // apply persisted/system theme on initialization
 
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const handleControllerChange = () => {
+      toast('Nova versão disponível', {
+        description: 'Atualize para garantir que está usando a versão mais recente.',
+        duration: Infinity,
+        action: {
+          label: 'Atualizar agora',
+          onClick: () => window.location.reload(),
+        },
+      });
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+    return () => navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthInitializer>
