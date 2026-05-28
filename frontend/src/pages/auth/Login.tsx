@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { API_URL } from '../../lib/api';
+import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
 
 function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -21,18 +22,6 @@ function getPasswordStrength(password: string): 0 | 1 | 2 | 3 {
   if (/[A-Z]/.test(password)) score++;
   if (/[0-9]/.test(password)) score++;
   return score as 0 | 1 | 2 | 3;
-}
-
-async function fetchCepData(cep: string): Promise<{ city: string } | null> {
-  try {
-    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.erro) return null;
-    return { city: `${data.localidade}, ${data.uf}` };
-  } catch {
-    return null;
-  }
 }
 
 export default function Login() {
@@ -51,16 +40,14 @@ export default function Login() {
     password: '',
     name: '',
     phone: '',
-    cep: '',
-    city: '',
     category: '',
     customCategory: '',
     bio: ''
   });
+  const [address, setAddress] = useState<AddressValue>(emptyAddress);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [legalModal, setLegalModal] = useState<'termos' | 'privacidade' | null>(null);
   const [categorias, setCategorias] = useState<string[]>([]);
 
@@ -91,21 +78,6 @@ export default function Login() {
     if (pwErr) { setError(pwErr); return; }
     setAuthStep('details');
     setError(null);
-  };
-
-  const handleCepChange = async (cep: string) => {
-    const digits = cep.replace(/\D/g, '');
-    setFormData(prev => ({ ...prev, cep }));
-    if (digits.length === 8) {
-      setIsFetchingCep(true);
-      const result = await fetchCepData(digits);
-      setIsFetchingCep(false);
-      if (result) {
-        setFormData(prev => ({ ...prev, city: result.city }));
-      } else {
-        toast.error("CEP não encontrado. Preencha a cidade manualmente.");
-      }
-    }
   };
 
   const handleGoogleLogin = async () => {
@@ -202,6 +174,8 @@ export default function Login() {
           ? formData.customCategory
           : formData.category;
 
+        const derivedCity = [address.city, address.state].filter(Boolean).join(' - ');
+
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -210,7 +184,7 @@ export default function Login() {
               name: formData.name,
               role: selectedRole,
               phone: formData.phone,
-              city: formData.city,
+              city: derivedCity || null,
               category: finalCategory,
               bio: formData.bio
             }
@@ -224,9 +198,18 @@ export default function Login() {
         await supabase.from('profiles').upsert({
           id: signUpData.user?.id,
           full_name: formData.name,
-          phone: formData.phone,
-          city: formData.city,
+          phone: formData.phone || null,
+          city: derivedCity || null,
           role: selectedRole,
+          cep: address.cep || null,
+          address_zipcode: address.cep || null,
+          address_street: address.street || null,
+          address_number: address.number || null,
+          address_block: address.block || null,
+          address_complement: address.complement || null,
+          address_neighborhood: address.neighborhood || null,
+          address_city: address.city || null,
+          address_state: address.state || null,
         }, { onConflict: 'id' });
 
         if (selectedRole === 'professional' && signUpData.user) {
@@ -487,25 +470,8 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">CEP</label>
-                  <div className="relative">
-                    <input
-                      type="text" placeholder="00000-000" maxLength={9}
-                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
-                      value={formData.cep} onChange={(e) => handleCepChange(e.target.value)}
-                    />
-                    {isFetchingCep && (
-                      <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-emerald-500" />
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Sua Cidade</label>
-                  <input
-                    required type="text" placeholder="Ex: São Paulo, SP" maxLength={100}
-                    className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
-                    value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
-                  />
+                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">Endereço</label>
+                  <AddressForm value={address} onChange={setAddress} variant="signup" />
                 </div>
                 {selectedRole === 'professional' && (
                   <div>
