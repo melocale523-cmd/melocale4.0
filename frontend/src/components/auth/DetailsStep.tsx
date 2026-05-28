@@ -1,11 +1,11 @@
-import { Loader2 } from 'lucide-react';
 import type { AuthFormData } from '../../hooks/useAuthForm';
+import { AddressForm, type AddressValue } from '../AddressForm';
 
 interface DetailsStepProps {
   formData: AuthFormData;
   onChange: (field: keyof AuthFormData, value: string) => void;
-  onCepChange: (cep: string) => void;
-  isFetchingCep: boolean;
+  address: AddressValue;
+  onAddressChange: (address: AddressValue) => void;
   categorias: string[];
   selectedRole: 'client' | 'professional' | null;
 }
@@ -13,8 +13,8 @@ interface DetailsStepProps {
 export function DetailsStep({
   formData,
   onChange,
-  onCepChange,
-  isFetchingCep,
+  address,
+  onAddressChange,
   categorias,
   selectedRole,
 }: DetailsStepProps) {
@@ -33,33 +33,12 @@ export function DetailsStep({
         />
       </div>
 
-      <div>
-        <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">CEP</label>
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="00000-000"
-            maxLength={9}
-            className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-            value={formData.cep}
-            onChange={e => onCepChange(e.target.value)}
-          />
-          {isFetchingCep && (
-            <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-emerald-500" />
-          )}
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Cidade / Localização</label>
-        <input
-          required
-          type="text"
-          placeholder="Onde você está localizado?"
-          maxLength={100}
-          className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-          value={formData.city}
-          onChange={e => onChange('city', e.target.value)}
+      <div className="pt-1">
+        <p className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-4 pl-1">Endereço</p>
+        <AddressForm
+          value={address}
+          onChange={onAddressChange}
+          variant="signup"
         />
       </div>
 

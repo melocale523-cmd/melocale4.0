@@ -22,14 +22,14 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
   const {
     formData,
     onChange,
+    address,
+    onAddressChange,
     isSubmitting,
     error,
     setError,
     showPassword,
     setShowPassword,
-    isFetchingCep,
     categorias,
-    handleCepChange,
     handleForgotPassword,
     handleGoogleLogin,
     handleSubmit,
@@ -147,8 +147,8 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         <DetailsStep
                           formData={formData}
                           onChange={onChange}
-                          onCepChange={handleCepChange}
-                          isFetchingCep={isFetchingCep}
+                          address={address}
+                          onAddressChange={onAddressChange}
                           categorias={categorias}
                           selectedRole={selectedRole}
                         />
