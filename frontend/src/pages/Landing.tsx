@@ -9,6 +9,8 @@ import EarningsCalculator from '../components/EarningsCalculator';
 import ExitIntentPopup from '../components/ExitIntentPopup';
 import LiveCounter from '../components/LiveCounter';
 import FlashOffer from '../components/FlashOffer';
+import CompetitorTable from '../components/CompetitorTable';
+import ProactiveChat from '../components/ProactiveChat';
 import { useUtmParams } from '../hooks/useUtmParams';
 import React, { useState, useEffect } from 'react';
 
@@ -114,7 +116,7 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section className="relative pt-32 pb-32 overflow-hidden">
+        <section id="hero" className="relative pt-32 pb-32 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-16 items-center">
@@ -414,6 +416,9 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ── Comparativo com concorrentes ── */}
+        <CompetitorTable />
+
         {/* ── Pricing ── */}
         <section id="planos" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -593,6 +598,7 @@ export default function LandingPage() {
       <StickyCtaMobile vagasPro={vagas.pro} userCity={userCity} />
       <FomoNotification />
       <ExitIntentPopup />
+      <ProactiveChat userCity={userCity} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
+import confetti from 'canvas-confetti';
 
 export default function CompletarPerfil() {
   const { user, isAuthenticated, isLoading } = useAuthStore();
@@ -124,9 +125,20 @@ export default function CompletarPerfil() {
         }
       }
 
-      toast.success('Perfil concluído! Bem-vindo(a) ao MeloCalé 🎉');
+      // Dispara confetti de boas-vindas
+      const end = Date.now() + 3000;
+      const colors = ['#10b981', '#fbbf24', '#3b82f6', '#34d399', '#f59e0b'];
+      const frame = () => {
+        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+
+      toast.success('🎉 Bem-vindo ao MeloCalé! Você ganhou 10 moedas de boas-vindas.');
       const dashboard = role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
-      navigate(dashboard, { replace: true });
+      // Deixa o confetti rodar antes do redirect (sem bloquear — apenas aguarda 1 frame)
+      setTimeout(() => navigate(dashboard, { replace: true }), 400);
     } catch (err) {
       if (import.meta.env.DEV) console.error('[CompletarPerfil] handleSubmit error:', err);
       setError(err instanceof Error ? err.message : 'Erro ao salvar. Tente novamente.');
