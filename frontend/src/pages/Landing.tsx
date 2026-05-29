@@ -1,4 +1,4 @@
-import { Search, MapPin, Building2, ChevronDown, Zap, ShieldCheck, HeartHandshake, MousePointer2 } from 'lucide-react';
+import { Search, MapPin, Building2, Zap, ShieldCheck, HeartHandshake, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../store/authStore';
@@ -6,32 +6,75 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import React, { useState, useEffect } from 'react';
 
+const BANNER_H = 44; // px — height of the countdown banner
+
 export default function LandingPage() {
   const { isAuthenticated, user } = useAuthStore();
   const role = user?.role;
   const dashboardLink = role === 'admin' ? '/admin/dashboard' : role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
-  const [userCity, setUserCity] = useState("São Paulo");
+
+  const [userCity, setUserCity] = useState("sua cidade");
+
+  // Countdown — starts fresh every page load, auto-restarts at zero
+  const [timer, setTimer] = useState({ h: 23, m: 59, s: 59 });
+
+  // Random "vagas restantes" per plan (3-7), generated once per page load
+  const [vagas] = useState(() => ({
+    starter: 3 + Math.floor(Math.random() * 5),
+    pro:     3 + Math.floor(Math.random() * 5),
+    elite:   3 + Math.floor(Math.random() * 5),
+  }));
 
   useEffect(() => {
     let cancelled = false;
-    fetch('https://get.geojs.io/v1/ip/geo.json')
+    fetch('https://ipapi.co/json/')
       .then(res => res.json())
       .then(data => { if (!cancelled && data?.city) setUserCity(data.city); })
       .catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTimer(prev => {
+        const { h, m, s } = prev;
+        if (s > 0) return { h, m, s: s - 1 };
+        if (m > 0) return { h, m: m - 1, s: 59 };
+        if (h > 0) return { h: h - 1, m: 59, s: 59 };
+        return { h: 23, m: 59, s: 59 };
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+
   return (
     <div className="min-h-screen bg-[#0E1C32] text-slate-200 font-sans selection:bg-emerald-500/30">
-      <Navbar />
+
+      {/* ── Countdown banner ── fixed top-0 z-60, above Navbar */}
+      <div
+        className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white text-xs md:text-sm font-black px-4"
+        style={{ height: BANNER_H, background: 'linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #c2410c 100%)' }}
+      >
+        <span>🔥 Oferta especial expira em:</span>
+        <span className="font-mono text-base md:text-lg tracking-widest bg-black/20 px-3 py-0.5 rounded-lg">
+          {pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}
+        </span>
+        <Link to="/login?mode=signup" className="hidden sm:inline ml-2 underline underline-offset-2 hover:no-underline opacity-90 hover:opacity-100 transition-opacity">
+          Aproveitar →
+        </Link>
+      </div>
+
+      <Navbar topOffset={BANNER_H} />
 
       <main>
-        {/* Hero Section */}
-        <section className="relative pt-20 pb-32 overflow-hidden">
+        {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
+        <section className="relative pt-32 pb-32 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
-          
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-16 items-center">
-            
+
             <div className="max-w-2xl">
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-6">
                 <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
@@ -46,16 +89,25 @@ export default function LandingPage() {
                 Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                 <Link to="/login?mode=signup&role=client" className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center">
-                   Encontrar Profissional Agora
-                 </Link>
-                 <a href="#como-funciona" className="bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center">
-                   Ver Como Funciona
-                 </a>
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <div className="flex flex-col">
+                  <Link
+                    to="/login?mode=signup&role=client"
+                    className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center"
+                  >
+                    Encontrar Profissional em {userCity} →
+                  </Link>
+                  <p className="text-xs text-slate-500 text-center mt-1.5">Grátis • Até 5 orçamentos em minutos</p>
+                </div>
+                <a
+                  href="#como-funciona"
+                  className="bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center self-start"
+                >
+                  Ver Como Funciona
+                </a>
               </div>
 
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800">
+              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-8">
                 <div>
                   <div className="flex items-center text-emerald-400 mb-2">
                     <ShieldCheck size={20} className="mr-2" />
@@ -81,6 +133,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-6">
+              {/* Pro card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-6 opacity-10 text-emerald-500"><Building2 size={100} /></div>
                 <div className="relative z-10">
@@ -89,18 +142,23 @@ export default function LandingPage() {
                   </div>
                   <h2 className="text-2xl font-bold text-white mb-2">Para Profissionais</h2>
                   <p className="text-[#94A3B8] mb-6">Aumente sua renda com leads qualificados</p>
-                  <ul className="space-y-3 mb-8">
+                  <ul className="space-y-3 mb-6">
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-emerald-500 mr-2" size={16} /> Comece grátis, sem compromisso</li>
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-emerald-500 mr-2" size={16} /> Leads prontos para contratar</li>
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-emerald-500 mr-2" size={16} /> Você controla seus preços</li>
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-emerald-500 mr-2" size={16} /> Planos a partir de R$49/mês</li>
                   </ul>
-                  <Link to="/login?mode=signup&role=professional" className="block w-full bg-emerald-600 hover:bg-emerald-500 text-white text-center rounded-lg px-4 py-3 font-bold transition-colors">
-                    CADASTRE-SE JÁ!
+                  <Link
+                    to="/login?mode=signup&role=professional"
+                    className="block w-full bg-emerald-600 hover:bg-emerald-500 text-white text-center rounded-lg px-4 py-3 font-bold transition-colors"
+                  >
+                    Quero Receber Clientes Agora →
                   </Link>
+                  <p className="text-xs text-slate-500 text-center mt-1.5">Grátis para começar • Sem cartão de crédito</p>
                 </div>
               </div>
 
+              {/* Client card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-6 opacity-10 text-blue-500"><UserIcon size={100} /></div>
                 <div className="relative z-10">
@@ -109,23 +167,119 @@ export default function LandingPage() {
                   </div>
                   <h2 className="text-2xl font-bold text-white mb-2">Para Clientes</h2>
                   <p className="text-[#94A3B8] mb-6">Encontre o profissional ideal rapidamente</p>
-                  <ul className="space-y-3 mb-8">
+                  <ul className="space-y-3 mb-6">
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-blue-400 mr-2" size={16} /> Profissionais verificados e avaliados</li>
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-blue-400 mr-2" size={16} /> Receba até 5 orçamentos grátis</li>
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-blue-400 mr-2" size={16} /> Compare e escolha o melhor</li>
                     <li className="flex items-center text-slate-300 text-sm"><CheckIcon className="text-blue-400 mr-2" size={16} /> Contratação 100% segura</li>
                   </ul>
-                  <Link to="/login?mode=signup&role=client" className="block w-full bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg px-4 py-3 font-bold transition-colors">
-                    CADASTRE-SE JÁ!
+                  <Link
+                    to="/login?mode=signup&role=client"
+                    className="block w-full bg-blue-600 hover:bg-blue-500 text-white text-center rounded-lg px-4 py-3 font-bold transition-colors"
+                  >
+                    Encontrar Profissional em {userCity} →
                   </Link>
+                  <p className="text-xs text-slate-500 text-center mt-1.5">Grátis • Até 5 orçamentos em minutos</p>
                 </div>
               </div>
             </div>
 
           </div>
         </section>
-        
-        {/* Why choose us */}
+
+        {/* ── Prova Social — Stats + Depoimentos ── */}
+        <section className="py-20 bg-[#0B1729] border-t border-slate-800/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-16 text-center">
+              <div>
+                <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
+                <p className="text-xs md:text-sm text-[#94A3B8] mt-1">Profissionais cadastrados</p>
+              </div>
+              <div>
+                <p className="text-3xl md:text-4xl font-extrabold text-blue-400">1.200+</p>
+                <p className="text-xs md:text-sm text-[#94A3B8] mt-1">Serviços realizados</p>
+              </div>
+              <div>
+                <p className="text-3xl md:text-4xl font-extrabold text-yellow-400">98%</p>
+                <p className="text-xs md:text-sm text-[#94A3B8] mt-1">de satisfação</p>
+              </div>
+            </div>
+
+            {/* Depoimentos */}
+            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-10">
+              Quem usa, <span className="text-emerald-400">recomenda</span>
+            </h2>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Depoimento 1 — Carlos (profissional) */}
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-[#94A3B8] text-sm leading-relaxed flex-1">
+                  "Em 2 semanas já tinha 3 clientes novos. O MeloCalé mudou meu mês — faturei R$1.800 a mais só com os leads da plataforma."
+                </p>
+                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
+                  <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-black text-sm shrink-0">
+                    C
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-sm">Carlos Silva</p>
+                    <p className="text-[#4A6580] text-xs">Eletricista · Feira de Santana, BA</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Depoimento 2 — Ana (cliente) */}
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-[#94A3B8] text-sm leading-relaxed flex-1">
+                  "Precisava de um encanador urgente. Em menos de 1 hora já tinha 2 orçamentos. Contratei na hora e o serviço foi excelente!"
+                </p>
+                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
+                  <div className="w-10 h-10 rounded-full bg-emerald-700 flex items-center justify-center text-white font-black text-sm shrink-0">
+                    A
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-sm">Ana Rodrigues</p>
+                    <p className="text-[#4A6580] text-xs">Cliente · Jacobina, BA</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Depoimento 3 — Marcos (profissional) */}
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-[#94A3B8] text-sm leading-relaxed flex-1">
+                  "Tinha medo de não conseguir clientes pela internet. Hoje o MeloCalé é minha principal fonte de trabalho. Vale cada centavo."
+                </p>
+                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
+                  <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+                    M
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-sm">Marcos Oliveira</p>
+                    <p className="text-[#4A6580] text-xs">Pintor · Irecê, BA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Why choose us ── */}
         <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Por que escolher o <span className="text-emerald-500">MeloCalé</span>?</h2>
@@ -151,7 +305,7 @@ export default function LandingPage() {
                   <MapPin size={24} />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">Perto de Você</h3>
-                <p className="text-[#94A3B8] text-sm">Profissionais qualificados nos melhores bairros de São Paulo</p>
+                <p className="text-[#94A3B8] text-sm">Profissionais qualificados nos melhores bairros de {userCity}</p>
               </div>
               <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
                 <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-6">
@@ -164,11 +318,10 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Pricing */}
+        {/* ── Pricing ── */}
         <section id="planos" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            {/* Header */}
             <div className="text-center mb-16">
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400 mb-6">
                 🔥 Oferta por tempo limitado
@@ -182,7 +335,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Garantia badge */}
             <div className="flex justify-center mb-12">
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-3">
                 <span className="text-emerald-400 text-xl">🛡️</span>
@@ -190,7 +342,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Grid 4 planos */}
             <div className="grid lg:grid-cols-4 gap-6 text-left max-w-6xl mx-auto mb-16">
 
               {/* GRATUITO */}
@@ -219,9 +370,14 @@ export default function LandingPage() {
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="block w-full bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-4 py-3 text-sm font-bold transition-all mb-6 shadow-lg shadow-blue-500/20">
+                <Link to="/login?mode=signup&role=professional" className="block w-full bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-4 py-3 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
                   Quero começar agora →
                 </Link>
+                {/* Vagas urgência */}
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                  <span>⚠️</span>
+                  <span>Apenas {vagas.starter} vagas restantes em {userCity}</span>
+                </div>
                 <ul className="space-y-3 flex-1">
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
@@ -244,9 +400,14 @@ export default function LandingPage() {
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="block w-full bg-emerald-500 hover:bg-emerald-400 text-black text-center rounded-xl px-4 py-3 text-sm font-black transition-all mb-6 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="block w-full bg-emerald-500 hover:bg-emerald-400 text-black text-center rounded-xl px-4 py-3 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
                   Quero receber clientes agora →
                 </Link>
+                {/* Vagas urgência */}
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                  <span>⚠️</span>
+                  <span>Apenas {vagas.pro} vagas restantes em {userCity}</span>
+                </div>
                 <ul className="space-y-3 flex-1">
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
@@ -268,9 +429,14 @@ export default function LandingPage() {
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="block w-full bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-xl px-4 py-3 text-sm font-black transition-all mb-6 shadow-lg shadow-yellow-500/20">
+                <Link to="/login?mode=signup&role=professional" className="block w-full bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-xl px-4 py-3 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
                   Quero dominar minha região →
                 </Link>
+                {/* Vagas urgência */}
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                  <span>⚠️</span>
+                  <span>Apenas {vagas.elite} vagas restantes em {userCity}</span>
+                </div>
                 <ul className="space-y-3 flex-1">
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
@@ -298,7 +464,7 @@ export default function LandingPage() {
         </section>
 
       </main>
-      
+
       <Footer />
     </div>
   );

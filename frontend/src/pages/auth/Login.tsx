@@ -628,6 +628,29 @@ export default function Login() {
               </button>.
             </p>
           )}
+
+          {/* Cross-link: switch between login and signup */}
+          <div className="text-center mt-6 pb-4">
+            {isSignUp ? (
+              <button
+                type="button"
+                onClick={() => { setIsSignUp(false); setIsLockedMode(false); setAuthStep('basics'); setError(null); }}
+                className="text-[#7A9EBF] text-sm hover:text-white transition-colors"
+              >
+                Já tem conta?{' '}
+                <span className="text-emerald-400 font-bold hover:text-emerald-300">Fazer login →</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { setIsSignUp(true); setIsLockedMode(false); setAuthStep('basics'); setError(null); }}
+                className="text-[#7A9EBF] text-sm hover:text-white transition-colors"
+              >
+                Não tem conta?{' '}
+                <span className="text-emerald-400 font-bold hover:text-emerald-300">Cadastre-se grátis →</span>
+              </button>
+            )}
+          </div>
         </motion.div>
       </AnimatePresence>
 
