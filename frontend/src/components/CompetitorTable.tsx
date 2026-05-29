@@ -41,35 +41,63 @@ export default function CompetitorTable({ userCity }: Props) {
           </p>
         </div>
 
-        {/* Cards de benefícios */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
-          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-6">
-              <ShieldCheck size={24} />
+        {/* Cards de benefícios — layout assimétrico */}
+        <div className="grid lg:grid-cols-2 gap-6 mb-20">
+
+          {/* Card grande — Profissionais Verificados */}
+          <div className="relative flex flex-col justify-between bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-8 min-h-[320px]">
+            <span className="absolute top-4 right-4 bg-emerald-500 text-black text-[10px] font-black px-2 py-1 rounded-full uppercase">
+              ✓ Verificado
+            </span>
+            <div>
+              <ShieldCheck size={48} className="text-emerald-400 mb-6" />
+              <p className="text-5xl font-black text-emerald-400">371+</p>
+              <p className="text-slate-300 text-sm">profissionais verificados na Bahia</p>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Profissionais Verificados</h3>
-            <p className="text-[#94A3B8] text-sm">Todos os profissionais passam por verificação de documentos e avaliações</p>
+            <div>
+              <h3 className="text-2xl font-bold text-white mt-4">Profissionais Verificados</h3>
+              <p className="text-[#94A3B8] text-sm mt-2">
+                Todos passam por verificação de documentos, avaliações reais e checagem manual antes de aparecer na plataforma.
+              </p>
+            </div>
           </div>
-          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-            <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
-              <Zap size={24} />
+
+          {/* Coluna direita: 3 cards menores */}
+          <div className="flex flex-col gap-4">
+
+            {/* Card — Atendimento Rápido */}
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-6 flex items-center gap-5">
+              <Zap size={28} className="text-yellow-400 shrink-0" />
+              <div>
+                <p className="text-2xl font-black text-yellow-400">{'< 2h'}</p>
+                <p className="text-slate-400 text-xs">tempo médio de resposta</p>
+                <h3 className="text-white font-bold text-sm mt-1">Atendimento Rápido</h3>
+                <p className="text-[#94A3B8] text-xs">Orçamentos chegam em minutos.</p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Atendimento Rápido</h3>
-            <p className="text-[#94A3B8] text-sm">Receba orçamentos em minutos e agende serviços rapidamente</p>
-          </div>
-          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mb-6">
-              <MapPin size={24} />
+
+            {/* Card — Perto de Você */}
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-6 flex items-center gap-5">
+              <MapPin size={28} className="text-blue-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-2xl font-black text-blue-400 truncate">{userCity}</p>
+                <p className="text-slate-400 text-xs">e região atendida</p>
+                <h3 className="text-white font-bold text-sm mt-1">Perto de Você</h3>
+                <p className="text-[#94A3B8] text-xs">Profissionais do seu bairro.</p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Perto de Você</h3>
-            <p className="text-[#94A3B8] text-sm">Profissionais qualificados nos melhores bairros de {userCity}</p>
-          </div>
-          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-            <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-6">
-              <CreditCard size={24} />
+
+            {/* Card — Pagamento Seguro */}
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-6 flex items-center gap-5">
+              <CreditCard size={28} className="text-purple-400 shrink-0" />
+              <div>
+                <p className="text-2xl font-black text-purple-400">100%</p>
+                <p className="text-slate-400 text-xs">das transações protegidas</p>
+                <h3 className="text-white font-bold text-sm mt-1">Pagamento Seguro</h3>
+                <p className="text-[#94A3B8] text-xs">Garantia em todas as contratações.</p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Pagamento Seguro</h3>
-            <p className="text-[#94A3B8] text-sm">Múltiplas opções de pagamento com garantia e proteção</p>
+
           </div>
         </div>
 

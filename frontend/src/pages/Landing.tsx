@@ -8,13 +8,19 @@ import FomoNotification from '../components/FomoNotification';
 import EarningsCalculator from '../components/EarningsCalculator';
 import ExitIntentPopup from '../components/ExitIntentPopup';
 import LiveCounter from '../components/LiveCounter';
-import FlashOffer from '../components/FlashOffer';
 import CompetitorTable from '../components/CompetitorTable';
 import ProactiveChat from '../components/ProactiveChat';
 import { useUtmParams } from '../hooks/useUtmParams';
 import React, { useState, useEffect } from 'react';
 
 const BANNER_H = 44; // px — height of the countdown banner
+
+function isFlashTime(): boolean {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun, 6=Sat
+  const hour = now.getHours();
+  return day === 0 || day === 6 || (hour >= 18 && hour < 22);
+}
 
 async function detectCity(): Promise<string> {
   const apis = [
@@ -93,24 +99,33 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0E1C32] text-slate-200 font-sans selection:bg-emerald-500/30">
 
-      {/* ── Countdown banner ── fixed top-0 z-60, above Navbar */}
-      <div
-        className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white text-xs md:text-sm font-black px-4"
-        style={{ height: BANNER_H, background: 'linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #c2410c 100%)' }}
-      >
-        <span>🔥 Oferta especial expira em:</span>
-        <span className="font-mono text-base md:text-lg tracking-widest bg-black/20 px-3 py-0.5 rounded-lg">
-          {pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}
-        </span>
-        <Link to="/login?mode=signup" className="hidden sm:inline ml-2 underline underline-offset-2 hover:no-underline opacity-90 hover:opacity-100 transition-opacity">
-          Aproveitar →
-        </Link>
-      </div>
-
-      {/* ── Flash Offer — âmbar, só ativa 18h–22h ou fins de semana ── */}
-      <div className="fixed left-0 right-0 z-[55]" style={{ top: BANNER_H }}>
-        <FlashOffer />
-      </div>
+      {/* ── Banner topo — countdown padrão ou relâmpago 18-22h/fins de semana ── */}
+      {isFlashTime() ? (
+        <div
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white text-xs md:text-sm font-black px-4 flex-wrap"
+          style={{ height: BANNER_H, background: 'linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%)' }}
+        >
+          <span>⚡ Oferta Relâmpago</span>
+          <span className="hidden sm:inline text-amber-200">—</span>
+          <span className="text-amber-100 font-bold">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
+          <Link to="/login?mode=signup" className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3 py-1 text-xs font-black transition-colors whitespace-nowrap">
+            Aproveitar →
+          </Link>
+        </div>
+      ) : (
+        <div
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white text-xs md:text-sm font-black px-4"
+          style={{ height: BANNER_H, background: 'linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #c2410c 100%)' }}
+        >
+          <span>🔥 Oferta especial expira em:</span>
+          <span className="font-mono text-base md:text-lg tracking-widest bg-black/20 px-3 py-0.5 rounded-lg">
+            {pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}
+          </span>
+          <Link to="/login?mode=signup" className="hidden sm:inline ml-2 underline underline-offset-2 hover:no-underline opacity-90 hover:opacity-100 transition-opacity">
+            Aproveitar →
+          </Link>
+        </div>
+      )}
 
       <Navbar topOffset={BANNER_H} />
 
