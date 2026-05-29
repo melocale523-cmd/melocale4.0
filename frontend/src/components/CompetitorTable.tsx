@@ -42,23 +42,23 @@ export default function CompetitorTable({ userCity }: Props) {
         </div>
 
         {/* Container principal: cards à esquerda + tabela à direita */}
-        <div className="flex flex-col md:flex-row gap-6 mb-12 md:items-start">
+        <div className="flex flex-col md:flex-row gap-6 mb-12 md:items-stretch">
 
           {/* Coluna esquerda: 4 cards verticais */}
-          <div className="flex flex-col gap-2 md:w-56 shrink-0">
+          <div className="flex flex-col gap-2 md:w-56 shrink-0 md:h-full">
 
             {/* Card 1 — Profissionais Verificados */}
-            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-3">
+            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-3 flex-1 flex flex-col justify-between">
               <span className="absolute top-3 right-3 bg-emerald-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase">✓ Verificado</span>
               <ShieldCheck size={18} className="text-emerald-400 mb-1" />
               <p className="text-lg font-black text-emerald-400">371+</p>
               <p className="text-[11px] text-slate-400">profissionais verificados na Bahia</p>
               <h3 className="text-white font-bold text-xs mt-1">Profissionais Verificados</h3>
-              <p className="text-[#94A3B8] text-[11px] mt-1">Verificação de documentos e avaliações reais.</p>
+              <p className="text-[#94A3B8] text-[11px] mt-1">Checagem manual, documentos e avaliações reais de clientes.</p>
             </div>
 
             {/* Card 2 — Atendimento Rápido */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex-1 flex flex-col justify-between">
               <Zap size={18} className="text-yellow-400 mb-1" />
               <p className="text-lg font-black text-yellow-400">{'< 2h'}</p>
               <p className="text-[11px] text-slate-400">tempo médio de resposta</p>
@@ -67,7 +67,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 3 — Perto de Você */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex-1 flex flex-col justify-between">
               <MapPin size={18} className="text-blue-400 mb-1" />
               <p className="text-lg font-black text-blue-400 truncate">{userCity}</p>
               <p className="text-[11px] text-slate-400">e região atendida</p>
@@ -76,7 +76,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 4 — Pagamento Seguro */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex-1 flex flex-col justify-between">
               <CreditCard size={18} className="text-purple-400 mb-1" />
               <p className="text-lg font-black text-purple-400">100%</p>
               <p className="text-[11px] text-slate-400">das transações protegidas</p>
@@ -87,7 +87,7 @@ export default function CompetitorTable({ userCity }: Props) {
           </div>
 
           {/* Coluna direita: tabela comparativa */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 flex flex-col">
 
             {/* Subtítulo da tabela */}
             <div className="mb-3">
@@ -100,7 +100,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800">
+            <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 flex-1">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[#1C3454] border-b border-slate-800">
