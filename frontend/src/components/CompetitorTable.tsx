@@ -31,16 +31,6 @@ export default function CompetitorTable({ userCity }: Props) {
     <section id="como-funciona" className="py-24 bg-[#0B1729] border-t border-slate-800/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Título único */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Por que escolher o <span className="text-emerald-400">MeloCalé</span>?
-          </h2>
-          <p className="text-[#94A3B8] max-w-xl mx-auto text-lg">
-            A plataforma feita para o interior da Bahia — compare e veja a diferença.
-          </p>
-        </div>
-
         {/* Container principal: cards à esquerda + tabela à direita */}
         <div className="flex flex-col md:flex-row gap-6 mb-12 md:items-start">
 
@@ -86,11 +76,21 @@ export default function CompetitorTable({ userCity }: Props) {
 
           </div>
 
-          {/* Coluna direita: tabela comparativa */}
+          {/* Coluna direita: título grande + tabela comparativa */}
           <div className="flex-1 min-w-0">
 
+            {/* Título grande */}
+            <div className="mb-6">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Por que escolher o <span className="text-emerald-400">MeloCalé</span>?
+              </h2>
+              <p className="text-[#94A3B8] text-lg">
+                A plataforma feita para o interior da Bahia — compare e veja a diferença.
+              </p>
+            </div>
+
             {/* Subtítulo da tabela */}
-            <div className="mb-3 md:pt-8">
+            <div className="mb-3 md:pt-16">
               <h3 className="text-xl font-bold text-white mb-1">
                 MeloCalé vs <span className="text-slate-400">Concorrentes</span>
               </h3>
