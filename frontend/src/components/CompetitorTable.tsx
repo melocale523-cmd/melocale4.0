@@ -1,4 +1,9 @@
 import { Link } from 'react-router-dom';
+import { ShieldCheck, Zap, MapPin, CreditCard } from 'lucide-react';
+
+interface Props {
+  userCity: string;
+}
 
 interface Feature {
   label: string;
@@ -8,11 +13,11 @@ interface Feature {
 }
 
 const features: Feature[] = [
-  { label: 'Preço acessível',          melocale: true,  a: false, b: true  },
-  { label: 'Foco no interior da BA',   melocale: true,  a: false, b: false },
-  { label: 'Suporte humano',           melocale: true,  a: true,  b: false },
-  { label: 'Moedas / cashback',        melocale: true,  a: false, b: false },
-  { label: 'Profissionais verificados',melocale: true,  a: true,  b: false },
+  { label: 'Preço acessível',           melocale: true,  a: false, b: true  },
+  { label: 'Foco no interior da BA',    melocale: true,  a: false, b: false },
+  { label: 'Suporte humano',            melocale: true,  a: true,  b: false },
+  { label: 'Moedas / cashback',         melocale: true,  a: false, b: false },
+  { label: 'Profissionais verificados', melocale: true,  a: true,  b: false },
 ];
 
 function Check({ ok }: { ok: boolean }) {
@@ -21,17 +26,60 @@ function Check({ ok }: { ok: boolean }) {
     : <span className="text-red-400 text-xl font-bold">❌</span>;
 }
 
-export default function CompetitorTable() {
+export default function CompetitorTable({ userCity }: Props) {
   return (
-    <section className="py-20 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="como-funciona" className="py-24 bg-[#0B1729] border-t border-slate-800/50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-3">
-            Por que o <span className="text-emerald-400">MeloCalé</span> é a melhor escolha?
+        {/* Título único */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Por que escolher o <span className="text-emerald-400">MeloCalé</span>?
           </h2>
-          <p className="text-[#94A3B8] max-w-xl mx-auto">
-            Compare e veja por que profissionais e clientes da Bahia preferem o MeloCalé.
+          <p className="text-[#94A3B8] max-w-xl mx-auto text-lg">
+            A plataforma feita para o interior da Bahia — compare e veja a diferença.
+          </p>
+        </div>
+
+        {/* Cards de benefícios */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
+            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-6">
+              <ShieldCheck size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Profissionais Verificados</h3>
+            <p className="text-[#94A3B8] text-sm">Todos os profissionais passam por verificação de documentos e avaliações</p>
+          </div>
+          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
+            <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
+              <Zap size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Atendimento Rápido</h3>
+            <p className="text-[#94A3B8] text-sm">Receba orçamentos em minutos e agende serviços rapidamente</p>
+          </div>
+          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mb-6">
+              <MapPin size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Perto de Você</h3>
+            <p className="text-[#94A3B8] text-sm">Profissionais qualificados nos melhores bairros de {userCity}</p>
+          </div>
+          <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
+            <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-6">
+              <CreditCard size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Pagamento Seguro</h3>
+            <p className="text-[#94A3B8] text-sm">Múltiplas opções de pagamento com garantia e proteção</p>
+          </div>
+        </div>
+
+        {/* Subtítulo da tabela */}
+        <div className="text-center mb-10">
+          <h3 className="text-xl font-bold text-white mb-2">
+            MeloCalé vs <span className="text-slate-400">Concorrentes</span>
+          </h3>
+          <p className="text-[#7A9EBF] text-sm">
+            Veja lado a lado por que quem é da Bahia escolhe o MeloCalé.
           </p>
         </div>
 

@@ -377,50 +377,11 @@ export default function LandingPage() {
         {/* ── Calculadora de Ganhos ── */}
         <EarningsCalculator />
 
-        {/* ── Why choose us ── */}
-        <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Por que escolher o <span className="text-emerald-500">MeloCalé</span>?</h2>
-            <p className="text-[#94A3B8] mb-16">A melhor plataforma para contratar profissionais qualificados</p>
-
-            <div id="categorias" className="grid md:grid-cols-4 gap-8 text-left">
-              <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-                <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-6">
-                  <ShieldCheck size={24} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">Profissionais Verificados</h3>
-                <p className="text-[#94A3B8] text-sm">Todos os profissionais passam por verificação de documentos e avaliações</p>
-              </div>
-              <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-                <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-6">
-                  <Zap size={24} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">Atendimento Rápido</h3>
-                <p className="text-[#94A3B8] text-sm">Receba orçamentos em minutos e agende serviços rapidamente</p>
-              </div>
-              <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-                <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mb-6">
-                  <MapPin size={24} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">Perto de Você</h3>
-                <p className="text-[#94A3B8] text-sm">Profissionais qualificados nos melhores bairros de {userCity}</p>
-              </div>
-              <div className="bg-[#1C3454] p-6 rounded-2xl border border-slate-800">
-                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-6">
-                  <CreditCardIcon size={24} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">Pagamento Seguro</h3>
-                <p className="text-[#94A3B8] text-sm">Múltiplas opções de pagamento com garantia e proteção</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Comparativo com concorrentes ── */}
-        <CompetitorTable />
+        {/* ── Por que escolher + Comparativo com concorrentes ── */}
+        <CompetitorTable userCity={userCity} />
 
         {/* ── Pricing ── */}
-        <section id="planos" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
+        <section id="planos" className="pt-16 pb-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div className="text-center mb-16">
@@ -631,8 +592,3 @@ function UserIcon({ size = 24, ...props }: IconProps) {
   );
 }
 
-function CreditCardIcon({ size = 24, ...props }: IconProps) {
-  return (
-    <svg {...props} width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-  );
-}
