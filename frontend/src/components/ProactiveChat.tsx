@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, MessageCircle } from 'lucide-react';
 
-const WA_NUMBER = '5574999999999';
+const WA_NUMBER = '5574999215307';
 const SESSION_KEY = 'proactive_chat_shown';
 const DELAY_MS = 25_000;
 
