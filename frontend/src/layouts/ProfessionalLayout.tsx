@@ -114,7 +114,8 @@ export default function ProfessionalLayout() {
                   "flex items-center gap-3 px-4 py-2 rounded-xl transition-all font-medium text-sm",
                   isActive
                     ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
-                    : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-white/20 dark:hover:bg-[#1C3454]"
+                    : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-white/20 dark:hover:bg-[#1C3454]",
+                  item.name === 'Indicações' && !isActive && "indicacoes-glow"
                 )}
               >
                 <item.icon size={18} />
@@ -122,14 +123,6 @@ export default function ProfessionalLayout() {
                 {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
                   <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                     {unreadCount}
-                  </span>
-                )}
-                {item.name === 'Indicações' && (
-                  <span className="ml-auto relative flex items-center shrink-0">
-                    <span className="absolute inset-0 rounded-full bg-yellow-400 opacity-60 animate-ping" />
-                    <span className="relative flex items-center gap-0.5 bg-yellow-400/15 border border-yellow-400/40 rounded-full px-2 py-0.5 animate-pulse">
-                      <span className="badge-shimmer text-[9px] font-black tracking-wide whitespace-nowrap">+60 moedas</span>
-                    </span>
                   </span>
                 )}
               </Link>
@@ -166,7 +159,7 @@ export default function ProfessionalLayout() {
               {navItems.map((item) => {
                 const isActive = location.pathname.startsWith(item.path);
                 return (
-                  <Link 
+                  <Link
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
@@ -174,7 +167,8 @@ export default function ProfessionalLayout() {
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
                       isActive
                         ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
-                        : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white"
+                        : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white",
+                      item.name === 'Indicações' && !isActive && "indicacoes-glow"
                     )}
                   >
                     <item.icon size={18} />
@@ -182,14 +176,6 @@ export default function ProfessionalLayout() {
                     {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
                       <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                         {unreadCount}
-                      </span>
-                    )}
-                    {item.name === 'Indicações' && (
-                      <span className="ml-auto relative flex items-center shrink-0">
-                        <span className="absolute inset-0 rounded-full bg-yellow-400 opacity-60 animate-ping" />
-                        <span className="relative flex items-center gap-0.5 bg-yellow-400/15 border border-yellow-400/40 rounded-full px-2 py-0.5 animate-pulse">
-                          <span className="badge-shimmer text-[9px] font-black tracking-wide whitespace-nowrap">+60 moedas</span>
-                        </span>
                       </span>
                     )}
                   </Link>

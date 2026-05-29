@@ -194,16 +194,19 @@ html:not(.dark) span.text-\[\#4A6580\] {
   font-weight: 500 !important;
 }
 
-/* Indicações badge shimmer */
-@keyframes badge-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
+/* Indicações nav item — gentle golden pulse on the whole row */
+@keyframes indicacoes-glow {
+  0%, 100% {
+    color: rgba(148, 163, 184, 0.7);
+    background-color: transparent;
+    text-shadow: none;
+  }
+  50% {
+    color: rgba(251, 191, 36, 0.85);
+    background-color: rgba(251, 191, 36, 0.07);
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+  }
 }
-.badge-shimmer {
-  background: linear-gradient(90deg, #fbbf24 0%, #fef08a 40%, #f59e0b 60%, #fbbf24 100%);
-  background-size: 200% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: badge-shimmer 2s linear infinite;
+.indicacoes-glow {
+  animation: indicacoes-glow 2.5s ease-in-out infinite;
 }
