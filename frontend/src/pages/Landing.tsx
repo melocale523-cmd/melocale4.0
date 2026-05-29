@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
+import ExitIntentPopup from '../components/ExitIntentPopup';
+import LiveCounter from '../components/LiveCounter';
 import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
@@ -124,6 +126,9 @@ export default function LandingPage() {
           </div>
         </section>
         
+        {/* Live Counter */}
+        <LiveCounter userCity={userCity} />
+
         {/* Why choose us */}
         <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -186,6 +191,31 @@ export default function LandingPage() {
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-3">
                 <span className="text-emerald-400 text-xl">🛡️</span>
                 <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
+              </div>
+            </div>
+
+            {/* Ancoragem de preço psicológica */}
+            <div className="max-w-4xl mx-auto mb-12 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 overflow-x-auto sm:overflow-visible">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+                <span className="text-3xl">☕</span>
+                <div>
+                  <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que 1 café por dia</p>
+                  <p className="text-slate-400 text-xs mt-0.5">R$37/mês = R$1,23/dia</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+                <span className="text-3xl">🍕</span>
+                <div>
+                  <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que uma pizza</p>
+                  <p className="text-slate-400 text-xs mt-0.5">Por mês você acessa clientes ilimitados</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+                <span className="text-3xl">💡</span>
+                <div>
+                  <p className="text-emerald-300 font-bold text-sm leading-tight">1 cliente já paga 7 meses</p>
+                  <p className="text-slate-400 text-xs mt-0.5">Um serviço de R$500 cobre o plano PRO por 7 meses</p>
+                </div>
               </div>
             </div>
 
@@ -304,6 +334,9 @@ export default function LandingPage() {
           <p>&copy; {new Date().getFullYear()} MeloCalé. Todos os direitos reservados.</p>
         </div>
       </footer>
+
+      {/* Global conversion widgets */}
+      <ExitIntentPopup />
     </div>
   );
 }
