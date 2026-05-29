@@ -42,10 +42,10 @@ export default function CompetitorTable({ userCity }: Props) {
         </div>
 
         {/* Cards de benefícios — layout assimétrico */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-20">
+        <div className="grid md:grid-cols-2 gap-6 mb-20">
 
           {/* Card grande — Profissionais Verificados */}
-          <div className="relative flex flex-col justify-between bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-8 min-h-[320px]">
+          <div className="relative flex flex-col justify-between bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-8 min-h-[280px]">
             <span className="absolute top-4 right-4 bg-emerald-500 text-black text-[10px] font-black px-2 py-1 rounded-full uppercase">
               ✓ Verificado
             </span>
