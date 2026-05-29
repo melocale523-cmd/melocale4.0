@@ -107,7 +107,18 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
             .in('status', ['registered', 'converted'])
             .single()
           if (referral && referral.status !== 'credited') {
-            const rewardCoins = referral.referrer_role === 'professional' ? 60 : 30
+            // Apply bonus multiplier from referral_config
+            let baseCoins = referral.referrer_role === 'professional' ? 60 : 30
+            try {
+              const { data: cfg } = await supabaseAdmin
+                .from('referral_config').select('multiplier, expires_at').eq('id', 1).single()
+              if (cfg && cfg.multiplier > 1) {
+                const expired = cfg.expires_at && new Date(cfg.expires_at) < new Date()
+                if (!expired) baseCoins = baseCoins * cfg.multiplier
+              }
+            } catch { /* use base coins */ }
+
+            const rewardCoins = baseCoins
             const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc('credit_referral_reward', {
               p_referral_id: referral.id,
               p_reward_coins: rewardCoins,
@@ -117,9 +128,7 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
                 user_id: referral.referrer_id,
                 title: '🎉 Indicação recompensada!',
                 body: `Seu indicado ativou a conta. Você ganhou ${rewardCoins} moedas!`,
-                type: 'referral_reward',
-                is_read: false,
-                metadata: { referral_id: referral.id, coins: rewardCoins },
+                data: { type: 'referral_reward', referral_id: referral.id, coins: rewardCoins },
               })
             }
           }

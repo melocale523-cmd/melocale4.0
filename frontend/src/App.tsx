@@ -67,6 +67,7 @@ const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 const CheckoutCancel = lazy(() => import('./pages/checkout/CheckoutCancel'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Indicacao = lazy(() => import('./pages/Indicacao'));
+const ConvitePage = lazy(() => import('./pages/ConvitePage'));
 const Termos = lazy(() => import('./pages/Termos'));
 const Privacidade = lazy(() => import('./pages/Privacidade'));
 const Seguranca = lazy(() => import('./pages/Seguranca'));
@@ -236,6 +237,10 @@ const router = createBrowserRouter([
       {
         path: '/profissional/:id/perfil',
         element: <ErrorBoundary><Suspense fallback={<PageLoader />}><PerfilPublico /></Suspense></ErrorBoundary>
+      },
+      {
+        path: '/convite/:code',
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ConvitePage /></Suspense></ErrorBoundary>
       },
       {
         element: <AuthLayout />,
