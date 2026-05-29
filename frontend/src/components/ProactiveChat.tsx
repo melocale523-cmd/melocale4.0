@@ -13,12 +13,12 @@ type Section = 'hero' | 'planos' | 'como-funciona' | null;
 
 function buildMessage(section: Section, city: string): string {
   if (section === 'hero')
-    return `Olá! Posso te ajudar a encontrar um profissional em ${city}?`;
+    return `Profissionais verificados em ${city} estão disponíveis agora. Quer receber orçamentos grátis hoje?`;
   if (section === 'planos')
-    return 'Ficou com dúvida sobre os planos? Posso te ajudar a escolher.';
+    return 'A maioria dos clientes começa pelo plano grátis e já recebe orçamentos no mesmo dia. Posso te ajudar a escolher?';
   if (section === 'como-funciona')
-    return 'Quer saber como o MeloCalé funciona na prática?';
-  return 'Olá! Posso te ajudar com algo?';
+    return 'Em menos de 5 minutos você já pode receber orçamentos de profissionais perto de você. Vamos começar?';
+  return `Ei! Tem profissionais qualificados em ${city} esperando por clientes agora. Posso te ajudar?`;
 }
 
 export default function ProactiveChat({ userCity }: Props) {
