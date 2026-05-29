@@ -121,7 +121,7 @@ router.get('/my-code', requireAuth, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).authUser!.id
   try {
     const { data: profile } = await supabaseAdmin
-      .from('profiles').select('referral_code, role, full_name').eq('id', userId).single()
+      .from('profiles').select('referral_code, role, full_name, avatar_url').eq('id', userId).single()
 
     if (profile?.referral_code) {
       const { data: stats } = await supabaseAdmin
@@ -133,7 +133,9 @@ router.get('/my-code', requireAuth, async (req: Request, res: Response) => {
         credited:   stats?.filter(r => r.status === 'credited').length ?? 0,
       }
       return res.json({
-        code: profile.referral_code, role: profile.role, full_name: profile.full_name, stats: counts,
+        code: profile.referral_code, role: profile.role, full_name: profile.full_name,
+        avatar_url: profile.avatar_url ?? null,
+        stats: counts,
         link: `${process.env.FRONTEND_URL ?? 'https://melocale.com.br'}/convite/${profile.referral_code}`,
       })
     }
@@ -149,6 +151,7 @@ router.get('/my-code', requireAuth, async (req: Request, res: Response) => {
 
     return res.json({
       code, role: profile?.role ?? 'client', full_name: profile?.full_name ?? '',
+      avatar_url: profile?.avatar_url ?? null,
       stats: { total: 0, registered: 0, converted: 0, credited: 0 },
       link: `${process.env.FRONTEND_URL ?? 'https://melocale.com.br'}/convite/${code}`,
     })
