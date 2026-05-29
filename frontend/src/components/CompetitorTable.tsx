@@ -45,43 +45,43 @@ export default function CompetitorTable({ userCity }: Props) {
         <div className="flex flex-col md:flex-row gap-6 mb-12">
 
           {/* Coluna esquerda: 4 cards verticais */}
-          <div className="flex flex-col gap-4 md:w-72 shrink-0">
+          <div className="flex flex-col gap-3 md:w-64 shrink-0">
 
             {/* Card 1 — Profissionais Verificados */}
-            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-5">
+            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-4">
               <span className="absolute top-3 right-3 bg-emerald-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase">✓ Verificado</span>
-              <ShieldCheck size={28} className="text-emerald-400 mb-2" />
-              <p className="text-3xl font-black text-emerald-400">371+</p>
-              <p className="text-slate-400 text-xs">profissionais verificados na Bahia</p>
-              <h3 className="text-white font-bold text-sm mt-2">Profissionais Verificados</h3>
-              <p className="text-[#94A3B8] text-xs mt-1">Verificação de documentos e avaliações reais.</p>
+              <ShieldCheck size={22} className="text-emerald-400 mb-2" />
+              <p className="text-2xl font-black text-emerald-400">371+</p>
+              <p className="text-[11px] text-slate-400">profissionais verificados na Bahia</p>
+              <h3 className="text-white font-bold text-xs mt-2">Profissionais Verificados</h3>
+              <p className="text-[#94A3B8] text-[11px] mt-1">Verificação de documentos e avaliações reais.</p>
             </div>
 
             {/* Card 2 — Atendimento Rápido */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-5">
-              <Zap size={28} className="text-yellow-400 mb-2" />
-              <p className="text-3xl font-black text-yellow-400">{'< 2h'}</p>
-              <p className="text-slate-400 text-xs">tempo médio de resposta</p>
-              <h3 className="text-white font-bold text-sm mt-2">Atendimento Rápido</h3>
-              <p className="text-[#94A3B8] text-xs mt-1">Orçamentos chegam em minutos.</p>
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-4">
+              <Zap size={22} className="text-yellow-400 mb-2" />
+              <p className="text-2xl font-black text-yellow-400">{'< 2h'}</p>
+              <p className="text-[11px] text-slate-400">tempo médio de resposta</p>
+              <h3 className="text-white font-bold text-xs mt-2">Atendimento Rápido</h3>
+              <p className="text-[#94A3B8] text-[11px] mt-1">Orçamentos chegam em minutos.</p>
             </div>
 
             {/* Card 3 — Perto de Você */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-5">
-              <MapPin size={28} className="text-blue-400 mb-2" />
-              <p className="text-3xl font-black text-blue-400 truncate">{userCity}</p>
-              <p className="text-slate-400 text-xs">e região atendida</p>
-              <h3 className="text-white font-bold text-sm mt-2">Perto de Você</h3>
-              <p className="text-[#94A3B8] text-xs mt-1">Profissionais do seu bairro.</p>
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-4">
+              <MapPin size={22} className="text-blue-400 mb-2" />
+              <p className="text-2xl font-black text-blue-400 truncate">{userCity}</p>
+              <p className="text-[11px] text-slate-400">e região atendida</p>
+              <h3 className="text-white font-bold text-xs mt-2">Perto de Você</h3>
+              <p className="text-[#94A3B8] text-[11px] mt-1">Profissionais do seu bairro.</p>
             </div>
 
             {/* Card 4 — Pagamento Seguro */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-5">
-              <CreditCard size={28} className="text-purple-400 mb-2" />
-              <p className="text-3xl font-black text-purple-400">100%</p>
-              <p className="text-slate-400 text-xs">das transações protegidas</p>
-              <h3 className="text-white font-bold text-sm mt-2">Pagamento Seguro</h3>
-              <p className="text-[#94A3B8] text-xs mt-1">Garantia em todas as contratações.</p>
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-4">
+              <CreditCard size={22} className="text-purple-400 mb-2" />
+              <p className="text-2xl font-black text-purple-400">100%</p>
+              <p className="text-[11px] text-slate-400">das transações protegidas</p>
+              <h3 className="text-white font-bold text-xs mt-2">Pagamento Seguro</h3>
+              <p className="text-[#94A3B8] text-[11px] mt-1">Garantia em todas as contratações.</p>
             </div>
 
           </div>
