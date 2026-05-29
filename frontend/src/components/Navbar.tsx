@@ -15,13 +15,16 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuthStore();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const y = window.scrollY;
+      setIsScrolled(y > 20);
+      setPastHero(y > 600);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -94,12 +97,17 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
                 >
                   Entrar
                 </Link>
-                {/* Cadastrar — always visible, compact on mobile */}
+                {/* Cadastrar — sticky CTA aparece após scroll do hero */}
                 <Link
                   to="/login?mode=signup"
-                  className="px-3 py-1.5 md:px-5 md:py-2.5 bg-yellow-400 hover:bg-yellow-500 text-black rounded-xl text-xs md:text-sm font-black transition-all whitespace-nowrap"
+                  className={cn(
+                    'px-3 py-1.5 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-black transition-all whitespace-nowrap',
+                    pastHero
+                      ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/30'
+                      : 'bg-yellow-400 hover:bg-yellow-500 text-black'
+                  )}
                 >
-                  Cadastrar
+                  {pastHero ? 'Cadastrar Grátis' : 'Cadastrar'}
                 </Link>
                 {/* Admin icon — desktop only */}
                 <Link

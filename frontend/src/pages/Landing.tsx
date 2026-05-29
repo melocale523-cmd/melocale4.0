@@ -8,14 +8,52 @@ import FomoNotification from '../components/FomoNotification';
 import EarningsCalculator from '../components/EarningsCalculator';
 import ExitIntentPopup from '../components/ExitIntentPopup';
 import LiveCounter from '../components/LiveCounter';
+import FlashOffer from '../components/FlashOffer';
+import { useUtmParams } from '../hooks/useUtmParams';
 import React, { useState, useEffect } from 'react';
 
 const BANNER_H = 44; // px — height of the countdown banner
+
+async function detectCity(): Promise<string> {
+  const apis = [
+    async () => {
+      const r = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
+      const d = await r.json();
+      return (d.city as string) || null;
+    },
+    async () => {
+      const r = await fetch('https://ip-api.com/json/?fields=city', { signal: AbortSignal.timeout(3000) });
+      const d = await r.json();
+      return (d.city as string) || null;
+    },
+    async () => {
+      const r = await fetch('https://ipinfo.io/json', { signal: AbortSignal.timeout(3000) });
+      const d = await r.json();
+      return (d.city as string) || null;
+    },
+    async () => {
+      const r = await fetch('https://get.geojs.io/v1/ip/geo.json', { signal: AbortSignal.timeout(3000) });
+      const d = await r.json();
+      return (d.city as string) || null;
+    },
+  ];
+
+  for (const api of apis) {
+    try {
+      const city = await api();
+      if (city) return city;
+    } catch {
+      continue;
+    }
+  }
+  return 'sua cidade';
+}
 
 export default function LandingPage() {
   const { isAuthenticated, user } = useAuthStore();
   const role = user?.role;
   const dashboardLink = role === 'admin' ? '/admin/dashboard' : role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
+  const { isProfissional } = useUtmParams();
 
   const [userCity, setUserCity] = useState("sua cidade");
 
@@ -31,10 +69,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('https://ipapi.co/json/')
-      .then(res => res.json())
-      .then(data => { if (!cancelled && data?.city) setUserCity(data.city); })
-      .catch(() => {});
+    detectCity().then(city => { if (!cancelled) setUserCity(city); });
     return () => { cancelled = true; };
   }, []);
 
@@ -70,6 +105,11 @@ export default function LandingPage() {
         </Link>
       </div>
 
+      {/* ── Flash Offer — âmbar, só ativa 18h–22h ou fins de semana ── */}
+      <div className="fixed left-0 right-0 z-[55]" style={{ top: BANNER_H }}>
+        <FlashOffer />
+      </div>
+
       <Navbar topOffset={BANNER_H} />
 
       <main>
@@ -80,60 +120,106 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-16 items-center">
 
             <div className="max-w-2xl">
-              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-6">
-                <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
-              </div>
-              <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
-                Encontre o <br />
-                <span className="text-blue-400">Profissional</span> <br />
-                <span className="text-emerald-500">Certo</span> <br />
-                Perto de Você
-              </h1>
-              <p className="text-lg text-[#94A3B8] mb-10 max-w-xl">
-                Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                <div className="flex flex-col">
-                  <Link
-                    to="/login?mode=signup&role=client"
-                    className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center"
-                  >
-                    Encontrar Profissional em {userCity} →
-                  </Link>
-                  <p className="text-xs text-slate-500 text-center mt-1.5">Grátis • Até 5 orçamentos em minutos</p>
-                </div>
-                <a
-                  href="#como-funciona"
-                  className="bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center self-start"
-                >
-                  Ver Como Funciona
-                </a>
-              </div>
-
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-8">
-                <div>
-                  <div className="flex items-center text-emerald-400 mb-2">
-                    <ShieldCheck size={20} className="mr-2" />
+              {isProfissional ? (
+                /* ── Hero Profissional (utm_content=profissional) ── */
+                <>
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-6">
+                    <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                   </div>
-                  <h3 className="font-bold text-white text-sm">Pagamento 100% Seguro</h3>
-                  <p className="text-xs text-[#4A6580] mt-1">Transações protegidas</p>
-                </div>
-                <div>
-                  <div className="flex items-center text-yellow-500 mb-2">
-                    <Zap size={20} className="mr-2" />
+                  <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
+                    Ganhe mais <br />
+                    com seus <br />
+                    <span className="text-emerald-500">Serviços</span>
+                  </h1>
+                  <p className="text-lg text-[#94A3B8] mb-10 max-w-xl">
+                    Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div className="flex flex-col">
+                      <Link
+                        to="/login?mode=signup&role=professional"
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center"
+                      >
+                        Quero Cadastrar meu Serviço →
+                      </Link>
+                      <p className="text-xs text-slate-500 text-center mt-1.5">Grátis para começar • Sem cartão de crédito</p>
+                    </div>
+                    <a
+                      href="#planos"
+                      className="bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center self-start"
+                    >
+                      Ver Planos
+                    </a>
                   </div>
-                  <h3 className="font-bold text-white text-sm">Respostas em até 24h</h3>
-                  <p className="text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
-                </div>
-                <div>
-                  <div className="flex items-center text-blue-400 mb-2">
-                    <HeartHandshake size={20} className="mr-2" />
+                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-8">
+                    <div>
+                      <div className="flex items-center text-emerald-400 mb-2"><Zap size={20} className="mr-2" /></div>
+                      <h3 className="font-bold text-white text-sm">Leads qualificados</h3>
+                      <p className="text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center text-yellow-500 mb-2"><ShieldCheck size={20} className="mr-2" /></div>
+                      <h3 className="font-bold text-white text-sm">Badge verificado</h3>
+                      <p className="text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={20} className="mr-2" /></div>
+                      <h3 className="font-bold text-white text-sm">Você define os preços</h3>
+                      <p className="text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-white text-sm">Profissionais Verificados</h3>
-                  <p className="text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
-                </div>
-              </div>
+                </>
+              ) : (
+                /* ── Hero Cliente (padrão) ── */
+                <>
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-6">
+                    <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
+                  </div>
+                  <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
+                    Encontre o <br />
+                    <span className="text-blue-400">Profissional</span> <br />
+                    <span className="text-emerald-500">Certo</span> <br />
+                    Perto de Você
+                  </h1>
+                  <p className="text-lg text-[#94A3B8] mb-10 max-w-xl">
+                    Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div className="flex flex-col">
+                      <Link
+                        to="/login?mode=signup&role=client"
+                        className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center"
+                      >
+                        Encontrar Profissional em {userCity} →
+                      </Link>
+                      <p className="text-xs text-slate-500 text-center mt-1.5">Grátis • Até 5 orçamentos em minutos</p>
+                    </div>
+                    <a
+                      href="#como-funciona"
+                      className="bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-lg px-8 py-4 font-bold transition-colors text-center self-start"
+                    >
+                      Ver Como Funciona
+                    </a>
+                  </div>
+                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-8">
+                    <div>
+                      <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={20} className="mr-2" /></div>
+                      <h3 className="font-bold text-white text-sm">Pagamento 100% Seguro</h3>
+                      <p className="text-xs text-[#4A6580] mt-1">Transações protegidas</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center text-yellow-500 mb-2"><Zap size={20} className="mr-2" /></div>
+                      <h3 className="font-bold text-white text-sm">Respostas em até 24h</h3>
+                      <p className="text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={20} className="mr-2" /></div>
+                      <h3 className="font-bold text-white text-sm">Profissionais Verificados</h3>
+                      <p className="text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="space-y-6">
