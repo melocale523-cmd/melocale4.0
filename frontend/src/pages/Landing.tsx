@@ -6,6 +6,8 @@ import Footer from '../components/Footer';
 import StickyCtaMobile from '../components/StickyCtaMobile';
 import FomoNotification from '../components/FomoNotification';
 import EarningsCalculator from '../components/EarningsCalculator';
+import ExitIntentPopup from '../components/ExitIntentPopup';
+import LiveCounter from '../components/LiveCounter';
 import React, { useState, useEffect } from 'react';
 
 const BANNER_H = 44; // px — height of the countdown banner
@@ -189,6 +191,9 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Live Counter */}
+        <LiveCounter userCity={userCity} />
+
         {/* ── Prova Social — Stats + Depoimentos ── */}
         <section className="py-20 bg-[#0B1729] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -347,6 +352,32 @@ export default function LandingPage() {
               </div>
             </div>
 
+
+            {/* Ancoragem de preço psicológica */}
+            <div className="max-w-4xl mx-auto mb-12 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 overflow-x-auto sm:overflow-visible">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+                <span className="text-3xl">☕</span>
+                <div>
+                  <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que 1 café por dia</p>
+                  <p className="text-slate-400 text-xs mt-0.5">R$37/mês = R$1,23/dia</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+                <span className="text-3xl">🍕</span>
+                <div>
+                  <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que uma pizza</p>
+                  <p className="text-slate-400 text-xs mt-0.5">Por mês você acessa clientes ilimitados</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+                <span className="text-3xl">💡</span>
+                <div>
+                  <p className="text-emerald-300 font-bold text-sm leading-tight">1 cliente já paga 7 meses</p>
+                  <p className="text-slate-400 text-xs mt-0.5">Um serviço de R$500 cobre o plano PRO por 7 meses</p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid lg:grid-cols-4 gap-6 text-left max-w-6xl mx-auto mb-16">
 
               {/* GRATUITO */}
@@ -475,6 +506,7 @@ export default function LandingPage() {
       {/* ── Global conversion widgets ── */}
       <StickyCtaMobile vagasPro={vagas.pro} userCity={userCity} />
       <FomoNotification />
+      <ExitIntentPopup />
     </div>
   );
 }
