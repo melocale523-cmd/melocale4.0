@@ -194,6 +194,63 @@ html:not(.dark) span.text-\[\#4A6580\] {
   font-weight: 500 !important;
 }
 
+/* ── Range slider cross-browser thumb ── */
+input[type='range'].earnings-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+}
+input[type='range'].earnings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2.5px solid #10b981;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  transition: transform 0.1s;
+}
+input[type='range'].earnings-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type='range'].earnings-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2.5px solid #10b981;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+/* ── FOMO notification slide animations ── */
+@keyframes fomo-in {
+  from { transform: translateX(-110%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes fomo-out {
+  from { transform: translateX(0);     opacity: 1; }
+  to   { transform: translateX(-110%); opacity: 0; }
+}
+.fomo-in  { animation: fomo-in  0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.fomo-out { animation: fomo-out 0.32s ease-in forwards; }
+
+/* ── Sticky CTA pulse ── */
+@keyframes sticky-cta-pulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(250,204,21,0.35); }
+  50%       { box-shadow: 0 4px 36px rgba(250,204,21,0.65); }
+}
+.sticky-cta-pulse { animation: sticky-cta-pulse 2s ease-in-out infinite; }
+
+/* ── Number pop (EarningsCalculator) ── */
+@keyframes number-pop {
+  0%   { transform: scale(0.88); opacity: 0.5; }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1);    opacity: 1;   }
+}
+.number-pop { animation: number-pop 0.22s ease-out; }
+
 /* Indicações nav item — gentle golden pulse on the whole row */
 @keyframes indicacoes-glow {
   0%, 100% {

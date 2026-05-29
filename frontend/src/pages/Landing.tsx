@@ -1,9 +1,11 @@
-import { Search, MapPin, Building2, Zap, ShieldCheck, HeartHandshake, Star } from 'lucide-react';
+import { MapPin, Building2, Zap, ShieldCheck, HeartHandshake, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '../lib/utils';
 import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import StickyCtaMobile from '../components/StickyCtaMobile';
+import FomoNotification from '../components/FomoNotification';
+import EarningsCalculator from '../components/EarningsCalculator';
 import React, { useState, useEffect } from 'react';
 
 const BANNER_H = 44; // px — height of the countdown banner
@@ -279,6 +281,9 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ── Calculadora de Ganhos ── */}
+        <EarningsCalculator />
+
         {/* ── Why choose us ── */}
         <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -466,6 +471,10 @@ export default function LandingPage() {
       </main>
 
       <Footer />
+
+      {/* ── Global conversion widgets ── */}
+      <StickyCtaMobile vagasPro={vagas.pro} userCity={userCity} />
+      <FomoNotification />
     </div>
   );
 }
