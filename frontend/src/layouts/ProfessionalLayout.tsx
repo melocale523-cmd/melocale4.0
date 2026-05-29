@@ -124,6 +124,14 @@ export default function ProfessionalLayout() {
                     {unreadCount}
                   </span>
                 )}
+                {item.name === 'Indicações' && (
+                  <span className="ml-auto relative flex items-center shrink-0">
+                    <span className="absolute inset-0 rounded-full bg-yellow-400 opacity-60 animate-ping" />
+                    <span className="relative flex items-center gap-0.5 bg-yellow-400/15 border border-yellow-400/40 rounded-full px-2 py-0.5 animate-pulse">
+                      <span className="badge-shimmer text-[9px] font-black tracking-wide whitespace-nowrap">+60 moedas</span>
+                    </span>
+                  </span>
+                )}
               </Link>
             )
           })}
@@ -174,6 +182,14 @@ export default function ProfessionalLayout() {
                     {item.name === 'Mensagens' && (unreadCount ?? 0) > 0 && (
                       <span className="ml-auto bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                         {unreadCount}
+                      </span>
+                    )}
+                    {item.name === 'Indicações' && (
+                      <span className="ml-auto relative flex items-center shrink-0">
+                        <span className="absolute inset-0 rounded-full bg-yellow-400 opacity-60 animate-ping" />
+                        <span className="relative flex items-center gap-0.5 bg-yellow-400/15 border border-yellow-400/40 rounded-full px-2 py-0.5 animate-pulse">
+                          <span className="badge-shimmer text-[9px] font-black tracking-wide whitespace-nowrap">+60 moedas</span>
+                        </span>
                       </span>
                     )}
                   </Link>

@@ -193,3 +193,17 @@ html:not(.dark) span.text-\[\#4A6580\] {
   color: rgba(255,255,255,0.88) !important;
   font-weight: 500 !important;
 }
+
+/* Indicações badge shimmer */
+@keyframes badge-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.badge-shimmer {
+  background: linear-gradient(90deg, #fbbf24 0%, #fef08a 40%, #f59e0b 60%, #fbbf24 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: badge-shimmer 2s linear infinite;
+}
