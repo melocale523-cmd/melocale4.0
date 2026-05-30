@@ -90,7 +90,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Subtítulo da tabela */}
-            <div className="mb-3 md:pt-16">
+            <div className="mb-3 md:pt-6">
               <h3 className="text-xl font-bold text-white mb-1">
                 MeloCalé vs <span className="text-slate-400">Concorrentes</span>
               </h3>
