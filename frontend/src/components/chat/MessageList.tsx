@@ -71,7 +71,8 @@ export function MessageList({
         </div>
       ) : messages && messages.length > 0 ? (
         messages.map((msg) => {
-          const mine = msg.sender_type === role;
+          const isAi = msg.sender_type === 'ai';
+          const mine = !isAi && msg.sender_type === role;
           return (
             <div
               key={msg.id}
@@ -80,10 +81,17 @@ export function MessageList({
                 mine ? 'ml-auto items-end' : 'mr-auto items-start',
               )}
             >
+              {isAi && (
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 ml-1">
+                  🤖 Assistente MeloCalé
+                </span>
+              )}
               <div className={cn(
                 'p-4 rounded-2xl text-[13px] leading-relaxed relative shadow-lg',
                 mine
                   ? 'bg-emerald-600 text-white rounded-tr-sm'
+                  : isAi
+                  ? 'bg-slate-700/80 text-slate-200 border border-slate-600/50 rounded-tl-sm italic'
                   : 'bg-[#1C3454] text-slate-200 border border-[#1C3050] rounded-tl-sm hover:border-emerald-500/30 transition-colors',
               )}>
                 {renderMessageContent(msg)}
