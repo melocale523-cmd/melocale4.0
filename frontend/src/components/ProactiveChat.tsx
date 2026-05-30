@@ -73,7 +73,7 @@ export default function ProactiveChat({ userCity }: Props) {
 
   return (
     <div
-      className="fixed bottom-6 right-4 z-[90] w-80 max-w-[calc(100vw-2rem)] animate-slide-up"
+      className="fixed bottom-20 right-3 z-[85] w-72 max-w-[calc(100vw-1.5rem)] animate-slide-up"
       style={{ animation: 'slideUp 0.4s ease-out forwards' }}
     >
       <style>{`

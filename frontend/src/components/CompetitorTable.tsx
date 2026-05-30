@@ -28,14 +28,14 @@ function Check({ ok }: { ok: boolean }) {
 
 export default function CompetitorTable({ userCity }: Props) {
   return (
-    <section id="como-funciona" className="py-24 bg-[#0B1729] border-t border-slate-800/50">
+    <section id="como-funciona" className="py-10 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Container principal: cards à esquerda + tabela à direita */}
-        <div className="flex flex-col md:flex-row gap-6 mb-12 md:items-start">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-8 md:mb-12 md:items-start">
 
           {/* Coluna esquerda: 4 cards verticais */}
-          <div className="flex flex-col gap-2 md:w-56 shrink-0">
+          <div className="flex flex-col gap-2 md:w-56 shrink-0 order-2 md:order-1">
 
             {/* Card 1 — Profissionais Verificados */}
             <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-3 flex flex-col">
@@ -77,14 +77,14 @@ export default function CompetitorTable({ userCity }: Props) {
           </div>
 
           {/* Coluna direita: título grande + tabela comparativa */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 order-1 md:order-2">
 
             {/* Título grande */}
             <div className="mb-6">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
                 Por que escolher o <span className="text-emerald-400">MeloCalé</span>?
               </h2>
-              <p className="text-[#94A3B8] text-lg">
+              <p className="text-[#94A3B8] text-base md:text-lg">
                 A plataforma feita para o interior da Bahia — compare e veja a diferença.
               </p>
             </div>
