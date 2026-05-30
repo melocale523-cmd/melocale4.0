@@ -28,14 +28,14 @@ function Check({ ok }: { ok: boolean }) {
 
 export default function CompetitorTable({ userCity }: Props) {
   return (
-    <section id="como-funciona" className="py-10 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
+    <section id="como-funciona" className="pt-6 pb-10 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Container principal: cards à esquerda + tabela à direita */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-8 md:mb-12 md:items-start">
 
           {/* Coluna esquerda: 4 cards verticais */}
-          <div className="grid grid-cols-2 gap-2 md:flex md:flex-col md:gap-2 md:w-56 shrink-0 order-2 md:order-1">
+          <div className="hidden md:flex flex-col gap-2 md:w-56 shrink-0 md:order-1">
 
             {/* Card 1 — Profissionais Verificados */}
             <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-2 md:p-3 flex flex-col">
@@ -81,12 +81,41 @@ export default function CompetitorTable({ userCity }: Props) {
 
             {/* Título grande */}
             <div className="mb-6">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
+              <h2 className="text-3xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
                 Por que escolher o <span className="text-emerald-400">MeloCalé</span>?
               </h2>
               <p className="text-[#94A3B8] text-base md:text-lg">
                 A plataforma feita para o interior da Bahia — compare e veja a diferença.
               </p>
+            </div>
+
+            {/* Cards 2x2 — apenas mobile */}
+            <div className="grid grid-cols-2 gap-2 mb-4 md:hidden">
+              <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-2 flex flex-col">
+                <span className="absolute top-2 right-2 bg-emerald-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">✓</span>
+                <ShieldCheck size={16} className="text-emerald-400 mb-1" />
+                <p className="text-base font-black text-emerald-400">371+</p>
+                <p className="text-[10px] text-slate-400">verificados na Bahia</p>
+                <h3 className="text-white font-bold text-[11px] mt-1">Profissionais Verificados</h3>
+              </div>
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col">
+                <Zap size={16} className="text-yellow-400 mb-1" />
+                <p className="text-base font-black text-yellow-400">{'< 2h'}</p>
+                <p className="text-[10px] text-slate-400">tempo de resposta</p>
+                <h3 className="text-white font-bold text-[11px] mt-1">Atendimento Rápido</h3>
+              </div>
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col">
+                <MapPin size={16} className="text-blue-400 mb-1" />
+                <p className="text-base font-black text-blue-400 truncate">{userCity}</p>
+                <p className="text-[10px] text-slate-400">e região atendida</p>
+                <h3 className="text-white font-bold text-[11px] mt-1">Perto de Você</h3>
+              </div>
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col">
+                <CreditCard size={16} className="text-purple-400 mb-1" />
+                <p className="text-base font-black text-purple-400">100%</p>
+                <p className="text-[10px] text-slate-400">transações protegidas</p>
+                <h3 className="text-white font-bold text-[11px] mt-1">Pagamento Seguro</h3>
+              </div>
             </div>
 
             {/* Subtítulo da tabela */}
