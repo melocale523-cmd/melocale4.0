@@ -35,10 +35,10 @@ export default function CompetitorTable({ userCity }: Props) {
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-8 md:mb-12 md:items-start">
 
           {/* Coluna esquerda: 4 cards verticais */}
-          <div className="flex flex-col gap-2 md:w-56 shrink-0 order-2 md:order-1">
+          <div className="grid grid-cols-2 gap-2 md:flex md:flex-col md:gap-2 md:w-56 shrink-0 order-2 md:order-1">
 
             {/* Card 1 — Profissionais Verificados */}
-            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-3 flex flex-col">
+            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-2 md:p-3 flex flex-col">
               <span className="absolute top-3 right-3 bg-emerald-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase">✓ Verificado</span>
               <ShieldCheck size={18} className="text-emerald-400 mb-1" />
               <p className="text-lg font-black text-emerald-400">371+</p>
@@ -48,7 +48,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 2 — Atendimento Rápido */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex flex-col">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 md:p-3 flex flex-col">
               <Zap size={18} className="text-yellow-400 mb-1" />
               <p className="text-lg font-black text-yellow-400">{'< 2h'}</p>
               <p className="text-[11px] text-slate-400">tempo médio de resposta</p>
@@ -57,7 +57,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 3 — Perto de Você */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex flex-col">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 md:p-3 flex flex-col">
               <MapPin size={18} className="text-blue-400 mb-1" />
               <p className="text-lg font-black text-blue-400 truncate">{userCity}</p>
               <p className="text-[11px] text-slate-400">e região atendida</p>
@@ -66,7 +66,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 4 — Pagamento Seguro */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex flex-col">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 md:p-3 flex flex-col">
               <CreditCard size={18} className="text-purple-400 mb-1" />
               <p className="text-lg font-black text-purple-400">100%</p>
               <p className="text-[11px] text-slate-400">das transações protegidas</p>
