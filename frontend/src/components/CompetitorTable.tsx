@@ -93,28 +93,28 @@ export default function CompetitorTable({ userCity }: Props) {
             <div className="grid grid-cols-2 gap-2 mb-4 md:hidden">
               <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
                 <span className="absolute top-2 right-2 bg-emerald-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">✓</span>
-                <ShieldCheck size={16} className="text-emerald-400 mb-1" />
+                <ShieldCheck size={16} className="text-emerald-400 mb-1 shrink-0" />
                 <p className="text-base font-black text-emerald-400 truncate">371+</p>
-                <p className="text-[10px] text-slate-400">verificados na Bahia</p>
-                <h3 className="text-white font-bold text-[11px] mt-1">Profissionais Verificados</h3>
+                <p className="text-[10px] text-slate-400 truncate">verificados na Bahia</p>
+                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Prof. Verificados</h3>
               </div>
               <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
-                <Zap size={16} className="text-yellow-400 mb-1" />
+                <Zap size={16} className="text-yellow-400 mb-1 shrink-0" />
                 <p className="text-base font-black text-yellow-400 truncate">{'< 2h'}</p>
-                <p className="text-[10px] text-slate-400">tempo de resposta</p>
-                <h3 className="text-white font-bold text-[11px] mt-1">Atendimento Rápido</h3>
+                <p className="text-[10px] text-slate-400 truncate">tempo de resposta</p>
+                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Atendimento Rápido</h3>
               </div>
               <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
-                <MapPin size={16} className="text-blue-400 mb-1" />
+                <MapPin size={16} className="text-blue-400 mb-1 shrink-0" />
                 <p className="text-base font-black text-blue-400 truncate">{userCity}</p>
-                <p className="text-[10px] text-slate-400">e região atendida</p>
-                <h3 className="text-white font-bold text-[11px] mt-1">Perto de Você</h3>
+                <p className="text-[10px] text-slate-400 truncate">e região atendida</p>
+                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Perto de Você</h3>
               </div>
               <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
-                <CreditCard size={16} className="text-purple-400 mb-1" />
+                <CreditCard size={16} className="text-purple-400 mb-1 shrink-0" />
                 <p className="text-base font-black text-purple-400 truncate">100%</p>
-                <p className="text-[10px] text-slate-400">transações protegidas</p>
-                <h3 className="text-white font-bold text-[11px] mt-1">Pagamento Seguro</h3>
+                <p className="text-[10px] text-slate-400 truncate">transações protegidas</p>
+                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Pagamento Seguro</h3>
               </div>
             </div>
 

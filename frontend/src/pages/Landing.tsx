@@ -164,10 +164,10 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-32 pb-32 overflow-hidden">
+        <section id="hero" className="relative pt-32 pb-10 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-16 items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 
             <div className="max-w-2xl">
               {isProfissional ? (
@@ -202,21 +202,21 @@ export default function LandingPage() {
                       Ver Planos
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-8">
+                  <div className="grid grid-cols-3 gap-2 md:gap-6 pt-8 border-t border-slate-800 mt-8">
                     <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><Zap size={20} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-sm">Leads qualificados</h3>
-                      <p className="text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
+                      <div className="flex items-center text-emerald-400 mb-2"><Zap size={16} className="mr-1 md:mr-2" /></div>
+                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
+                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><ShieldCheck size={20} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-sm">Badge verificado</h3>
-                      <p className="text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
+                      <div className="flex items-center text-yellow-500 mb-2"><ShieldCheck size={16} className="mr-1 md:mr-2" /></div>
+                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Badge verificado</h3>
+                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={20} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-sm">Você define os preços</h3>
-                      <p className="text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
+                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-1 md:mr-2" /></div>
+                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Você define os preços</h3>
+                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
                     </div>
                   </div>
                 </>
@@ -264,21 +264,21 @@ export default function LandingPage() {
                       Ver Como Funciona
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-8">
+                  <div className="grid grid-cols-3 gap-2 md:gap-6 pt-8 border-t border-slate-800 mt-8">
                     <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={20} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-sm">Pagamento 100% Seguro</h3>
-                      <p className="text-xs text-[#4A6580] mt-1">Transações protegidas</p>
+                      <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-1 md:mr-2" /></div>
+                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
+                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Transações protegidas</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><Zap size={20} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-sm">Respostas em até 24h</h3>
-                      <p className="text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
+                      <div className="flex items-center text-yellow-500 mb-2"><Zap size={16} className="mr-1 md:mr-2" /></div>
+                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
+                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={20} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-sm">Profissionais Verificados</h3>
-                      <p className="text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
+                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-1 md:mr-2" /></div>
+                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
+                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
                     </div>
                   </div>
                 </>
@@ -534,7 +534,7 @@ export default function LandingPage() {
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-5 sm:p-8 flex flex-col relative opacity-85 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-5 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-6">
                   <div className="inline-block px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">Starter</div>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -593,7 +593,7 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-5 sm:p-8 flex flex-col relative opacity-85 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-5 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-6">
                   <div className="inline-block px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">🏆 Elite</div>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
