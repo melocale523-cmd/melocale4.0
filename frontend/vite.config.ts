@@ -57,7 +57,6 @@ export default defineConfig(({ mode }) => {
             if (id.includes('lucide-react')) return 'vendor-icons';
             if (id.includes('sonner')) return 'vendor-toast';
             if (id.includes('recharts') || id.includes('victory')) return 'vendor-charts';
-            if (id.includes('motion') || id.includes('framer')) return 'vendor-motion';
             if (id.includes('firebase')) return 'vendor-firebase';
             if (id.includes('clsx') || id.includes('tailwind-merge')) return 'vendor-ui';
           },

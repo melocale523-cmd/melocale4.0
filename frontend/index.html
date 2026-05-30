@@ -18,6 +18,13 @@
     <link rel="dns-prefetch" href="//ip-api.com" />
     <link rel="dns-prefetch" href="//ipinfo.io" />
     <link rel="dns-prefetch" href="//get.geojs.io" />
+    <style>
+      /* Critical CSS inline — evita FOUC no hero */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body { background-color: #0E1C32; color: #e2e8f0; font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+      #root { min-height: 100vh; }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
