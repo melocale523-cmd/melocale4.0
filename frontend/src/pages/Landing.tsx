@@ -337,7 +337,7 @@ export default function LandingPage() {
         <CategoryGrid userCity={userCity} />
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
-        <section className="py-20 bg-[#0B1729] border-t border-slate-800/50">
+        <section className="pt-20 pb-10 bg-[#0B1729] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Stats */}
@@ -427,7 +427,7 @@ export default function LandingPage() {
             </div>
 
             {/* CTA pós-depoimentos */}
-            <div className="mt-12 text-center">
+            <div className="mt-8 text-center">
               <p className="text-slate-400 text-sm mb-4">
                 Junte-se a <strong className="text-white">371+ profissionais</strong> e <strong className="text-white">1.200+ clientes</strong> que já usam o MeloCalé
               </p>
