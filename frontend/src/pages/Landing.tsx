@@ -4,15 +4,16 @@ import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import StickyCtaMobile from '../components/StickyCtaMobile';
-import FomoNotification from '../components/FomoNotification';
-import EarningsCalculator from '../components/EarningsCalculator';
-import ExitIntentPopup from '../components/ExitIntentPopup';
 import LiveCounter from '../components/LiveCounter';
-import CompetitorTable from '../components/CompetitorTable';
-import CategoryGrid from '../components/CategoryGrid';
-import ProactiveChat from '../components/ProactiveChat';
 import { useUtmParams } from '../hooks/useUtmParams';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+
+const EarningsCalculator = lazy(() => import('../components/EarningsCalculator'));
+const CompetitorTable    = lazy(() => import('../components/CompetitorTable'));
+const CategoryGrid       = lazy(() => import('../components/CategoryGrid'));
+const FomoNotification   = lazy(() => import('../components/FomoNotification'));
+const ExitIntentPopup    = lazy(() => import('../components/ExitIntentPopup'));
+const ProactiveChat      = lazy(() => import('../components/ProactiveChat'));
 
 const BANNER_H = 44; // px — height of the countdown banner
 
@@ -95,10 +96,22 @@ export default function LandingPage() {
     elite:   3 + Math.floor(Math.random() * 5),
   }));
 
+  const [showConversionWidgets, setShowConversionWidgets] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
-    detectCity().then(city => { if (!cancelled) setUserCity(city); });
-    return () => { cancelled = true; };
+    const delay = setTimeout(() => {
+      detectCity().then(city => { if (!cancelled) setUserCity(city); });
+    }, 1500);
+    return () => {
+      cancelled = true;
+      clearTimeout(delay);
+    };
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowConversionWidgets(true), 3000);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -328,13 +341,13 @@ export default function LandingPage() {
         </section>
 
         {/* ── EarningsCalculator condicional (profissional) ── */}
-        {isProfissional && <EarningsCalculator />}
+        {isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
         {/* Live Counter */}
         <LiveCounter userCity={userCity} />
 
         {/* ── Categorias de serviços ── */}
-        <CategoryGrid userCity={userCity} />
+        <Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense>
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
         <section className="pt-20 pb-10 bg-[#0B1729] border-t border-slate-800/50">
@@ -443,10 +456,10 @@ export default function LandingPage() {
         </section>
 
         {/* ── Calculadora de Ganhos (clientes) ── */}
-        {!isProfissional && <EarningsCalculator />}
+        {!isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
         {/* ── Por que escolher + Comparativo com concorrentes ── */}
-        <CompetitorTable userCity={userCity} />
+        <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
         {/* ── Pricing ── */}
         <section id="planos" className="pt-16 pb-24 bg-[#0E1C32] border-t border-slate-800/50">
@@ -626,9 +639,13 @@ export default function LandingPage() {
 
       {/* ── Global conversion widgets ── */}
       <StickyCtaMobile vagasPro={vagas.pro} userCity={userCity} />
-      <FomoNotification />
-      <ExitIntentPopup />
-      <ProactiveChat userCity={userCity} />
+      {showConversionWidgets && (
+        <>
+          <Suspense fallback={null}><FomoNotification /></Suspense>
+          <Suspense fallback={null}><ExitIntentPopup /></Suspense>
+          <Suspense fallback={null}><ProactiveChat userCity={userCity} /></Suspense>
+        </>
+      )}
     </div>
   );
 }
