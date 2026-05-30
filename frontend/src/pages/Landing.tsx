@@ -288,7 +288,7 @@ export default function LandingPage() {
             <div className="space-y-6">
               {/* Pro card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-6 opacity-10 text-emerald-500"><Building2 size={100} /></div>
+                <div className="hidden sm:block absolute top-0 right-0 p-6 opacity-10 text-emerald-500"><Building2 size={100} /></div>
                 <div className="relative z-10">
                   <div className="bg-emerald-500/20 w-12 h-12 rounded-xl flex items-center justify-center text-emerald-500 mb-6">
                     <BriefcaseIcon size={24} />
@@ -313,7 +313,7 @@ export default function LandingPage() {
 
               {/* Client card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-6 opacity-10 text-blue-500"><UserIcon size={100} /></div>
+                <div className="hidden sm:block absolute top-0 right-0 p-6 opacity-10 text-blue-500"><UserIcon size={100} /></div>
                 <div className="relative z-10">
                   <div className="bg-blue-500/20 w-12 h-12 rounded-xl flex items-center justify-center text-blue-400 mb-6">
                     <UserIcon size={24} />
@@ -488,22 +488,22 @@ export default function LandingPage() {
 
 
             {/* Ancoragem de preço psicológica */}
-            <div className="max-w-4xl mx-auto mb-12 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 overflow-x-auto sm:overflow-visible">
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+            <div className="max-w-4xl mx-auto mb-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">☕</span>
                 <div>
                   <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que 1 café por dia</p>
                   <p className="text-slate-400 text-xs mt-0.5">R$37/mês = R$1,23/dia</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">🍕</span>
                 <div>
                   <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que uma pizza</p>
                   <p className="text-slate-400 text-xs mt-0.5">Por mês você acessa clientes ilimitados</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 shrink-0">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">💡</span>
                 <div>
                   <p className="text-emerald-300 font-bold text-sm leading-tight">1 cliente já paga 7 meses</p>
@@ -561,7 +561,7 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-5 sm:p-8 flex flex-col relative transform scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-5 sm:p-8 flex flex-col relative mt-6 md:mt-0 md:transform md:scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>

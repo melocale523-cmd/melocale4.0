@@ -28,7 +28,7 @@ function Check({ ok }: { ok: boolean }) {
 
 export default function CompetitorTable({ userCity }: Props) {
   return (
-    <section id="como-funciona" className="pt-6 pb-10 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
+    <section id="como-funciona" className="pt-6 pb-10 md:py-24 bg-[#0B1729] border-t border-slate-800/50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Container principal: cards à esquerda + tabela à direita */}
@@ -91,28 +91,28 @@ export default function CompetitorTable({ userCity }: Props) {
 
             {/* Cards 2x2 — apenas mobile */}
             <div className="grid grid-cols-2 gap-2 mb-4 md:hidden">
-              <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-2 flex flex-col">
+              <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
                 <span className="absolute top-2 right-2 bg-emerald-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">✓</span>
                 <ShieldCheck size={16} className="text-emerald-400 mb-1" />
-                <p className="text-base font-black text-emerald-400">371+</p>
+                <p className="text-base font-black text-emerald-400 truncate">371+</p>
                 <p className="text-[10px] text-slate-400">verificados na Bahia</p>
                 <h3 className="text-white font-bold text-[11px] mt-1">Profissionais Verificados</h3>
               </div>
-              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col">
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
                 <Zap size={16} className="text-yellow-400 mb-1" />
-                <p className="text-base font-black text-yellow-400">{'< 2h'}</p>
+                <p className="text-base font-black text-yellow-400 truncate">{'< 2h'}</p>
                 <p className="text-[10px] text-slate-400">tempo de resposta</p>
                 <h3 className="text-white font-bold text-[11px] mt-1">Atendimento Rápido</h3>
               </div>
-              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col">
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
                 <MapPin size={16} className="text-blue-400 mb-1" />
                 <p className="text-base font-black text-blue-400 truncate">{userCity}</p>
                 <p className="text-[10px] text-slate-400">e região atendida</p>
                 <h3 className="text-white font-bold text-[11px] mt-1">Perto de Você</h3>
               </div>
-              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col">
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
                 <CreditCard size={16} className="text-purple-400 mb-1" />
-                <p className="text-base font-black text-purple-400">100%</p>
+                <p className="text-base font-black text-purple-400 truncate">100%</p>
                 <p className="text-[10px] text-slate-400">transações protegidas</p>
                 <h3 className="text-white font-bold text-[11px] mt-1">Pagamento Seguro</h3>
               </div>
