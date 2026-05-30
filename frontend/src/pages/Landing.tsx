@@ -22,7 +22,21 @@ function isFlashTime(): boolean {
   return day === 0 || day === 6 || (hour >= 18 && hour < 22);
 }
 
+const CITY_CACHE_KEY = 'melocale_user_city';
+const CITY_CACHE_TTL = 30 * 60 * 1000;
+
 async function detectCity(): Promise<string> {
+  // Serve from cache if still fresh
+  try {
+    const cached = sessionStorage.getItem(CITY_CACHE_KEY);
+    if (cached) {
+      const { city, ts } = JSON.parse(cached);
+      if (city && Date.now() - ts < CITY_CACHE_TTL) return city;
+    }
+  } catch {
+    sessionStorage.removeItem(CITY_CACHE_KEY);
+  }
+
   const apis = [
     async () => {
       const r = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
@@ -49,7 +63,12 @@ async function detectCity(): Promise<string> {
   for (const api of apis) {
     try {
       const city = await api();
-      if (city) return city;
+      if (city) {
+        const payload = JSON.stringify({ city, ts: Date.now() });
+        sessionStorage.setItem(CITY_CACHE_KEY, payload);
+        sessionStorage.setItem('user_city', city);
+        return city;
+      }
     } catch {
       continue;
     }
