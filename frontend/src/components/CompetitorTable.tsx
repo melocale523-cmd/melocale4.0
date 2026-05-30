@@ -80,7 +80,7 @@ export default function CompetitorTable({ userCity }: Props) {
           <div className="flex-1 min-w-0 order-1 md:order-2">
 
             {/* Título grande */}
-            <div className="mb-6">
+            <div className="mb-6 text-center">
               <h2 className="text-3xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
                 Por que escolher o <span className="text-emerald-400">MeloCalé</span>?
               </h2>
@@ -119,7 +119,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Subtítulo da tabela */}
-            <div className="mb-3 md:pt-6">
+            <div className="mb-3 md:pt-6 text-center">
               <h3 className="text-xl font-bold text-white mb-1">
                 MeloCalé vs <span className="text-slate-400">Concorrentes</span>
               </h3>
