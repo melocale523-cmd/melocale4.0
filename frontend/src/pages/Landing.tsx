@@ -9,6 +9,7 @@ import EarningsCalculator from '../components/EarningsCalculator';
 import ExitIntentPopup from '../components/ExitIntentPopup';
 import LiveCounter from '../components/LiveCounter';
 import CompetitorTable from '../components/CompetitorTable';
+import CategoryGrid from '../components/CategoryGrid';
 import ProactiveChat from '../components/ProactiveChat';
 import { useUtmParams } from '../hooks/useUtmParams';
 import React, { useState, useEffect } from 'react';
@@ -434,6 +435,9 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ── Categorias de serviços ── */}
+        <CategoryGrid userCity={userCity} />
+
         {/* ── Calculadora de Ganhos ── */}
         <EarningsCalculator />
 
@@ -493,7 +497,7 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-4 gap-6 text-left max-w-6xl mx-auto mb-16">
 
               {/* GRATUITO */}
-              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-8 flex flex-col">
+              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 sm:p-8 flex flex-col">
                 <div className="mb-6">
                   <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -506,13 +510,13 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
-                  <li className="flex items-start gap-2 text-[#4A6580] text-sm line-through"><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Desconto em moedas</li>
-                  <li className="flex items-start gap-2 text-[#4A6580] text-sm line-through"><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Badge verificado</li>
+                  <li className="hidden sm:flex items-start gap-2 text-[#4A6580] text-sm line-through"><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Desconto em moedas</li>
+                  <li className="hidden sm:flex items-start gap-2 text-[#4A6580] text-sm line-through"><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Badge verificado</li>
                 </ul>
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-8 flex flex-col relative">
+              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-5 sm:p-8 flex flex-col relative">
                 <div className="mb-6">
                   <div className="inline-block px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">Starter</div>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -530,8 +534,8 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
-                  <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
-                  <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
                 </ul>
                 <div className="mt-6 bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
                   <p className="text-blue-300 text-xs text-center">Pacote R$59,90 → <strong>R$44,93</strong> com Starter</p>
@@ -539,7 +543,7 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-8 flex flex-col relative transform scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-5 sm:p-8 flex flex-col relative transform scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
@@ -560,9 +564,9 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
-                  <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Moedas nunca expiram</li>
-                  <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
-                  <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Moedas nunca expiram</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
                 </ul>
                 <div className="mt-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
                   <p className="text-emerald-300 text-xs text-center">Pacote R$59,90 → <strong>R$35,94</strong> com PRO</p>
@@ -571,7 +575,7 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-8 flex flex-col relative">
+              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-5 sm:p-8 flex flex-col relative">
                 <div className="mb-6">
                   <div className="inline-block px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">🏆 Elite</div>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -589,9 +593,9 @@ export default function LandingPage() {
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
-                  <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Até 3 profissionais na conta</li>
-                  <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
-                  <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Até 3 profissionais na conta</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
                 </ul>
                 <div className="mt-6 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
                   <p className="text-yellow-300 text-xs text-center">Pacote R$119,90 → <strong>R$53,96</strong> com Elite</p>
