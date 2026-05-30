@@ -217,9 +217,21 @@ export default function LandingPage() {
                     <span className="text-emerald-500">Certo</span> <br />
                     Perto de Você
                   </h1>
-                  <p className="text-lg text-[#94A3B8] mb-10 max-w-xl">
+                  <p className="text-lg text-[#94A3B8] mb-6 max-w-xl">
                     Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
                   </p>
+
+                  {/* CTA mobile — acima da dobra */}
+                  <div className="flex flex-col sm:hidden gap-3 mt-2 mb-4">
+                    <Link
+                      to="/login?mode=signup"
+                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-2xl text-base text-center shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
+                    >
+                      {isProfissional ? 'Quero Receber Clientes Agora →' : `Encontrar Profissional em ${userCity} →`}
+                    </Link>
+                    <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-4 mb-4">
                     <div className="flex flex-col">
                       <Link
@@ -404,6 +416,20 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* CTA pós-depoimentos */}
+            <div className="mt-12 text-center">
+              <p className="text-slate-400 text-sm mb-4">
+                Junte-se a <strong className="text-white">371+ profissionais</strong> e <strong className="text-white">1.200+ clientes</strong> que já usam o MeloCalé
+              </p>
+              <Link
+                to="/login?mode=signup"
+                className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 py-4 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
+              >
+                {isProfissional ? 'Quero Receber Clientes Agora →' : 'Quero Encontrar um Profissional →'}
+              </Link>
+              <p className="text-[11px] text-slate-500 mt-3">✓ Cadastro grátis • ✓ Sem cartão de crédito</p>
             </div>
           </div>
         </section>
