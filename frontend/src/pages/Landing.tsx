@@ -232,7 +232,7 @@ export default function LandingPage() {
                     <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                  <div className="hidden sm:flex flex-col sm:flex-row gap-4 mb-4">
                     <div className="flex flex-col">
                       <Link
                         to="/login?mode=signup&role=client"
