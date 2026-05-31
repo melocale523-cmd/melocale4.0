@@ -326,14 +326,14 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
-                  className="flex flex-col items-center gap-4 p-5 rounded-3xl border-2 border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/60 transition-all text-center group"
+                  className="flex flex-col items-center gap-5 py-7 px-4 rounded-3xl border-2 border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/60 transition-all text-center group"
                 >
                   <span className="text-4xl">🏠</span>
                   <div className="space-y-1">
                     <p className="text-white font-black text-sm">Preciso de serviços</p>
                     <p className="text-[#7A9EBF] text-xs leading-snug">Quero contratar profissionais</p>
                   </div>
-                  <div className="w-full flex items-center justify-center gap-2 h-10 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-xs transition-all">
+                  <div className="w-full flex items-center justify-center gap-2 h-11 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-xs transition-all mt-1">
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -348,14 +348,14 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
-                  className="flex flex-col items-center gap-4 p-5 rounded-3xl border-2 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all text-center group"
+                  className="flex flex-col items-center gap-5 py-7 px-4 rounded-3xl border-2 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all text-center group"
                 >
                   <span className="text-4xl">🔧</span>
                   <div className="space-y-1">
                     <p className="text-white font-black text-sm">Ofereço serviços</p>
                     <p className="text-[#7A9EBF] text-xs leading-snug">Quero receber chamados</p>
                   </div>
-                  <div className="w-full flex items-center justify-center gap-2 h-10 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-xs transition-all">
+                  <div className="w-full flex items-center justify-center gap-2 h-11 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-xs transition-all mt-1">
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
