@@ -285,7 +285,7 @@ export default function LandingPage() {
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="hidden lg:block space-y-6">
               {/* Pro card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
                 <div className="hidden sm:block absolute top-0 right-0 p-6 opacity-10 text-emerald-500"><Building2 size={100} /></div>
@@ -354,7 +354,7 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-16 text-center">
+            <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-8 md:mb-16 text-center">
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
                 <p className="text-xs md:text-sm text-[#94A3B8] mt-1">Profissionais cadastrados</p>
@@ -462,10 +462,10 @@ export default function LandingPage() {
         <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
         {/* ── Pricing ── */}
-        <section id="planos" className="pt-16 pb-24 bg-[#0E1C32] border-t border-slate-800/50">
+        <section id="planos" className="pt-8 pb-12 md:pt-16 md:pb-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <div className="text-center mb-16">
+            <div className="text-center mb-8 md:mb-16">
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400 mb-6">
                 🔥 Oferta por tempo limitado
               </div>
@@ -479,7 +479,7 @@ export default function LandingPage() {
               <p className="text-emerald-400 text-sm font-bold mt-4">⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
             </div>
 
-            <div className="flex justify-center mb-12">
+            <div className="flex justify-center mb-6 md:mb-12">
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-3">
                 <span className="text-emerald-400 text-xl">🛡️</span>
                 <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
@@ -488,7 +488,7 @@ export default function LandingPage() {
 
 
             {/* Ancoragem de preço psicológica */}
-            <div className="max-w-4xl mx-auto mb-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
+            <div className="max-w-4xl mx-auto mb-6 md:mb-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">☕</span>
                 <div>
@@ -512,7 +512,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-4 gap-4 lg:gap-6 text-left max-w-6xl mx-auto mb-16">
+            <div className="grid lg:grid-cols-4 gap-4 lg:gap-6 text-left max-w-6xl mx-auto mb-8 md:mb-16">
 
               {/* GRATUITO */}
               <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 sm:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
