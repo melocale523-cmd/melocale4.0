@@ -164,7 +164,7 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-32 pb-10 md:pb-32 overflow-hidden">
+        <section id="hero" className="relative pt-32 pb-8 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -350,7 +350,7 @@ export default function LandingPage() {
         <Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense>
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
-        <section className="pt-20 pb-10 bg-[#0B1729] border-t border-slate-800/50">
+        <section className="pt-8 pb-8 md:pt-20 md:pb-10 bg-[#0B1729] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Stats */}
@@ -376,7 +376,7 @@ export default function LandingPage() {
 
             <div className="grid md:grid-cols-3 gap-6">
               {/* Depoimento 1 — Carlos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -397,7 +397,7 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 2 — Ana (cliente) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -418,7 +418,7 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 3 — Marcos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
