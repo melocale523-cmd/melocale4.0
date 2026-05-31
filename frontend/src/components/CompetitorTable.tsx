@@ -32,9 +32,9 @@ export default function CompetitorTable({ userCity }: Props) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Container principal: cards à esquerda + tabela à direita */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-8 md:mb-12 md:items-start">
+        <div className="flex flex-col md:flex-row gap-9 md:gap-6 mb-8 md:mb-12 md:items-start">
 
-          {/* Coluna esquerda: 4 cards verticais */}
+          {/* Coluna esquerda: 4 cards verticais — desktop only, não alterar */}
           <div className="hidden md:flex flex-col gap-2 md:w-56 shrink-0 md:order-1">
 
             {/* Card 1 — Profissionais Verificados */}
@@ -80,8 +80,8 @@ export default function CompetitorTable({ userCity }: Props) {
           <div className="flex-1 min-w-0 order-1 md:order-2">
 
             {/* Título grande */}
-            <div className="mb-4 md:mb-6 text-center">
-              <h2 className="text-3xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
+            <div className="mb-9 md:mb-6 text-center">
+              <h2 className="text-3xl sm:text-3xl md:text-4xl font-bold text-white mb-8">
                 Por que escolher o <span className="text-emerald-400">MeloCalé</span>?
               </h2>
               <p className="text-[#94A3B8] text-base md:text-lg">
@@ -90,37 +90,37 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Cards 2x2 — apenas mobile */}
-            <div className="grid grid-cols-2 gap-3 mb-4 md:hidden px-1">
-              <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-3 flex flex-col overflow-hidden min-w-0">
+            <div className="grid grid-cols-2 gap-8 mb-9 md:hidden px-1">
+              <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-8 flex flex-col overflow-hidden min-w-0">
                 <span className="absolute top-2 right-2 bg-emerald-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">✓</span>
-                <ShieldCheck size={16} className="text-emerald-400 mb-1 shrink-0" />
+                <ShieldCheck size={16} className="text-emerald-400 mb-6 shrink-0" />
                 <p className="text-base font-black text-emerald-400 truncate">371+</p>
                 <p className="text-[10px] text-slate-400 truncate">verificados na Bahia</p>
-                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Prof. Verificados</h3>
+                <h3 className="text-white font-bold text-[10px] mt-6 truncate">Prof. Verificados</h3>
               </div>
-              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex flex-col overflow-hidden min-w-0">
-                <Zap size={16} className="text-yellow-400 mb-1 shrink-0" />
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-8 flex flex-col overflow-hidden min-w-0">
+                <Zap size={16} className="text-yellow-400 mb-6 shrink-0" />
                 <p className="text-base font-black text-yellow-400 truncate">{'< 2h'}</p>
                 <p className="text-[10px] text-slate-400 truncate">tempo de resposta</p>
-                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Atendimento Rápido</h3>
+                <h3 className="text-white font-bold text-[10px] mt-6 truncate">Atendimento Rápido</h3>
               </div>
-              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex flex-col overflow-hidden min-w-0">
-                <MapPin size={16} className="text-blue-400 mb-1 shrink-0" />
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-8 flex flex-col overflow-hidden min-w-0">
+                <MapPin size={16} className="text-blue-400 mb-6 shrink-0" />
                 <p className="text-base font-black text-blue-400 truncate">{userCity}</p>
                 <p className="text-[10px] text-slate-400 truncate">e região atendida</p>
-                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Perto de Você</h3>
+                <h3 className="text-white font-bold text-[10px] mt-6 truncate">Perto de Você</h3>
               </div>
-              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-3 flex flex-col overflow-hidden min-w-0">
-                <CreditCard size={16} className="text-purple-400 mb-1 shrink-0" />
+              <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-8 flex flex-col overflow-hidden min-w-0">
+                <CreditCard size={16} className="text-purple-400 mb-6 shrink-0" />
                 <p className="text-base font-black text-purple-400 truncate">100%</p>
                 <p className="text-[10px] text-slate-400 truncate">transações protegidas</p>
-                <h3 className="text-white font-bold text-[10px] mt-1 truncate">Pagamento Seguro</h3>
+                <h3 className="text-white font-bold text-[10px] mt-6 truncate">Pagamento Seguro</h3>
               </div>
             </div>
 
             {/* Subtítulo da tabela */}
-            <div className="mb-3 md:pt-6 text-center">
-              <h3 className="text-xl font-bold text-white mb-1">
+            <div className="mb-8 md:pt-6 text-center">
+              <h3 className="text-xl font-bold text-white mb-6">
                 MeloCalé vs <span className="text-slate-400">Concorrentes</span>
               </h3>
               <p className="text-[#7A9EBF] text-sm">
@@ -171,11 +171,11 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Mobile cards */}
-            <div className="md:hidden space-y-3 px-1">
+            <div className="md:hidden space-y-8 px-1">
               {features.map(f => (
-                <div key={f.label} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-5">
-                  <p className="text-white font-bold mb-3 text-sm">{f.label}</p>
-                  <div className="grid grid-cols-3 gap-2 text-center">
+                <div key={f.label} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10">
+                  <p className="text-white font-bold mb-8 text-sm">{f.label}</p>
+                  <div className="grid grid-cols-3 gap-7 text-center">
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-[10px] text-emerald-400 font-black uppercase">MeloCalé</span>
                       <Check ok={f.melocale} />
@@ -200,7 +200,7 @@ export default function CompetitorTable({ userCity }: Props) {
         <div className="mt-10 text-center">
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 py-4 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
+            className="inline-flex items-center gap-7 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 py-4 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
           >
             Cadastre-se grátis agora →
           </Link>

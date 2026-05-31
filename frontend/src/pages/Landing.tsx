@@ -173,10 +173,10 @@ export default function LandingPage() {
               {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-6">
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-11">
                     <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                   </div>
-                  <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
+                  <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-white mb-11 leading-[1.1]">
                     Profissional em <br />
                     <span className="text-emerald-500">{userCity}?</span> <br />
                     Receba clientes <br />
@@ -185,7 +185,7 @@ export default function LandingPage() {
                   <p className="text-lg text-[#94A3B8] mb-10 max-w-xl">
                     Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                  <div className="flex flex-col sm:flex-row gap-9 mb-9">
                     <div className="flex flex-col">
                       <Link
                         to="/login?mode=signup&role=professional"
@@ -202,19 +202,19 @@ export default function LandingPage() {
                       Ver Planos
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 md:gap-6 pt-6 border-t border-slate-800 mt-6">
+                  <div className="grid grid-cols-3 gap-8 md:gap-6 pt-6 border-t border-slate-800 mt-11">
                     <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><Zap size={16} className="mr-1 md:mr-2" /></div>
+                      <div className="flex items-center text-emerald-400 mb-7"><Zap size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><ShieldCheck size={16} className="mr-1 md:mr-2" /></div>
+                      <div className="flex items-center text-yellow-500 mb-7"><ShieldCheck size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Badge verificado</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-1 md:mr-2" /></div>
+                      <div className="flex items-center text-blue-400 mb-7"><HeartHandshake size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Você define os preços</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
                     </div>
@@ -223,21 +223,21 @@ export default function LandingPage() {
               ) : (
                 /* ── Hero Cliente (padrão) ── */
                 <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-6">
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400 mb-11">
                     <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
                   </div>
-                  <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
+                  <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-white mb-11 leading-[1.1]">
                     Precisa de um <br />
                     profissional em <br />
                     <span className="text-blue-400">{userCity}?</span> <br />
                     <span className="text-emerald-500">Encontre agora.</span>
                   </h1>
-                  <p className="text-lg text-[#94A3B8] mb-6 max-w-xl">
+                  <p className="text-lg text-[#94A3B8] mb-11 max-w-xl">
                     Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
                   </p>
 
                   {/* CTA mobile — acima da dobra */}
-                  <div className="flex flex-col sm:hidden gap-3 mt-2 mb-4">
+                  <div className="flex flex-col sm:hidden gap-8 mt-7 mb-9">
                     <Link
                       to="/login?mode=signup"
                       className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-2xl text-base text-center shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
@@ -264,19 +264,19 @@ export default function LandingPage() {
                       Ver Como Funciona
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 md:gap-6 pt-6 border-t border-slate-800 mt-6">
+                  <div className="grid grid-cols-3 gap-8 md:gap-6 pt-6 border-t border-slate-800 mt-11">
                     <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-1 md:mr-2" /></div>
+                      <div className="flex items-center text-emerald-400 mb-7"><ShieldCheck size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Transações protegidas</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><Zap size={16} className="mr-1 md:mr-2" /></div>
+                      <div className="flex items-center text-yellow-500 mb-7"><Zap size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
                     </div>
                     <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-1 md:mr-2" /></div>
+                      <div className="flex items-center text-blue-400 mb-7"><HeartHandshake size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
                     </div>
@@ -354,29 +354,29 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 md:gap-8 max-w-2xl mx-auto mb-8 md:mb-16 text-center">
+            <div className="grid grid-cols-3 gap-8 md:gap-8 max-w-2xl mx-auto mb-8 md:mb-16 text-center">
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
-                <p className="text-xs md:text-sm text-[#94A3B8] mt-1">Profissionais cadastrados</p>
+                <p className="text-xs md:text-sm text-[#94A3B8] mt-6">Profissionais cadastrados</p>
               </div>
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-blue-400">1.200+</p>
-                <p className="text-xs md:text-sm text-[#94A3B8] mt-1">Serviços realizados este mês</p>
+                <p className="text-xs md:text-sm text-[#94A3B8] mt-6">Serviços realizados este mês</p>
               </div>
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-yellow-400">98%</p>
-                <p className="text-xs md:text-sm text-[#94A3B8] mt-1">de satisfação dos clientes</p>
+                <p className="text-xs md:text-sm text-[#94A3B8] mt-6">de satisfação dos clientes</p>
               </div>
             </div>
 
             {/* Depoimentos */}
-            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-6 mt-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-11 mt-9">
               Quem usa, <span className="text-emerald-400">recomenda</span>
             </h2>
 
             <div className="grid md:grid-cols-3 gap-6">
               {/* Depoimento 1 — Carlos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-5 overflow-hidden">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -385,7 +385,7 @@ export default function LandingPage() {
                 <p className="text-[#94A3B8] text-sm leading-relaxed flex-1">
                   "Em 2 semanas já tinha 3 clientes novos. O MeloCalé mudou meu mês — faturei R$1.800 a mais só com os leads da plataforma."
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
+                <div className="flex items-center gap-8 pt-2 border-t border-slate-800/60">
                   <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-black text-sm shrink-0">
                     C
                   </div>
@@ -397,7 +397,7 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 2 — Ana (cliente) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-5 overflow-hidden">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -406,7 +406,7 @@ export default function LandingPage() {
                 <p className="text-[#94A3B8] text-sm leading-relaxed flex-1">
                   "Precisava de um encanador urgente. Em menos de 1 hora já tinha 2 orçamentos. Contratei na hora e o serviço foi excelente!"
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
+                <div className="flex items-center gap-8 pt-2 border-t border-slate-800/60">
                   <div className="w-10 h-10 rounded-full bg-emerald-700 flex items-center justify-center text-white font-black text-sm shrink-0">
                     A
                   </div>
@@ -418,7 +418,7 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 3 — Marcos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-5 overflow-hidden">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -427,7 +427,7 @@ export default function LandingPage() {
                 <p className="text-[#94A3B8] text-sm leading-relaxed flex-1">
                   "Tinha medo de não conseguir clientes pela internet. Hoje o MeloCalé é minha principal fonte de trabalho. Vale cada centavo."
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
+                <div className="flex items-center gap-8 pt-2 border-t border-slate-800/60">
                   <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white font-black text-sm shrink-0">
                     M
                   </div>
@@ -441,12 +441,12 @@ export default function LandingPage() {
 
             {/* CTA pós-depoimentos */}
             <div className="mt-8 text-center">
-              <p className="text-slate-400 text-sm mb-4">
+              <p className="text-slate-400 text-sm mb-9">
                 Junte-se a <strong className="text-white">371+ profissionais</strong> e <strong className="text-white">1.200+ clientes</strong> que já usam o MeloCalé
               </p>
               <Link
                 to="/login?mode=signup"
-                className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 py-4 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
+                className="inline-flex items-center gap-7 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 py-4 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
               >
                 {isProfissional ? 'Quero Receber Clientes Agora →' : 'Quero Encontrar um Profissional →'}
               </Link>
@@ -466,44 +466,43 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div className="text-center mb-8 md:mb-16">
-              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400 mb-6">
+              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-8 py-1 text-xs font-medium text-emerald-400 mb-11">
                 🔥 Oferta por tempo limitado
               </div>
-              <h2 className="text-4xl font-extrabold text-white mb-4">
+              <h2 className="text-4xl font-extrabold text-white mb-9">
                 Quanto você quer <span className="text-emerald-500">faturar</span> este mês?
               </h2>
               <p className="text-[#94A3B8] max-w-2xl mx-auto">
                 Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.
                 Escolha seu plano e comece hoje.
               </p>
-              <p className="text-emerald-400 text-sm font-bold mt-4">⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
+              <p className="text-emerald-400 text-sm font-bold mt-9">⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
             </div>
 
-            <div className="flex justify-center mb-6 md:mb-12">
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-3">
+            <div className="flex justify-center mb-11 md:mb-12">
+              <div className="flex items-center gap-8 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-8">
                 <span className="text-emerald-400 text-xl">🛡️</span>
                 <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
               </div>
             </div>
 
-
             {/* Ancoragem de preço psicológica */}
-            <div className="max-w-4xl mx-auto mb-6 md:mb-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+            <div className="max-w-4xl mx-auto mb-11 md:mb-12 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-5">
+              <div className="flex items-center gap-8 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-9 py-8">
                 <span className="text-3xl">☕</span>
                 <div>
                   <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que 1 café por dia</p>
                   <p className="text-slate-400 text-xs mt-0.5">R$37/mês = R$1,23/dia</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-8 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-9 py-8">
                 <span className="text-3xl">🍕</span>
                 <div>
                   <p className="text-emerald-300 font-bold text-sm leading-tight">Menos que uma pizza</p>
                   <p className="text-slate-400 text-xs mt-0.5">Por mês você acessa clientes ilimitados</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-8 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-9 py-8">
                 <span className="text-3xl">💡</span>
                 <div>
                   <p className="text-emerald-300 font-bold text-sm leading-tight">1 cliente já paga 7 meses</p>
@@ -512,19 +511,19 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-4 gap-4 lg:gap-6 text-left max-w-6xl mx-auto mb-8 md:mb-16 px-2 md:px-0">
+            <div className="grid lg:grid-cols-4 gap-9 lg:gap-6 text-left max-w-6xl mx-auto mb-8 md:mb-16 px-2 md:px-0">
 
               {/* GRATUITO */}
-              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-6 sm:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
-                <div className="mb-6">
-                  <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
-                  <div className="text-4xl font-extrabold text-white mb-1">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
+              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-11 sm:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
+                <div className="mb-11">
+                  <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-7">Gratuito</h3>
+                  <div className="text-4xl font-extrabold text-white mb-6">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-[#4A6580] text-xs">Para conhecer a plataforma</p>
                 </div>
-                <Link to="/login" className="block w-full bg-slate-800 hover:bg-slate-700 text-white text-center rounded-xl px-4 py-3 text-sm font-bold transition-all mb-6">
+                <Link to="/login" className="block w-full bg-slate-800 hover:bg-slate-700 text-white text-center rounded-xl px-9 py-8 text-sm font-bold transition-all mb-11">
                   Explorar Grátis →
                 </Link>
-                <ul className="space-y-4 flex-1">
+                <ul className="space-y-9 flex-1">
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
@@ -534,51 +533,51 @@ export default function LandingPage() {
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-6 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
-                <div className="mb-6">
-                  <div className="inline-block px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">Starter</div>
-                  <div className="text-4xl font-extrabold text-white mb-1">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
+              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-11 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
+                <div className="mb-11">
+                  <div className="inline-block px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-8">Starter</div>
+                  <div className="text-4xl font-extrabold text-white mb-6">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="block w-full bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-4 py-3 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
+                <Link to="/login?mode=signup&role=professional" className="block w-full bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-9 py-8 text-sm font-bold transition-all mb-9 shadow-lg shadow-blue-500/20">
                   Quero Receber Leads →
                 </Link>
                 {/* Vagas urgência */}
-                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-9 bg-amber-500/10 border border-amber-500/20 rounded-lg px-8 py-7">
                   <span>⚠️</span>
                   <span>Apenas {vagas.starter} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="space-y-4 flex-1">
+                <ul className="space-y-9 flex-1">
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
                   <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
                   <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
                 </ul>
-                <div className="mt-6 bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
+                <div className="mt-11 bg-blue-500/10 border border-blue-500/20 rounded-xl p-8">
                   <p className="text-blue-300 text-xs text-center">Pacote R$59,90 → <strong>R$44,93</strong> com Starter</p>
                 </div>
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-6 sm:p-8 flex flex-col relative mt-6 md:mt-0 md:transform md:scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-11 sm:p-8 flex flex-col relative mt-6 md:mt-0 md:transform md:scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-9 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
-                <div className="mb-6">
-                  <div className="inline-block px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">PRO</div>
-                  <div className="text-4xl font-extrabold text-white mb-1">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
+                <div className="mb-11">
+                  <div className="inline-block px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-8">PRO</div>
+                  <div className="text-4xl font-extrabold text-white mb-6">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="block w-full bg-emerald-500 hover:bg-emerald-400 text-black text-center rounded-xl px-4 py-3 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="block w-full bg-emerald-500 hover:bg-emerald-400 text-black text-center rounded-xl px-9 py-8 text-sm font-black transition-all mb-9 shadow-xl shadow-emerald-500/30">
                   Receber Meu Primeiro Lead →
                 </Link>
                 {/* Vagas urgência */}
-                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-9 bg-amber-500/10 border border-amber-500/20 rounded-lg px-8 py-7">
                   <span>⚠️</span>
                   <span>Apenas {vagas.pro} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="space-y-4 flex-1">
+                <ul className="space-y-9 flex-1">
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
@@ -586,28 +585,28 @@ export default function LandingPage() {
                   <li className="hidden sm:flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
                   <li className="hidden sm:flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
                 </ul>
-                <div className="mt-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+                <div className="mt-11 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-8">
                   <p className="text-emerald-300 text-xs text-center">Pacote R$59,90 → <strong>R$35,94</strong> com PRO</p>
-                  <p className="text-emerald-400 text-[10px] text-center mt-1 font-bold">O plano se paga em 1 compra de moedas</p>
+                  <p className="text-emerald-400 text-[10px] text-center mt-6 font-bold">O plano se paga em 1 compra de moedas</p>
                 </div>
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-6 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
-                <div className="mb-6">
-                  <div className="inline-block px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">🏆 Elite</div>
-                  <div className="text-4xl font-extrabold text-white mb-1">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
+              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-11 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
+                <div className="mb-11">
+                  <div className="inline-block px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-8">🏆 Elite</div>
+                  <div className="text-4xl font-extrabold text-white mb-6">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="block w-full bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-xl px-4 py-3 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
+                <Link to="/login?mode=signup&role=professional" className="block w-full bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-xl px-9 py-8 text-sm font-black transition-all mb-9 shadow-lg shadow-yellow-500/20">
                   Dominar {userCity} Agora →
                 </Link>
                 {/* Vagas urgência */}
-                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-9 bg-amber-500/10 border border-amber-500/20 rounded-lg px-8 py-7">
                   <span>⚠️</span>
                   <span>Apenas {vagas.elite} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="space-y-4 flex-1">
+                <ul className="space-y-9 flex-1">
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
@@ -615,7 +614,7 @@ export default function LandingPage() {
                   <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
                   <li className="hidden sm:flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
                 </ul>
-                <div className="mt-6 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
+                <div className="mt-11 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-8">
                   <p className="text-yellow-300 text-xs text-center">Pacote R$119,90 → <strong>R$53,96</strong> com Elite</p>
                 </div>
               </div>
@@ -623,8 +622,8 @@ export default function LandingPage() {
 
             {/* Ancoragem de ROI */}
             <div className="max-w-3xl mx-4 md:mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-8 text-center">
-              <p className="text-[#94A3B8] text-sm mb-2">💡 Pense assim:</p>
-              <p className="text-white text-xl font-bold mb-2">
+              <p className="text-[#94A3B8] text-sm mb-7">💡 Pense assim:</p>
+              <p className="text-white text-xl font-bold mb-7">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
               </p>
               <p className="text-[#4A6580] text-sm">E com 40% de desconto em moedas, você acessa muito mais clientes pelo mesmo preço.</p>
@@ -677,4 +676,3 @@ function UserIcon({ size = 24, ...props }: IconProps) {
     <svg {...props} width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   );
 }
-
