@@ -133,43 +133,43 @@ export default function ProfessionalLeads() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-11">
+    <div className="max-w-6xl mx-auto space-y-6">
            {/* Saldo Alert - Agora no topo */}
-      <div className="bg-gradient-to-r from-[#1C3454] to-[#0E1C32] border border-[#1C3050] rounded-[2rem] p-10 flex items-center justify-between shadow-2xl relative overflow-hidden group">
+      <div className="bg-gradient-to-r from-[#1C3454] to-[#0E1C32] border border-[#1C3050] rounded-[2rem] p-5 flex items-center justify-between shadow-2xl relative overflow-hidden group">
          <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-         <div className="flex items-center gap-9 relative z-10">
+         <div className="flex items-center gap-4 relative z-10">
            <div className="w-14 h-14 bg-yellow-500/10 text-yellow-500 rounded-2xl flex items-center justify-center shadow-inner">
              <Coins size={32} />
            </div>
            <div>
-             <p className="text-[12px] text-[#4A6580] font-bold uppercase tracking-widest mb-6">Saldo Disponível</p>
+             <p className="text-[12px] text-[#4A6580] font-bold uppercase tracking-widest mb-1">Saldo Disponível</p>
              <p className="text-4xl font-black text-white leading-none">
                {walletLoading ? '...' : (typeof balance === 'number' ? Math.floor(balance) : 0)} <span className="text-lg font-bold text-yellow-500 uppercase tracking-widest ml-1">moedas</span>
              </p>
            </div>
          </div>
-         <Link to="/profissional/carteira" className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-11 py-8 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-95 relative z-10 flex items-center gap-7">
+         <Link to="/profissional/carteira" className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-95 relative z-10 flex items-center gap-2">
             <Plus size={18} /> Recarregar Saldo
          </Link>
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="flex flex-col md:flex-row gap-9 items-center">
+      <div className="flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 group w-full">
           <input 
             type="text" 
             placeholder="Qual serviço você procura? (ex: Pintura, Elétrica...)"
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-9 pl-12 pr-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-lg"
+            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-lg"
           />
           <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" />
         </div>
         
-        <div className="flex gap-7 w-full md:w-auto">
+        <div className="flex gap-2 w-full md:w-auto">
           <button 
             onClick={() => setIsFilterOpen(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-7 bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 text-white font-bold px-11 py-9 rounded-2xl text-sm transition-all shadow-lg hover:shadow-emerald-500/10"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 text-white font-bold px-6 py-4 rounded-2xl text-sm transition-all shadow-lg hover:shadow-emerald-500/10"
           >
              <SlidersHorizontal size={20} /> Filtros Avançados
           </button>
@@ -177,7 +177,7 @@ export default function ProfessionalLeads() {
           {(filters.search || filters.city || filters.category !== 'Todas' || filters.minBudget > 0) && (
             <button
               onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
-              className="p-9 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-lg"
+              className="p-4 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-lg"
               title="Limpar todos os filtros"
             >
               <Trash2 size={20} />
@@ -188,7 +188,7 @@ export default function ProfessionalLeads() {
 
       {/* Popover/Modal de Filtros Avançados */}
       {isFilterOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-9">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsFilterOpen(false)}></div>
           <div className="relative bg-[#0E1C32] border border-[#243F6A] rounded-[2.5rem] p-8 sm:p-10 max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 ring-1 ring-white/5">
             <button 
@@ -198,15 +198,15 @@ export default function ProfessionalLeads() {
               <X size={24} />
             </button>
 
-            <h3 className="text-2xl font-bold text-white mb-7 flex items-center gap-8">
+            <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
               <Filter className="text-emerald-500" /> Filtros Detalhados
             </h3>
-            <p className="text-[#4A6580] text-sm mb-13">Refine sua busca para encontrar os clientes ideais.</p>
+            <p className="text-[#4A6580] text-sm mb-8">Refine sua busca para encontrar os clientes ideais.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-11">
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-2">
                     <MapPin size={14} className="text-emerald-500" /> Cidade
                   </label>
                   <input 
@@ -214,12 +214,12 @@ export default function ProfessionalLeads() {
                     placeholder="Ex: São Paulo"
                     value={filters.city}
                     onChange={e => setFilters(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                    className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                   />
                 </div>
 
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-2">
                     <Navigation size={14} className="text-emerald-500" /> Raio Máximo (KM)
                   </label>
                   <input 
@@ -230,20 +230,20 @@ export default function ProfessionalLeads() {
                   />
                   <div className="flex justify-between text-xs font-mono text-[#4A6580] font-bold">
                     <span>5km</span>
-                    <span className="text-emerald-400 bg-emerald-500/10 px-7 rounded">{filters.radius}km</span>
+                    <span className="text-emerald-400 bg-emerald-500/10 px-2 rounded">{filters.radius}km</span>
                     <span>100km</span>
                   </div>
                 </div>
 
-                <div className="space-y-8 relative">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
+                <div className="space-y-3 relative">
+                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-2">
                     <ShoppingCart size={14} className="text-emerald-500" /> Categoria
                   </label>
                   <div className="relative">
                     <select 
                       value={filters.category}
                       onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl px-9 py-8 text-white focus:outline-none cursor-pointer appearance-none font-medium"
+                      className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none cursor-pointer appearance-none font-medium"
                     >
                       <option value="Todas">⭐️ Todas as Categorias</option>
                       {categories.filter(c => c !== 'Todas').map(cat => (
@@ -257,19 +257,19 @@ export default function ProfessionalLeads() {
                 </div>
               </div>
 
-              <div className="space-y-11">
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-2">
                     <DollarSign size={14} className="text-emerald-500" /> Orçamento Prestado
                   </label>
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-2 gap-3">
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] text-xs font-bold">R$</span>
                       <input 
                         type="number" placeholder="Mínimo"
                         value={filters.minBudget}
                         onChange={e => setFilters(prev => ({ ...prev, minBudget: parseInt(e.target.value) || 0 }))}
-                        className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl pl-9 pr-3 py-8 text-white text-sm focus:outline-none font-medium"
+                        className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl pl-9 pr-3 py-3 text-white text-sm focus:outline-none font-medium"
                       />
                     </div>
                     <div className="relative">
@@ -278,14 +278,14 @@ export default function ProfessionalLeads() {
                         type="number" placeholder="Máximo"
                         value={filters.maxBudget}
                         onChange={e => setFilters(prev => ({ ...prev, maxBudget: parseInt(e.target.value) || 0 }))}
-                        className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl pl-9 pr-3 py-8 text-white text-sm focus:outline-none font-medium"
+                        className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl pl-9 pr-3 py-3 text-white text-sm focus:outline-none font-medium"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-2">
                     <Coins size={14} className="text-yellow-500" /> Custo Contato (Moedas)
                   </label>
                   <input 
@@ -296,23 +296,23 @@ export default function ProfessionalLeads() {
                   />
                   <div className="flex justify-between text-xs font-mono text-[#4A6580] font-bold">
                     <span>10</span>
-                    <span className="text-yellow-400 bg-yellow-500/10 px-7 rounded">{filters.coinCost} moedas</span>
+                    <span className="text-yellow-400 bg-yellow-500/10 px-2 rounded">{filters.coinCost} moedas</span>
                     <span>1000</span>
                   </div>
                 </div>
                 
-                <div className="pt-10 flex gap-9">
+                <div className="pt-10 flex gap-4">
                   <button
                     onClick={() => {
                       setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 });
                     }}
-                    className="flex-1 py-9 border border-[#1C3050] hover:bg-red-500/10 hover:text-red-500 text-[#94A3B8] font-bold rounded-2xl transition-all text-xs uppercase flex items-center justify-center gap-7"
+                    className="flex-1 py-4 border border-[#1C3050] hover:bg-red-500/10 hover:text-red-500 text-[#94A3B8] font-bold rounded-2xl transition-all text-xs uppercase flex items-center justify-center gap-2"
                   >
                     <Trash2 size={14} /> Resetar Filtros
                   </button>
                   <button 
                     onClick={() => setIsFilterOpen(false)}
-                    className="flex-1 py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all text-xs uppercase shadow-lg shadow-emerald-500/20"
+                    className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all text-xs uppercase shadow-lg shadow-emerald-500/20"
                   >
                     Aplicar Filtros
                   </button>
@@ -325,34 +325,34 @@ export default function ProfessionalLeads() {
       
       {/* Success Modal */}
       {purchasedLead && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-9">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPurchasedLead(null)}></div>
           <div className="relative bg-[#1C3454] border border-emerald-500/30 rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-11">
+            <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 size={40} />
             </div>
-            <h2 className="text-2xl font-bold text-white text-center mb-7">Cliente Adquirido!</h2>
-            <p className="text-[#94A3B8] text-center mb-13">
+            <h2 className="text-2xl font-bold text-white text-center mb-2">Cliente Adquirido!</h2>
+            <p className="text-[#94A3B8] text-center mb-8">
               Você agora tem acesso completo aos dados do cliente <span className="text-white font-bold">{purchasedLead.title}</span>.
             </p>
             
-            <div className="bg-[#0E1C32] border border-[#1C3050] rounded-2xl p-9 mb-13">
+            <div className="bg-[#0E1C32] border border-[#1C3050] rounded-2xl p-4 mb-8">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-[#4A6580] font-medium">Investimento:</span>
                 <span className="text-emerald-400 font-bold font-mono">{purchasedLead.price} moedas</span>
               </div>
             </div>
 
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-3">
               <button 
                 onClick={() => navigate('/profissional/meus-leads')} 
-                className="w-full py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-7"
+                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
               >
                 Ver Meus Clientes <ArrowRight size={18} />
               </button>
               <button 
                 onClick={() => setPurchasedLead(null)} 
-                className="w-full py-8 text-[#4A6580] hover:text-white font-medium transition-colors text-sm"
+                className="w-full py-3 text-[#4A6580] hover:text-white font-medium transition-colors text-sm"
               >
                 Continuar Comprando
               </button>
@@ -362,15 +362,15 @@ export default function ProfessionalLeads() {
       )}
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-8">
+        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
           Clientes Disponíveis 
-          <span className="text-xs font-medium px-7 py-0.5 bg-white/5 border border-[#243F6A] rounded-full text-[#4A6580]">
+          <span className="text-xs font-medium px-2 py-0.5 bg-white/5 border border-[#243F6A] rounded-full text-[#4A6580]">
             {filteredLeads?.length || 0} encontrados
           </span>
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-11">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {leadsLoading ? (
           <div className="col-span-full py-24 flex justify-center">
              <LoadingSpinner size={32} label="Buscando novos clientes..." />
@@ -379,7 +379,7 @@ export default function ProfessionalLeads() {
           filteredLeads?.map((lead) => {
              const badges = getBadges(lead);
              return <div key={lead.id} className={cn(
-                "bg-[#1C3454] border rounded-[2rem] p-10 flex flex-col transition-all group relative overflow-hidden text-left",
+                "bg-[#1C3454] border rounded-[2rem] p-5 flex flex-col transition-all group relative overflow-hidden text-left",
                 badges.some(b => b.label === 'Urgente')
                   ? "border-red-500/40 animate-pulse"
                   : "border-[#1C3050] hover:border-emerald-500/30"
@@ -387,12 +387,12 @@ export default function ProfessionalLeads() {
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-all"></div>
 
                 <div className="flex-1 relative z-10">
-                  <div className="flex justify-between items-start mb-9">
+                  <div className="flex justify-between items-start mb-4">
                      <div>
                        {badges.length > 0 && (
-                         <div className="flex flex-wrap gap-1.5 mb-8">
+                         <div className="flex flex-wrap gap-1.5 mb-3">
                            {badges.map((b, i) => (
-                             <span key={i} className={`px-7 py-6 text-xs font-bold uppercase tracking-widest rounded-lg border ${b.color}`}>
+                             <span key={i} className={`px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-lg border ${b.color}`}>
                                {b.icon} {b.label}
                              </span>
                            ))}
@@ -405,20 +405,20 @@ export default function ProfessionalLeads() {
                      </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-7 line-clamp-2 leading-tight group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-xl font-bold text-white mb-2 line-clamp-2 leading-tight group-hover:text-emerald-400 transition-colors">
                     {lead.title}
                   </h3>
 
-                  <div className="space-y-7 mb-11">
-                    <div className="flex items-center gap-7 text-base font-medium text-[#E2E8F0]">
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center gap-2 text-base font-medium text-[#E2E8F0]">
                       <MapPin size={16} className="text-blue-500" />
                       {lead.location || lead.city || 'São Paulo, SP'}
                     </div>
-                    <div className="flex items-center gap-7 text-base font-semibold text-[#10B981]">
+                    <div className="flex items-center gap-2 text-base font-semibold text-[#10B981]">
                       <DollarSign size={16} className="text-emerald-500" />
                       {lead.budget_min && lead.budget_max ? `R$ ${lead.budget_min.toLocaleString('pt-BR')} – R$ ${lead.budget_max.toLocaleString('pt-BR')}` : 'A combinar'}
                     </div>
-                    <div className="flex items-center gap-7 text-base text-[#B0C4D8]">
+                    <div className="flex items-center gap-2 text-base text-[#B0C4D8]">
                       <Navigation size={16} className="text-purple-500" />
                       {lead.location || 'Localização não informada'}
                     </div>
@@ -447,7 +447,7 @@ export default function ProfessionalLeads() {
                     )}
 
                     {Array.isArray(lead.images) && (lead.images as string[]).length > 0 && (
-                      <div className="flex gap-1.5 overflow-x-auto pb-1 mt-6" style={{ scrollbarWidth: 'none' }}>
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 mt-1" style={{ scrollbarWidth: 'none' }}>
                         {(lead.images as string[]).map((url, idx) => (
                           <img
                             key={idx}
@@ -468,7 +468,7 @@ export default function ProfessionalLeads() {
                 <button
                   onClick={() => handlePurchase(lead)}
                   disabled={purchaseMutation.isPending}
-                  className="w-full py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all border border-emerald-500/30 text-xs uppercase tracking-widest flex items-center justify-center gap-7 group/btn relative z-10 shadow-lg"
+                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all border border-emerald-500/30 text-xs uppercase tracking-widest flex items-center justify-center gap-2 group/btn relative z-10 shadow-lg"
                 >
                    {purchaseMutation.isPending ? <Loader2 className="animate-spin" size={16}/> : <><ShoppingCart size={18} className="group-hover/btn:scale-110 transition-transform" /> Adquirir Cliente</>}
                 </button>
@@ -479,12 +479,12 @@ export default function ProfessionalLeads() {
 
       {(!leadsLoading && (!filteredLeads || filteredLeads.length === 0)) && (
         <div className="py-32 flex flex-col items-center justify-center text-center bg-[#1C3454]/30 rounded-[3rem] border border-dashed border-[#1C3050]">
-          <Ghost size={64} className="text-slate-800 mb-11" />
-          <h3 className="text-xl font-bold text-slate-300 mb-7">Nenhum cliente encontrado</h3>
+          <Ghost size={64} className="text-slate-800 mb-6" />
+          <h3 className="text-xl font-bold text-slate-300 mb-2">Nenhum cliente encontrado</h3>
           <p className="text-[#4A6580] font-medium max-w-sm">Tente ajustar seus filtros para encontrar novos clientes em sua região.</p>
           <button
             onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
-            className="mt-13 text-emerald-500 font-bold text-sm hover:underline"
+            className="mt-8 text-emerald-500 font-bold text-sm hover:underline"
           >
             Limpar todos os filtros
           </button>
@@ -498,7 +498,7 @@ export default function ProfessionalLeads() {
         >
           <button
             onClick={() => setLightboxImg(null)}
-            className="absolute top-4 right-4 p-7 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
           >
             <X size={24} />
           </button>
@@ -506,7 +506,7 @@ export default function ProfessionalLeads() {
           {lightboxImg.index > 0 && (
             <button
               onClick={(e) => { e.stopPropagation(); setLightboxImg(prev => prev ? { ...prev, index: prev.index - 1 } : prev); }}
-              className="absolute left-4 p-7 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              className="absolute left-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
             >
               <ChevronLeft size={28} />
             </button>
@@ -523,7 +523,7 @@ export default function ProfessionalLeads() {
           {lightboxImg.index < lightboxImg.images.length - 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); setLightboxImg(prev => prev ? { ...prev, index: prev.index + 1 } : prev); }}
-              className="absolute right-4 p-7 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              className="absolute right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
             >
               <ChevronRight size={28} />
             </button>
@@ -544,10 +544,10 @@ export default function ProfessionalLeads() {
       )}
 
       {pendingPurchase && (
-        <div className="fixed inset-0 z-[400] flex items-center justify-center p-9">
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPendingPurchase(null)} />
-          <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-11">
-            <div className="text-center space-y-8">
+          <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-6">
+            <div className="text-center space-y-3">
               <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto">
                 <ShoppingCart size={28} className="text-emerald-400" />
               </div>
@@ -558,7 +558,7 @@ export default function ProfessionalLeads() {
               </p>
               <p className="text-[#4A6580] text-xs">Esta ação não pode ser desfeita.</p>
             </div>
-            <div className="flex gap-8">
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setPendingPurchase(null)}
@@ -570,7 +570,7 @@ export default function ProfessionalLeads() {
                 type="button"
                 onClick={confirmPurchase}
                 disabled={purchaseMutation.isPending}
-                className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all text-sm flex items-center justify-center gap-7"
+                className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all text-sm flex items-center justify-center gap-2"
               >
                 {purchaseMutation.isPending
                   ? <Loader2 size={16} className="animate-spin" />

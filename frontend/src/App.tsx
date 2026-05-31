@@ -86,7 +86,7 @@ const queryClient = new QueryClient({
 function PageLoader() {
   return (
     <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
-      <Loader2 className="animate-spin mb-9" size={40} />
+      <Loader2 className="animate-spin mb-4" size={40} />
       <p className="text-[#94A3B8] font-medium">Carregando...</p>
     </div>
   );
@@ -119,7 +119,7 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: '
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
-        <Loader2 className="animate-spin mb-9" size={40} />
+        <Loader2 className="animate-spin mb-4" size={40} />
         <p className="text-[#94A3B8] font-medium">Verificando acesso...</p>
       </div>
     );
@@ -162,7 +162,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
-        <Loader2 className="animate-spin mb-9" size={40} />
+        <Loader2 className="animate-spin mb-4" size={40} />
         <p className="text-[#94A3B8] font-medium">Verificando acesso...</p>
       </div>
     );
@@ -181,7 +181,7 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-emerald-500 bg-[#0E1C32]">
-        <Loader2 className="animate-spin mb-9" size={40} />
+        <Loader2 className="animate-spin mb-4" size={40} />
         <p className="text-[#94A3B8] font-medium">Carregando sessão...</p>
       </div>
     );

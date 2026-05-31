@@ -42,9 +42,9 @@ export default function ClientPushModal({ onDismiss }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-9">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleDismiss} />
-      <div className="relative w-full max-w-sm bg-[#132540] border border-[#1C3050] rounded-2xl shadow-2xl p-11 flex flex-col items-center gap-9 text-center animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-sm bg-[#132540] border border-[#1C3050] rounded-2xl shadow-2xl p-6 flex flex-col items-center gap-4 text-center animate-in zoom-in-95 duration-200">
         <button
           onClick={handleDismiss}
           className="absolute top-3 right-3 text-[#4A6580] hover:text-white transition-colors"
@@ -52,7 +52,7 @@ export default function ClientPushModal({ onDismiss }: Props) {
           <X size={18} />
         </button>
 
-        <span className="text-xs font-semibold px-8 py-6 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400">
+        <span className="text-xs font-semibold px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400">
           ⚡ Não perca nenhuma oportunidade
         </span>
 
@@ -67,7 +67,7 @@ export default function ClientPushModal({ onDismiss }: Props) {
           </p>
         </div>
 
-        <div className="w-full space-y-7 text-left">
+        <div className="w-full space-y-2 text-left">
           {[
             { icon: '🔔', text: 'Profissional interessado no seu pedido' },
             { icon: '💰', text: 'Nova proposta de orçamento recebida' },
@@ -75,7 +75,7 @@ export default function ClientPushModal({ onDismiss }: Props) {
           ].map(({ icon, text }) => (
             <div
               key={text}
-              className="flex items-center gap-8 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-8 py-7 text-sm text-[#94A3B8]"
+              className="flex items-center gap-3 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-[#94A3B8]"
             >
               <span>{icon}</span>
               <span>{text}</span>
@@ -83,10 +83,10 @@ export default function ClientPushModal({ onDismiss }: Props) {
           ))}
         </div>
 
-        <div className="flex flex-col gap-7 w-full pt-1">
+        <div className="flex flex-col gap-2 w-full pt-1">
           <button
             onClick={handleActivate}
-            className="w-full py-8 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm transition-colors"
+            className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm transition-colors"
           >
             Quero receber alertas!
           </button>

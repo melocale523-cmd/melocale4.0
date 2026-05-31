@@ -63,8 +63,8 @@ export function ConversationList({
 
   return (
     <div className="flex w-full md:w-80 lg:w-96 border-r border-[#1C3050] flex-col shrink-0 bg-[#0E1C32]">
-      <div className="p-11 border-b border-[#1C3050] bg-[#1C3454]/40 backdrop-blur-xl">
-        <h2 className="text-xl font-bold text-white mb-9">Mensagens</h2>
+      <div className="p-6 border-b border-[#1C3050] bg-[#1C3454]/40 backdrop-blur-xl">
+        <h2 className="text-xl font-bold text-white mb-4">Mensagens</h2>
         <div className="relative group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={16} />
           <input
@@ -79,7 +79,7 @@ export function ConversationList({
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-full gap-8 opacity-50">
+          <div className="flex flex-col items-center justify-center h-full gap-3 opacity-50">
             <Loader2 className="animate-spin text-emerald-500" />
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Carregando chats...</p>
           </div>
@@ -99,7 +99,7 @@ export function ConversationList({
                 key={conv.id}
                 onClick={() => onSelectConversation(conv.id)}
                 className={cn(
-                  'w-full p-11 flex items-start gap-9 transition-all border-b border-white/[0.02] relative',
+                  'w-full p-6 flex items-start gap-4 transition-all border-b border-white/[0.02] relative',
                   activeConversationId === conv.id ? 'bg-emerald-500/5' : 'hover:bg-white/[0.02]',
                   isNewOrcamento && activeConversationId !== conv.id ? 'bg-emerald-500/[0.03]' : '',
                 )}
@@ -125,7 +125,7 @@ export function ConversationList({
                   )} />
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <div className="flex justify-between items-center mb-6 gap-6">
+                  <div className="flex justify-between items-center mb-1 gap-1">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <h4 className="text-sm font-bold text-white truncate">{name}</h4>
                       {role === 'client' && conv.prof_user_id && (
@@ -156,7 +156,7 @@ export function ConversationList({
                   {conv.leadTitle && (
                     <p className="text-xs text-emerald-400/70 truncate mt-0.5">📋 {conv.leadTitle}</p>
                   )}
-                  <div className="flex justify-between items-center gap-7">
+                  <div className="flex justify-between items-center gap-2">
                     <p className="text-xs text-[#4A6580] truncate font-medium">
                       {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
                     </p>
@@ -178,7 +178,7 @@ export function ConversationList({
                           onSelectConversation(conv.id);
                         }
                       }}
-                      className="mt-7 block w-full py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold rounded-lg transition-all text-center cursor-pointer select-none"
+                      className="mt-2 block w-full py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold rounded-lg transition-all text-center cursor-pointer select-none"
                     >
                       Responder orçamento →
                     </span>

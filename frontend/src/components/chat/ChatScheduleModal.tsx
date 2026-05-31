@@ -92,15 +92,15 @@ export function ChatScheduleModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-9">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
       <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
-        <div className="flex justify-between items-center mb-11">
-          <h2 className="text-xl font-bold text-white flex items-center gap-7">
-            <div className="p-7 bg-emerald-500/20 text-emerald-500 rounded-lg">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <div className="p-2 bg-emerald-500/20 text-emerald-500 rounded-lg">
               <CalendarPlus size={20} />
             </div>
             Agendar Visita
@@ -110,11 +110,11 @@ export function ChatScheduleModal({
           </button>
         </div>
 
-        <p className="text-xs text-[#94A3B8] mb-11">
+        <p className="text-xs text-[#94A3B8] mb-6">
           Para: <span className="text-white font-semibold">{clientName}</span>
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-9">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Título do Serviço *</label>
             <input
@@ -123,11 +123,11 @@ export function ChatScheduleModal({
               placeholder="Ex: Instalação elétrica"
               value={form.title}
               onChange={e => setForm({ ...form, title: e.target.value })}
-              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Data *</label>
               <input
@@ -135,7 +135,7 @@ export function ChatScheduleModal({
                 required
                 value={form.date}
                 onChange={e => setForm({ ...form, date: e.target.value })}
-                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
               />
             </div>
             <div className="space-y-1.5">
@@ -145,13 +145,13 @@ export function ChatScheduleModal({
                 required
                 value={form.time}
                 onChange={e => setForm({ ...form, time: e.target.value })}
-                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-6">
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-1">
               <MapPin size={12} /> Endereço
             </label>
             <input
@@ -159,14 +159,14 @@ export function ChatScheduleModal({
               placeholder="Rua, número, bairro..."
               value={form.location}
               onChange={e => setForm({ ...form, location: e.target.value })}
-              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
             />
           </div>
 
           <button
             type="submit"
             disabled={scheduleMutation.isPending}
-            className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-7"
+            className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {scheduleMutation.isPending && <Loader2 size={16} className="animate-spin" />}
             {scheduleMutation.isPending ? 'Salvando...' : 'Criar Agendamento'}

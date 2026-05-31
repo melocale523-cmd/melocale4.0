@@ -26,12 +26,12 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="py-24 bg-[#0E1C32] overflow-hidden relative">
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none"></div>
-      <div className="container mx-auto px-11">
+      <div className="container mx-auto px-6">
         <div className="flex flex-col items-center text-center mb-16">
-          <div className="inline-block px-8 py-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest mb-9">
+          <div className="inline-block px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest mb-4">
             Comunidade
           </div>
-          <h2 className="text-4xl font-bold text-white mb-9">Aprovado pela Comunidade</h2>
+          <h2 className="text-4xl font-bold text-white mb-4">Aprovado pela Comunidade</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full" />
         </div>
 
@@ -48,8 +48,8 @@ export default function Testimonials() {
             >
               <Quote className="absolute top-6 right-8 text-white/5 group-hover:text-emerald-500/10 transition-colors" size={48} />
               <div className="relative z-10">
-                <p className="text-[#94A3B8] italic mb-13 leading-relaxed">"{t.content}"</p>
-                <div className="flex items-center gap-9">
+                <p className="text-[#94A3B8] italic mb-8 leading-relaxed">"{t.content}"</p>
+                <div className="flex items-center gap-4">
                   <img src={t.avatar} alt={t.name} loading="lazy" className="w-12 h-12 rounded-full border border-[#243F6A] shadow-sm" />
                   <div>
                     <h4 className="font-bold text-white text-sm">{t.name}</h4>

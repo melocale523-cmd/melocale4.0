@@ -47,26 +47,26 @@ export default function PWAInstallPrompt() {
     <>
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-9" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm p-11 relative">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
             <button onClick={handleClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
               <X size={20} />
             </button>
-            <div className="flex items-center gap-8 mb-9">
+            <div className="flex items-center gap-3 mb-4">
               <img src="/icon-192.png" alt="MeloCalé" className="w-14 h-14 rounded-xl shadow"/>
               <div>
                 <h2 className="font-semibold text-gray-900 dark:text-white text-lg">Instalar MeloCalé</h2>
                 <p className="text-sm text-gray-500">[www.melocale.com.br](https://www.melocale.com.br)</p>
               </div>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 text-sm mb-10">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-5">
               Instale o app e acesse rapidamente profissionais perto de você — sem precisar abrir o navegador!
             </p>
-            <div className="flex gap-8">
+            <div className="flex gap-3">
               <button onClick={handleClose} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium hover:bg-gray-50">
                 Agora não
               </button>
-              <button onClick={handleInstall} className="flex-1 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold flex items-center justify-center gap-7">
+              <button onClick={handleInstall} className="flex-1 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold flex items-center justify-center gap-2">
                 <Download size={16} />
                 Instalar
               </button>
@@ -79,7 +79,7 @@ export default function PWAInstallPrompt() {
       {showFab && !showModal && (
         <button
           onClick={() => setShowModal(true)}
-          className="fixed bottom-20 right-4 z-40 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg flex items-center gap-7 px-9 py-8 text-sm font-semibold transition-all"
+          className="fixed bottom-20 right-4 z-40 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all"
           title="Instalar app"
         >
           <Smartphone size={18} />

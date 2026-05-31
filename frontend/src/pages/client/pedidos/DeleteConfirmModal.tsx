@@ -11,10 +11,10 @@ export function DeleteConfirmModal({ pedido, onClose, onConfirm }: DeleteConfirm
   const willArchive = (pedido.purchases_count ?? 0) > 0;
 
   return (
-    <div className="fixed inset-0 z-[400] flex items-center justify-center p-9">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-11">
-        <div className="text-center space-y-8">
+      <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-6">
+        <div className="text-center space-y-3">
           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto ${willArchive ? 'bg-yellow-500/10' : 'bg-red-500/10'}`}>
             {willArchive
               ? <Archive size={28} className="text-yellow-400" />
@@ -31,7 +31,7 @@ export function DeleteConfirmModal({ pedido, onClose, onConfirm }: DeleteConfirm
             }
           </p>
         </div>
-        <div className="flex gap-8">
+        <div className="flex gap-3">
           <button
             type="button"
             onClick={onClose}

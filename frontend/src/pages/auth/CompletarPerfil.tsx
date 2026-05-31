@@ -156,23 +156,23 @@ export default function CompletarPerfil() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1C32] flex items-start justify-center pt-16 px-9 pb-16">
+    <div className="min-h-screen bg-[#0E1C32] flex items-start justify-center pt-16 px-4 pb-16">
       <div className="w-full max-w-md">
-        <div className="text-center mb-15">
-          <div className="text-4xl mb-9">{role === 'professional' ? '🔧' : '🏠'}</div>
-          <h1 className="text-3xl font-black text-white tracking-tight mb-7">Quase lá!</h1>
+        <div className="text-center mb-10">
+          <div className="text-4xl mb-4">{role === 'professional' ? '🔧' : '🏠'}</div>
+          <h1 className="text-3xl font-black text-white tracking-tight mb-2">Quase lá!</h1>
           <p className="text-[#7A9EBF] font-medium">Complete seu perfil para continuar</p>
         </div>
 
         {error && (
-          <div className="mb-11 p-9 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-8">
+          <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-3">
             <AlertCircle size={18} className="shrink-0" /> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-11">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">
+            <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">
               WhatsApp para Contato *
             </label>
             <input
@@ -180,14 +180,14 @@ export default function CompletarPerfil() {
               type="tel"
               placeholder="(11) 99999-9999"
               maxLength={20}
-              className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+              className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
               value={formData.phone}
               onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">
+            <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">
               Endereço
             </label>
             <AddressForm value={address} onChange={setAddress} variant="signup" />
@@ -195,12 +195,12 @@ export default function CompletarPerfil() {
 
           {role === 'professional' && (
             <div>
-              <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">
+              <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">
                 Especialidade / Categoria *
               </label>
               <select
                 required
-                className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
+                className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
                 value={formData.category}
                 onChange={e => setFormData(p => ({ ...p, category: e.target.value }))}
               >
@@ -215,7 +215,7 @@ export default function CompletarPerfil() {
                   required
                   placeholder="Descreva sua profissão..."
                   maxLength={100}
-                  className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium mt-8"
+                  className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium mt-3"
                   value={formData.customCategory}
                   onChange={e => setFormData(p => ({ ...p, customCategory: e.target.value }))}
                 />
@@ -225,14 +225,14 @@ export default function CompletarPerfil() {
 
           {role === 'professional' && (
             <div>
-              <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">
+              <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-3 ml-1">
                 Sobre você <span className="normal-case font-normal text-[#4A6580]">(opcional)</span>
               </label>
               <textarea
                 placeholder="Descreva sua experiência e serviços..."
                 rows={3}
                 maxLength={500}
-                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 py-9 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium resize-none text-sm leading-relaxed"
+                className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium resize-none text-sm leading-relaxed"
                 value={formData.bio}
                 onChange={e => setFormData(p => ({ ...p, bio: e.target.value }))}
               />
@@ -242,7 +242,7 @@ export default function CompletarPerfil() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-16 bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-8 shadow-2xl shadow-emerald-500/20 disabled:opacity-50 uppercase tracking-widest mt-9"
+            className="w-full h-16 bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl shadow-emerald-500/20 disabled:opacity-50 uppercase tracking-widest mt-4"
           >
             {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : 'Concluir Cadastro'}
           </button>

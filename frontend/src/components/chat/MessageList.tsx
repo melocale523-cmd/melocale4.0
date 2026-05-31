@@ -44,7 +44,7 @@ function renderMessageContent(msg: Message) {
         download={att.fileName}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-7 text-sm underline hover:no-underline"
+        className="flex items-center gap-2 text-sm underline hover:no-underline"
       >
         <Download size={14} />
         {getFileName(msg.body)}
@@ -64,7 +64,7 @@ export function MessageList({
   messagesEndRef,
 }: MessageListProps) {
   return (
-    <div className="flex-1 overflow-y-auto p-11 space-y-11 custom-scrollbar relative z-10">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar relative z-10">
       {isLoading ? (
         <div className="h-full flex items-center justify-center">
           <Loader2 className="animate-spin text-emerald-500" size={32} />
@@ -82,12 +82,12 @@ export function MessageList({
               )}
             >
               {isAi && (
-                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-6 ml-1">
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 ml-1">
                   🤖 Assistente MeloCalé
                 </span>
               )}
               <div className={cn(
-                'p-9 rounded-2xl text-[13px] leading-relaxed relative shadow-lg',
+                'p-4 rounded-2xl text-[13px] leading-relaxed relative shadow-lg',
                 mine
                   ? 'bg-emerald-600 text-white rounded-tr-sm'
                   : isAi
@@ -96,7 +96,7 @@ export function MessageList({
               )}>
                 {renderMessageContent(msg)}
               </div>
-              <div className="flex items-center gap-7 mt-7 px-1">
+              <div className="flex items-center gap-2 mt-2 px-1">
                 <span className="text-[10px] text-[#4A6580] font-bold uppercase tracking-wider">
                   {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -113,10 +113,10 @@ export function MessageList({
         })
       ) : (
         <div className="h-full flex flex-col items-center justify-center text-center p-12">
-          <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-11 text-emerald-500 border border-emerald-500/20 shadow-2xl">
+          <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-6 text-emerald-500 border border-emerald-500/20 shadow-2xl">
             <Send size={32} />
           </div>
-          <h4 className="text-white font-bold text-lg mb-7">Sem mensagens ainda</h4>
+          <h4 className="text-white font-bold text-lg mb-2">Sem mensagens ainda</h4>
           <p className="text-[#4A6580] font-medium text-sm max-w-[200px]">
             Inicie uma conversa com o {otherLabel.toLowerCase()} para fechar o serviço.
           </p>
@@ -125,8 +125,8 @@ export function MessageList({
 
       {isTyping && (
         <div className="flex flex-col items-start max-w-[70%] animate-in slide-in-from-bottom-2 duration-300">
-          <div className="bg-[#1C3454] text-[#94A3B8] py-8 px-5 rounded-2xl rounded-tl-sm border border-[#1C3050] flex items-center gap-8 shadow-lg">
-            <div className="flex gap-6 pt-1">
+          <div className="bg-[#1C3454] text-[#94A3B8] py-3 px-5 rounded-2xl rounded-tl-sm border border-[#1C3050] flex items-center gap-3 shadow-lg">
+            <div className="flex gap-1 pt-1">
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.3s]" />
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce" />

@@ -93,9 +93,9 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
         </div>
 
         {/* Scrollable body */}
-        <div className="overflow-y-auto flex-1 px-5 py-5 space-y-10">
+        <div className="overflow-y-auto flex-1 px-5 py-5 space-y-5">
           {/* Avatar + name + rating */}
-          <div className="flex items-start gap-9">
+          <div className="flex items-start gap-4">
             {prof.avatarUrl ? (
               <img
                 src={prof.avatarUrl}
@@ -108,9 +108,9 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h3 className="text-lg font-bold text-white mb-6">{prof.fullName || 'Profissional'}</h3>
+              <h3 className="text-lg font-bold text-white mb-1">{prof.fullName || 'Profissional'}</h3>
               {prof.avgRating > 0 && (
-                <div className="flex items-center gap-7 mb-1.5">
+                <div className="flex items-center gap-2 mb-1.5">
                   <StarsFull rating={prof.avgRating} />
                   <span className="text-sm font-bold text-yellow-400">{prof.avgRating.toFixed(1)}</span>
                   <span className="text-xs text-[#4A6580]">({prof.reviewCount})</span>
@@ -118,13 +118,13 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
               )}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 {prof.category && (
-                  <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
+                  <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
                     <Tag size={11} className="text-emerald-500 shrink-0" />
                     {prof.category}
                   </span>
                 )}
                 {prof.city && (
-                  <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
+                  <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
                     <MapPin size={11} className="text-[#4A6580] shrink-0" />
                     {prof.city}
                   </span>
@@ -135,28 +135,28 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
 
           {/* Bio */}
           {prof.bio && (
-            <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-9">
-              <p className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-7">Sobre</p>
+            <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-4">
+              <p className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-2">Sobre</p>
               <p className="text-sm text-[#94A3B8] leading-relaxed">{prof.bio}</p>
             </div>
           )}
 
           {/* Reviews */}
           <div>
-            <p className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-8">
+            <p className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-3">
               Avaliações recentes
             </p>
             {reviewsLoading ? (
-              <div className="flex items-center gap-7 text-[#4A6580] py-9">
+              <div className="flex items-center gap-2 text-[#4A6580] py-4">
                 <Loader2 size={16} className="animate-spin" />
                 <span className="text-xs">Carregando...</span>
               </div>
             ) : reviews && reviews.length > 0 ? (
-              <div className="space-y-8">
+              <div className="space-y-3">
                 {reviews.map(review => (
-                  <div key={review.id} className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-9 space-y-7">
-                    <div className="flex items-center justify-between gap-7">
-                      <div className="flex items-center gap-7">
+                  <div key={review.id} className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-4 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
                         <StarsFull rating={review.rating} size={12} />
                         <span className="text-xs font-semibold text-slate-300">
                           {review.clientName ?? 'Cliente'}
@@ -173,13 +173,13 @@ export default function PerfilProfissionalModal({ open, onClose, prof, onSolicit
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[#4A6580] py-7">Nenhuma avaliação ainda.</p>
+              <p className="text-xs text-[#4A6580] py-2">Nenhuma avaliação ainda.</p>
             )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex gap-8 px-5 py-9 border-t border-[#1C3050] shrink-0">
+        <div className="flex gap-3 px-5 py-4 border-t border-[#1C3050] shrink-0">
           <button
             onClick={onClose}
             className="flex-1 py-2.5 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-sm font-bold rounded-xl transition-all"

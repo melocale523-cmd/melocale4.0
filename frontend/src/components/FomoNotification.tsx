@@ -96,7 +96,7 @@ export default function FomoNotification() {
       key={current.key}
       className={`fixed bottom-20 left-3 z-[54] max-w-[280px] ${leaving ? 'fomo-out' : 'fomo-in'}`}
     >
-      <div className="bg-[#1a2e4a] border border-slate-700/60 rounded-2xl p-8 shadow-2xl shadow-black/40 flex items-start gap-8">
+      <div className="bg-[#1a2e4a] border border-slate-700/60 rounded-2xl p-3 shadow-2xl shadow-black/40 flex items-start gap-3">
         {/* Avatar */}
         <div className={`w-9 h-9 shrink-0 rounded-full ${current.notif.color} flex items-center justify-center text-white font-black text-xs`}>
           {current.notif.initial}

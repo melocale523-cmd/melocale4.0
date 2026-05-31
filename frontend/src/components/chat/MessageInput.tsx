@@ -52,12 +52,12 @@ export function MessageInput({
   };
 
   const RecordingIndicator = (
-    <div className="flex items-center gap-8 px-9 py-7 bg-red-500/10 rounded-xl border border-red-500/20 animate-pulse">
+    <div className="flex items-center gap-3 px-4 py-2 bg-red-500/10 rounded-xl border border-red-500/20 animate-pulse">
       <div className="w-2 h-2 bg-red-500 rounded-full" />
       <span className="text-xs font-mono font-bold text-red-500">
         {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
       </span>
-      <button type="button" onClick={onStopRecording} className="p-6 hover:bg-black/20 rounded-md text-red-500">
+      <button type="button" onClick={onStopRecording} className="p-1 hover:bg-black/20 rounded-md text-red-500">
         <Square size={16} fill="currentColor" />
       </button>
     </div>
@@ -81,7 +81,7 @@ export function MessageInput({
         maxLength={2000}
         onChange={handleInputChange}
         placeholder={inputPlaceholder}
-        className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-[1.25rem] py-9 px-11 pr-14 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-inner"
+        className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-[1.25rem] py-4 px-6 pr-14 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-inner"
       />
       <button
         type="button"
@@ -94,14 +94,14 @@ export function MessageInput({
   );
 
   return (
-    <div className="p-11 pb-8 border-t border-[#1C3050] bg-[#1C3454]/80 backdrop-blur-xl z-20 relative">
+    <div className="p-6 pb-8 border-t border-[#1C3050] bg-[#1C3454]/80 backdrop-blur-xl z-20 relative">
       {showEmojiPicker && (
-        <div className="absolute bottom-28 left-6 right-6 p-9 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl flex flex-wrap gap-7 animate-in slide-in-from-bottom-4 duration-300 border-b-4 border-b-emerald-500/20 z-50">
+        <div className="absolute bottom-28 left-6 right-6 p-4 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl flex flex-wrap gap-2 animate-in slide-in-from-bottom-4 duration-300 border-b-4 border-b-emerald-500/20 z-50">
           {EMOJIS.map(emoji => (
             <button
               key={emoji}
               onClick={() => { setMessageInput(messageInput + emoji); setShowEmojiPicker(false); }}
-              className="text-2xl hover:scale-125 transition-transform p-7 bg-white/5 rounded-xl hover:bg-emerald-500/20"
+              className="text-2xl hover:scale-125 transition-transform p-2 bg-white/5 rounded-xl hover:bg-emerald-500/20"
             >
               {emoji}
             </button>
@@ -116,12 +116,12 @@ export function MessageInput({
       )}
 
       {role === 'professional' ? (
-        <form onSubmit={onSendMessage} className="flex flex-col gap-7">
-          <div className="flex items-center gap-7">
+        <form onSubmit={onSendMessage} className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
             {TextInput}
             {SendButton}
           </div>
-          <div className="flex items-center gap-6 px-1">
+          <div className="flex items-center gap-1 px-1">
             {isRecording ? RecordingIndicator : (
               <>
                 <button type="button" onClick={onStartRecording} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Gravar Áudio">
@@ -143,17 +143,17 @@ export function MessageInput({
           </div>
         </form>
       ) : (
-        <form onSubmit={onSendMessage} className="flex items-center gap-8">
-          <div className="flex items-center gap-1.5 bg-white/5 py-6 px-1.5 rounded-[1.25rem] border border-[#1C3050] shadow-inner">
+        <form onSubmit={onSendMessage} className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 bg-white/5 py-1 px-1.5 rounded-[1.25rem] border border-[#1C3050] shadow-inner">
             {isRecording ? RecordingIndicator : (
               <>
-                <button type="button" onClick={onStartRecording} disabled={isUploading} className="p-8 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Gravar Áudio">
+                <button type="button" onClick={onStartRecording} disabled={isUploading} className="p-3 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Gravar Áudio">
                   {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Mic size={20} />}
                 </button>
-                <button type="button" onClick={() => imageInputRef.current?.click()} disabled={isUploading} className="p-8 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Foto">
+                <button type="button" onClick={() => imageInputRef.current?.click()} disabled={isUploading} className="p-3 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Foto">
                   <ImageIcon size={20} />
                 </button>
-                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="p-8 text-[#4A6580] hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Arquivo">
+                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="p-3 text-[#4A6580] hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Arquivo">
                   <Paperclip size={20} />
                 </button>
               </>
@@ -164,7 +164,7 @@ export function MessageInput({
         </form>
       )}
 
-      <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-9 text-center">
+      <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-4 text-center">
         As mensagens são protegidas por SSL em trânsito
       </p>
 

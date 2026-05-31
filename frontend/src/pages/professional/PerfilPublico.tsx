@@ -79,8 +79,8 @@ export default function PerfilPublico() {
   if (!prof) {
     return (
       <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-center p-8">
-        <p className="text-2xl font-bold text-white mb-7">Profissional não encontrado</p>
-        <p className="text-[#94A3B8] mb-11">Este perfil pode ter sido removido ou o link está incorreto.</p>
+        <p className="text-2xl font-bold text-white mb-2">Profissional não encontrado</p>
+        <p className="text-[#94A3B8] mb-6">Este perfil pode ter sido removido ou o link está incorreto.</p>
         <Link to="/" className="text-emerald-500 font-bold hover:underline">Voltar ao início</Link>
       </div>
     );
@@ -108,19 +108,19 @@ export default function PerfilPublico() {
         <meta name="twitter:card" content="summary" />
         <link rel="canonical" href={profileUrl} />
       </Helmet>
-      <div className="max-w-3xl mx-auto px-9 py-8">
+      <div className="max-w-3xl mx-auto px-4 py-8">
         <Link
           to={user ? (user.role === 'client' ? '/cliente/dashboard' : '/') : '/'}
-          className="inline-flex items-center gap-7 text-[#94A3B8] hover:text-white text-sm font-medium mb-13 transition-colors"
+          className="inline-flex items-center gap-2 text-[#94A3B8] hover:text-white text-sm font-medium mb-8 transition-colors"
         >
           <ArrowLeft size={16} /> Voltar
         </Link>
 
         {/* Header card */}
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-2xl overflow-hidden mb-11">
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-2xl overflow-hidden mb-6">
           <div className="h-28 bg-gradient-to-r from-slate-800 to-emerald-900/30" />
-          <div className="px-11 pb-6 -mt-12">
-            <div className="flex items-end gap-9 mb-9">
+          <div className="px-6 pb-6 -mt-12">
+            <div className="flex items-end gap-4 mb-4">
               <div className="w-20 h-20 rounded-full border-4 border-[#1C3454] bg-emerald-600 flex items-center justify-center text-white font-bold text-2xl overflow-hidden shrink-0">
                 {avatar
                   ? <img src={avatar} alt={name} className="w-full h-full object-cover" />
@@ -128,7 +128,7 @@ export default function PerfilPublico() {
               </div>
               <div className="pt-12">
                 <h1 className="text-2xl font-bold text-white">{name}</h1>
-                <div className="flex flex-wrap items-center gap-8 mt-6">
+                <div className="flex flex-wrap items-center gap-3 mt-1">
                   {prof.category && (
                     <span className="flex items-center gap-1.5 text-sm text-emerald-400 font-medium">
                       <Briefcase size={14} /> {prof.category}
@@ -144,7 +144,7 @@ export default function PerfilPublico() {
             </div>
 
             {reviewsData && reviewsData.total > 0 && (
-              <div className="flex items-center gap-7 mb-9">
+              <div className="flex items-center gap-2 mb-4">
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map(s => (
                     <Star
@@ -166,16 +166,16 @@ export default function PerfilPublico() {
             )}
 
             {user?.role === 'client' && prof && (
-              <div className="mt-9 flex flex-wrap gap-7">
+              <div className="mt-4 flex flex-wrap gap-2">
                 <button
                   onClick={() => setOrcamentoModalOpen(true)}
-                  className="inline-flex items-center gap-7 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
+                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
                 >
                   <FileText size={16} /> Solicitar orçamento
                 </button>
                 <Link
                   to="/cliente/mensagens"
-                  className="inline-flex items-center gap-7 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
+                  className="inline-flex items-center gap-2 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
                 >
                   <MessageCircle size={16} /> Enviar mensagem
                 </Link>
@@ -186,13 +186,13 @@ export default function PerfilPublico() {
 
         {/* Reviews */}
         {reviewsData && reviewsData.reviews.length > 0 && (
-          <div className="bg-[#1C3454] border border-slate-800/50 rounded-2xl p-11">
-            <h2 className="text-lg font-bold text-white mb-9 flex items-center gap-7">
+          <div className="bg-[#1C3454] border border-slate-800/50 rounded-2xl p-6">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <Star size={18} className="text-yellow-400" /> Avaliações
             </h2>
-            <div className="space-y-9">
+            <div className="space-y-4">
               {reviewsData.reviews.map(review => (
-                <div key={review.id} className="bg-[#0E1C32] border border-slate-800 rounded-xl p-9 space-y-7">
+                <div key={review.id} className="bg-[#0E1C32] border border-slate-800 rounded-xl p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-200">{review.client_name ?? 'Cliente'}</span>
                     <span className="text-xs text-[#4A6580]">

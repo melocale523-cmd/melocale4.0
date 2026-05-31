@@ -28,7 +28,7 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
-        <Loader2 className="animate-spin mb-9" size={40} />
+        <Loader2 className="animate-spin mb-4" size={40} />
         <p className="text-[#94A3B8] font-medium">Verificando perfil...</p>
       </div>
     );

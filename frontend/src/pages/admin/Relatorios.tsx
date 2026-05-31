@@ -80,22 +80,22 @@ export default function AdminRelatorios() {
   };
 
   return (
-    <div className="space-y-11 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div>
         <h1 className="text-2xl font-bold text-slate-100">Relatórios</h1>
-        <p className="text-[#94A3B8] mt-6">Exporte dados da plataforma em CSV para análise externa</p>
+        <p className="text-[#94A3B8] mt-1">Exporte dados da plataforma em CSV para análise externa</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-11">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {REPORTS.map(report => {
           const Icon = report.icon;
           const isLoading = loading === report.id;
           return (
             <div
               key={report.id}
-              className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col gap-9"
+              className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4"
             >
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
                   <Icon size={20} className="text-emerald-400" />
                 </div>
@@ -107,7 +107,7 @@ export default function AdminRelatorios() {
               <button
                 onClick={() => handleExport(report)}
                 disabled={isLoading}
-                className="flex items-center justify-center gap-7 w-full py-8 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed text-black font-black rounded-xl transition-all text-sm"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed text-black font-black rounded-xl transition-all text-sm"
               >
                 {isLoading ? (
                   <Loader2 size={16} className="animate-spin" />

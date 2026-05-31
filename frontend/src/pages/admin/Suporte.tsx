@@ -76,8 +76,8 @@ export default function AdminSuporte() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-11">
-      <div className="flex items-center gap-9">
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-4">
         <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
           <LifeBuoy size={20} className="text-red-400" />
         </div>
@@ -93,12 +93,12 @@ export default function AdminSuporte() {
 
       {tickets.length === 0 && (
         <div className="py-24 text-center text-[#4A6580]">
-          <LifeBuoy size={48} className="mx-auto mb-9 opacity-20" />
+          <LifeBuoy size={48} className="mx-auto mb-4 opacity-20" />
           <p className="font-medium">Nenhum ticket de suporte ainda.</p>
         </div>
       )}
 
-      <div className="space-y-8">
+      <div className="space-y-3">
         {tickets.map((ticket) => {
           const expanded = expandedId === ticket.id;
           const status = (ticket.status as TicketStatus) in STATUS_CONFIG ? ticket.status as TicketStatus : 'open';
@@ -110,12 +110,12 @@ export default function AdminSuporte() {
             <div key={ticket.id} className="bg-[#132540] border border-[#243F6A] rounded-2xl overflow-hidden">
               {/* Card header */}
               <button
-                className="w-full flex items-center gap-9 p-10 text-left hover:bg-white/[0.02] transition-colors"
+                className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.02] transition-colors"
                 onClick={() => setExpandedId(expanded ? null : ticket.id)}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-7 mb-6">
-                    <span className={cn('text-[10px] font-bold uppercase tracking-widest px-7 py-0.5 rounded-lg border', cfg.cls)}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={cn('text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg border', cfg.cls)}>
                       {cfg.label}
                     </span>
                     <span className="text-[#7A9EBF] text-xs">
@@ -136,18 +136,18 @@ export default function AdminSuporte() {
 
               {/* Expanded content */}
               {expanded && (
-                <div className="border-t border-[#1C3050] p-10 space-y-10">
+                <div className="border-t border-[#1C3050] p-5 space-y-5">
                   {/* Conversation */}
-                  <div className="space-y-7 max-h-72 overflow-y-auto pr-1" style={{ scrollbarWidth: 'none' }}>
+                  <div className="space-y-2 max-h-72 overflow-y-auto pr-1" style={{ scrollbarWidth: 'none' }}>
                     {(ticket.conversation ?? []).map((msg, i) => (
-                      <div key={i} className={cn('flex items-end gap-7', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                      <div key={i} className={cn('flex items-end gap-2', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
                         {msg.role === 'model' && (
                           <div className="w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
                             <Bot size={10} className="text-emerald-400" />
                           </div>
                         )}
                         <div className={cn(
-                          'max-w-[75%] px-8 py-7 rounded-xl text-xs leading-relaxed',
+                          'max-w-[75%] px-3 py-2 rounded-xl text-xs leading-relaxed',
                           msg.role === 'user'
                             ? 'bg-[#10b98120] border border-[#10b98140] text-white rounded-br-sm'
                             : 'bg-[#0E1C32] border border-[#1C3050] text-[#E2E8F0] rounded-bl-sm'
@@ -164,13 +164,13 @@ export default function AdminSuporte() {
                   </div>
 
                   {/* Controls */}
-                  <div className="grid sm:grid-cols-2 gap-9 pt-2 border-t border-[#1C3050]">
+                  <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-[#1C3050]">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-[#7A9EBF] uppercase tracking-widest">Status</label>
                       <select
                         value={status}
                         onChange={(e) => updateMutation.mutate({ id: ticket.id, status: e.target.value as TicketStatus })}
-                        className="w-full bg-[#0E1C32] border border-[#243F6A] text-white text-sm rounded-xl px-8 py-7 focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
+                        className="w-full bg-[#0E1C32] border border-[#243F6A] text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
                       >
                         <option value="open">Aberto</option>
                         <option value="pending">Pendente</option>
@@ -180,19 +180,19 @@ export default function AdminSuporte() {
 
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-[#7A9EBF] uppercase tracking-widest">Nota interna</label>
-                      <div className="flex gap-7">
+                      <div className="flex gap-2">
                         <textarea
                           rows={1}
                           value={noteVal}
                           onChange={(e) => setNotes(prev => ({ ...prev, [ticket.id]: e.target.value }))}
                           placeholder="Adicionar nota..."
                           maxLength={500}
-                          className="flex-1 bg-[#0E1C32] border border-[#243F6A] text-white text-sm rounded-xl px-8 py-7 focus:outline-none focus:border-emerald-500/50 resize-none"
+                          className="flex-1 bg-[#0E1C32] border border-[#243F6A] text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 resize-none"
                         />
                         <button
                           onClick={() => updateMutation.mutate({ id: ticket.id, note: noteVal })}
                           disabled={updateMutation.isPending}
-                          className="px-8 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl transition-colors"
+                          className="px-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl transition-colors"
                           title="Salvar nota"
                         >
                           {updateMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}

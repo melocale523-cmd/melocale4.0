@@ -40,7 +40,7 @@ function StarRow({ rating, count }: { rating: number; count: number }) {
 function RatingBadge({ avg, count }: { avg: number; count: number }) {
   if (avg <= 0) return null;
   return (
-    <span className="inline-flex items-center gap-6 text-[11px] font-bold text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-lg px-7 py-0.5">
+    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-lg px-2 py-0.5">
       <Star size={10} className="fill-yellow-400" />
       {avg.toFixed(1)}
       <span className="text-yellow-400/70 font-normal">({count})</span>
@@ -55,19 +55,19 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
   return (
     <>
       <div className={cn(
-        "bg-[#132540] border rounded-2xl p-10 flex flex-col gap-9 transition-all",
+        "bg-[#132540] border rounded-2xl p-5 flex flex-col gap-4 transition-all",
         prof.featuredUntil && new Date(prof.featuredUntil) > new Date()
           ? "border-yellow-500/40 hover:border-yellow-400/60 shadow-lg shadow-yellow-500/5"
           : "border-[#1C3050] hover:border-emerald-500/30",
       )}>
         {prof.featuredUntil && new Date(prof.featuredUntil) > new Date() && (
           <div className="flex items-center gap-1.5 -mb-1">
-            <span className="inline-flex items-center gap-6 text-[11px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-lg px-7 py-0.5 uppercase tracking-wide">
+            <span className="inline-flex items-center gap-1 text-[11px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-lg px-2 py-0.5 uppercase tracking-wide">
               <Star size={10} className="fill-yellow-400" /> Destaque
             </span>
           </div>
         )}
-        <div className="flex items-start gap-9">
+        <div className="flex items-start gap-4">
           {prof.avatarUrl ? (
             <img
               src={prof.avatarUrl}
@@ -80,20 +80,20 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-7">
+            <div className="flex items-start justify-between gap-2">
               <h3 className="text-base font-bold text-white truncate">{prof.fullName || 'Profissional'}</h3>
               <RatingBadge avg={prof.avgRating} count={prof.reviewCount} />
             </div>
             <StarRow rating={prof.avgRating} count={prof.reviewCount} />
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
               {prof.category && (
-                <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
+                <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
                   <Tag size={11} className="text-emerald-500 shrink-0" />
                   {prof.category}
                 </span>
               )}
               {prof.city && (
-                <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
+                <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
                   <MapPin size={11} className="text-[#4A6580] shrink-0" />
                   {prof.city}
                 </span>
@@ -106,17 +106,17 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
           <p className="text-xs text-[#94A3B8] line-clamp-2 leading-relaxed">{prof.bio}</p>
         )}
 
-        <div className="flex gap-7 mt-auto">
+        <div className="flex gap-2 mt-auto">
           <button
             onClick={() => setPerfilOpen(true)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-7 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-xs font-bold rounded-xl transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-xs font-bold rounded-xl transition-all"
           >
             <ExternalLink size={12} />
             Ver perfil
           </button>
           <button
             onClick={() => setOrcamentoOpen(true)}
-            className="flex-1 py-7 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all"
+            className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all"
           >
             Solicitar orçamento
           </button>
@@ -177,13 +177,13 @@ export default function BuscaProfissionais() {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-4xl font-black text-white tracking-tight mb-7">Buscar Profissionais</h1>
+        <h1 className="text-4xl font-black text-white tracking-tight mb-2">Buscar Profissionais</h1>
         <p className="text-[#94A3B8] font-medium">Encontre o profissional certo para o seu serviço.</p>
       </div>
 
       {/* Filtros */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-10 space-y-9">
-        <div className="flex flex-col sm:flex-row gap-8">
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 group">
             <Search
               size={16}
@@ -201,7 +201,7 @@ export default function BuscaProfissionais() {
           <select
             value={category}
             onChange={e => setCategory(e.target.value)}
-            className="bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all sm:w-48"
+            className="bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all sm:w-48"
           >
             <option value="">Todas as categorias</option>
             {(categories ?? []).map(c => (
@@ -225,15 +225,15 @@ export default function BuscaProfissionais() {
         </div>
 
         {/* Rating filter + sort */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-9">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           {/* Min rating stars */}
-          <div className="flex items-center gap-7">
+          <div className="flex items-center gap-2">
             <span className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest shrink-0">Avaliação mín:</span>
             <div className="flex items-center gap-0.5">
               <button
                 onClick={() => setMinRating(0)}
                 className={cn(
-                  'text-xs px-7 py-6 rounded-lg border transition-all font-bold',
+                  'text-xs px-2 py-1 rounded-lg border transition-all font-bold',
                   minRating === 0
                     ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
                     : 'border-[#1C3050] text-[#4A6580] hover:text-white',
@@ -246,7 +246,7 @@ export default function BuscaProfissionais() {
                   key={s}
                   onClick={() => setMinRating(minRating === s ? 0 : s)}
                   className={cn(
-                    'p-6 rounded transition-all',
+                    'p-1 rounded transition-all',
                     s <= minRating ? 'text-yellow-400' : 'text-slate-500 hover:text-yellow-400/70',
                   )}
                 >
@@ -260,13 +260,13 @@ export default function BuscaProfissionais() {
           </div>
 
           {/* Sort */}
-          <div className="flex items-center gap-7 sm:ml-auto">
+          <div className="flex items-center gap-2 sm:ml-auto">
             <span className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest shrink-0">Ordenar:</span>
             <div className="relative">
               <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value as typeof sortBy)}
-                className="appearance-none bg-[#0E1C32] border border-[#1C3050] rounded-xl py-7 pl-3 pr-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+                className="appearance-none bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2 pl-3 pr-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all"
               >
                 {SORT_OPTIONS.map(o => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -280,12 +280,12 @@ export default function BuscaProfissionais() {
 
       {/* Resultados */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-20 gap-8 text-[#4A6580]">
+        <div className="flex items-center justify-center py-20 gap-3 text-[#4A6580]">
           <Loader2 size={24} className="animate-spin" />
           <span className="text-sm font-medium">Buscando profissionais...</span>
         </div>
       ) : !profissionais.length ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-9 opacity-40 grayscale">
+        <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-40 grayscale">
           <Inbox size={56} className="text-slate-600" />
           <div className="text-center">
             <p className="text-white font-black text-lg">Nenhum profissional encontrado</p>
@@ -299,7 +299,7 @@ export default function BuscaProfissionais() {
           <p className="text-xs text-[#4A6580] font-bold uppercase tracking-widest -mb-4">
             {profissionais.length} profissional{profissionais.length !== 1 ? 'is' : ''} encontrado{profissionais.length !== 1 ? 's' : ''}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-9">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {profissionais.map(prof => (
               <ProfCard key={prof.id} prof={prof} />
             ))}
@@ -310,7 +310,7 @@ export default function BuscaProfissionais() {
               <button
                 onClick={() => void fetchNextPage()}
                 disabled={isFetchingNextPage}
-                className="flex items-center gap-7 px-11 py-8 bg-[#132540] border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-sm font-bold rounded-xl transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-3 bg-[#132540] border border-[#1C3050] hover:border-emerald-500/30 text-[#94A3B8] hover:text-emerald-400 text-sm font-bold rounded-xl transition-all disabled:opacity-50"
               >
                 {isFetchingNextPage ? (
                   <>

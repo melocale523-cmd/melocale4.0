@@ -64,12 +64,12 @@ export function CreateAppointmentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-9">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
       <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-13">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-7">
-            <div className="p-7 bg-emerald-500/20 text-emerald-500 rounded-lg"><Plus size={24} /></div>
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <div className="p-2 bg-emerald-500/20 text-emerald-500 rounded-lg"><Plus size={24} /></div>
             Novo Agendamento
           </h2>
           <button onClick={onClose} className="text-[#4A6580] hover:text-white transition-colors">
@@ -77,8 +77,8 @@ export function CreateAppointmentModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-10">
-          <div className="space-y-7">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
             <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Título / Serviço *</label>
             <input
               type="text"
@@ -87,16 +87,16 @@ export function CreateAppointmentModal({
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
               maxLength={255}
-              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
 
-          <div className="space-y-7">
-            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-7">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
               <User size={14} /> Cliente *
             </label>
             {availableClients.length === 0 ? (
-              <p className="text-xs text-[#4A6580] py-8 px-9 bg-[#0E1C32] rounded-xl border border-[#243F6A]">
+              <p className="text-xs text-[#4A6580] py-3 px-4 bg-[#0E1C32] rounded-xl border border-[#243F6A]">
                 Sem clientes disponíveis. Adquira leads primeiro.
               </p>
             ) : (
@@ -120,7 +120,7 @@ export function CreateAppointmentModal({
                     location: clientLocation || formData.location,
                   });
                 }}
-                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
               >
                 <option value="">Selecione um cliente...</option>
                 {availableClients.map(c => (
@@ -130,9 +130,9 @@ export function CreateAppointmentModal({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-9">
-            <div className="space-y-7">
-              <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-7">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                 <CalendarIcon size={14} /> Data *
               </label>
               <input
@@ -141,11 +141,11 @@ export function CreateAppointmentModal({
                 min={today}
                 value={formData.date}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
-                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
               />
             </div>
-            <div className="space-y-7">
-              <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-7">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
                 <Clock size={14} /> Horário *
               </label>
               <input
@@ -153,13 +153,13 @@ export function CreateAppointmentModal({
                 required
                 value={formData.time}
                 onChange={e => setFormData({ ...formData, time: e.target.value })}
-                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
               />
             </div>
           </div>
 
-          <div className="space-y-7">
-            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-7">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest flex items-center gap-2">
               <MapPin size={14} /> Endereço
             </label>
             <input
@@ -168,11 +168,11 @@ export function CreateAppointmentModal({
               value={formData.location}
               onChange={e => setFormData({ ...formData, location: e.target.value })}
               maxLength={255}
-              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
 
-          <div className="space-y-7">
+          <div className="space-y-2">
             <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest">Observações</label>
             <textarea
               rows={3}
@@ -180,14 +180,14 @@ export function CreateAppointmentModal({
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
               maxLength={500}
-              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+              className="w-full bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={isPending || availableClients.length === 0}
-            className="w-full py-9 bg-emerald-500 hover:bg-emerald-400 text-[#0E1C32] font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] mt-9 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-7"
+            className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-[#0E1C32] font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isPending && <Loader2 size={18} className="animate-spin" />}
             {isPending ? 'Salvando...' : 'Finalizar Agendamento'}
