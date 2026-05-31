@@ -135,23 +135,23 @@ export default function LandingPage() {
       {/* ── Banner topo — countdown padrão ou relâmpago 18-22h/fins de semana ── */}
       {isFlashTime() ? (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-7 md:gap-4 text-white text-xs md:text-sm font-black px-9 flex-wrap"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-xs md:text-sm font-black px-4 sm:px-6 flex-wrap"
           style={{ height: BANNER_H, background: 'linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%)' }}
         >
           <span>⚡ Oferta Relâmpago</span>
           <span className="hidden sm:inline text-amber-200">—</span>
           <span className="text-amber-100 font-bold">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
-          <Link to="/login?mode=signup" className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-8 py-6 text-xs font-black transition-colors whitespace-nowrap">
+          <Link to="/login?mode=signup" className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3 py-1.5 text-xs font-black transition-colors whitespace-nowrap">
             Aproveitar →
           </Link>
         </div>
       ) : (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-7 md:gap-4 text-white text-xs md:text-sm font-black px-9"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-xs md:text-sm font-black px-4 sm:px-6"
           style={{ height: BANNER_H, background: 'linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #c2410c 100%)' }}
         >
           <span>🔥 Oferta especial expira em:</span>
-          <span className="font-mono text-base md:text-lg tracking-widest bg-black/20 px-8 py-0.5 rounded-lg">
+          <span className="font-mono text-base md:text-lg tracking-widest bg-black/20 px-3 py-0.5 rounded-lg">
             {pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}
           </span>
           <Link to="/login?mode=signup" className="hidden sm:inline ml-2 underline underline-offset-2 hover:no-underline opacity-90 hover:opacity-100 transition-opacity">
@@ -164,12 +164,12 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-32 pb-6 md:pb-32 overflow-hidden">
+        <section id="hero" className="relative pt-32 pb-16 md:pb-24 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex flex-col lg:flex-row items-start gap-12 py-8">
 
-            <div className="max-w-2xl">
+            <div className="flex-1 max-w-xl">
               {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
@@ -285,7 +285,7 @@ export default function LandingPage() {
               )}
             </div>
 
-            <div className="hidden lg:block space-y-6">
+            <div className="hidden lg:flex lg:flex-col gap-6 w-[420px] shrink-0">
               {/* Pro card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
                 <div className="hidden sm:block absolute top-0 right-0 p-8 opacity-10 text-emerald-500"><Building2 size={100} /></div>
@@ -462,7 +462,7 @@ export default function LandingPage() {
         <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
         {/* ── Pricing ── */}
-        <section id="planos" className="pt-8 pb-10 md:pt-16 md:pb-24 bg-[#0E1C32] border-t border-slate-800/50">
+        <section id="planos" className="py-16 md:py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div className="text-center mb-8 md:mb-12">
@@ -621,9 +621,9 @@ export default function LandingPage() {
             </div>
 
             {/* Ancoragem de ROI */}
-            <div className="max-w-3xl mx-4 md:mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-8 text-center">
-              <p className="text-[#94A3B8] text-sm mb-7">💡 Pense assim:</p>
-              <p className="text-white text-xl font-bold mb-7">
+            <div className="max-w-3xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-8 text-center">
+              <p className="text-[#94A3B8] text-sm mb-4">💡 Pense assim:</p>
+              <p className="text-white text-xl font-bold mb-4">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
               </p>
               <p className="text-[#4A6580] text-sm">E com 40% de desconto em moedas, você acessa muito mais clientes pelo mesmo preço.</p>
