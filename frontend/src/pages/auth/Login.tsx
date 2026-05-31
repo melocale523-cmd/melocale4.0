@@ -286,7 +286,7 @@ export default function Login() {
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="text-center mb-8">
+      <div className="text-center mb-10">
         <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight">
           {selectedRole === 'admin' ? 'Acesso Restrito' : (isSignUp ? 'Criar nova conta' : 'Bem-vindo de volta')}
         </h1>
@@ -314,11 +314,11 @@ export default function Login() {
       )}
 
       {!isAuthenticated && selectedRole !== 'admin' && (
-        <div className="mb-8">
+        <div className="mb-10">
           {isSignUp ? (
             <>
               {/* Two role cards for signup */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-2 gap-3 mb-5">
                 {/* CLIENT CARD */}
                 <button
                   type="button"
@@ -330,7 +330,7 @@ export default function Login() {
                     <p className="text-white font-black text-sm">Preciso de serviços</p>
                     <p className="text-[#7A9EBF] text-xs mt-0.5">Quero contratar profissionais</p>
                   </div>
-                  <div className="w-full flex items-center justify-center gap-1.5 h-auto min-h-[36px] py-2 px-2 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-[10px] leading-tight transition-all mt-2">
+                  <div className="gap-1 h-9 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-[9px] leading-none tracking-tight transition-all mt-3 w-full px-1 flex items-center justify-center">
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -352,7 +352,7 @@ export default function Login() {
                     <p className="text-white font-black text-sm">Ofereço serviços</p>
                     <p className="text-[#7A9EBF] text-xs mt-0.5">Quero receber chamados</p>
                   </div>
-                  <div className="w-full flex items-center justify-center gap-1.5 h-auto min-h-[36px] py-2 px-2 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-[10px] leading-tight transition-all mt-2">
+                  <div className="gap-1 h-9 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-[9px] leading-none tracking-tight transition-all mt-3 w-full px-1 flex items-center justify-center">
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -399,7 +399,7 @@ export default function Login() {
           )}
 
           {/* OR divider — kept for both modes */}
-          <div className="relative mt-4">
+          <div className="relative mt-6">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#1C3050]"></div></div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black"><span className="bg-[#0E1C32] px-4 text-[#94A3B8]">Ou use seu e-mail</span></div>
           </div>
@@ -407,7 +407,7 @@ export default function Login() {
       )}
 
       {!isAuthenticated && selectedRole !== 'admin' && !isLockedMode && (
-        <div className="flex bg-[#0E1C32] p-1.5 rounded-2xl mb-6 border border-[#1C3050]">
+        <div className="flex bg-[#0E1C32] p-1.5 rounded-2xl mb-6 mt-5 border border-[#1C3050]">
           <button
             onClick={() => { setIsSignUp(false); setAuthStep('basics'); setError(null); }}
             className={cn("flex-1 py-3 text-sm font-black rounded-xl transition-all", !isSignUp ? "bg-white/5 text-white" : "text-[#7A9EBF] hover:text-slate-300")}
@@ -428,7 +428,7 @@ export default function Login() {
         <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-3">
           {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
         </p>
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           <button
             onClick={() => setSelectedRole('client')}
             className={cn("flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all", selectedRole === 'client' ? "border-blue-500/50 bg-blue-500/10 text-blue-400" : "border-[#1C3050] text-[#7A9EBF] bg-white/[0.02] hover:bg-white/[0.05]")}
@@ -462,12 +462,12 @@ export default function Login() {
             </div>
           )}
 
-          <form onSubmit={isSignUp && authStep === 'basics' ? handleNextStep : handleSubmit} className="space-y-4">
+          <form onSubmit={isSignUp && authStep === 'basics' ? handleNextStep : handleSubmit} className="space-y-5">
             {authStep === 'basics' && (
               <>
                 {isSignUp && (
                   <div>
-                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">Nome Completo</label>
+                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2.5 ml-1">Nome Completo</label>
                     <input
                       required type="text" placeholder="João da Silva" maxLength={100}
                       className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
@@ -476,7 +476,7 @@ export default function Login() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">E-mail</label>
+                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2.5 ml-1">E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
                     className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
@@ -484,7 +484,7 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center mb-2.5">
                     <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Sua Senha</label>
                     {!isSignUp && (
                       <button type="button" onClick={handleForgotPassword} className="text-[10px] font-black uppercase text-emerald-500 hover:text-emerald-400 tracking-widest transition-colors">Esqueci a senha</button>
@@ -541,7 +541,7 @@ export default function Login() {
             {authStep === 'details' && (
               <div className="space-y-5">
                 <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">WhatsApp de Contato</label>
+                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2.5 ml-1">WhatsApp de Contato</label>
                   <input
                     required type="tel" placeholder="(11) 99999-9999" maxLength={20}
                     className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
@@ -549,12 +549,12 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">Endereço</label>
+                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2.5 ml-1">Endereço</label>
                   <AddressForm value={address} onChange={setAddress} variant="signup" />
                 </div>
                 {selectedRole === 'professional' && (
                   <div>
-                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">Especialidade / Categoria</label>
+                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2.5 ml-1">Especialidade / Categoria</label>
                     <select
                       required
                       className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
@@ -581,7 +581,7 @@ export default function Login() {
                 )}
                 {selectedRole === 'professional' && (
                   <div>
-                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">
+                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2.5 ml-1">
                       Sobre você (opcional)
                     </label>
                     <textarea
@@ -602,7 +602,7 @@ export default function Login() {
               disabled={isSubmitting}
               type="submit"
               className={cn(
-                "w-full h-16 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl mt-8 uppercase tracking-widest",
+                "w-full h-16 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl mt-10 uppercase tracking-widest",
                 isSignUp
                   ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-500/20 active:scale-95"
                   : (selectedRole === 'admin' ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20" :
@@ -617,7 +617,7 @@ export default function Login() {
           </form>
 
           {isSignUp && (
-            <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-5">
+            <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-6">
               Ao continuar você declara que leu e concorda com nossos{' '}
               <button type="button" onClick={() => setLegalModal('termos')} className="text-[#B0C4D8] hover:text-white underline font-semibold">
                 Termos de Uso
@@ -630,7 +630,7 @@ export default function Login() {
           )}
 
           {/* Cross-link: switch between login and signup */}
-          <div className="text-center mt-5 pb-6">
+          <div className="text-center mt-6 pb-8">
             {isSignUp ? (
               <button
                 type="button"
