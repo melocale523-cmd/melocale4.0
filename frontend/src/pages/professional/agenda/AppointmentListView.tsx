@@ -48,27 +48,27 @@ export function AppointmentListView({
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="space-y-11">
+      <div className="flex justify-between items-center mb-9">
         <h2 className="text-white font-bold text-xl uppercase tracking-tight">Todos os Compromissos</h2>
-        <div className="flex items-center gap-2">
-          <button onClick={onPrev} className="p-2 hover:text-emerald-500 text-[#94A3B8] transition-colors">
+        <div className="flex items-center gap-7">
+          <button onClick={onPrev} className="p-7 hover:text-emerald-500 text-[#94A3B8] transition-colors">
             <ChevronLeft size={20} />
           </button>
           <button onClick={onToday} className="text-xs font-bold text-[#94A3B8] hover:text-white transition-colors">
             Ir para Hoje
           </button>
-          <button onClick={onNext} className="p-2 hover:text-emerald-500 text-[#94A3B8] transition-colors">
+          <button onClick={onNext} className="p-7 hover:text-emerald-500 text-[#94A3B8] transition-colors">
             <ChevronRight size={20} />
           </button>
         </div>
       </div>
 
       {sorted.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-8">
           {sorted.map(app => (
-            <div key={app.id} className="bg-[#0E1C32] border border-[#1C3050] p-4 rounded-2xl flex items-center justify-between group hover:border-emerald-500/30 transition-all">
-              <div className="flex items-center gap-4">
+            <div key={app.id} className="bg-[#0E1C32] border border-[#1C3050] p-9 rounded-2xl flex items-center justify-between group hover:border-emerald-500/30 transition-all">
+              <div className="flex items-center gap-9">
                 <div className="w-12 h-12 bg-white/5 rounded-xl flex flex-col items-center justify-center border border-[#243F6A] group-hover:border-emerald-500/20 transition-colors">
                   <span className="text-[10px] font-bold text-[#4A6580] uppercase">
                     {format(new Date(app.scheduled_at), 'MMM', { locale: ptBR })}
@@ -79,7 +79,7 @@ export function AppointmentListView({
                 </div>
                 <div>
                   <p className="text-white font-bold">{app.title}</p>
-                  <div className="flex items-center gap-2 text-xs text-[#4A6580]">
+                  <div className="flex items-center gap-7 text-xs text-[#4A6580]">
                     <User size={12} /> {app.client?.full_name || 'Cliente'}
                     <span className="w-1 h-1 rounded-full bg-slate-700" />
                     <Clock size={12} /> {format(new Date(app.scheduled_at), 'HH:mm')}
@@ -92,20 +92,20 @@ export function AppointmentListView({
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-8">
                 <span className={cn('px-3 py-1 text-[10px] font-bold rounded-full border uppercase', STATUS_BADGE[app.status])}>
                   {STATUS_LABEL[app.status]}
                 </span>
                 {isActive(app.status) && (
                   <button
                     onClick={() => onCancelTarget({ id: app.id, clientId: app.client_id })}
-                    className="p-2 text-[#4A6580] hover:text-red-500 transition-colors"
+                    className="p-7 text-[#4A6580] hover:text-red-500 transition-colors"
                     title="Cancelar"
                   >
                     <X size={18} />
                   </button>
                 )}
-                <button onClick={() => onOpenDetails(app)} className="p-2 text-[#4A6580] hover:text-emerald-500 transition-colors">
+                <button onClick={() => onOpenDetails(app)} className="p-7 text-[#4A6580] hover:text-emerald-500 transition-colors">
                   <List size={18} />
                 </button>
               </div>
@@ -114,10 +114,10 @@ export function AppointmentListView({
         </div>
       ) : (
         <div className="border border-dashed border-[#243F6A] rounded-3xl p-16 text-center flex flex-col items-center justify-center bg-[#0E1C32]/50 min-h-[400px]">
-          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 text-slate-700">
+          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-11 text-slate-700">
             <List size={32} />
           </div>
-          <h3 className="text-slate-300 font-bold mb-2">Sem agendamentos</h3>
+          <h3 className="text-slate-300 font-bold mb-7">Sem agendamentos</h3>
           <p className="text-[#4A6580] text-sm max-w-xs mx-auto">Crie um novo agendamento para começar.</p>
         </div>
       )}

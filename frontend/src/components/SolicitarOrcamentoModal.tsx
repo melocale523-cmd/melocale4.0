@@ -152,11 +152,11 @@ export default function SolicitarOrcamentoModal({
       <div className="w-full sm:max-w-lg bg-[#132540] border border-[#1C3050] sm:rounded-2xl rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#1C3050]">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-8">
             {step === 'form' && (
               <button
                 onClick={() => setStep('choose')}
-                className="p-1 text-[#4A6580] hover:text-white transition-colors"
+                className="p-6 text-[#4A6580] hover:text-white transition-colors"
               >
                 <ArrowLeft size={18} />
               </button>
@@ -175,9 +175,9 @@ export default function SolicitarOrcamentoModal({
         <div className="px-5 py-5">
           {/* Step: choose */}
           {step === 'choose' && (
-            <div className="space-y-3">
+            <div className="space-y-8">
               {mutation.isPending && (
-                <div className="flex items-center justify-center py-8 gap-3 text-[#4A6580]">
+                <div className="flex items-center justify-center py-8 gap-8 text-[#4A6580]">
                   <Loader2 size={20} className="animate-spin" />
                   <span className="text-sm">Abrindo conversa...</span>
                 </div>
@@ -186,13 +186,13 @@ export default function SolicitarOrcamentoModal({
                 <>
                   {existingLeads && existingLeads.length > 0 && (
                     <>
-                      <p className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-2">Usar pedido existente</p>
-                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      <p className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-7">Usar pedido existente</p>
+                      <div className="space-y-7 max-h-48 overflow-y-auto pr-1">
                         {existingLeads.map(lead => (
                           <button
                             key={lead.id}
                             onClick={() => handleChooseExisting(lead.id)}
-                            className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-[#0E1C32] border border-[#1C3050] rounded-xl hover:border-emerald-500/30 hover:bg-[#1C3050] transition-all text-left"
+                            className="w-full flex items-center justify-between gap-8 px-9 py-8 bg-[#0E1C32] border border-[#1C3050] rounded-xl hover:border-emerald-500/30 hover:bg-[#1C3050] transition-all text-left"
                           >
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-white truncate">{lead.title}</p>
@@ -202,7 +202,7 @@ export default function SolicitarOrcamentoModal({
                           </button>
                         ))}
                       </div>
-                      <div className="flex items-center gap-3 py-1">
+                      <div className="flex items-center gap-8 py-6">
                         <div className="flex-1 h-px bg-[#1C3050]" />
                         <span className="text-xs text-[#4A6580]">ou</span>
                         <div className="flex-1 h-px bg-[#1C3050]" />
@@ -211,7 +211,7 @@ export default function SolicitarOrcamentoModal({
                   )}
                   <button
                     onClick={handleNewRequest}
-                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all"
+                    className="w-full py-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all"
                   >
                     Novo pedido de orçamento
                   </button>
@@ -222,7 +222,7 @@ export default function SolicitarOrcamentoModal({
 
           {/* Step: form */}
           {step === 'form' && (
-            <form onSubmit={handleSubmitForm} className="space-y-4">
+            <form onSubmit={handleSubmitForm} className="space-y-9">
               <div>
                 <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-1.5">
                   Título do serviço *
@@ -232,7 +232,7 @@ export default function SolicitarOrcamentoModal({
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder="Ex: Instalação de ar-condicionado"
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
                   required
                   minLength={5}
                   maxLength={200}
@@ -244,7 +244,7 @@ export default function SolicitarOrcamentoModal({
                         key={s}
                         type="button"
                         onClick={() => setTitle(s)}
-                        className="text-[11px] px-2.5 py-1 bg-[#0E1C32] border border-[#1C3050] hover:border-emerald-500/40 text-[#94A3B8] hover:text-emerald-400 rounded-lg transition-all"
+                        className="text-[11px] px-2.5 py-6 bg-[#0E1C32] border border-[#1C3050] hover:border-emerald-500/40 text-[#94A3B8] hover:text-emerald-400 rounded-lg transition-all"
                       >
                         {s}
                       </button>
@@ -262,14 +262,14 @@ export default function SolicitarOrcamentoModal({
                   onChange={e => setDescription(e.target.value)}
                   placeholder="Descreva o serviço que precisa..."
                   rows={3}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580] resize-none"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580] resize-none"
                   required
                   minLength={10}
                   maxLength={2000}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
                   <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-1.5">
                     Categoria
@@ -279,7 +279,7 @@ export default function SolicitarOrcamentoModal({
                     value={category}
                     onChange={e => setCategory(e.target.value)}
                     placeholder="Ex: Elétrica"
-                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
+                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
                     maxLength={100}
                   />
                 </div>
@@ -292,13 +292,13 @@ export default function SolicitarOrcamentoModal({
                     value={city}
                     onChange={e => setCity(e.target.value)}
                     placeholder="Ex: São Paulo"
-                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
+                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
                     maxLength={200}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
                   <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-1.5">
                     Orçamento mín. (R$)
@@ -309,7 +309,7 @@ export default function SolicitarOrcamentoModal({
                     onChange={e => setBudgetMin(e.target.value)}
                     placeholder="0"
                     min="0"
-                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
+                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
                   />
                 </div>
                 <div>
@@ -322,7 +322,7 @@ export default function SolicitarOrcamentoModal({
                     onChange={e => setBudgetMax(e.target.value)}
                     placeholder="0"
                     min="0"
-                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
+                    className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 px-8 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-[#4A6580]"
                   />
                 </div>
               </div>
@@ -348,10 +348,10 @@ export default function SolicitarOrcamentoModal({
 
           {/* Step: success */}
           {step === 'success' && result && (
-            <div className="flex flex-col items-center text-center gap-4 py-4">
+            <div className="flex flex-col items-center text-center gap-9 py-9">
               <CheckCircle2 size={48} className="text-emerald-500" />
               <div>
-                <p className="text-lg font-bold text-white mb-1">
+                <p className="text-lg font-bold text-white mb-6">
                   {result.already_exists ? 'Conversa já existe!' : 'Orçamento enviado!'}
                 </p>
                 <p className="text-sm text-[#94A3B8]">
@@ -361,7 +361,7 @@ export default function SolicitarOrcamentoModal({
                 </p>
               </div>
               {result.avg_response_hours !== null && result.avg_response_hours > 0 && (
-                <div className="flex items-center justify-center gap-2 text-sm text-[#94A3B8] bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-2.5">
+                <div className="flex items-center justify-center gap-7 text-sm text-[#94A3B8] bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-2.5">
                   <Clock size={14} className="text-emerald-400 shrink-0" />
                   <span>
                     {professionalName} costuma responder em{' '}
@@ -380,7 +380,7 @@ export default function SolicitarOrcamentoModal({
                   handleClose();
                   navigate(`/cliente/mensagens?chatId=${result.conversation_id}`);
                 }}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all"
+                className="w-full py-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all"
               >
                 Ver conversa
               </button>

@@ -234,15 +234,15 @@ export default function ProfessionalPerfil() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-11">
       <div>
         <h1 className="text-2xl font-bold text-slate-100">Perfil Profissional</h1>
-        <p className="text-[#94A3B8] mt-1">Configure como os clientes verão seus serviços.</p>
+        <p className="text-[#94A3B8] mt-6">Configure como os clientes verão seus serviços.</p>
       </div>
 
       <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
-          <div className="absolute -bottom-10 left-6 flex items-end gap-3">
+          <div className="absolute -bottom-10 left-6 flex items-end gap-8">
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
             <div className="w-20 h-20 bg-slate-700 rounded-full border-4 border-[#1C3454] flex items-center justify-center text-slate-300 relative overflow-hidden">
               {profile?.avatar_url ? (
@@ -256,12 +256,12 @@ export default function ProfessionalPerfil() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-1 mb-1">
+            <div className="flex flex-col gap-6 mb-6">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={avatarBusy}
-                className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-wait text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all whitespace-nowrap"
+                className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-wait text-white text-xs font-bold px-8 py-1.5 rounded-lg transition-all whitespace-nowrap"
               >
                 <Camera size={12} />
                 {profile?.avatar_url ? 'Alterar foto' : 'Adicionar foto'}
@@ -270,7 +270,7 @@ export default function ProfessionalPerfil() {
                 <button
                   type="button"
                   onClick={() => removeMutation.mutate()}
-                  className="flex items-center gap-1.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 text-xs font-bold px-3 py-1.5 rounded-lg transition-all whitespace-nowrap"
+                  className="flex items-center gap-1.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 text-xs font-bold px-8 py-1.5 rounded-lg transition-all whitespace-nowrap"
                 >
                   <Trash2 size={12} /> Remover
                 </button>
@@ -279,27 +279,27 @@ export default function ProfessionalPerfil() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 pt-14 space-y-6">
+        <form onSubmit={handleSubmit} className="p-11 pt-14 space-y-11">
           {successMsg && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center text-sm">
+            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-8 rounded-lg flex items-center text-sm">
               <CheckCircle2 size={16} className="mr-2 shrink-0" /> Alterações salvas com sucesso!
             </div>
           )}
           {validationError && (
-            <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3 rounded-lg flex items-center text-sm">
+            <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-8 rounded-lg flex items-center text-sm">
               <AlertCircle size={16} className="mr-2 shrink-0" />
               {validationError}
             </div>
           )}
           {saveMutation.isError && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center text-sm">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-8 rounded-lg flex items-center text-sm">
               <AlertCircle size={16} className="mr-2 shrink-0" />
               {(saveMutation.error as Error).message}
             </div>
           )}
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid gap-11 md:grid-cols-2">
+            <div className="space-y-7">
               <label className="text-sm font-medium text-slate-300">Nome Completo</label>
               <div className="relative">
                 <User className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
@@ -309,13 +309,13 @@ export default function ProfessionalPerfil() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-8 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                   placeholder="Seu nome"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-7">
               <label className="text-sm font-medium text-slate-300">E-mail</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
@@ -323,12 +323,12 @@ export default function ProfessionalPerfil() {
                   name="email"
                   value={formData.email}
                   disabled
-                  className="w-full bg-[#0E1C32]/50 border border-slate-800/50 text-[#4A6580] cursor-not-allowed text-sm rounded-lg pl-10 px-3 py-2.5 outline-none"
+                  className="w-full bg-[#0E1C32]/50 border border-slate-800/50 text-[#4A6580] cursor-not-allowed text-sm rounded-lg pl-10 px-8 py-2.5 outline-none"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-7">
               <label className="text-sm font-medium text-slate-300">Telefone / WhatsApp</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
@@ -338,13 +338,13 @@ export default function ProfessionalPerfil() {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-8 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                   placeholder="(11) 90000-0000"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-7">
               <label className="text-sm font-medium text-slate-300">Categoria Principal</label>
               <div className="relative">
                 <Briefcase className="absolute left-3 top-2.5 text-[#4A6580]" size={18} />
@@ -352,7 +352,7 @@ export default function ProfessionalPerfil() {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all appearance-none"
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg pl-10 px-8 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all appearance-none"
                 >
                   <option value="" disabled>Selecione sua categoria</option>
                   {categorias.map(cat => (
@@ -365,7 +365,7 @@ export default function ProfessionalPerfil() {
                   type="text"
                   placeholder="Descreva sua profissão..."
                   maxLength={100}
-                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all mt-2"
+                  className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg px-8 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all mt-7"
                   value={formData.customCategory}
                   onChange={e => setFormData(prev => ({ ...prev, customCategory: e.target.value }))}
                 />
@@ -373,9 +373,9 @@ export default function ProfessionalPerfil() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-7">
             <label className="text-sm font-medium text-slate-300">Raio de Atendimento (km)</label>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-9">
               <input
                 type="range"
                 name="radius"
@@ -384,13 +384,13 @@ export default function ProfessionalPerfil() {
                 onChange={handleChange}
                 className="flex-1 accent-emerald-500"
               />
-              <span className="bg-[#0E1C32] border border-slate-800 px-3 py-1 rounded text-sm text-emerald-400 font-medium min-w-16 text-center">
+              <span className="bg-[#0E1C32] border border-slate-800 px-8 py-6 rounded text-sm text-emerald-400 font-medium min-w-16 text-center">
                 {formData.radius} km
               </span>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-7">
             <label className="text-sm font-medium text-slate-300">Resumo Profissional / Biografia</label>
             <textarea
               name="bio"
@@ -398,7 +398,7 @@ export default function ProfessionalPerfil() {
               value={formData.bio}
               onChange={handleChange}
               rows={4}
-              className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
+              className="w-full bg-[#0E1C32] border border-slate-800 text-slate-200 text-sm rounded-lg p-8 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
               placeholder="Descreva suas habilidades, tempo de experiência e diferenciais..."
             />
           </div>
@@ -407,7 +407,7 @@ export default function ProfessionalPerfil() {
             <button
               type="submit"
               disabled={saveMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center"
+              className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white px-11 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center"
             >
               {saveMutation.isPending ? (
                 <><Loader2 size={16} className="animate-spin mr-2" /> Salvando...</>
@@ -420,8 +420,8 @@ export default function ProfessionalPerfil() {
       </div>
 
       {/* Address */}
-      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 space-y-4">
-        <div className="flex items-center gap-3">
+      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11 space-y-9">
+        <div className="flex items-center gap-8">
           <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
             <MapPin size={20} />
           </div>
@@ -432,7 +432,7 @@ export default function ProfessionalPerfil() {
         </div>
 
         {addrSuccessMsg && (
-          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center text-sm">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-8 rounded-lg flex items-center text-sm">
             <CheckCircle2 size={16} className="mr-2 shrink-0" /> Endereço salvo com sucesso!
           </div>
         )}
@@ -444,7 +444,7 @@ export default function ProfessionalPerfil() {
             type="button"
             onClick={() => savAddressMutation.mutate()}
             disabled={savAddressMutation.isPending}
-            className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-11 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-7"
           >
             {savAddressMutation.isPending
               ? <><Loader2 size={16} className="animate-spin" /> Salvando...</>
@@ -455,8 +455,8 @@ export default function ProfessionalPerfil() {
       </div>
 
       {/* Stripe Connect */}
-      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 space-y-4">
-        <div className="flex items-center gap-3">
+      <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11 space-y-9">
+        <div className="flex items-center gap-8">
           <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500">
             <CreditCard size={20} />
           </div>
@@ -466,13 +466,13 @@ export default function ProfessionalPerfil() {
           </div>
         </div>
 
-        <div className="p-4 bg-[#0E1C32] border border-slate-800 rounded-lg flex items-center justify-between gap-4">
+        <div className="p-9 bg-[#0E1C32] border border-slate-800 rounded-lg flex items-center justify-between gap-9">
           {connectLoading ? (
-            <div className="flex items-center gap-2 text-[#4A6580] text-sm">
+            <div className="flex items-center gap-7 text-[#4A6580] text-sm">
               <Loader2 size={16} className="animate-spin" /> Verificando status...
             </div>
           ) : connectStatusValue === 'active' ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-7">
               <CheckCircle size={18} className="text-emerald-400 shrink-0" />
               <div className="space-y-0.5">
                 <p className="text-sm font-medium text-slate-200">
@@ -492,7 +492,7 @@ export default function ProfessionalPerfil() {
               <button
                 onClick={handleConnectStripe}
                 disabled={connectBusy}
-                className="shrink-0 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-wait text-black px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+                className="shrink-0 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-wait text-black px-9 py-7 rounded-lg text-sm font-bold transition-all flex items-center gap-7"
               >
                 {connectBusy ? <Loader2 size={15} className="animate-spin" /> : null}
                 Continuar cadastro
@@ -509,7 +509,7 @@ export default function ProfessionalPerfil() {
               <button
                 onClick={handleConnectStripe}
                 disabled={connectBusy}
-                className="shrink-0 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-wait text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+                className="shrink-0 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-wait text-white px-9 py-7 rounded-lg text-sm font-bold transition-all flex items-center gap-7"
               >
                 {connectBusy ? <Loader2 size={15} className="animate-spin" /> : null}
                 Conectar com Stripe
@@ -520,9 +520,9 @@ export default function ProfessionalPerfil() {
       </div>
       {/* Reviews */}
       {reviewsData && (
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 space-y-4">
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11 space-y-9">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-8">
               <div className="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-400">
                 <Star size={20} />
               </div>
@@ -533,7 +533,7 @@ export default function ProfessionalPerfil() {
             </div>
             {reviewsData.total > 0 && (
               <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-6">
                   {[1, 2, 3, 4, 5].map(s => (
                     <Star
                       key={s}
@@ -550,11 +550,11 @@ export default function ProfessionalPerfil() {
           </div>
 
           {reviewsData.reviews.length === 0 ? (
-            <p className="text-sm text-[#4A6580] text-center py-4">Nenhuma avaliação ainda.</p>
+            <p className="text-sm text-[#4A6580] text-center py-9">Nenhuma avaliação ainda.</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-8">
               {reviewsData.reviews.map(review => (
-                <div key={review.id} className="bg-[#0E1C32] border border-slate-800 rounded-lg p-4 space-y-2">
+                <div key={review.id} className="bg-[#0E1C32] border border-slate-800 rounded-lg p-9 space-y-7">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-200">{review.client_name ?? 'Cliente'}</span>
                     <span className="text-xs text-[#4A6580]">

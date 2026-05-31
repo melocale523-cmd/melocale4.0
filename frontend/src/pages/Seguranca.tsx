@@ -4,7 +4,7 @@ import { ArrowLeft, ShieldCheck, Lock, CreditCard, Bell, KeyRound } from 'lucide
 
 export default function Seguranca() {
   return (
-    <div className="min-h-screen bg-[#0E1C32] text-white py-12 px-4">
+    <div className="min-h-screen bg-[#0E1C32] text-white py-12 px-9">
       <Helmet>
         <title>Segurança — MeloCalé</title>
         <meta name="description" content="Como o MeloCalé protege seus dados e transações." />
@@ -13,18 +13,18 @@ export default function Seguranca() {
       <div className="max-w-3xl mx-auto">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-[#94A3B8] hover:text-white mb-8 text-sm transition-colors"
+          className="inline-flex items-center gap-7 text-[#94A3B8] hover:text-white mb-13 text-sm transition-colors"
         >
           <ArrowLeft size={16} /> Voltar para o início
         </Link>
 
-        <h1 className="text-3xl font-bold text-white mb-2">Segurança</h1>
-        <p className="text-[#94A3B8] text-sm mb-10">Como protegemos sua conta e seus dados</p>
+        <h1 className="text-3xl font-bold text-white mb-7">Segurança</h1>
+        <p className="text-[#94A3B8] text-sm mb-15">Como protegemos sua conta e seus dados</p>
 
         <div className="space-y-8 text-[#94A3B8] leading-relaxed">
 
           <section>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-8 mb-8">
               <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
                 <Lock size={18} />
               </div>
@@ -35,7 +35,7 @@ export default function Seguranca() {
               infraestrutura de banco de dados e autenticação. Todos os dados são armazenados com
               criptografia em repouso (AES-256) e em trânsito (TLS 1.3).
             </p>
-            <ul className="list-disc list-inside space-y-1 mt-3">
+            <ul className="list-disc list-inside space-y-6 mt-8">
               <li><strong className="text-white">Row-Level Security (RLS)</strong>: cada usuário acessa apenas seus próprios dados — nenhuma consulta pode vazar informações de outros perfis</li>
               <li><strong className="text-white">Senhas</strong>: nunca armazenadas em texto simples — hashing com bcrypt via Supabase Auth</li>
               <li><strong className="text-white">Tokens JWT</strong>: sessões autenticadas com expiração e rotação automática</li>
@@ -45,7 +45,7 @@ export default function Seguranca() {
           </section>
 
           <section>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-8 mb-8">
               <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400">
                 <CreditCard size={18} />
               </div>
@@ -57,7 +57,7 @@ export default function Seguranca() {
               pagamentos com certificação <strong className="text-white">PCI DSS Nível 1</strong> —
               o mais alto padrão de segurança do setor.
             </p>
-            <ul className="list-disc list-inside space-y-1 mt-3">
+            <ul className="list-disc list-inside space-y-6 mt-8">
               <li>O MeloCalé <strong className="text-white">nunca armazena</strong> dados de cartão de crédito</li>
               <li>Todos os dados financeiros trafegam diretamente entre você e o Stripe</li>
               <li>Webhooks assinados com secret exclusivo para validar autenticidade</li>
@@ -66,7 +66,7 @@ export default function Seguranca() {
           </section>
 
           <section>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-8 mb-8">
               <div className="w-8 h-8 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-400">
                 <Bell size={18} />
               </div>
@@ -78,7 +78,7 @@ export default function Seguranca() {
               que garante que apenas nossos servidores autorizados podem enviar notificações para
               o seu dispositivo.
             </p>
-            <ul className="list-disc list-inside space-y-1 mt-3">
+            <ul className="list-disc list-inside space-y-6 mt-8">
               <li>Par de chaves criptográficas exclusivo por servidor</li>
               <li>Notificações não podem ser interceptadas ou falsificadas por terceiros</li>
               <li>Permissão de notificações é totalmente opcional e pode ser revogada nas configurações do navegador</li>
@@ -86,7 +86,7 @@ export default function Seguranca() {
           </section>
 
           <section>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-8 mb-8">
               <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400">
                 <ShieldCheck size={18} />
               </div>
@@ -97,7 +97,7 @@ export default function Seguranca() {
               erros em tempo real. Dados de diagnóstico são anonimizados e usados exclusivamente
               para melhorar a estabilidade da plataforma.
             </p>
-            <ul className="list-disc list-inside space-y-1 mt-3">
+            <ul className="list-disc list-inside space-y-6 mt-8">
               <li>Alertas automáticos para anomalias e tentativas de acesso suspeito</li>
               <li>Rate limiting em endpoints sensíveis para prevenir ataques de força bruta</li>
               <li>Logs de auditoria para operações críticas, retidos por <strong className="text-white">30 dias</strong></li>
@@ -105,14 +105,14 @@ export default function Seguranca() {
           </section>
 
           <section>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-8 mb-8">
               <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
                 <KeyRound size={18} />
               </div>
               <h2 className="text-lg font-semibold text-white">Boas Práticas para Você</h2>
             </div>
             <p>Para manter sua conta segura, recomendamos:</p>
-            <ul className="list-disc list-inside space-y-1 mt-3">
+            <ul className="list-disc list-inside space-y-6 mt-8">
               <li>Use uma <strong className="text-white">senha forte e única</strong> — mínimo de 8 caracteres com letras, números e símbolos</li>
               <li>Nunca compartilhe sua senha com ninguém, nem com a equipe MeloCalé</li>
               <li><strong className="text-white">Faça logout</strong> ao usar dispositivos compartilhados ou públicos</li>
@@ -123,7 +123,7 @@ export default function Seguranca() {
           </section>
 
           <section>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-8 mb-8">
               <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center text-orange-400">
                 <ShieldCheck size={18} />
               </div>
@@ -133,7 +133,7 @@ export default function Seguranca() {
               O MeloCalé utiliza o <strong className="text-white">Cloudflare</strong> como camada
               de rede global, adicionando múltiplas proteções entre o usuário e nossos servidores.
             </p>
-            <ul className="list-disc list-inside space-y-1 mt-3">
+            <ul className="list-disc list-inside space-y-6 mt-8">
               <li><strong className="text-white">CDN global</strong>: conteúdo estático entregue a partir do ponto de presença mais próximo, reduzindo latência</li>
               <li><strong className="text-white">Proteção DDoS</strong>: mitigação automática de ataques de negação de serviço em larga escala</li>
               <li><strong className="text-white">Web Application Firewall (WAF)</strong>: bloqueio de requisições maliciosas antes de chegarem à aplicação</li>
@@ -142,17 +142,17 @@ export default function Seguranca() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">Reportar uma Vulnerabilidade</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">Reportar uma Vulnerabilidade</h2>
             <p>
               Se você encontrou uma vulnerabilidade de segurança na plataforma, por favor entre em
               contato de forma responsável antes de divulgar publicamente:
             </p>
-            <p className="mt-2">
+            <p className="mt-7">
               <a href="mailto:contato@melocale.com.br" className="text-emerald-400 hover:underline font-medium">
                 contato@melocale.com.br
               </a>
             </p>
-            <p className="mt-2">
+            <p className="mt-7">
               Descreva o problema com o máximo de detalhes possível. Investigamos todos os relatos
               com prioridade e agradecemos a colaboração da comunidade de segurança.
             </p>

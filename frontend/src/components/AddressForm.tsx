@@ -105,7 +105,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-9">
       {/* CEP */}
       <div>
         <label className={labelClass}>
@@ -133,7 +133,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Rua + Número */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-8">
         <div className="col-span-2">
           <label className={labelClass}>Rua / Logradouro</label>
           <input
@@ -159,7 +159,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Quadra + Complemento */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-8">
         <div>
           <label className={labelClass}>Quadra{optionalSpan}</label>
           <input
@@ -198,7 +198,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Cidade + Estado */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-8">
         <div className="col-span-2">
           <label className={labelClass}>Cidade</label>
           <input
@@ -210,7 +210,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
             className={cityError ? errorInput : fieldInput(!!value.city)}
           />
           {cityError && (
-            <p className="flex items-center gap-1 text-red-400 text-xs mt-1">
+            <p className="flex items-center gap-6 text-red-400 text-xs mt-6">
               <AlertCircle size={11} className="shrink-0" /> {cityError}
             </p>
           )}

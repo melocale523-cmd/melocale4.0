@@ -25,7 +25,7 @@ export function StepFoto({ avatarMutation, onNext }: StepFotoProps) {
 
   return (
     <div className="flex flex-col items-center text-center space-y-8">
-      <div className="space-y-2">
+      <div className="space-y-7">
         <h2 className="text-3xl font-black text-white tracking-tight">Adicione sua foto</h2>
         <p className="text-[#7A9EBF] font-medium">
           Uma boa foto aumenta a confiança dos clientes. Você pode pular esta etapa.
@@ -36,7 +36,7 @@ export function StepFoto({ avatarMutation, onNext }: StepFotoProps) {
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={avatarMutation.isPending}
-        className="relative w-36 h-36 rounded-full border-2 border-dashed border-[#243F6A] hover:border-emerald-500/50 bg-[#1C3454] flex flex-col items-center justify-center gap-2 transition-all group overflow-hidden"
+        className="relative w-36 h-36 rounded-full border-2 border-dashed border-[#243F6A] hover:border-emerald-500/50 bg-[#1C3454] flex flex-col items-center justify-center gap-7 transition-all group overflow-hidden"
       >
         {preview ? (
           <img src={preview} alt="preview" className="w-full h-full object-cover" />
@@ -72,12 +72,12 @@ export function StepFoto({ avatarMutation, onNext }: StepFotoProps) {
         <p className="text-red-400 text-sm">{avatarMutation.error.message}</p>
       )}
 
-      <div className="w-full space-y-3 pt-4">
+      <div className="w-full space-y-8 pt-4">
         <button
           type="button"
           onClick={onNext}
           disabled={avatarMutation.isPending}
-          className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl transition-all flex items-center justify-center gap-2 text-lg uppercase tracking-widest shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+          className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl transition-all flex items-center justify-center gap-7 text-lg uppercase tracking-widest shadow-lg shadow-emerald-500/20 disabled:opacity-50"
         >
           <Upload size={20} />
           {avatarMutation.isPending ? 'Enviando...' : avatarMutation.isSuccess ? 'Próximo' : 'Próximo'}

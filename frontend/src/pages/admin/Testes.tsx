@@ -37,13 +37,13 @@ export default function AdminTestes() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between flex-wrap gap-4">
+      <div className="flex items-start justify-between flex-wrap gap-9">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-7">
             <TestTube2 size={24} className="text-emerald-400" />
             Testes E2E
           </h1>
-          <p className="text-[#94A3B8] mt-1">Valida o fluxo completo: login → lead → compra → chat → mensagem.</p>
+          <p className="text-[#94A3B8] mt-6">Valida o fluxo completo: login → lead → compra → chat → mensagem.</p>
         </div>
 
         <button
@@ -71,18 +71,18 @@ export default function AdminTestes() {
       {/* Idle state */}
       {!isFetching && !isSuccess && (
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-2xl p-12 text-center">
-          <TestTube2 size={48} className="text-slate-600 mx-auto mb-4" />
+          <TestTube2 size={48} className="text-slate-600 mx-auto mb-9" />
           <p className="text-[#94A3B8] font-medium">Clique em "Rodar todos os testes" para iniciar.</p>
-          <p className="text-[#4A6580] text-sm mt-1">Os testes criam e limpam dados automaticamente.</p>
+          <p className="text-[#4A6580] text-sm mt-6">Os testes criam e limpam dados automaticamente.</p>
         </div>
       )}
 
       {/* Loading */}
       {isFetching && (
         <div className="bg-[#1C3454] border border-slate-800/50 rounded-2xl p-12 text-center">
-          <Loader2 size={48} className="text-emerald-500 mx-auto mb-4 animate-spin" />
+          <Loader2 size={48} className="text-emerald-500 mx-auto mb-9 animate-spin" />
           <p className="text-white font-semibold">Executando testes...</p>
-          <p className="text-[#94A3B8] text-sm mt-1">Isso pode levar alguns segundos.</p>
+          <p className="text-[#94A3B8] text-sm mt-6">Isso pode levar alguns segundos.</p>
         </div>
       )}
 
@@ -96,7 +96,7 @@ export default function AdminTestes() {
               ? 'bg-emerald-500/10 border-emerald-500/30'
               : 'bg-red-500/10 border-red-500/30'
           )}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-8">
               {allPassed
                 ? <CheckCircle size={28} className="text-emerald-400" />
                 : <XCircle size={28} className="text-red-400" />
@@ -117,7 +117,7 @@ export default function AdminTestes() {
           </div>
 
           {/* Individual results */}
-          <div className="space-y-3">
+          <div className="space-y-8">
             {data.results.map((r) => (
               <div
                 key={r.id}
@@ -135,7 +135,7 @@ export default function AdminTestes() {
                   }
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center justify-between gap-7 flex-wrap">
                     <p className="text-sm font-semibold text-white">{r.name}</p>
                     <span className="text-[10px] text-[#4A6580] font-mono shrink-0">{r.duration}ms</span>
                   </div>

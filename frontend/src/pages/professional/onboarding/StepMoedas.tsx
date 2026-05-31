@@ -27,8 +27,8 @@ const FEATURES = [
 export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
+      <div className="space-y-7">
+        <div className="flex items-center gap-8">
           <div className="w-12 h-12 bg-yellow-400/10 rounded-2xl flex items-center justify-center">
             <Coins size={26} className="text-yellow-400" />
           </div>
@@ -39,33 +39,33 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-9">
         {FEATURES.map((f) => (
-          <div key={f.title} className="flex gap-4 p-5 bg-[#1C3454] border border-[#243F6A] rounded-2xl">
+          <div key={f.title} className="flex gap-9 p-10 bg-[#1C3454] border border-[#243F6A] rounded-2xl">
             <div className="w-10 h-10 bg-[#0E1C32] rounded-xl flex items-center justify-center shrink-0">
               {f.icon}
             </div>
             <div>
               <p className="text-white font-bold text-sm">{f.title}</p>
-              <p className="text-[#7A9EBF] text-xs mt-1 leading-relaxed">{f.description}</p>
+              <p className="text-[#7A9EBF] text-xs mt-6 leading-relaxed">{f.description}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-5">
-        <p className="text-yellow-400 text-xs font-black uppercase tracking-widest mb-1">Bônus de boas-vindas</p>
+      <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-10">
+        <p className="text-yellow-400 text-xs font-black uppercase tracking-widest mb-6">Bônus de boas-vindas</p>
         <p className="text-white text-sm font-medium leading-relaxed">
           Seu perfil está pronto. Comece a receber leads e expanda seu negócio hoje mesmo.
         </p>
       </div>
 
-      <div className="space-y-3 pt-2">
+      <div className="space-y-8 pt-2">
         <button
           type="button"
           onClick={() => completeMutation.mutate()}
           disabled={completeMutation.isPending}
-          className="w-full h-14 bg-yellow-400 hover:bg-yellow-300 text-black font-black rounded-2xl transition-all flex items-center justify-center gap-2 text-lg uppercase tracking-widest shadow-lg shadow-yellow-400/20 disabled:opacity-50"
+          className="w-full h-14 bg-yellow-400 hover:bg-yellow-300 text-black font-black rounded-2xl transition-all flex items-center justify-center gap-7 text-lg uppercase tracking-widest shadow-lg shadow-yellow-400/20 disabled:opacity-50"
         >
           {completeMutation.isPending
             ? <Loader2 size={22} className="animate-spin" />
@@ -76,7 +76,7 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
           type="button"
           onClick={onBack}
           disabled={completeMutation.isPending}
-          className="w-full h-11 flex items-center justify-center gap-2 text-[#7A9EBF] hover:text-white text-sm font-bold transition-colors"
+          className="w-full h-11 flex items-center justify-center gap-7 text-[#7A9EBF] hover:text-white text-sm font-bold transition-colors"
         >
           <ArrowLeft size={16} /> Voltar
         </button>

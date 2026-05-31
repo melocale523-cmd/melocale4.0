@@ -57,9 +57,9 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
           isScrolled ? 'bg-[#0E1C32]/80 backdrop-blur-md border-[#1C3050] shadow-lg' : 'bg-transparent border-transparent'
         )}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-7">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group shrink-0" title="Ir para a página inicial">
+          <Link to="/" className="flex items-center gap-7 group shrink-0" title="Ir para a página inicial">
             <div className="w-9 h-9 md:w-10 md:h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black group-hover:scale-110 transition-transform">
               <Home size={20} />
             </div>
@@ -82,7 +82,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
           </div>
 
           {/* Right side — always visible */}
-          <div className="flex items-center gap-2 md:gap-3 shrink-0">
+          <div className="flex items-center gap-7 md:gap-3 shrink-0">
             {/* ThemeToggle — desktop only */}
             <div className="hidden md:block">
               <ThemeToggle />
@@ -93,7 +93,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
                 {/* Entrar — always visible, compact on mobile */}
                 <Link
                   to="/login?mode=login"
-                  className="px-3 py-1.5 md:px-5 md:py-2.5 border border-emerald-500/60 text-emerald-400 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-emerald-500/10 whitespace-nowrap"
+                  className="px-8 py-1.5 md:px-5 md:py-2.5 border border-emerald-500/60 text-emerald-400 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-emerald-500/10 whitespace-nowrap"
                 >
                   Entrar
                 </Link>
@@ -122,14 +122,14 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
               <>
                 <Link
                   to={getDashboardUrl()}
-                  className="px-3 py-1.5 md:px-5 md:py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs md:text-sm font-bold hover:bg-emerald-500 hover:text-black transition-all whitespace-nowrap"
+                  className="px-8 py-1.5 md:px-5 md:py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs md:text-sm font-bold hover:bg-emerald-500 hover:text-black transition-all whitespace-nowrap"
                   title="Acessar meu painel"
                 >
                   Minha Área
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="hidden md:flex p-2 text-[#94A3B8] hover:text-red-400 transition-colors cursor-pointer"
+                  className="hidden md:flex p-7 text-[#94A3B8] hover:text-red-400 transition-colors cursor-pointer"
                   title="Sair da conta"
                 >
                   <LogOut size={18} />
@@ -154,24 +154,24 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 right-0 bg-[#1C3454] shadow-2xl p-6 md:hidden flex flex-col gap-3 border-t border-[#1C3050]"
+              className="absolute top-full left-0 right-0 bg-[#1C3454] shadow-2xl p-11 md:hidden flex flex-col gap-8 border-t border-[#1C3050]"
             >
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-base font-medium text-white py-2 border-b border-[#1C3050]"
+                  className="text-base font-medium text-white py-7 border-b border-[#1C3050]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.name}
                 </a>
               ))}
-              <div className="flex items-center justify-between mt-2 pt-2">
+              <div className="flex items-center justify-between mt-7 pt-2">
                 <ThemeToggle />
                 {isAuthenticated && (
                   <button
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    className="flex items-center gap-2 text-[#94A3B8] hover:text-red-400 text-sm font-bold transition-colors"
+                    className="flex items-center gap-7 text-[#94A3B8] hover:text-red-400 text-sm font-bold transition-colors"
                   >
                     <LogOut size={16} />
                     Sair da conta

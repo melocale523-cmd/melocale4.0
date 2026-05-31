@@ -40,11 +40,11 @@ export default function EarningsCalculator() {
 
   return (
     <section className="pt-6 pb-12 md:pt-20 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+      <div className="max-w-3xl mx-auto px-9 sm:px-6">
 
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-7 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-9 py-1.5 text-emerald-400 text-xs font-black uppercase tracking-widest mb-9">
+        <div className="text-center mb-15">
+          <div className="inline-flex items-center gap-7 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-9 py-1.5 text-emerald-400 text-xs font-black uppercase tracking-widest mb-14">
             <TrendingUp size={14} />
             Calculadora de Ganhos
           </div>
@@ -57,24 +57,24 @@ export default function EarningsCalculator() {
 
           {/* Slider A */}
           <div>
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-13">
               <label className="text-sm font-bold text-slate-300">Quantos serviços você faz por mês?</label>
               <span className="text-emerald-400 font-extrabold text-lg min-w-[2.5rem] text-right">{services}</span>
             </div>
             <SliderTrack value={services} min={1} max={30} onChange={setServices} color="#10b981" />
-            <div className="flex justify-between text-[10px] text-slate-600 mt-6">
+            <div className="flex justify-between text-[10px] text-slate-600 mt-11">
               <span>1</span><span>30</span>
             </div>
           </div>
 
           {/* Slider B */}
           <div>
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-13">
               <label className="text-sm font-bold text-slate-300">Ticket médio por serviço (R$)</label>
               <span className="text-blue-400 font-extrabold text-lg min-w-[4rem] text-right">R${fmt(ticket)}</span>
             </div>
             <SliderTrack value={ticket} min={50} max={2000} onChange={setTicket} color="#3b82f6" />
-            <div className="flex justify-between text-[10px] text-slate-600 mt-6">
+            <div className="flex justify-between text-[10px] text-slate-600 mt-11">
               <span>R$50</span><span>R$2.000</span>
             </div>
           </div>
@@ -83,18 +83,18 @@ export default function EarningsCalculator() {
           <div className="bg-[#0d1f35] rounded-2xl p-10 space-y-9">
             <div className="grid grid-cols-2 gap-9">
               <div className="text-center p-8 rounded-xl bg-slate-800/40">
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-6">Renda atual estimada</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-11">Renda atual estimada</p>
                 <p className="text-white font-extrabold text-xl">R${fmt(current)}/mês</p>
               </div>
               <div className="text-center p-8 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold mb-6">Com MeloCalé (+30%)</p>
+                <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold mb-11">Com MeloCalé (+30%)</p>
                 <p className="text-white font-extrabold text-xl">R${fmt(withMelo)}/mês</p>
               </div>
             </div>
 
             {/* Destaque principal */}
-            <div className="text-center py-4 border-t border-slate-700/50">
-              <p className="text-xs text-slate-400 mb-6">Ganho extra potencial</p>
+            <div className="text-center py-9 border-t border-slate-700/50">
+              <p className="text-xs text-slate-400 mb-11">Ganho extra potencial</p>
               <p key={extra} className="number-pop text-4xl md:text-5xl font-extrabold text-emerald-400">
                 +R${fmt(extra)}/mês
               </p>
@@ -113,7 +113,7 @@ export default function EarningsCalculator() {
           {/* CTA */}
           <Link
             to="/login?mode=signup&role=professional"
-            className="block w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base py-4 rounded-2xl text-center transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="block w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base py-9 rounded-2xl text-center transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             Quero ganhar R${fmt(extra)}/mês →
           </Link>

@@ -18,10 +18,10 @@ interface Props {
 export default function CategoryGrid({ userCity }: Props) {
   return (
     <section className="py-8 md:py-20 bg-[#0E1C32] border-t border-slate-800/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-9 sm:px-6 lg:px-8">
 
-        <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8">
+        <div className="text-center mb-15">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-13">
             Serviços disponíveis em <span className="text-emerald-400">{userCity}</span>
           </h2>
           <p className="text-[#94A3B8] text-sm sm:text-base">
@@ -30,7 +30,7 @@ export default function CategoryGrid({ userCity }: Props) {
         </div>
 
         {/* Grid 4x2 desktop / 2x4 mobile */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-4 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-4 mb-15">
           {categories.map(cat => (
             <Link
               key={cat.slug}
@@ -49,7 +49,7 @@ export default function CategoryGrid({ userCity }: Props) {
 
         {/* CTA */}
         <div className="text-center">
-          <p className="text-slate-400 text-sm mb-9">
+          <p className="text-slate-400 text-sm mb-14">
             Não encontrou o que precisa?
           </p>
           <Link

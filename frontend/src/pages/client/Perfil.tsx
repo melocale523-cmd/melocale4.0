@@ -136,8 +136,8 @@ export default function ClientePerfil() {
 
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="max-w-3xl mx-auto space-y-11">
+      <div className="flex items-center gap-8 mb-11">
         <Settings size={24} className="text-[#94A3B8]" />
         <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
       </div>
@@ -145,7 +145,7 @@ export default function ClientePerfil() {
       <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl overflow-hidden">
         {/* Banner + avatar */}
         <div className="h-32 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
-          <div className="absolute -bottom-10 left-6 flex flex-col gap-2">
+          <div className="absolute -bottom-10 left-6 flex flex-col gap-7">
             <input
               ref={fileInputRef}
               type="file"
@@ -167,23 +167,23 @@ export default function ClientePerfil() {
             </div>
 
             {avatarBusy ? (
-              <div className="flex items-center gap-2 h-7">
+              <div className="flex items-center gap-7 h-7">
                 <Loader2 size={14} className="text-[#94A3B8] animate-spin" />
                 <span className="text-xs text-[#4A6580]">Aguarde…</span>
               </div>
             ) : profile?.avatar_url ? (
-              <div className="flex gap-2">
+              <div className="flex gap-7">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors border border-[#243F6A]"
+                  className="flex items-center gap-1.5 text-xs font-medium px-8 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors border border-[#243F6A]"
                 >
                   <Camera size={12} /> Alterar
                 </button>
                 <button
                   type="button"
                   onClick={() => removeMutation.mutate()}
-                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors border border-red-500/20"
+                  className="flex items-center gap-1.5 text-xs font-medium px-8 py-1.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors border border-red-500/20"
                 >
                   <Trash2 size={12} /> Excluir
                 </button>
@@ -192,7 +192,7 @@ export default function ClientePerfil() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                className="flex items-center gap-1.5 text-xs font-medium px-8 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
               >
                 <Camera size={12} /> + Adicionar Foto
               </button>
@@ -201,22 +201,22 @@ export default function ClientePerfil() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 pt-14 space-y-5">
+        <form onSubmit={handleSubmit} className="p-11 pt-14 space-y-10">
           {successMsg && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-lg flex items-center gap-2 text-sm">
+            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-8 rounded-lg flex items-center gap-7 text-sm">
               <CheckCircle2 size={16} className="shrink-0" /> Dados atualizados com sucesso!
             </div>
           )}
           {saveMutation.isError && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-8 rounded-lg flex items-center gap-7 text-sm">
               <AlertCircle size={16} className="shrink-0" />
               {(saveMutation.error as Error).message}
             </div>
           )}
 
           {/* Name */}
-          <div className="space-y-1">
-            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
+          <div className="space-y-6">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-7">
               <User size={14} /> Nome completo
             </label>
             <input
@@ -233,28 +233,28 @@ export default function ClientePerfil() {
               }`}
             />
             {fieldErrors.name && (
-              <p className="text-red-400 text-xs flex items-center gap-1 mt-1">
+              <p className="text-red-400 text-xs flex items-center gap-6 mt-6">
                 <AlertCircle size={11} /> {fieldErrors.name}
               </p>
             )}
           </div>
 
           {/* Email (disabled) */}
-          <div className="space-y-1">
-            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
+          <div className="space-y-6">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-7">
               <Mail size={14} /> E-mail
             </label>
             <input
               type="email"
               value={user?.email || ''}
               disabled
-              className="w-full bg-[#0E1C32] border border-slate-700/30 rounded-lg px-3 py-2.5 text-[#4A6580] cursor-not-allowed"
+              className="w-full bg-[#0E1C32] border border-slate-700/30 rounded-lg px-8 py-2.5 text-[#4A6580] cursor-not-allowed"
             />
           </div>
 
           {/* Phone */}
-          <div className="space-y-1">
-            <label className="text-[#94A3B8] text-sm flex items-center gap-2">
+          <div className="space-y-6">
+            <label className="text-[#94A3B8] text-sm flex items-center gap-7">
               <Phone size={14} /> Telefone / WhatsApp
             </label>
             <input
@@ -271,15 +271,15 @@ export default function ClientePerfil() {
               }`}
             />
             {fieldErrors.phone && (
-              <p className="text-red-400 text-xs flex items-center gap-1 mt-1">
+              <p className="text-red-400 text-xs flex items-center gap-6 mt-6">
                 <AlertCircle size={11} /> {fieldErrors.phone}
               </p>
             )}
           </div>
 
           {/* Address section */}
-          <div className="pt-2 border-t border-slate-700/40 space-y-4">
-            <p className="text-[#94A3B8] text-sm font-medium flex items-center gap-2">
+          <div className="pt-2 border-t border-slate-700/40 space-y-9">
+            <p className="text-[#94A3B8] text-sm font-medium flex items-center gap-7">
               <MapPin size={14} /> Endereço
             </p>
             <AddressForm
@@ -292,7 +292,7 @@ export default function ClientePerfil() {
           <button
             type="submit"
             disabled={saveMutation.isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-8 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-7 mt-7"
           >
             {saveMutation.isPending
               ? <><Loader2 size={16} className="animate-spin" /> Salvando...</>

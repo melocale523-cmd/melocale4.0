@@ -149,21 +149,21 @@ export default function Pedidos() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-11">
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tight mb-2">Meus Pedidos</h1>
+          <h1 className="text-4xl font-black text-white tracking-tight mb-7">Meus Pedidos</h1>
           <p className="text-[#94A3B8] font-medium">Gerencie e acompanhe suas solicitações de serviço em tempo real.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-7 px-8 py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Plus size={20} />
           Novo Pedido
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-9">
         <div className="relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
           <input
@@ -171,10 +171,10 @@ export default function Pedidos() {
             placeholder="Buscar um pedido específico..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-9 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
           />
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-7 flex-wrap">
           {STATUS_TABS.map(tab => (
             <button
               key={tab}
@@ -219,7 +219,7 @@ export default function Pedidos() {
               );
             })}
             {filteredPedidos.length === 0 && (
-              <div className="p-20 text-center flex flex-col items-center justify-center gap-4 grayscale opacity-40">
+              <div className="p-20 text-center flex flex-col items-center justify-center gap-9 grayscale opacity-40">
                 <Inbox size={64} className="text-slate-600" />
                 <div>
                   <p className="text-white font-black text-lg">Nenhum pedido encontrado</p>
