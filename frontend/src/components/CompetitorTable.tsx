@@ -28,7 +28,7 @@ function Check({ ok }: { ok: boolean }) {
 
 export default function CompetitorTable({ userCity }: Props) {
   return (
-    <section id="como-funciona" className="pt-6 pb-10 md:py-24 bg-[#0B1729] border-t border-slate-800/50 overflow-hidden">
+    <section id="como-funciona" className="pt-10 pb-12 md:py-24 bg-[#0B1729] border-t border-slate-800/50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Container principal: cards à esquerda + tabela à direita */}

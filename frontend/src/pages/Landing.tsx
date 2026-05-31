@@ -164,7 +164,7 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-32 pb-8 md:pb-32 overflow-hidden">
+        <section id="hero" className="relative pt-32 pb-12 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -350,7 +350,7 @@ export default function LandingPage() {
         <Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense>
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
-        <section className="pt-8 pb-8 md:pt-20 md:pb-10 bg-[#0B1729] border-t border-slate-800/50">
+        <section className="pt-10 pb-10 md:pt-20 md:pb-10 bg-[#0B1729] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Stats */}
@@ -462,7 +462,7 @@ export default function LandingPage() {
         <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
         {/* ── Pricing ── */}
-        <section id="planos" className="pt-8 pb-12 md:pt-16 md:pb-24 bg-[#0E1C32] border-t border-slate-800/50">
+        <section id="planos" className="pt-10 pb-14 md:pt-16 md:pb-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div className="text-center mb-8 md:mb-16">

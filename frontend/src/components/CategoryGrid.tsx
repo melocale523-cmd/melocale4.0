@@ -17,7 +17,7 @@ interface Props {
 
 export default function CategoryGrid({ userCity }: Props) {
   return (
-    <section className="py-8 md:py-20 bg-[#0E1C32] border-t border-slate-800/50">
+    <section className="py-10 md:py-20 bg-[#0E1C32] border-t border-slate-800/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="text-center mb-10">
