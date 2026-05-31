@@ -29,7 +29,7 @@ export default function Login() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const role = useAuthStore((state) => state.user?.role);
   const loading = useAuthStore((state) => state.isLoading);
-  
+
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLockedMode, setIsLockedMode] = useState(false);
   const [authStep, setAuthStep] = useState<'basics' | 'details'>('basics');
@@ -115,7 +115,7 @@ export default function Login() {
       setError("Por favor, insira um e-mail válido para recuperar sua senha.");
       return;
     }
-    
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
@@ -129,7 +129,7 @@ export default function Login() {
       setIsSubmitting(false);
     }
   };
-  
+
   // Initialize state from URL params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -286,8 +286,8 @@ export default function Login() {
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="text-center mb-15">
-        <h1 className="text-4xl font-extrabold text-white mb-8 tracking-tight">
+      <div className="text-center mb-6">
+        <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight">
           {selectedRole === 'admin' ? 'Acesso Restrito' : (isSignUp ? 'Criar nova conta' : 'Bem-vindo de volta')}
         </h1>
         <p className="text-[#7A9EBF] font-medium">
@@ -296,17 +296,17 @@ export default function Login() {
       </div>
 
       {isAuthenticated && !role && (
-        <div className="mb-13 p-11 rounded-3xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm">
-          <p className="font-bold mb-7 flex items-center gap-7">
+        <div className="mb-6 p-5 rounded-3xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm">
+          <p className="font-bold mb-2 flex items-center gap-2">
             <AlertCircle size={18} />
             Não encontramos seu perfil
           </p>
-          <p className="mb-9 text-[#B0C4D8]">
+          <p className="mb-3 text-[#B0C4D8]">
             Você está autenticado, mas não conseguimos carregar suas informações de perfil. Escolha sua função abaixo ou tente entrar novamente.
           </p>
-          <button 
+          <button
             onClick={() => { useAuthStore.getState().logout(); supabase.auth.signOut(); }}
-            className="text-xs font-black uppercase tracking-widest text-white border border-white/20 px-9 py-7 rounded-xl hover:bg-white/5 transition-all"
+            className="text-xs font-black uppercase tracking-widest text-white border border-white/20 px-4 py-2 rounded-xl hover:bg-white/5 transition-all"
           >
             Sair e tentar de novo
           </button>
@@ -314,23 +314,23 @@ export default function Login() {
       )}
 
       {!isAuthenticated && selectedRole !== 'admin' && (
-        <div className="mb-15">
+        <div className="mb-8">
           {isSignUp ? (
             <>
               {/* Two role cards for signup */}
-              <div className="grid grid-cols-2 gap-9 mb-13">
+              <div className="grid grid-cols-2 gap-3 mb-6">
                 {/* CLIENT CARD */}
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
-                  className="flex flex-col items-center gap-8 p-10 rounded-3xl border-2 border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/60 transition-all text-center group"
+                  className="flex flex-col items-center gap-2 p-4 rounded-3xl border-2 border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/60 transition-all text-center group"
                 >
                   <span className="text-3xl">🏠</span>
                   <div>
                     <p className="text-white font-black text-sm">Preciso de serviços</p>
                     <p className="text-[#7A9EBF] text-xs mt-0.5">Quero contratar profissionais</p>
                   </div>
-                  <div className="w-full flex items-center justify-center gap-7 h-10 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-xs transition-all mt-6">
+                  <div className="w-full flex items-center justify-center gap-1.5 h-9 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-[10px] leading-tight transition-all mt-2">
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -345,14 +345,14 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
-                  className="flex flex-col items-center gap-8 p-10 rounded-3xl border-2 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all text-center group"
+                  className="flex flex-col items-center gap-2 p-4 rounded-3xl border-2 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all text-center group"
                 >
                   <span className="text-3xl">🔧</span>
                   <div>
                     <p className="text-white font-black text-sm">Ofereço serviços</p>
                     <p className="text-[#7A9EBF] text-xs mt-0.5">Quero receber chamados</p>
                   </div>
-                  <div className="w-full flex items-center justify-center gap-7 h-10 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-xs transition-all mt-6">
+                  <div className="w-full flex items-center justify-center gap-1.5 h-9 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-xl font-black text-[10px] leading-tight transition-all mt-2">
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -367,11 +367,11 @@ export default function Login() {
           ) : (
             <>
               {/* Two side-by-side login buttons */}
-              <div className="grid grid-cols-2 gap-8 mb-13">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
-                  className="h-12 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-7 shadow-lg"
+                  className="h-12 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-2 shadow-lg"
                 >
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -384,7 +384,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
-                  className="h-12 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-7 shadow-lg"
+                  className="h-12 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-2 shadow-lg"
                 >
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -401,13 +401,13 @@ export default function Login() {
           {/* OR divider — kept for both modes */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#1C3050]"></div></div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black"><span className="bg-[#0E1C32] px-11 text-[#94A3B8]">Ou use seu e-mail</span></div>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black"><span className="bg-[#0E1C32] px-4 text-[#94A3B8]">Ou use seu e-mail</span></div>
           </div>
         </div>
       )}
 
       {!isAuthenticated && selectedRole !== 'admin' && !isLockedMode && (
-        <div className="flex bg-[#0E1C32] p-1.5 rounded-2xl mb-13 border border-[#1C3050]">
+        <div className="flex bg-[#0E1C32] p-1.5 rounded-2xl mb-6 border border-[#1C3050]">
           <button
             onClick={() => { setIsSignUp(false); setAuthStep('basics'); setError(null); }}
             className={cn("flex-1 py-3 text-sm font-black rounded-xl transition-all", !isSignUp ? "bg-white/5 text-white" : "text-[#7A9EBF] hover:text-slate-300")}
@@ -425,10 +425,10 @@ export default function Login() {
 
       {selectedRole !== 'admin' && (
         <>
-        <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-8">
+        <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-2">
           {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
         </p>
-        <div className="grid grid-cols-2 gap-9 mb-13">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           <button
             onClick={() => setSelectedRole('client')}
             className={cn("flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all", selectedRole === 'client' ? "border-blue-500/50 bg-blue-500/10 text-blue-400" : "border-[#1C3050] text-[#7A9EBF] bg-white/[0.02] hover:bg-white/[0.05]")}
@@ -456,30 +456,30 @@ export default function Login() {
           transition={{ duration: 0.2 }}
         >
           {error && (
-            <div className="mb-13 p-10 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex gap-8 items-center italic font-medium">
+            <div className="mb-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex gap-3 items-center italic font-medium">
               <AlertCircle size={20} className="shrink-0" />
               {error}
             </div>
           )}
 
-          <form onSubmit={isSignUp && authStep === 'basics' ? handleNextStep : handleSubmit} className="space-y-11">
+          <form onSubmit={isSignUp && authStep === 'basics' ? handleNextStep : handleSubmit} className="space-y-5">
             {authStep === 'basics' && (
               <>
                 {isSignUp && (
                   <div>
-                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">Nome Completo</label>
+                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">Nome Completo</label>
                     <input
                       required type="text" placeholder="João da Silva" maxLength={100}
-                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                       value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
                     />
                   </div>
                 )}
                 <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">E-mail</label>
+                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
-                    className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                    className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
@@ -493,7 +493,7 @@ export default function Login() {
                   <div className="relative">
                     <input
                       required type={showPassword ? 'text' : 'password'} placeholder="••••••••"
-                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 pr-12 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
                       value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} minLength={8} maxLength={128}
                     />
                     <button
@@ -510,7 +510,7 @@ export default function Login() {
                     const colors = { 0: 'bg-white/10', 1: 'bg-red-500', 2: 'bg-yellow-400', 3: 'bg-emerald-500' } as const;
                     const activeColor = colors[strength];
                     return (
-                      <div className="flex gap-6 mt-7">
+                      <div className="flex gap-1 mt-2">
                         {[0, 1, 2].map((i) => (
                           <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < strength ? activeColor : 'bg-white/10'}`} />
                         ))}
@@ -518,7 +518,7 @@ export default function Login() {
                     );
                   })()}
                   {isSignUp && (
-                    <div className="flex items-center gap-8 mt-7">
+                    <div className="flex items-center gap-3 mt-2">
                       {[
                         { ok: formData.password.length >= 8, label: '8+ chars' },
                         { ok: /[A-Z]/.test(formData.password), label: 'Maiúscula' },
@@ -539,25 +539,25 @@ export default function Login() {
             )}
 
             {authStep === 'details' && (
-              <div className="space-y-11">
+              <div className="space-y-5">
                 <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">WhatsApp de Contato</label>
+                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">WhatsApp de Contato</label>
                   <input
                     required type="tel" placeholder="(11) 99999-9999" maxLength={20}
-                    className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                    className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">Endereço</label>
+                  <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">Endereço</label>
                   <AddressForm value={address} onChange={setAddress} variant="signup" />
                 </div>
                 {selectedRole === 'professional' && (
                   <div>
-                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">Especialidade / Categoria</label>
+                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">Especialidade / Categoria</label>
                     <select
                       required
-                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
+                      className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
                       value={formData.category}
                       onChange={(e) => setFormData({...formData, category: e.target.value})}
                     >
@@ -572,7 +572,7 @@ export default function Login() {
                         required
                         placeholder="Descreva sua profissão..."
                         maxLength={100}
-                        className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium mt-8"
+                        className="w-full h-16 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium mt-3"
                         value={formData.customCategory}
                         onChange={(e) => setFormData({...formData, customCategory: e.target.value})}
                       />
@@ -581,30 +581,30 @@ export default function Login() {
                 )}
                 {selectedRole === 'professional' && (
                   <div>
-                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-8 ml-1">
+                    <label className="block text-[10px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] mb-2 ml-1">
                       Sobre você (opcional)
                     </label>
                     <textarea
                       placeholder="Descreva brevemente sua experiência e serviços..."
                       rows={3}
                       maxLength={500}
-                      className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-11 py-9 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium resize-none text-sm leading-relaxed"
+                      className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-3 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium resize-none text-sm leading-relaxed"
                       value={formData.bio}
                       onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     />
                   </div>
                 )}
-                <button type="button" onClick={() => setAuthStep('basics')} className="flex items-center gap-7 text-[#7A9EBF] hover:text-white text-xs font-bold transition-all"><ArrowLeft size={14} /> Voltar para o início</button>
+                <button type="button" onClick={() => setAuthStep('basics')} className="flex items-center gap-2 text-[#7A9EBF] hover:text-white text-xs font-bold transition-all"><ArrowLeft size={14} /> Voltar para o início</button>
               </div>
             )}
 
-            <button 
+            <button
               disabled={isSubmitting}
               type="submit"
               className={cn(
-                "w-full h-16 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl mt-12 uppercase tracking-widest",
-                isSignUp 
-                  ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-500/20 active:scale-95" 
+                "w-full h-16 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl mt-6 uppercase tracking-widest",
+                isSignUp
+                  ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-500/20 active:scale-95"
                   : (selectedRole === 'admin' ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20" :
                     "bg-emerald-500 hover:bg-emerald-600 text-black shadow-emerald-500/20")
               )}
@@ -617,7 +617,7 @@ export default function Login() {
           </form>
 
           {isSignUp && (
-            <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-9">
+            <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
               Ao continuar você declara que leu e concorda com nossos{' '}
               <button type="button" onClick={() => setLegalModal('termos')} className="text-[#B0C4D8] hover:text-white underline font-semibold">
                 Termos de Uso
@@ -630,7 +630,7 @@ export default function Login() {
           )}
 
           {/* Cross-link: switch between login and signup */}
-          <div className="text-center mt-11 pb-4">
+          <div className="text-center mt-6 pb-4">
             {isSignUp ? (
               <button
                 type="button"
@@ -655,38 +655,38 @@ export default function Login() {
       </AnimatePresence>
 
       {legalModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-9">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setLegalModal(null)} />
           <div className="relative w-full max-w-lg bg-[#0E1C32] border border-[#1C3050] rounded-3xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-11 py-9 border-b border-[#1C3050] shrink-0">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C3050] shrink-0">
               <h3 className="text-white font-black text-lg">
                 {legalModal === 'termos' ? 'Termos de Uso' : 'Políticas de Privacidade'}
               </h3>
-              <button type="button" onClick={() => setLegalModal(null)} className="p-7 rounded-xl hover:bg-white/5 text-[#7A9EBF] hover:text-white transition-all">
+              <button type="button" onClick={() => setLegalModal(null)} className="p-2 rounded-xl hover:bg-white/5 text-[#7A9EBF] hover:text-white transition-all">
                 <X size={20} />
               </button>
             </div>
-            <div className="overflow-y-auto p-11 text-[#94A3B8] text-sm leading-relaxed space-y-9">
+            <div className="overflow-y-auto p-6 text-[#94A3B8] text-sm leading-relaxed space-y-4">
               {legalModal === 'termos' ? (
                 <>
-                  <section><h4 className="text-white font-bold mb-7">1. Aceitação dos Termos</h4><p>Ao acessar e usar o MeloCalé, você concorda com estes Termos de Uso. Se não concordar, não utilize a plataforma.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">2. Descrição do Serviço</h4><p>O MeloCalé é uma plataforma que conecta clientes que precisam de serviços domésticos a profissionais qualificados.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">3. Responsabilidades do Usuário</h4><p>Você é responsável por manter a confidencialidade de sua conta e senha, e por todas as atividades realizadas sob sua conta.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">4. Pagamentos</h4><p>Profissionais adquirem moedas para acessar leads. Valores e condições estão descritos na página de planos. Pagamentos são processados via Stripe.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">5. Alterações</h4><p>Reservamos o direito de modificar estes termos a qualquer momento. Alterações serão comunicadas via e-mail ou notificação na plataforma.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">6. Contato</h4><p>Dúvidas sobre os termos: contato@melocale.com.br</p></section>
+                  <section><h4 className="text-white font-bold mb-2">1. Aceitação dos Termos</h4><p>Ao acessar e usar o MeloCalé, você concorda com estes Termos de Uso. Se não concordar, não utilize a plataforma.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">2. Descrição do Serviço</h4><p>O MeloCalé é uma plataforma que conecta clientes que precisam de serviços domésticos a profissionais qualificados.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">3. Responsabilidades do Usuário</h4><p>Você é responsável por manter a confidencialidade de sua conta e senha, e por todas as atividades realizadas sob sua conta.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">4. Pagamentos</h4><p>Profissionais adquirem moedas para acessar leads. Valores e condições estão descritos na página de planos. Pagamentos são processados via Stripe.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">5. Alterações</h4><p>Reservamos o direito de modificar estes termos a qualquer momento. Alterações serão comunicadas via e-mail ou notificação na plataforma.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">6. Contato</h4><p>Dúvidas sobre os termos: contato@melocale.com.br</p></section>
                 </>
               ) : (
                 <>
-                  <section><h4 className="text-white font-bold mb-7">1. Dados Coletados</h4><p>Coletamos nome, e-mail, telefone, localização e dados de uso para operar a plataforma e conectar clientes a profissionais.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">2. Uso dos Dados</h4><p>Seus dados são usados exclusivamente para prestação do serviço, comunicações relacionadas à plataforma e melhorias do produto.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">3. Compartilhamento</h4><p>Não vendemos seus dados. Compartilhamos apenas com parceiros essenciais para operação (processador de pagamento, provedor de e-mail).</p></section>
-                  <section><h4 className="text-white font-bold mb-7">4. Segurança</h4><p>Utilizamos criptografia e boas práticas de segurança para proteger seus dados. Autenticação gerenciada pelo Supabase Auth.</p></section>
-                  <section><h4 className="text-white font-bold mb-7">5. Seus Direitos</h4><p>Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento pelo e-mail: contato@melocale.com.br</p></section>
+                  <section><h4 className="text-white font-bold mb-2">1. Dados Coletados</h4><p>Coletamos nome, e-mail, telefone, localização e dados de uso para operar a plataforma e conectar clientes a profissionais.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">2. Uso dos Dados</h4><p>Seus dados são usados exclusivamente para prestação do serviço, comunicações relacionadas à plataforma e melhorias do produto.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">3. Compartilhamento</h4><p>Não vendemos seus dados. Compartilhamos apenas com parceiros essenciais para operação (processador de pagamento, provedor de e-mail).</p></section>
+                  <section><h4 className="text-white font-bold mb-2">4. Segurança</h4><p>Utilizamos criptografia e boas práticas de segurança para proteger seus dados. Autenticação gerenciada pelo Supabase Auth.</p></section>
+                  <section><h4 className="text-white font-bold mb-2">5. Seus Direitos</h4><p>Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento pelo e-mail: contato@melocale.com.br</p></section>
                 </>
               )}
             </div>
-            <div className="px-11 py-9 border-t border-[#1C3050] shrink-0">
+            <div className="px-6 py-4 border-t border-[#1C3050] shrink-0">
               <button type="button" onClick={() => setLegalModal(null)} className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-black font-black rounded-2xl transition-all">
                 Entendi
               </button>
