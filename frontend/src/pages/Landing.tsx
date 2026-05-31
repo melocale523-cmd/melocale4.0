@@ -167,7 +167,7 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-32 pb-16 md:pb-24 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-[2fr_3fr] gap-8 lg:gap-12 items-center min-h-[80vh]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-[2fr_3fr] gap-8 lg:gap-12 items-start py-8">
 
             <div className="max-w-xl">
               {isProfissional ? (
