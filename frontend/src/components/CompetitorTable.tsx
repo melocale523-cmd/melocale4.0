@@ -90,7 +90,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Cards 2x2 — apenas mobile */}
-            <div className="grid grid-cols-2 gap-2 mb-4 md:hidden">
+            <div className="grid grid-cols-2 gap-3 mb-4 md:hidden px-1">
               <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-2 flex flex-col overflow-hidden min-w-0">
                 <span className="absolute top-2 right-2 bg-emerald-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">✓</span>
                 <ShieldCheck size={16} className="text-emerald-400 mb-1 shrink-0" />
@@ -171,7 +171,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Mobile cards */}
-            <div className="md:hidden space-y-4">
+            <div className="md:hidden space-y-3 px-1">
               {features.map(f => (
                 <div key={f.label} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4">
                   <p className="text-white font-bold mb-3 text-sm">{f.label}</p>

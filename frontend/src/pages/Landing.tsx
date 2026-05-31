@@ -512,7 +512,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-4 gap-4 lg:gap-6 text-left max-w-6xl mx-auto mb-8 md:mb-16">
+            <div className="grid lg:grid-cols-4 gap-4 lg:gap-6 text-left max-w-6xl mx-auto mb-8 md:mb-16 px-2 md:px-0">
 
               {/* GRATUITO */}
               <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 sm:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
@@ -622,7 +622,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ancoragem de ROI */}
-            <div className="max-w-3xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-8 text-center">
+            <div className="max-w-3xl mx-4 md:mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-8 text-center">
               <p className="text-[#94A3B8] text-sm mb-2">💡 Pense assim:</p>
               <p className="text-white text-xl font-bold mb-2">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
