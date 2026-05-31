@@ -285,7 +285,7 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-lg mx-auto">
       {/* CABEÇALHO */}
       <div className="text-center mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight">
