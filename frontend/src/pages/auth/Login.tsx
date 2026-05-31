@@ -278,7 +278,7 @@ export default function Login() {
   if (loading || isOAuth) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-emerald-500">
-        <Loader2 className="animate-spin mb-9" size={40} />
+        <Loader2 className="animate-spin mb-4" size={40} />
         <p className="text-[#B0C4D8] font-medium">{isOAuth ? 'Entrando com Google...' : 'Carregando...'}</p>
       </div>
     );

@@ -28,18 +28,18 @@ function Check({ ok }: { ok: boolean }) {
 
 export default function CompetitorTable({ userCity }: Props) {
   return (
-    <section id="como-funciona" className="pt-8 pb-8 md:py-24 bg-[#0B1729] border-t border-slate-800/50 overflow-hidden">
+    <section id="como-funciona" className="py-16 md:py-24 bg-[#0B1729] border-t border-slate-800/50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Container principal: cards à esquerda + tabela à direita */}
         <div className="flex flex-col md:flex-row gap-6 mb-8 md:mb-12 md:items-start">
 
           {/* Coluna esquerda: 4 cards verticais — desktop only, não alterar */}
-          <div className="hidden md:flex flex-col gap-7 md:w-56 shrink-0 md:order-1">
+          <div className="hidden md:flex flex-col gap-4 md:w-56 shrink-0 md:order-1">
 
             {/* Card 1 — Profissionais Verificados */}
-            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-7 md:p-3 flex flex-col">
-              <span className="absolute top-3 right-3 bg-emerald-500 text-black text-[10px] font-black px-7 py-0.5 rounded-full uppercase">✓ Verificado</span>
+            <div className="relative bg-gradient-to-br from-emerald-600/20 to-emerald-500/5 border border-emerald-500/40 rounded-2xl p-4 md:p-3 flex flex-col">
+              <span className="absolute top-3 right-3 bg-emerald-500 text-black text-[10px] font-black px-3 py-0.5 rounded-full uppercase">✓ Verificado</span>
               <ShieldCheck size={18} className="text-emerald-400 mb-6" />
               <p className="text-lg font-black text-emerald-400">371+</p>
               <p className="text-[11px] text-slate-400">profissionais verificados na Bahia</p>
@@ -48,7 +48,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 2 — Atendimento Rápido */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-7 md:p-3 flex flex-col">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-4 md:p-3 flex flex-col">
               <Zap size={18} className="text-yellow-400 mb-6" />
               <p className="text-lg font-black text-yellow-400">{'< 2h'}</p>
               <p className="text-[11px] text-slate-400">tempo médio de resposta</p>
@@ -57,7 +57,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 3 — Perto de Você */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-7 md:p-3 flex flex-col">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-4 md:p-3 flex flex-col">
               <MapPin size={18} className="text-blue-400 mb-6" />
               <p className="text-lg font-black text-blue-400 truncate">{userCity}</p>
               <p className="text-[11px] text-slate-400">e região atendida</p>
@@ -66,7 +66,7 @@ export default function CompetitorTable({ userCity }: Props) {
             </div>
 
             {/* Card 4 — Pagamento Seguro */}
-            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-7 md:p-3 flex flex-col">
+            <div className="bg-[#1C3454] border border-slate-700 rounded-2xl p-4 md:p-3 flex flex-col">
               <CreditCard size={18} className="text-purple-400 mb-6" />
               <p className="text-lg font-black text-purple-400">100%</p>
               <p className="text-[11px] text-slate-400">das transações protegidas</p>
@@ -139,7 +139,7 @@ export default function CompetitorTable({ userCity }: Props) {
                     <th className="px-4 py-3 md:px-6 md:py-4 text-center w-1/5">
                       <div className="inline-flex flex-col items-center gap-2">
                         <span className="text-emerald-400 font-black text-base">MeloCalé</span>
-                        <span className="text-[10px] bg-emerald-500 text-black font-black px-7 py-0.5 rounded-full uppercase tracking-wide">
+                        <span className="text-[10px] bg-emerald-500 text-black font-black px-3 py-0.5 rounded-full uppercase tracking-wide">
                           Melhor escolha
                         </span>
                       </div>

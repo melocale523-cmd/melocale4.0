@@ -54,77 +54,77 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-100">Painel Administrativo</h1>
-        <p className="text-[#94A3B8] mt-6">Visão geral do ecossistema MeloCalé.</p>
+        <p className="text-[#94A3B8] mt-2">Visão geral do ecossistema MeloCalé.</p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-9">
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-           <div className="flex justify-between items-start mb-9">
-              <div className="p-7 bg-blue-500/10 rounded-lg text-blue-400"><Users size={20} /></div>
-           </div>
-           <h3 className="text-[#94A3B8] text-sm font-medium">Total de Usuários</h3>
-           <p className="text-3xl font-bold text-white mt-6">{summary?.totalUsers || 0}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Users size={20} /></div>
+          </div>
+          <h3 className="text-[#94A3B8] text-sm font-medium">Total de Usuários</h3>
+          <p className="text-3xl font-bold text-white mt-2">{summary?.totalUsers || 0}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-           <div className="flex justify-between items-start mb-9">
-              <div className="p-7 bg-emerald-500/10 rounded-lg text-emerald-400"><Briefcase size={20} /></div>
-           </div>
-           <h3 className="text-[#94A3B8] text-sm font-medium">Pedidos Ativos</h3>
-           <p className="text-3xl font-bold text-white mt-6">{summary?.activeLeads || 0}</p>
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400"><Briefcase size={20} /></div>
+          </div>
+          <h3 className="text-[#94A3B8] text-sm font-medium">Pedidos Ativos</h3>
+          <p className="text-3xl font-bold text-white mt-2">{summary?.activeLeads || 0}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-           <div className="flex justify-between items-start mb-9">
-              <div className="p-7 bg-purple-500/10 rounded-lg text-purple-400"><TrendingUp size={20} /></div>
-           </div>
-           <h3 className="text-[#94A3B8] text-sm font-medium">Receita Estimada (Mês)</h3>
-           <p className="text-3xl font-bold text-white mt-6">R$ {(summary?.estimatedRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400"><TrendingUp size={20} /></div>
+          </div>
+          <h3 className="text-[#94A3B8] text-sm font-medium">Receita Estimada (Mês)</h3>
+          <p className="text-3xl font-bold text-white mt-2">R$ {(summary?.estimatedRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-red-500/20 rounded-xl p-11 relative overflow-hidden">
-           <div className="absolute opacity-5 -right-4 -bottom-4 text-red-500"><AlertTriangle size={100} /></div>
-           <div className="flex justify-between items-start mb-9 relative z-10">
-              <div className="p-7 bg-red-500/20 rounded-lg text-red-500"><AlertTriangle size={20} /></div>
-           </div>
-           <h3 className="text-red-400 text-sm font-medium relative z-10">Denúncias Pendentes</h3>
-           <p className="text-3xl font-bold text-white mt-6 relative z-10">{summary?.pendingDisputes || 0}</p>
+        <div className="bg-[#1C3454] border border-red-500/20 rounded-xl p-5 md:p-6 relative overflow-hidden">
+          <div className="absolute opacity-5 -right-4 -bottom-4 text-red-500"><AlertTriangle size={100} /></div>
+          <div className="flex justify-between items-start mb-4 relative z-10">
+            <div className="p-2 bg-red-500/20 rounded-lg text-red-500"><AlertTriangle size={20} /></div>
+          </div>
+          <h3 className="text-red-400 text-sm font-medium relative z-10">Denúncias Pendentes</h3>
+          <p className="text-3xl font-bold text-white mt-2 relative z-10">{summary?.pendingDisputes || 0}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-           <div className="flex justify-between items-start mb-9">
-              <div className="p-7 bg-teal-500/10 rounded-lg text-teal-400"><Activity size={20} /></div>
-           </div>
-           <h3 className="text-[#94A3B8] text-sm font-medium">Usuários Ativos (24h)</h3>
-           <p className="text-3xl font-bold text-white mt-6">{activeUsers ?? '—'}</p>
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-teal-500/10 rounded-lg text-teal-400"><Activity size={20} /></div>
+          </div>
+          <h3 className="text-[#94A3B8] text-sm font-medium">Usuários Ativos (24h)</h3>
+          <p className="text-3xl font-bold text-white mt-2">{activeUsers ?? '—'}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-           <div className="flex justify-between items-start mb-9">
-              <div className="p-7 bg-yellow-500/10 rounded-lg text-yellow-400"><CheckCircle size={20} /></div>
-           </div>
-           <h3 className="text-[#94A3B8] text-sm font-medium">Verificações Pendentes</h3>
-           <p className="text-3xl font-bold text-white mt-6">{summary?.pendingVerifications || 0}</p>
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-yellow-500/10 rounded-lg text-yellow-400"><CheckCircle size={20} /></div>
+          </div>
+          <h3 className="text-[#94A3B8] text-sm font-medium">Verificações Pendentes</h3>
+          <p className="text-3xl font-bold text-white mt-2">{summary?.pendingVerifications || 0}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-           <div className="flex justify-between items-start mb-9">
-              <div className="p-7 bg-indigo-500/10 rounded-lg text-indigo-400"><Clock size={20} /></div>
-           </div>
-           <h3 className="text-[#94A3B8] text-sm font-medium">Tempo Médio Resposta</h3>
-           <p className="text-3xl font-bold text-white mt-6">{summary?.avgResponseTime || '12m'}</p>
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><Clock size={20} /></div>
+          </div>
+          <h3 className="text-[#94A3B8] text-sm font-medium">Tempo Médio Resposta</h3>
+          <p className="text-3xl font-bold text-white mt-2">{summary?.avgResponseTime || '12m'}</p>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-11">
-        {/* Últimos Profissionais — dados reais */}
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-          <h2 className="text-lg font-bold text-white mb-9">Últimos Profissionais</h2>
-          <div className="space-y-9">
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Últimos Profissionais */}
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <h2 className="text-lg font-bold text-white mb-4">Últimos Profissionais</h2>
+          <div className="space-y-4">
             {recentPros.length > 0 ? recentPros.map((pro: { id: string; full_name?: string | null; email?: string | null; category?: string | null; created_at?: string | null }) => (
-              <div key={pro.id} className="flex items-center justify-between p-8 rounded-lg hover:bg-slate-800/30 transition-colors">
-                <div className="flex items-center gap-8">
+              <div key={pro.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/30 transition-colors">
+                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">
                     {(pro.full_name || pro.email || '?').charAt(0).toUpperCase()}
                   </div>
@@ -138,19 +138,19 @@ export default function AdminDashboard() {
                 <button className="text-xs font-medium text-blue-400 hover:text-blue-300">Ver Perfil</button>
               </div>
             )) : (
-              <p className="text-[#4A6580] text-sm text-center py-11">Nenhum profissional cadastrado.</p>
+              <p className="text-[#4A6580] text-sm text-center py-4">Nenhum profissional cadastrado.</p>
             )}
           </div>
         </div>
 
-        {/* Categorias em Alta — dados reais */}
-        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-11">
-          <h2 className="text-lg font-bold text-white mb-9">Categorias em Alta</h2>
-          <div className="space-y-9">
+        {/* Categorias em Alta */}
+        <div className="bg-[#1C3454] border border-slate-800/50 rounded-xl p-5 md:p-6">
+          <h2 className="text-lg font-bold text-white mb-4">Categorias em Alta</h2>
+          <div className="space-y-2">
             {topCategories && topCategories.length > 0 ? topCategories.map((cat, idx) => {
               const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-yellow-500', 'bg-red-500'];
               return (
-                <div key={cat.category} className="space-y-7">
+                <div key={cat.category} className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-300">{cat.category}</span>
                     <span className="text-[#94A3B8]">{cat.total} pedido{cat.total !== 1 ? 's' : ''}</span>
@@ -161,7 +161,7 @@ export default function AdminDashboard() {
                 </div>
               );
             }) : (
-              <p className="text-[#4A6580] text-sm text-center py-11">Sem dados de categorias.</p>
+              <p className="text-[#4A6580] text-sm text-center py-4">Sem dados de categorias.</p>
             )}
           </div>
         </div>
