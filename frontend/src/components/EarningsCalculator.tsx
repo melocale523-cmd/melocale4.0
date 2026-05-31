@@ -39,7 +39,7 @@ export default function EarningsCalculator() {
   const profitPro = extra - 67
 
   return (
-    <section className="pt-8 pb-20 md:pt-20 bg-[#0B1729] border-t border-slate-800/50">
+    <section className="pt-6 pb-12 md:pt-20 bg-[#0B1729] border-t border-slate-800/50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
 
         {/* Header */}

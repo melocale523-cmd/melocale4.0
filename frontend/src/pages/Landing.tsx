@@ -164,7 +164,7 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-32 pb-12 md:pb-32 overflow-hidden">
+        <section id="hero" className="relative pt-32 pb-6 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -202,7 +202,7 @@ export default function LandingPage() {
                       Ver Planos
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 md:gap-6 pt-8 border-t border-slate-800 mt-8">
+                  <div className="grid grid-cols-3 gap-3 md:gap-6 pt-6 border-t border-slate-800 mt-6">
                     <div>
                       <div className="flex items-center text-emerald-400 mb-2"><Zap size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
@@ -264,7 +264,7 @@ export default function LandingPage() {
                       Ver Como Funciona
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 md:gap-6 pt-8 border-t border-slate-800 mt-8">
+                  <div className="grid grid-cols-3 gap-3 md:gap-6 pt-6 border-t border-slate-800 mt-6">
                     <div>
                       <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-1 md:mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
@@ -350,11 +350,11 @@ export default function LandingPage() {
         <Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense>
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
-        <section className="pt-10 pb-10 md:pt-20 md:pb-10 bg-[#0B1729] border-t border-slate-800/50">
+        <section className="pt-8 pb-6 md:pt-20 md:pb-10 bg-[#0B1729] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-8 md:mb-16 text-center">
+            <div className="grid grid-cols-3 gap-3 md:gap-8 max-w-2xl mx-auto mb-8 md:mb-16 text-center">
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
                 <p className="text-xs md:text-sm text-[#94A3B8] mt-1">Profissionais cadastrados</p>
@@ -370,13 +370,13 @@ export default function LandingPage() {
             </div>
 
             {/* Depoimentos */}
-            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-6 mt-4">
               Quem usa, <span className="text-emerald-400">recomenda</span>
             </h2>
 
             <div className="grid md:grid-cols-3 gap-6">
               {/* Depoimento 1 — Carlos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -397,7 +397,7 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 2 — Ana (cliente) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -418,7 +418,7 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 3 — Marcos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
+              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-6 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -462,7 +462,7 @@ export default function LandingPage() {
         <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
         {/* ── Pricing ── */}
-        <section id="planos" className="pt-10 pb-14 md:pt-16 md:pb-24 bg-[#0E1C32] border-t border-slate-800/50">
+        <section id="planos" className="pt-8 pb-10 md:pt-16 md:pb-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div className="text-center mb-8 md:mb-16">
@@ -515,7 +515,7 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-4 gap-4 lg:gap-6 text-left max-w-6xl mx-auto mb-8 md:mb-16 px-2 md:px-0">
 
               {/* GRATUITO */}
-              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 sm:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-6 sm:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-6">
                   <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -524,7 +524,7 @@ export default function LandingPage() {
                 <Link to="/login" className="block w-full bg-slate-800 hover:bg-slate-700 text-white text-center rounded-xl px-4 py-3 text-sm font-bold transition-all mb-6">
                   Explorar Grátis →
                 </Link>
-                <ul className="space-y-3 flex-1">
+                <ul className="space-y-4 flex-1">
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
                   <li className="flex items-start gap-2 text-[#94A3B8] text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
@@ -534,7 +534,7 @@ export default function LandingPage() {
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-5 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-6 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-6">
                   <div className="inline-block px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">Starter</div>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -548,7 +548,7 @@ export default function LandingPage() {
                   <span>⚠️</span>
                   <span>Apenas {vagas.starter} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="space-y-3 flex-1">
+                <ul className="space-y-4 flex-1">
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
@@ -561,7 +561,7 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-5 sm:p-8 flex flex-col relative mt-6 md:mt-0 md:transform md:scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-6 sm:p-8 flex flex-col relative mt-6 md:mt-0 md:transform md:scale-105 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
@@ -578,7 +578,7 @@ export default function LandingPage() {
                   <span>⚠️</span>
                   <span>Apenas {vagas.pro} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="space-y-3 flex-1">
+                <ul className="space-y-4 flex-1">
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
                   <li className="flex items-start gap-2 text-slate-200 text-sm"><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
@@ -593,7 +593,7 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-5 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-6 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-6">
                   <div className="inline-block px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">🏆 Elite</div>
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -607,7 +607,7 @@ export default function LandingPage() {
                   <span>⚠️</span>
                   <span>Apenas {vagas.elite} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="space-y-3 flex-1">
+                <ul className="space-y-4 flex-1">
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
                   <li className="flex items-start gap-2 text-slate-300 text-sm"><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
