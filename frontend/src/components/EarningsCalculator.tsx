@@ -39,11 +39,11 @@ export default function EarningsCalculator() {
   const profitPro = extra - 67
 
   return (
-    <section className="pt-6 pb-12 md:pt-20 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+    <section className="py-16 md:py-20 bg-[#0B1729] border-t border-slate-800/50">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 w-full">
 
         {/* Header */}
-        <div className="text-center mb-8 md:mb-12">
+        <div className="text-center w-full mb-8 md:mb-12">
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-emerald-400 text-xs font-black uppercase tracking-widest mb-6">
             <TrendingUp size={14} />
             Calculadora de Ganhos
@@ -53,7 +53,7 @@ export default function EarningsCalculator() {
           </h2>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-5 md:p-8 space-y-6">
+        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-6 md:p-10 space-y-6 w-full">
 
           {/* Slider A */}
           <div>
@@ -113,7 +113,7 @@ export default function EarningsCalculator() {
           {/* CTA */}
           <Link
             to="/login?mode=signup&role=professional"
-            className="flex items-center justify-center w-full h-12 md:h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base rounded-2xl text-center transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="flex items-center justify-center w-full h-13 md:h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base rounded-2xl text-center transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             Quero ganhar R${fmt(extra)}/mês →
           </Link>
