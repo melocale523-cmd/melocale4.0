@@ -61,15 +61,15 @@ export function CalendarGrid({
 
   return (
     <>
-      <div className="flex justify-between items-center mb-10">
+      <div className="flex justify-between items-center mb-15">
         <h2 className="text-white font-bold text-xl first-letter:uppercase">
           {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-7">
           <button onClick={onPrev} className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm">
             <ChevronLeft size={20} />
           </button>
-          <button onClick={onToday} className="px-4 py-2 text-sm font-bold rounded-xl bg-white/5 border border-[#243F6A] text-white hover:bg-white/10 transition-all shadow-sm">
+          <button onClick={onToday} className="px-9 py-7 text-sm font-bold rounded-xl bg-white/5 border border-[#243F6A] text-white hover:bg-white/10 transition-all shadow-sm">
             Hoje
           </button>
           <button onClick={onNext} className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm">
@@ -78,11 +78,11 @@ export function CalendarGrid({
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 mb-4 text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+      <div className="grid grid-cols-7 gap-7 mb-9 text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest">
         <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-7">
         {calendarDays.map((day, idx) => {
           const isSelected = isSameDay(day, selectedDate);
           const isCurrentMonth = isSameMonth(day, monthStart);
@@ -94,7 +94,7 @@ export function CalendarGrid({
               key={idx}
               onClick={() => onSelectDay(day)}
               className={cn(
-                'aspect-square rounded-2xl border flex flex-col p-2 text-sm font-medium transition-all relative group',
+                'aspect-square rounded-2xl border flex flex-col p-7 text-sm font-medium transition-all relative group',
                 !isCurrentMonth ? 'opacity-[0.05] pointer-events-none' : 'hover:border-emerald-500/50',
                 isSelected
                   ? 'bg-emerald-500 text-black border-emerald-400 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]'
@@ -115,9 +115,9 @@ export function CalendarGrid({
         })}
       </div>
 
-      <div className="flex flex-wrap gap-6 mt-10 p-4 bg-[#0E1C32] rounded-2xl border border-[#1C3050]">
+      <div className="flex flex-wrap gap-11 mt-10 p-9 bg-[#0E1C32] rounded-2xl border border-[#1C3050]">
         {(['scheduled', 'confirmed', 'rescheduled', 'completed', 'cancelled'] as AppStatus[]).map(s => (
-          <div key={s} className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
+          <div key={s} className="flex items-center gap-7 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
             <div className={cn('w-2.5 h-2.5 rounded-full', DOT_COLOR[s])} />
             {STATUS_LABEL[s]}
           </div>

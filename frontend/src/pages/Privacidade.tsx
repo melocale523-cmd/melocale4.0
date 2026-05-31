@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function Privacidade() {
   return (
-    <div className="min-h-screen bg-[#0E1C32] text-white py-12 px-4">
+    <div className="min-h-screen bg-[#0E1C32] text-white py-12 px-9">
       <Helmet>
         <title>Política de Privacidade — MeloCalé</title>
         <meta name="description" content="Política de Privacidade da plataforma MeloCalé." />
@@ -13,25 +13,25 @@ export default function Privacidade() {
       <div className="max-w-3xl mx-auto">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-[#94A3B8] hover:text-white mb-8 text-sm transition-colors"
+          className="inline-flex items-center gap-7 text-[#94A3B8] hover:text-white mb-13 text-sm transition-colors"
         >
           <ArrowLeft size={16} /> Voltar para o início
         </Link>
 
-        <h1 className="text-3xl font-bold text-white mb-2">Política de Privacidade</h1>
-        <p className="text-[#94A3B8] text-sm mb-10">Última atualização: maio de 2026</p>
+        <h1 className="text-3xl font-bold text-white mb-7">Política de Privacidade</h1>
+        <p className="text-[#94A3B8] text-sm mb-15">Última atualização: maio de 2026</p>
 
         <div className="space-y-8 text-[#94A3B8] leading-relaxed">
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">1. Quem somos</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">1. Quem somos</h2>
             <p>
               O MeloCalé é uma plataforma digital que conecta clientes a profissionais de
               serviços domésticos (elétrica, hidráulica, pintura, entre outros), operada por
               seus desenvolvedores com sede no Brasil. Somos uma startup brasileira em fase de
               crescimento, comprometida com a proteção de dados desde o início da operação.
             </p>
-            <p className="mt-2">
+            <p className="mt-7">
               Contato para assuntos de privacidade:{' '}
               <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">
                 privacidade@melocale.com.br
@@ -40,8 +40,8 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">2. Dados que coletamos</h2>
-            <ul className="list-disc list-inside space-y-1">
+            <h2 className="text-lg font-semibold text-white mb-8">2. Dados que coletamos</h2>
+            <ul className="list-disc list-inside space-y-6">
               <li>Nome completo e endereço de e-mail (cadastro)</li>
               <li>Número de telefone (opcional, para contato entre cliente e profissional)</li>
               <li>Cidade e estado (para exibição de profissionais próximos)</li>
@@ -53,8 +53,8 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">3. Como usamos seus dados</h2>
-            <ul className="list-disc list-inside space-y-1">
+            <h2 className="text-lg font-semibold text-white mb-8">3. Como usamos seus dados</h2>
+            <ul className="list-disc list-inside space-y-6">
               <li>Criar e gerenciar sua conta</li>
               <li>Conectar clientes a profissionais de serviços</li>
               <li>Processar pagamentos de forma segura via Stripe</li>
@@ -65,7 +65,7 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">4. Base legal (LGPD)</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">4. Base legal (LGPD)</h2>
             <p>
               Tratamos seus dados com base no consentimento (Art. 7º, I), na execução de
               contrato (Art. 7º, V) e no legítimo interesse (Art. 7º, IX) conforme a Lei
@@ -74,28 +74,28 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">5. Compartilhamento de dados</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">5. Compartilhamento de dados</h2>
             <p>Seus dados são compartilhados apenas com:</p>
-            <ul className="list-disc list-inside space-y-1 mt-2">
+            <ul className="list-disc list-inside space-y-6 mt-7">
               <li><strong className="text-white">Supabase</strong> — banco de dados e autenticação</li>
               <li><strong className="text-white">Stripe</strong> — processamento de pagamentos</li>
               <li><strong className="text-white">Sentry</strong> — monitoramento de erros (dados anonimizados)</li>
               <li><strong className="text-white">Profissionais cadastrados</strong> — apenas quando você solicita um serviço</li>
             </ul>
-            <p className="mt-2">Não vendemos seus dados a terceiros.</p>
+            <p className="mt-7">Não vendemos seus dados a terceiros.</p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">6. Seus direitos</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">6. Seus direitos</h2>
             <p>Conforme a LGPD, você tem direito a:</p>
-            <ul className="list-disc list-inside space-y-1 mt-2">
+            <ul className="list-disc list-inside space-y-6 mt-7">
               <li>Acessar os dados que temos sobre você</li>
               <li>Corrigir dados incompletos ou incorretos</li>
               <li>Solicitar a exclusão dos seus dados</li>
               <li>Revogar o consentimento a qualquer momento</li>
               <li>Solicitar portabilidade dos dados</li>
             </ul>
-            <p className="mt-2">
+            <p className="mt-7">
               Para exercer seus direitos, entre em contato:{' '}
               <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">
                 privacidade@melocale.com.br
@@ -104,12 +104,12 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">7. Retenção de dados</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">7. Retenção de dados</h2>
             <p>
               Mantemos seus dados enquanto sua conta estiver ativa. Após o encerramento,
               os dados são excluídos em até 90 dias, salvo obrigação legal de retenção.
             </p>
-            <p className="mt-2">
+            <p className="mt-7">
               Dados de leads recebidos e pedidos de serviço são retidos enquanto o profissional
               mantiver conta ativa na plataforma, pois integram o histórico operacional da conta.
               Após o encerramento, esses dados seguem o mesmo prazo de 90 dias acima.
@@ -117,12 +117,12 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">8. Cookies e rastreamento</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">8. Cookies e rastreamento</h2>
             <p>
               Utilizamos apenas cookies essenciais para autenticação e funcionamento da
               plataforma. Não utilizamos cookies de rastreamento ou publicidade.
             </p>
-            <p className="mt-2">
+            <p className="mt-7">
               Utilizamos o <strong className="text-white">Cloudflare</strong> como CDN (rede de
               entrega de conteúdo) para desempenho e disponibilidade. O Cloudflare Insights coleta
               dados de navegação de forma anônima e agregada (sem identificação individual) para
@@ -131,7 +131,7 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">9. Alterações nesta política</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">9. Alterações nesta política</h2>
 
             <p>
               Podemos atualizar esta política periodicamente. Notificaremos usuários sobre
@@ -140,24 +140,24 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">10. Transferência Internacional de Dados</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">10. Transferência Internacional de Dados</h2>
             <p>
               Para operar a plataforma, seus dados podem ser transferidos e processados fora do
               Brasil, com base nos Art. 33–36 da LGPD, pelos seguintes prestadores:
             </p>
-            <ul className="list-disc list-inside space-y-1 mt-2">
+            <ul className="list-disc list-inside space-y-6 mt-7">
               <li><strong className="text-white">Supabase</strong> — banco de dados hospedado na AWS região us-east-1 (EUA), com certificação SOC 2 Type II</li>
               <li><strong className="text-white">Stripe</strong> — processamento de pagamentos nos EUA, certificação PCI DSS Nível 1</li>
               <li><strong className="text-white">Sentry</strong> — monitoramento de erros com servidores na Europa (Frankfurt), sujeito ao GDPR</li>
             </ul>
-            <p className="mt-2">
+            <p className="mt-7">
               Todas essas transferências são amparadas por cláusulas contratuais adequadas e os
               dados tratados pelos subprocessadores ficam restritos às finalidades descritas nesta política.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-3">11. Contato</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">11. Contato</h2>
             <p>
               Dúvidas sobre privacidade:{' '}
               <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">

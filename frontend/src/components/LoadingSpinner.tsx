@@ -9,7 +9,7 @@ interface LoadingSpinnerProps {
 
 export default function LoadingSpinner({ size = 24, className, label }: LoadingSpinnerProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3", className)}>
+    <div className={cn("flex flex-col items-center justify-center gap-8", className)}>
       <Loader2 className="animate-spin text-emerald-500" size={size} />
       {label && <p className="text-[#94A3B8] text-sm font-medium">{label}</p>}
     </div>

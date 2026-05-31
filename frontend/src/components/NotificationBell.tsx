@@ -123,17 +123,17 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-[#132540] border border-[#243F6A] rounded-2xl shadow-2xl z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#1C3050]">
+        <div className="absolute right-0 top-full mt-7 w-80 bg-[#132540] border border-[#243F6A] rounded-2xl shadow-2xl z-50 overflow-hidden">
+          <div className="flex items-center justify-between px-9 py-8 border-b border-[#1C3050]">
             <span className="text-sm font-black text-white">Notificações</span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-7">
               {isSupported && !isSubscribed && (
-                <button onClick={subscribe} className="text-[10px] text-yellow-400 hover:text-yellow-300 font-bold flex items-center gap-1" title="Ativar notificações push">
+                <button onClick={subscribe} className="text-[10px] text-yellow-400 hover:text-yellow-300 font-bold flex items-center gap-6" title="Ativar notificações push">
                   <BellRing size={12} /> Ativar
                 </button>
               )}
               {unread > 0 && (
-                <button onClick={markAllRead} className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1">
+                <button onClick={markAllRead} className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-6">
                   <Check size={12} /> Marcar todas lidas
                 </button>
               )}
@@ -146,7 +146,7 @@ export default function NotificationBell() {
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="py-10 text-center">
-                <Bell size={32} className="text-[#243F6A] mx-auto mb-2" />
+                <Bell size={32} className="text-[#243F6A] mx-auto mb-7" />
                 <p className="text-xs text-[#4A6580] font-medium">Nenhuma notificação</p>
               </div>
             ) : (
@@ -155,17 +155,17 @@ export default function NotificationBell() {
                   key={n.id}
                   onClick={() => markRead(n.id)}
                   className={cn(
-                    "px-4 py-3 border-b border-[#1C3050] cursor-pointer hover:bg-white/5 transition-all",
+                    "px-9 py-8 border-b border-[#1C3050] cursor-pointer hover:bg-white/5 transition-all",
                     !n.is_read && "bg-emerald-500/5 border-l-2 border-l-emerald-500"
                   )}
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-7">
                     <div className="flex-1 min-w-0">
                       <p className={cn("text-xs font-black truncate", n.is_read ? "text-[#94A3B8]" : "text-white")}>{n.title}</p>
                       <p className="text-[11px] text-[#4A6580] mt-0.5 leading-relaxed">{n.body}</p>
-                      <p className="text-[10px] text-[#4A6580] mt-1">{new Date(n.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="text-[10px] text-[#4A6580] mt-6">{new Date(n.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
-                    {!n.is_read && <div className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-1"></div>}
+                    {!n.is_read && <div className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-6"></div>}
                   </div>
                 </div>
               ))

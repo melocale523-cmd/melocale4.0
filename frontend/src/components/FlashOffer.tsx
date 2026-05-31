@@ -13,7 +13,7 @@ export default function FlashOffer() {
   if (!isFlashOfferActive()) return null;
 
   return (
-    <div className="w-full flex items-center justify-center gap-2 md:gap-4 px-4 py-2.5 text-xs md:text-sm font-bold flex-wrap"
+    <div className="w-full flex items-center justify-center gap-7 md:gap-4 px-9 py-2.5 text-xs md:text-sm font-bold flex-wrap"
       style={{ background: 'linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%)' }}
     >
       <span>⚡ Oferta Relâmpago</span>
@@ -21,7 +21,7 @@ export default function FlashOffer() {
       <span className="text-amber-100">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
       <Link
         to="/login?mode=signup"
-        className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3 py-1 text-xs font-black transition-colors whitespace-nowrap"
+        className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-8 py-6 text-xs font-black transition-colors whitespace-nowrap"
       >
         Aproveitar →
       </Link>

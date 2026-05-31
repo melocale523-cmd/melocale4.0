@@ -173,54 +173,54 @@ export default function ClientAgenda() {
     confirmPresencaMutation.isPending;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-11">
       <div>
         <h1 className="text-2xl font-bold text-white">Minha Agenda</h1>
-        <p className="text-[#94A3B8] text-sm mt-1">Seus agendamentos com profissionais</p>
+        <p className="text-[#94A3B8] text-sm mt-6">Seus agendamentos com profissionais</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-4">
-          <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest mb-1">Total</p>
+      <div className="grid grid-cols-3 gap-8">
+        <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-9">
+          <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest mb-6">Total</p>
           <p className="text-2xl font-bold text-white">{isLoading ? '—' : stats.total}</p>
         </div>
-        <div className="bg-[#132540] border border-emerald-500/20 rounded-2xl p-4">
-          <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-1">Confirmados</p>
+        <div className="bg-[#132540] border border-emerald-500/20 rounded-2xl p-9">
+          <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">Confirmados</p>
           <p className="text-2xl font-bold text-emerald-400">{isLoading ? '—' : stats.confirmed}</p>
         </div>
-        <div className="bg-[#132540] border border-yellow-500/20 rounded-2xl p-4">
-          <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-1">Pendentes</p>
+        <div className="bg-[#132540] border border-yellow-500/20 rounded-2xl p-9">
+          <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-6">Pendentes</p>
           <p className="text-2xl font-bold text-yellow-400">{isLoading ? '—' : stats.pending}</p>
         </div>
       </div>
 
       {/* Appointment list */}
-      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-6">
-        <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-11">
+        <h2 className="text-base font-semibold text-white mb-9 flex items-center gap-7">
           <CalendarIcon size={18} className="text-emerald-400" />
           Todos os Agendamentos
         </h2>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12 gap-3">
+          <div className="flex items-center justify-center py-12 gap-8">
             <Loader2 size={24} className="animate-spin text-emerald-500" />
             <span className="text-[#94A3B8] text-sm">Carregando...</span>
           </div>
         ) : sorted.length === 0 ? (
-          <div className="text-center py-16 flex flex-col items-center gap-4">
+          <div className="text-center py-16 flex flex-col items-center gap-9">
             <div className="w-20 h-20 rounded-full bg-[#0E1C32] border border-[#1C3050] flex items-center justify-center">
               <CalendarIcon size={36} className="text-[#243F6A]" />
             </div>
             <div>
               <p className="text-white font-bold text-base">Nenhum agendamento ainda</p>
-              <p className="text-[#94A3B8] text-sm mt-1 max-w-xs mx-auto">
+              <p className="text-[#94A3B8] text-sm mt-6 max-w-xs mx-auto">
                 Quando um profissional agendar um serviço com você, ele aparecerá aqui.
               </p>
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-9">
             {sorted.map(appt => {
               const dt = new Date(appt.scheduled_at);
               const hoursUntil = (dt.getTime() - Date.now()) / 3_600_000;
@@ -247,8 +247,8 @@ export default function ClientAgenda() {
                 >
                   {/* Reschedule banner — professional proposed */}
                   {profProposedReschedule && appt.proposed_at && (
-                    <div className="mx-4 mt-4 bg-orange-500/10 border border-orange-500/30 rounded-xl p-3">
-                      <div className="flex items-start gap-2">
+                    <div className="mx-9 mt-9 bg-orange-500/10 border border-orange-500/30 rounded-xl p-8">
+                      <div className="flex items-start gap-7">
                         <AlertTriangle size={14} className="text-orange-400 mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-bold text-orange-400">Profissional propôs nova data</p>
@@ -257,11 +257,11 @@ export default function ClientAgenda() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-3">
+                      <div className="flex gap-7 mt-8">
                         <button
                           onClick={() => acceptMutation.mutate(appt)}
                           disabled={anyPending}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-9 py-7 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
                         >
                           {acceptMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                           Aceitar
@@ -269,7 +269,7 @@ export default function ClientAgenda() {
                         <button
                           onClick={() => declineMutation.mutate(appt)}
                           disabled={anyPending}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-9 py-7 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
                         >
                           <X size={12} /> Recusar
                         </button>
@@ -279,8 +279,8 @@ export default function ClientAgenda() {
 
                   {/* Reschedule banner — waiting for professional response */}
                   {clientProposedReschedule && appt.proposed_at && (
-                    <div className="mx-4 mt-4 bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
-                      <div className="flex items-center gap-2">
+                    <div className="mx-9 mt-9 bg-blue-500/10 border border-blue-500/30 rounded-xl p-8">
+                      <div className="flex items-center gap-7">
                         <RefreshCw size={13} className="text-blue-400 shrink-0" />
                         <div>
                           <p className="text-xs font-bold text-blue-400">Aguardando resposta do profissional</p>
@@ -292,7 +292,7 @@ export default function ClientAgenda() {
                     </div>
                   )}
 
-                  <div className="flex items-start gap-4 p-4">
+                  <div className="flex items-start gap-9 p-9">
                     {/* Date badge */}
                     <div className="flex flex-col items-center justify-center min-w-[52px] h-14 rounded-xl bg-[#132540] border border-[#1C3050] shrink-0">
                       <span className="text-lg font-bold text-white leading-none">{format(dt, 'dd')}</span>
@@ -300,26 +300,26 @@ export default function ClientAgenda() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                      <div className="flex items-start justify-between gap-7 flex-wrap">
                         <div>
                           <p className="text-sm font-bold text-white truncate">{appt.title}</p>
-                          <p className="text-xs text-[#94A3B8] flex items-center gap-1 mt-0.5">
+                          <p className="text-xs text-[#94A3B8] flex items-center gap-6 mt-0.5">
                             <User size={11} /> {profName}
                             {profCategory && <span className="text-[#4A6580]">· {profCategory}</span>}
                           </p>
                         </div>
-                        <span className={cn('text-[10px] font-bold px-2 py-1 rounded-lg border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
+                        <span className={cn('text-[10px] font-bold px-7 py-6 rounded-lg border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
                           {STATUS_LABEL[appt.status]}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
-                        <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-7">
+                        <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
                           <Clock size={11} />
                           {format(dt, "eeee, dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                         </span>
                         {appt.location && (
-                          <span className="flex items-center gap-1 text-xs text-[#94A3B8]">
+                          <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
                             <MapPin size={11} />
                             {appt.location}
                           </span>
@@ -327,22 +327,22 @@ export default function ClientAgenda() {
                       </div>
 
                       {appt.description && (
-                        <p className="text-xs text-[#4A6580] mt-1 truncate">{appt.description}</p>
+                        <p className="text-xs text-[#4A6580] mt-6 truncate">{appt.description}</p>
                       )}
 
                       {appt.cancelled_reason && (
-                        <p className="text-xs text-red-400/70 mt-1">Motivo: {appt.cancelled_reason}</p>
+                        <p className="text-xs text-red-400/70 mt-6">Motivo: {appt.cancelled_reason}</p>
                       )}
 
                       {/* Action buttons */}
                       {!isCancelling && (
-                        <div className="flex flex-wrap gap-2 mt-3">
+                        <div className="flex flex-wrap gap-7 mt-8">
                           {/* Presence confirmation — only within 48h window */}
                           {canConfirmPresenca && (
                             <button
                               onClick={() => confirmPresencaMutation.mutate(appt.id)}
                               disabled={anyPending}
-                              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                              className="flex items-center gap-1.5 px-9 py-7 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
                             >
                               {confirmPresencaMutation.isPending ? (
                                 <Loader2 size={13} className="animate-spin" />
@@ -357,7 +357,7 @@ export default function ClientAgenda() {
                             <button
                               onClick={() => handleConfirm(appt)}
                               disabled={anyPending}
-                              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                              className="flex items-center gap-1.5 px-9 py-7 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
                             >
                               {updateMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
                               Confirmar
@@ -367,7 +367,7 @@ export default function ClientAgenda() {
                             <button
                               onClick={() => { setReschedulingAppt(appt); setRescheduleDate(''); setRescheduleTime(''); }}
                               disabled={anyPending}
-                              className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold rounded-xl border border-blue-500/20 transition-all disabled:opacity-50"
+                              className="flex items-center gap-1.5 px-9 py-7 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold rounded-xl border border-blue-500/20 transition-all disabled:opacity-50"
                             >
                               <RefreshCw size={13} /> Reagendar
                             </button>
@@ -376,7 +376,7 @@ export default function ClientAgenda() {
                             <button
                               onClick={() => { setCancellingId(appt.id); setCancelReason(''); }}
                               disabled={anyPending}
-                              className="flex items-center gap-1.5 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
+                              className="flex items-center gap-1.5 px-9 py-7 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
                             >
                               <X size={13} /> Cancelar
                             </button>
@@ -390,7 +390,7 @@ export default function ClientAgenda() {
                           {canReview && (
                             <button
                               onClick={() => setReviewingAppt(appt)}
-                              className="flex items-center gap-1.5 px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-xl border border-yellow-500/20 transition-all"
+                              className="flex items-center gap-1.5 px-9 py-7 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-xl border border-yellow-500/20 transition-all"
                             >
                               <Star size={13} /> Avaliar
                             </button>
@@ -405,27 +405,27 @@ export default function ClientAgenda() {
 
                       {/* Cancel reason form */}
                       {isCancelling && (
-                        <div className="mt-3 space-y-2">
+                        <div className="mt-8 space-y-7">
                           <textarea
                             rows={2}
                             placeholder="Motivo do cancelamento (opcional)..."
                             value={cancelReason}
                             onChange={e => setCancelReason(e.target.value)}
                             maxLength={500}
-                            className="w-full bg-[#0E1C32] border border-red-500/20 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/40 transition-colors resize-none placeholder:text-[#4A6580]"
+                            className="w-full bg-[#0E1C32] border border-red-500/20 rounded-xl px-8 py-7 text-sm text-white focus:outline-none focus:border-red-500/40 transition-colors resize-none placeholder:text-[#4A6580]"
                           />
-                          <div className="flex gap-2">
+                          <div className="flex gap-7">
                             <button
                               onClick={() => handleCancelSubmit(appt)}
                               disabled={anyPending}
-                              className="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-400 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                              className="flex items-center gap-1.5 px-9 py-7 bg-red-500 hover:bg-red-400 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
                             >
                               {updateMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
                               Confirmar Cancelamento
                             </button>
                             <button
                               onClick={() => { setCancellingId(null); setCancelReason(''); }}
-                              className="px-4 py-2 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
+                              className="px-9 py-7 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
                             >
                               Voltar
                             </button>
@@ -454,52 +454,52 @@ export default function ClientAgenda() {
 
       {/* Reschedule modal */}
       {reschedulingAppt && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-9">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setReschedulingAppt(null)} />
-          <div className="relative bg-[#132540] border border-[#1C3050] rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+          <div className="relative bg-[#132540] border border-[#1C3050] rounded-2xl p-11 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-9">
+              <h3 className="text-base font-bold text-white flex items-center gap-7">
                 <RefreshCw size={16} className="text-blue-400" /> Propor Reagendamento
               </h3>
               <button onClick={() => setReschedulingAppt(null)} className="text-[#4A6580] hover:text-white transition-colors">
                 <X size={18} />
               </button>
             </div>
-            <p className="text-xs text-[#94A3B8] mb-4">
+            <p className="text-xs text-[#94A3B8] mb-9">
               O profissional receberá uma notificação e deverá aceitar ou recusar a nova data.
             </p>
-            <div className="space-y-3">
+            <div className="space-y-8">
               <div>
-                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-1 block">Nova Data</label>
+                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-6 block">Nova Data</label>
                 <input
                   type="date"
                   value={rescheduleDate}
                   onChange={e => setRescheduleDate(e.target.value)}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-8 py-7 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
               </div>
               <div>
-                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-1 block">Novo Horário</label>
+                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-6 block">Novo Horário</label>
                 <input
                   type="time"
                   value={rescheduleTime}
                   onChange={e => setRescheduleTime(e.target.value)}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-8 py-7 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
               </div>
             </div>
-            <div className="flex gap-2 mt-5">
+            <div className="flex gap-7 mt-5">
               <button
                 onClick={handleRescheduleSubmit}
                 disabled={rescheduleMutation.isPending || !rescheduleDate || !rescheduleTime}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-7 py-8 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
               >
                 {rescheduleMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                 Enviar Proposta
               </button>
               <button
                 onClick={() => setReschedulingAppt(null)}
-                className="px-4 py-3 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
+                className="px-9 py-8 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
               >
                 Voltar
               </button>

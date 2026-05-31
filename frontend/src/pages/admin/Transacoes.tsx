@@ -62,22 +62,22 @@ export default function AdminTransacoes() {
   }, {} as Record<string, number>);
 
   return (
-    <div className="space-y-6 fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="space-y-11 fade-in">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-9">
         {[
           { label: 'Compra de Moedas', value: totals['credit_purchase'] ?? 0, color: 'text-blue-400' },
           { label: 'Gasto em Leads', value: totals['debit_lead'] ?? 0, color: 'text-red-400' },
           { label: 'Bônus', value: totals['bonus'] ?? 0, color: 'text-emerald-400' },
           { label: 'Total Transações', value: transacoes.length, color: 'text-yellow-400' },
         ].map((stat, i) => (
-          <div key={i} className="bg-[#1C3454] border border-slate-800/80 rounded-xl p-6">
-            <h3 className="text-[#94A3B8] text-sm font-medium mb-2">{stat.label}</h3>
+          <div key={i} className="bg-[#1C3454] border border-slate-800/80 rounded-xl p-11">
+            <h3 className="text-[#94A3B8] text-sm font-medium mb-7">{stat.label}</h3>
             <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="flex gap-4 mb-6">
+      <div className="flex gap-9 mb-11">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580]" size={18} />
           <input
@@ -86,13 +86,13 @@ export default function AdminTransacoes() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             maxLength={255}
-            className="w-full bg-[#1C3454] border border-slate-800 rounded-lg pl-10 pr-4 py-3 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+            className="w-full bg-[#1C3454] border border-slate-800 rounded-lg pl-10 pr-4 py-8 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
           />
         </div>
       </div>
 
       <div className="bg-[#1C3454] border border-slate-800/80 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-[#1C3050] flex justify-between items-center bg-[#181A20]">
+        <div className="p-9 border-b border-[#1C3050] flex justify-between items-center bg-[#181A20]">
           <h2 className="text-lg font-bold text-white">Transações ({filtered.length})</h2>
           {isLoading && <Loader2 size={18} className="animate-spin text-emerald-500" />}
         </div>
@@ -101,27 +101,27 @@ export default function AdminTransacoes() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#1C3050] text-sm font-medium text-[#94A3B8]">
-                <th className="p-4">Data</th>
-                <th className="p-4">Profissional</th>
-                <th className="p-4">Tipo</th>
-                <th className="p-4">Valor (moedas)</th>
+                <th className="p-9">Data</th>
+                <th className="p-9">Profissional</th>
+                <th className="p-9">Tipo</th>
+                <th className="p-9">Valor (moedas)</th>
               </tr>
             </thead>
             <tbody className="text-sm">
               {filtered.map((t: Transaction) => (
                 <tr key={t.id} onClick={() => setSelectedTx(t)} className="border-b border-[#1C3050] hover:bg-slate-800/30 transition-colors cursor-pointer">
-                  <td className="p-4 text-slate-300">
+                  <td className="p-9 text-slate-300">
                     {new Date(t.created_at).toLocaleDateString('pt-BR')} {new Date(t.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                   </td>
-                  <td className="p-4 text-white font-medium">
+                  <td className="p-9 text-white font-medium">
                     {t.professionals?.profiles?.full_name ?? '—'}
                   </td>
-                  <td className="p-4">
-                    <span className={`border px-2 py-0.5 rounded text-xs font-bold uppercase ${kindColor(t.kind)}`}>
+                  <td className="p-9">
+                    <span className={`border px-7 py-0.5 rounded text-xs font-bold uppercase ${kindColor(t.kind)}`}>
                       {formatKind(t.kind, t.reference)}
                     </span>
                   </td>
-                  <td className={`p-4 font-bold ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
+                  <td className={`p-9 font-bold ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
                     {t.kind === 'debit_lead' ? '-' : '+'}{t.amount}
                   </td>
                 </tr>
@@ -137,14 +137,14 @@ export default function AdminTransacoes() {
       </div>
 
       {selectedTx && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-9">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedTx(null)} />
-          <div className="bg-[#1C3454] border border-slate-700 rounded-xl p-6 w-full max-w-md relative z-50">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-[#1C3454] border border-slate-700 rounded-xl p-11 w-full max-w-md relative z-50">
+            <div className="flex justify-between items-center mb-11">
               <h2 className="text-xl font-bold text-white">Detalhes da Transação</h2>
               <button onClick={() => setSelectedTx(null)} className="text-[#94A3B8] hover:text-white"><X size={20} /></button>
             </div>
-            <div className="space-y-4 text-sm">
+            <div className="space-y-9 text-sm">
               <div className="flex justify-between"><span className="text-[#4A6580]">Profissional:</span><span className="text-white">{selectedTx.professionals?.profiles?.full_name ?? '—'}</span></div>
               <div className="flex justify-between"><span className="text-[#4A6580]">Tipo:</span><span className="text-white">{formatKind(selectedTx.kind, selectedTx.reference)}</span></div>
               <div className="flex justify-between"><span className="text-[#4A6580]">Valor:</span><span className="text-white font-bold">{selectedTx.amount} moedas</span></div>

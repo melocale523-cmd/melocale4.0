@@ -8,14 +8,14 @@ export default function FeaturedProperties() {
 
   return (
     <section id="featured" className="py-24 bg-[#0E1C32] border-t border-[#1C3050]">
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+      <div className="container mx-auto px-11">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-11">
           <div className="max-w-2xl">
             <motion.h2
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-5xl font-bold text-white mb-4"
+              className="text-3xl md:text-5xl font-bold text-white mb-9"
             >
               Nossos <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Top Ninjas.</span>
             </motion.h2>
@@ -33,7 +33,7 @@ export default function FeaturedProperties() {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-[#243F6A] rounded-full text-white font-bold hover:bg-white/10 transition-colors shadow-sm text-sm"
+            className="flex items-center gap-7 px-11 py-8 bg-white/5 border border-[#243F6A] rounded-full text-white font-bold hover:bg-white/10 transition-colors shadow-sm text-sm"
           >
             Ver Todos Profissionais
             <ArrowRight size={18} />

@@ -14,11 +14,11 @@ export default function Onboarding() {
   const { avatarMutation, bioMutation, completeMutation } = useOnboarding();
 
   return (
-    <div className="min-h-screen bg-[#0E1C32] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0E1C32] flex items-center justify-center p-9">
       <div className="w-full max-w-lg">
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/10 mb-4">
+        <div className="text-center mb-15">
+          <div className="inline-flex items-center gap-7 px-9 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/10 mb-9">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">
               Configure seu perfil
@@ -30,7 +30,7 @@ export default function Onboarding() {
         </div>
 
         {/* Progress bar */}
-        <div className="flex gap-1.5 mb-10">
+        <div className="flex gap-1.5 mb-15">
           {STEP_LABELS.map((label, i) => (
             <div key={label} className="flex-1 flex flex-col gap-1.5">
               <div className={cn(

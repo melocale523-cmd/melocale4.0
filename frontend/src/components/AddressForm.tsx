@@ -37,20 +37,20 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
   const isSignup = variant === 'signup';
 
   const baseInput = isSignup
-    ? 'w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium'
-    : 'w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-3 py-2.5 text-slate-200 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all';
+    ? 'w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-9 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium'
+    : 'w-full bg-[#0E1C32] border border-slate-700/50 rounded-lg px-8 py-2.5 text-slate-200 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all';
 
   const filledInput = isSignup
-    ? 'w-full bg-[#1A2D44] border border-emerald-500/40 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium'
-    : 'w-full bg-[#162A3A] border border-emerald-500/30 rounded-lg px-3 py-2.5 text-slate-200 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all';
+    ? 'w-full bg-[#1A2D44] border border-emerald-500/40 rounded-2xl px-5 py-9 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium'
+    : 'w-full bg-[#162A3A] border border-emerald-500/30 rounded-lg px-8 py-2.5 text-slate-200 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all';
 
   const errorInput = isSignup
-    ? 'w-full bg-[#1C3454] border border-red-500/60 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-red-500 transition-all font-medium'
-    : 'w-full bg-[#0E1C32] border border-red-500/60 rounded-lg px-3 py-2.5 text-slate-200 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all';
+    ? 'w-full bg-[#1C3454] border border-red-500/60 rounded-2xl px-5 py-9 text-white focus:outline-none focus:border-red-500 transition-all font-medium'
+    : 'w-full bg-[#0E1C32] border border-red-500/60 rounded-lg px-8 py-2.5 text-slate-200 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all';
 
   const labelClass = isSignup
-    ? 'block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1'
-    : 'block text-[#94A3B8] text-sm mb-1';
+    ? 'block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-8 pl-1'
+    : 'block text-[#94A3B8] text-sm mb-6';
 
   const optionalSpan = isSignup
     ? <span className="normal-case font-normal tracking-normal text-slate-500"> (opcional)</span>
@@ -105,7 +105,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-9">
       {/* CEP */}
       <div>
         <label className={labelClass}>
@@ -133,7 +133,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Rua + Número */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-8">
         <div className="col-span-2">
           <label className={labelClass}>Rua / Logradouro</label>
           <input
@@ -159,7 +159,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Quadra + Complemento */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-8">
         <div>
           <label className={labelClass}>Quadra{optionalSpan}</label>
           <input
@@ -198,7 +198,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Cidade + Estado */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-8">
         <div className="col-span-2">
           <label className={labelClass}>Cidade</label>
           <input
@@ -210,7 +210,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
             className={cityError ? errorInput : fieldInput(!!value.city)}
           />
           {cityError && (
-            <p className="flex items-center gap-1 text-red-400 text-xs mt-1">
+            <p className="flex items-center gap-6 text-red-400 text-xs mt-6">
               <AlertCircle size={11} className="shrink-0" /> {cityError}
             </p>
           )}

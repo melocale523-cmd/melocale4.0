@@ -11,14 +11,14 @@ export default function SocialComingSoonModal({ open, onClose, networkName }: Pr
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-9"
       onClick={onClose}
     >
       <div
         className="bg-[#132540] border border-[#1C3050] rounded-2xl p-8 max-w-sm w-full shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-9">
           <h3 className="text-white font-bold text-lg">{networkName}</h3>
           <button
             onClick={onClose}
@@ -29,13 +29,13 @@ export default function SocialComingSoonModal({ open, onClose, networkName }: Pr
           </button>
         </div>
 
-        <p className="text-[#94A3B8] leading-relaxed mb-6">
+        <p className="text-[#94A3B8] leading-relaxed mb-11">
           No momento não temos redes sociais ativas, mas em breve estaremos por lá! 🚀
         </p>
 
         <button
           onClick={onClose}
-          className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-3 rounded-xl transition-colors"
+          className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-8 rounded-xl transition-colors"
         >
           Entendido
         </button>

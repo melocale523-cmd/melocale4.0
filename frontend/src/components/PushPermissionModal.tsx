@@ -36,12 +36,12 @@ export default function PushPermissionModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-9">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={handleDismiss}
       />
-      <div className="relative w-full max-w-sm bg-[#132540] border border-[#1C3050] rounded-2xl shadow-2xl p-6 flex flex-col items-center gap-4 text-center">
+      <div className="relative w-full max-w-sm bg-[#132540] border border-[#1C3050] rounded-2xl shadow-2xl p-11 flex flex-col items-center gap-9 text-center">
         <button
           onClick={handleDismiss}
           className="absolute top-3 right-3 text-[#4A6580] hover:text-white transition-colors"
@@ -60,10 +60,10 @@ export default function PushPermissionModal() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 w-full pt-1">
+        <div className="flex flex-col gap-7 w-full pt-1">
           <button
             onClick={handleActivate}
-            className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors"
+            className="w-full py-8 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors"
           >
             Ativar notificações
           </button>

@@ -203,8 +203,8 @@ export default function AiChatWidget() {
             className="absolute bottom-20 right-0 w-[380px] max-w-[calc(100vw-1.5rem)] h-[520px] max-h-[calc(100vh-8rem)] bg-[#0E1C32] border border-[#243F6A] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-3 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-9 py-8 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-8">
                 <div className="relative">
                   <div className="w-10 h-10 bg-black/20 rounded-2xl flex items-center justify-center">
                     <Bot size={20} className="text-white" />
@@ -216,7 +216,7 @@ export default function AiChatWidget() {
                   <p className="text-emerald-200 text-[11px] font-medium">Responde em segundos ⚡</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-6">
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-1.5 hover:bg-black/20 rounded-xl transition-colors text-white/80 hover:text-white"
@@ -237,17 +237,17 @@ export default function AiChatWidget() {
             {/* Messages */}
             <div
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3"
+              className="flex-1 overflow-y-auto p-9 space-y-8"
               style={{ scrollbarWidth: 'none' }}
             >
               {messages.map((msg, i) => (
-                <div key={i} className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div key={i} className={`flex items-end gap-7 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'model' && (
-                    <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0 mb-4">
+                    <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0 mb-9">
                       <Bot size={12} className="text-emerald-400" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+                  <div className={`max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col gap-6`}>
                     <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       msg.role === 'user'
                         ? 'bg-emerald-500/20 border border-emerald-500/30 text-white rounded-br-sm'
@@ -261,11 +261,11 @@ export default function AiChatWidget() {
               ))}
 
               {isLoading && (
-                <div className="flex items-end gap-2 justify-start">
+                <div className="flex items-end gap-7 justify-start">
                   <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
                     <Bot size={12} className="text-emerald-400" />
                   </div>
-                  <div className="bg-[#1C3454] border border-[#1C3050] px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-1.5">
+                  <div className="bg-[#1C3454] border border-[#1C3050] px-9 py-8 rounded-2xl rounded-bl-sm flex items-center gap-1.5">
                     {[0, 0.15, 0.3].map((delay, i) => (
                       <motion.div
                         key={i}
@@ -281,8 +281,8 @@ export default function AiChatWidget() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSend} className="p-3 border-t border-[#1C3050] bg-[#0E1C32] shrink-0">
-              <div className="flex items-center gap-2 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-4 py-2.5 focus-within:border-emerald-500/50 transition-colors">
+            <form onSubmit={handleSend} className="p-8 border-t border-[#1C3050] bg-[#0E1C32] shrink-0">
+              <div className="flex items-center gap-7 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-9 py-2.5 focus-within:border-emerald-500/50 transition-colors">
                 <input
                   ref={inputRef}
                   type="text"

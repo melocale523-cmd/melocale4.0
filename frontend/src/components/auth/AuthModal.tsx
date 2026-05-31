@@ -67,7 +67,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-9 sm:p-6 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -93,7 +93,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
               <button
                 onClick={onClose}
-                className="absolute top-8 right-8 p-3 hover:bg-white/5 rounded-2xl text-[#7A9EBF] hover:text-white transition-all z-10"
+                className="absolute top-8 right-8 p-8 hover:bg-white/5 rounded-2xl text-[#7A9EBF] hover:text-white transition-all z-10"
               >
                 <X size={24} />
               </button>
@@ -106,30 +106,30 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                     onGoogleLogin={handleGoogleLogin}
                   />
                 ) : (
-                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                    <div className="flex items-center gap-4 mb-8">
-                      <button onClick={handleBack} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-[#B0C4D8] hover:text-white transition-all border border-[#1C3050]">
+                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-11">
+                    <div className="flex items-center gap-9 mb-13">
+                      <button onClick={handleBack} className="p-8 bg-white/5 hover:bg-white/10 rounded-2xl text-[#B0C4D8] hover:text-white transition-all border border-[#1C3050]">
                         <ArrowLeft size={20} />
                       </button>
                       <div>
                         <h2 className="text-2xl font-black text-white tracking-tight">
                           {mode === 'signup' ? 'Falta pouco...' : 'Acessar minha conta'}
                         </h2>
-                        <p className="text-[#7A9EBF] text-xs font-bold uppercase tracking-widest mt-1">
+                        <p className="text-[#7A9EBF] text-xs font-bold uppercase tracking-widest mt-6">
                           {selectedRole === 'client' ? 'Perfil de Cliente' : 'Perfil de Profissional'}
                         </p>
                       </div>
                     </div>
 
                     {error && (
-                      <div className="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex gap-3 items-center italic font-medium">
+                      <div className="p-10 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex gap-8 items-center italic font-medium">
                         <AlertCircle size={20} className="shrink-0" /> {error}
                       </div>
                     )}
 
                     <form
                       onSubmit={step === 'basics' && mode === 'signup' ? (e) => { e.preventDefault(); handleNextStep(); } : handleSubmit}
-                      className="space-y-6"
+                      className="space-y-11"
                     >
                       {step === 'basics' && (
                         <BasicsStep
@@ -158,7 +158,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         disabled={isSubmitting}
                         type="submit"
                         className={cn(
-                          'w-full h-16 rounded-[1.25rem] font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl mt-8 uppercase tracking-widest',
+                          'w-full h-16 rounded-[1.25rem] font-black text-lg transition-all flex items-center justify-center gap-8 shadow-2xl mt-13 uppercase tracking-widest',
                           mode === 'signup'
                             ? 'bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-500/20'
                             : 'bg-emerald-500 hover:bg-emerald-600 text-black shadow-emerald-500/20',
@@ -173,7 +173,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                     </form>
 
                     {mode === 'signup' && (
-                      <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-4">
+                      <p className="text-[#7A9EBF] text-xs font-medium leading-relaxed text-center mt-9">
                         Ao continuar você declara que leu e concorda com nossos{' '}
                         <button type="button" onClick={() => setLegalModal('termos')} className="text-[#B0C4D8] hover:text-white underline font-semibold">
                           Termos de Uso

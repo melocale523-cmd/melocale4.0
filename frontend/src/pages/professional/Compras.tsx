@@ -163,12 +163,12 @@ export default function ProfessionalCompras() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-11 max-w-6xl mx-auto">
       {/* Modal de Envio de Proposta */}
       {isProposalModalOpen && selectedPurchase && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-9">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsProposalModalOpen(false)}></div>
-          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-2xl p-11 sm:p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200">
             <button 
               onClick={() => setIsProposalModalOpen(false)}
               className="absolute top-4 right-4 text-[#4A6580] hover:text-white transition-colors"
@@ -176,7 +176,7 @@ export default function ProfessionalCompras() {
               <X size={20} />
             </button>
             
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-8 mb-11">
               <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-xl flex items-center justify-center">
                 <Send size={24} />
               </div>
@@ -186,9 +186,9 @@ export default function ProfessionalCompras() {
               </div>
             </div>
 
-            <form onSubmit={handleSendProposal} className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
+            <form onSubmit={handleSendProposal} className="space-y-10">
+              <div className="space-y-7">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-7">
                    <DollarSign size={14} /> Valor Estimado (R$)
                 </label>
                 <input
@@ -199,15 +199,15 @@ export default function ProfessionalCompras() {
                   placeholder="Ex: 1200"
                   value={proposalData.price}
                   onChange={e => setProposalData(prev => ({ ...prev, price: e.target.value }))}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
+              <div className="space-y-7">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-7">
                    <Clock size={14} /> Prazo de Execução
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-7">
                   <input
                     required
                     type="number"
@@ -215,12 +215,12 @@ export default function ProfessionalCompras() {
                     placeholder="Ex: 3"
                     value={proposalData.duration}
                     onChange={e => setProposalData(prev => ({ ...prev, duration: e.target.value }))}
-                    className="w-24 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+                    className="w-24 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500/50 transition-all"
                   />
                   <select
                     value={proposalData.durationUnit}
                     onChange={e => setProposalData(prev => ({ ...prev, durationUnit: e.target.value }))}
-                    className="flex-1 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
+                    className="flex-1 bg-[#0E1C32] border border-[#1C3050] rounded-xl px-8 py-8 text-white focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
                   >
                     <option value="horas">Horas</option>
                     <option value="dias">Dias</option>
@@ -231,8 +231,8 @@ export default function ProfessionalCompras() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
+              <div className="space-y-7">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-7">
                    <FileText size={14} /> Descrição Detalhada
                 </label>
                 <textarea 
@@ -242,15 +242,15 @@ export default function ProfessionalCompras() {
                   value={proposalData.description}
                   onChange={e => setProposalData(prev => ({ ...prev, description: e.target.value }))}
                   maxLength={2000}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all resize-none"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500/50 transition-all resize-none"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-2">
+              <div className="space-y-7">
+                <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest pl-1 flex items-center gap-7">
                    <FileText size={14} /> Status
                 </label>
-                <div className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-4 py-3 text-blue-400 text-sm font-semibold">
+                <div className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-8 text-blue-400 text-sm font-semibold">
                   Proposta Enviada
                 </div>
               </div>
@@ -259,7 +259,7 @@ export default function ProfessionalCompras() {
                 <button 
                   disabled={sendProposalMutation.isPending}
                   type="submit"
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white font-bold py-9 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-7"
                 >
                   {sendProposalMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <><Send size={18} /> Enviar Proposta para o Cliente</>}
                 </button>
@@ -271,25 +271,25 @@ export default function ProfessionalCompras() {
 
       {/* Alerta de Sucesso */}
       {showSuccess && (
-        <div className="fixed top-6 right-6 z-[110] bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-right-4">
+        <div className="fixed top-6 right-6 z-[110] bg-emerald-500 text-black px-11 py-9 rounded-2xl font-bold shadow-2xl flex items-center gap-8 animate-in fade-in slide-in-from-right-4">
            <CheckCircle2 size={24} /> Proposta enviada com sucesso!
         </div>
       )}
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Meus Clientes</h1>
-        <div className="text-xs font-bold px-3 py-1 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
+        <div className="text-xs font-bold px-8 py-6 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
           {purchases?.length || 0} adquiridos
         </div>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-7 flex-wrap">
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
+              "px-9 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
               activeTab === tab
                 ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
                 : "bg-[#0E1C32] text-slate-400 border border-[#1C3050] hover:border-emerald-500/50"
@@ -314,29 +314,29 @@ export default function ProfessionalCompras() {
           <LoadingSpinner size={32} label="Carregando seus clientes..." />
         </div>
       ) : filteredPurchases.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-9 md:grid-cols-2">
           {filteredPurchases.map((purchase) => (
             <div key={purchase.id} className={cn(
-              "bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 hover:border-emerald-500/30 transition-colors",
+              "bg-[#1C3454] border border-slate-800/50 rounded-xl p-11 hover:border-emerald-500/30 transition-colors",
               purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40 animate-pulse"
             )}>
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-9">
                 <div>
                   <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
-                  <div className="flex items-center text-sm text-[#4A6580] mt-1">
+                  <div className="flex items-center text-sm text-[#4A6580] mt-6">
                     <Calendar size={14} className="mr-1.5" />
                     {new Date(purchase.created_at || '').toLocaleDateString('pt-BR')}
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-2 text-right">
-                  <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded text-xs font-medium border border-emerald-500/20">
+                <div className="flex flex-col items-end gap-7 text-right">
+                  <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-6 rounded text-xs font-medium border border-emerald-500/20">
                     Desbloqueado
                   </span>
                   <div className="flex items-center gap-1.5">
                     {purchase.status === 'Visualizada pelo Cliente' && <Eye size={12} className="text-blue-400" />}
                     {purchase.status === 'Respondida pelo Cliente' && <CheckCircle size={12} className="text-emerald-400" />}
                     <span className={cn(
-                      "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
+                      "px-7 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
                       purchase.status === 'Pendente Proposta' ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
                       purchase.status === 'Proposta Enviada' || purchase.status === 'Enviada' ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
                       purchase.status === 'Visualizada pelo Cliente' ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" :
@@ -351,7 +351,7 @@ export default function ProfessionalCompras() {
               </div>
               
               {/* Detalhes do Serviço */}
-              <div className="bg-[#0E1C32]/60 border border-[#1C3050] rounded-xl p-4 mb-4 space-y-2.5">
+              <div className="bg-[#0E1C32]/60 border border-[#1C3050] rounded-xl p-9 mb-9 space-y-2.5">
                 <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Detalhes do Serviço</p>
 
                 {purchase.description && (
@@ -373,8 +373,8 @@ export default function ProfessionalCompras() {
                 {(() => {
                   if (!purchase.expires_at) return null;
                   const diff = (new Date(purchase.expires_at).getTime() - Date.now()) / (1000 * 60 * 60);
-                  if (diff < 24) return <span className="inline-flex items-center px-2 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">🔥 URGENTE</span>;
-                  if (diff < 72) return <span className="inline-flex items-center px-2 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">⚡ Em breve</span>;
+                  if (diff < 24) return <span className="inline-flex items-center px-7 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">🔥 URGENTE</span>;
+                  if (diff < 72) return <span className="inline-flex items-center px-7 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">⚡ Em breve</span>;
                   return null;
                 })()}
 
@@ -410,9 +410,9 @@ export default function ProfessionalCompras() {
                 })()}
               </div>
 
-              <div className="space-y-3 bg-[#0E1C32] p-4 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
+              <div className="space-y-8 bg-[#0E1C32] p-9 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
                 {purchase.status === 'Respondida pelo Cliente' && (
-                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-3 py-2 mb-1">
+                  <div className="flex items-center gap-7 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-8 py-7 mb-6">
                     <Zap size={13} className="text-emerald-400 shrink-0" />
                     <p className="text-[11px] text-emerald-400 font-bold uppercase tracking-widest">Cliente pronto para contato</p>
                   </div>
@@ -451,7 +451,7 @@ export default function ProfessionalCompras() {
                 </div>
               </div>
 
-              <div className="mt-5 flex gap-3 flex-wrap">
+              <div className="mt-5 flex gap-8 flex-wrap">
                 {(() => {
                   const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
                   const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
@@ -459,14 +459,14 @@ export default function ProfessionalCompras() {
                     return (
                       <button
                         onClick={() => handleContact(purchase)}
-                        className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe59] text-white shadow-lg shadow-[#25D366]/25"
+                        className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-7 bg-[#25D366] hover:bg-[#1ebe59] text-white shadow-lg shadow-[#25D366]/25"
                       >
                         <MessageCircle size={16} /> Falar no WhatsApp
                       </button>
                     );
                   }
                   return (
-                    <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 bg-slate-800 text-[#4A6580] cursor-not-allowed opacity-60 border border-slate-700">
+                    <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-7 bg-slate-800 text-[#4A6580] cursor-not-allowed opacity-60 border border-slate-700">
                       <Phone size={16} /> Contato indisponível
                     </button>
                   );
@@ -474,18 +474,18 @@ export default function ProfessionalCompras() {
                 {purchase.status === 'Pendente Proposta' && (
                   <button
                     onClick={() => openProposalModal(purchase)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg text-sm font-bold transition-all border border-[#243F6A] flex items-center justify-center gap-2"
+                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-7 rounded-lg text-sm font-bold transition-all border border-[#243F6A] flex items-center justify-center gap-7"
                   >
                     <Send size={16} /> Enviar Proposta
                   </button>
                 )}
                 {purchase.status === 'Proposta Enviada' && (
-                  <div className="flex-1 bg-blue-500/5 text-blue-500 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center justify-center gap-2">
+                  <div className="flex-1 bg-blue-500/5 text-blue-500 py-7 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center justify-center gap-7">
                     <Clock size={14} /> Enviada
                   </div>
                 )}
                 {purchase.status === 'Visualizada pelo Cliente' && (
-                  <div className="flex-1 bg-indigo-500/5 text-indigo-400 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 flex items-center justify-center gap-2 animate-pulse">
+                  <div className="flex-1 bg-indigo-500/5 text-indigo-400 py-7 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 flex items-center justify-center gap-7 animate-pulse">
                     <Eye size={14} /> Visualizada
                   </div>
                 )}
@@ -497,7 +497,7 @@ export default function ProfessionalCompras() {
                     }
                     if (chatId) navigate(`/profissional/mensagens?chatId=${chatId}`);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#1C3050] text-white text-sm font-semibold rounded-xl hover:bg-[#243d61] transition-all border border-[#2a4a6b]"
+                  className="flex items-center gap-7 px-9 py-7 bg-[#1C3050] text-white text-sm font-semibold rounded-xl hover:bg-[#243d61] transition-all border border-[#2a4a6b]"
                 >
                   <MessageCircle size={16} /> Chat
                 </button>
@@ -507,7 +507,7 @@ export default function ProfessionalCompras() {
         </div>
       ) : (
         <div className="border border-dashed border-[#243F6A] rounded-3xl p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
-          <Inbox className="text-slate-700 mb-4" size={48} />
+          <Inbox className="text-slate-700 mb-9" size={48} />
           <p className="text-[#4A6580] font-medium">Nenhum cliente nesta categoria.</p>
         </div>
       )}
@@ -517,11 +517,11 @@ export default function ProfessionalCompras() {
           onClick={() => setLightboxUrl(null)}
         >
           <div
-            className="relative max-w-3xl w-full mx-4 bg-[#1C3454] border border-[#243F6A] rounded-[2rem] overflow-hidden shadow-2xl"
+            className="relative max-w-3xl w-full mx-9 bg-[#1C3454] border border-[#243F6A] rounded-[2rem] overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C3050]">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between px-11 py-9 border-b border-[#1C3050]">
+              <div className="flex items-center gap-8">
                 <div className="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-xl flex items-center justify-center">
                   <Camera size={16} />
                 </div>
@@ -529,12 +529,12 @@ export default function ProfessionalCompras() {
               </div>
               <button
                 onClick={() => setLightboxUrl(null)}
-                className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-[#94A3B8] hover:text-white transition-all"
+                className="p-7 bg-white/5 hover:bg-white/10 rounded-xl text-[#94A3B8] hover:text-white transition-all"
               >
                 <X size={18} />
               </button>
             </div>
-            <div className="p-4 bg-[#0E1C32]/50">
+            <div className="p-9 bg-[#0E1C32]/50">
               <img
                 src={lightboxUrl}
                 alt="Foto do serviço"
@@ -542,7 +542,7 @@ export default function ProfessionalCompras() {
                 className="w-full max-h-[70vh] object-contain rounded-xl"
               />
             </div>
-            <div className="px-6 py-3 border-t border-[#1C3050] flex items-center justify-between">
+            <div className="px-11 py-8 border-t border-[#1C3050] flex items-center justify-between">
               <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Clique fora para fechar</span>
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Melocale PRO</span>
             </div>

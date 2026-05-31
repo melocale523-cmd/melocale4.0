@@ -46,11 +46,11 @@ export function LeadTimeline({ pedido, appointment }: LeadTimelineProps) {
   ];
 
   return (
-    <div className="w-full py-2">
+    <div className="w-full py-7">
       <div className="flex items-center">
         {stages.map((stage, i) => (
           <div key={stage.label} className={cn('flex items-center', i < stages.length - 1 ? 'flex-1' : '')}>
-            <div className="flex flex-col items-center gap-1 shrink-0">
+            <div className="flex flex-col items-center gap-6 shrink-0">
               <div className={cn(
                 'w-8 h-8 rounded-full flex items-center justify-center border-2 shrink-0',
                 stage.done

@@ -22,16 +22,16 @@ export function BasicsStep({
   isSubmitting,
 }: BasicsStepProps) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-10">
       {mode === 'signup' && (
         <div>
-          <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">Nome Completo</label>
+          <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-8 pl-1">Nome Completo</label>
           <input
             required
             type="text"
             placeholder="Como devemos te chamar?"
             maxLength={100}
-            className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+            className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-9 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
             value={formData.name}
             onChange={e => onChange('name', e.target.value)}
           />
@@ -39,20 +39,20 @@ export function BasicsStep({
       )}
 
       <div>
-        <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1">E-mail de Acesso</label>
+        <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-8 pl-1">E-mail de Acesso</label>
         <input
           required
           type="email"
           placeholder="seu@email.com"
           maxLength={254}
-          className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+          className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 py-9 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
           value={formData.email}
           onChange={e => onChange('email', e.target.value)}
         />
       </div>
 
       <div>
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-8">
           <label className="block text-xs font-black text-[#7A9EBF] uppercase tracking-widest pl-1">Sua Senha</label>
           {mode === 'login' && (
             <button
@@ -70,7 +70,7 @@ export function BasicsStep({
             required
             type={showPassword ? 'text' : 'password'}
             placeholder="Mínimo 8 caracteres"
-            className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 pr-12 py-4 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
+            className="w-full bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 pr-12 py-9 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
             value={formData.password}
             onChange={e => onChange('password', e.target.value)}
             minLength={8}
@@ -91,7 +91,7 @@ export function BasicsStep({
           const colors = { 0: 'bg-white/10', 1: 'bg-red-500', 2: 'bg-yellow-400', 3: 'bg-emerald-500' } as const;
           const activeColor = colors[strength];
           return (
-            <div className="flex gap-1 mt-2">
+            <div className="flex gap-6 mt-7">
               {[0, 1, 2].map(i => (
                 <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < strength ? activeColor : 'bg-white/10'}`} />
               ))}
@@ -100,7 +100,7 @@ export function BasicsStep({
         })()}
 
         {mode === 'signup' && (
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex items-center gap-8 mt-7">
             {[
               { ok: formData.password.length >= 8, label: '8+ chars' },
               { ok: /[A-Z]/.test(formData.password), label: 'Maiúscula' },
@@ -108,7 +108,7 @@ export function BasicsStep({
             ].map(({ ok, label }) => (
               <span
                 key={label}
-                className={`text-[13px] font-bold flex items-center gap-1 transition-colors ${ok ? 'text-emerald-400' : 'text-[#7A9EBF]'}`}
+                className={`text-[13px] font-bold flex items-center gap-6 transition-colors ${ok ? 'text-emerald-400' : 'text-[#7A9EBF]'}`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-400' : 'bg-[#7A9EBF]'}`} />
                 {label}

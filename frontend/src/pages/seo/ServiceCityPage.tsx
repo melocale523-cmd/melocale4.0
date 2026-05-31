@@ -60,48 +60,48 @@ export default function ServiceCityPage() {
 
       {/* Header */}
       <header className="border-b border-[#1C3050] bg-[#0B1628]">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-9 py-9 flex items-center justify-between">
           <Link to="/" className="text-xl font-bold text-emerald-400 tracking-tight">
             MeloCalé
           </Link>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-[#94A3B8] hover:text-white text-sm transition-colors"
+            className="inline-flex items-center gap-7 text-[#94A3B8] hover:text-white text-sm transition-colors"
           >
             <ArrowLeft size={15} /> Início
           </Link>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-12">
+      <main className="max-w-4xl mx-auto px-9 py-12">
         {/* Breadcrumb */}
-        <nav className="text-sm text-[#94A3B8] mb-8" aria-label="Breadcrumb">
+        <nav className="text-sm text-[#94A3B8] mb-13" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-white transition-colors">Início</Link>
           <span className="mx-2">/</span>
           <span className="text-white">{page.h1}</span>
         </nav>
 
         {/* Hero */}
-        <section className="mb-10">
-          <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium mb-3">
+        <section className="mb-15">
+          <div className="flex items-center gap-7 text-emerald-400 text-sm font-medium mb-8">
             <MapPin size={15} />
             <span>{page.cidadeDisplay}, Bahia</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{page.h1}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-9">{page.h1}</h1>
           {page.paragraphs.map((text, i) => (
-            <p key={i} className="text-[#94A3B8] leading-relaxed mb-4 text-base">
+            <p key={i} className="text-[#94A3B8] leading-relaxed mb-9 text-base">
               {text}
             </p>
           ))}
         </section>
 
         {/* Benefits */}
-        <section className="bg-[#0B1A2E] border border-[#1C3050] rounded-xl p-6 mb-10">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <section className="bg-[#0B1A2E] border border-[#1C3050] rounded-xl p-11 mb-15">
+          <h2 className="text-lg font-semibold text-white mb-9 flex items-center gap-7">
             <Star size={18} className="text-emerald-400" />
             Por que usar o MeloCalé?
           </h2>
-          <ul className="space-y-3">
+          <ul className="space-y-8">
             {[
               'Profissionais verificados e avaliados por clientes reais',
               'Orçamento gratuito sem compromisso',
@@ -109,7 +109,7 @@ export default function ServiceCityPage() {
               'Plataforma 100% gratuita para quem contrata',
               'Comunicação segura pelo chat integrado',
             ].map((benefit) => (
-              <li key={benefit} className="flex items-start gap-3 text-[#94A3B8]">
+              <li key={benefit} className="flex items-start gap-8 text-[#94A3B8]">
                 <CheckCircle2 size={16} className="text-emerald-400 mt-0.5 shrink-0" />
                 <span>{benefit}</span>
               </li>
@@ -119,34 +119,34 @@ export default function ServiceCityPage() {
 
         {/* CTA */}
         <section className="bg-gradient-to-br from-emerald-900/40 to-[#0B1A2E] border border-emerald-800/40 rounded-xl p-8 text-center mb-12">
-          <Wrench size={32} className="text-emerald-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <Wrench size={32} className="text-emerald-400 mx-auto mb-9" />
+          <h2 className="text-2xl font-bold text-white mb-7">
             Precisa de {page.categoriaDisplay.toLowerCase()} em {page.cidadeDisplay}?
           </h2>
-          <p className="text-[#94A3B8] mb-6 max-w-md mx-auto">
+          <p className="text-[#94A3B8] mb-11 max-w-md mx-auto">
             Crie seu pedido gratuitamente em menos de 2 minutos e receba propostas de profissionais da sua região.
           </p>
           <a
             href={CTA_URL}
-            className="inline-block bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors text-base"
+            className="inline-block bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-8 py-8 rounded-lg transition-colors text-base"
           >
             Criar pedido grátis
           </a>
-          <p className="text-[#4A6580] text-xs mt-4">
+          <p className="text-[#4A6580] text-xs mt-9">
             Sem cadastro de cartão · Gratuito para clientes
           </p>
         </section>
 
         {/* How it works */}
         <section className="mb-12">
-          <h2 className="text-xl font-semibold text-white mb-6">Como funciona</h2>
-          <ol className="space-y-4">
+          <h2 className="text-xl font-semibold text-white mb-11">Como funciona</h2>
+          <ol className="space-y-9">
             {[
               { step: '1', title: 'Descreva o serviço', desc: 'Conte o que você precisa e onde fica o imóvel em ' + page.cidadeDisplay + '.' },
               { step: '2', title: 'Receba propostas', desc: `Profissionais de ${page.categoriaDisplay.toLowerCase()} disponíveis entram em contato com orçamentos.` },
               { step: '3', title: 'Escolha e contrate', desc: 'Compare avaliações e preços e contrate o melhor profissional para o seu caso.' },
             ].map(({ step, title, desc }) => (
-              <li key={step} className="flex items-start gap-4">
+              <li key={step} className="flex items-start gap-9">
                 <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0 text-sm">
                   {step}
                 </span>
@@ -160,10 +160,10 @@ export default function ServiceCityPage() {
         </section>
       </main>
 
-      <footer className="border-t border-[#1C3050] mt-8">
-        <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[#4A6580] text-xs">
+      <footer className="border-t border-[#1C3050] mt-13">
+        <div className="max-w-4xl mx-auto px-9 py-8 flex flex-col md:flex-row items-center justify-between gap-9 text-[#4A6580] text-xs">
           <p>© {new Date().getFullYear()} MeloCalé. Todos os direitos reservados.</p>
-          <nav className="flex gap-4">
+          <nav className="flex gap-9">
             <Link to="/termos" className="hover:text-white transition-colors">Termos</Link>
             <Link to="/privacidade" className="hover:text-white transition-colors">Privacidade</Link>
           </nav>

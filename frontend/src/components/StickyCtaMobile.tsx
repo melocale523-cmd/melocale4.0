@@ -36,11 +36,11 @@ export default function StickyCtaMobile({ vagasPro, userCity }: Props) {
   if (!visible) return null
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[55] px-3 pb-safe pb-4">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[55] px-8 pb-safe pb-4">
       <div className="relative">
         <Link
           to="/login?mode=signup"
-          className="sticky-cta-pulse flex items-center justify-center w-full bg-yellow-400 text-black font-black text-sm py-4 px-6 rounded-2xl shadow-2xl"
+          className="sticky-cta-pulse flex items-center justify-center w-full bg-yellow-400 text-black font-black text-sm py-9 px-11 rounded-2xl shadow-2xl"
         >
           <span className="transition-opacity duration-300">
             {messages[msgIndex]}

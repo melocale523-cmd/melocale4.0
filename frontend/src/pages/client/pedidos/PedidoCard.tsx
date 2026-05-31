@@ -24,17 +24,17 @@ export function PedidoCard({
   return (
     <div
       onClick={() => onOpenProposals(pedido)}
-      className="p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all cursor-pointer group active:bg-white/[0.04]"
+      className="p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-11 hover:bg-white/[0.02] transition-all cursor-pointer group active:bg-white/[0.04]"
     >
-      <div className="flex items-start gap-6">
+      <div className="flex items-start gap-11">
         <div className="w-16 h-16 bg-[#0E1C32] rounded-2xl flex items-center justify-center border border-[#1C3050] text-[#4A6580] group-hover:text-emerald-500 group-hover:border-emerald-500/30 transition-all shrink-0 shadow-inner">
           <FileText size={28} />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-8 mb-7">
             <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{pedido.title}</h3>
             <span className={cn(
-              'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/5 text-emerald-500 border border-emerald-500/10',
+              'px-8 py-6 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/5 text-emerald-500 border border-emerald-500/10',
               pedido.status === 'Orçando' && 'bg-cyan-500/5 text-cyan-400 border border-cyan-500/10',
               pedido.status === 'in_progress' && 'bg-blue-500/5 text-blue-400 border border-blue-500/10',
             )}>
@@ -61,9 +61,9 @@ export function PedidoCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-[#1C3050] pt-6 lg:pt-0">
+      <div className="flex items-center justify-between lg:justify-end gap-11 border-t lg:border-t-0 border-[#1C3050] pt-6 lg:pt-0">
         <div className="text-right hidden md:block">
-          <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Interessados</p>
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Interessados</p>
           <p className="text-white font-black">{pedido.interested_count ?? 0} Profissionais</p>
         </div>
 
@@ -72,11 +72,11 @@ export function PedidoCard({
           <p className="text-white font-black text-sm">{pedido.interested_count ?? 0} Profissionais</p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-9">
           {onReview && (
             <button
               onClick={e => { e.stopPropagation(); onReview(); }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 hover:border-yellow-500/40 text-yellow-400 text-xs font-bold rounded-xl transition-all"
+              className="flex items-center gap-1.5 px-8 py-7 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 hover:border-yellow-500/40 text-yellow-400 text-xs font-bold rounded-xl transition-all"
             >
               <Star size={13} className="fill-yellow-400" />
               Avaliar
@@ -90,16 +90,16 @@ export function PedidoCard({
               <MoreVertical size={18} />
             </button>
             {contextMenuId === pedido.id && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-[#1C1E25] border border-[#243F6A] rounded-2xl shadow-2xl overflow-hidden z-30">
+              <div className="absolute right-0 top-full mt-6 w-40 bg-[#1C1E25] border border-[#243F6A] rounded-2xl shadow-2xl overflow-hidden z-30">
                 <button
                   onClick={() => onOpenEdit(pedido)}
-                  className="w-full px-4 py-3 flex items-center gap-3 text-sm text-slate-300 hover:bg-white/5 transition-all text-left"
+                  className="w-full px-9 py-8 flex items-center gap-8 text-sm text-slate-300 hover:bg-white/5 transition-all text-left"
                 >
                   <Pencil size={14} className="text-[#94A3B8] shrink-0" /> Editar
                 </button>
                 <button
                   onClick={() => onDelete(pedido)}
-                  className="w-full px-4 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-red-500/10 transition-all text-left"
+                  className="w-full px-9 py-8 flex items-center gap-8 text-sm text-red-400 hover:bg-red-500/10 transition-all text-left"
                 >
                   <Trash2 size={14} className="shrink-0" /> Excluir
                 </button>
