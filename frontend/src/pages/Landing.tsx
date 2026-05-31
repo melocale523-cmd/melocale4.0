@@ -164,12 +164,12 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-32 pb-16 md:pb-24 overflow-hidden min-h-[calc(100vh-44px)]">
+        <section id="hero" className="relative pt-32 pb-16 md:pb-24 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[70vh]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-[2fr_3fr] gap-8 lg:gap-12 items-center min-h-[80vh]">
 
-            <div className="max-w-2xl">
+            <div className="max-w-xl">
               {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
@@ -285,7 +285,7 @@ export default function LandingPage() {
               )}
             </div>
 
-            <div className="hidden lg:flex flex-col justify-between space-y-6 h-full py-4">
+            <div className="hidden lg:grid lg:grid-cols-1 gap-6 h-full content-center">
               {/* Pro card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
                 <div className="hidden sm:block absolute top-0 right-0 p-8 opacity-10 text-emerald-500"><Building2 size={100} /></div>
