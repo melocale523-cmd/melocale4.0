@@ -167,7 +167,7 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-8 lg:px-10 relative text-center">
+          <div className="w-full px-8 lg:px-16 relative text-center">
 
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
@@ -181,7 +181,7 @@ export default function LandingPage() {
                   <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
                     Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-5 mb-10">
+                  <div className="flex flex-col sm:flex-row gap-5 mb-10 justify-center">
                     <div className="flex flex-col">
                       <Link
                         to="/login?mode=signup&role=professional"
@@ -198,7 +198,7 @@ export default function LandingPage() {
                       Ver Planos
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6">
+                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6 max-w-2xl mx-auto w-full">
                     <div>
                       <div className="flex items-center text-emerald-400 mb-2"><Zap size={16} className="mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
@@ -230,7 +230,7 @@ export default function LandingPage() {
                   </p>
 
                   {/* CTA mobile — acima da dobra */}
-                  <div className="flex flex-col sm:hidden gap-5 mt-6 mb-10">
+                  <div className="flex flex-col sm:hidden gap-5 mt-6 mb-10 items-center">
                     <Link
                       to="/login?mode=signup"
                       className="w-full h-16 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl text-base text-center shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
@@ -240,7 +240,7 @@ export default function LandingPage() {
                     <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
                   </div>
 
-                  <div className="hidden sm:flex flex-col sm:flex-row gap-5 mb-10">
+                  <div className="hidden sm:flex flex-col sm:flex-row gap-5 mb-10 justify-center">
                     <div className="flex flex-col">
                       <Link
                         to="/login?mode=signup&role=client"
@@ -257,7 +257,7 @@ export default function LandingPage() {
                       Ver Como Funciona
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6">
+                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6 max-w-2xl mx-auto w-full">
                     <div>
                       <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
