@@ -1,4 +1,4 @@
-import { MapPin, Building2, Zap, ShieldCheck, HeartHandshake, Star } from 'lucide-react';
+import { MapPin, Zap, ShieldCheck, HeartHandshake, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
@@ -167,10 +167,9 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-8 lg:px-10 relative grid lg:grid-cols-2 gap-14 items-start">
+          <div className="max-w-4xl mx-auto px-8 lg:px-10 relative">
 
-            <div>
-              {isProfissional ? (
+            {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
                   <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
@@ -282,60 +281,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </>
-              )}
-            </div>
-
-            <div className="hidden lg:flex lg:flex-col gap-8">
-              {/* Pro card */}
-              <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-10 relative overflow-hidden">
-                <div className="hidden sm:block absolute top-0 right-0 p-8 opacity-10 text-emerald-500"><Building2 size={100} /></div>
-                <div className="relative z-10">
-                  <div className="bg-emerald-500/20 w-12 h-12 rounded-xl flex items-center justify-center text-emerald-500 mb-4">
-                    <BriefcaseIcon size={24} />
-                  </div>
-                  <h2 className="text-xl font-bold text-white mb-4">Para Profissionais</h2>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-6">Aumente sua renda com leads qualificados</p>
-                  <ul className="space-y-5 mb-8">
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0" size={16} /> Comece grátis, sem compromisso</li>
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0" size={16} /> Leads prontos para contratar</li>
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0" size={16} /> Você controla seus preços</li>
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-500 shrink-0" size={16} /> Planos a partir de R$49/mês</li>
-                  </ul>
-                  <Link
-                    to="/login?mode=signup&role=professional"
-                    className="inline-flex items-center justify-center w-full h-16 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-10 text-base font-bold transition-colors"
-                  >
-                    Quero Receber Clientes Agora →
-                  </Link>
-                  <p className="text-xs text-slate-500 text-center mt-1.5">Grátis para começar • Sem cartão de crédito</p>
-                </div>
-              </div>
-
-              {/* Client card */}
-              <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-10 relative overflow-hidden">
-                <div className="hidden sm:block absolute top-0 right-0 p-8 opacity-10 text-blue-500"><UserIcon size={100} /></div>
-                <div className="relative z-10">
-                  <div className="bg-blue-500/20 w-12 h-12 rounded-xl flex items-center justify-center text-blue-400 mb-4">
-                    <UserIcon size={24} />
-                  </div>
-                  <h2 className="text-xl font-bold text-white mb-4">Para Clientes</h2>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-6">Encontre o profissional ideal rapidamente</p>
-                  <ul className="space-y-5 mb-8">
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16} /> Profissionais verificados e avaliados</li>
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16} /> Receba até 5 orçamentos grátis</li>
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16} /> Compare e escolha o melhor</li>
-                    <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16} /> Contratação 100% segura</li>
-                  </ul>
-                  <Link
-                    to="/login?mode=signup&role=client"
-                    className="inline-flex items-center justify-center w-full h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-base font-bold transition-colors"
-                  >
-                    Encontrar Profissional em {userCity} →
-                  </Link>
-                  <p className="text-xs text-slate-500 text-center mt-1.5">Grátis • Até 5 orçamentos em minutos</p>
-                </div>
-              </div>
-            </div>
+            )}
 
           </div>
         </section>
@@ -662,17 +608,5 @@ function CheckIcon({ size = 24, ...props }: IconProps) {
 function XIcon({ size = 24, ...props }: IconProps) {
   return (
     <svg {...props} width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  );
-}
-
-function BriefcaseIcon({ size = 24, ...props }: IconProps) {
-  return (
-    <svg {...props} width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-  );
-}
-
-function UserIcon({ size = 24, ...props }: IconProps) {
-  return (
-    <svg {...props} width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   );
 }
