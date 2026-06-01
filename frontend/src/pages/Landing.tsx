@@ -167,114 +167,160 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="container-full relative text-center">
+          <div className="container-full relative">
 
             {isProfissional ? (
-                /* ── Hero Profissional (utm_content=profissional) ── */
-                <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
-                    <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
+                /* ── Hero Profissional (utm_content=profissional) — layout 2 colunas ── */
+                <div className="grid lg:grid-cols-2 gap-14 items-start">
+                  {/* Esquerda */}
+                  <div>
+                    <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
+                      <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
+                    </div>
+                    <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
+                      Profissional em <span className="text-emerald-500">{userCity}?</span> Receba clientes todo mês
+                    </h1>
+                    <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
+                      Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                      <div className="flex flex-col">
+                        <Link
+                          to="/login?mode=signup&role=professional"
+                          className="h-14 inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-10 text-base font-bold transition-colors"
+                        >
+                          Quero Cadastrar meu Serviço →
+                        </Link>
+                        <p className="text-xs text-slate-500 mt-1.5">Grátis para começar • Sem cartão de crédito</p>
+                      </div>
+                      <a
+                        href="#planos"
+                        className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors self-start"
+                      >
+                        Ver Planos
+                      </a>
+                    </div>
+                    <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800">
+                      <div>
+                        <div className="flex items-center text-emerald-400 mb-2"><Zap size={16} className="mr-2" /></div>
+                        <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
+                        <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
+                      </div>
+                      <div>
+                        <div className="flex items-center text-yellow-500 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
+                        <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Badge verificado</h3>
+                        <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
+                      </div>
+                      <div>
+                        <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-2" /></div>
+                        <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Você define os preços</h3>
+                        <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
+                      </div>
+                    </div>
                   </div>
-                  <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                    Profissional em <span className="text-emerald-500">{userCity}?</span> Receba clientes todo mês
-                  </h1>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
-                    Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-5 mb-10 justify-center">
-                    <div className="flex flex-col">
+
+                  {/* Direita — card único profissional */}
+                  <div className="space-y-4">
+                    <div className="bg-[#1C3454] border border-emerald-500/30 rounded-2xl p-8">
+                      <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-5">
+                        <Zap size={12} /> Para Profissionais
+                      </div>
+                      <h3 className="text-white font-extrabold text-xl mb-2">Receba clientes qualificados</h3>
+                      <p className="text-[#94A3B8] text-sm mb-6">Cadastre seus serviços e apareça para clientes que precisam de você agora.</p>
+                      <ul className="space-y-4 mb-6">
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Leads qualificados em {userCity}</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Badge ✅ verificado no perfil</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Você define preços e horários</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Grátis para começar</li>
+                      </ul>
                       <Link
                         to="/login?mode=signup&role=professional"
-                        className="h-16 inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-10 text-base font-bold transition-colors text-center"
+                        className="h-14 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20"
                       >
-                        Quero Cadastrar meu Serviço →
+                        Cadastrar meu Serviço →
                       </Link>
-                      <p className="text-xs text-slate-500 text-center mt-1.5">Grátis para começar • Sem cartão de crédito</p>
-                    </div>
-                    <a
-                      href="#planos"
-                      className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-start"
-                    >
-                      Ver Planos
-                    </a>
-                  </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6 max-w-2xl mx-auto w-full">
-                    <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><Zap size={16} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
-                    </div>
-                    <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Badge verificado</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
-                    </div>
-                    <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Você define os preços</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
                     </div>
                   </div>
-                </>
+                </div>
+
               ) : (
-                /* ── Hero Cliente (padrão) ── */
-                <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
-                    <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
+                /* ── Hero Cliente (padrão) — grid 2 colunas ── */
+                <div className="grid lg:grid-cols-2 gap-14 items-start">
+                  {/* Esquerda — texto */}
+                  <div>
+                    <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
+                      <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
+                    </div>
+                    <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
+                      Precisa de um profissional em <span className="text-blue-400">{userCity}?</span> <span className="text-emerald-500">Encontre agora.</span>
+                    </h1>
+                    <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
+                      Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
+                    </p>
+                    <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800">
+                      <div>
+                        <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
+                        <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
+                        <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Transações protegidas</p>
+                      </div>
+                      <div>
+                        <div className="flex items-center text-yellow-500 mb-2"><Zap size={16} className="mr-2" /></div>
+                        <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
+                        <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
+                      </div>
+                      <div>
+                        <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-2" /></div>
+                        <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
+                        <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
+                      </div>
+                    </div>
                   </div>
-                  <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                    Precisa de um profissional em <span className="text-blue-400">{userCity}?</span> <span className="text-emerald-500">Encontre agora.</span>
-                  </h1>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
-                    Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
-                  </p>
 
-                  {/* CTA mobile — acima da dobra */}
-                  <div className="flex flex-col sm:hidden gap-5 mt-6 mb-10 items-center">
-                    <Link
-                      to="/login?mode=signup"
-                      className="w-full h-16 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl text-base text-center shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
-                    >
-                      {isProfissional ? 'Quero Receber Clientes Agora →' : `Encontrar Profissional em ${userCity} →`}
-                    </Link>
-                    <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
-                  </div>
+                  {/* Direita — dois cards */}
+                  <div className="space-y-4">
+                    {/* Card Para Profissionais */}
+                    <div className="bg-[#1C3454] border border-emerald-500/30 rounded-2xl p-8">
+                      <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-5">
+                        <Zap size={12} /> Para Profissionais
+                      </div>
+                      <h3 className="text-white font-extrabold text-xl mb-2">Receba clientes qualificados</h3>
+                      <p className="text-[#94A3B8] text-sm mb-6">Cadastre seus serviços e apareça para clientes que precisam de você agora.</p>
+                      <ul className="space-y-4 mb-6">
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Leads qualificados em {userCity}</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Badge ✅ verificado no perfil</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Você define preços e horários</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-emerald-400 shrink-0" size={16}/> Grátis para começar</li>
+                      </ul>
+                      <Link
+                        to="/login?mode=signup&role=professional"
+                        className="h-14 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20"
+                      >
+                        Cadastrar meu Serviço →
+                      </Link>
+                    </div>
 
-                  <div className="hidden sm:flex flex-col sm:flex-row gap-5 mb-10 justify-center">
-                    <div className="flex flex-col">
+                    {/* Card Para Clientes */}
+                    <div className="bg-[#1C3454] border border-blue-500/30 rounded-2xl p-8">
+                      <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1 text-blue-400 text-xs font-black uppercase tracking-widest mb-5">
+                        <MapPin size={12} /> Para Clientes
+                      </div>
+                      <h3 className="text-white font-extrabold text-xl mb-2">Encontre o profissional certo</h3>
+                      <p className="text-[#94A3B8] text-sm mb-6">Receba até 5 orçamentos de profissionais verificados em minutos.</p>
+                      <ul className="space-y-4 mb-6">
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16}/> Profissionais verificados perto de você</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16}/> Até 5 orçamentos em minutos</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16}/> Pagamento 100% seguro</li>
+                        <li className="flex items-center gap-3 text-slate-300 text-sm"><CheckIcon className="text-blue-400 shrink-0" size={16}/> Grátis para solicitar</li>
+                      </ul>
                       <Link
                         to="/login?mode=signup&role=client"
-                        className="h-16 inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-base font-bold transition-colors text-center"
+                        className="h-14 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20"
                       >
                         Encontrar Profissional em {userCity} →
                       </Link>
-                      <p className="text-xs text-slate-500 text-center mt-1.5">Grátis • Até 5 orçamentos em minutos</p>
-                    </div>
-                    <a
-                      href="#como-funciona"
-                      className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-start"
-                    >
-                      Ver Como Funciona
-                    </a>
-                  </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6 max-w-2xl mx-auto w-full">
-                    <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Transações protegidas</p>
-                    </div>
-                    <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><Zap size={16} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
-                    </div>
-                    <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-2" /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
                     </div>
                   </div>
-                </>
+                </div>
             )}
 
           </div>
