@@ -164,12 +164,12 @@ export default function LandingPage() {
 
       <main>
         {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-32 pb-16 md:pb-24 overflow-hidden">
+        <section id="hero" className="relative pt-32 pb-20 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex flex-col lg:flex-row items-start gap-12 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative grid lg:grid-cols-2 gap-12 py-12 items-start">
 
-            <div className="flex-1 max-w-xl">
+            <div>
               {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
@@ -189,7 +189,7 @@ export default function LandingPage() {
                     <div className="flex flex-col">
                       <Link
                         to="/login?mode=signup&role=professional"
-                        className="h-12 md:h-14 flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-6 md:px-8 font-bold transition-colors text-center"
+                        className="h-14 flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-8 font-bold transition-colors text-center"
                       >
                         Quero Cadastrar meu Serviço →
                       </Link>
@@ -197,7 +197,7 @@ export default function LandingPage() {
                     </div>
                     <a
                       href="#planos"
-                      className="h-12 md:h-14 flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-6 md:px-8 font-bold transition-colors text-center self-start"
+                      className="h-14 flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 font-bold transition-colors text-center self-start"
                     >
                       Ver Planos
                     </a>
@@ -240,7 +240,7 @@ export default function LandingPage() {
                   <div className="flex flex-col sm:hidden gap-4 mt-6 mb-8">
                     <Link
                       to="/login?mode=signup"
-                      className="w-full h-12 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl text-base text-center shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
+                      className="w-full h-14 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl text-base text-center shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
                     >
                       {isProfissional ? 'Quero Receber Clientes Agora →' : `Encontrar Profissional em ${userCity} →`}
                     </Link>
@@ -251,7 +251,7 @@ export default function LandingPage() {
                     <div className="flex flex-col">
                       <Link
                         to="/login?mode=signup&role=client"
-                        className="h-12 md:h-14 flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-6 md:px-8 font-bold transition-colors text-center"
+                        className="h-14 flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-8 font-bold transition-colors text-center"
                       >
                         Encontrar Profissional em {userCity} →
                       </Link>
@@ -259,7 +259,7 @@ export default function LandingPage() {
                     </div>
                     <a
                       href="#como-funciona"
-                      className="h-12 md:h-14 flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-6 md:px-8 font-bold transition-colors text-center self-start"
+                      className="h-14 flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 font-bold transition-colors text-center self-start"
                     >
                       Ver Como Funciona
                     </a>
@@ -285,7 +285,7 @@ export default function LandingPage() {
               )}
             </div>
 
-            <div className="hidden lg:flex lg:flex-col gap-6 w-[420px] shrink-0">
+            <div className="hidden lg:flex lg:flex-col gap-6">
               {/* Pro card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
                 <div className="hidden sm:block absolute top-0 right-0 p-8 opacity-10 text-emerald-500"><Building2 size={100} /></div>
@@ -303,7 +303,7 @@ export default function LandingPage() {
                   </ul>
                   <Link
                     to="/login?mode=signup&role=professional"
-                    className="flex items-center justify-center w-full h-12 bg-emerald-600 hover:bg-emerald-500 text-white text-center rounded-xl px-6 font-bold transition-colors"
+                    className="flex items-center justify-center w-full h-14 bg-emerald-600 hover:bg-emerald-500 text-white text-center rounded-xl px-6 font-bold transition-colors"
                   >
                     Quero Receber Clientes Agora →
                   </Link>
@@ -328,7 +328,7 @@ export default function LandingPage() {
                   </ul>
                   <Link
                     to="/login?mode=signup&role=client"
-                    className="flex items-center justify-center w-full h-12 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-6 font-bold transition-colors"
+                    className="flex items-center justify-center w-full h-14 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-6 font-bold transition-colors"
                   >
                     Encontrar Profissional em {userCity} →
                   </Link>
@@ -350,7 +350,7 @@ export default function LandingPage() {
         <Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense>
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
-        <section className="py-14 md:py-20 bg-[#0B1729] border-t border-slate-800/50">
+        <section className="py-20 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Stats */}
@@ -446,7 +446,7 @@ export default function LandingPage() {
               </p>
               <Link
                 to="/login?mode=signup"
-                className="inline-flex items-center gap-2 h-12 md:h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-6 md:px-8 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
+                className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
               >
                 {isProfissional ? 'Quero Receber Clientes Agora →' : 'Quero Encontrar um Profissional →'}
               </Link>
@@ -462,7 +462,7 @@ export default function LandingPage() {
         <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
         {/* ── Pricing ── */}
-        <section id="planos" className="py-16 md:py-24 bg-[#0E1C32] border-t border-slate-800/50">
+        <section id="planos" className="py-20 md:py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div className="text-center mb-8 md:mb-12">
@@ -511,7 +511,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-4 gap-6 text-left max-w-6xl mx-auto mb-8 md:mb-12 px-0">
+            <div className="grid lg:grid-cols-4 gap-6 md:gap-8 text-left max-w-6xl mx-auto mb-8 md:mb-12 px-0">
 
               {/* GRATUITO */}
               <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 sm:p-6 md:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
@@ -520,7 +520,7 @@ export default function LandingPage() {
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-[#4A6580] text-xs">Para conhecer a plataforma</p>
                 </div>
-                <Link to="/login" className="flex items-center justify-center w-full h-12 bg-slate-800 hover:bg-slate-700 text-white text-center rounded-xl px-5 text-sm font-bold transition-all mb-6">
+                <Link to="/login" className="flex items-center justify-center w-full h-14 bg-slate-800 hover:bg-slate-700 text-white text-center rounded-xl px-5 text-sm font-bold transition-all mb-6">
                   Explorar Grátis →
                 </Link>
                 <ul className="space-y-3 flex-1">
@@ -539,7 +539,7 @@ export default function LandingPage() {
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="flex items-center justify-center w-full h-12 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-5 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
+                <Link to="/login?mode=signup&role=professional" className="flex items-center justify-center w-full h-14 bg-blue-600 hover:bg-blue-500 text-white text-center rounded-xl px-5 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
                   Quero Receber Leads →
                 </Link>
                 {/* Vagas urgência */}
@@ -569,7 +569,7 @@ export default function LandingPage() {
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black text-center rounded-xl px-5 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black text-center rounded-xl px-5 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
                   Receber Meu Primeiro Lead →
                 </Link>
                 {/* Vagas urgência */}
@@ -598,7 +598,7 @@ export default function LandingPage() {
                   <div className="text-4xl font-extrabold text-white mb-1">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="flex items-center justify-center w-full h-12 bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-xl px-5 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
+                <Link to="/login?mode=signup&role=professional" className="flex items-center justify-center w-full h-14 bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-xl px-5 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
                   Dominar {userCity} Agora →
                 </Link>
                 {/* Vagas urgência */}

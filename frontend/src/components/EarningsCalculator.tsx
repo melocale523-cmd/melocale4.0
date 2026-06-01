@@ -39,8 +39,8 @@ export default function EarningsCalculator() {
   const profitPro = extra - 67
 
   return (
-    <section className="py-20 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+    <section className="py-20 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
         {/* Header */}
         <div className="text-center mb-10">
@@ -113,7 +113,7 @@ export default function EarningsCalculator() {
           {/* CTA */}
           <Link
             to="/login?mode=signup&role=professional"
-            className="block w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base py-4 rounded-2xl text-center transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base rounded-2xl text-center transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             Quero ganhar R${fmt(extra)}/mês →
           </Link>

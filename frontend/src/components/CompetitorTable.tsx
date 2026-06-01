@@ -21,10 +21,10 @@ function Check({ ok }: { ok: boolean }) {
     : <span className="text-red-400 text-xl font-bold">❌</span>;
 }
 
-export default function CompetitorTable() {
+export default function CompetitorTable(_props: { userCity?: string }) {
   return (
-    <section className="py-20 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white mb-3">
@@ -104,7 +104,7 @@ export default function CompetitorTable() {
         <div className="mt-10 text-center">
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 py-4 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
+            className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
           >
             Cadastre-se grátis agora →
           </Link>
