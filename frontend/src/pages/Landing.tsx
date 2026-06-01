@@ -167,7 +167,7 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-7xl mx-auto px-8 lg:px-10 relative">
+          <div className="max-w-7xl mx-auto px-8 lg:px-10 relative text-center">
 
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
@@ -176,10 +176,7 @@ export default function LandingPage() {
                     <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                   </div>
                   <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                    Profissional em <br />
-                    <span className="text-emerald-500">{userCity}?</span> <br />
-                    Receba clientes <br />
-                    todo mês
+                    Profissional em <span className="text-emerald-500">{userCity}?</span> Receba clientes todo mês
                   </h1>
                   <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
                     Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
@@ -226,10 +223,7 @@ export default function LandingPage() {
                     <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
                   </div>
                   <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                    Precisa de um <br />
-                    profissional em <br />
-                    <span className="text-blue-400">{userCity}?</span> <br />
-                    <span className="text-emerald-500">Encontre agora.</span>
+                    Precisa de um profissional em <span className="text-blue-400">{userCity}?</span> <span className="text-emerald-500">Encontre agora.</span>
                   </h1>
                   <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
                     Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
