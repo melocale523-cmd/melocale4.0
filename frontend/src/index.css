@@ -21,6 +21,12 @@
 }
 
 @layer utilities {
+  .container-full {
+    width: 100%;
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
