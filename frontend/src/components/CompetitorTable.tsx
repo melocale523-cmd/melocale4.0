@@ -23,14 +23,14 @@ function Check({ ok }: { ok: boolean }) {
 
 export default function CompetitorTable(_props: { userCity?: string }) {
   return (
-    <section className="py-20 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
+      <div className="max-w-7xl mx-auto px-8 lg:px-10">
 
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-3">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Por que o <span className="text-emerald-400">MeloCalé</span> é a melhor escolha?
           </h2>
-          <p className="text-[#94A3B8] max-w-xl mx-auto">
+          <p className="text-base leading-relaxed text-[#94A3B8] max-w-xl mx-auto">
             Compare e veja por que profissionais e clientes da Bahia preferem o MeloCalé.
           </p>
         </div>
@@ -101,10 +101,10 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* CTA */}
-        <div className="mt-10 text-center">
+        <div className="mt-12 text-center">
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
+            className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
           >
             Cadastre-se grátis agora →
           </Link>

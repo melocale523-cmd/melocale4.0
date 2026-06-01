@@ -17,20 +17,20 @@ interface Props {
 
 export default function CategoryGrid({ userCity }: Props) {
   return (
-    <section className="py-20 md:py-24 bg-[#0E1C32] border-t border-slate-800/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
+      <div className="max-w-7xl mx-auto px-8 lg:px-10">
 
-        <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Serviços disponíveis em <span className="text-emerald-400">{userCity}</span>
           </h2>
-          <p className="text-[#94A3B8] text-sm sm:text-base">
+          <p className="text-base leading-relaxed text-[#94A3B8]">
             Encontre o profissional certo para cada necessidade
           </p>
         </div>
 
         {/* Grid 4x2 desktop / 2x4 mobile */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
           {categories.map(cat => (
             <Link
               key={cat.slug}
@@ -49,12 +49,12 @@ export default function CategoryGrid({ userCity }: Props) {
 
         {/* CTA */}
         <div className="text-center">
-          <p className="text-slate-400 text-sm mb-4">
+          <p className="text-sm text-slate-400 mb-4">
             Não encontrou o que precisa?
           </p>
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide"
+            className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base font-bold shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide"
           >
             Ver todos os serviços →
           </Link>

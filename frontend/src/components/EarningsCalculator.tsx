@@ -39,8 +39,8 @@ export default function EarningsCalculator() {
   const profitPro = extra - 67
 
   return (
-    <section className="py-20 md:py-24 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+    <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
+      <div className="max-w-3xl mx-auto px-8">
 
         {/* Header */}
         <div className="text-center mb-10">
@@ -48,12 +48,12 @@ export default function EarningsCalculator() {
             <TrendingUp size={14} />
             Calculadora de Ganhos
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Quanto você pode ganhar com o <span className="text-emerald-400">MeloCalé</span>?
           </h2>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-6 md:p-8 space-y-8">
+        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-10 space-y-8">
 
           {/* Slider A */}
           <div>
@@ -94,7 +94,7 @@ export default function EarningsCalculator() {
 
             {/* Destaque principal */}
             <div className="text-center py-4 border-t border-slate-700/50">
-              <p className="text-xs text-slate-400 mb-1">Ganho extra potencial</p>
+              <p className="text-sm text-slate-400 mb-1">Ganho extra potencial</p>
               <p key={extra} className="number-pop text-4xl md:text-5xl font-extrabold text-emerald-400">
                 +R${fmt(extra)}/mês
               </p>
@@ -113,7 +113,7 @@ export default function EarningsCalculator() {
           {/* CTA */}
           <Link
             to="/login?mode=signup&role=professional"
-            className="flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base rounded-2xl text-center transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="inline-flex items-center justify-center w-full h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             Quero ganhar R${fmt(extra)}/mês →
           </Link>
