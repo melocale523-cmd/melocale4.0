@@ -40,7 +40,7 @@ export default function EarningsCalculator() {
 
   return (
     <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-2xl mx-auto px-8 w-full">
+      <div className="max-w-7xl mx-auto px-8 lg:px-10">
 
         {/* Header */}
         <div className="text-center mb-10">
@@ -53,7 +53,7 @@ export default function EarningsCalculator() {
           </h2>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-10 space-y-8 w-full">
+        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-10 space-y-8">
 
           {/* Slider A */}
           <div>

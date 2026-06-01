@@ -285,7 +285,7 @@ export default function LandingPage() {
               )}
             </div>
 
-            <div className="hidden lg:flex lg:flex-col gap-8 w-full">
+            <div className="hidden lg:flex lg:flex-col gap-8">
               {/* Pro card */}
               <div className="bg-gradient-to-br from-[#1C3454] to-slate-900 border border-slate-800 rounded-2xl p-10 relative overflow-hidden">
                 <div className="hidden sm:block absolute top-0 right-0 p-8 opacity-10 text-emerald-500"><Building2 size={100} /></div>
