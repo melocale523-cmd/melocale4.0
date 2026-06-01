@@ -22,7 +22,9 @@
 
 @layer utilities {
   .container-full {
-    width: 100%;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
     padding-left: 4rem;
     padding-right: 4rem;
   }
