@@ -178,7 +178,10 @@ export default function LandingPage() {
                       <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                     </div>
                     <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                      Profissional em <span className="text-emerald-500">{userCity}?</span> Receba clientes todo mês
+                      Profissional em <br />
+                      <span className="text-emerald-500">{userCity}?</span> <br />
+                      Receba clientes <br />
+                      todo mês
                     </h1>
                     <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
                       Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
@@ -252,11 +255,28 @@ export default function LandingPage() {
                       <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
                     </div>
                     <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                      Precisa de um profissional em <span className="text-blue-400">{userCity}?</span> <span className="text-emerald-500">Encontre agora.</span>
+                      Precisa de um <br />
+                      profissional em <br />
+                      <span className="text-blue-400">{userCity}?</span> <br />
+                      <span className="text-emerald-500">Encontre agora.</span>
                     </h1>
                     <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
                       Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
                     </p>
+                    <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                      <Link
+                        to="/login?mode=signup&role=client"
+                        className="h-14 inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-8 text-sm font-bold transition-colors"
+                      >
+                        Encontrar Profissional Agora →
+                      </Link>
+                      <a
+                        href="#como-funciona"
+                        className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors"
+                      >
+                        Ver Como Funciona
+                      </a>
+                    </div>
                     <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800">
                       <div>
                         <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
