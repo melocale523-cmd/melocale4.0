@@ -291,7 +291,7 @@ export default function LandingPage() {
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
         <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="max-w-7xl mx-auto px-8 lg:px-10">
+          <div className="w-full px-8 lg:px-16">
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center">
@@ -403,7 +403,7 @@ export default function LandingPage() {
 
         {/* ── Pricing ── */}
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
-          <div className="max-w-7xl mx-auto px-8 lg:px-10">
+          <div className="w-full px-8 lg:px-16">
 
             <div className="text-center mb-12">
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5">
@@ -451,7 +451,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-4 gap-8 text-left max-w-6xl mx-auto mb-12 px-0">
+            <div className="grid lg:grid-cols-4 gap-8 text-left mb-12 px-0">
 
               {/* GRATUITO */}
               <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-10 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
