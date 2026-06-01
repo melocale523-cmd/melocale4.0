@@ -167,7 +167,7 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-screen-xl mx-auto px-8 lg:px-12 relative text-center">
+          <div className="max-w-[1400px] mx-auto px-8 lg:px-12 relative text-center">
 
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
@@ -291,7 +291,7 @@ export default function LandingPage() {
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
         <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="max-w-screen-xl mx-auto px-8 lg:px-12">
+          <div className="max-w-[1400px] mx-auto px-8 lg:px-12">
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center">
@@ -403,7 +403,7 @@ export default function LandingPage() {
 
         {/* ── Pricing ── */}
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
-          <div className="max-w-screen-xl mx-auto px-8 lg:px-12">
+          <div className="max-w-[1400px] mx-auto px-8 lg:px-12">
 
             <div className="text-center mb-12">
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5">
