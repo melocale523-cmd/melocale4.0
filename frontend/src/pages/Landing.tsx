@@ -167,7 +167,7 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="max-w-4xl mx-auto px-8 lg:px-10 relative">
+          <div className="max-w-7xl mx-auto px-8 lg:px-10 relative">
 
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
