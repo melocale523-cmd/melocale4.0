@@ -383,7 +383,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── Categorias de serviços ── */}
-        <div className="-mt-8"><Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense></div>
+        <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense></div>
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
         <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
@@ -501,7 +501,7 @@ export default function LandingPage() {
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="container-app">
 
-            <div className="text-center mb-12">
+            <div className="text-center mb-12 mx-auto max-w-3xl">
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5">
                 🔥 Oferta por tempo limitado
               </div>
