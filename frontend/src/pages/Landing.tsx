@@ -167,8 +167,11 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="container-app relative text-center">
+          <div className="container-app relative">
+            <div className="grid lg:grid-cols-2 gap-10 items-start">
 
+            {/* ── Coluna esquerda ── */}
+            <div>
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
@@ -276,7 +279,42 @@ export default function LandingPage() {
                   </div>
                 </>
             )}
+            </div>{/* fim coluna esquerda */}
 
+            {/* ── Coluna direita — cards ── */}
+            <div className="hidden lg:flex flex-col gap-4">
+              {/* Card Para Profissionais */}
+              <div className="bg-[#1C3454] border border-emerald-500/30 rounded-2xl p-8">
+                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">Para Profissionais</p>
+                <h3 className="text-white font-bold text-lg mb-2">Aumente sua renda com leads qualificados</h3>
+                <ul className="space-y-3 mb-6 text-slate-300 text-sm">
+                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Comece grátis, sem compromisso</li>
+                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Leads prontos para contratar</li>
+                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Você controla seus preços</li>
+                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Planos a partir de R$37/mês</li>
+                </ul>
+                <Link to="/login?mode=signup&role=professional" className="h-12 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-xl text-sm transition-all">
+                  CADASTRE-SE JÁ →
+                </Link>
+              </div>
+
+              {/* Card Para Clientes */}
+              <div className="bg-[#1C3454] border border-blue-500/30 rounded-2xl p-8">
+                <p className="text-blue-400 text-xs font-black uppercase tracking-widest mb-4">Para Clientes</p>
+                <h3 className="text-white font-bold text-lg mb-2">Encontre o profissional ideal rapidamente</h3>
+                <ul className="space-y-3 mb-6 text-slate-300 text-sm">
+                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Profissionais verificados e avaliados</li>
+                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Receba até 5 orçamentos grátis</li>
+                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Compare e escolha o melhor</li>
+                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Contratação 100% segura</li>
+                </ul>
+                <Link to="/login?mode=signup&role=client" className="h-12 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-sm transition-all">
+                  CADASTRE-SE JÁ →
+                </Link>
+              </div>
+            </div>{/* fim coluna direita */}
+
+            </div>{/* fim grid */}
           </div>
         </section>
 
