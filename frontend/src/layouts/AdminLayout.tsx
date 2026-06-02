@@ -65,7 +65,7 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen dark:bg-[#0E1C32] flex">
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:flex flex-col w-64 fixed inset-y-0 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] z-50">
+      <aside className="hidden lg:flex flex-col w-52 fixed inset-y-0 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] z-50">
         <div className="p-4 md:p-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
@@ -75,7 +75,7 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-0.5 mt-4 overflow-y-auto">
+        <nav className="flex-1 px-2 space-y-0 mt-4 overflow-y-auto">
           {ADMIN_NAVIGATION.map((item) => {
             const isActive = location.pathname.startsWith(item.href);
             const isSupporte = item.href === '/admin/suporte';
@@ -84,7 +84,7 @@ export default function AdminLayout() {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-3 px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200",
                   isActive
                     ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none"
                     : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-[#1C3454] border border-transparent"
@@ -114,7 +114,7 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:pl-64 flex flex-col min-h-screen">
+      <main className="flex-1 lg:pl-52 flex flex-col min-h-screen">
         {/* Topbar */}
         <header className="h-16 lg:h-20 bg-white/10 backdrop-blur-xl dark:bg-[#0E1C32]/80 dark:backdrop-blur-md border-b border-white/20 dark:border-[#1C3050] sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -153,7 +153,7 @@ export default function AdminLayout() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 w-64 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] flex flex-col">
+          <aside className="fixed inset-y-0 left-0 w-52 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] flex flex-col">
             <div className="p-4 md:p-6">
               <span className="text-lg font-bold text-white">MeloCalé <span className="text-red-500 text-xs">ADMIN</span></span>
             </div>

@@ -105,14 +105,14 @@ export default function ClientLayout() {
   return (
     <div className="flex h-screen dark:bg-[#0E1C32] text-slate-900 dark:text-white">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-white/20 dark:border-[#1C3050] bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none flex flex-col hidden md:flex">
+      <aside className="w-52 border-r border-white/20 dark:border-[#1C3050] bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none flex flex-col hidden md:flex">
         <div className="p-4 md:p-6">
           <span className="text-xl font-bold tracking-tight uppercase text-emerald-400">
             Melocale <span className="text-white text-xs ml-1">Cliente</span>
           </span>
         </div>
 
-        <nav className="flex-1 px-3 mt-4 space-y-0.5">
+        <nav className="flex-1 px-2 mt-3 space-y-0">
           {navItems.map((item) => {
             const isActive = location.pathname.startsWith(item.path);
             return (
@@ -120,7 +120,7 @@ export default function ClientLayout() {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-1.5 rounded-xl transition-all font-medium text-sm",
+                  "flex items-center gap-3 px-3 py-1 rounded-lg transition-all font-medium text-xs",
                   isActive
                     ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
                     : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-white/20 dark:hover:bg-[#1C3454]",
@@ -155,7 +155,7 @@ export default function ClientLayout() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="w-64 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] relative flex flex-col pt-4">
+          <aside className="w-52 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] relative flex flex-col pt-4">
             <div className="p-4 flex justify-between items-center border-b border-white/20 dark:border-[#1C3050]">
               <span className="text-lg font-bold tracking-tight uppercase text-emerald-400">
                 Melocale <span className="text-white text-xs ml-1">Cliente</span>
