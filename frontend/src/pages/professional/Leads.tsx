@@ -133,188 +133,185 @@ export default function ProfessionalLeads() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-11">
-           {/* Saldo Alert - Agora no topo */}
-      <div className="bg-gradient-to-r from-[#1C3454] to-[#0E1C32] border border-[#1C3050] rounded-[2rem] p-10 flex items-center justify-between shadow-2xl relative overflow-hidden group">
-         <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-         <div className="flex items-center gap-9 relative z-10">
-           <div className="w-14 h-14 bg-yellow-500/10 text-yellow-500 rounded-2xl flex items-center justify-center shadow-inner">
-             <Coins size={32} />
-           </div>
-           <div>
-             <p className="text-[12px] text-[#4A6580] font-bold uppercase tracking-widest mb-6">Saldo Disponível</p>
-             <p className="text-4xl font-black text-white leading-none">
-               {walletLoading ? '...' : (typeof balance === 'number' ? Math.floor(balance) : 0)} <span className="text-lg font-bold text-yellow-500 uppercase tracking-widest ml-1">moedas</span>
-             </p>
-           </div>
-         </div>
-         <Link to="/profissional/carteira" className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-11 py-8 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-95 relative z-10 flex items-center gap-7">
-            <Plus size={18} /> Recarregar Saldo
-         </Link>
+    <div className="w-full space-y-3">
+
+      {/* Saldo Alert */}
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-yellow-500/10 text-yellow-500 rounded-lg flex items-center justify-center shrink-0">
+            <Coins size={18} />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-slate-400">Saldo Disponível</p>
+            <p className="text-2xl font-bold text-white leading-none">
+              {walletLoading ? '...' : (typeof balance === 'number' ? Math.floor(balance) : 0)}
+              <span className="text-xs font-semibold text-yellow-500 uppercase tracking-wide ml-1">moedas</span>
+            </p>
+          </div>
+        </div>
+        <Link to="/profissional/carteira" className="h-8 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all flex items-center gap-1.5">
+          <Plus size={13} /> Recarregar
+        </Link>
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="flex flex-col md:flex-row gap-9 items-center">
-        <div className="relative flex-1 group w-full">
-          <input 
-            type="text" 
-            placeholder="Qual serviço você procura? (ex: Pintura, Elétrica...)"
+      <div className="flex gap-2 items-center">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Buscar serviço... (ex: Pintura, Elétrica)"
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-9 pl-12 pr-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-lg"
+            className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg pl-8 pr-3 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-all"
           />
-          <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" />
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
         </div>
-        
-        <div className="flex gap-7 w-full md:w-auto">
-          <button 
-            onClick={() => setIsFilterOpen(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-7 bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 text-white font-bold px-11 py-9 rounded-2xl text-sm transition-all shadow-lg hover:shadow-emerald-500/10"
+
+        <button
+          onClick={() => setIsFilterOpen(true)}
+          className="h-8 px-4 text-xs font-semibold bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 text-white rounded-lg transition-all flex items-center gap-1.5"
+        >
+          <SlidersHorizontal size={13} /> Filtros
+        </button>
+
+        {(filters.search || filters.city || filters.category !== 'Todas' || filters.minBudget > 0) && (
+          <button
+            onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
+            className="h-8 w-8 flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+            title="Limpar todos os filtros"
           >
-             <SlidersHorizontal size={20} /> Filtros Avançados
+            <Trash2 size={13} />
           </button>
-          
-          {(filters.search || filters.city || filters.category !== 'Todas' || filters.minBudget > 0) && (
-            <button
-              onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
-              className="p-9 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-lg"
-              title="Limpar todos os filtros"
-            >
-              <Trash2 size={20} />
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Popover/Modal de Filtros Avançados */}
+      {/* Filter Modal */}
       {isFilterOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-9">
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsFilterOpen(false)}></div>
-          <div className="relative bg-[#0E1C32] border border-[#243F6A] rounded-[2.5rem] p-8 sm:p-10 max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 ring-1 ring-white/5">
-            <button 
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsFilterOpen(false)} />
+          <div className="relative bg-[#0E1C32] border border-[#243F6A] rounded-xl p-5 max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 ring-1 ring-white/5">
+            <button
               onClick={() => setIsFilterOpen(false)}
-              className="absolute top-6 right-6 text-[#4A6580] hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
             >
-              <X size={24} />
+              <X size={18} />
             </button>
 
-            <h3 className="text-2xl font-bold text-white mb-7 flex items-center gap-8">
-              <Filter className="text-emerald-500" /> Filtros Detalhados
+            <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+              <Filter size={16} className="text-emerald-500" /> Filtros Detalhados
             </h3>
-            <p className="text-[#4A6580] text-sm mb-13">Refine sua busca para encontrar os clientes ideais.</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-11">
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
-                    <MapPin size={14} className="text-emerald-500" /> Cidade
+            <p className="text-xs uppercase tracking-wide text-slate-400 mb-4">Refine sua busca para encontrar os clientes ideais.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
+                    <MapPin size={12} className="text-emerald-500" /> Cidade
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Ex: São Paulo"
                     value={filters.city}
                     onChange={e => setFilters(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl px-9 py-8 text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+                    className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg px-3 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-all"
                   />
                 </div>
 
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
-                    <Navigation size={14} className="text-emerald-500" /> Raio Máximo (KM)
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
+                    <Navigation size={12} className="text-emerald-500" /> Raio Máximo (KM)
                   </label>
-                  <input 
+                  <input
                     type="range" min="5" max="100" step="5"
                     value={filters.radius}
                     onChange={e => setFilters(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
                     className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                   />
-                  <div className="flex justify-between text-xs font-mono text-[#4A6580] font-bold">
+                  <div className="flex justify-between text-xs text-slate-500">
                     <span>5km</span>
-                    <span className="text-emerald-400 bg-emerald-500/10 px-7 rounded">{filters.radius}km</span>
+                    <span className="text-emerald-400 bg-emerald-500/10 px-2 rounded">{filters.radius}km</span>
                     <span>100km</span>
                   </div>
                 </div>
 
-                <div className="space-y-8 relative">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
-                    <ShoppingCart size={14} className="text-emerald-500" /> Categoria
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
+                    <ShoppingCart size={12} className="text-emerald-500" /> Categoria
                   </label>
                   <div className="relative">
-                    <select 
+                    <select
                       value={filters.category}
                       onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl px-9 py-8 text-white focus:outline-none cursor-pointer appearance-none font-medium"
+                      className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg px-3 text-xs text-white focus:outline-none cursor-pointer appearance-none"
                     >
                       <option value="Todas">⭐️ Todas as Categorias</option>
                       {categories.filter(c => c !== 'Todas').map(cat => (
                         <option key={cat} value={cat}>🛠️ {cat}</option>
                       ))}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#4A6580]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-11">
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
-                    <DollarSign size={14} className="text-emerald-500" /> Orçamento Prestado
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
+                    <DollarSign size={12} className="text-emerald-500" /> Orçamento Prestado
                   </label>
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] text-xs font-bold">R$</span>
-                      <input 
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">R$</span>
+                      <input
                         type="number" placeholder="Mínimo"
                         value={filters.minBudget}
                         onChange={e => setFilters(prev => ({ ...prev, minBudget: parseInt(e.target.value) || 0 }))}
-                        className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl pl-9 pr-3 py-8 text-white text-sm focus:outline-none font-medium"
+                        className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg pl-8 pr-2 text-xs text-white focus:outline-none"
                       />
                     </div>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] text-xs font-bold">R$</span>
-                      <input 
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">R$</span>
+                      <input
                         type="number" placeholder="Máximo"
                         value={filters.maxBudget}
                         onChange={e => setFilters(prev => ({ ...prev, maxBudget: parseInt(e.target.value) || 0 }))}
-                        className="w-full bg-[#1C3454] border border-[#1C3050] rounded-xl pl-9 pr-3 py-8 text-white text-sm focus:outline-none font-medium"
+                        className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg pl-8 pr-2 text-xs text-white focus:outline-none"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-8">
-                  <label className="text-xs font-bold text-[#4A6580] uppercase tracking-widest flex items-center gap-7">
-                    <Coins size={14} className="text-yellow-500" /> Custo Contato (Moedas)
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
+                    <Coins size={12} className="text-yellow-500" /> Custo Contato (Moedas)
                   </label>
-                  <input 
+                  <input
                     type="range" min="10" max="1000" step="10"
                     value={filters.coinCost}
                     onChange={e => setFilters(prev => ({ ...prev, coinCost: parseInt(e.target.value) }))}
                     className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-yellow-500"
                   />
-                  <div className="flex justify-between text-xs font-mono text-[#4A6580] font-bold">
+                  <div className="flex justify-between text-xs text-slate-500">
                     <span>10</span>
-                    <span className="text-yellow-400 bg-yellow-500/10 px-7 rounded">{filters.coinCost} moedas</span>
+                    <span className="text-yellow-400 bg-yellow-500/10 px-2 rounded">{filters.coinCost} moedas</span>
                     <span>1000</span>
                   </div>
                 </div>
-                
-                <div className="pt-10 flex gap-9">
+
+                <div className="pt-2 flex gap-2">
                   <button
-                    onClick={() => {
-                      setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 });
-                    }}
-                    className="flex-1 py-9 border border-[#1C3050] hover:bg-red-500/10 hover:text-red-500 text-[#94A3B8] font-bold rounded-2xl transition-all text-xs uppercase flex items-center justify-center gap-7"
+                    onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
+                    className="flex-1 h-8 border border-[#1C3050] hover:bg-red-500/10 hover:text-red-400 text-slate-400 font-semibold rounded-lg transition-all text-xs flex items-center justify-center gap-1.5"
                   >
-                    <Trash2 size={14} /> Resetar Filtros
+                    <Trash2 size={12} /> Resetar
                   </button>
-                  <button 
+                  <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="flex-1 py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all text-xs uppercase shadow-lg shadow-emerald-500/20"
+                    className="flex-1 h-8 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-all text-xs"
                   >
-                    Aplicar Filtros
+                    Aplicar
                   </button>
                 </div>
               </div>
@@ -322,37 +319,37 @@ export default function ProfessionalLeads() {
           </div>
         </div>
       )}
-      
+
       {/* Success Modal */}
       {purchasedLead && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-9">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPurchasedLead(null)}></div>
-          <div className="relative bg-[#1C3454] border border-emerald-500/30 rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-11">
-              <CheckCircle2 size={40} />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPurchasedLead(null)} />
+          <div className="relative bg-[#1C3454] border border-emerald-500/30 rounded-xl p-5 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="w-14 h-14 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
+              <CheckCircle2 size={32} />
             </div>
-            <h2 className="text-2xl font-bold text-white text-center mb-7">Cliente Adquirido!</h2>
-            <p className="text-[#94A3B8] text-center mb-13">
+            <h2 className="text-lg font-bold text-white text-center mb-1">Cliente Adquirido!</h2>
+            <p className="text-slate-400 text-xs text-center mb-3">
               Você agora tem acesso completo aos dados do cliente <span className="text-white font-bold">{purchasedLead.title}</span>.
             </p>
-            
-            <div className="bg-[#0E1C32] border border-[#1C3050] rounded-2xl p-9 mb-13">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-[#4A6580] font-medium">Investimento:</span>
-                <span className="text-emerald-400 font-bold font-mono">{purchasedLead.price} moedas</span>
+
+            <div className="bg-[#0E1C32] border border-[#1C3050] rounded-lg p-3 mb-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-500">Investimento:</span>
+                <span className="text-emerald-400 font-bold">{purchasedLead.price} moedas</span>
               </div>
             </div>
 
-            <div className="flex flex-col gap-8">
-              <button 
-                onClick={() => navigate('/profissional/meus-leads')} 
-                className="w-full py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-7"
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => navigate('/profissional/meus-leads')}
+                className="w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2 text-sm"
               >
-                Ver Meus Clientes <ArrowRight size={18} />
+                Ver Meus Clientes <ArrowRight size={15} />
               </button>
-              <button 
-                onClick={() => setPurchasedLead(null)} 
-                className="w-full py-8 text-[#4A6580] hover:text-white font-medium transition-colors text-sm"
+              <button
+                onClick={() => setPurchasedLead(null)}
+                className="w-full h-8 text-slate-500 hover:text-white font-medium transition-colors text-xs"
               >
                 Continuar Comprando
               </button>
@@ -361,74 +358,80 @@ export default function ProfessionalLeads() {
         </div>
       )}
 
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-8">
-          Clientes Disponíveis 
-          <span className="text-xs font-medium px-7 py-0.5 bg-white/5 border border-[#243F6A] rounded-full text-[#4A6580]">
-            {filteredLeads?.length || 0} encontrados
+        <h1 className="text-lg font-bold text-white flex items-center gap-2">
+          Clientes Disponíveis
+          <span className="text-xs font-medium px-2 py-0.5 bg-white/5 border border-[#243F6A] rounded-md text-slate-500">
+            {filteredLeads?.length || 0}
           </span>
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-11">
+      {/* Lead Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {leadsLoading ? (
-          <div className="col-span-full py-24 flex justify-center">
-             <LoadingSpinner size={32} label="Buscando novos clientes..." />
+          <div className="col-span-full py-16 flex justify-center">
+            <LoadingSpinner size={28} label="Buscando novos clientes..." />
           </div>
         ) : (
           filteredLeads?.map((lead) => {
-             const badges = getBadges(lead);
-             return <div key={lead.id} className={cn(
-                "bg-[#1C3454] border rounded-[2rem] p-5 flex flex-col transition-all group relative overflow-hidden text-left",
-                badges.some(b => b.label === 'Urgente')
-                  ? "border-red-500/40 animate-pulse"
-                  : "border-[#1C3050] hover:border-emerald-500/30"
-             )}>
-                <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-all"></div>
+            const badges = getBadges(lead);
+            return (
+              <div
+                key={lead.id}
+                className={cn(
+                  "bg-[#1C3454] border rounded-xl p-3 flex flex-col transition-all group relative overflow-hidden text-left",
+                  badges.some(b => b.label === 'Urgente')
+                    ? "border-red-500/40 animate-pulse"
+                    : "border-[#1C3050] hover:border-emerald-500/30"
+                )}
+              >
+                <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-emerald-500/10 transition-all" />
 
                 <div className="flex-1 relative z-10">
-                  <div className="flex justify-between items-start mb-9">
-                     <div>
-                       {badges.length > 0 && (
-                         <div className="flex flex-wrap gap-1.5 mb-8">
-                           {badges.map((b, i) => (
-                             <span key={i} className={`px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-lg border ${b.color}`}>
-                               {b.icon} {b.label}
-                             </span>
-                           ))}
-                         </div>
-                       )}
-                     </div>
-                     <div className="text-right shrink-0 ml-2">
-                       <span className="text-3xl font-mono font-bold text-[#10B981] block tracking-tighter">{lead.price_coins || 1}</span>
-                       <span className="text-xs font-bold text-[#7A9EBF] uppercase tracking-tighter">moedas</span>
-                     </div>
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      {badges.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-1.5">
+                          {badges.map((b, i) => (
+                            <span key={i} className={`text-xs px-2 py-0.5 rounded-md font-semibold border ${b.color}`}>
+                              {b.icon} {b.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <span className="text-xl font-bold text-emerald-400 block">{lead.price_coins || 1}</span>
+                      <span className="text-xs text-slate-500 uppercase tracking-tight">moedas</span>
+                    </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-7 line-clamp-2 leading-tight group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-sm font-bold text-white mb-2 line-clamp-2 leading-tight group-hover:text-emerald-400 transition-colors">
                     {lead.title}
                   </h3>
 
-                  <div className="space-y-7 mb-11">
-                    <div className="flex items-center gap-7 text-base font-medium text-[#E2E8F0]">
-                      <MapPin size={16} className="text-blue-500" />
+                  <div className="space-y-1.5 mb-3">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                      <MapPin size={12} className="text-blue-500 shrink-0" />
                       {lead.location || lead.city || 'São Paulo, SP'}
                     </div>
-                    <div className="flex items-center gap-7 text-base font-semibold text-[#10B981]">
-                      <DollarSign size={16} className="text-emerald-500" />
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                      <DollarSign size={12} className="text-emerald-500 shrink-0" />
                       {lead.budget_min && lead.budget_max ? `R$ ${lead.budget_min.toLocaleString('pt-BR')} – R$ ${lead.budget_max.toLocaleString('pt-BR')}` : 'A combinar'}
                     </div>
-                    <div className="flex items-center gap-7 text-base text-[#B0C4D8]">
-                      <Navigation size={16} className="text-purple-500" />
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <Navigation size={12} className="text-purple-500 shrink-0" />
                       {lead.location || 'Localização não informada'}
                     </div>
 
                     {lead.description && (
-                      <p className="text-sm text-[#94A3B8] leading-relaxed line-clamp-2">{lead.description}</p>
+                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{lead.description}</p>
                     )}
 
                     {lead.event_date && (
-                      <div className="text-[#4A6580] text-xs font-medium">
+                      <div className="text-slate-500 text-xs">
                         📅 Para: {new Date(lead.event_date as string).toLocaleDateString('pt-BR')}
                       </div>
                     )}
@@ -439,15 +442,15 @@ export default function ProfessionalLeads() {
                       if (max == null) return null;
                       const remaining = max - count;
                       if (remaining <= 1) return <div className="text-xs font-bold text-red-400">🏆 Última vaga!</div>;
-                      return <div className="text-sm font-medium text-[#B0C4D8]">👥 {remaining} vagas restantes</div>;
+                      return <div className="text-xs text-slate-400">👥 {remaining} vagas restantes</div>;
                     })()}
 
                     {((lead.purchases_count as number | undefined) ?? 0) > 0 && (
-                      <div className="text-xs font-medium text-amber-400/80">⚡ {lead.purchases_count as number} profissionais interessados</div>
+                      <div className="text-xs text-amber-400/80">⚡ {lead.purchases_count as number} profissionais interessados</div>
                     )}
 
                     {Array.isArray(lead.images) && (lead.images as string[]).length > 0 && (
-                      <div className="flex gap-1.5 overflow-x-auto pb-1 mt-6" style={{ scrollbarWidth: 'none' }}>
+                      <div className="flex gap-1 overflow-x-auto pb-1 mt-1" style={{ scrollbarWidth: 'none' }}>
                         {(lead.images as string[]).map((url, idx) => (
                           <img
                             key={idx}
@@ -457,40 +460,46 @@ export default function ProfessionalLeads() {
                             role="button"
                             aria-label="Ver imagem em tela cheia"
                             onClick={(e) => { e.stopPropagation(); setLightboxImg({ images: lead.images as string[], index: idx }); }}
-                            className="w-20 h-20 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
+                            className="w-16 h-16 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
                           />
                         ))}
                       </div>
                     )}
                   </div>
                 </div>
-                
+
                 <button
                   onClick={() => handlePurchase(lead)}
                   disabled={purchaseMutation.isPending}
-                  className="w-full py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all border border-emerald-500/30 text-xs uppercase tracking-widest flex items-center justify-center gap-7 group/btn relative z-10 shadow-lg"
+                  className="w-full h-8 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-all text-xs flex items-center justify-center gap-1.5 relative z-10"
                 >
-                   {purchaseMutation.isPending ? <Loader2 className="animate-spin" size={16}/> : <><ShoppingCart size={18} className="group-hover/btn:scale-110 transition-transform" /> Adquirir Cliente</>}
+                  {purchaseMutation.isPending
+                    ? <Loader2 className="animate-spin" size={13} />
+                    : <><ShoppingCart size={13} className="group-hover:scale-110 transition-transform" /> Adquirir Cliente</>
+                  }
                 </button>
-             </div>;
+              </div>
+            );
           })
         )}
       </div>
 
+      {/* Empty State */}
       {(!leadsLoading && (!filteredLeads || filteredLeads.length === 0)) && (
-        <div className="py-32 flex flex-col items-center justify-center text-center bg-[#1C3454]/30 rounded-[3rem] border border-dashed border-[#1C3050]">
-          <Ghost size={64} className="text-slate-800 mb-11" />
-          <h3 className="text-xl font-bold text-slate-300 mb-7">Nenhum cliente encontrado</h3>
-          <p className="text-[#4A6580] font-medium max-w-sm">Tente ajustar seus filtros para encontrar novos clientes em sua região.</p>
+        <div className="py-16 flex flex-col items-center justify-center text-center bg-[#1C3454]/30 rounded-xl border border-dashed border-[#1C3050]">
+          <Ghost size={40} className="text-slate-700 mb-3" />
+          <h3 className="text-sm font-bold text-slate-300 mb-1">Nenhum cliente encontrado</h3>
+          <p className="text-slate-500 text-xs max-w-xs">Tente ajustar seus filtros para encontrar novos clientes em sua região.</p>
           <button
             onClick={() => setFilters({ search: '', category: 'Todas', city: '', radius: 30, minBudget: 0, maxBudget: 10000, coinCost: 500 })}
-            className="mt-13 text-emerald-500 font-bold text-sm hover:underline"
+            className="mt-3 text-emerald-500 font-semibold text-xs hover:underline"
           >
             Limpar todos os filtros
           </button>
         </div>
       )}
 
+      {/* Lightbox */}
       {lightboxImg && (
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90"
@@ -498,17 +507,17 @@ export default function ProfessionalLeads() {
         >
           <button
             onClick={() => setLightboxImg(null)}
-            className="absolute top-4 right-4 p-7 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
 
           {lightboxImg.index > 0 && (
             <button
               onClick={(e) => { e.stopPropagation(); setLightboxImg(prev => prev ? { ...prev, index: prev.index - 1 } : prev); }}
-              className="absolute left-4 p-7 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              className="absolute left-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
             >
-              <ChevronLeft size={28} />
+              <ChevronLeft size={22} />
             </button>
           )}
 
@@ -523,9 +532,9 @@ export default function ProfessionalLeads() {
           {lightboxImg.index < lightboxImg.images.length - 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); setLightboxImg(prev => prev ? { ...prev, index: prev.index + 1 } : prev); }}
-              className="absolute right-4 p-7 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              className="absolute right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
             >
-              <ChevronRight size={28} />
+              <ChevronRight size={22} />
             </button>
           )}
 
@@ -543,26 +552,27 @@ export default function ProfessionalLeads() {
         </div>
       )}
 
+      {/* Confirm Purchase Modal */}
       {pendingPurchase && (
-        <div className="fixed inset-0 z-[400] flex items-center justify-center p-9">
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setPendingPurchase(null)} />
-          <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl p-8 flex flex-col gap-11">
-            <div className="text-center space-y-8">
-              <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto">
-                <ShoppingCart size={28} className="text-emerald-400" />
+          <div className="relative w-full max-w-sm bg-[#1C3454] border border-slate-700 rounded-xl shadow-2xl p-5 flex flex-col gap-3">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mx-auto">
+                <ShoppingCart size={24} className="text-emerald-400" />
               </div>
-              <h3 className="text-xl font-black text-white">Confirmar aquisição?</h3>
-              <p className="text-[#94A3B8] text-sm leading-relaxed">
-                Você irá adquirir o cliente <span className="text-white font-bold">"{pendingPurchase.title}"</span> por{' '}
-                <span className="text-emerald-400 font-black">{pendingPurchase.price_coins} moedas</span>.
+              <h3 className="text-base font-bold text-white">Confirmar aquisição?</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Você irá adquirir <span className="text-white font-bold">"{pendingPurchase.title}"</span> por{' '}
+                <span className="text-emerald-400 font-bold">{pendingPurchase.price_coins} moedas</span>.
               </p>
-              <p className="text-[#4A6580] text-xs">Esta ação não pode ser desfeita.</p>
+              <p className="text-slate-600 text-xs">Esta ação não pode ser desfeita.</p>
             </div>
-            <div className="flex gap-8">
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setPendingPurchase(null)}
-                className="flex-1 h-12 bg-white/5 hover:bg-white/10 text-[#B0C4D8] font-bold rounded-2xl transition-all text-sm"
+                className="flex-1 h-8 bg-white/5 hover:bg-white/10 text-slate-300 font-semibold rounded-lg transition-all text-xs"
               >
                 Cancelar
               </button>
@@ -570,16 +580,17 @@ export default function ProfessionalLeads() {
                 type="button"
                 onClick={confirmPurchase}
                 disabled={purchaseMutation.isPending}
-                className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all text-sm flex items-center justify-center gap-7"
+                className="flex-1 h-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all text-xs flex items-center justify-center gap-1.5"
               >
                 {purchaseMutation.isPending
-                  ? <Loader2 size={16} className="animate-spin" />
+                  ? <Loader2 size={13} className="animate-spin" />
                   : 'Confirmar'}
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
