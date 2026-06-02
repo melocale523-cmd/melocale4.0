@@ -79,15 +79,15 @@ export default function ProfessionalAgenda() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-11">
+    <div className="w-full space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-9">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-6">Calendário de Agendamentos</h1>
+          <h1 className="text-2xl font-bold text-white mb-3">Calendário de Agendamentos</h1>
           <p className="text-[#94A3B8] text-sm">Gerencie seus compromissos e horários</p>
         </div>
-        <div className="flex gap-7">
-          <div className="flex bg-[#1C3454] border border-[#1C3050] rounded-xl p-6">
+        <div className="flex gap-2">
+          <div className="flex bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
             <button
               onClick={() => setViewMode('calendar')}
               className={cn('px-4 py-2 text-sm font-medium rounded-lg transition-all', viewMode === 'calendar' ? 'bg-emerald-500 text-black' : 'text-[#94A3B8] hover:text-white')}
@@ -99,7 +99,7 @@ export default function ProfessionalAgenda() {
           </div>
           <button
             onClick={() => { setInitialModalDate(undefined); setIsModalOpen(true); }}
-            className="px-9 py-7 text-sm font-bold bg-white/5 border border-[#243F6A] hover:bg-emerald-500 hover:text-black text-white rounded-xl transition-all flex items-center gap-7 group"
+            className="px-9 py-7 text-sm font-bold bg-white/5 border border-[#243F6A] hover:bg-emerald-500 hover:text-black text-white rounded-xl transition-all flex items-center gap-2 group"
           >
             <Plus size={18} className="group-hover:rotate-90 transition-transform" /> Novo Agendamento
           </button>
@@ -108,7 +108,7 @@ export default function ProfessionalAgenda() {
 
       <AgendaStats stats={stats} isLoading={isLoading} />
 
-      <div className="grid lg:grid-cols-3 gap-11">
+      <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 bg-[#1C3454] border border-[#1C3050] rounded-2xl p-11">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
