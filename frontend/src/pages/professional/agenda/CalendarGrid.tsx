@@ -61,18 +61,18 @@ export function CalendarGrid({
 
   return (
     <>
-      <div className="flex justify-between items-center mb-15">
+      <div className="flex justify-between items-center mb-2">
         <h2 className="text-white font-bold text-xl first-letter:uppercase">
           {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
         </h2>
         <div className="flex items-center gap-2">
-          <button onClick={onPrev} className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm">
+          <button onClick={onPrev} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm">
             <ChevronLeft size={20} />
           </button>
-          <button onClick={onToday} className="px-3 py-7 text-sm font-bold rounded-lg bg-white/5 border border-[#243F6A] text-white hover:bg-white/10 transition-all shadow-sm">
+          <button onClick={onToday} className="px-3 py-1.5 text-sm font-bold rounded-lg bg-white/5 border border-[#243F6A] text-white hover:bg-white/10 transition-all shadow-sm">
             Hoje
           </button>
-          <button onClick={onNext} className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm">
+          <button onClick={onNext} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E1C32] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20 transition-all shadow-sm">
             <ChevronRight size={20} />
           </button>
         </div>
@@ -94,7 +94,7 @@ export function CalendarGrid({
               key={idx}
               onClick={() => onSelectDay(day)}
               className={cn(
-                'aspect-square rounded-xl border flex flex-col p-2 text-sm font-medium transition-all relative group',
+                'h-10 rounded-lg border flex flex-col p-1 text-xs font-medium transition-all relative group',
                 !isCurrentMonth ? 'opacity-[0.05] pointer-events-none' : 'hover:border-emerald-500/50',
                 isSelected
                   ? 'bg-emerald-500 text-black border-emerald-400 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]'
@@ -115,7 +115,7 @@ export function CalendarGrid({
         })}
       </div>
 
-      <div className="flex flex-wrap gap-11 mt-10 p-2 bg-[#0E1C32] rounded-xl border border-[#1C3050]">
+      <div className="flex flex-wrap gap-2 mt-2 p-2 bg-[#0E1C32] rounded-lg border border-[#1C3050]">
         {(['scheduled', 'confirmed', 'rescheduled', 'completed', 'cancelled'] as AppStatus[]).map(s => (
           <div key={s} className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
             <div className={cn('w-2.5 h-2.5 rounded-full', DOT_COLOR[s])} />
