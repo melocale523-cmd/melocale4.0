@@ -79,7 +79,7 @@ export default function PWAInstallPrompt() {
       {showFab && !showModal && (
         <button
           onClick={() => setShowModal(true)}
-          className="fixed bottom-20 right-4 z-40 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg flex items-center gap-7 px-9 py-8 text-sm font-semibold transition-all"
+          className="fixed bottom-20 right-4 z-40 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg flex items-center gap-2 px-3 py-2 text-xs font-semibold transition-all"
           title="Instalar app"
         >
           <Smartphone size={18} />

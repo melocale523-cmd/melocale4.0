@@ -94,7 +94,7 @@ export function CalendarGrid({
               key={idx}
               onClick={() => onSelectDay(day)}
               className={cn(
-                'h-14 rounded-lg border flex flex-col items-center justify-center text-xs font-semibold transition-all relative group cursor-pointer',
+                'h-20 rounded-lg border flex flex-col items-center justify-center text-xs font-semibold transition-all relative group cursor-pointer',
                 !isCurrentMonth ? 'opacity-[0.05] pointer-events-none' : '',
                 isSelected
                   ? 'bg-emerald-500 text-black border-emerald-500 shadow-lg shadow-emerald-500/30 scale-105'
