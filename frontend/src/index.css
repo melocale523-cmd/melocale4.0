@@ -18,13 +18,13 @@
 }
 
 @layer utilities {
-  .container-full {
-    width: 90%;
+  .container-app {
+    width: 70%;
     max-width: 1280px;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
