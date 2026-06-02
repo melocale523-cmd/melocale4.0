@@ -19,8 +19,8 @@
 
 @layer utilities {
   .container-app {
-    width: 90%;
-    max-width: 1280px;
+    width: 95%;
+    max-width: 1440px;
     margin-left: auto;
     margin-right: auto;
     padding-left: 2rem;
