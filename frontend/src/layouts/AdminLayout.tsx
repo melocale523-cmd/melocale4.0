@@ -144,7 +144,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-4 sm:p-6 w-full">
+        <div className="flex-1 p-2 sm:p-4 w-full">
           <Outlet />
         </div>
       </main>
