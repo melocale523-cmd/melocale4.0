@@ -66,7 +66,7 @@ export default function AdminLayout() {
     <div className="min-h-screen dark:bg-[#0E1C32] flex">
       {/* Sidebar Desktop */}
       <aside className="hidden lg:flex flex-col w-48 fixed inset-y-0 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] z-50">
-        <div className="p-2 md:p-3 flex items-center justify-between">
+        <div className="p-1 md:p-1.5 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
               <span className="text-white font-bold text-xl">M</span>
@@ -84,7 +84,7 @@ export default function AdminLayout() {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200",
+                  "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200",
                   isActive
                     ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none"
                     : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-[#1C3454] border border-transparent"
@@ -102,10 +102,10 @@ export default function AdminLayout() {
           })}
         </nav>
 
-        <div className="p-2 border-t border-white/20 dark:border-[#1C3050]">
+        <div className="p-1 border-t border-white/20 dark:border-[#1C3050]">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+            className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
           >
             <LogOut size={18} />
             <span>Sair do perfil</span>
@@ -117,7 +117,7 @@ export default function AdminLayout() {
       <main className="flex-1 lg:pl-48 flex flex-col min-h-screen">
         {/* Topbar */}
         <header className="h-12 lg:h-14 bg-white/10 backdrop-blur-xl dark:bg-[#0E1C32]/80 dark:backdrop-blur-md border-b border-white/20 dark:border-[#1C3050] sticky top-0 z-40 px-3 sm:px-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="lg:hidden p-1 text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200"
@@ -133,7 +133,7 @@ export default function AdminLayout() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <ThemeToggle />
             <NotificationBell />
 
@@ -144,7 +144,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-2 sm:p-4 w-full">
+        <div className="flex-1 p-1 sm:p-2 w-full">
           <Outlet />
         </div>
       </main>
@@ -154,7 +154,7 @@ export default function AdminLayout() {
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
           <aside className="fixed inset-y-0 left-0 w-48 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] flex flex-col">
-            <div className="p-2 md:p-3">
+            <div className="p-1 md:p-1.5">
               <span className="text-lg font-bold text-white">MeloCalé <span className="text-red-500 text-xs">ADMIN</span></span>
             </div>
             <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
@@ -166,7 +166,7 @@ export default function AdminLayout() {
                     to={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium",
+                      "flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium",
                       location.pathname.startsWith(item.href) ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none" : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200"
                     )}
                   >
@@ -180,7 +180,7 @@ export default function AdminLayout() {
                   </Link>
                 );
               })}
-              <button onClick={handleLogout} className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-red-400 mt-2">
+              <button onClick={handleLogout} className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-red-400 mt-2">
                 <LogOut size={18} /> Sair do perfil
               </button>
             </nav>

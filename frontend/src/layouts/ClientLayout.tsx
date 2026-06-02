@@ -87,10 +87,10 @@ export default function ClientLayout() {
   const AvatarCircle = ({ size }: { size: 'sm' | 'md' }) => {
     const cls = size === 'sm'
       ? 'w-8 h-8 rounded-full shrink-0'
-      : 'w-10 h-10 rounded-full shrink-0';
+      : 'w-8 h-8 rounded-full shrink-0';
     const fallbackCls = size === 'sm'
       ? 'w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold shrink-0'
-      : 'w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold shrink-0';
+      : 'w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold shrink-0';
 
     if (profile?.avatar_url) {
       return <img src={profile.avatar_url} alt="avatar" className={`${cls} object-cover`} />;
@@ -106,13 +106,13 @@ export default function ClientLayout() {
     <div className="flex h-screen dark:bg-[#0E1C32] text-slate-900 dark:text-white">
       {/* Sidebar */}
       <aside className="w-48 border-r border-white/20 dark:border-[#1C3050] bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none flex flex-col hidden md:flex">
-        <div className="p-2 md:p-3">
+        <div className="p-1 md:p-1.5">
           <span className="text-xl font-bold tracking-tight uppercase text-emerald-400">
             Melocale <span className="text-white text-xs ml-1">Cliente</span>
           </span>
         </div>
 
-        <nav className="flex-1 px-2 mt-3 space-y-0">
+        <nav className="flex-1 px-2 mt-2 space-y-0">
           {navItems.map((item) => {
             const isActive = location.pathname.startsWith(item.path);
             return (
@@ -120,7 +120,7 @@ export default function ClientLayout() {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-1 rounded-lg transition-all font-medium text-xs",
+                  "flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all font-medium text-xs",
                   isActive
                     ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
                     : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-white/20 dark:hover:bg-[#1C3454]",
@@ -140,10 +140,10 @@ export default function ClientLayout() {
         </nav>
 
         <PushFloatingBanner />
-        <div className="p-2 border-t border-white/20 dark:border-slate-800/50">
+        <div className="p-1 border-t border-white/20 dark:border-slate-800/50">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
+            className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
           >
             <LogOut size={18} />
             <span>Sair do perfil</span>
@@ -156,7 +156,7 @@ export default function ClientLayout() {
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
           <aside className="w-48 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] relative flex flex-col pt-2">
-            <div className="p-2 flex justify-between items-center border-b border-white/20 dark:border-[#1C3050]">
+            <div className="p-1 flex justify-between items-center border-b border-white/20 dark:border-[#1C3050]">
               <span className="text-lg font-bold tracking-tight uppercase text-emerald-400">
                 Melocale <span className="text-white text-xs ml-1">Cliente</span>
               </span>
@@ -173,7 +173,7 @@ export default function ClientLayout() {
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-xl transition-all font-medium text-sm",
+                      "flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all font-medium text-sm",
                       isActive
                         ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
                         : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white",
@@ -191,10 +191,10 @@ export default function ClientLayout() {
                 );
               })}
             </nav>
-            <div className="p-2 border-t border-white/20 dark:border-[#1C3050]">
+            <div className="p-1 border-t border-white/20 dark:border-[#1C3050]">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-emerald-400 transition-all"
+                className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-emerald-400 transition-all"
               >
                 <LogOut size={18} />
                 <span>Sair do perfil</span>
@@ -208,7 +208,7 @@ export default function ClientLayout() {
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
         <header className="h-12 border-b border-white/20 dark:border-[#1C3050] bg-white/10 backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none flex items-center justify-between px-3 sm:px-4 z-10 w-full shrink-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-white/70 dark:text-[#94A3B8] p-1">
               <Menu size={22} />
             </button>
@@ -235,9 +235,9 @@ export default function ClientLayout() {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#132540] border border-slate-200 dark:border-[#243F6A] rounded-xl shadow-xl z-50 overflow-hidden">
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#132540] border border-slate-200 dark:border-[#243F6A] rounded-lg shadow-xl z-50 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-200 dark:border-[#1C3050]">
+                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-slate-200 dark:border-[#1C3050]">
                   <AvatarCircle size="md" />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
@@ -279,7 +279,7 @@ export default function ClientLayout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-2 md:p-4">
+        <div className="flex-1 overflow-auto p-1 md:p-2">
           <Outlet />
         </div>
       </main>
