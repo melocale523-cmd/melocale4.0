@@ -75,7 +75,7 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1 mt-4 overflow-y-auto">
+        <nav className="flex-1 px-3 space-y-0.5 mt-4 overflow-y-auto">
           {ADMIN_NAVIGATION.map((item) => {
             const isActive = location.pathname.startsWith(item.href);
             const isSupporte = item.href === '/admin/suporte';
@@ -84,7 +84,7 @@ export default function AdminLayout() {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200",
                   isActive
                     ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none"
                     : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-[#1C3454] border border-transparent"
