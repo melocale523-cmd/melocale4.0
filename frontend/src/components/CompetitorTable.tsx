@@ -30,7 +30,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Por que o <span className="text-emerald-400">MeloCalé</span> é a melhor escolha?
           </h2>
-          <p className="text-base leading-relaxed text-[#94A3B8] max-w-xl mx-auto">
+          <p className="text-base leading-relaxed text-[#94A3B8] max-w-xl mx-auto text-center">
             Compare e veja por que profissionais e clientes da Bahia preferem o MeloCalé.
           </p>
         </div>
