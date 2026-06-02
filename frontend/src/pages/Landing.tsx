@@ -339,7 +339,7 @@ export default function LandingPage() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
                 Por que escolher o <span className="text-emerald-400">MeloCalé?</span>
               </h2>
-              <p className="text-[#94A3B8] text-base max-w-xl mx-auto">
+              <p className="text-[#94A3B8] text-base max-w-xl mx-auto text-center">
                 A melhor plataforma para contratar profissionais qualificados
               </p>
             </div>
@@ -383,7 +383,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── Categorias de serviços ── */}
-        <Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense>
+        <div className="-mt-8"><Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense></div>
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
         <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
@@ -508,11 +508,11 @@ export default function LandingPage() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
                 Quanto você quer <span className="text-emerald-500">faturar</span> este mês?
               </h2>
-              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto">
+              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center">
                 Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.
                 Escolha seu plano e comece hoje.
               </p>
-              <p className="text-emerald-400 text-sm font-bold mt-4">⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
+              <p className="text-emerald-400 text-sm font-bold mt-4 text-center">⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
             </div>
 
             <div className="flex justify-center mb-10">
