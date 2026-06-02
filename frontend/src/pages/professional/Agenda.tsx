@@ -99,7 +99,7 @@ export default function ProfessionalAgenda() {
           </div>
           <button
             onClick={() => { setInitialModalDate(undefined); setIsModalOpen(true); }}
-            className="px-9 py-7 text-sm font-bold bg-white/5 border border-[#243F6A] hover:bg-emerald-500 hover:text-black text-white rounded-xl transition-all flex items-center gap-2 group"
+            className="px-4 py-2 text-sm font-bold bg-white/5 border border-[#243F6A] hover:bg-emerald-500 hover:text-black text-white rounded-xl transition-all flex items-center gap-2 group"
           >
             <Plus size={18} className="group-hover:rotate-90 transition-transform" /> Novo Agendamento
           </button>
@@ -109,7 +109,7 @@ export default function ProfessionalAgenda() {
       <AgendaStats stats={stats} isLoading={isLoading} />
 
       <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-[#1C3454] border border-[#1C3050] rounded-2xl p-11">
+        <div className="lg:col-span-2 bg-[#1C3454] border border-[#1C3050] rounded-2xl p-3">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="animate-spin text-emerald-500" size={32} />
