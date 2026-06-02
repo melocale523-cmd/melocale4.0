@@ -1,4 +1,4 @@
-import { MapPin, Zap, ShieldCheck, HeartHandshake, Star } from 'lucide-react';
+import { MapPin, Zap, ShieldCheck, HeartHandshake, Star, Briefcase, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
@@ -178,8 +178,11 @@ export default function LandingPage() {
                   <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
                     <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                   </div>
-                  <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                    Profissional em <span className="text-emerald-500">{userCity}?</span> Receba clientes todo mês
+                  <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                    <span className="text-white">Profissional em</span><br />
+                    <span className="text-emerald-400">{userCity}?</span><br />
+                    <span className="text-white">Receba clientes</span><br />
+                    <span className="text-yellow-400">todo mês</span>
                   </h1>
                   <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
                     Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
@@ -201,19 +204,19 @@ export default function LandingPage() {
                       Ver Planos
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6 max-w-2xl mx-auto w-full">
-                    <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><Zap size={16} className="mr-2" /></div>
+                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800 mt-6">
+                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
+                      <div className="flex items-center justify-center text-emerald-400 mb-2"><Zap size={16} /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
                     </div>
-                    <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
+                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
+                      <div className="flex items-center justify-center text-yellow-500 mb-2"><ShieldCheck size={16} /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Badge verificado</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
                     </div>
-                    <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-2" /></div>
+                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
+                      <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={16} /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Você define os preços</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
                     </div>
@@ -225,8 +228,11 @@ export default function LandingPage() {
                   <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
                     <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
                   </div>
-                  <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                    Precisa de um profissional em <span className="text-blue-400">{userCity}?</span> <span className="text-emerald-500">Encontre agora.</span>
+                  <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                    <span className="text-white">Encontre o</span><br />
+                    <span className="text-blue-400">Profissional</span><br />
+                    <span className="text-emerald-400">Certo</span><br />
+                    <span className="text-white">Perto de Você</span>
                   </h1>
                   <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
                     Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
@@ -260,19 +266,19 @@ export default function LandingPage() {
                       Ver Como Funciona
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-800 mt-6 max-w-2xl mx-auto w-full">
-                    <div>
-                      <div className="flex items-center text-emerald-400 mb-2"><ShieldCheck size={16} className="mr-2" /></div>
+                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800 mt-6">
+                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
+                      <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={16} /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Transações protegidas</p>
                     </div>
-                    <div>
-                      <div className="flex items-center text-yellow-500 mb-2"><Zap size={16} className="mr-2" /></div>
+                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
+                      <div className="flex items-center justify-center text-yellow-500 mb-2"><Zap size={16} /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
                     </div>
-                    <div>
-                      <div className="flex items-center text-blue-400 mb-2"><HeartHandshake size={16} className="mr-2" /></div>
+                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
+                      <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={16} /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
                       <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
                     </div>
@@ -284,7 +290,8 @@ export default function LandingPage() {
             {/* ── Coluna direita — cards ── */}
             <div className="hidden lg:flex flex-col gap-4">
               {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454] border border-emerald-500/30 rounded-2xl p-8">
+              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-7">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-4"><Briefcase size={20} className="text-emerald-400" /></div>
                 <p className="text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">Para Profissionais</p>
                 <h3 className="text-white font-bold text-lg mb-2">Aumente sua renda com leads qualificados</h3>
                 <ul className="space-y-3 mb-6 text-slate-300 text-sm">
@@ -299,7 +306,8 @@ export default function LandingPage() {
               </div>
 
               {/* Card Para Clientes */}
-              <div className="bg-[#1C3454] border border-blue-500/30 rounded-2xl p-8">
+              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-7">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4"><User size={20} className="text-blue-400" /></div>
                 <p className="text-blue-400 text-xs font-black uppercase tracking-widest mb-4">Para Clientes</p>
                 <h3 className="text-white font-bold text-lg mb-2">Encontre o profissional ideal rapidamente</h3>
                 <ul className="space-y-3 mb-6 text-slate-300 text-sm">
