@@ -76,28 +76,28 @@ export default function ProfessionalDashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="w-full space-y-3">
 
       {/* Greeting */}
-      <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 py-4">
+      <div className="flex flex-col sm:flex-row items-baseline justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-2">
+          <h1 className="text-lg font-bold text-white">
             Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋
           </h1>
-          <p className="text-[#94A3B8] text-sm">Resumo do seu negócio.</p>
+          <p className="text-slate-400 text-xs uppercase tracking-wide">Resumo do seu negócio.</p>
         </div>
         <button
           onClick={() => navigate('/profissional/leads')}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+          className="h-10 px-6 text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20"
         >
-          <span className="text-lg leading-none mb-[2px]">+</span> Novos Clientes
+          <span className="text-base leading-none">+</span> Novos Clientes
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
         <div
-          className="rounded-2xl p-5 md:p-6 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
+          className="rounded-xl p-3 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
           style={!isDark ? {
             background: 'linear-gradient(180deg, rgba(0,40,30,0.92) 0%, rgba(0,80,60,0.75) 100%)',
             backdropFilter: 'blur(14px)',
@@ -105,47 +105,47 @@ export default function ProfessionalDashboard() {
             border: '0.5px solid rgba(52,211,153,0.35)',
           } : undefined}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[#6EE7B7] dark:text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Saldo de Moedas</h3>
-            <Wallet size={16} className="text-[#6EE7B7] dark:text-emerald-500" />
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs uppercase tracking-wide text-slate-400">Saldo de Moedas</h3>
+            <Wallet size={14} className="text-[#6EE7B7] dark:text-emerald-500" />
           </div>
-          <p className="text-3xl font-bold text-white mb-2">{balanceCoins} moedas</p>
-          <Link to="/profissional/carteira" className="text-[#A7F3D0] hover:text-[#6EE7B7] dark:text-emerald-500 dark:hover:text-emerald-400 text-xs font-medium flex items-center gap-1.5 transition-colors">
-            Recarregar <ArrowRight size={12} />
+          <p className="text-2xl font-bold text-white mb-1">{balanceCoins}</p>
+          <Link to="/profissional/carteira" className="text-[#A7F3D0] hover:text-[#6EE7B7] dark:text-emerald-500 dark:hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
+            Recarregar <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-5 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Leads Comprados</h3>
-            <Target size={16} className="text-blue-500" />
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs uppercase tracking-wide text-slate-400">Leads Comprados</h3>
+            <Target size={14} className="text-blue-500" />
           </div>
-          <p className="text-3xl font-bold text-white mb-2">{purchaseCount}</p>
-          <Link to="/profissional/meus-leads" className="text-blue-400 hover:text-blue-300 text-xs font-medium flex items-center gap-1.5 transition-colors">
-            Ver contatos <ArrowRight size={12} />
+          <p className="text-2xl font-bold text-white mb-1">{purchaseCount}</p>
+          <Link to="/profissional/meus-leads" className="text-blue-400 hover:text-blue-300 text-xs font-medium flex items-center gap-1 transition-colors">
+            Ver contatos <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-5 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Categoria</h3>
-            <Briefcase size={16} className="text-purple-400" />
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
+            <Briefcase size={14} className="text-purple-400" />
           </div>
-          <p className="text-2xl font-bold text-white mb-2 truncate">
+          <p className="text-2xl font-bold text-white mb-1 truncate">
             {profile?.category || 'Não definida'}
           </p>
-          <Link to="/profissional/perfil" className="text-purple-400 hover:text-purple-300 text-xs font-medium flex items-center gap-1.5 transition-colors">
-            {profile?.category ? 'Alterar' : 'Definir agora'} <ArrowRight size={12} />
+          <Link to="/profissional/perfil" className="text-purple-400 hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
+            {profile?.category ? 'Alterar' : 'Definir agora'} <ArrowRight size={11} />
           </Link>
         </div>
       </div>
 
       {/* Profile Completion */}
-      <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-2xl p-5 md:p-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="relative w-16 h-16 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
-              <svg viewBox="0 0 36 36" className="absolute inset-0 w-16 h-16 -rotate-90">
+      <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative w-12 h-12 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
+              <svg viewBox="0 0 36 36" className="absolute inset-0 w-12 h-12 -rotate-90">
                 <path
                   className="text-orange-500/20"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -161,85 +161,85 @@ export default function ProfessionalDashboard() {
               <span className="text-white font-bold text-xs">{completion.pct}%</span>
             </div>
             <div>
-              <h4 className="text-white font-bold text-lg mb-2">
+              <h4 className="text-white font-bold text-sm mb-1">
                 {completion.pct >= 100 ? 'Perfil Completo!' : 'Melhore seu Perfil Profissional'}
               </h4>
               {completion.pct < 100 && (
-                <p className="text-[#94A3B8] text-sm max-w-lg">
+                <p className="text-slate-400 text-xs">
                   Faltam: <span className="text-orange-400 font-medium">{completion.missing.join(', ')}</span>
                 </p>
               )}
               {completion.pct >= 100 && (
-                <p className="text-emerald-400 text-sm">Profissionais com perfil 100% completo recebem até <strong>3x mais contatos</strong>.</p>
+                <p className="text-emerald-400 text-xs">Perfil completo recebe até <strong>3x mais contatos</strong>.</p>
               )}
             </div>
           </div>
           {completion.pct < 100 && (
             <Link
               to="/profissional/perfil"
-              className="bg-orange-600 hover:bg-orange-500 text-white text-sm font-bold px-4 h-12 flex items-center rounded-xl transition-all gap-2 shadow-lg shadow-orange-500/20 shrink-0"
+              className="h-10 px-6 text-sm font-bold bg-orange-600 hover:bg-orange-500 text-white flex items-center rounded-lg transition-all gap-2 shadow-lg shadow-orange-500/20 shrink-0"
             >
-              Completar agora <ArrowRight size={18} />
+              Completar agora <ArrowRight size={16} />
             </Link>
           )}
         </div>
       </div>
 
       {/* Performance do Mês */}
-      <div className="space-y-6">
-        <h2 className="text-white font-bold text-lg">Performance do Mês</h2>
+      <div className="space-y-2">
+        <h2 className="text-lg font-bold text-white">Performance do Mês</h2>
 
         {!stats || stats.totalRevenue === 0 ? (
-          <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-8 flex flex-col items-center text-center gap-4">
-            <Rocket size={32} className="text-emerald-500/60" />
-            <p className="text-slate-300 font-medium">Sua jornada começa aqui!</p>
-            <p className="text-[#4A6580] text-sm max-w-sm">
+          <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-6 flex flex-col items-center text-center gap-3">
+            <Rocket size={28} className="text-emerald-500/60" />
+            <p className="text-slate-300 font-medium text-sm">Sua jornada começa aqui!</p>
+            <p className="text-slate-500 text-xs max-w-sm">
               Envie propostas para desbloquear suas estatísticas.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
             <Link
               to="/profissional/carteira"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-2xl p-5 md:p-6 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-xl p-3 transition-colors group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Faturamento Estimado</h3>
-                <TrendingUp size={16} className="text-emerald-500" />
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-wide text-slate-400">Faturamento Est.</h3>
+                <TrendingUp size={14} className="text-emerald-500" />
               </div>
-              <p className="text-3xl font-bold text-white mb-2">
+              <p className="text-2xl font-bold text-white mb-1">
                 R$ {stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
-              <span className="text-emerald-500 group-hover:text-emerald-400 text-xs font-medium flex items-center gap-1.5 transition-colors">
-                Ver carteira <ArrowRight size={12} />
+              <span className="text-emerald-500 group-hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
+                Ver carteira <ArrowRight size={11} />
               </span>
             </Link>
 
             <Link
               to="/profissional/carteira"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-2xl p-5 md:p-6 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-xl p-3 transition-colors group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Propostas Aceitas</h3>
-                <Users size={16} className="text-blue-500" />
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-wide text-slate-400">Propostas Aceitas</h3>
+                <Users size={14} className="text-blue-500" />
               </div>
-              <p className="text-3xl font-bold text-white mb-2">{stats.acceptedProposalsCount}</p>
-              <span className="text-blue-400 group-hover:text-blue-300 text-xs font-medium flex items-center gap-1.5 transition-colors">
-                Ver carteira <ArrowRight size={12} />
+              <p className="text-2xl font-bold text-white mb-1">{stats.acceptedProposalsCount}</p>
+              <span className="text-blue-400 group-hover:text-blue-300 text-xs font-medium flex items-center gap-1 transition-colors">
+                Ver carteira <ArrowRight size={11} />
               </span>
             </Link>
 
             <Link
               to="/profissional/meus-leads"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-2xl p-5 md:p-6 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-xl p-3 transition-colors group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Taxa de Conversão</h3>
-                <Activity size={16} className="text-purple-400" />
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-wide text-slate-400">Taxa de Conversão</h3>
+                <Activity size={14} className="text-purple-400" />
               </div>
-              <p className="text-3xl font-bold text-white mb-2">{conversionRate}%</p>
-              <span className="text-purple-400 group-hover:text-purple-300 text-xs font-medium flex items-center gap-1.5 transition-colors">
-                Meus leads <ArrowRight size={12} />
+              <p className="text-2xl font-bold text-white mb-1">{conversionRate}%</p>
+              <span className="text-purple-400 group-hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
+                Meus leads <ArrowRight size={11} />
               </span>
             </Link>
           </div>
@@ -247,31 +247,31 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Destaque Pontual */}
-      <div className="bg-gradient-to-r from-[#1C1613] to-[#1C2A3A] border border-yellow-500/20 rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
-            <Star size={22} className="text-yellow-400 fill-yellow-400/30" />
+      <div className="bg-gradient-to-r from-[#1C1613] to-[#1C2A3A] border border-yellow-500/20 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
+            <Star size={18} className="text-yellow-400 fill-yellow-400/30" />
           </div>
           <div>
-            <h3 className="text-white font-bold text-base">Destaque Pontual</h3>
-            <p className="text-[#94A3B8] text-sm">Apareça no topo das buscas por 7 dias</p>
+            <h3 className="text-white font-bold text-sm">Destaque Pontual</h3>
+            <p className="text-slate-400 text-xs">Apareça no topo das buscas por 7 dias</p>
           </div>
         </div>
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           {isFeaturedActive && featuredUntil ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-1.5">
-              <CheckCircle2 size={13} />
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-1.5">
+              <CheckCircle2 size={12} />
               Ativo até {featuredUntil.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
             </span>
           ) : (
             <>
-              <span className="text-yellow-400 font-black text-lg">R$19</span>
+              <span className="text-yellow-400 font-black text-base">R$19</span>
               <button
                 onClick={() => void handleActivateFeatured()}
                 disabled={featuredBusy}
-                className="bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-wait text-black text-sm font-black px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-yellow-500/20"
+                className="h-8 px-4 text-xs font-semibold bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-wait text-black rounded-lg transition-all flex items-center gap-1.5 shadow-lg shadow-yellow-500/20"
               >
-                {featuredBusy ? <Loader2 size={15} className="animate-spin" /> : <Star size={15} className="fill-black/30" />}
+                {featuredBusy ? <Loader2 size={13} className="animate-spin" /> : <Star size={13} className="fill-black/30" />}
                 Ativar Destaque
               </button>
             </>
@@ -281,50 +281,50 @@ export default function ProfessionalDashboard() {
 
       {/* Primeiros Passos — only while steps remain */}
       {doneCount < steps.length && (
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-2xl p-5 md:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Rocket size={20} className="text-orange-400" />
-            <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
-          </div>
-          <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
-        </div>
-
-        <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-6 border border-[#1C3050]">
-          <div
-            className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${checklistPct}%` }}
-          />
-        </div>
-
-        <div className="space-y-3">
-          {steps.map((step) => (
-            <div
-              key={step.id}
-              className={`flex items-center gap-3 p-4 rounded-xl transition-colors ${
-                step.done
-                  ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
-                  : 'bg-[#0E1C32] border border-[#1C3050] hover:border-[#243F6A] cursor-pointer group'
-              }`}
-              onClick={() => !step.done && step.path && navigate(step.path)}
-            >
-              {step.done ? (
-                <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
-              ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors shrink-0" />
-              )}
-              <span className={`text-sm font-medium flex-1 ${step.done ? 'text-white' : 'text-slate-300'}`}>
-                {step.label}
-              </span>
-              {step.done ? (
-                <CheckCircle2 size={16} className="text-emerald-500/50" />
-              ) : (
-                <ChevronRight size={16} className="text-slate-600 group-hover:text-[#94A3B8] transition-colors" />
-              )}
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Rocket size={16} className="text-orange-400" />
+              <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
             </div>
-          ))}
+            <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
+          </div>
+
+          <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-3 border border-[#1C3050]">
+            <div
+              className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
+              style={{ width: `${checklistPct}%` }}
+            />
+          </div>
+
+          <div className="space-y-2">
+            {steps.map((step) => (
+              <div
+                key={step.id}
+                className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                  step.done
+                    ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
+                    : 'bg-[#0E1C32] border border-[#1C3050] hover:border-[#243F6A] cursor-pointer group'
+                }`}
+                onClick={() => !step.done && step.path && navigate(step.path)}
+              >
+                {step.done ? (
+                  <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
+                ) : (
+                  <div className="w-4 h-4 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors shrink-0" />
+                )}
+                <span className={`text-xs font-medium flex-1 ${step.done ? 'text-white' : 'text-slate-300'}`}>
+                  {step.label}
+                </span>
+                {step.done ? (
+                  <CheckCircle2 size={14} className="text-emerald-500/50" />
+                ) : (
+                  <ChevronRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors" />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
       )}
 
     </div>
