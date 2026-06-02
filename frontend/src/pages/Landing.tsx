@@ -497,6 +497,61 @@ export default function LandingPage() {
         {/* ── Por que escolher + Comparativo com concorrentes ── */}
         <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
+        {/* ── Como Funciona ── */}
+        <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
+          <div className="container-app">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Como funciona?</h2>
+              <p className="text-[#94A3B8] text-base text-center max-w-xl mx-auto">Três passos simples para contratar o profissional ideal</p>
+            </div>
+            <div className="relative">
+              {/* Connector line — desktop only */}
+              <div className="hidden lg:block absolute top-10 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+              <div className="grid lg:grid-cols-3 gap-10 relative">
+                {[
+                  {
+                    num: '01',
+                    icon: <MapPin size={32} className="text-emerald-400" />,
+                    title: 'Encontre o profissional',
+                    desc: 'Busque por categoria ou serviço e veja perfis verificados com avaliações reais',
+                  },
+                  {
+                    num: '02',
+                    icon: <Zap size={32} className="text-blue-400" />,
+                    title: 'Solicite orçamento',
+                    desc: 'Descreva seu serviço e receba propostas de profissionais qualificados',
+                  },
+                  {
+                    num: '03',
+                    icon: <ShieldCheck size={32} className="text-yellow-400" />,
+                    title: 'Contrate com segurança',
+                    desc: 'Compare preços, escolha o melhor profissional e agende o serviço',
+                  },
+                ].map((step, i) => (
+                  <div key={i} className="flex flex-col items-center text-center gap-5">
+                    <div className="relative w-20 h-20 rounded-full bg-[#1C3454] border border-slate-700 flex items-center justify-center z-10">
+                      <span className="text-slate-500 text-xs font-bold absolute -top-2 -right-1 bg-[#0E1C32] px-1">{step.num}</span>
+                      {step.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg mb-2">{step.title}</h3>
+                      <p className="text-[#94A3B8] text-sm leading-relaxed max-w-xs mx-auto">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-14 text-center">
+              <Link
+                to="/login?mode=signup"
+                className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all"
+              >
+                Começar Agora →
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* ── Pricing ── */}
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="container-app">
