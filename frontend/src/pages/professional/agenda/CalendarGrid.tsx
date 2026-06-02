@@ -61,8 +61,8 @@ export function CalendarGrid({
 
   return (
     <>
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-white font-bold text-xl first-letter:uppercase">
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-white font-bold text-base first-letter:uppercase">
           {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
         </h2>
         <div className="flex items-center gap-2">
@@ -78,11 +78,11 @@ export function CalendarGrid({
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 mb-2 text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+      <div className="grid grid-cols-7 gap-1 mb-1 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest pb-2 border-b border-slate-800">
         <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1 mt-1">
         {calendarDays.map((day, idx) => {
           const isSelected = isSameDay(day, selectedDate);
           const isCurrentMonth = isSameMonth(day, monthStart);
@@ -94,17 +94,15 @@ export function CalendarGrid({
               key={idx}
               onClick={() => onSelectDay(day)}
               className={cn(
-                'h-16 rounded-lg border flex flex-col p-1 text-xs font-medium transition-all relative group',
-                !isCurrentMonth ? 'opacity-[0.05] pointer-events-none' : 'hover:border-emerald-500/50',
+                'h-14 rounded-lg border flex flex-col items-center justify-center text-xs font-semibold transition-all relative group cursor-pointer',
+                !isCurrentMonth ? 'opacity-[0.05] pointer-events-none' : '',
                 isSelected
-                  ? 'bg-emerald-500 text-black border-emerald-400 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]'
-                  : 'bg-[#0E1C32] border-[#1C3050] text-[#94A3B8]',
+                  ? 'bg-emerald-500 text-black border-emerald-500 shadow-lg shadow-emerald-500/30 scale-105'
+                  : isTodayDay ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
+                  : 'bg-[#0E1C32] border-[#1C3050] text-slate-400 hover:bg-[#1C3454] hover:border-slate-600 hover:text-white',
               )}
             >
               <span className="relative z-10">{format(day, 'd')}</span>
-              {isTodayDay && !isSelected && (
-                <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              )}
               {dotColor && !isSelected && (
                 <div className="mt-auto flex justify-center">
                   <div className={cn('w-1 h-1 rounded-full', dotColor)} />
@@ -115,7 +113,7 @@ export function CalendarGrid({
         })}
       </div>
 
-      <div className="flex flex-wrap gap-2 mt-2 p-2 bg-[#0E1C32] rounded-lg border border-[#1C3050]">
+      <div className="flex flex-wrap gap-3 mt-3 px-3 py-2 bg-[#0E1C32]/60 rounded-lg border border-[#1C3050]/50">
         {(['scheduled', 'confirmed', 'rescheduled', 'completed', 'cancelled'] as AppStatus[]).map(s => (
           <div key={s} className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
             <div className={cn('w-2.5 h-2.5 rounded-full', DOT_COLOR[s])} />
