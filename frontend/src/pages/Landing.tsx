@@ -332,6 +332,56 @@ export default function LandingPage() {
         {/* Live Counter */}
         <LiveCounter userCity={userCity} />
 
+        {/* ── Por que escolher o MeloCalé ── */}
+        <section className="py-24 bg-[#0B1729] border-t border-slate-800/50">
+          <div className="container-app">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+                Por que escolher o <span className="text-emerald-400">MeloCalé?</span>
+              </h2>
+              <p className="text-[#94A3B8] text-base max-w-xl mx-auto">
+                A melhor plataforma para contratar profissionais qualificados
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  icon: <ShieldCheck size={28} className="text-purple-400" />,
+                  bg: 'bg-purple-500/10',
+                  title: 'Profissionais Verificados',
+                  desc: 'Todos os profissionais passam por verificação de documentos e avaliações',
+                },
+                {
+                  icon: <Zap size={28} className="text-emerald-400" />,
+                  bg: 'bg-emerald-500/10',
+                  title: 'Atendimento Rápido',
+                  desc: 'Receba orçamentos em minutos e agende serviços rapidamente',
+                },
+                {
+                  icon: <MapPin size={28} className="text-blue-400" />,
+                  bg: 'bg-blue-500/10',
+                  title: 'Perto de Você',
+                  desc: `Profissionais qualificados nos melhores bairros de ${userCity}`,
+                },
+                {
+                  icon: <ShieldCheck size={28} className="text-emerald-400" />,
+                  bg: 'bg-emerald-500/10',
+                  title: 'Pagamento Seguro',
+                  desc: 'Múltiplas opções de pagamento com garantia e proteção',
+                },
+              ].map((item, i) => (
+                <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-8 flex flex-col gap-4">
+                  <div className={`w-12 h-12 rounded-xl ${item.bg} flex items-center justify-center`}>
+                    {item.icon}
+                  </div>
+                  <h3 className="text-white font-bold text-base">{item.title}</h3>
+                  <p className="text-[#94A3B8] text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── Categorias de serviços ── */}
         <Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense>
 
