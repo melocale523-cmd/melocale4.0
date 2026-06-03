@@ -75,48 +75,50 @@ export default function ProfessionalConfiguracoes() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-11">
+    <div className="w-full space-y-3">
+
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Configurações</h1>
-        <p className="text-[#94A3B8] text-sm mt-6">Gerencie suas preferências de conta</p>
+        <h1 className="text-lg font-bold text-white">Configurações</h1>
+        <p className="text-xs uppercase tracking-wide text-slate-400">Gerencie suas preferências de conta</p>
       </div>
 
-      {/* Account info */}
-      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-11">
-        <div className="flex items-center gap-8 mb-9">
-          <div className="p-7 bg-emerald-500/10 rounded-xl">
-            <Shield size={18} className="text-emerald-400" />
+      {/* Conta */}
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
+            <Shield size={14} className="text-emerald-400" />
           </div>
-          <h2 className="text-base font-semibold text-white">Conta</h2>
+          <h2 className="text-sm font-bold text-white">Conta</h2>
         </div>
-        <div className="space-y-8">
-          <div className="flex items-center justify-between py-8 border-b border-[#1C3050]">
+        <div className="divide-y divide-[#1C3050]">
+          <div className="flex items-center justify-between py-2">
             <div>
-              <p className="text-sm font-medium text-white">E-mail</p>
-              <p className="text-xs text-[#94A3B8] mt-0.5">{user?.email}</p>
+              <p className="text-xs uppercase tracking-wide text-slate-400">E-mail</p>
+              <p className="text-sm text-slate-200">{user?.email}</p>
             </div>
           </div>
-          <div className="flex items-center justify-between py-8">
+          <div className="flex items-center justify-between py-2">
             <div>
-              <p className="text-sm font-medium text-white">Tipo de conta</p>
-              <p className="text-xs text-[#94A3B8] mt-0.5">Profissional</p>
+              <p className="text-xs uppercase tracking-wide text-slate-400">Tipo de conta</p>
+              <p className="text-sm text-slate-200">Profissional</p>
             </div>
-            <span className="text-[10px] font-bold px-7 py-6 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-widest">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wide">
               Ativo
             </span>
           </div>
         </div>
       </div>
 
-      {/* Notifications */}
-      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-11">
-        <div className="flex items-center gap-8 mb-9">
-          <div className="p-7 bg-emerald-500/10 rounded-xl">
-            <Bell size={18} className="text-emerald-400" />
+      {/* Notificações */}
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
+            <Bell size={14} className="text-emerald-400" />
           </div>
-          <h2 className="text-base font-semibold text-white">Notificações</h2>
+          <h2 className="text-sm font-bold text-white">Notificações</h2>
         </div>
-        <div className="space-y-9">
+        <div className="divide-y divide-[#1C3050]">
           {[
             { key: 'newLead', label: 'Novo lead disponível', desc: 'Quando um cliente solicitar um serviço na sua área' },
             { key: 'appointmentConfirmed', label: 'Agendamento confirmado', desc: 'Quando um cliente confirmar um agendamento' },
@@ -124,10 +126,10 @@ export default function ProfessionalConfiguracoes() {
             { key: 'messages', label: 'Mensagens', desc: 'Quando receber uma nova mensagem' },
             { key: 'promotions', label: 'Promoções e novidades', desc: 'Ofertas especiais e atualizações da plataforma' },
           ].map(({ key, label, desc }) => (
-            <label key={key} className="flex items-center justify-between gap-9 cursor-pointer group">
+            <label key={key} className="flex items-center justify-between gap-3 py-2 cursor-pointer group">
               <div>
-                <p className="text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">{label}</p>
-                <p className="text-xs text-[#4A6580] mt-0.5">{desc}</p>
+                <p className="text-sm text-white group-hover:text-emerald-400 transition-colors">{label}</p>
+                <p className="text-xs text-slate-500">{desc}</p>
               </div>
               <button
                 role="switch"
@@ -144,70 +146,72 @@ export default function ProfessionalConfiguracoes() {
             </label>
           ))}
         </div>
-        <button
-          onClick={handleSaveNotifications}
-          disabled={savingNotifications}
-          className="mt-11 flex items-center gap-7 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-xl transition-all disabled:opacity-50"
-        >
-          {savingNotifications ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />}
-          Salvar preferências
-        </button>
+        <div className="pt-3">
+          <button
+            onClick={handleSaveNotifications}
+            disabled={savingNotifications}
+            className="h-8 px-4 flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold rounded-lg transition-all disabled:opacity-50"
+          >
+            {savingNotifications ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
+            Salvar preferências
+          </button>
+        </div>
       </div>
 
-      {/* Security */}
-      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-11">
-        <div className="flex items-center gap-8 mb-9">
-          <div className="p-7 bg-emerald-500/10 rounded-xl">
-            <Lock size={18} className="text-emerald-400" />
+      {/* Segurança */}
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
+            <Lock size={14} className="text-emerald-400" />
           </div>
-          <h2 className="text-base font-semibold text-white">Segurança</h2>
+          <h2 className="text-sm font-bold text-white">Segurança</h2>
         </div>
-        <div className="flex items-center justify-between py-8">
+        <div className="flex items-center justify-between py-2">
           <div>
-            <p className="text-sm font-medium text-white">Senha</p>
-            <p className="text-xs text-[#94A3B8] mt-0.5">Altere sua senha de acesso</p>
+            <p className="text-sm text-white">Senha</p>
+            <p className="text-xs text-slate-500">Altere sua senha de acesso</p>
           </div>
           <button
             onClick={() => setShowPasswordForm(v => !v)}
-            className="text-xs font-bold text-emerald-400 hover:text-emerald-300 px-8 py-1.5 rounded-lg hover:bg-emerald-500/10 transition-all"
+            className="h-8 px-4 text-xs font-semibold text-emerald-400 hover:text-emerald-300 rounded-lg hover:bg-emerald-500/10 transition-all"
           >
             {showPasswordForm ? 'Cancelar' : 'Alterar senha'}
           </button>
         </div>
 
         {showPasswordForm && (
-          <div className="mt-7 pt-4 border-t border-[#1C3050] space-y-9">
-            <div className="space-y-6">
-              <label className="text-xs font-medium text-[#94A3B8] uppercase tracking-widest">Senha atual</label>
+          <div className="mt-2 pt-3 border-t border-[#1C3050] space-y-3">
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-slate-400">Senha atual</label>
               <input
                 type="password"
                 value={passwordForm.current}
                 onChange={e => setPasswordForm(f => ({ ...f, current: e.target.value }))}
                 placeholder="••••••••"
                 maxLength={128}
-                className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] rounded-lg px-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
             </div>
-            <div className="space-y-6">
-              <label className="text-xs font-medium text-[#94A3B8] uppercase tracking-widest">Nova senha</label>
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-slate-400">Nova senha</label>
               <input
                 type="password"
                 value={passwordForm.newPass}
                 onChange={e => setPasswordForm(f => ({ ...f, newPass: e.target.value }))}
                 placeholder="Mínimo 8 caracteres"
                 maxLength={128}
-                className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] rounded-lg px-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
             </div>
-            <div className="space-y-6">
-              <label className="text-xs font-medium text-[#94A3B8] uppercase tracking-widest">Confirmar nova senha</label>
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-slate-400">Confirmar nova senha</label>
               <input
                 type="password"
                 value={passwordForm.confirm}
                 onChange={e => setPasswordForm(f => ({ ...f, confirm: e.target.value }))}
                 placeholder="Repita a nova senha"
                 maxLength={128}
-                className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-9 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] rounded-lg px-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
             </div>
             <button
@@ -244,36 +248,37 @@ export default function ProfessionalConfiguracoes() {
                   setSavingPassword(false);
                 }
               }}
-              className="flex items-center gap-7 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-xl transition-all disabled:opacity-50"
+              className="h-10 px-6 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg transition-all disabled:opacity-50"
             >
-              {savingPassword ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
+              {savingPassword ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
               Salvar nova senha
             </button>
           </div>
         )}
       </div>
 
-      {/* Danger zone */}
-      <div className="bg-[#132540] border border-red-500/20 rounded-2xl p-11">
-        <div className="flex items-center gap-8 mb-9">
-          <div className="p-7 bg-red-500/10 rounded-xl">
-            <Settings size={18} className="text-red-400" />
+      {/* Zona de Perigo */}
+      <div className="bg-[#1C3454] border border-red-500/20 rounded-xl p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 bg-red-500/10 rounded-lg flex items-center justify-center shrink-0">
+            <Settings size={14} className="text-red-400" />
           </div>
-          <h2 className="text-base font-semibold text-white">Zona de Perigo</h2>
+          <h2 className="text-sm font-bold text-white">Zona de Perigo</h2>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between py-2">
           <div>
-            <p className="text-sm font-medium text-white">Desativar conta</p>
-            <p className="text-xs text-[#94A3B8] mt-0.5">Sua conta e dados serão desativados permanentemente</p>
+            <p className="text-sm text-white">Desativar conta</p>
+            <p className="text-xs text-slate-500">Sua conta e dados serão desativados permanentemente</p>
           </div>
           <button
             onClick={() => toast.error('Entre em contato com o suporte para desativar sua conta.')}
-            className="text-xs font-bold text-red-400 hover:text-red-300 px-8 py-1.5 rounded-lg hover:bg-red-500/10 border border-red-500/20 transition-all"
+            className="h-8 px-4 text-xs font-semibold text-red-400 hover:text-red-300 rounded-lg hover:bg-red-500/10 border border-red-500/20 transition-all"
           >
             Desativar
           </button>
         </div>
       </div>
+
     </div>
   );
 }
