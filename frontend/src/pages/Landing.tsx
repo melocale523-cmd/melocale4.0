@@ -167,7 +167,7 @@ export default function LandingPage() {
         <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
-          <div className="container-app relative">
+          <div className="container-app relative lg:pl-64">
             <div className="grid lg:grid-cols-2 gap-10 items-start">
 
             {/* ── Coluna esquerda ── */}
@@ -334,7 +334,7 @@ export default function LandingPage() {
 
         {/* ── Por que escolher o MeloCalé ── */}
         <section className="py-24 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="container-app">
+          <div className="container-app lg:pl-64">
             <div className="text-center mb-14">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
                 Por que escolher o <span className="text-emerald-400">MeloCalé?</span>
@@ -387,7 +387,7 @@ export default function LandingPage() {
 
         {/* ── Prova Social — Stats + Depoimentos ── */}
         <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="container-app">
+          <div className="container-app lg:pl-64">
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center">
@@ -499,7 +499,7 @@ export default function LandingPage() {
 
         {/* ── Como Funciona ── */}
         <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
-          <div className="container-app">
+          <div className="container-app lg:pl-64">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Como funciona?</h2>
               <p className="text-[#94A3B8] text-base text-center max-w-2xl mx-auto w-full">Três passos simples para contratar o profissional ideal</p>
@@ -554,7 +554,7 @@ export default function LandingPage() {
 
         {/* ── Pricing ── */}
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
-          <div className="container-app">
+          <div className="container-app lg:pl-64">
 
             <div className="text-center mb-12 mx-auto max-w-3xl">
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5">
