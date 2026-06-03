@@ -43,7 +43,7 @@ export default function EarningsCalculator() {
       <div className="container-app">
 
         {/* Header */}
-        <div className="text-center mb-6 max-w-2xl mx-auto">
+        <div className="text-center mb-6 w-full">
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-3">
             <TrendingUp size={12} />
             Calculadora de Ganhos

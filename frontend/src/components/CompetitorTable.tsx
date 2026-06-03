@@ -26,7 +26,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
     <section className="py-12 bg-[#0B1729] border-t border-slate-800/50">
       <div className="container-app">
 
-        <div className="text-center mb-6 max-w-3xl mx-auto">
+        <div className="text-center mb-6 w-full">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
             Por que o <span className="text-emerald-400">MeloCalé</span> é a melhor escolha?
           </h2>
