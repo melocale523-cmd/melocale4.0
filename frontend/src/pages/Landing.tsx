@@ -271,7 +271,7 @@ export default function LandingPage() {
             </div>{/* fim coluna esquerda */}
 
             {/* ── Coluna direita — cards ── */}
-            <div className="hidden lg:flex flex-col gap-4 max-w-[380px]" style={{ marginTop: '7rem' }}>
+            <div className="hidden lg:flex flex-col gap-4 max-w-[380px]" style={{ marginTop: '3rem' }}>
               {/* Card Para Profissionais */}
               <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
                 <div className="absolute -bottom-4 -right-4 opacity-[0.06] pointer-events-none">
