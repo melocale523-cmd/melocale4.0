@@ -334,7 +334,7 @@ export default function LandingPage() {
 
         {/* ── Por que escolher + Tabela comparativa ── */}
         <section className="py-16 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="container-app" style={{ paddingLeft: '24rem' }}>
+          <div className="container-app" style={{ paddingLeft: '20rem' }}>
             {/* Título único */}
             <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-white">
