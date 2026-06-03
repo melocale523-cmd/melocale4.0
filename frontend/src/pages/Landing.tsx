@@ -171,7 +171,7 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-10 items-start">
 
             {/* ── Coluna esquerda ── */}
-            <div className="lg:ml-64">
+            <div className="lg:ml-96">
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
