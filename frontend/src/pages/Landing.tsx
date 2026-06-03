@@ -379,26 +379,7 @@ export default function LandingPage() {
                     <h3 className="text-white font-bold text-[10px] text-center leading-tight">{item.title}</h3>
                   </div>
                 ))}
-                {/* Seta curva verde → coluna MeloCalé */}
-                <div className="absolute pointer-events-none" style={{top: '-18px', left: '50%', width: '180px', height: '90px', animation: 'pulse-arrow 1.8s ease-in-out infinite'}}>
-                  <svg width="180" height="90" viewBox="0 0 180 90" fill="none">
-                    <path
-                      d="M 20 80 C 20 20, 160 10, 175 30"
-                      stroke="#22c55e"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      fill="none"
-                    />
-                    <path
-                      d="M 165 18 L 175 30 L 160 32"
-                      stroke="#22c55e"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      fill="none"
-                    />
-                  </svg>
-                </div>
+
               </div>
 
               {/* Coluna direita — tabela comparativa inline */}
