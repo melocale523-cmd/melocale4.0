@@ -345,7 +345,7 @@ export default function LandingPage() {
             <div className="flex gap-4 items-start">
 
               {/* Coluna esquerda — 4 cards em grid 2x2 */}
-              <div className="flex flex-col gap-2 w-[85px] shrink-0">
+              <div className="flex flex-col gap-2 w-[85px] shrink-0 relative">
                 {[
                   {
                     icon: <ShieldCheck size={14} className="text-purple-400" />,
@@ -372,13 +372,20 @@ export default function LandingPage() {
                     desc: 'Múltiplas opções de pagamento com garantia e proteção',
                   },
                 ].map((item, i) => (
-                  <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-lg p-2 flex flex-col items-center justify-center gap-1.5 aspect-square">
+                  <div key={i} className="bg-[#1C2A10] border border-yellow-500/60 rounded-lg p-2 flex flex-col items-center justify-center gap-1.5 aspect-square shadow-[0_0_12px_rgba(234,179,8,0.25)]">
                     <div className={`w-7 h-7 rounded-md ${item.bg} flex items-center justify-center`}>
                       {item.icon}
                     </div>
                     <h3 className="text-white font-bold text-[10px] text-center leading-tight">{item.title}</h3>
                   </div>
                 ))}
+                {/* Seta conectora → MeloCalé */}
+                <div className="absolute -right-5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5">
+                  <div className="w-4 h-px bg-yellow-500/60"></div>
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="text-yellow-500 -ml-1">
+                    <path d="M0 4H6M6 4L3 1M6 4L3 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
               </div>
 
               {/* Coluna direita — tabela comparativa inline */}
