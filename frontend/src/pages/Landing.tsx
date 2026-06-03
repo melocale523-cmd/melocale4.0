@@ -273,33 +273,33 @@ export default function LandingPage() {
             {/* ── Coluna direita — cards ── */}
             <div className="hidden lg:flex flex-col gap-4">
               {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-7 flex flex-col justify-between">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center" style={{ marginBottom: '1rem' }}><Briefcase size={20} className="text-emerald-400" /></div>
-                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.75rem' }}>Para Profissionais</p>
-                <h3 className="text-white font-bold text-lg" style={{ marginBottom: '1rem' }}>Aumente sua renda com leads qualificados</h3>
-                <ul className="text-slate-300 text-sm" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><Briefcase size={16} className="text-emerald-400" /></div>
+                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Profissionais</p>
+                <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Aumente sua renda com leads qualificados</h3>
+                <ul className="text-slate-300 text-xs" style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Comece grátis, sem compromisso</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Leads prontos para contratar</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Você controla seus preços</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Planos a partir de R$37/mês</li>
                 </ul>
-                <Link to="/login?mode=signup&role=professional" className="h-12 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-xl text-sm transition-all">
+                <Link to="/login?mode=signup&role=professional" className="h-9 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-lg text-xs transition-all">
                   CADASTRE-SE JÁ →
                 </Link>
               </div>
 
               {/* Card Para Clientes */}
-              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-7 flex flex-col justify-between">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center" style={{ marginBottom: '1rem' }}><User size={20} className="text-blue-400" /></div>
-                <p className="text-blue-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.75rem' }}>Para Clientes</p>
-                <h3 className="text-white font-bold text-lg" style={{ marginBottom: '1rem' }}>Encontre o profissional ideal rapidamente</h3>
-                <ul className="text-slate-300 text-sm" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-5 flex flex-col justify-between">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><User size={16} className="text-blue-400" /></div>
+                <p className="text-blue-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Clientes</p>
+                <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Encontre o profissional ideal rapidamente</h3>
+                <ul className="text-slate-300 text-xs" style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Profissionais verificados e avaliados</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Receba até 5 orçamentos grátis</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Compare e escolha o melhor</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Contratação 100% segura</li>
                 </ul>
-                <Link to="/login?mode=signup&role=client" className="h-12 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-sm transition-all">
+                <Link to="/login?mode=signup&role=client" className="h-9 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-black rounded-lg text-xs transition-all">
                   CADASTRE-SE JÁ →
                 </Link>
               </div>
