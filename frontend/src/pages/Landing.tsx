@@ -274,8 +274,13 @@ export default function LandingPage() {
             <div className="hidden lg:flex flex-col gap-4 w-full">
               {/* Card Para Profissionais */}
               <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute -bottom-4 -right-4 opacity-[0.06] pointer-events-none">
-                  <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
+                <div className="absolute -bottom-6 -right-6 opacity-[0.12] pointer-events-none">
+                  <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
+                    <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-10-2h4v2h-4V5zm10 13H4V9h16v9z"/>
+                  </svg>
+                </div>
+                <div className="absolute -top-4 -left-4 opacity-[0.05] pointer-events-none rotate-12">
+                  <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
                     <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-10-2h4v2h-4V5zm10 13H4V9h16v9z"/>
                   </svg>
                 </div>
@@ -295,8 +300,13 @@ export default function LandingPage() {
 
               {/* Card Para Clientes */}
               <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute -bottom-4 -right-4 opacity-[0.06] pointer-events-none">
-                  <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
+                <div className="absolute -bottom-6 -right-6 opacity-[0.12] pointer-events-none">
+                  <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
+                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/>
+                  </svg>
+                </div>
+                <div className="absolute -top-4 -left-4 opacity-[0.05] pointer-events-none -rotate-12">
+                  <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
                     <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/>
                   </svg>
                 </div>
