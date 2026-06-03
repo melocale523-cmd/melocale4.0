@@ -335,13 +335,17 @@ export default function LandingPage() {
         {/* ── Por que escolher + Tabela comparativa ── */}
         <section className="py-16 bg-[#0B1729] border-t border-slate-800/50">
           <div className="container-app">
+            {/* Título único */}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> — rápido, seguro e perto de você
+              </h2>
+            </div>
+
             <div className="grid lg:grid-cols-2 gap-10 items-start">
 
-              {/* Coluna esquerda — 4 cards empilhados */}
-              <div className="flex flex-col gap-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                  Por que escolher o <span className="text-emerald-400">MeloCalé?</span>
-                </h2>
+              {/* Coluna esquerda — 4 cards em grid 2x2 */}
+              <div className="grid grid-cols-2 gap-4">
                 {[
                   {
                     icon: <ShieldCheck size={22} className="text-purple-400" />,
@@ -368,23 +372,18 @@ export default function LandingPage() {
                     desc: 'Múltiplas opções de pagamento com garantia e proteção',
                   },
                 ].map((item, i) => (
-                  <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-xl p-4 flex items-start gap-4">
-                    <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center shrink-0`}>
+                  <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center`}>
                       {item.icon}
                     </div>
-                    <div>
-                      <h3 className="text-white font-bold text-sm mb-1">{item.title}</h3>
-                      <p className="text-[#94A3B8] text-xs leading-relaxed">{item.desc}</p>
-                    </div>
+                    <h3 className="text-white font-bold text-sm">{item.title}</h3>
+                    <p className="text-[#94A3B8] text-xs leading-relaxed">{item.desc}</p>
                   </div>
                 ))}
               </div>
 
               {/* Coluna direita — tabela comparativa inline */}
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
-                  Por que o <span className="text-emerald-400">MeloCalé</span> é a melhor escolha?
-                </h2>
                 <Suspense fallback={null}><CompetitorTable /></Suspense>
               </div>
 
