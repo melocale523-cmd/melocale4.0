@@ -234,7 +234,7 @@ export default function LandingPage() {
                     <span className="text-emerald-400">Certo</span><br />
                     <span className="text-white">Perto de Você</span>
                   </h1>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-16">
+                  <p className="text-base leading-relaxed text-[#94A3B8] mb-16" style={{ lineHeight: '2rem', paddingBottom: '1.5rem' }}>
                     Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
                   </p>
 
