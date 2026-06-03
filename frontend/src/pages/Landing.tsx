@@ -266,23 +266,6 @@ export default function LandingPage() {
                       Ver Como Funciona
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
-                    <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
-                      <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
-                      <p className="text-xs text-slate-400 mt-1">Transações protegidas</p>
-                    </div>
-                    <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
-                      <div className="flex items-center justify-center text-yellow-500 mb-2"><Zap size={18} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
-                      <p className="text-xs text-slate-400 mt-1">Profissionais prontos</p>
-                    </div>
-                    <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
-                      <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={18} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
-                      <p className="text-xs text-slate-400 mt-1">Identidade confirmada</p>
-                    </div>
-                  </div>
                 </>
             )}
             </div>{/* fim coluna esquerda */}
@@ -323,6 +306,27 @@ export default function LandingPage() {
             </div>{/* fim coluna direita */}
 
             </div>{/* fim grid */}
+
+            {/* ── Mini cards largura total ── */}
+            {!isProfissional && (
+              <div className="grid grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
+                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
+                  <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
+                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
+                  <p className="text-xs text-slate-400 mt-1">Transações protegidas</p>
+                </div>
+                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
+                  <div className="flex items-center justify-center text-yellow-500 mb-2"><Zap size={18} /></div>
+                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
+                  <p className="text-xs text-slate-400 mt-1">Profissionais prontos</p>
+                </div>
+                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
+                  <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={18} /></div>
+                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
+                  <p className="text-xs text-slate-400 mt-1">Identidade confirmada</p>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
