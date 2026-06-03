@@ -20,11 +20,11 @@
 @layer utilities {
   .container-app {
     width: 100%;
-    max-width: 1400px;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 12rem;
-    padding-right: 12rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
