@@ -39,21 +39,21 @@ export default function EarningsCalculator() {
   const profitPro = extra - 67
 
   return (
-    <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
+    <section className="py-12 bg-[#0B1729] border-t border-slate-800/50">
       <div className="container-app">
 
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">
-            <TrendingUp size={14} />
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-3">
+            <TrendingUp size={12} />
             Calculadora de Ganhos
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
             Quanto você pode ganhar com o <span className="text-emerald-400">MeloCalé</span>?
           </h2>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-10 space-y-8">
+        <div className="bg-[#1C3454] border border-slate-700/50 rounded-2xl p-6 space-y-5">
 
           {/* Slider A */}
           <div>
@@ -93,9 +93,9 @@ export default function EarningsCalculator() {
             </div>
 
             {/* Destaque principal */}
-            <div className="text-center py-4 border-t border-slate-700/50">
+            <div className="text-center py-2 border-t border-slate-700/50">
               <p className="text-sm text-slate-400 mb-1">Ganho extra potencial</p>
-              <p key={extra} className="number-pop text-4xl md:text-5xl font-extrabold text-emerald-400">
+              <p key={extra} className="number-pop text-3xl md:text-4xl font-extrabold text-emerald-400">
                 +R${fmt(extra)}/mês
               </p>
             </div>
@@ -113,7 +113,7 @@ export default function EarningsCalculator() {
           {/* CTA */}
           <Link
             to="/login?mode=signup&role=professional"
-            className="inline-flex items-center justify-center w-full h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
           >
             Quero ganhar R${fmt(extra)}/mês →
           </Link>
