@@ -345,7 +345,7 @@ export default function LandingPage() {
             <div className="flex gap-4 items-start">
 
               {/* Coluna esquerda — 4 cards em grid 2x2 */}
-              <div className="flex flex-col gap-2 w-[110px] shrink-0">
+              <div className="flex flex-col gap-2 w-[85px] shrink-0">
                 {[
                   {
                     icon: <ShieldCheck size={14} className="text-purple-400" />,

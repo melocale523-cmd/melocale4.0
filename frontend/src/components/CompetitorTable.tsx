@@ -56,12 +56,12 @@ export default function CompetitorTable(_props: { userCity?: string }) {
                   key={f.label}
                   className={`border-b border-slate-800/60 ${i % 2 === 0 ? 'bg-[#0E1C32]' : 'bg-[#0B1729]'}`}
                 >
-                  <td className="px-4 py-3 text-slate-300 font-medium">{f.label}</td>
-                  <td className="px-4 py-3 text-center border-x border-emerald-500/30 bg-emerald-500/5">
+                  <td className="px-4 py-5 text-slate-300 font-medium">{f.label}</td>
+                  <td className="px-4 py-5 text-center border-x border-emerald-500/30 bg-emerald-500/5">
                     <Check ok={f.melocale} />
                   </td>
-                  <td className="px-4 py-3 text-center"><Check ok={f.a} /></td>
-                  <td className="px-4 py-3 text-center"><Check ok={f.b} /></td>
+                  <td className="px-4 py-5 text-center"><Check ok={f.a} /></td>
+                  <td className="px-4 py-5 text-center"><Check ok={f.b} /></td>
                 </tr>
               ))}
             </tbody>
