@@ -36,7 +36,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 w-full max-w-3xl mx-auto">
+        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 max-w-3xl mx-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#1C3454] border-b border-slate-800">
@@ -101,7 +101,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* CTA */}
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center max-w-3xl mx-auto">
           <Link
             to="/login?mode=signup"
             className="inline-flex items-center gap-2 h-10 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 rounded-xl text-sm shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
