@@ -24,7 +24,7 @@ function Check({ ok }: { ok: boolean }) {
 export default function CompetitorTable(_props: { userCity?: string }) {
   return (
     <section className="py-12 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="container-app lg:pl-64">
+      <div className="container-app" style={{ paddingLeft: '20rem' }}>
 
         <div className="text-center mb-6 w-full">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
