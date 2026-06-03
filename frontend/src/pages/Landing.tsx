@@ -234,7 +234,7 @@ export default function LandingPage() {
                     <span className="text-emerald-400">Certo</span><br />
                     <span className="text-white">Perto de Você</span>
                   </h1>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-12">
+                  <p className="text-base leading-relaxed text-[#94A3B8] mb-16">
                     Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
                   </p>
 
@@ -249,7 +249,7 @@ export default function LandingPage() {
                     <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
                   </div>
 
-                  <div className="hidden sm:flex flex-col sm:flex-row gap-5 mb-10 justify-center">
+                  <div className="hidden sm:flex flex-col sm:flex-row gap-5 mb-10">
                     <div className="flex flex-col">
                       <Link
                         to="/login?mode=signup&role=client"
@@ -257,7 +257,7 @@ export default function LandingPage() {
                       >
                         Encontrar Profissional em {userCity} →
                       </Link>
-                      <p className="text-xs text-emerald-400 font-semibold text-center mt-1.5">✓ Grátis • Até 5 orçamentos em minutos</p>
+                      <p className="text-xs text-emerald-400 font-semibold text-center mt-3">✓ Grátis • Até 5 orçamentos em minutos</p>
                     </div>
                     <a
                       href="#como-funciona"
@@ -266,7 +266,7 @@ export default function LandingPage() {
                       Ver Como Funciona
                     </a>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800 mt-6 w-full">
+                  <div className="grid grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
                     <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
                       <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
                       <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
