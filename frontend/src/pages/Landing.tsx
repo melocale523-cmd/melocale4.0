@@ -342,10 +342,10 @@ export default function LandingPage() {
               </h2>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-10 items-start">
+            <div className="grid lg:grid-cols-2 gap-6 items-start">
 
               {/* Coluna esquerda — 4 cards em grid 2x2 */}
-              <div className="flex flex-col gap-3 max-w-[200px]">
+              <div className="flex flex-col gap-3 w-[140px] shrink-0">
                 {[
                   {
                     icon: <ShieldCheck size={22} className="text-purple-400" />,
@@ -372,11 +372,11 @@ export default function LandingPage() {
                     desc: 'Múltiplas opções de pagamento com garantia e proteção',
                   },
                 ].map((item, i) => (
-                  <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-xl p-3 flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg ${item.bg} flex items-center justify-center shrink-0`}>
+                  <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center gap-2 aspect-square">
+                    <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
                       {item.icon}
                     </div>
-                    <h3 className="text-white font-bold text-xs">{item.title}</h3>
+                    <h3 className="text-white font-bold text-xs text-center leading-tight">{item.title}</h3>
                   </div>
                 ))}
               </div>
