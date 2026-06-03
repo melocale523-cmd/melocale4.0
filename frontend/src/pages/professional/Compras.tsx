@@ -163,7 +163,7 @@ export default function ProfessionalCompras() {
   };
 
   return (
-    <div className="space-y-11 max-w-6xl mx-auto">
+    <div className="w-full space-y-3">
       {/* Modal de Envio de Proposta */}
       {isProposalModalOpen && selectedPurchase && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-9">

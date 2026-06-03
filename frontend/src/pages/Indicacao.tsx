@@ -343,7 +343,7 @@ export default function Indicacao() {
   }, [referralData, generatingStories, isPro, rewardLabel, rewardDesc])
 
   return (
-    <div className="max-w-6xl mx-auto space-y-11">
+    <div className="w-full space-y-3">
 
       {/* ── Header ─────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-9">
