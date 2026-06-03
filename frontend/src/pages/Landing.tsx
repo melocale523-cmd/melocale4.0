@@ -273,11 +273,11 @@ export default function LandingPage() {
             {/* ── Coluna direita — cards ── */}
             <div className="hidden lg:flex flex-col gap-4">
               {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-10 flex flex-col justify-between" style={{ minHeight: '22rem' }}>
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center" style={{ marginBottom: '1.5rem' }}><Briefcase size={20} className="text-emerald-400" /></div>
-                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '1rem' }}>Para Profissionais</p>
-                <h3 className="text-white font-bold text-lg" style={{ marginBottom: '1.25rem' }}>Aumente sua renda com leads qualificados</h3>
-                <ul className="text-slate-300 text-sm" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-7 flex flex-col justify-between">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center" style={{ marginBottom: '1rem' }}><Briefcase size={20} className="text-emerald-400" /></div>
+                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.75rem' }}>Para Profissionais</p>
+                <h3 className="text-white font-bold text-lg" style={{ marginBottom: '1rem' }}>Aumente sua renda com leads qualificados</h3>
+                <ul className="text-slate-300 text-sm" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Comece grátis, sem compromisso</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Leads prontos para contratar</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Você controla seus preços</li>
@@ -289,11 +289,11 @@ export default function LandingPage() {
               </div>
 
               {/* Card Para Clientes */}
-              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-10 flex flex-col justify-between" style={{ minHeight: '22rem' }}>
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center" style={{ marginBottom: '1.5rem' }}><User size={20} className="text-blue-400" /></div>
-                <p className="text-blue-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '1rem' }}>Para Clientes</p>
-                <h3 className="text-white font-bold text-lg" style={{ marginBottom: '1.25rem' }}>Encontre o profissional ideal rapidamente</h3>
-                <ul className="text-slate-300 text-sm" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-7 flex flex-col justify-between">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center" style={{ marginBottom: '1rem' }}><User size={20} className="text-blue-400" /></div>
+                <p className="text-blue-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.75rem' }}>Para Clientes</p>
+                <h3 className="text-white font-bold text-lg" style={{ marginBottom: '1rem' }}>Encontre o profissional ideal rapidamente</h3>
+                <ul className="text-slate-300 text-sm" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Profissionais verificados e avaliados</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Receba até 5 orçamentos grátis</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Compare e escolha o melhor</li>
