@@ -168,7 +168,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
 
           <div className="container-app relative">
-            <div className="grid lg:grid-cols-2 gap-10 items-start lg:pl-24">
+            <div className="grid lg:grid-cols-2 gap-10 items-start lg:pl-32">
 
             {/* ── Coluna esquerda ── */}
             <div>
