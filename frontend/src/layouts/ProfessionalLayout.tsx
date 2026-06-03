@@ -290,8 +290,8 @@ export default function ProfessionalLayout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-1 md:p-2">
-          <div className="max-w-5xl mx-auto px-4">
+        <div className="flex-1 overflow-auto p-2 md:p-3">
+          <div className="max-w-5xl mx-auto">
             <Outlet />
           </div>
         </div>
