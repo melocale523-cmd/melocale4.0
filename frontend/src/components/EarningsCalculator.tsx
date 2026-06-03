@@ -53,7 +53,7 @@ export default function EarningsCalculator() {
           </h2>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-700/50 rounded-2xl p-6 space-y-5">
+        <div className="bg-[#1C3454] border border-slate-700/50 rounded-2xl p-6 space-y-5 max-w-2xl mx-auto">
 
           {/* Slider A */}
           <div>

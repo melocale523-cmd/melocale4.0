@@ -36,7 +36,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800">
+        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 max-w-2xl mx-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#1C3454] border-b border-slate-800">
