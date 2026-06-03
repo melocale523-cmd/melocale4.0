@@ -271,9 +271,14 @@ export default function LandingPage() {
             </div>{/* fim coluna esquerda */}
 
             {/* ── Coluna direita — cards ── */}
-            <div className="hidden lg:flex flex-col gap-4">
+            <div className="hidden lg:flex flex-col gap-4 max-w-[380px]">
               {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between">
+              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute -bottom-4 -right-4 opacity-[0.06] pointer-events-none">
+                  <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
+                    <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-10-2h4v2h-4V5zm10 13H4V9h16v9z"/>
+                  </svg>
+                </div>
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><Briefcase size={16} className="text-emerald-400" /></div>
                 <p className="text-emerald-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Profissionais</p>
                 <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Aumente sua renda com leads qualificados</h3>
@@ -289,7 +294,12 @@ export default function LandingPage() {
               </div>
 
               {/* Card Para Clientes */}
-              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-5 flex flex-col justify-between">
+              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute -bottom-4 -right-4 opacity-[0.06] pointer-events-none">
+                  <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
+                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/>
+                  </svg>
+                </div>
                 <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><User size={16} className="text-blue-400" /></div>
                 <p className="text-blue-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Clientes</p>
                 <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Encontre o profissional ideal rapidamente</h3>
