@@ -92,7 +92,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* CTA */}
-        <div className="mt-10 text-center max-w-3xl mx-auto">
+        <div className="mt-14 text-center max-w-3xl mx-auto">
           <Link
             to="/login?mode=signup"
             className="inline-flex items-center gap-2 h-10 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 rounded-xl text-sm shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
