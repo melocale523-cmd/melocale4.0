@@ -338,7 +338,7 @@ export default function LandingPage() {
             {/* Título único */}
             <div className="text-center" style={{ marginBottom: '4rem' }}>
               <h2 className="text-2xl md:text-3xl font-bold text-white">
-                A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> — rápido, seguro e perto de você
+                A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> —<br className="hidden lg:block" /> rápido, seguro e perto de você
               </h2>
             </div>
 

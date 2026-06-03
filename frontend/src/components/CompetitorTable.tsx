@@ -92,14 +92,14 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* CTA */}
-        <div className="text-center max-w-3xl mx-auto" style={{ marginTop: '3.5rem' }}>
+        <div className="text-center max-w-3xl mx-auto" style={{ marginTop: '2rem' }}>
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 h-10 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 rounded-xl text-sm shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
+            className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-12 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
           >
             Cadastre-se grátis agora →
           </Link>
-          <p className="text-[#4A6580] text-xs mt-3">Sem cartão de crédito • Cancele quando quiser</p>
+          <p className="text-slate-300 text-sm mt-4 font-medium">Sem cartão de crédito • Cancele quando quiser</p>
         </div>
 
       </div>
