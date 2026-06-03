@@ -23,8 +23,8 @@
     max-width: 1440px;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 6rem;
-    padding-right: 6rem;
+    padding-left: 2rem;
+    padding-right: 10rem;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
