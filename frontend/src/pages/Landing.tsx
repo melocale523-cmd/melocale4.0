@@ -342,47 +342,47 @@ export default function LandingPage() {
               </h2>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-6 items-start">
+            <div className="flex gap-4 items-start">
 
               {/* Coluna esquerda — 4 cards em grid 2x2 */}
-              <div className="flex flex-col gap-3 w-[140px] shrink-0">
+              <div className="flex flex-col gap-2 w-[110px] shrink-0">
                 {[
                   {
-                    icon: <ShieldCheck size={22} className="text-purple-400" />,
+                    icon: <ShieldCheck size={14} className="text-purple-400" />,
                     bg: 'bg-purple-500/10',
                     title: 'Profissionais Verificados',
                     desc: 'Todos os profissionais passam por verificação de documentos e avaliações',
                   },
                   {
-                    icon: <Zap size={22} className="text-emerald-400" />,
+                    icon: <Zap size={14} className="text-emerald-400" />,
                     bg: 'bg-emerald-500/10',
                     title: 'Atendimento Rápido',
                     desc: 'Receba orçamentos em minutos e agende serviços rapidamente',
                   },
                   {
-                    icon: <MapPin size={22} className="text-blue-400" />,
+                    icon: <MapPin size={14} className="text-blue-400" />,
                     bg: 'bg-blue-500/10',
                     title: 'Perto de Você',
                     desc: `Profissionais qualificados nos melhores bairros de ${userCity}`,
                   },
                   {
-                    icon: <ShieldCheck size={22} className="text-emerald-400" />,
+                    icon: <ShieldCheck size={14} className="text-emerald-400" />,
                     bg: 'bg-emerald-500/10',
                     title: 'Pagamento Seguro',
                     desc: 'Múltiplas opções de pagamento com garantia e proteção',
                   },
                 ].map((item, i) => (
-                  <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center gap-2 aspect-square">
-                    <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
+                  <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-lg p-2 flex flex-col items-center justify-center gap-1.5 aspect-square">
+                    <div className={`w-7 h-7 rounded-md ${item.bg} flex items-center justify-center`}>
                       {item.icon}
                     </div>
-                    <h3 className="text-white font-bold text-xs text-center leading-tight">{item.title}</h3>
+                    <h3 className="text-white font-bold text-[10px] text-center leading-tight">{item.title}</h3>
                   </div>
                 ))}
               </div>
 
               {/* Coluna direita — tabela comparativa inline */}
-              <div>
+              <div className="flex-1">
                 <Suspense fallback={null}><CompetitorTable /></Suspense>
               </div>
 
