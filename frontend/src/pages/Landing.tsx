@@ -264,7 +264,7 @@ export default function LandingPage() {
                         Ver Como Funciona
                       </a>
                     </div>
-                    <p className="text-xs text-emerald-400 font-semibold text-center mt-1">✓ Grátis • Até 5 orçamentos em minutos</p>
+                    <p className="text-xs text-emerald-400 font-semibold text-center mt-2 w-full">✓ Grátis • Até 5 orçamentos em minutos</p>
                   </div>
                 </>
             )}
@@ -273,7 +273,7 @@ export default function LandingPage() {
             {/* ── Coluna direita — cards ── */}
             <div className="hidden lg:flex flex-col gap-4">
               {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-10">
+              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-10 flex flex-col justify-between min-h-[320px]">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-5"><Briefcase size={20} className="text-emerald-400" /></div>
                 <p className="text-emerald-400 text-xs font-black uppercase tracking-widest mb-5">Para Profissionais</p>
                 <h3 className="text-white font-bold text-lg mb-4">Aumente sua renda com leads qualificados</h3>
@@ -289,7 +289,7 @@ export default function LandingPage() {
               </div>
 
               {/* Card Para Clientes */}
-              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-10">
+              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-10 flex flex-col justify-between min-h-[320px]">
                 <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center mb-5"><User size={20} className="text-blue-400" /></div>
                 <p className="text-blue-400 text-xs font-black uppercase tracking-widest mb-5">Para Clientes</p>
                 <h3 className="text-white font-bold text-lg mb-4">Encontre o profissional ideal rapidamente</h3>
