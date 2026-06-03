@@ -249,22 +249,22 @@ export default function LandingPage() {
                     <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
                   </div>
 
-                  <div className="hidden sm:flex flex-col sm:flex-row gap-5 mb-10">
-                    <div className="flex flex-col">
+                  <div className="hidden sm:flex flex-col gap-3 mb-10">
+                    <div className="flex flex-row gap-5">
                       <Link
                         to="/login?mode=signup&role=client"
                         className="h-16 inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-base font-bold transition-colors text-center"
                       >
                         Encontrar Profissional em {userCity} →
                       </Link>
-                      <p className="text-xs text-emerald-400 font-semibold text-center mt-3">✓ Grátis • Até 5 orçamentos em minutos</p>
+                      <a
+                        href="#como-funciona"
+                        className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-center"
+                      >
+                        Ver Como Funciona
+                      </a>
                     </div>
-                    <a
-                      href="#como-funciona"
-                      className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-start"
-                    >
-                      Ver Como Funciona
-                    </a>
+                    <p className="text-xs text-emerald-400 font-semibold text-center mt-1">✓ Grátis • Até 5 orçamentos em minutos</p>
                   </div>
                 </>
             )}
@@ -273,11 +273,11 @@ export default function LandingPage() {
             {/* ── Coluna direita — cards ── */}
             <div className="hidden lg:flex flex-col gap-4">
               {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-9">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-4"><Briefcase size={20} className="text-emerald-400" /></div>
-                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">Para Profissionais</p>
-                <h3 className="text-white font-bold text-lg mb-2">Aumente sua renda com leads qualificados</h3>
-                <ul className="space-y-3 mb-6 text-slate-300 text-sm">
+              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-10">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-5"><Briefcase size={20} className="text-emerald-400" /></div>
+                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest mb-5">Para Profissionais</p>
+                <h3 className="text-white font-bold text-lg mb-4">Aumente sua renda com leads qualificados</h3>
+                <ul className="space-y-4 mb-8 text-slate-300 text-sm">
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Comece grátis, sem compromisso</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Leads prontos para contratar</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Você controla seus preços</li>
@@ -289,11 +289,11 @@ export default function LandingPage() {
               </div>
 
               {/* Card Para Clientes */}
-              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-9">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4"><User size={20} className="text-blue-400" /></div>
-                <p className="text-blue-400 text-xs font-black uppercase tracking-widest mb-4">Para Clientes</p>
-                <h3 className="text-white font-bold text-lg mb-2">Encontre o profissional ideal rapidamente</h3>
-                <ul className="space-y-3 mb-6 text-slate-300 text-sm">
+              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-10">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center mb-5"><User size={20} className="text-blue-400" /></div>
+                <p className="text-blue-400 text-xs font-black uppercase tracking-widest mb-5">Para Clientes</p>
+                <h3 className="text-white font-bold text-lg mb-4">Encontre o profissional ideal rapidamente</h3>
+                <ul className="space-y-4 mb-8 text-slate-300 text-sm">
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Profissionais verificados e avaliados</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Receba até 5 orçamentos grátis</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Compare e escolha o melhor</li>
