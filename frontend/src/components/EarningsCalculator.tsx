@@ -40,7 +40,7 @@ export default function EarningsCalculator() {
 
   return (
     <section className="py-12 bg-[#0B1729] border-t border-slate-800/50">
-      <div className="container-app" style={{ paddingLeft: '20rem' }}>
+      <div className="container-app" style={{ paddingLeft: '32rem' }}>
 
         {/* Header */}
         <div className="text-center mb-6 w-full">
