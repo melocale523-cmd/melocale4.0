@@ -372,19 +372,20 @@ export default function LandingPage() {
                     desc: 'Múltiplas opções de pagamento com garantia e proteção',
                   },
                 ].map((item, i) => (
-                  <div key={i} className="bg-[#1C2A10] border border-yellow-500/60 rounded-lg p-2 flex flex-col items-center justify-center gap-1.5 aspect-square shadow-[0_0_12px_rgba(234,179,8,0.25)]">
+                  <div key={i} className="bg-[#2A1500] border border-orange-500/70 rounded-lg p-2 flex flex-col items-center justify-center gap-1.5 aspect-square shadow-[0_0_16px_rgba(249,115,22,0.4)]">
                     <div className={`w-7 h-7 rounded-md ${item.bg} flex items-center justify-center`}>
                       {item.icon}
                     </div>
                     <h3 className="text-white font-bold text-[10px] text-center leading-tight">{item.title}</h3>
                   </div>
                 ))}
-                {/* Seta conectora → MeloCalé */}
-                <div className="absolute -right-5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5">
-                  <div className="w-4 h-px bg-yellow-500/60"></div>
-                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="text-yellow-500 -ml-1">
-                    <path d="M0 4H6M6 4L3 1M6 4L3 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                {/* Seta conectora verde pulsante → MeloCalé */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center" style={{animation: 'pulse-arrow 1.5s ease-in-out infinite'}}>
+                  <svg width="60" height="28" viewBox="0 0 60 28" fill="none">
+                    <path d="M4 24 C4 24 30 4 56 24" stroke="#10b981" strokeWidth="2" strokeLinecap="round" fill="none" strokeDasharray="4 3"/>
+                    <path d="M52 20 L56 24 L50 26" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                   </svg>
+                  <span style={{fontSize:'9px', color:'#10b981', fontWeight:700, letterSpacing:'0.05em', marginTop:'-4px'}}>MELHOR ESCOLHA</span>
                 </div>
               </div>
 
