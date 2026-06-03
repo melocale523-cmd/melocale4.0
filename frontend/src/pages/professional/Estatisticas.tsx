@@ -11,10 +11,10 @@ const EstatisticasCharts = lazy(() => import('./EstatisticasCharts'));
 
 function ChartsSkeleton() {
   return (
-    <div className="grid lg:grid-cols-2 gap-2">
+    <div className="grid lg:grid-cols-2 gap-3">
       {[0, 1].map((i) => (
-        <div key={i} className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2 h-[280px] flex items-center justify-center">
-          <Loader2 className="animate-spin text-emerald-500/40" size={32} />
+        <div key={i} className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 h-[280px] flex items-center justify-center">
+          <Loader2 className="animate-spin text-emerald-500/40" size={28} />
         </div>
       ))}
     </div>
@@ -47,22 +47,24 @@ export default function ProfessionalEstatisticas() {
   if (isError || loadingTimedOut) {
     return (
       <div className="w-full flex flex-col items-center justify-center py-8 gap-2">
-        <AlertCircle size={40} className="text-red-400" />
+        <AlertCircle size={36} className="text-red-400" />
         <p className="text-white font-bold text-lg">Sem dados disponíveis</p>
-        <p className="text-[#4A6580] text-sm">Não foi possível carregar as estatísticas. Tente novamente.</p>
+        <p className="text-slate-500 text-xs uppercase tracking-wide">Não foi possível carregar as estatísticas. Tente novamente.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-3">
+
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <div>
-          <h1 className="text-xl font-bold text-white mb-1.5">Estatísticas</h1>
-          <p className="text-[#4A6580] text-sm">Acompanhe seu desempenho e crescimento</p>
+          <h1 className="text-lg font-bold text-white">Estatísticas</h1>
+          <p className="text-xs uppercase tracking-wide text-slate-400">Acompanhe seu desempenho e crescimento</p>
         </div>
 
-        <div className="flex items-center bg-[#1C3454] p-1.5 rounded-lg border border-[#1C3050]">
+        <div className="flex items-center bg-[#1C3454] p-1 rounded-lg border border-[#1C3050] gap-0.5">
           {([
             { id: '7d', label: '7 Dias' },
             { id: '30d', label: '30 Dias' },
@@ -73,10 +75,10 @@ export default function ProfessionalEstatisticas() {
               key={item.id}
               onClick={() => setRange(item.id)}
               className={cn(
-                "px-4 py-2 text-xs font-black uppercase tracking-widest transition-all rounded-lg",
+                "h-8 px-3 text-xs font-semibold rounded-lg transition-all",
                 range === item.id
                   ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
-                  : "text-[#4A6580] hover:text-slate-300"
+                  : "text-slate-500 hover:text-slate-300"
               )}
             >
               {item.label}
@@ -85,51 +87,51 @@ export default function ProfessionalEstatisticas() {
         </div>
       </div>
 
-      {/* KPI cards — renderizam sem recharts */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2 relative overflow-hidden transition-all hover:border-blue-500/30 group">
-          <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 mb-1.5 group-hover:scale-110 transition-transform">
-            <Eye size={20} />
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 transition-all hover:border-blue-500/30 group">
+          <div className="w-7 h-7 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 mb-2 group-hover:scale-110 transition-transform">
+            <Eye size={16} />
           </div>
-          <h4 className="text-[#94A3B8] text-[10px] font-black uppercase tracking-widest mb-1.5">Visualizações</h4>
+          <h4 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Visualizações</h4>
           <p className="text-2xl font-bold text-white">{stats?.visualizacoes || 0}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2 relative overflow-hidden transition-all hover:border-purple-500/30 group">
-          <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400 mb-1.5 group-hover:scale-110 transition-transform">
-            <TrendingUp size={20} />
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 transition-all hover:border-purple-500/30 group">
+          <div className="w-7 h-7 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400 mb-2 group-hover:scale-110 transition-transform">
+            <TrendingUp size={16} />
           </div>
-          <h4 className="text-[#94A3B8] text-[10px] font-black uppercase tracking-widest mb-1.5">Propostas</h4>
+          <h4 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Propostas</h4>
           <p className="text-2xl font-bold text-white">{stats?.totalProposals || 0}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-emerald-500/20 rounded-xl p-2 relative overflow-hidden shadow-[0_0_15px_-3px_rgba(16,185,129,0.1)] transition-all hover:border-emerald-500/40 group">
-          <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500 mb-1.5 group-hover:scale-110 transition-transform">
-            <CheckCircle2 size={20} />
+        <div className="bg-[#1C3454] border border-emerald-500/20 rounded-xl p-3 transition-all hover:border-emerald-500/40 group">
+          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500 mb-2 group-hover:scale-110 transition-transform">
+            <CheckCircle2 size={16} />
           </div>
-          <h4 className="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-1.5">Aceitas</h4>
+          <h4 className="text-xs uppercase tracking-wide text-emerald-500/70 mb-1">Aceitas</h4>
           <p className="text-2xl font-bold text-emerald-400">{stats?.acceptedProposalsCount || 0}</p>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2 relative overflow-hidden transition-all hover:border-yellow-500/30 group">
-          <div className="w-8 h-8 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-500 mb-1.5 group-hover:scale-110 transition-transform">
-            <DollarSign size={20} />
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 transition-all hover:border-yellow-500/30 group">
+          <div className="w-7 h-7 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-500 mb-2 group-hover:scale-110 transition-transform">
+            <DollarSign size={16} />
           </div>
-          <h4 className="text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-1.5">Faturamento</h4>
+          <h4 className="text-xs uppercase tracking-wide text-yellow-500/70 mb-1">Faturamento</h4>
           <p className="text-2xl font-bold text-white">
             R$ {(stats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
           </p>
         </div>
       </div>
 
-      {/* Gráficos — vendor-charts só é baixado quando esta div entra na viewport */}
+      {/* Charts — lazy-loaded when in viewport */}
       <div ref={chartsRef}>
         {seriesData.length === 0 ? (
-          <div className="grid lg:grid-cols-2 gap-2">
+          <div className="grid lg:grid-cols-2 gap-3">
             {[0, 1].map((i) => (
-              <div key={i} className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2 h-[280px] flex flex-col items-center justify-center gap-2">
-                <AlertCircle size={28} className="text-[#4A6580]" />
-                <p className="text-[#4A6580] text-sm font-bold">Sem dados disponíveis</p>
+              <div key={i} className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 h-[280px] flex flex-col items-center justify-center gap-2">
+                <AlertCircle size={24} className="text-slate-600" />
+                <p className="text-slate-500 text-xs uppercase tracking-wide">Sem dados disponíveis</p>
               </div>
             ))}
           </div>
@@ -146,24 +148,24 @@ export default function ProfessionalEstatisticas() {
         )}
       </div>
 
-      {/* Relatório Rápido — renderiza sem recharts */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2">
-        <div className="flex items-center gap-2 mb-1.5">
+      {/* Resumo do Período */}
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg">
-            <Calendar size={18} />
+            <Calendar size={15} />
           </div>
-          <h3 className="text-white font-bold">
+          <h3 className="text-white font-bold text-sm">
             Resumo do Período ({range === '7d' ? 'Semanal' : range === '30d' ? 'Mensal' : 'Anual'})
           </h3>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-2">
-          <div className="p-2 rounded-xl bg-white/[0.02] border border-[#1C3050]">
-            <p className="text-[#4A6580] text-[10px] font-black uppercase tracking-widest mb-1.5">Conversão</p>
-            <p className="text-xl font-bold text-white">
+        <div className="grid sm:grid-cols-3 gap-3">
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-[#1C3050]">
+            <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Conversão</p>
+            <p className="text-2xl font-bold text-white">
               {stats?.totalProposals ? ((stats.acceptedProposalsCount / stats.totalProposals) * 100).toFixed(1) : '0.0'}%
             </p>
-            <div className="mt-2 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
               <div
                 className="h-full bg-emerald-500 transition-all duration-1000"
                 style={{ width: `${stats?.totalProposals ? (stats.acceptedProposalsCount / stats.totalProposals) * 100 : 0}%` }}
@@ -171,31 +173,31 @@ export default function ProfessionalEstatisticas() {
             </div>
           </div>
 
-          <div className="p-2 rounded-xl bg-white/[0.02] border border-[#1C3050]">
-            <p className="text-[#4A6580] text-[10px] font-black uppercase tracking-widest mb-1.5">Ticket Médio</p>
-            <p className="text-xl font-bold text-white">
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-[#1C3050]">
+            <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Ticket Médio</p>
+            <p className="text-2xl font-bold text-white">
               R$ {stats?.acceptedProposalsCount ? (stats.totalRevenue / stats.acceptedProposalsCount).toLocaleString('pt-BR', { minimumFractionDigits: 0 }) : '0'}
             </p>
-            <p className="text-slate-600 text-[10px] mt-2 font-bold">Baseado em serviços aceitos</p>
+            <p className="text-slate-600 text-xs mt-1">Baseado em serviços aceitos</p>
           </div>
 
-          <div className="p-2 rounded-xl bg-white/[0.02] border border-[#1C3050]">
-            <p className="text-[#4A6580] text-[10px] font-black uppercase tracking-widest mb-1.5">ROI (Est.)</p>
-            <p className="text-xl font-bold text-emerald-400">
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-[#1C3050]">
+            <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">ROI (Est.)</p>
+            <p className="text-2xl font-bold text-emerald-400">
               {stats?.totalSpentCoins ? ((stats.totalRevenue / (stats.totalSpentCoins / 10)) || 0).toFixed(1) : '0.0'}x
             </p>
-            <p className="text-slate-600 text-[10px] mt-2 font-bold">Retorno vs Investimento em leads</p>
+            <p className="text-slate-600 text-xs mt-1">Retorno vs investimento em leads</p>
           </div>
         </div>
       </div>
 
-      {/* Tabela — renderiza sem recharts */}
+      {/* Tabela de Detalhamento */}
       <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl overflow-hidden">
-        <div className="p-2 border-b border-[#1C3050] flex items-center justify-between">
+        <div className="px-3 py-2 border-b border-[#1C3050] flex items-center justify-between">
           <div>
-            <h3 className="text-white font-bold">Detalhamento por Período</h3>
-            <p className="text-[#4A6580] text-xs mt-2">
-              Valores individuais por {(range === '7d' || range === '30d') ? 'dia' : 'mês'}
+            <h3 className="text-white font-bold text-sm">Detalhamento por Período</h3>
+            <p className="text-xs uppercase tracking-wide text-slate-400">
+              Valores por {(range === '7d' || range === '30d') ? 'dia' : 'mês'}
             </p>
           </div>
         </div>
@@ -203,29 +205,29 @@ export default function ProfessionalEstatisticas() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-white/[0.02] text-[#4A6580] text-[10px] font-black uppercase tracking-[0.2em]">
-                <th className="px-4 py-3">{range === '1y' || range === '90d' ? 'Mês' : 'Data'}</th>
-                <th className="px-4 py-3">Total Propostas</th>
-                <th className="px-4 py-3">Aceitas</th>
-                <th className="px-4 py-3 text-emerald-400">Faturamento</th>
+              <tr className="bg-white/[0.02]">
+                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">{range === '1y' || range === '90d' ? 'Mês' : 'Data'}</th>
+                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Total Propostas</th>
+                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Aceitas</th>
+                <th className="px-3 py-2 text-xs uppercase tracking-wide text-emerald-400">Faturamento</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {[...(stats?.seriesData || [])].reverse().map((day, idx) => (
                 <tr key={idx} className="hover:bg-white/[0.01] transition-colors group">
-                  <td className="px-4 py-3 text-sm font-bold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{day.total}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">
-                    <span className={cn(day.aceitas > 0 ? "text-emerald-500 font-bold" : "")}>{day.aceitas}</span>
+                  <td className="px-3 py-2 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
+                  <td className="px-3 py-2 text-sm text-slate-400">{day.total}</td>
+                  <td className="px-3 py-2 text-sm text-slate-400">
+                    <span className={cn(day.aceitas > 0 ? "text-emerald-500 font-semibold" : "")}>{day.aceitas}</span>
                   </td>
-                  <td className="px-4 py-3 text-sm font-black text-slate-100 italic">
+                  <td className="px-3 py-2 text-sm font-semibold text-slate-200">
                     R$ {Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
               ))}
               {(!stats?.seriesData || stats.seriesData.length === 0) && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-12 text-center text-[#4A6580] italic">
+                  <td colSpan={4} className="px-3 py-10 text-center text-slate-500 text-xs uppercase tracking-wide">
                     Nenhum dado disponível no período selecionado.
                   </td>
                 </tr>
@@ -234,6 +236,7 @@ export default function ProfessionalEstatisticas() {
           </table>
         </div>
       </div>
+
     </div>
   );
 }
