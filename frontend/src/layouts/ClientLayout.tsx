@@ -280,7 +280,7 @@ export default function ClientLayout() {
 
         {/* Page Content */}
         <div className="flex-1 overflow-auto">
-          <div className="px-32 py-3">
+          <div className="px-4 py-3 md:px-32">
             <Outlet />
           </div>
         </div>
