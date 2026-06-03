@@ -279,8 +279,10 @@ export default function ClientLayout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-1 md:p-2">
-          <Outlet />
+        <div className="flex-1 overflow-auto">
+          <div className="px-32 py-3">
+            <Outlet />
+          </div>
         </div>
       </main>
 

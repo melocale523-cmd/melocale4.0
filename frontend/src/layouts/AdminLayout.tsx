@@ -144,8 +144,10 @@ export default function AdminLayout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-1 sm:p-2 w-full">
-          <Outlet />
+        <div className="flex-1 overflow-auto">
+          <div className="px-32 py-3">
+            <Outlet />
+          </div>
         </div>
       </main>
 
