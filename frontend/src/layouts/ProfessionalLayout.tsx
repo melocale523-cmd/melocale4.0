@@ -291,7 +291,7 @@ export default function ProfessionalLayout() {
 
         {/* Page Content */}
         <div className="flex-1 overflow-auto p-2 md:p-3">
-          <div className="max-w-5xl px-4 md:px-6">
+          <div className="max-w-5xl mx-auto px-4 md:px-6">
             <Outlet />
           </div>
         </div>
