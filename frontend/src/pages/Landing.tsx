@@ -329,7 +329,7 @@ export default function LandingPage() {
 
             {/* ── Mini cards largura total ── */}
             {!isProfissional && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full" style={{ textAlign: 'center' }}>
                 <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
                   <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
                   <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
@@ -636,13 +636,13 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
 
               {/* GRATUITO */}
-              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-6 sm:p-8 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-5">
                   <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-sm text-[#4A6580]">Para conhecer a plataforma</p>
                 </div>
-                <Link to="/login" className="inline-flex items-center justify-center w-full h-12 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4">
+                <Link to="/login" className="inline-flex items-center justify-center w-full h-14 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4">
                   Explorar Grátis →
                 </Link>
                 <ul className="space-y-3 flex-1">
@@ -655,13 +655,13 @@ export default function LandingPage() {
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-5 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 p-6 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-5">
                   <div className="inline-block px-3 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Starter</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
                   Quero Receber Leads →
                 </Link>
                 {/* Vagas urgência */}
@@ -682,7 +682,7 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-5 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 p-6 sm:p-8 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
@@ -691,7 +691,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
                   Receber Meu Primeiro Lead →
                 </Link>
                 {/* Vagas urgência */}
@@ -714,13 +714,13 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-5 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
+              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 p-6 sm:p-8 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200">
                 <div className="mb-5">
                   <div className="inline-block px-3 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">🏆 Elite</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-12 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
                   Dominar {userCity} Agora →
                 </Link>
                 {/* Vagas urgência */}
