@@ -423,7 +423,7 @@ export default function LandingPage() {
           <div className="container-app">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem' }}>
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
                 <p className="text-sm text-[#94A3B8] mt-2">Profissionais cadastrados</p>
@@ -520,7 +520,7 @@ export default function LandingPage() {
               >
                 {isProfissional ? 'Quero Receber Clientes Agora →' : 'Quero Encontrar um Profissional →'}
               </Link>
-              <p className="text-[11px] text-slate-500 mt-4">✓ Cadastro grátis • ✓ Sem cartão de crédito</p>
+              <p className="text-[11px] text-slate-300 mt-4">✓ Cadastro grátis • ✓ Sem cartão de crédito</p>
             </div>
           </div>
         </section>
