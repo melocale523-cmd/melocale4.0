@@ -552,21 +552,21 @@ export default function Login() {
 
             {authStep === 'details' && (
               <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">WhatsApp de Contato</label>
+                <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
+                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>WhatsApp de Contato</label>
                   <input
                     required type="tel" placeholder="(11) 99999-9999" maxLength={20}
                     className="w-full h-14 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
                     value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Endereço</label>
+                <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
+                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Endereço</label>
                   <AddressForm value={address} onChange={setAddress} variant="signup" />
                 </div>
                 {selectedRole === 'professional' && (
-                  <div className="space-y-2">
-                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Especialidade / Categoria</label>
+                  <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
+                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Especialidade / Categoria</label>
                     <select
                       required
                       className="w-full h-14 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
@@ -592,8 +592,8 @@ export default function Login() {
                   </div>
                 )}
                 {selectedRole === 'professional' && (
-                  <div className="space-y-2">
-                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">
+                  <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
+                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>
                       Sobre você (opcional)
                     </label>
                     <textarea
@@ -606,7 +606,7 @@ export default function Login() {
                     />
                   </div>
                 )}
-                <button type="button" onClick={() => setAuthStep('basics')} className="flex items-center gap-2 text-[#7A9EBF] hover:text-white text-sm font-bold transition-all pt-1">
+                <button type="button" onClick={() => setAuthStep('basics')} className="flex items-center gap-2 text-[#7A9EBF] hover:text-white text-sm font-bold transition-all pt-1" style={{ marginBottom: '1rem' }}>
                   <ArrowLeft size={15} /> Voltar para o início
                 </button>
               </div>
