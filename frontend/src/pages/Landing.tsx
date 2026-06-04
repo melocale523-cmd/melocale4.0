@@ -595,9 +595,8 @@ export default function LandingPage() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6" style={{ marginBottom: '1rem' }}>
                 Quanto você quer <span className="text-emerald-500">faturar</span> este mês?
               </h2>
-              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center" style={{ marginBottom: '1rem' }}>
-                Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.
-                Escolha seu plano e comece hoje.
+              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center" style={{ marginBottom: '1rem', textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
+                Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.<br />Escolha seu plano e comece hoje.
               </p>
               <p className="text-emerald-400 text-sm font-bold mt-4 text-center" style={{ marginBottom: '1rem' }}>⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
             </div>
