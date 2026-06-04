@@ -606,9 +606,6 @@ export default function Login() {
                     />
                   </div>
                 )}
-                <button type="button" onClick={() => setAuthStep('basics')} className="flex items-center gap-2 text-[#7A9EBF] hover:text-white text-sm font-bold transition-all pt-1" style={{ marginBottom: '1rem' }}>
-                  <ArrowLeft size={15} /> Voltar para o início
-                </button>
               </div>
             )}
 
