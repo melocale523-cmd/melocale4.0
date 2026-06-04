@@ -478,7 +478,7 @@ export default function Login() {
             {authStep === 'basics' && (
               <>
                 {isSignUp && (
-                  <div className="space-y-2" style={{ marginBottom: '1rem' }}>
+                  <div className="space-y-2" style={{ marginBottom: '1.75rem' }}>
                     <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Nome Completo</label>
                     <input
                       required type="text" placeholder="João da Silva" maxLength={100}
@@ -530,7 +530,7 @@ export default function Login() {
                     );
                   })()}
                   {isSignUp && (
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-4" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
                       {[
                         { ok: formData.password.length >= 8, label: '8+ chars' },
                         { ok: /[A-Z]/.test(formData.password), label: 'Maiúscula' },
