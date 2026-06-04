@@ -57,7 +57,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
           isScrolled ? 'bg-[#0E1C32]/80 backdrop-blur-md border-[#1C3050] shadow-lg' : 'bg-transparent border-transparent'
         )}
       >
-        <div className="max-w-[1280px] mx-auto px-8 flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4" style={{ width: '100%', paddingLeft: '2rem', paddingRight: '2rem' }}>
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group shrink-0" title="Ir para a página inicial">
             <div className="w-9 h-9 md:w-10 md:h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black group-hover:scale-110 transition-transform">
