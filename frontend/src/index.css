@@ -31,7 +31,7 @@
     padding-right: 10rem;
   }
 
-  @media (max-width: 768px) {
+  @media screen and (max-width: 768px) {
     .container-app {
       padding-left: 1rem !important;
       padding-right: 1rem !important;

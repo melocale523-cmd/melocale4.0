@@ -175,10 +175,10 @@ export default function LandingPage() {
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8 max-w-full overflow-hidden">
                     <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                   </div>
-                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                  <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
                     <span className="text-white">Profissional em</span><br />
                     <span className="text-emerald-400">{userCity}?</span><br />
                     <span className="text-white">Receba clientes</span><br />
@@ -225,10 +225,10 @@ export default function LandingPage() {
               ) : (
                 /* ── Hero Cliente (padrão) ── */
                 <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8 max-w-full overflow-hidden">
                     <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
                   </div>
-                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                  <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
                     <span className="text-white">Encontre o</span><br />
                     <span className="text-blue-400">Profissional</span><br />
                     <span className="text-emerald-400">Certo</span><br />
@@ -369,7 +369,7 @@ export default function LandingPage() {
             <div className="flex flex-col lg:flex-row gap-4 items-start">
 
               {/* Coluna esquerda — 4 cards em grid 2x2 */}
-              <div className="flex flex-col gap-2 w-[85px] shrink-0 relative">
+              <div className="hidden lg:flex flex-col gap-2 w-[85px] shrink-0 relative">
                 {[
                   {
                     icon: <ShieldCheck size={14} className="text-purple-400" />,
