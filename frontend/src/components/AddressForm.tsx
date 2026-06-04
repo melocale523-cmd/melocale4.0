@@ -49,7 +49,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
     : 'w-full bg-[#0E1C32] border border-red-500/60 rounded-lg px-3 py-2.5 text-slate-200 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all';
 
   const labelClass = isSignup
-    ? 'block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1'
+    ? 'block text-xs font-black text-slate-300 uppercase tracking-widest mb-3 pl-1'
     : 'block text-[#94A3B8] text-sm mb-1';
 
   const optionalSpan = isSignup

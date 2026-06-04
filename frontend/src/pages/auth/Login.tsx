@@ -479,7 +479,7 @@ export default function Login() {
               <>
                 {isSignUp && (
                   <div className="space-y-2" style={{ marginBottom: '1.75rem' }}>
-                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Nome Completo</label>
+                    <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Nome Completo</label>
                     <input
                       required type="text" placeholder="João da Silva" maxLength={100}
                       className="w-full h-14 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
@@ -488,7 +488,7 @@ export default function Login() {
                   </div>
                 )}
                 <div className="space-y-2" style={{ marginBottom: '1rem' }}>
-                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.5rem' }}>E-mail</label>
+                  <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.5rem' }}>E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
                     className="w-full h-14 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
@@ -497,7 +497,7 @@ export default function Login() {
                 </div>
                 <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
                   <div className="flex justify-between items-center" style={{ marginBottom: '0.75rem' }}>
-                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Sua Senha</label>
+                    <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Sua Senha</label>
                     {!isSignUp && (
                       <button type="button" onClick={handleForgotPassword} className="text-[10px] font-black uppercase text-emerald-500 hover:text-emerald-400 tracking-widest transition-colors">Esqueci a senha</button>
                     )}
@@ -553,7 +553,7 @@ export default function Login() {
             {authStep === 'details' && (
               <div className="space-y-5">
                 <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
-                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>WhatsApp de Contato</label>
+                  <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>WhatsApp de Contato</label>
                   <input
                     required type="tel" placeholder="(11) 99999-9999" maxLength={20}
                     className="w-full h-14 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium"
@@ -561,12 +561,12 @@ export default function Login() {
                   />
                 </div>
                 <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
-                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Endereço</label>
+                  <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Endereço</label>
                   <AddressForm value={address} onChange={setAddress} variant="signup" />
                 </div>
                 {selectedRole === 'professional' && (
                   <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
-                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Especialidade / Categoria</label>
+                    <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Especialidade / Categoria</label>
                     <select
                       required
                       className="w-full h-14 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 transition-all font-medium appearance-none cursor-pointer"
@@ -593,7 +593,7 @@ export default function Login() {
                 )}
                 {selectedRole === 'professional' && (
                   <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
-                    <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>
+                    <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>
                       Sobre você (opcional)
                     </label>
                     <textarea
