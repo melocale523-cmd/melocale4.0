@@ -24,7 +24,7 @@ function Check({ ok }: { ok: boolean }) {
 export default function CompetitorTable(_props: { userCity?: string }) {
   return (
     <>
-      <div>
+      <div className="mx-auto" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Desktop table */}
         <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 max-w-3xl mx-auto">
