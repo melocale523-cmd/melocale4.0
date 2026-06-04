@@ -423,7 +423,7 @@ export default function LandingPage() {
           <div className="container-app">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center">
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem' }}>
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
                 <p className="text-sm text-[#94A3B8] mt-2">Profissionais cadastrados</p>
@@ -439,11 +439,11 @@ export default function LandingPage() {
             </div>
 
             {/* Depoimentos */}
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-6 mt-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-6 mt-8" style={{ marginBottom: '2rem' }}>
               Quem usa, <span className="text-emerald-400">recomenda</span>
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8" style={{ marginBottom: '2rem' }}>
               {/* Depoimento 1 — Carlos (profissional) */}
               <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
@@ -510,12 +510,13 @@ export default function LandingPage() {
 
             {/* CTA pós-depoimentos */}
             <div className="mt-12 text-center">
-              <p className="text-slate-400 text-sm mb-4">
+              <p className="text-slate-400 text-sm mb-4" style={{ marginBottom: '1rem' }}>
                 Junte-se a <strong className="text-white">371+ profissionais</strong> e <strong className="text-white">1.200+ clientes</strong> que já usam o MeloCalé
               </p>
               <Link
                 to="/login?mode=signup"
                 className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
+                style={{ marginBottom: '1rem' }}
               >
                 {isProfissional ? 'Quero Receber Clientes Agora →' : 'Quero Encontrar um Profissional →'}
               </Link>
