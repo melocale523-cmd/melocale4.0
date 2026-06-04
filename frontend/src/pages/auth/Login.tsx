@@ -288,10 +288,10 @@ export default function Login() {
     <div className="w-full">
       {/* CABEÇALHO */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight" style={{ marginBottom: '0.5rem' }}>
           {selectedRole === 'admin' ? 'Acesso Restrito' : (isSignUp ? 'Criar nova conta' : 'Bem-vindo de volta')}
         </h1>
-        <p className="text-[#7A9EBF] font-medium text-sm sm:text-base">
+        <p className="text-[#7A9EBF] font-medium text-sm sm:text-base" style={{ marginBottom: '1.5rem' }}>
           {selectedRole === 'admin' ? 'Apenas administradores autorizados' : (isSignUp ? 'Comece agora sua jornada no MeloCalé' : 'Sentimos sua falta! Entre para continuar.')}
         </p>
       </div>
@@ -370,11 +370,12 @@ export default function Login() {
           ) : (
             <>
               {/* Botões de login */}
-              <div className="flex flex-col gap-3 mb-6">
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '1.5rem' }}>
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
-                  className="w-full h-14 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-3 shadow-lg"
+                  className="h-14 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-3 shadow-lg"
+                  style={{ flex: 1 }}
                 >
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -382,12 +383,13 @@ export default function Login() {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"/>
                   </svg>
-                  Entrar como Cliente
+                  Cliente (Google)
                 </button>
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
-                  className="w-full h-14 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-3 shadow-lg"
+                  className="h-14 bg-white hover:bg-slate-100 text-[#0E1C32] rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-3 shadow-lg"
+                  style={{ flex: 1 }}
                 >
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -395,14 +397,14 @@ export default function Login() {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"/>
                   </svg>
-                  Entrar como Profissional
+                  Profissional (Google)
                 </button>
               </div>
             </>
           )}
 
           {/* Divisor */}
-          <div className="relative my-7">
+          <div className="relative my-7" style={{ marginBottom: '1rem' }}>
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#1C3050]"></div></div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black">
               <span className="bg-[#0E1C32] px-4 text-[#94A3B8]">Ou use seu e-mail</span>
@@ -431,7 +433,7 @@ export default function Login() {
 
       {/* SELETOR DE ROLE */}
       {selectedRole !== 'admin' && (
-        <div className="mb-7">
+        <div className="mb-7" style={{ marginBottom: '1rem' }}>
           <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-3">
             {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
           </p>
@@ -483,7 +485,7 @@ export default function Login() {
                     />
                   </div>
                 )}
-                <div className="space-y-2">
+                <div className="space-y-2" style={{ marginBottom: '1rem' }}>
                   <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
@@ -491,7 +493,7 @@ export default function Login() {
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
                   <div className="flex justify-between items-center">
                     <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Sua Senha</label>
                     {!isSignUp && (
@@ -608,7 +610,7 @@ export default function Login() {
               </div>
             )}
 
-            <div className="pt-3">
+            <div className="pt-3" style={{ marginBottom: '1rem' }}>
               <button
                 disabled={isSubmitting}
                 type="submit"
