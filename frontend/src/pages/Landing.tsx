@@ -588,7 +588,7 @@ export default function LandingPage() {
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="container-app">
 
-            <div className="text-center mb-12 mx-auto max-w-3xl">
+            <div className="text-center mb-12 mx-auto max-w-3xl" style={{ textAlign: 'center' }}>
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5" style={{ marginBottom: '1rem' }}>
                 🔥 Oferta por tempo limitado
               </div>
@@ -610,7 +610,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ancoragem de preço psicológica */}
-            <div className="max-w-4xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ marginBottom: '1.5rem' }}>
+            <div className="max-w-6xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ marginBottom: '1.5rem', marginLeft: 'auto', marginRight: 'auto', maxWidth: '72rem' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">☕</span>
                 <div>
