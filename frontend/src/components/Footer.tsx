@@ -54,7 +54,7 @@ export default function Footer() {
               </div>
               <span className="text-white font-black text-lg">MeloCalé</span>
             </div>
-            <p className="text-[#4A6580] text-sm leading-relaxed mb-4" style={{ marginBottom: '1rem' }}>
+            <p className="text-[#4A6580] text-sm leading-relaxed mb-4" style={{ marginBottom: '1.5rem', marginTop: '0.75rem' }}>
               A plataforma de serviços domésticos feita para o interior da Bahia.
             </p>
             {/* Redes sociais */}
