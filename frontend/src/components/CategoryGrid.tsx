@@ -20,17 +20,16 @@ export default function CategoryGrid({ userCity }: Props) {
     <section className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
       <div className="container-app">
 
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-10">
+        <div className="text-center" style={{ marginBottom: '4rem' }}>
+          <h2 className="text-3xl md:text-4xl font-bold text-white" style={{ marginBottom: '1.5rem' }}>
             Serviços disponíveis em <span className="text-emerald-400">{userCity}</span>
           </h2>
-          <p className="text-base leading-relaxed text-[#94A3B8] mb-6">
+          <p className="text-base leading-relaxed text-[#94A3B8]" style={{ marginBottom: '0.5rem' }}>
             Encontre o profissional certo para cada necessidade
           </p>
         </div>
 
-        {/* Grid 4x2 desktop / 2x4 mobile */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '3rem' }}>
           {categories.map(cat => (
             <Link
               key={cat.slug}
@@ -47,14 +46,13 @@ export default function CategoryGrid({ userCity }: Props) {
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-slate-400 mb-3">
+        <div className="text-center">
+          <p className="text-sm text-slate-400" style={{ marginBottom: '1rem' }}>
             Não encontrou o que precisa?
           </p>
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base font-bold shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide mt-2"
+            className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base font-bold shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide"
           >
             Ver todos os serviços →
           </Link>
