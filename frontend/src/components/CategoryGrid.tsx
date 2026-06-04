@@ -20,16 +20,16 @@ export default function CategoryGrid({ userCity }: Props) {
     <section className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
       <div className="container-app">
 
-        <div className="text-center" style={{ marginBottom: '4rem' }}>
-          <h2 className="text-3xl md:text-4xl font-bold text-white" style={{ marginBottom: '1.5rem' }}>
+        <div className="text-center" style={{ marginBottom: '6rem' }}>
+          <h2 className="text-3xl md:text-4xl font-bold text-white" style={{ marginBottom: '2rem' }}>
             Serviços disponíveis em <span className="text-emerald-400">{userCity}</span>
           </h2>
-          <p className="text-base leading-relaxed text-[#94A3B8]" style={{ marginBottom: '0.5rem' }}>
+          <p className="text-base leading-relaxed text-[#94A3B8]" style={{ marginBottom: '0rem' }}>
             Encontre o profissional certo para cada necessidade
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '3rem' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '4rem' }}>
           {categories.map(cat => (
             <Link
               key={cat.slug}
@@ -47,7 +47,7 @@ export default function CategoryGrid({ userCity }: Props) {
         </div>
 
         <div className="text-center">
-          <p className="text-sm text-slate-400" style={{ marginBottom: '1rem' }}>
+          <p className="text-sm text-slate-400" style={{ marginBottom: '1.5rem' }}>
             Não encontrou o que precisa?
           </p>
           <Link
