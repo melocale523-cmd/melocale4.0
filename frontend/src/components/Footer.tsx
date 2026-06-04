@@ -41,24 +41,24 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0B1729] border-t border-slate-800/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-[#0B1729] border-t border-slate-800/50" style={{ width: '100%', paddingLeft: '4rem', paddingRight: '4rem' }}>
+      <div className="py-12">
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 md:mb-12">
 
           {/* Marca */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1" style={{ marginBottom: '1.5rem' }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
                 <span className="text-black font-black text-sm">M</span>
               </div>
               <span className="text-white font-black text-lg">MeloCalé</span>
             </div>
-            <p className="text-[#4A6580] text-sm leading-relaxed mb-4">
+            <p className="text-[#4A6580] text-sm leading-relaxed mb-4" style={{ marginBottom: '1.5rem', marginTop: '0.75rem' }}>
               A plataforma de serviços domésticos feita para o interior da Bahia.
             </p>
             {/* Redes sociais */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4" style={{ marginBottom: '1rem' }}>
               {socials.map(s => (
                 <a
                   key={s.name}
@@ -76,30 +76,30 @@ export default function Footer() {
 
           {/* Plataforma */}
           <div>
-            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-4">Plataforma</h4>
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-4" style={{ marginBottom: '1rem' }}>Plataforma</h4>
             <ul className="space-y-2.5">
-              <li><Link to="/login?mode=signup&role=client" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Buscar Profissionais</Link></li>
-              <li><Link to="/login?mode=signup&role=professional" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Ser um Profissional</Link></li>
-              <li><a href="#planos" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Planos e Preços</a></li>
-              <li><a href="#como-funciona" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Como Funciona</a></li>
+              <li style={{ marginBottom: '0.5rem' }}><Link to="/login?mode=signup&role=client" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Buscar Profissionais</Link></li>
+              <li style={{ marginBottom: '0.5rem' }}><Link to="/login?mode=signup&role=professional" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Ser um Profissional</Link></li>
+              <li style={{ marginBottom: '0.5rem' }}><a href="#planos" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Planos e Preços</a></li>
+              <li style={{ marginBottom: '0.5rem' }}><a href="#como-funciona" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Como Funciona</a></li>
             </ul>
           </div>
 
           {/* Legal & Segurança */}
           <div>
-            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-4">Legal & Segurança</h4>
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-4" style={{ marginBottom: '1rem' }}>Legal & Segurança</h4>
             <ul className="space-y-2.5">
-              <li><Link to="/termos" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Termos de Uso</Link></li>
-              <li><Link to="/privacidade" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Política de Privacidade</Link></li>
-              <li><Link to="/seguranca" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Segurança</Link></li>
+              <li style={{ marginBottom: '0.5rem' }}><Link to="/termos" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Termos de Uso</Link></li>
+              <li style={{ marginBottom: '0.5rem' }}><Link to="/privacidade" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Política de Privacidade</Link></li>
+              <li style={{ marginBottom: '0.5rem' }}><Link to="/seguranca" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">Segurança</Link></li>
             </ul>
           </div>
 
           {/* Suporte */}
           <div>
-            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-4">Suporte</h4>
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-4" style={{ marginBottom: '1rem' }}>Suporte</h4>
             <ul className="space-y-2.5">
-              <li>
+              <li style={{ marginBottom: '0.5rem' }}>
                 <a
                   href="https://wa.me/5574999215307?text=Olá,%20preciso%20de%20ajuda%20com%20o%20MeloCalé"
                   target="_blank"
@@ -112,14 +112,14 @@ export default function Footer() {
                   WhatsApp Suporte
                 </a>
               </li>
-              <li><a href="mailto:contato@melocale.com.br" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">contato@melocale.com.br</a></li>
+              <li style={{ marginBottom: '0.5rem' }}><a href="mailto:contato@melocale.com.br" className="text-[#4A6580] hover:text-slate-300 text-sm transition-colors">contato@melocale.com.br</a></li>
             </ul>
           </div>
 
         </div>
 
         {/* Linha inferior */}
-        <div className="pt-8 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="pt-8 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ marginTop: '2rem', paddingTop: '1.5rem' }}>
           <p className="text-[#4A6580] text-xs text-center sm:text-left">
             © 2025 MeloCalé. Todos os direitos reservados.
           </p>

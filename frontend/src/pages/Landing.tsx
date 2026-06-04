@@ -171,7 +171,7 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-10 items-start">
 
             {/* ── Coluna esquerda ── */}
-            <div>
+            <div className="">
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
@@ -234,7 +234,7 @@ export default function LandingPage() {
                     <span className="text-emerald-400">Certo</span><br />
                     <span className="text-white">Perto de Você</span>
                   </h1>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-8">
+                  <p className="text-base leading-relaxed text-[#94A3B8] mb-16" style={{ lineHeight: '2rem', paddingBottom: '1.5rem' }}>
                     Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
                   </p>
 
@@ -249,80 +249,104 @@ export default function LandingPage() {
                     <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
                   </div>
 
-                  <div className="hidden sm:flex flex-col sm:flex-row gap-5 mb-10 justify-center">
-                    <div className="flex flex-col">
+                  <div className="hidden sm:flex flex-col gap-0 mb-10">
+                    <div className="flex flex-row gap-5">
                       <Link
                         to="/login?mode=signup&role=client"
                         className="h-16 inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-base font-bold transition-colors text-center"
                       >
                         Encontrar Profissional em {userCity} →
                       </Link>
-                      <p className="text-xs text-slate-500 text-center mt-1.5">Grátis • Até 5 orçamentos em minutos</p>
+                      <a
+                        href="#como-funciona"
+                        className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-center"
+                      >
+                        Ver Como Funciona
+                      </a>
                     </div>
-                    <a
-                      href="#como-funciona"
-                      className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-start"
-                    >
-                      Ver Como Funciona
-                    </a>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800 mt-6">
-                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
-                      <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={16} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Transações protegidas</p>
-                    </div>
-                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
-                      <div className="flex items-center justify-center text-yellow-500 mb-2"><Zap size={16} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Profissionais prontos</p>
-                    </div>
-                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
-                      <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={16} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Identidade confirmada</p>
-                    </div>
+                    <p className="text-sm text-emerald-400 font-bold text-center w-full" style={{ marginTop: '0.75rem' }}>✓ Grátis • Até 5 orçamentos em minutos</p>
                   </div>
                 </>
             )}
             </div>{/* fim coluna esquerda */}
 
             {/* ── Coluna direita — cards ── */}
-            <div className="hidden lg:flex flex-col gap-4">
+            <div className="hidden lg:flex flex-col gap-4 w-full">
               {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-7">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-4"><Briefcase size={20} className="text-emerald-400" /></div>
-                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">Para Profissionais</p>
-                <h3 className="text-white font-bold text-lg mb-2">Aumente sua renda com leads qualificados</h3>
-                <ul className="space-y-3 mb-6 text-slate-300 text-sm">
+              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute -bottom-6 -right-6 opacity-[0.12] pointer-events-none">
+                  <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
+                    <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-10-2h4v2h-4V5zm10 13H4V9h16v9z"/>
+                  </svg>
+                </div>
+                <div className="absolute -top-4 -left-4 opacity-[0.05] pointer-events-none rotate-12">
+                  <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
+                    <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-10-2h4v2h-4V5zm10 13H4V9h16v9z"/>
+                  </svg>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><Briefcase size={16} className="text-emerald-400" /></div>
+                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Profissionais</p>
+                <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Aumente sua renda com leads qualificados</h3>
+                <ul className="text-slate-300 text-xs" style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Comece grátis, sem compromisso</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Leads prontos para contratar</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Você controla seus preços</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Planos a partir de R$37/mês</li>
                 </ul>
-                <Link to="/login?mode=signup&role=professional" className="h-12 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-xl text-sm transition-all">
+                <Link to="/login?mode=signup&role=professional" className="h-9 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-lg text-xs transition-all">
                   CADASTRE-SE JÁ →
                 </Link>
               </div>
 
               {/* Card Para Clientes */}
-              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-7">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4"><User size={20} className="text-blue-400" /></div>
-                <p className="text-blue-400 text-xs font-black uppercase tracking-widest mb-4">Para Clientes</p>
-                <h3 className="text-white font-bold text-lg mb-2">Encontre o profissional ideal rapidamente</h3>
-                <ul className="space-y-3 mb-6 text-slate-300 text-sm">
+              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute -bottom-6 -right-6 opacity-[0.12] pointer-events-none">
+                  <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
+                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/>
+                  </svg>
+                </div>
+                <div className="absolute -top-4 -left-4 opacity-[0.05] pointer-events-none -rotate-12">
+                  <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
+                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/>
+                  </svg>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><User size={16} className="text-blue-400" /></div>
+                <p className="text-blue-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Clientes</p>
+                <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Encontre o profissional ideal rapidamente</h3>
+                <ul className="text-slate-300 text-xs" style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Profissionais verificados e avaliados</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Receba até 5 orçamentos grátis</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Compare e escolha o melhor</li>
                   <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Contratação 100% segura</li>
                 </ul>
-                <Link to="/login?mode=signup&role=client" className="h-12 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-sm transition-all">
+                <Link to="/login?mode=signup&role=client" className="h-9 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-black rounded-lg text-xs transition-all">
                   CADASTRE-SE JÁ →
                 </Link>
               </div>
             </div>{/* fim coluna direita */}
 
             </div>{/* fim grid */}
+
+            {/* ── Mini cards largura total ── */}
+            {!isProfissional && (
+              <div className="grid grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
+                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
+                  <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
+                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
+                  <p className="text-xs text-slate-400 mt-1">Transações protegidas</p>
+                </div>
+                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
+                  <div className="flex items-center justify-center text-yellow-500 mb-2"><Zap size={18} /></div>
+                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
+                  <p className="text-xs text-slate-400 mt-1">Profissionais prontos</p>
+                </div>
+                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
+                  <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={18} /></div>
+                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
+                  <p className="text-xs text-slate-400 mt-1">Identidade confirmada</p>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
@@ -332,52 +356,61 @@ export default function LandingPage() {
         {/* Live Counter */}
         <LiveCounter userCity={userCity} />
 
-        {/* ── Por que escolher o MeloCalé ── */}
-        <section className="py-24 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="container-app">
-            <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-                Por que escolher o <span className="text-emerald-400">MeloCalé?</span>
+        {/* ── Por que escolher + Tabela comparativa ── */}
+        <section className="py-16 bg-[#0B1729] border-t border-slate-800/50">
+          <div className="container-app" style={{ paddingLeft: '20rem' }}>
+            {/* Título único */}
+            <div className="text-center" style={{ marginBottom: '4rem' }}>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> —<br className="hidden lg:block" /> rápido, seguro e perto de você
               </h2>
-              <p className="text-[#94A3B8] text-base max-w-xl mx-auto text-center">
-                A melhor plataforma para contratar profissionais qualificados
-              </p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  icon: <ShieldCheck size={28} className="text-purple-400" />,
-                  bg: 'bg-purple-500/10',
-                  title: 'Profissionais Verificados',
-                  desc: 'Todos os profissionais passam por verificação de documentos e avaliações',
-                },
-                {
-                  icon: <Zap size={28} className="text-emerald-400" />,
-                  bg: 'bg-emerald-500/10',
-                  title: 'Atendimento Rápido',
-                  desc: 'Receba orçamentos em minutos e agende serviços rapidamente',
-                },
-                {
-                  icon: <MapPin size={28} className="text-blue-400" />,
-                  bg: 'bg-blue-500/10',
-                  title: 'Perto de Você',
-                  desc: `Profissionais qualificados nos melhores bairros de ${userCity}`,
-                },
-                {
-                  icon: <ShieldCheck size={28} className="text-emerald-400" />,
-                  bg: 'bg-emerald-500/10',
-                  title: 'Pagamento Seguro',
-                  desc: 'Múltiplas opções de pagamento com garantia e proteção',
-                },
-              ].map((item, i) => (
-                <div key={i} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-8 flex flex-col gap-4">
-                  <div className={`w-12 h-12 rounded-xl ${item.bg} flex items-center justify-center`}>
-                    {item.icon}
+
+            <div className="flex gap-4 items-start">
+
+              {/* Coluna esquerda — 4 cards em grid 2x2 */}
+              <div className="flex flex-col gap-2 w-[85px] shrink-0 relative">
+                {[
+                  {
+                    icon: <ShieldCheck size={14} className="text-purple-400" />,
+                    bg: 'bg-purple-500/10',
+                    title: 'Profissionais Verificados',
+                    desc: 'Todos os profissionais passam por verificação de documentos e avaliações',
+                  },
+                  {
+                    icon: <Zap size={14} className="text-emerald-400" />,
+                    bg: 'bg-emerald-500/10',
+                    title: 'Atendimento Rápido',
+                    desc: 'Receba orçamentos em minutos e agende serviços rapidamente',
+                  },
+                  {
+                    icon: <MapPin size={14} className="text-blue-400" />,
+                    bg: 'bg-blue-500/10',
+                    title: 'Perto de Você',
+                    desc: `Profissionais qualificados nos melhores bairros de ${userCity}`,
+                  },
+                  {
+                    icon: <ShieldCheck size={14} className="text-emerald-400" />,
+                    bg: 'bg-emerald-500/10',
+                    title: 'Pagamento Seguro',
+                    desc: 'Múltiplas opções de pagamento com garantia e proteção',
+                  },
+                ].map((item, i) => (
+                  <div key={i} className="bg-[#0D2318] border border-emerald-500/70 rounded-lg p-2 flex flex-col items-center justify-center gap-1.5 aspect-square shadow-[0_0_16px_rgba(16,185,129,0.35)]">
+                    <div className={`w-7 h-7 rounded-md ${item.bg} flex items-center justify-center`}>
+                      {item.icon}
+                    </div>
+                    <h3 className="text-white font-bold text-[10px] text-center leading-tight">{item.title}</h3>
                   </div>
-                  <h3 className="text-white font-bold text-base">{item.title}</h3>
-                  <p className="text-[#94A3B8] text-sm leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
+                ))}
+
+              </div>
+
+              {/* Coluna direita — tabela comparativa inline */}
+              <div className="flex-1">
+                <Suspense fallback={null}><CompetitorTable /></Suspense>
+              </div>
+
             </div>
           </div>
         </section>
@@ -390,7 +423,7 @@ export default function LandingPage() {
           <div className="container-app">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center">
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
               <div>
                 <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
                 <p className="text-sm text-[#94A3B8] mt-2">Profissionais cadastrados</p>
@@ -406,11 +439,11 @@ export default function LandingPage() {
             </div>
 
             {/* Depoimentos */}
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-6 mt-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-6 mt-8" style={{ marginBottom: '2rem' }}>
               Quem usa, <span className="text-emerald-400">recomenda</span>
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8" style={{ marginBottom: '2rem' }}>
               {/* Depoimento 1 — Carlos (profissional) */}
               <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
@@ -477,16 +510,17 @@ export default function LandingPage() {
 
             {/* CTA pós-depoimentos */}
             <div className="mt-12 text-center">
-              <p className="text-slate-400 text-sm mb-4">
+              <p className="text-slate-400 text-sm mb-4" style={{ marginBottom: '1rem' }}>
                 Junte-se a <strong className="text-white">371+ profissionais</strong> e <strong className="text-white">1.200+ clientes</strong> que já usam o MeloCalé
               </p>
               <Link
                 to="/login?mode=signup"
                 className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
+                style={{ marginBottom: '1rem' }}
               >
                 {isProfissional ? 'Quero Receber Clientes Agora →' : 'Quero Encontrar um Profissional →'}
               </Link>
-              <p className="text-[11px] text-slate-500 mt-4">✓ Cadastro grátis • ✓ Sem cartão de crédito</p>
+              <p className="text-[11px] text-slate-300 mt-4">✓ Cadastro grátis • ✓ Sem cartão de crédito</p>
             </div>
           </div>
         </section>
@@ -494,20 +528,18 @@ export default function LandingPage() {
         {/* ── Calculadora de Ganhos (clientes) ── */}
         {!isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
-        {/* ── Por que escolher + Comparativo com concorrentes ── */}
-        <Suspense fallback={null}><CompetitorTable userCity={userCity} /></Suspense>
 
         {/* ── Como Funciona ── */}
         <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="container-app">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Como funciona?</h2>
-              <p className="text-[#94A3B8] text-base text-center max-w-2xl mx-auto w-full">Três passos simples para contratar o profissional ideal</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3" style={{ marginBottom: '1rem' }}>Como funciona?</h2>
+              <p className="text-[#94A3B8] text-base text-center max-w-2xl mx-auto w-full" style={{ marginBottom: '3rem', textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>Três passos simples para contratar o profissional ideal</p>
             </div>
             <div className="relative">
               {/* Connector line — desktop only */}
               <div className="hidden lg:block absolute top-10 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-              <div className="grid lg:grid-cols-3 gap-10 relative w-full">
+              <div className="grid lg:grid-cols-3 gap-10 relative w-full" style={{ marginBottom: '1.5rem' }}>
                 {[
                   {
                     num: '01',
@@ -530,12 +562,12 @@ export default function LandingPage() {
                 ].map((step, i) => (
                   <div key={i} className="flex flex-col items-center text-center gap-5">
                     <div className="relative w-20 h-20 rounded-full bg-[#1C3454] border border-slate-700 flex items-center justify-center z-10">
-                      <span className="text-slate-500 text-xs font-bold absolute -top-2 -right-1 bg-[#0E1C32] px-1">{step.num}</span>
+                      <span className="text-white text-xs font-bold absolute -top-2 -right-1 bg-[#0E1C32] px-1" style={{ color: '#FFFFFF' }}>{step.num}</span>
                       {step.icon}
                     </div>
                     <div>
                       <h3 className="text-white font-bold text-lg mb-2">{step.title}</h3>
-                      <p className="text-[#94A3B8] text-sm leading-relaxed max-w-sm mx-auto">{step.desc}</p>
+                      <p className="text-[#94A3B8] text-sm leading-relaxed max-w-sm mx-auto" style={{ marginBottom: '1rem' }}>{step.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -556,21 +588,20 @@ export default function LandingPage() {
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="container-app">
 
-            <div className="text-center mb-12 mx-auto max-w-3xl">
-              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5">
+            <div className="text-center mb-12" style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto', maxWidth: '48rem' }}>
+              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5" style={{ marginBottom: '1rem' }}>
                 🔥 Oferta por tempo limitado
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6" style={{ marginBottom: '1rem' }}>
                 Quanto você quer <span className="text-emerald-500">faturar</span> este mês?
               </h2>
-              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center">
-                Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.
-                Escolha seu plano e comece hoje.
+              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center" style={{ marginBottom: '1rem', textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
+                Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.<br />Escolha seu plano e comece hoje.
               </p>
-              <p className="text-emerald-400 text-sm font-bold mt-4 text-center">⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
+              <p className="text-emerald-400 text-sm font-bold mt-4 text-center" style={{ marginBottom: '1rem' }}>⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
             </div>
 
-            <div className="flex justify-center mb-10">
+            <div className="flex justify-center mb-10" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-3">
                 <span className="text-emerald-400 text-xl">🛡️</span>
                 <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
@@ -578,7 +609,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ancoragem de preço psicológica */}
-            <div className="max-w-4xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="max-w-6xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ marginBottom: '1.5rem', marginLeft: 'auto', marginRight: 'auto', maxWidth: '72rem' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">☕</span>
                 <div>
@@ -602,7 +633,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
 
               {/* GRATUITO */}
               <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
@@ -712,7 +743,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ancoragem de ROI */}
-            <div className="max-w-3xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-10 text-center">
+            <div className="max-w-3xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-10 text-center" style={{ marginBottom: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
               <p className="text-[#94A3B8] text-sm mb-4">💡 Pense assim:</p>
               <p className="text-white text-xl font-bold mb-4">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>

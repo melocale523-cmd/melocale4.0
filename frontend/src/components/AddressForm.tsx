@@ -49,7 +49,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
     : 'w-full bg-[#0E1C32] border border-red-500/60 rounded-lg px-3 py-2.5 text-slate-200 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all';
 
   const labelClass = isSignup
-    ? 'block text-xs font-black text-[#7A9EBF] uppercase tracking-widest mb-3 pl-1'
+    ? 'block text-xs font-black text-slate-300 uppercase tracking-widest mb-3 pl-1'
     : 'block text-[#94A3B8] text-sm mb-1';
 
   const optionalSpan = isSignup
@@ -105,10 +105,10 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
   };
 
   return (
-    <div className="space-y-9">
+    <div className="space-y-0">
       {/* CEP */}
-      <div>
-        <label className={labelClass}>
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label className={labelClass} style={{ marginBottom: '0.5rem' }}>
           CEP{autoFillHint}
         </label>
         <div className="relative">
@@ -133,9 +133,9 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Rua + Número */}
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-3 gap-8" style={{ marginBottom: '1.25rem' }}>
         <div className="col-span-2">
-          <label className={labelClass}>Rua / Logradouro</label>
+          <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Rua / Logradouro</label>
           <input
             type="text"
             maxLength={200}
@@ -146,7 +146,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
           />
         </div>
         <div>
-          <label className={labelClass}>Número</label>
+          <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Número</label>
           <input
             type="text"
             maxLength={20}
@@ -159,9 +159,9 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Quadra + Complemento */}
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-2 gap-8" style={{ marginBottom: '1.25rem' }}>
         <div>
-          <label className={labelClass}>Quadra{optionalSpan}</label>
+          <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Quadra{optionalSpan}</label>
           <input
             type="text"
             maxLength={20}
@@ -172,7 +172,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
           />
         </div>
         <div>
-          <label className={labelClass}>Complemento{optionalSpan}</label>
+          <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Complemento{optionalSpan}</label>
           <input
             type="text"
             maxLength={100}
@@ -185,8 +185,8 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Bairro */}
-      <div>
-        <label className={labelClass}>Bairro</label>
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Bairro</label>
         <input
           type="text"
           maxLength={100}
@@ -198,9 +198,9 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
       </div>
 
       {/* Cidade + Estado */}
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-3 gap-8" style={{ marginBottom: '1.25rem' }}>
         <div className="col-span-2">
-          <label className={labelClass}>Cidade</label>
+          <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Cidade</label>
           <input
             type="text"
             maxLength={100}
@@ -216,7 +216,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
           )}
         </div>
         <div>
-          <label className={labelClass}>Estado</label>
+          <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Estado</label>
           <input
             type="text"
             maxLength={2}

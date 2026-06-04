@@ -39,24 +39,24 @@ export default function EarningsCalculator() {
   const profitPro = extra - 67
 
   return (
-    <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
+    <section className="py-12 bg-[#0B1729] border-t border-slate-800/50" style={{ textAlign: 'center' }}>
       <div className="container-app">
 
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">
-            <TrendingUp size={14} />
+        <div className="text-center mb-6 w-full" style={{ textAlign: 'center' }}>
+          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-3" style={{ marginBottom: '1rem' }}>
+            <TrendingUp size={12} />
             Calculadora de Ganhos
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3" style={{ marginBottom: '1.5rem' }}>
             Quanto você pode ganhar com o <span className="text-emerald-400">MeloCalé</span>?
           </h2>
         </div>
 
-        <div className="bg-[#1C3454] border border-slate-700/50 rounded-3xl p-10 space-y-8">
+        <div className="bg-[#1C3454] border border-slate-700/50 rounded-2xl p-6 space-y-5 max-w-2xl mx-auto" style={{ paddingTop: '2rem', paddingBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
 
           {/* Slider A */}
-          <div>
+          <div style={{ marginBottom: '1.5rem' }}>
             <div className="flex justify-between items-center mb-3">
               <label className="text-sm font-bold text-slate-300">Quantos serviços você faz por mês?</label>
               <span className="text-emerald-400 font-extrabold text-lg min-w-[2.5rem] text-right">{services}</span>
@@ -68,7 +68,7 @@ export default function EarningsCalculator() {
           </div>
 
           {/* Slider B */}
-          <div>
+          <div style={{ marginBottom: '1.5rem' }}>
             <div className="flex justify-between items-center mb-3">
               <label className="text-sm font-bold text-slate-300">Ticket médio por serviço (R$)</label>
               <span className="text-blue-400 font-extrabold text-lg min-w-[4rem] text-right">R${fmt(ticket)}</span>
@@ -81,7 +81,7 @@ export default function EarningsCalculator() {
 
           {/* Results */}
           <div className="bg-[#0d1f35] rounded-2xl p-5 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4" style={{ marginBottom: '1rem' }}>
               <div className="text-center p-3 rounded-xl bg-slate-800/40">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Renda atual estimada</p>
                 <p className="text-white font-extrabold text-xl">R${fmt(current)}/mês</p>
@@ -93,15 +93,15 @@ export default function EarningsCalculator() {
             </div>
 
             {/* Destaque principal */}
-            <div className="text-center py-4 border-t border-slate-700/50">
+            <div className="text-center py-2 border-t border-slate-700/50" style={{ marginBottom: '1rem' }}>
               <p className="text-sm text-slate-400 mb-1">Ganho extra potencial</p>
-              <p key={extra} className="number-pop text-4xl md:text-5xl font-extrabold text-emerald-400">
+              <p key={extra} className="number-pop text-3xl md:text-4xl font-extrabold text-emerald-400">
                 +R${fmt(extra)}/mês
               </p>
             </div>
 
             {/* ROI do plano PRO */}
-            <div className="text-center text-sm text-slate-400 bg-emerald-500/5 border border-emerald-500/15 rounded-xl py-3 px-4">
+            <div className="text-center text-sm text-slate-400 bg-emerald-500/5 border border-emerald-500/15 rounded-xl py-3 px-4" style={{ marginBottom: '1.5rem' }}>
               Com plano PRO (R$67/mês) você teria lucro de{' '}
               <span key={profitPro} className={`number-pop font-extrabold ${profitPro >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                 R${fmt(Math.abs(profitPro))}{profitPro >= 0 ? '' : ' (negativo)'}
@@ -113,11 +113,12 @@ export default function EarningsCalculator() {
           {/* CTA */}
           <Link
             to="/login?mode=signup&role=professional"
-            className="inline-flex items-center justify-center w-full h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            style={{ marginBottom: '1rem' }}
           >
             Quero ganhar R${fmt(extra)}/mês →
           </Link>
-          <p className="text-xs text-slate-500 text-center -mt-4">Grátis para começar • Resultado baseado em 30% mais clientes via plataforma</p>
+          <p className="text-xs text-center -mt-4" style={{ color: '#E2E8F0', marginTop: '0.5rem' }}>Grátis para começar • Resultado baseado em 30% mais clientes via plataforma</p>
         </div>
       </div>
     </section>
