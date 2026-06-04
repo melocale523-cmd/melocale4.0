@@ -43,8 +43,8 @@ export default function EarningsCalculator() {
       <div className="container-app" style={{ paddingLeft: '28rem' }}>
 
         {/* Header */}
-        <div className="text-center mb-6 w-full">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-3" style={{ marginBottom: '1rem' }}>
+        <div className="text-center mb-6 w-full" style={{ textAlign: 'center' }}>
+          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-3" style={{ marginBottom: '1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
             <TrendingUp size={12} />
             Calculadora de Ganhos
           </div>
@@ -118,7 +118,7 @@ export default function EarningsCalculator() {
           >
             Quero ganhar R${fmt(extra)}/mês →
           </Link>
-          <p className="text-xs text-center -mt-4" style={{ color: '#94A3B8', marginTop: '0.5rem' }}>Grátis para começar • Resultado baseado em 30% mais clientes via plataforma</p>
+          <p className="text-xs text-center -mt-4" style={{ color: '#E2E8F0', marginTop: '0.5rem' }}>Grátis para começar • Resultado baseado em 30% mais clientes via plataforma</p>
         </div>
       </div>
     </section>
