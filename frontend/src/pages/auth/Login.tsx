@@ -288,10 +288,10 @@ export default function Login() {
     <div className="w-full">
       {/* CABEÇALHO */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight" style={{ marginBottom: '0.5rem' }}>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight" style={{ marginBottom: '0.75rem' }}>
           {selectedRole === 'admin' ? 'Acesso Restrito' : (isSignUp ? 'Criar nova conta' : 'Bem-vindo de volta')}
         </h1>
-        <p className="text-[#7A9EBF] font-medium text-sm sm:text-base" style={{ marginBottom: '1.5rem' }}>
+        <p className="text-[#7A9EBF] font-medium text-sm sm:text-base" style={{ marginBottom: '2rem' }}>
           {selectedRole === 'admin' ? 'Apenas administradores autorizados' : (isSignUp ? 'Comece agora sua jornada no MeloCalé' : 'Sentimos sua falta! Entre para continuar.')}
         </p>
       </div>
@@ -370,7 +370,7 @@ export default function Login() {
           ) : (
             <>
               {/* Botões de login */}
-              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '2rem' }}>
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
@@ -404,7 +404,7 @@ export default function Login() {
           )}
 
           {/* Divisor */}
-          <div className="relative my-7" style={{ marginBottom: '1rem' }}>
+          <div className="relative my-7" style={{ marginBottom: '1.5rem' }}>
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#1C3050]"></div></div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black">
               <span className="bg-[#0E1C32] px-4 text-[#94A3B8]">Ou use seu e-mail</span>
@@ -433,7 +433,7 @@ export default function Login() {
 
       {/* SELETOR DE ROLE */}
       {selectedRole !== 'admin' && (
-        <div className="mb-7" style={{ marginBottom: '1rem' }}>
+        <div className="mb-7" style={{ marginBottom: '1.5rem' }}>
           <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-3">
             {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
           </p>
@@ -485,7 +485,7 @@ export default function Login() {
                     />
                   </div>
                 )}
-                <div className="space-y-2" style={{ marginBottom: '1rem' }}>
+                <div className="space-y-2" style={{ marginBottom: '1.25rem' }}>
                   <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
@@ -493,7 +493,7 @@ export default function Login() {
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
-                <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
+                <div className="space-y-2" style={{ marginBottom: '2rem' }}>
                   <div className="flex justify-between items-center">
                     <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Sua Senha</label>
                     {!isSignUp && (
@@ -610,7 +610,7 @@ export default function Login() {
               </div>
             )}
 
-            <div className="pt-3" style={{ marginBottom: '1rem' }}>
+            <div className="pt-3" style={{ marginBottom: '1.25rem' }}>
               <button
                 disabled={isSubmitting}
                 type="submit"
