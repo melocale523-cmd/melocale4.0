@@ -329,7 +329,7 @@ export default function LandingPage() {
 
             {/* ── Mini cards largura total ── */}
             {!isProfissional && (
-              <div className="grid grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
                 <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
                   <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
                   <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
@@ -358,7 +358,7 @@ export default function LandingPage() {
 
         {/* ── Por que escolher + Tabela comparativa ── */}
         <section className="py-16 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="container-app" style={{ paddingLeft: '20rem' }}>
+          <div className="container-app">
             {/* Título único */}
             <div className="text-center" style={{ marginBottom: '4rem' }}>
               <h2 className="text-2xl md:text-3xl font-bold text-white">

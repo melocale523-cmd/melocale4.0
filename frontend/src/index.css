@@ -27,6 +27,13 @@
     padding-right: 10rem;
   }
 
+  @media (max-width: 768px) {
+    .container-app {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
