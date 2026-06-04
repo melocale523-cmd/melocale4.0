@@ -44,7 +44,7 @@ export default function EarningsCalculator() {
 
         {/* Header */}
         <div className="text-center mb-6 w-full" style={{ textAlign: 'center' }}>
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-3" style={{ marginBottom: '1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 text-emerald-400 text-xs font-black uppercase tracking-widest mb-3" style={{ marginBottom: '1rem' }}>
             <TrendingUp size={12} />
             Calculadora de Ganhos
           </div>
