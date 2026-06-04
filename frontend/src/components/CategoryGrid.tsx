@@ -21,10 +21,10 @@ export default function CategoryGrid({ userCity }: Props) {
       <div className="container-app">
 
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-10">
             Serviços disponíveis em <span className="text-emerald-400">{userCity}</span>
           </h2>
-          <p className="text-base leading-relaxed text-[#94A3B8]">
+          <p className="text-base leading-relaxed text-[#94A3B8] mb-6">
             Encontre o profissional certo para cada necessidade
           </p>
         </div>
@@ -49,12 +49,12 @@ export default function CategoryGrid({ userCity }: Props) {
 
         {/* CTA */}
         <div className="text-center">
-          <p className="text-sm text-slate-400 mb-4">
+          <p className="text-sm text-slate-400 mb-6">
             Não encontrou o que precisa?
           </p>
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base font-bold shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide"
+            className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base font-bold shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide mt-2"
           >
             Ver todos os serviços →
           </Link>
