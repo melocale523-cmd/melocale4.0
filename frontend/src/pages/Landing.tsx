@@ -175,10 +175,10 @@ export default function LandingPage() {
             {isProfissional ? (
                 /* ── Hero Profissional (utm_content=profissional) ── */
                 <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8 max-w-full overflow-hidden">
                     <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                   </div>
-                  <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                  <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
                     <span className="text-white">Profissional em</span><br />
                     <span className="text-emerald-400">{userCity}?</span><br />
                     <span className="text-white">Receba clientes</span><br />
@@ -225,10 +225,10 @@ export default function LandingPage() {
               ) : (
                 /* ── Hero Cliente (padrão) ── */
                 <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
+                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8 max-w-full overflow-hidden">
                     <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
                   </div>
-                  <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                  <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
                     <span className="text-white">Encontre o</span><br />
                     <span className="text-blue-400">Profissional</span><br />
                     <span className="text-emerald-400">Certo</span><br />
@@ -329,7 +329,7 @@ export default function LandingPage() {
 
             {/* ── Mini cards largura total ── */}
             {!isProfissional && (
-              <div className="grid grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full">
                 <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
                   <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
                   <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
@@ -358,7 +358,7 @@ export default function LandingPage() {
 
         {/* ── Por que escolher + Tabela comparativa ── */}
         <section className="py-16 bg-[#0B1729] border-t border-slate-800/50">
-          <div className="container-app" style={{ paddingLeft: '20rem' }}>
+          <div className="container-app">
             {/* Título único */}
             <div className="text-center" style={{ marginBottom: '4rem' }}>
               <h2 className="text-2xl md:text-3xl font-bold text-white">
@@ -366,10 +366,10 @@ export default function LandingPage() {
               </h2>
             </div>
 
-            <div className="flex gap-4 items-start">
+            <div className="flex flex-col lg:flex-row gap-4 items-start">
 
               {/* Coluna esquerda — 4 cards em grid 2x2 */}
-              <div className="flex flex-col gap-2 w-[85px] shrink-0 relative">
+              <div className="hidden lg:flex flex-col gap-2 w-[85px] shrink-0 relative">
                 {[
                   {
                     icon: <ShieldCheck size={14} className="text-purple-400" />,
@@ -423,17 +423,17 @@ export default function LandingPage() {
           <div className="container-app">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
+                <p className="text-2xl md:text-4xl font-extrabold text-emerald-400">371+</p>
                 <p className="text-sm text-[#94A3B8] mt-2">Profissionais cadastrados</p>
               </div>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-blue-400">1.200+</p>
+                <p className="text-2xl md:text-4xl font-extrabold text-blue-400">1.200+</p>
                 <p className="text-sm text-[#94A3B8] mt-2">Serviços realizados este mês</p>
               </div>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-yellow-400">98%</p>
+                <p className="text-2xl md:text-4xl font-extrabold text-yellow-400">98%</p>
                 <p className="text-sm text-[#94A3B8] mt-2">de satisfação dos clientes</p>
               </div>
             </div>
@@ -443,7 +443,7 @@ export default function LandingPage() {
               Quem usa, <span className="text-emerald-400">recomenda</span>
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-8" style={{ marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ marginBottom: '2rem' }}>
               {/* Depoimento 1 — Carlos (profissional) */}
               <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
