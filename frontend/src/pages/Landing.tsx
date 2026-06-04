@@ -589,20 +589,20 @@ export default function LandingPage() {
           <div className="container-app">
 
             <div className="text-center mb-12 mx-auto max-w-3xl">
-              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5">
+              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5" style={{ marginBottom: '1rem' }}>
                 🔥 Oferta por tempo limitado
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6" style={{ marginBottom: '1rem' }}>
                 Quanto você quer <span className="text-emerald-500">faturar</span> este mês?
               </h2>
-              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center">
+              <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center" style={{ marginBottom: '1rem' }}>
                 Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.
                 Escolha seu plano e comece hoje.
               </p>
-              <p className="text-emerald-400 text-sm font-bold mt-4 text-center">⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
+              <p className="text-emerald-400 text-sm font-bold mt-4 text-center" style={{ marginBottom: '1rem' }}>⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
             </div>
 
-            <div className="flex justify-center mb-10">
+            <div className="flex justify-center mb-10" style={{ marginBottom: '1.5rem' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-3">
                 <span className="text-emerald-400 text-xl">🛡️</span>
                 <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
@@ -610,7 +610,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ancoragem de preço psicológica */}
-            <div className="max-w-4xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="max-w-4xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ marginBottom: '1.5rem' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">☕</span>
                 <div>
@@ -634,7 +634,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
 
               {/* GRATUITO */}
               <div className="bg-[#1C3454] rounded-2xl border border-slate-800 p-5 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200">
@@ -744,7 +744,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ancoragem de ROI */}
-            <div className="max-w-3xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-10 text-center">
+            <div className="max-w-3xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-10 text-center" style={{ marginBottom: '1rem' }}>
               <p className="text-[#94A3B8] text-sm mb-4">💡 Pense assim:</p>
               <p className="text-white text-xl font-bold mb-4">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
