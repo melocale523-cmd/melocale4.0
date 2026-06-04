@@ -288,10 +288,10 @@ export default function Login() {
     <div className="w-full">
       {/* CABEÇALHO */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight" style={{ marginBottom: '0.75rem' }}>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight" style={{ marginBottom: '0.5rem' }}>
           {selectedRole === 'admin' ? 'Acesso Restrito' : (isSignUp ? 'Criar nova conta' : 'Bem-vindo de volta')}
         </h1>
-        <p className="text-[#7A9EBF] font-medium text-sm sm:text-base" style={{ marginBottom: '2rem' }}>
+        <p className="text-[#7A9EBF] font-medium text-sm sm:text-base" style={{ marginBottom: '1.5rem' }}>
           {selectedRole === 'admin' ? 'Apenas administradores autorizados' : (isSignUp ? 'Comece agora sua jornada no MeloCalé' : 'Sentimos sua falta! Entre para continuar.')}
         </p>
       </div>
@@ -321,12 +321,13 @@ export default function Login() {
           {isSignUp ? (
             <>
               {/* Cards de signup */}
-              <div className="grid grid-cols-1 gap-4 mb-6">
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '1.5rem' }}>
                 {/* CLIENTE */}
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
                   className="flex flex-col items-center gap-4 py-5 px-4 rounded-2xl border-2 border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/60 transition-all text-center group"
+                  style={{ flex: 1 }}
                 >
                   <span className="text-4xl">🏠</span>
                   <div className="space-y-1">
@@ -349,6 +350,7 @@ export default function Login() {
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
                   className="flex flex-col items-center gap-4 py-5 px-4 rounded-2xl border-2 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all text-center group"
+                  style={{ flex: 1 }}
                 >
                   <span className="text-4xl">🔧</span>
                   <div className="space-y-1">
@@ -404,7 +406,7 @@ export default function Login() {
           )}
 
           {/* Divisor */}
-          <div className="relative my-7" style={{ marginBottom: '1.5rem' }}>
+          <div className="relative my-7" style={{ marginBottom: '1rem' }}>
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#1C3050]"></div></div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black">
               <span className="bg-[#0E1C32] px-4 text-[#94A3B8]">Ou use seu e-mail</span>
@@ -415,7 +417,7 @@ export default function Login() {
 
       {/* TAB ENTRAR / CADASTRAR */}
       {!isAuthenticated && selectedRole !== 'admin' && !isLockedMode && (
-        <div className="flex bg-[#0B1729] p-1.5 rounded-2xl mb-7 border border-[#1C3050]">
+        <div className="flex bg-[#0B1729] p-1.5 rounded-2xl mb-7 border border-[#1C3050]" style={{ marginBottom: '1rem' }}>
           <button
             onClick={() => { setIsSignUp(false); setAuthStep('basics'); setError(null); }}
             className={cn("flex-1 py-3 text-sm font-black rounded-xl transition-all", !isSignUp ? "bg-white/5 text-white" : "text-[#7A9EBF] hover:text-slate-300")}
@@ -433,7 +435,7 @@ export default function Login() {
 
       {/* SELETOR DE ROLE */}
       {selectedRole !== 'admin' && (
-        <div className="mb-7" style={{ marginBottom: '2rem' }}>
+        <div className="mb-7" style={{ marginBottom: '1rem' }}>
           <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-3" style={{ marginBottom: '1rem' }}>
             {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
           </p>
@@ -476,7 +478,7 @@ export default function Login() {
             {authStep === 'basics' && (
               <>
                 {isSignUp && (
-                  <div className="space-y-2">
+                  <div className="space-y-2" style={{ marginBottom: '1rem' }}>
                     <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Nome Completo</label>
                     <input
                       required type="text" placeholder="João da Silva" maxLength={100}
@@ -485,7 +487,7 @@ export default function Login() {
                     />
                   </div>
                 )}
-                <div className="space-y-2" style={{ marginBottom: '1.75rem' }}>
+                <div className="space-y-2" style={{ marginBottom: '1rem' }}>
                   <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.5rem' }}>E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
@@ -493,7 +495,7 @@ export default function Login() {
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
-                <div className="space-y-2" style={{ marginBottom: '2.5rem' }}>
+                <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
                   <div className="flex justify-between items-center" style={{ marginBottom: '0.75rem' }}>
                     <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Sua Senha</label>
                     {!isSignUp && (
@@ -610,7 +612,7 @@ export default function Login() {
               </div>
             )}
 
-            <div className="pt-3" style={{ marginBottom: '1.25rem' }}>
+            <div className="pt-3" style={{ marginBottom: '1rem' }}>
               <button
                 disabled={isSubmitting}
                 type="submit"
