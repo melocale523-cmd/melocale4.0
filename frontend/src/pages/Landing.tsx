@@ -178,7 +178,7 @@ export default function LandingPage() {
                   <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
                     <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
                   </div>
-                  <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
                     <span className="text-white">Profissional em</span><br />
                     <span className="text-emerald-400">{userCity}?</span><br />
                     <span className="text-white">Receba clientes</span><br />
@@ -228,7 +228,7 @@ export default function LandingPage() {
                   <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8">
                     <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
                   </div>
-                  <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
                     <span className="text-white">Encontre o</span><br />
                     <span className="text-blue-400">Profissional</span><br />
                     <span className="text-emerald-400">Certo</span><br />
@@ -366,7 +366,7 @@ export default function LandingPage() {
               </h2>
             </div>
 
-            <div className="flex gap-4 items-start">
+            <div className="flex flex-col lg:flex-row gap-4 items-start">
 
               {/* Coluna esquerda — 4 cards em grid 2x2 */}
               <div className="flex flex-col gap-2 w-[85px] shrink-0 relative">
@@ -423,17 +423,17 @@ export default function LandingPage() {
           <div className="container-app">
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-emerald-400">371+</p>
+                <p className="text-2xl md:text-4xl font-extrabold text-emerald-400">371+</p>
                 <p className="text-sm text-[#94A3B8] mt-2">Profissionais cadastrados</p>
               </div>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-blue-400">1.200+</p>
+                <p className="text-2xl md:text-4xl font-extrabold text-blue-400">1.200+</p>
                 <p className="text-sm text-[#94A3B8] mt-2">Serviços realizados este mês</p>
               </div>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-yellow-400">98%</p>
+                <p className="text-2xl md:text-4xl font-extrabold text-yellow-400">98%</p>
                 <p className="text-sm text-[#94A3B8] mt-2">de satisfação dos clientes</p>
               </div>
             </div>
@@ -443,7 +443,7 @@ export default function LandingPage() {
               Quem usa, <span className="text-emerald-400">recomenda</span>
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-8" style={{ marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ marginBottom: '2rem' }}>
               {/* Depoimento 1 — Carlos (profissional) */}
               <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col gap-5 overflow-hidden">
                 <div className="flex gap-0.5">
