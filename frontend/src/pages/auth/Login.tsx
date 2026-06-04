@@ -486,7 +486,7 @@ export default function Login() {
                   </div>
                 )}
                 <div className="space-y-2" style={{ marginBottom: '1.75rem' }}>
-                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">E-mail</label>
+                  <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.5rem' }}>E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
                     className="w-full h-14 bg-[#1C3454] border border-[#243F6A] rounded-2xl px-5 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
