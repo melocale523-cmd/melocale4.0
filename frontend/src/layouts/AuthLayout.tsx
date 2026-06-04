@@ -11,19 +11,19 @@ export default function AuthLayout() {
 
       <div className="w-full max-w-xl relative z-10">
         <div className="bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] border border-white/30 dark:border-[#2563eb33] p-8 sm:p-12 rounded-3xl shadow-[0_0_40px_rgba(37,99,235,0.08)]">
-          <div className="flex justify-center" style={{ marginBottom: '1.5rem' }}>
-            <span className="text-3xl font-bold tracking-tight uppercase text-emerald-400">
-               MeloCalé
-            </span>
-          </div>
           <button
             onClick={() => navigate('/')}
             className="flex items-center gap-2 text-white/80 dark:text-[#B0C4D8] hover:text-white transition-colors text-sm font-medium mb-6 border border-white/30 dark:border-[#243F6A] hover:border-white/60 dark:hover:border-[#2563eb] px-4 py-1.5 rounded-xl"
-            style={{ marginBottom: '1rem' }}
+            style={{ marginBottom: '0.5rem' }}
           >
             <ArrowLeft size={15} />
             Voltar
           </button>
+          <div className="flex justify-center" style={{ marginBottom: '2rem' }}>
+            <span className="text-3xl font-bold tracking-tight uppercase text-emerald-400">
+               MeloCalé
+            </span>
+          </div>
           <Outlet />
         </div>
       </div>

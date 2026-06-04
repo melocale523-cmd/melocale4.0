@@ -612,7 +612,7 @@ export default function Login() {
               </div>
             )}
 
-            <div className="pt-3" style={{ marginBottom: '1rem' }}>
+            <div className="pt-3" style={{ marginBottom: '0.5rem' }}>
               <button
                 disabled={isSubmitting}
                 type="submit"
@@ -650,19 +650,19 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => { setIsSignUp(false); setIsLockedMode(false); setAuthStep('basics'); setError(null); }}
-                className="text-[#7A9EBF] text-sm hover:text-white transition-colors"
+                className="text-[#7A9EBF] text-base hover:text-white transition-colors"
               >
                 Já tem conta?{' '}
-                <span className="text-emerald-400 font-bold hover:text-emerald-300">Fazer login →</span>
+                <span className="text-emerald-400 text-base font-bold hover:text-emerald-300">Fazer login →</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => { setIsSignUp(true); setIsLockedMode(false); setAuthStep('basics'); setError(null); }}
-                className="text-[#7A9EBF] text-sm hover:text-white transition-colors"
+                className="text-[#7A9EBF] text-base hover:text-white transition-colors"
               >
                 Não tem conta?{' '}
-                <span className="text-emerald-400 font-bold hover:text-emerald-300">Cadastre-se grátis →</span>
+                <span className="text-emerald-400 text-base font-bold hover:text-emerald-300">Cadastre-se grátis →</span>
               </button>
             )}
           </div>
