@@ -588,7 +588,7 @@ export default function LandingPage() {
         <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="container-app">
 
-            <div className="text-center mb-12 mx-auto max-w-3xl" style={{ textAlign: 'center' }}>
+            <div className="text-center mb-12" style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto', maxWidth: '48rem' }}>
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5" style={{ marginBottom: '1rem' }}>
                 🔥 Oferta por tempo limitado
               </div>
@@ -602,7 +602,7 @@ export default function LandingPage() {
               <p className="text-emerald-400 text-sm font-bold mt-4 text-center" style={{ marginBottom: '1rem' }}>⚡ 73% dos profissionais escolhem o PRO — o plano que mais gera retorno</p>
             </div>
 
-            <div className="flex justify-center mb-10" style={{ marginBottom: '1.5rem' }}>
+            <div className="flex justify-center mb-10" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-3">
                 <span className="text-emerald-400 text-xl">🛡️</span>
                 <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
