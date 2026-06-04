@@ -433,8 +433,8 @@ export default function Login() {
 
       {/* SELETOR DE ROLE */}
       {selectedRole !== 'admin' && (
-        <div className="mb-7" style={{ marginBottom: '1.5rem' }}>
-          <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-3">
+        <div className="mb-7" style={{ marginBottom: '2rem' }}>
+          <p className="text-[10px] font-black text-[#7A9EBF] uppercase tracking-widest mb-3" style={{ marginBottom: '1rem' }}>
             {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
           </p>
           <div className="grid grid-cols-2 gap-3">
@@ -485,7 +485,7 @@ export default function Login() {
                     />
                   </div>
                 )}
-                <div className="space-y-2" style={{ marginBottom: '1.25rem' }}>
+                <div className="space-y-2" style={{ marginBottom: '1.75rem' }}>
                   <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">E-mail</label>
                   <input
                     required type="email" placeholder="seu@email.com" maxLength={254}
@@ -493,8 +493,8 @@ export default function Login() {
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
-                <div className="space-y-2" style={{ marginBottom: '2rem' }}>
-                  <div className="flex justify-between items-center">
+                <div className="space-y-2" style={{ marginBottom: '2.5rem' }}>
+                  <div className="flex justify-between items-center" style={{ marginBottom: '0.75rem' }}>
                     <label className="block text-[11px] font-black text-[#7A9EBF] uppercase tracking-[0.2em] ml-1">Sua Senha</label>
                     {!isSignUp && (
                       <button type="button" onClick={handleForgotPassword} className="text-[10px] font-black uppercase text-emerald-500 hover:text-emerald-400 tracking-widest transition-colors">Esqueci a senha</button>
