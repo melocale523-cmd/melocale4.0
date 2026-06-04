@@ -533,13 +533,13 @@ export default function LandingPage() {
         <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
           <div className="container-app">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Como funciona?</h2>
-              <p className="text-[#94A3B8] text-base text-center max-w-2xl mx-auto w-full">Três passos simples para contratar o profissional ideal</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3" style={{ marginBottom: '1rem' }}>Como funciona?</h2>
+              <p className="text-[#94A3B8] text-base text-center max-w-2xl mx-auto w-full" style={{ marginBottom: '3rem' }}>Três passos simples para contratar o profissional ideal</p>
             </div>
             <div className="relative">
               {/* Connector line — desktop only */}
               <div className="hidden lg:block absolute top-10 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-              <div className="grid lg:grid-cols-3 gap-10 relative w-full">
+              <div className="grid lg:grid-cols-3 gap-10 relative w-full" style={{ marginBottom: '2.5rem' }}>
                 {[
                   {
                     num: '01',
@@ -567,7 +567,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <h3 className="text-white font-bold text-lg mb-2">{step.title}</h3>
-                      <p className="text-[#94A3B8] text-sm leading-relaxed max-w-sm mx-auto">{step.desc}</p>
+                      <p className="text-[#94A3B8] text-sm leading-relaxed max-w-sm mx-auto" style={{ marginBottom: '1rem' }}>{step.desc}</p>
                     </div>
                   </div>
                 ))}
