@@ -155,7 +155,7 @@ export default function ClientDashboard() {
           className="flex items-center gap-2 px-5 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Plus size={20} />
-          Solicitar Novo Orçamento
+          Novo Pedido
         </button>
       </div>
 

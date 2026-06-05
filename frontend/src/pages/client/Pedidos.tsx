@@ -192,7 +192,7 @@ export default function Pedidos() {
         </div>
       </div>
 
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <div className="space-y-0">
         {isLoading ? (
           <div className="p-20 flex justify-center">
             <LoadingSpinner size={48} label="Sincronizando seus pedidos..." />
