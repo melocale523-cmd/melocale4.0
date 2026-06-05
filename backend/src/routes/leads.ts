@@ -78,6 +78,7 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
       console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
     }
 
+    console.log('[leads] disparando Lead para:', req.authUser!.email);
     void sendMetaEvent({
       eventName: "Lead",
       eventSourceUrl: "https://www.melocale.com.br/dashboard",
