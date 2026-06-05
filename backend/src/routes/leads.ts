@@ -78,7 +78,6 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
       console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
     }
 
-    console.log('[leads] disparando Lead para:', req.authUser!.email);
     void sendMetaEvent({
       eventName: "Lead",
       eventSourceUrl: "https://www.melocale.com.br/dashboard",
@@ -88,7 +87,7 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
 
     return res.status(201).json(data);
   } catch (err: unknown) {
-    console.error('/api/leads POST error:', JSON.stringify(err) , err instanceof Error ? err.message : String(err));
+    console.error('/api/leads POST error:', err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro interno ao criar pedido." });
   }
 });
