@@ -114,6 +114,7 @@ export const leadService = {
 
   async getMyRequests() {
     try {
+      await supabase.auth.getSession(); // garante token atualizado
       const { data, error } = await supabase
         .from('v_client_leads')
         .select('*')
