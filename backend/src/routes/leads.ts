@@ -4,6 +4,7 @@ import { AuthRequest, requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin, sensitiveLimiter } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendPushToUser } from "../lib/push.js";
+import { sendMetaEvent } from "../lib/metaPixel.js";
 
 const router = Router();
 
@@ -76,6 +77,14 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
     if (process.env.NODE_ENV !== "production") {
       console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
     }
+
+    void sendMetaEvent({
+      eventName: "Lead",
+      eventSourceUrl: "https://www.melocale.com.br/dashboard",
+      userEmail: req.authUser!.email,
+      customData: { content_category: category ?? "geral" },
+    });
+
     return res.status(201).json(data);
   } catch (err: unknown) {
     console.error("/api/leads POST error:", err instanceof Error ? err.message : String(err));
