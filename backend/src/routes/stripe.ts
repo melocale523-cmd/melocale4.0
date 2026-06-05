@@ -15,6 +15,7 @@ import {
 } from "../config.js";
 import { AuthRequest, requireAuth } from "../middleware/auth.js";
 import { withTimeout } from "../lib/timeout.js";
+import { sendMetaEvent } from "../lib/metaPixel.js";
 
 const router = Router();
 
@@ -97,6 +98,18 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
       } catch (subErr) {
         console.error("Erro ao gravar user_subscription:", subErr instanceof Error ? subErr.message : String(subErr));
       }
+
+      const userEmail = session.customer_details?.email ?? undefined;
+      const planPrice = PLANS[packageId]?.price;
+      void sendMetaEvent({
+        eventName: "Purchase",
+        eventSourceUrl: "https://www.melocale.com.br/planos",
+        userEmail,
+        customData: {
+          value: planPrice != null ? planPrice / 100 : undefined,
+          currency: "BRL",
+        },
+      });
 
       if (userId) {
         try {
