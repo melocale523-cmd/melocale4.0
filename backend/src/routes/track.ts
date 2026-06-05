@@ -12,6 +12,7 @@ const registrationSchema = z.object({
 // POST /api/track/registration
 // Called by the frontend after Supabase Auth signup + profile creation completes.
 router.post("/track/registration", async (req: Request, res: Response) => {
+  console.log('[track] registration chamado:', req.body);
   const parsed = registrationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "dados inválidos." });
 
