@@ -245,6 +245,15 @@ export default function Login() {
           sessionStorage.removeItem('melocale_ref');
         }
 
+        fetch(`${API_URL}/api/track/registration`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${signUpData.session?.access_token ?? ''}`,
+          },
+          body: JSON.stringify({ role: selectedRole }),
+        }).catch(() => {});
+
         toast.success("Conta criada! Verifique seu e-mail.");
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
