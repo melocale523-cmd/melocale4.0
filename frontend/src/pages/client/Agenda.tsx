@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
-  Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2, User,
-  RefreshCw, Star, AlertTriangle,
+  Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2,
+  RefreshCw, Star, Search,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
@@ -31,13 +32,15 @@ const STATUS_BADGE: Record<AppStatus, string> = {
   rescheduled: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
 };
 
-const CARD_BG: Record<AppStatus, string> = {
-  scheduled: 'bg-yellow-500/5 border-yellow-500/20',
-  confirmed: 'bg-emerald-500/5 border-emerald-500/20',
-  cancelled: 'bg-[#0E1C32] border-[#1C3050]',
-  completed: 'bg-[#0E1C32] border-[#1C3050]',
-  rescheduled: 'bg-orange-500/5 border-orange-500/30',
+const BAR_COLOR: Record<AppStatus, string> = {
+  confirmed: '#10b981',
+  scheduled: '#f59e0b',
+  rescheduled: '#3b82f6',
+  cancelled: '#ef4444',
+  completed: '#8b5cf6',
 };
+
+const AVATAR_COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
 
 export default function ClientAgenda() {
   const { user } = useAuthStore();
@@ -172,274 +175,291 @@ export default function ClientAgenda() {
     declineMutation.isPending ||
     confirmPresencaMutation.isPending;
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-11">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Minha Agenda</h1>
-        <p className="text-[#94A3B8] text-sm mt-6">Seus agendamentos com profissionais</p>
-      </div>
+  const upcoming = useMemo(
+    () => sorted.filter(a => ['scheduled', 'confirmed', 'rescheduled'].includes(a.status)),
+    [sorted],
+  );
+  const pastHistory = useMemo(
+    () => sorted.filter(a => ['completed', 'cancelled'].includes(a.status)).slice(0, 10),
+    [sorted],
+  );
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-8">
-        <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-9">
-          <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest mb-6">Total</p>
-          <p className="text-2xl font-bold text-white">{isLoading ? '—' : stats.total}</p>
-        </div>
-        <div className="bg-[#132540] border border-emerald-500/20 rounded-2xl p-9">
-          <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">Confirmados</p>
-          <p className="text-2xl font-bold text-emerald-400">{isLoading ? '—' : stats.confirmed}</p>
-        </div>
-        <div className="bg-[#132540] border border-yellow-500/20 rounded-2xl p-9">
-          <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-6">Pendentes</p>
-          <p className="text-2xl font-bold text-yellow-400">{isLoading ? '—' : stats.pending}</p>
-        </div>
-      </div>
+  const renderCard = (appt: Appointment, isHistory = false) => {
+    const dt = new Date(appt.scheduled_at);
+    const hoursUntil = (dt.getTime() - Date.now()) / 3_600_000;
+    const profName = appt.professional?.profile?.full_name || 'Profissional';
+    const profCategory = appt.professional?.category;
+    const isCancelling = cancellingId === appt.id;
+    const canReview = appt.status === 'completed' && !reviewedIds.includes(appt.id);
+    const profProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'professional';
+    const clientProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'client';
+    const canConfirmPresenca =
+      (appt.status === 'scheduled' || appt.status === 'rescheduled') &&
+      hoursUntil > 0 && hoursUntil <= 48 && !appt.confirmed_at;
+    const canConfirmStatus = appt.status === 'scheduled' && hoursUntil > 48;
+    const canCancel = appt.status !== 'completed' && appt.status !== 'cancelled';
 
-      {/* Appointment list */}
-      <div className="bg-[#132540] border border-[#1C3050] rounded-2xl p-11">
-        <h2 className="text-base font-semibold text-white mb-9 flex items-center gap-7">
-          <CalendarIcon size={18} className="text-emerald-400" />
-          Todos os Agendamentos
-        </h2>
+    const barColor = BAR_COLOR[appt.status];
+    const profInitials = profName.split(' ').filter(Boolean).map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+    const avatarBg = AVATAR_COLORS[profName.charCodeAt(0) % AVATAR_COLORS.length];
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12 gap-8">
-            <Loader2 size={24} className="animate-spin text-emerald-500" />
-            <span className="text-[#94A3B8] text-sm">Carregando...</span>
+    const btnBase: React.CSSProperties = {
+      borderRadius: '6px', padding: '4px 8px', fontSize: '10px', fontWeight: 700,
+      cursor: anyPending ? 'not-allowed' : 'pointer',
+      display: 'inline-flex', alignItems: 'center', gap: '4px',
+      opacity: anyPending ? 0.5 : 1, transition: 'all 0.15s',
+    };
+    const btnPrimary: React.CSSProperties = { ...btnBase, background: '#10b981', color: 'white', border: 'none' };
+    const btnYellow: React.CSSProperties = { ...btnBase, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b' };
+    const btnRed: React.CSSProperties = { ...btnBase, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#f87171' };
+    const btnStar: React.CSSProperties = { ...btnBase, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b', opacity: 1, cursor: 'pointer' };
+    const btnRedFill: React.CSSProperties = { ...btnBase, background: '#ef4444', border: 'none', color: 'white' };
+    const btnOutline: React.CSSProperties = { ...btnBase, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#7a9ebf', opacity: 1, cursor: 'pointer' };
+
+    return (
+      <div
+        key={appt.id}
+        className="bg-[#132236] rounded-xl border border-white/5 mb-2 overflow-hidden"
+        style={{ opacity: appt.status === 'cancelled' ? 0.65 : 1 }}
+      >
+        {/* Top section */}
+        <div className="p-3 flex gap-2">
+          <div style={{ width: '3px', background: barColor, borderRadius: '3px', flexShrink: 0, alignSelf: 'stretch' }} />
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+            style={{ background: avatarBg + '33', border: `1.5px solid ${avatarBg}55`, color: avatarBg }}
+          >
+            {profInitials}
           </div>
-        ) : sorted.length === 0 ? (
-          <div className="text-center py-16 flex flex-col items-center gap-9">
-            <div className="w-20 h-20 rounded-full bg-[#0E1C32] border border-[#1C3050] flex items-center justify-center">
-              <CalendarIcon size={36} className="text-[#243F6A]" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-white font-bold text-sm truncate">{appt.title}</p>
+              <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
+                {STATUS_LABEL[appt.status]}
+              </span>
             </div>
-            <div>
-              <p className="text-white font-bold text-base">Nenhum agendamento ainda</p>
-              <p className="text-[#94A3B8] text-sm mt-6 max-w-xs mx-auto">
-                Quando um profissional agendar um serviço com você, ele aparecerá aqui.
-              </p>
+            <p className="text-[11px] text-[#7a9ebf] mt-0.5">{profName}{profCategory ? ` · ${profCategory}` : ''}</p>
+            <div className="flex flex-wrap gap-x-3 mt-0.5">
+              <span className="flex items-center gap-1 text-[10px] text-[#4a6580]">
+                <Clock size={9} /> {format(dt, "dd/MM/yy HH:mm")}
+              </span>
+              {appt.location && (
+                <span className="flex items-center gap-1 text-[10px] text-[#4a6580]">
+                  <MapPin size={9} /> {appt.location}
+                </span>
+              )}
             </div>
+            {appt.cancelled_reason && (
+              <p className="text-[10px] text-red-400/70 mt-0.5">Motivo: {appt.cancelled_reason}</p>
+            )}
           </div>
-        ) : (
-          <div className="space-y-9">
-            {sorted.map(appt => {
-              const dt = new Date(appt.scheduled_at);
-              const hoursUntil = (dt.getTime() - Date.now()) / 3_600_000;
-              const profName = appt.professional?.profile?.full_name || 'Profissional';
-              const profCategory = appt.professional?.category;
-              const isCancelling = cancellingId === appt.id;
-              const canCancel = appt.status !== 'completed' && appt.status !== 'cancelled';
-              const canReview = appt.status === 'completed' && !reviewedIds.includes(appt.id);
-              const profProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'professional';
-              const clientProposedReschedule = appt.status === 'rescheduled' && appt.proposed_by === 'client';
-              // Show "Confirmar Presença" within 48 h of the appointment, before it passes, and only once
-              const canConfirmPresenca =
-                (appt.status === 'scheduled' || appt.status === 'rescheduled') &&
-                hoursUntil > 0 &&
-                hoursUntil <= 48 &&
-                !appt.confirmed_at;
-              // Show regular "Confirmar" only when > 48 h away (presence button handles the close window)
-              const canConfirmStatus = appt.status === 'scheduled' && hoursUntil > 48;
+        </div>
 
-              return (
-                <div
-                  key={appt.id}
-                  className={cn('rounded-2xl border transition-all', CARD_BG[appt.status])}
-                >
-                  {/* Reschedule banner — professional proposed */}
-                  {profProposedReschedule && appt.proposed_at && (
-                    <div className="mx-4 mt-9 bg-orange-500/10 border border-orange-500/30 rounded-xl p-8">
-                      <div className="flex items-start gap-7">
-                        <AlertTriangle size={14} className="text-orange-400 mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-orange-400">Profissional propôs nova data</p>
-                          <p className="text-xs text-orange-300 mt-0.5">
-                            {format(new Date(appt.proposed_at), "eeee, dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-7 mt-8">
-                        <button
-                          onClick={() => acceptMutation.mutate(appt)}
-                          disabled={anyPending}
-                          className="flex items-center gap-1.5 px-9 py-7 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
-                        >
-                          {acceptMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
-                          Aceitar
-                        </button>
-                        <button
-                          onClick={() => declineMutation.mutate(appt)}
-                          disabled={anyPending}
-                          className="flex items-center gap-1.5 px-9 py-7 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
-                        >
-                          <X size={12} /> Recusar
-                        </button>
-                      </div>
-                    </div>
-                  )}
+        {/* Actions bar — upcoming */}
+        {!isHistory && !isCancelling && (
+          <div className="px-3 py-2 flex flex-wrap gap-1.5 items-center" style={{ background: 'rgba(0,0,0,0.15)' }}>
+            {canConfirmPresenca && (
+              <button disabled={anyPending} onClick={() => confirmPresencaMutation.mutate(appt.id)} style={btnPrimary}>
+                {confirmPresencaMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : <CheckCircle2 size={10} />}
+                Confirmar Presença
+              </button>
+            )}
+            {canConfirmStatus && (
+              <button disabled={anyPending} onClick={() => handleConfirm(appt)} style={btnPrimary}>
+                {updateMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : <CheckCircle2 size={10} />}
+                Confirmar
+              </button>
+            )}
+            {profProposedReschedule && (
+              <>
+                <button disabled={anyPending} onClick={() => acceptMutation.mutate(appt)} style={btnPrimary}>
+                  {acceptMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : <CheckCircle2 size={10} />}
+                  Aceitar
+                </button>
+                <button disabled={anyPending} onClick={() => declineMutation.mutate(appt)} style={btnRed}>
+                  <X size={10} /> Recusar
+                </button>
+              </>
+            )}
+            {clientProposedReschedule && (
+              <span style={{ fontSize: '10px', color: '#60a5fa', fontWeight: 600 }}>⏳ Aguardando resposta...</span>
+            )}
+            {(appt.status === 'scheduled' || appt.status === 'confirmed') && (
+              <button
+                disabled={anyPending}
+                onClick={() => { setReschedulingAppt(appt); setRescheduleDate(''); setRescheduleTime(''); }}
+                style={btnYellow}
+              >
+                <RefreshCw size={10} /> Reagendar
+              </button>
+            )}
+            {canCancel && !profProposedReschedule && !clientProposedReschedule && (
+              <button
+                disabled={anyPending}
+                onClick={() => { setCancellingId(appt.id); setCancelReason(''); }}
+                style={btnRed}
+              >
+                <X size={10} /> Cancelar
+              </button>
+            )}
+            {appt.status === 'confirmed' && (
+              <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <CheckCircle2 size={10} /> Confirmado ✓
+              </span>
+            )}
+            {canReview && (
+              <button onClick={() => setReviewingAppt(appt)} style={btnStar}>
+                <Star size={10} /> Avaliar
+              </button>
+            )}
+            {appt.status === 'completed' && reviewedIds.includes(appt.id) && (
+              <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <Star size={10} className="fill-yellow-400" /> Avaliado ✓
+              </span>
+            )}
+          </div>
+        )}
 
-                  {/* Reschedule banner — waiting for professional response */}
-                  {clientProposedReschedule && appt.proposed_at && (
-                    <div className="mx-4 mt-9 bg-blue-500/10 border border-blue-500/30 rounded-xl p-8">
-                      <div className="flex items-center gap-7">
-                        <RefreshCw size={13} className="text-blue-400 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-blue-400">Aguardando resposta do profissional</p>
-                          <p className="text-xs text-blue-300 mt-0.5">
-                            Sua proposta: {format(new Date(appt.proposed_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+        {/* Actions bar — history */}
+        {isHistory && appt.status === 'completed' && (
+          <div className="px-3 py-1.5 flex gap-1.5 items-center" style={{ background: 'rgba(0,0,0,0.15)' }}>
+            {canReview ? (
+              <button onClick={() => setReviewingAppt(appt)} style={btnStar}>
+                <Star size={10} /> Avaliar
+              </button>
+            ) : reviewedIds.includes(appt.id) ? (
+              <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <Star size={10} className="fill-yellow-400" /> Avaliado ✓
+              </span>
+            ) : null}
+          </div>
+        )}
 
-                  <div className="flex items-start gap-9 p-9">
-                    {/* Date badge */}
-                    <div className="flex flex-col items-center justify-center min-w-[52px] h-14 rounded-xl bg-[#132540] border border-[#1C3050] shrink-0">
-                      <span className="text-lg font-bold text-white leading-none">{format(dt, 'dd')}</span>
-                      <span className="text-[10px] text-[#94A3B8] uppercase font-bold">{format(dt, 'MMM', { locale: ptBR })}</span>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-7 flex-wrap">
-                        <div>
-                          <p className="text-sm font-bold text-white truncate">{appt.title}</p>
-                          <p className="text-xs text-[#94A3B8] flex items-center gap-6 mt-0.5">
-                            <User size={11} /> {profName}
-                            {profCategory && <span className="text-[#4A6580]">· {profCategory}</span>}
-                          </p>
-                        </div>
-                        <span className={cn('text-[10px] font-bold px-2 py-1 rounded-lg border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
-                          {STATUS_LABEL[appt.status]}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-7">
-                        <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
-                          <Clock size={11} />
-                          {format(dt, "eeee, dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                        </span>
-                        {appt.location && (
-                          <span className="flex items-center gap-6 text-xs text-[#94A3B8]">
-                            <MapPin size={11} />
-                            {appt.location}
-                          </span>
-                        )}
-                      </div>
-
-                      {appt.description && (
-                        <p className="text-xs text-[#4A6580] mt-6 truncate">{appt.description}</p>
-                      )}
-
-                      {appt.cancelled_reason && (
-                        <p className="text-xs text-red-400/70 mt-6">Motivo: {appt.cancelled_reason}</p>
-                      )}
-
-                      {/* Action buttons */}
-                      {!isCancelling && (
-                        <div className="flex flex-wrap gap-7 mt-8">
-                          {/* Presence confirmation — only within 48h window */}
-                          {canConfirmPresenca && (
-                            <button
-                              onClick={() => confirmPresencaMutation.mutate(appt.id)}
-                              disabled={anyPending}
-                              className="flex items-center gap-1.5 px-9 py-7 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
-                            >
-                              {confirmPresencaMutation.isPending ? (
-                                <Loader2 size={13} className="animate-spin" />
-                              ) : (
-                                <CheckCircle2 size={13} />
-                              )}
-                              Confirmar Presença
-                            </button>
-                          )}
-                          {/* Regular confirm — only when appointment is > 48 h away */}
-                          {canConfirmStatus && (
-                            <button
-                              onClick={() => handleConfirm(appt)}
-                              disabled={anyPending}
-                              className="flex items-center gap-1.5 px-9 py-7 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-xl transition-all disabled:opacity-50"
-                            >
-                              {updateMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
-                              Confirmar
-                            </button>
-                          )}
-                          {(appt.status === 'scheduled' || appt.status === 'confirmed') && (
-                            <button
-                              onClick={() => { setReschedulingAppt(appt); setRescheduleDate(''); setRescheduleTime(''); }}
-                              disabled={anyPending}
-                              className="flex items-center gap-1.5 px-9 py-7 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold rounded-xl border border-blue-500/20 transition-all disabled:opacity-50"
-                            >
-                              <RefreshCw size={13} /> Reagendar
-                            </button>
-                          )}
-                          {canCancel && (
-                            <button
-                              onClick={() => { setCancellingId(appt.id); setCancelReason(''); }}
-                              disabled={anyPending}
-                              className="flex items-center gap-1.5 px-9 py-7 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
-                            >
-                              <X size={13} /> Cancelar
-                            </button>
-                          )}
-                          {appt.status === 'confirmed' && (
-                            <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold ml-1">
-                              <CheckCircle2 size={13} className="fill-emerald-400" />
-                              Confirmado ✓
-                            </div>
-                          )}
-                          {canReview && (
-                            <button
-                              onClick={() => setReviewingAppt(appt)}
-                              className="flex items-center gap-1.5 px-9 py-7 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-xl border border-yellow-500/20 transition-all"
-                            >
-                              <Star size={13} /> Avaliar
-                            </button>
-                          )}
-                          {appt.status === 'completed' && reviewedIds.includes(appt.id) && (
-                            <div className="flex items-center gap-1.5 text-yellow-400 text-xs font-bold ml-1">
-                              <Star size={13} className="fill-yellow-400" /> Avaliado
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Cancel reason form */}
-                      {isCancelling && (
-                        <div className="mt-8 space-y-7">
-                          <textarea
-                            rows={2}
-                            placeholder="Motivo do cancelamento (opcional)..."
-                            value={cancelReason}
-                            onChange={e => setCancelReason(e.target.value)}
-                            maxLength={500}
-                            className="w-full bg-[#0E1C32] border border-red-500/20 rounded-xl px-8 py-7 text-sm text-white focus:outline-none focus:border-red-500/40 transition-colors resize-none placeholder:text-[#4A6580]"
-                          />
-                          <div className="flex gap-7">
-                            <button
-                              onClick={() => handleCancelSubmit(appt)}
-                              disabled={anyPending}
-                              className="flex items-center gap-1.5 px-9 py-7 bg-red-500 hover:bg-red-400 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
-                            >
-                              {updateMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
-                              Confirmar Cancelamento
-                            </button>
-                            <button
-                              onClick={() => { setCancellingId(null); setCancelReason(''); }}
-                              className="px-9 py-7 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
-                            >
-                              Voltar
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+        {/* Cancel reason form */}
+        {isCancelling && (
+          <div className="px-3 py-2 flex flex-col gap-2" style={{ background: 'rgba(0,0,0,0.15)' }}>
+            <textarea
+              rows={2}
+              placeholder="Motivo do cancelamento (opcional)..."
+              value={cancelReason}
+              onChange={e => setCancelReason(e.target.value)}
+              maxLength={500}
+              className="w-full bg-[#0E1C32] border border-red-500/20 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500/40 transition-colors resize-none placeholder:text-[#4A6580]"
+            />
+            <div className="flex gap-2">
+              <button disabled={anyPending} onClick={() => handleCancelSubmit(appt)} style={btnRedFill}>
+                {updateMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : <X size={10} />}
+                Confirmar Cancelamento
+              </button>
+              <button onClick={() => { setCancellingId(null); setCancelReason(''); }} style={btnOutline}>
+                Voltar
+              </button>
+            </div>
           </div>
         )}
       </div>
+    );
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
+
+      {/* Header */}
+      <div style={{ marginBottom: '16px' }}>
+        <h1 className="text-2xl font-black text-white tracking-tight">Minha Agenda</h1>
+        <p className="text-[#94A3B8] text-sm mt-1">Acompanhe seus agendamentos com profissionais</p>
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
+          <p className="text-[11px] text-[#7a9ebf] uppercase tracking-widest mb-1.5">Total</p>
+          <p className="text-2xl font-black text-white">{isLoading ? '—' : stats.total}</p>
+        </div>
+        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
+          <p className="text-[11px] text-emerald-400 uppercase tracking-widest mb-1.5">Confirmados</p>
+          <p className={cn('text-2xl font-black', stats.confirmed > 0 ? 'text-emerald-400' : 'text-white')}>
+            {isLoading ? '—' : stats.confirmed}
+          </p>
+        </div>
+        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
+          <p className="text-[11px] text-yellow-400 uppercase tracking-widest mb-1.5">Pendentes</p>
+          <p className={cn('text-2xl font-black', stats.pending > 0 ? 'text-yellow-400' : 'text-white')}>
+            {isLoading ? '—' : stats.pending}
+          </p>
+        </div>
+      </div>
+
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12 gap-2">
+          <Loader2 size={20} className="animate-spin text-emerald-500" />
+          <span className="text-[#94A3B8] text-sm">Carregando...</span>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!isLoading && sorted.length === 0 && (
+        <div className="flex flex-col items-center text-center py-16 gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#132236] border border-white/5 flex items-center justify-center">
+            <CalendarIcon size={24} className="text-[#4a6580]" />
+          </div>
+          <div>
+            <p className="text-white font-bold text-base">Nenhum agendamento ainda</p>
+            <p className="text-[#94A3B8] text-sm mt-1 max-w-xs mx-auto">
+              Encontre profissionais e solicite orçamentos para agendar serviços.
+            </p>
+          </div>
+          <Link
+            to="/cliente/busca"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all"
+          >
+            <Search size={14} /> Buscar profissionais
+          </Link>
+        </div>
+      )}
+
+      {/* 2-column layout */}
+      {!isLoading && sorted.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', alignItems: 'start' }}>
+
+          {/* Left column — upcoming */}
+          <div>
+            <p className="text-[11px] font-black text-[#7a9ebf] uppercase tracking-widest mb-3">
+              Próximos agendamentos
+            </p>
+            {upcoming.length > 0 ? (
+              upcoming.map(appt => renderCard(appt, false))
+            ) : (
+              <div className="bg-[#132236] rounded-xl border border-emerald-500/15 p-4 text-center">
+                <CalendarIcon size={20} className="text-[#4a6580] mx-auto mb-2" />
+                <p className="text-white font-bold text-sm mb-1">Sem agendamentos ativos</p>
+                <p className="text-[#4a6580] text-xs mb-3">Solicite orçamentos para agendar serviços.</p>
+                <Link
+                  to="/cliente/busca"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-all"
+                >
+                  <Search size={12} /> Buscar profissionais →
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Right column — history */}
+          <div>
+            <p className="text-[11px] font-black text-[#7a9ebf] uppercase tracking-widest mb-3">
+              Histórico recente
+            </p>
+            {pastHistory.length > 0 ? (
+              pastHistory.map(appt => renderCard(appt, true))
+            ) : (
+              <div className="bg-[#132236] rounded-xl border border-white/5 p-4 text-center">
+                <p className="text-[#4a6580] text-xs">Nenhum histórico ainda.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Review modal */}
       {reviewingAppt && (
@@ -454,52 +474,52 @@ export default function ClientAgenda() {
 
       {/* Reschedule modal */}
       {reschedulingAppt && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-9">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setReschedulingAppt(null)} />
-          <div className="relative bg-[#132540] border border-[#1C3050] rounded-2xl p-11 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-9">
-              <h3 className="text-base font-bold text-white flex items-center gap-7">
+          <div className="relative bg-[#132540] border border-[#1C3050] rounded-2xl p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <RefreshCw size={16} className="text-blue-400" /> Propor Reagendamento
               </h3>
               <button onClick={() => setReschedulingAppt(null)} className="text-[#4A6580] hover:text-white transition-colors">
                 <X size={18} />
               </button>
             </div>
-            <p className="text-xs text-[#94A3B8] mb-9">
+            <p className="text-xs text-[#94A3B8] mb-4">
               O profissional receberá uma notificação e deverá aceitar ou recusar a nova data.
             </p>
-            <div className="space-y-8">
+            <div className="space-y-3">
               <div>
-                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-6 block">Nova Data</label>
+                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-1.5 block">Nova Data</label>
                 <input
                   type="date"
                   value={rescheduleDate}
                   onChange={e => setRescheduleDate(e.target.value)}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-8 py-7 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
               </div>
               <div>
-                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-6 block">Novo Horário</label>
+                <label className="text-xs text-[#94A3B8] font-bold uppercase tracking-widest mb-1.5 block">Novo Horário</label>
                 <input
                   type="time"
                   value={rescheduleTime}
                   onChange={e => setRescheduleTime(e.target.value)}
-                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-8 py-7 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                  className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
               </div>
             </div>
-            <div className="flex gap-7 mt-5">
+            <div className="flex gap-2 mt-4">
               <button
                 onClick={handleRescheduleSubmit}
                 disabled={rescheduleMutation.isPending || !rescheduleDate || !rescheduleTime}
-                className="flex-1 flex items-center justify-center gap-7 py-8 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-2 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
               >
                 {rescheduleMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                 Enviar Proposta
               </button>
               <button
                 onClick={() => setReschedulingAppt(null)}
-                className="px-9 py-8 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
+                className="px-3 py-2 text-[#94A3B8] hover:text-white text-xs font-bold rounded-xl border border-[#1C3050] hover:border-white/20 transition-all"
               >
                 Voltar
               </button>

@@ -120,7 +120,7 @@ export default function ClientLayout() {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all font-medium text-xs",
+                  "flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all font-medium text-sm",
                   isActive
                     ? "bg-[#10b98115] text-emerald-400 border-l-2 border-[#10B981] rounded-none"
                     : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-white/20 dark:hover:bg-[#1C3454]",

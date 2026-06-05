@@ -1,6 +1,6 @@
 import { useClientProfile } from '../../hooks/useClientProfile';
 import { isClientProfileComplete } from '../../lib/profileHelpers';
-import { AlertCircle, ArrowRight, Plus, Hammer, Shield, Clock, TrendingUp, MessageCircle, RefreshCw, CheckCircle2, CalendarCheck } from 'lucide-react';
+import { AlertCircle, ArrowRight, Plus, Hammer, RefreshCw, CalendarCheck, MapPin, Tag, Zap, Droplets } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
@@ -9,6 +9,26 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
+
+function categoryIcon(category: string) {
+  const c = category?.toLowerCase() ?? '';
+  if (c.includes('eletric') || c.includes('elétric')) return <Zap size={18} className="text-yellow-400" />;
+  if (c.includes('hidr') || c.includes('encanamento')) return <Droplets size={18} className="text-blue-400" />;
+  return <Hammer size={18} className="text-emerald-400" />;
+}
+
+function statusLabel(status: string) {
+  if (status === 'open' || status === 'aberto') return 'Aberto';
+  if (status === 'orçando') return 'Orçando';
+  if (status === 'finalizado') return 'Finalizado';
+  return status;
+}
+
+function statusColor(status: string) {
+  if (status === 'orçando') return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
+  if (status === 'finalizado') return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+  return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+}
 
 export default function ClientDashboard() {
   const { data: profile, isLoading: profileLoading, isError: profileError, refetch: refetchProfile } = useClientProfile();
@@ -24,6 +44,11 @@ export default function ClientDashboard() {
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['clientSummary'],
     queryFn: leadService.getClientSummary,
+  });
+
+  const { data: recentPedidos, isLoading: recentLoading } = useQuery({
+    queryKey: ['clientRecentPedidos'],
+    queryFn: () => leadService.getMyRequests().then(r => r.slice(0, 3)),
   });
 
   const { data: nextAppointment, isLoading: apptLoading } = useQuery({
@@ -49,6 +74,7 @@ export default function ClientDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientSummary'] });
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      queryClient.invalidateQueries({ queryKey: ['clientRecentPedidos'] });
       setIsModalOpen(false);
       toast.success('Pedido criado com sucesso!');
     },
@@ -93,9 +119,23 @@ export default function ClientDashboard() {
     );
   }
 
+  const dynamicSubtitle = summaryLoading || profileLoading
+    ? ''
+    : (summary?.waiting ?? 0) > 0
+      ? `Você tem ${summary!.waiting} pedido${summary!.waiting > 1 ? 's' : ''} aberto${summary!.waiting > 1 ? 's' : ''} aguardando propostas.`
+      : 'Bem-vindo(a)! Crie seu primeiro pedido e receba orçamentos.';
+
+  const statCards = [
+    { label: 'Aguardando', value: summary?.waiting ?? 0, activeColor: 'text-emerald-400' },
+    { label: 'Em andamento', value: summary?.in_progress ?? 0, activeColor: 'text-cyan-400' },
+    { label: 'Propostas recebidas', value: summary?.orcando ?? 0, activeColor: 'text-yellow-400' },
+    { label: 'Concluídos', value: summary?.finalizado ?? 0, activeColor: 'text-purple-400' },
+  ];
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
-      {/* Greeting — skeleton while loading */}
+    <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-700">
+
+      {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           {profileLoading ? (
@@ -106,7 +146,7 @@ export default function ClientDashboard() {
           ) : (
             <>
               <h1 className="text-4xl font-black text-white tracking-tight mb-2">Olá, {userName}</h1>
-              <p className="text-[#94A3B8] font-medium">Bem-vindo(a) ao seu painel de controle MeloCalé.</p>
+              <p className="text-[#94A3B8] font-medium">{dynamicSubtitle}</p>
             </>
           )}
         </div>
@@ -115,10 +155,11 @@ export default function ClientDashboard() {
           className="flex items-center gap-2 px-5 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Plus size={20} />
-          Solicitar Novo Orçamento
+          Novo Pedido
         </button>
       </div>
 
+      {/* BANNER PERFIL INCOMPLETO */}
       {!profileLoading && !profileComplete && (
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-[2rem] p-8 flex flex-col md:flex-row items-center gap-6 text-center md:text-left transition-all hover:bg-amber-500/15">
           <div className="w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
@@ -136,100 +177,158 @@ export default function ClientDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-[2.5rem] p-8 relative overflow-hidden group col-span-1 md:col-span-2">
-          <div className="relative z-10">
-            <div className="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mb-4">
-              <Hammer size={24} />
-            </div>
-            <h3 className="text-2xl font-black text-white mb-3">Encontre o Profissional Ideal</h3>
-            <p className="text-[#94A3B8] font-medium mb-4 max-w-md leading-relaxed">
-              Descreva seu projeto, anexe fotos e receba orçamentos detalhados de profissionais verificados e avaliados pela nossa comunidade.
+      {/* STATS ROW */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+        {statCards.map((card) => (
+          <div key={card.label} className="bg-[#132236] rounded-2xl p-4 border border-white/5">
+            <p className="text-[11px] text-[#7a9ebf] uppercase tracking-widest mb-2">{card.label}</p>
+            <p className={cn(
+              'text-3xl font-black',
+              summaryLoading ? 'text-slate-600' : card.value > 0 ? card.activeColor : 'text-white'
+            )}>
+              {summaryLoading ? '—' : card.value}
             </p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              disabled={!profileComplete}
-              className="px-5 h-12 bg-emerald-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500 active:scale-95 flex items-center gap-2"
-            >
-              Solicitar Orçamento Agora
-              <ArrowRight size={18} />
-            </button>
-          </div>
-          <div className="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute -right-8 -bottom-8 opacity-5">
-            <Shield size={200} />
-          </div>
-        </div>
-
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-[2.5rem] p-8 flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
-                <TrendingUp size={24} />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A6580]">Resumo</span>
-            </div>
-            <h3 className="text-white font-black text-xl mb-6">Seus Pedidos</h3>
-            <p className="text-sm text-[#4A6580] font-medium">Acompanhe seu progresso</p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-emerald-500/30 transition-all">
-              <div className="text-2xl font-black text-white mb-2">
-                {summaryLoading ? '...' : summary?.waiting ?? 0}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Clock size={10} className="text-emerald-500" />
-                <span className="text-[9px] uppercase font-black text-emerald-500 tracking-widest">Aguardando</span>
-              </div>
-            </div>
-            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-cyan-500/30 transition-all">
-              <div className="text-2xl font-black text-white mb-2">
-                {summaryLoading ? '...' : summary?.in_progress ?? 0}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <TrendingUp size={10} className="text-cyan-500" />
-                <span className="text-[9px] uppercase font-black text-cyan-500 tracking-widest">Em Andamento</span>
-              </div>
-            </div>
-            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-purple-500/30 transition-all col-span-2">
-              <div className="text-sm font-black text-white mb-2">
-                {apptLoading ? '...' : nextAppointment?.scheduled_at
-                  ? new Date(nextAppointment.scheduled_at).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
-                  : 'Nenhum'}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CalendarCheck size={10} className="text-purple-400" />
-                <span className="text-[9px] uppercase font-black text-purple-400 tracking-widest">Próximo Agendamento</span>
-              </div>
-            </div>
-            <div className="bg-[#0E1C32] p-4 rounded-2xl border border-[#1C3050] hover:border-amber-500/30 transition-all col-span-2">
-              <div className="text-2xl font-black text-white mb-2">
-                {summaryLoading ? '...' : summary?.finalizado ?? 0}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 size={10} className="text-amber-500" />
-                <span className="text-[9px] uppercase font-black text-amber-500 tracking-widest">Concluídos</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { icon: <Clock />, label: 'Resposta Rápida', desc: 'Profissionais respondem em até 24h', color: 'text-orange-500' },
-          { icon: <Shield />, label: 'Garantia', desc: 'Sua satisfação é nossa prioridade', color: 'text-emerald-500' },
-          { icon: <MessageCircle />, label: 'Chat Direto', desc: 'Fale com o profissional no app', color: 'text-blue-500' },
-          { icon: <TrendingUp />, label: 'Avaliações', desc: 'Veja o histórico do profissional', color: 'text-purple-500' }
-        ].map((item, i) => (
-          <div key={i} className="bg-[#1C3454]/50 border border-[#1C3050] rounded-3xl p-5 md:p-6 hover:bg-[#1C3454] transition-all">
-            <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-white/5', item.color)}>
-              {item.icon}
-            </div>
-            <h4 className="text-white font-bold text-sm mb-2">{item.label}</h4>
-            <p className="text-xs text-[#4A6580] font-medium leading-relaxed">{item.desc}</p>
           </div>
         ))}
+      </div>
+
+      {/* CONTENT GRID */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '20px', alignItems: 'start' }}>
+
+        {/* COLUNA ESQUERDA — pedidos recentes */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-black text-white">Pedidos recentes</h2>
+            <Link
+              to="/cliente/pedidos"
+              className="text-emerald-400 hover:text-emerald-300 text-sm font-bold transition-colors flex items-center gap-1"
+            >
+              Ver todos <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          {recentLoading ? (
+            <div className="space-y-3">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="bg-[#132236] rounded-xl p-4 border border-white/5 h-20 animate-pulse" />
+              ))}
+            </div>
+          ) : recentPedidos && recentPedidos.length > 0 ? (
+            <div>
+              {recentPedidos.map((pedido: Record<string, unknown>) => {
+                const id = pedido.id as string;
+                const title = pedido.title as string;
+                const location = pedido.location as string | undefined;
+                const category = pedido.category as string ?? '';
+                const status = pedido.status as string ?? '';
+                const budget_min = pedido.budget_min as number | undefined;
+                const budget_max = pedido.budget_max as number | undefined;
+                const interested = (pedido.interested_count as number | undefined) ?? (pedido.purchases_count as number | undefined) ?? 0;
+                return (
+                  <Link
+                    key={id}
+                    to="/cliente/pedidos"
+                    className="bg-[#132236] rounded-xl p-4 border border-white/5 mb-3 flex gap-3 items-start hover:border-emerald-500/20 hover:bg-[#0f1d2e] transition-all group"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-0.5">
+                      {categoryIcon(category)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <p className="text-white font-bold text-sm truncate group-hover:text-emerald-400 transition-colors">{title}</p>
+                        <ArrowRight size={14} className="text-slate-600 group-hover:text-emerald-400 transition-colors shrink-0 mt-0.5" />
+                      </div>
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 mb-2">
+                        {location && (
+                          <span className="flex items-center gap-1 text-[11px] text-[#4a6580]">
+                            <MapPin size={10} /> {location}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 text-[11px] text-[#4a6580]">
+                          <Tag size={10} /> {category}
+                        </span>
+                        {(budget_min != null || budget_max != null) && (
+                          <span className="text-[11px] text-[#4a6580]">
+                            R$ {budget_min ?? 0} – {budget_max ?? 0}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border', statusColor(status))}>
+                          {statusLabel(status)}
+                        </span>
+                        {interested > 0 && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            {interested} interessado{interested > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-[#132236] rounded-xl p-8 border border-white/5 text-center flex flex-col items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                <Hammer size={24} />
+              </div>
+              <div>
+                <p className="text-white font-bold mb-1">Nenhum pedido ainda</p>
+                <p className="text-[#4a6580] text-sm">Crie seu primeiro pedido e receba orçamentos de profissionais.</p>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-4 h-10 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all active:scale-95"
+              >
+                <Plus size={16} /> Criar pedido
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* COLUNA DIREITA */}
+        <div className="space-y-4">
+          {/* CTA card */}
+          <div className="bg-[#132236] rounded-2xl p-6 border border-white/5 relative overflow-hidden">
+            <div className="relative z-10">
+              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mb-3">
+                <Hammer size={20} />
+              </div>
+              <h3 className="text-white font-black text-base mb-2">Encontre o profissional certo</h3>
+              <p className="text-[#7a9ebf] text-sm mb-4 leading-relaxed">
+                Descreva o serviço, anexe fotos e receba propostas em minutos.
+              </p>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                disabled={!profileComplete}
+                className="w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 flex items-center justify-center gap-2"
+              >
+                Solicitar orçamento <ArrowRight size={15} />
+              </button>
+            </div>
+            <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-[60px] pointer-events-none" />
+          </div>
+
+          {/* Próximo agendamento */}
+          <div className="bg-[#132236] rounded-2xl p-5 border border-white/5">
+            <div className="flex items-center gap-2 mb-3">
+              <CalendarCheck size={16} className="text-purple-400" />
+              <p className="text-[11px] font-black text-[#7a9ebf] uppercase tracking-widest">Próximo agendamento</p>
+            </div>
+            {apptLoading ? (
+              <div className="h-6 w-32 bg-slate-700 animate-pulse rounded" />
+            ) : nextAppointment?.scheduled_at ? (
+              <p className="text-white font-black text-base">
+                {new Date(nextAppointment.scheduled_at).toLocaleString('pt-BR', {
+                  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                })}
+              </p>
+            ) : (
+              <p className="text-[#4a6580] text-sm font-medium">Nenhum agendado</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {isModalOpen && (
