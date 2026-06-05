@@ -38,11 +38,13 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
   };
 
   try {
-    await fetch(`${API_URL}?access_token=${ACCESS_TOKEN}`, {
+    const res = await fetch(`${API_URL}?access_token=${ACCESS_TOKEN}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    const json = await res.json();
+    console.log('[MetaPixel] resposta:', JSON.stringify(json));
   } catch (err) {
     console.error('[MetaPixel] Erro ao enviar evento:', err);
   }
