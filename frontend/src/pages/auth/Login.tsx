@@ -251,7 +251,13 @@ export default function Login() {
           body: JSON.stringify({ role: selectedRole, email: signUpData.user?.email }),
         }).catch(() => {});
 
-        toast.success("Conta criada! Verifique seu e-mail.");
+        // Login automático após cadastro
+        await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        toast.success("Conta criada com sucesso!");
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
