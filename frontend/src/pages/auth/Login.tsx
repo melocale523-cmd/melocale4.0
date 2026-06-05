@@ -247,11 +247,8 @@ export default function Login() {
 
         fetch(`${API_URL}/api/track/registration`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${signUpData.session?.access_token ?? ''}`,
-          },
-          body: JSON.stringify({ role: selectedRole }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: selectedRole, email: signUpData.user?.email }),
         }).catch(() => {});
 
         toast.success("Conta criada! Verifique seu e-mail.");
