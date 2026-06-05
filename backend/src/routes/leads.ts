@@ -88,7 +88,7 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
 
     return res.status(201).json(data);
   } catch (err: unknown) {
-    console.error("/api/leads POST error:", err instanceof Error ? err.message : String(err));
+    console.error('/api/leads POST error:', JSON.stringify(err) , err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro interno ao criar pedido." });
   }
 });
