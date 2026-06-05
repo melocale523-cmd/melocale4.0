@@ -44,7 +44,7 @@ function renderMessageContent(msg: Message) {
         download={att.fileName}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-7 text-sm underline hover:no-underline"
+        className="flex items-center gap-2 text-sm underline hover:no-underline"
       >
         <Download size={14} />
         {getFileName(msg.body)}
@@ -64,15 +64,16 @@ export function MessageList({
   messagesEndRef,
 }: MessageListProps) {
   return (
-    <div className="flex-1 overflow-y-auto p-11 space-y-11 custom-scrollbar relative z-10">
+    <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 custom-scrollbar relative z-10">
       {isLoading ? (
         <div className="h-full flex items-center justify-center">
-          <Loader2 className="animate-spin text-emerald-500" size={32} />
+          <Loader2 className="animate-spin text-emerald-500" size={28} />
         </div>
       ) : messages && messages.length > 0 ? (
         messages.map((msg) => {
           const isAi = msg.sender_type === 'ai';
           const mine = !isAi && msg.sender_type === role;
+          const timestamp = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           return (
             <div
               key={msg.id}
@@ -82,41 +83,41 @@ export function MessageList({
               )}
             >
               {isAi && (
-                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-6 ml-1">
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 ml-1">
                   🤖 Assistente MeloCalé
                 </span>
               )}
               <div className={cn(
-                'p-4 rounded-2xl text-[13px] leading-relaxed relative shadow-lg',
+                'px-3 pt-2 pb-1.5 rounded-2xl text-[13px] leading-relaxed relative shadow-md',
                 mine
-                  ? 'bg-emerald-600 text-white rounded-tr-sm'
+                  ? 'bg-[#10b981] text-white rounded-tr-sm'
                   : isAi
                   ? 'bg-slate-700/80 text-slate-200 border border-slate-600/50 rounded-tl-sm italic'
-                  : 'bg-[#1C3454] text-slate-200 border border-[#1C3050] rounded-tl-sm hover:border-emerald-500/30 transition-colors',
+                  : 'bg-white/10 text-white border border-white/[0.06] rounded-tl-sm',
               )}>
                 {renderMessageContent(msg)}
-              </div>
-              <div className="flex items-center gap-7 mt-7 px-1">
-                <span className="text-[10px] text-[#4A6580] font-bold uppercase tracking-wider">
-                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                {mine && (
-                  <div className="flex items-center">
-                    {msg.read_at
-                      ? <CheckCheck size={14} className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" />
-                      : <Check size={14} className="text-slate-600" />}
-                  </div>
-                )}
+                {/* Timestamp inside bubble */}
+                <div className={cn(
+                  'flex items-center justify-end gap-1 mt-1',
+                  mine ? 'opacity-70' : 'opacity-50',
+                )}>
+                  <span className="text-[10px]">{timestamp}</span>
+                  {mine && (
+                    msg.read_at
+                      ? <CheckCheck size={12} className="text-white" />
+                      : <Check size={12} className="text-white/80" />
+                  )}
+                </div>
               </div>
             </div>
           );
         })
       ) : (
         <div className="h-full flex flex-col items-center justify-center text-center p-12">
-          <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-11 text-emerald-500 border border-emerald-500/20 shadow-2xl">
-            <Send size={32} />
+          <div className="w-16 h-16 bg-emerald-500/10 rounded-[1.5rem] flex items-center justify-center mb-4 text-emerald-500 border border-emerald-500/20 shadow-2xl">
+            <Send size={28} />
           </div>
-          <h4 className="text-white font-bold text-lg mb-7">Sem mensagens ainda</h4>
+          <h4 className="text-white font-bold text-base mb-2">Sem mensagens ainda</h4>
           <p className="text-[#4A6580] font-medium text-sm max-w-[200px]">
             Inicie uma conversa com o {otherLabel.toLowerCase()} para fechar o serviço.
           </p>
@@ -125,8 +126,8 @@ export function MessageList({
 
       {isTyping && (
         <div className="flex flex-col items-start max-w-[70%] animate-in slide-in-from-bottom-2 duration-300">
-          <div className="bg-[#1C3454] text-[#94A3B8] py-8 px-5 rounded-2xl rounded-tl-sm border border-[#1C3050] flex items-center gap-8 shadow-lg">
-            <div className="flex gap-6 pt-1">
+          <div className="bg-white/10 border border-white/[0.06] text-slate-300 py-2.5 px-4 rounded-2xl rounded-tl-sm flex items-center gap-3 shadow-md">
+            <div className="flex gap-1 pt-0.5">
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.3s]" />
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce" />
