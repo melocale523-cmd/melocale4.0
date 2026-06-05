@@ -163,36 +163,35 @@ export default function Pedidos() {
         </button>
       </div>
 
-      <div className="space-y-4">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
-          <input
-            type="text"
-            placeholder="Buscar um pedido específico..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-          />
-        </div>
-        <div className="flex gap-3 flex-wrap">
-          {STATUS_TABS.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setStatusFilter(tab === 'Todos' ? 'todos' : tab)}
-              className={cn(
-                'px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all',
-                (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
-                  : 'bg-[#1C3454] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20',
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      <div className="relative group" style={{ marginBottom: 0 }}>
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
+        <input
+          type="text"
+          placeholder="Buscar um pedido específico..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+        />
       </div>
 
-      <div className="space-y-0">
+      <div className="flex gap-1 border-b border-white/5" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+        {STATUS_TABS.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setStatusFilter(tab === 'Todos' ? 'todos' : tab)}
+            className={cn(
+              'px-4 py-2 text-sm font-bold transition-all border-b-2 -mb-px',
+              (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
+                ? 'border-emerald-500 text-emerald-400'
+                : 'border-transparent text-[#4a6580] hover:text-white'
+            )}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ marginTop: '0.75rem' }}>
         {isLoading ? (
           <div className="p-20 flex justify-center">
             <LoadingSpinner size={48} label="Sincronizando seus pedidos..." />
