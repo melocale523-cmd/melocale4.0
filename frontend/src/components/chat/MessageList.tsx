@@ -47,7 +47,6 @@ function renderMessageContent(msg: Message) {
   }
 
   if (att?.type === 'file') {
-    // Render image files inline instead of as download links
     if (att.fileName && IMAGE_EXTENSIONS.test(att.fileName)) {
       return (
         <img
@@ -73,7 +72,6 @@ function renderMessageContent(msg: Message) {
     );
   }
 
-  // No attachment metadata: try to detect image by URL pattern
   if (!att && isImageUrl(msg.body)) {
     return (
       <img
@@ -99,7 +97,6 @@ export function MessageList({
   messagesEndRef,
 }: MessageListProps) {
   return (
-    // flex flex-col ensures ml-auto/mr-auto align bubbles correctly
     <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2 custom-scrollbar relative z-10">
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
@@ -111,38 +108,45 @@ export function MessageList({
           const mine = !isAi && msg.sender_type === role;
           const timestamp = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           return (
+            // Outer row: full-width, justify-end for sent / justify-start for received
             <div
               key={msg.id}
               className={cn(
-                'flex flex-col max-w-[75%] group animate-in slide-in-from-bottom-2',
-                mine ? 'ml-auto items-end' : 'mr-auto items-start',
+                'w-full flex animate-in slide-in-from-bottom-2',
+                mine ? 'justify-end' : 'justify-start',
               )}
             >
-              {isAi && (
-                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 ml-1">
-                  🤖 Assistente MeloCalé
-                </span>
-              )}
+              {/* Inner bubble container: max-width + alignment */}
               <div className={cn(
-                'px-3 pt-2 pb-1.5 rounded-2xl text-[13px] leading-relaxed relative shadow-md',
-                mine
-                  ? 'bg-[#10b981] text-white rounded-tr-sm'
-                  : isAi
-                  ? 'bg-slate-700/80 text-slate-200 border border-slate-600/50 rounded-tl-sm italic'
-                  : 'bg-white/10 text-white border border-white/[0.06] rounded-tl-sm',
+                'max-w-[75%] flex flex-col group',
+                mine ? 'items-end' : 'items-start',
               )}>
-                {renderMessageContent(msg)}
-                {/* Timestamp inside bubble, bottom-right */}
+                {isAi && (
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 ml-1">
+                    🤖 Assistente MeloCalé
+                  </span>
+                )}
                 <div className={cn(
-                  'flex items-center justify-end gap-1 mt-1',
-                  mine ? 'opacity-70' : 'opacity-50',
+                  'px-3 pt-2 pb-1.5 rounded-2xl text-[13px] leading-relaxed relative shadow-md',
+                  mine
+                    ? 'bg-[#10b981] text-white rounded-tr-sm'
+                    : isAi
+                    ? 'bg-slate-700/80 text-slate-200 border border-slate-600/50 rounded-tl-sm italic'
+                    : 'bg-white/10 text-white border border-white/[0.06] rounded-tl-sm',
                 )}>
-                  <span className="text-[10px]">{timestamp}</span>
-                  {mine && (
-                    msg.read_at
-                      ? <CheckCheck size={12} className="text-white" />
-                      : <Check size={12} className="text-white/80" />
-                  )}
+                  {renderMessageContent(msg)}
+                  {/* Timestamp inside bubble, bottom-right */}
+                  <div className={cn(
+                    'flex items-center justify-end gap-1 mt-1',
+                    mine ? 'opacity-70' : 'opacity-50',
+                  )}>
+                    <span className="text-[10px]">{timestamp}</span>
+                    {mine && (
+                      msg.read_at
+                        ? <CheckCheck size={12} className="text-white" />
+                        : <Check size={12} className="text-white/80" />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -161,7 +165,7 @@ export function MessageList({
       )}
 
       {isTyping && (
-        <div className="flex flex-col items-start max-w-[70%] animate-in slide-in-from-bottom-2 duration-300">
+        <div className="w-full flex justify-start animate-in slide-in-from-bottom-2 duration-300">
           <div className="bg-white/10 border border-white/[0.06] text-slate-300 py-2.5 px-4 rounded-2xl rounded-tl-sm flex items-center gap-3 shadow-md">
             <div className="flex gap-1 pt-0.5">
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.3s]" />

@@ -105,6 +105,11 @@ export default function ClientIndicacoes() {
     staleTime: 60 * 1000,
   })
 
+  // React Query v5: when enabled=false, isLoading=false (idle/pending) — treat
+  // "auth still loading" as loading to avoid showing "—" before data arrives
+  const isEffectivelyLoading = isAuthLoading || loadingCode
+  const isListLoading = isAuthLoading || loadingList
+
   const hasDoubleBonus = (bonusConfig?.multiplier ?? 1) > 1
   const isPro = referralData?.role === 'professional'
   const baseReward = isPro ? 60 : 30
@@ -280,7 +285,7 @@ export default function ClientIndicacoes() {
               <span className="text-base font-semibold text-white">Seu link de indicação</span>
             </div>
 
-            {loadingCode ? (
+            {isEffectivelyLoading ? (
               <div className="space-y-3">
                 <div className="h-11 bg-white/5 rounded-xl animate-pulse" />
                 <div className="h-9 bg-white/5 rounded-lg animate-pulse w-1/2" />
@@ -456,7 +461,7 @@ export default function ClientIndicacoes() {
               )}
             </div>
 
-            {loadingList ? (
+            {isListLoading ? (
               <div className="space-y-2">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse" />
