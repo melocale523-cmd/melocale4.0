@@ -1,4 +1,4 @@
-import { useState, type RefObject, type FormEvent } from 'react';
+import { useState, useEffect, type RefObject, type FormEvent } from 'react';
 import {
   Send, Paperclip, Smile, Mic, Image as ImageIcon,
   Loader2, Square, X, CalendarPlus,
@@ -45,6 +45,25 @@ export function MessageInput({
   onOpenScheduleModal,
 }: MessageInputProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Clear preview once upload finishes
+  useEffect(() => {
+    if (!isUploading && imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+  // Only run when isUploading transitions to false
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUploading]);
+
+  function clearPreview() {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInput(e.target.value);
@@ -86,6 +105,33 @@ export function MessageInput({
         </div>
       )}
 
+      {/* Image preview */}
+      {imagePreview && (
+        <div className="flex items-start gap-2 mb-2">
+          <div className="relative">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="h-20 w-20 object-cover rounded-xl border border-white/10"
+            />
+            {isUploading && (
+              <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                <Loader2 size={18} className="animate-spin text-white" />
+              </div>
+            )}
+          </div>
+          {!isUploading && (
+            <button
+              type="button"
+              onClick={clearPreview}
+              className="w-5 h-5 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white -ml-3 -mt-1 border border-white/20 shrink-0"
+            >
+              <X size={10} />
+            </button>
+          )}
+        </div>
+      )}
+
       <form onSubmit={onSendMessage} className="flex items-center gap-1.5">
         {/* Left icons */}
         {isRecording ? RecordingIndicator : (
@@ -97,7 +143,7 @@ export function MessageInput({
               title="Gravar Áudio"
               className="p-2 text-white/40 hover:text-white transition-colors disabled:opacity-30"
             >
-              {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Mic size={18} />}
+              {isUploading ? <Loader2 size={18} className="animate-spin text-emerald-400" /> : <Mic size={18} />}
             </button>
             <button
               type="button"
@@ -170,7 +216,14 @@ export function MessageInput({
         ref={imageInputRef}
         accept="image/*"
         className="hidden"
-        onChange={e => { if (e.target.files?.[0]) onFileUpload(e.target.files[0], 'image'); e.target.value = ''; }}
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setImagePreview(URL.createObjectURL(file));
+            onFileUpload(file, 'image');
+          }
+          e.target.value = '';
+        }}
       />
       <input
         type="file"

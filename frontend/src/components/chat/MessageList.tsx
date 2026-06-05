@@ -13,6 +13,12 @@ interface MessageListProps {
   messagesEndRef: RefObject<HTMLDivElement | null>;
 }
 
+const IMAGE_EXTENSIONS = /\.(jpg|jpeg|png|webp|gif)$/i;
+
+function isImageUrl(url: string): boolean {
+  return url.startsWith('https') && (url.includes('/storage/') || url.includes('supabase'));
+}
+
 function getFileName(url: string): string {
   const parts = url.split('/');
   const raw = decodeURIComponent(parts[parts.length - 1] || 'arquivo');
@@ -23,6 +29,7 @@ function getFileName(url: string): string {
 
 function renderMessageContent(msg: Message) {
   const att = Array.isArray(msg.attachments) ? msg.attachments[0] : msg.attachments;
+
   if (att?.type === 'image') {
     return (
       <img
@@ -34,10 +41,24 @@ function renderMessageContent(msg: Message) {
       />
     );
   }
+
   if (att?.type === 'audio') {
     return <audio controls src={msg.body} className="max-w-full min-w-[200px]" />;
   }
+
   if (att?.type === 'file') {
+    // Render image files inline instead of as download links
+    if (att.fileName && IMAGE_EXTENSIONS.test(att.fileName)) {
+      return (
+        <img
+          src={msg.body}
+          alt={att.fileName}
+          loading="lazy"
+          className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
+          onClick={() => window.open(msg.body, '_blank')}
+        />
+      );
+    }
     return (
       <a
         href={msg.body}
@@ -51,6 +72,20 @@ function renderMessageContent(msg: Message) {
       </a>
     );
   }
+
+  // No attachment metadata: try to detect image by URL pattern
+  if (!att && isImageUrl(msg.body)) {
+    return (
+      <img
+        src={msg.body}
+        alt="Foto"
+        loading="lazy"
+        className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
+        onClick={() => window.open(msg.body, '_blank')}
+      />
+    );
+  }
+
   return <span className="whitespace-pre-wrap">{msg.body}</span>;
 }
 
@@ -64,9 +99,10 @@ export function MessageList({
   messagesEndRef,
 }: MessageListProps) {
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 custom-scrollbar relative z-10">
+    // flex flex-col ensures ml-auto/mr-auto align bubbles correctly
+    <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2 custom-scrollbar relative z-10">
       {isLoading ? (
-        <div className="h-full flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center">
           <Loader2 className="animate-spin text-emerald-500" size={28} />
         </div>
       ) : messages && messages.length > 0 ? (
@@ -78,7 +114,7 @@ export function MessageList({
             <div
               key={msg.id}
               className={cn(
-                'flex flex-col max-w-[85%] sm:max-w-[70%] group animate-in slide-in-from-bottom-2',
+                'flex flex-col max-w-[75%] group animate-in slide-in-from-bottom-2',
                 mine ? 'ml-auto items-end' : 'mr-auto items-start',
               )}
             >
@@ -96,7 +132,7 @@ export function MessageList({
                   : 'bg-white/10 text-white border border-white/[0.06] rounded-tl-sm',
               )}>
                 {renderMessageContent(msg)}
-                {/* Timestamp inside bubble */}
+                {/* Timestamp inside bubble, bottom-right */}
                 <div className={cn(
                   'flex items-center justify-end gap-1 mt-1',
                   mine ? 'opacity-70' : 'opacity-50',
@@ -113,7 +149,7 @@ export function MessageList({
           );
         })
       ) : (
-        <div className="h-full flex flex-col items-center justify-center text-center p-12">
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
           <div className="w-16 h-16 bg-emerald-500/10 rounded-[1.5rem] flex items-center justify-center mb-4 text-emerald-500 border border-emerald-500/20 shadow-2xl">
             <Send size={28} />
           </div>

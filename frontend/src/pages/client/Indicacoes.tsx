@@ -65,14 +65,19 @@ export default function ClientIndicacoes() {
   const [showQr, setShowQr] = useState(false)
   const [generatingStories, setGeneratingStories] = useState(false)
 
-  const { data: referralData, isLoading: loadingCode } = useQuery<ReferralCode>({
+  const { data: referralData, isLoading: loadingCode, isError: codeError } = useQuery<ReferralCode>({
     queryKey: ['referral-code', user?.id],
     queryFn: async () => {
       const res = await apiFetch('/api/referrals/my-code')
-      if (!res.ok) throw new Error('Erro ao buscar código')
-      return res.json()
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body?.error ?? `HTTP ${res.status}`)
+      }
+      return res.json() as Promise<ReferralCode>
     },
     enabled: !!user,
+    retry: 2,
+    staleTime: 30 * 1000,
   })
 
   const { data: referrals = [], isLoading: loadingList } = useQuery<ReferralItem[]>({
@@ -274,6 +279,12 @@ export default function ClientIndicacoes() {
               <div className="space-y-3">
                 <div className="h-11 bg-white/5 rounded-xl animate-pulse" />
                 <div className="h-9 bg-white/5 rounded-lg animate-pulse w-1/2" />
+                <div className="h-24 bg-white/5 rounded-xl animate-pulse" />
+              </div>
+            ) : codeError ? (
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <p className="text-white/40 text-sm">Não foi possível carregar o seu link.</p>
+                <p className="text-white/30 text-xs">Verifique sua conexão e recarregue a página.</p>
               </div>
             ) : (
               <>
@@ -284,7 +295,8 @@ export default function ClientIndicacoes() {
                   </span>
                   <button
                     onClick={copyLink}
-                    className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors shrink-0"
+                    disabled={!referralData?.link}
+                    className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Copy size={13} />
                     {copied ? 'Copiado!' : 'Copiar'}
@@ -303,26 +315,29 @@ export default function ClientIndicacoes() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={shareWhatsApp}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/20"
+                    disabled={!referralData?.link}
+                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/20 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <MessageCircle size={16} /> WhatsApp
                   </button>
                   <button
                     onClick={copyLink}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                    disabled={!referralData?.link}
+                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-white/5 border border-white/10 text-white hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Copy size={16} /> Copiar link
                   </button>
                   <button
                     onClick={() => setShowQr(v => !v)}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                    disabled={!referralData?.link}
+                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-white/5 border border-white/10 text-white hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <QrCode size={16} /> QR Code
+                    <QrCode size={16} /> {showQr ? 'Ocultar QR' : 'QR Code'}
                   </button>
                   <button
                     onClick={generateStoriesImage}
-                    disabled={generatingStories}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 disabled:opacity-50"
+                    disabled={generatingStories || !referralData?.link}
+                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {generatingStories ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
                     {generatingStories ? 'Gerando…' : 'Stories'}
