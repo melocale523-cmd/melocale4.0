@@ -34,16 +34,16 @@ export function ProposalsModal({
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
-      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-[2.5rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
 
-        <div className="p-4 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]">
+        <div className="p-3 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center">
-              <MessageCircle size={20} />
+            <div className="w-8 h-8 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center">
+              <MessageCircle size={16} />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">Propostas Recebidas</h2>
-              <p className="text-[#94A3B8] font-medium text-sm">{pedido.title}</p>
+              <h2 className="text-base font-black text-white tracking-tight">Propostas Recebidas</h2>
+              <p className="text-[#94A3B8] font-medium text-xs">{pedido.title}</p>
             </div>
           </div>
           <button
@@ -54,12 +54,12 @@ export function ProposalsModal({
           </button>
         </div>
 
-        <div className="px-4 py-3 border-b border-[#1C3050] bg-[#0E1C32]/20">
+        <div className="px-3 py-2.5 border-b border-[#1C3050] bg-[#0E1C32]/20">
           <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest mb-3">Progresso do pedido</p>
           <LeadTimeline pedido={pedido} appointment={linkedAppointment} />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-[#0E1C32]/30">
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar bg-[#0E1C32]/30">
           {proposalsLoading ? (
             <div className="py-10 flex flex-col items-center gap-4">
               <Loader2 className="animate-spin text-blue-500" size={40} />
@@ -76,16 +76,16 @@ export function ProposalsModal({
               />
             ))
           ) : (
-            <div className="py-8 text-center flex flex-col items-center justify-center gap-4 opacity-50 grayscale">
+            <div className="py-6 text-center flex flex-col items-center justify-center gap-2 opacity-50 grayscale">
               <Inbox size={36} className="text-slate-700" />
-              <p className="text-white font-black text-lg">Nenhuma proposta ainda</p>
-              <p className="text-[#4A6580] text-sm font-medium leading-relaxed max-w-xs mx-auto">Assim que os profissionais enviarem orçamentos, eles aparecerão aqui para sua avaliação.</p>
+              <p className="text-white font-black text-sm">Nenhuma proposta ainda</p>
+              <p className="text-[#4A6580] text-xs font-medium leading-relaxed max-w-xs mx-auto">Assim que os profissionais enviarem orçamentos, eles aparecerão aqui para sua avaliação.</p>
             </div>
           )}
         </div>
 
-        <div className="p-3 bg-[#1C3454] border-t border-[#1C3050] flex items-center justify-center">
-          <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-[0.2em]">Analise com cuidado antes de aceitar • MeloCalé</p>
+        <div className="p-2 bg-[#1C3454] border-t border-[#1C3050] flex items-center justify-center">
+          <p className="text-[9px] text-[#4A6580] font-bold uppercase tracking-[0.2em]">Analise com cuidado antes de aceitar • MeloCalé</p>
         </div>
       </div>
     </div>

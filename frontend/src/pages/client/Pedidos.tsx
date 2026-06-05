@@ -174,17 +174,27 @@ export default function Pedidos() {
         />
       </div>
 
-      <div className="flex gap-1 border-b border-white/5" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '4px', marginTop: '1rem', marginBottom: '1rem' }}>
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setStatusFilter(tab === 'Todos' ? 'todos' : tab)}
-            className={cn(
-              'px-4 py-2 text-sm font-bold transition-all border-b-2 -mb-px',
-              (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
-                ? 'border-emerald-500 text-emerald-400'
-                : 'border-transparent text-[#4a6580] hover:text-white'
-            )}
+            style={{
+              padding: '6px 16px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 700,
+              transition: 'all 0.15s',
+              border: (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
+                ? '1.5px solid #10b981'
+                : '1.5px solid rgba(255,255,255,0.08)',
+              background: (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
+                ? 'rgba(16,185,129,0.12)'
+                : 'rgba(255,255,255,0.03)',
+              color: (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
+                ? '#34d399'
+                : '#7a9ebf',
+            }}
           >
             {tab}
           </button>
