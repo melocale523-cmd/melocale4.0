@@ -61,9 +61,14 @@ const CARD_HEADER = 'flex items-center gap-2 mb-4'
 // ── Component ─────────────────────────────────────────────────────────
 export default function ClientIndicacoes() {
   const user = useAuthStore((state) => state.user)
+  const isAuthLoading = useAuthStore((state) => state.isLoading)
   const [copied, setCopied] = useState(false)
   const [showQr, setShowQr] = useState(false)
   const [generatingStories, setGeneratingStories] = useState(false)
+
+  // Wait for auth to fully initialize before querying — avoids race where user is
+  // briefly null while the Supabase session is being restored
+  const authReady = !isAuthLoading && !!user
 
   const { data: referralData, isLoading: loadingCode, isError: codeError } = useQuery<ReferralCode>({
     queryKey: ['referral-code', user?.id],
@@ -75,7 +80,7 @@ export default function ClientIndicacoes() {
       }
       return res.json() as Promise<ReferralCode>
     },
-    enabled: !!user,
+    enabled: authReady,
     retry: 2,
     staleTime: 30 * 1000,
   })
@@ -87,7 +92,7 @@ export default function ClientIndicacoes() {
       if (!res.ok) throw new Error('Erro ao buscar indicações')
       return res.json()
     },
-    enabled: !!user,
+    enabled: authReady,
   })
 
   const { data: bonusConfig } = useQuery<BonusConfig>({

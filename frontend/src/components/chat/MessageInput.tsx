@@ -1,4 +1,4 @@
-import { useState, useEffect, type RefObject, type FormEvent } from 'react';
+import { useState, type RefObject, type FormEvent } from 'react';
 import {
   Send, Paperclip, Smile, Mic, Image as ImageIcon,
   Loader2, Square, X, CalendarPlus,
@@ -46,24 +46,41 @@ export function MessageInput({
 }: MessageInputProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
-  // Clear preview once upload finishes
-  useEffect(() => {
-    if (!isUploading && imagePreview) {
-      URL.revokeObjectURL(imagePreview);
-      setImagePreview(null);
-    }
-  // Only run when isUploading transitions to false
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUploading]);
-
-  function clearPreview() {
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
-      setImagePreview(null);
-    }
+  function clearImagePreview() {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    setPendingImageFile(null);
     if (imageInputRef.current) imageInputRef.current.value = '';
   }
+
+  function flushPendingImage() {
+    if (!pendingImageFile) return;
+    onFileUpload(pendingImageFile, 'image');
+    // Clear preview immediately — message list will show it once sent
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    setPendingImageFile(null);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
+
+  const handleFormSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (pendingImageFile && !messageInput.trim()) {
+      // Image-only send: upload triggers the message via hook, don't call onSendMessage
+      flushPendingImage();
+      return;
+    }
+    if (pendingImageFile && messageInput.trim()) {
+      // Both image and text: upload image then send text
+      flushPendingImage();
+      onSendMessage();
+      return;
+    }
+    // Text-only
+    if (messageInput.trim()) onSendMessage(e);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInput(e.target.value);
@@ -105,34 +122,27 @@ export function MessageInput({
         </div>
       )}
 
-      {/* Image preview */}
+      {/* Image preview — shown until user hits send */}
       {imagePreview && (
-        <div className="flex items-start gap-2 mb-2">
+        <div className="flex items-start gap-1 mb-2">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
               className="h-20 w-20 object-cover rounded-xl border border-white/10"
             />
-            {isUploading && (
-              <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
-                <Loader2 size={18} className="animate-spin text-white" />
-              </div>
-            )}
           </div>
-          {!isUploading && (
-            <button
-              type="button"
-              onClick={clearPreview}
-              className="w-5 h-5 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white -ml-3 -mt-1 border border-white/20 shrink-0"
-            >
-              <X size={10} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={clearImagePreview}
+            className="w-5 h-5 bg-black/70 hover:bg-black/90 rounded-full flex items-center justify-center text-white -ml-3 -mt-1 border border-white/20 shrink-0"
+          >
+            <X size={10} />
+          </button>
         </div>
       )}
 
-      <form onSubmit={onSendMessage} className="flex items-center gap-1.5">
+      <form onSubmit={handleFormSubmit} className="flex items-center gap-1.5">
         {/* Left icons */}
         {isRecording ? RecordingIndicator : (
           <div className="flex items-center">
@@ -148,7 +158,7 @@ export function MessageInput({
             <button
               type="button"
               onClick={() => imageInputRef.current?.click()}
-              disabled={isUploading}
+              disabled={isUploading || !!pendingImageFile}
               title="Enviar Foto"
               className="p-2 text-white/40 hover:text-white transition-colors disabled:opacity-30"
             >
@@ -197,7 +207,7 @@ export function MessageInput({
           </button>
           <button
             type="submit"
-            disabled={!messageInput.trim() || sendMessagePending}
+            disabled={(!messageInput.trim() && !pendingImageFile) || sendMessagePending}
             className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full p-2.5 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 relative shrink-0"
           >
             <Send size={16} className="translate-x-0.5 -translate-y-0.5" />
@@ -219,8 +229,8 @@ export function MessageInput({
         onChange={e => {
           const file = e.target.files?.[0];
           if (file) {
+            setPendingImageFile(file);
             setImagePreview(URL.createObjectURL(file));
-            onFileUpload(file, 'image');
           }
           e.target.value = '';
         }}
