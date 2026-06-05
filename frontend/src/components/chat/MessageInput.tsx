@@ -47,6 +47,7 @@ export function MessageInput({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   function clearImagePreview() {
     if (imagePreview) URL.revokeObjectURL(imagePreview);
@@ -55,37 +56,51 @@ export function MessageInput({
     if (imageInputRef.current) imageInputRef.current.value = '';
   }
 
+  function clearFilePreview() {
+    setPendingFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
   function flushPendingImage() {
     if (!pendingImageFile) return;
     onFileUpload(pendingImageFile, 'image');
-    // Clear preview immediately — message list will show it once sent
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
     setPendingImageFile(null);
     if (imageInputRef.current) imageInputRef.current.value = '';
   }
 
+  function flushPendingFile() {
+    if (!pendingFile) return;
+    onFileUpload(pendingFile, 'file');
+    setPendingFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (pendingImageFile && !messageInput.trim()) {
-      // Image-only send: upload triggers the message via hook, don't call onSendMessage
+    const hasText = !!messageInput.trim();
+
+    if (pendingImageFile && !hasText && !pendingFile) {
       flushPendingImage();
       return;
     }
-    if (pendingImageFile && messageInput.trim()) {
-      // Both image and text: upload image then send text
-      flushPendingImage();
-      onSendMessage();
+    if (pendingFile && !hasText && !pendingImageFile) {
+      flushPendingFile();
       return;
     }
-    // Text-only
-    if (messageInput.trim()) onSendMessage(e);
+    // Flush both pending attachments then send text if any
+    if (pendingImageFile) flushPendingImage();
+    if (pendingFile) flushPendingFile();
+    if (hasText) onSendMessage(e);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInput(e.target.value);
     onTypingBroadcast();
   };
+
+  const hasPending = !!pendingImageFile || !!pendingFile;
 
   const RecordingIndicator = (
     <div className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 rounded-full border border-red-500/20 animate-pulse">
@@ -122,22 +137,31 @@ export function MessageInput({
         </div>
       )}
 
-      {/* Image preview — shown until user hits send */}
+      {/* Image preview */}
       {imagePreview && (
         <div className="flex items-start gap-1 mb-2">
-          <div className="relative">
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="h-20 w-20 object-cover rounded-xl border border-white/10"
-            />
-          </div>
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="h-20 w-20 object-cover rounded-xl border border-white/10"
+          />
           <button
             type="button"
             onClick={clearImagePreview}
             className="w-5 h-5 bg-black/70 hover:bg-black/90 rounded-full flex items-center justify-center text-white -ml-3 -mt-1 border border-white/20 shrink-0"
           >
             <X size={10} />
+          </button>
+        </div>
+      )}
+
+      {/* File preview */}
+      {pendingFile && (
+        <div className="flex items-center gap-2 mb-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+          <Paperclip size={14} className="text-white/40 shrink-0" />
+          <span className="text-xs text-white/70 truncate flex-1">{pendingFile.name}</span>
+          <button type="button" onClick={clearFilePreview} className="text-white/40 hover:text-white shrink-0">
+            <X size={12} />
           </button>
         </div>
       )}
@@ -167,7 +191,7 @@ export function MessageInput({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
+              disabled={isUploading || !!pendingFile}
               title="Enviar Arquivo"
               className="p-2 text-white/40 hover:text-white transition-colors disabled:opacity-30"
             >
@@ -207,7 +231,7 @@ export function MessageInput({
           </button>
           <button
             type="submit"
-            disabled={(!messageInput.trim() && !pendingImageFile) || sendMessagePending}
+            disabled={(!messageInput.trim() && !hasPending) || sendMessagePending}
             className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full p-2.5 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 relative shrink-0"
           >
             <Send size={16} className="translate-x-0.5 -translate-y-0.5" />
@@ -239,7 +263,11 @@ export function MessageInput({
         type="file"
         ref={fileInputRef}
         className="hidden"
-        onChange={e => { if (e.target.files?.[0]) onFileUpload(e.target.files[0], 'file'); e.target.value = ''; }}
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file) setPendingFile(file);
+          e.target.value = '';
+        }}
       />
     </div>
   );
