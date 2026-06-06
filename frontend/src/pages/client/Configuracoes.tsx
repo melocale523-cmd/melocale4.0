@@ -20,7 +20,7 @@ export default function ClientConfiguracoes() {
   const [savingPassword, setSavingPassword] = useState(false);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="flex justify-center px-4 py-6"><div className="w-full max-w-2xl space-y-4">
       {/* Page header */}
       <div className="mb-2">
         <h1 className="text-2xl font-bold text-white">Configurações</h1>
@@ -174,6 +174,6 @@ export default function ClientConfiguracoes() {
           </button>
         </div>
       </div>
-    </div>
+    </div></div>
   );
 }

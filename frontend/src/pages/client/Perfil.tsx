@@ -153,7 +153,7 @@ export default function ClientePerfil() {
   const { initials, colorClass } = getAvatarInfo(displayName || 'U');
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="flex justify-center px-4 py-6"><div className="w-full max-w-2xl">
       <div className="bg-[#0E1C32] border border-[#243F6A] rounded-2xl overflow-hidden">
         {/* Card header */}
         <div className="bg-[#132236] px-5 py-4 border-b border-[#243F6A] flex items-center gap-3">
@@ -303,6 +303,6 @@ export default function ClientePerfil() {
           </button>
         </form>
       </div>
-    </div>
+    </div></div>
   );
 }
