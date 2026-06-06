@@ -1,4 +1,4 @@
-import { Search, User, Loader2 } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import type { ConversationWithProfiles } from '../../types/chat';
 
@@ -20,10 +20,6 @@ function getOtherName(conv: ConversationWithProfiles, role: 'professional' | 'cl
     : conv.prof_profile?.full_name || 'Profissional';
 }
 
-function getOtherAvatar(conv: ConversationWithProfiles, role: 'professional' | 'client') {
-  return role === 'professional' ? conv.client_profile?.avatar_url : conv.prof_profile?.avatar_url;
-}
-
 function getOtherUserId(conv: ConversationWithProfiles, role: 'professional' | 'client') {
   return role === 'professional' ? conv.client_id : conv.prof_user_id;
 }
@@ -41,6 +37,17 @@ function matchesSearch(conv: ConversationWithProfiles, role: 'professional' | 'c
     conv.last_message?.toLowerCase().includes(q) ||
     conv.leadTitle?.toLowerCase().includes(q)
   );
+}
+
+function getAvatarInfo(name: string): { initials: string; colorClass: string } {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const initials = parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+  const palette = ['bg-blue-800', 'bg-purple-700', 'bg-orange-700', 'bg-teal-700'];
+  let hash = 0;
+  for (const ch of name) hash = ch.charCodeAt(0) + ((hash << 5) - hash);
+  return { initials, colorClass: palette[Math.abs(hash) % palette.length] };
 }
 
 export function ConversationList({
@@ -62,15 +69,16 @@ export function ConversationList({
     : [];
 
   return (
-    <div className="flex w-full md:w-80 lg:w-96 border-r border-[#1C3050] flex-col shrink-0 bg-[#0E1C32]">
-      <div className="p-11 border-b border-[#1C3050] bg-[#1C3454]/40 backdrop-blur-xl">
-        <h2 className="text-xl font-bold text-white mb-9">Mensagens</h2>
+    <div className="flex w-[280px] border-r border-[#1C3050] flex-col shrink-0 bg-[#0E1C32]">
+      {/* Header */}
+      <div className="px-4 pt-5 pb-3 border-b border-[#1C3050] bg-[#0E1C32]">
+        <h2 className="text-xl font-bold text-white mb-3">Mensagens</h2>
         <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={15} />
           <input
             type="text"
             placeholder="Buscar conversas..."
-            className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+            className="w-full bg-[#132236] border border-white/[0.06] rounded-full py-2 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all placeholder:text-white/30"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -79,16 +87,16 @@ export function ConversationList({
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-full gap-8 opacity-50">
-            <Loader2 className="animate-spin text-emerald-500" />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Carregando chats...</p>
+          <div className="flex flex-col items-center justify-center h-full gap-3 opacity-50">
+            <Loader2 className="animate-spin text-emerald-500" size={20} />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Carregando...</p>
           </div>
         ) : filtered.length > 0 ? (
           filtered.map(conv => {
             const name = getOtherName(conv, role);
-            const avatar = getOtherAvatar(conv, role);
             const isOnline = onlineUsers.includes(getOtherUserId(conv, role) ?? '');
             const unread = getUnreadCount(conv, role);
+            const { initials, colorClass } = getAvatarInfo(name);
             const isNewOrcamento =
               role === 'professional' &&
               conv.lead_id !== null &&
@@ -99,14 +107,11 @@ export function ConversationList({
                 key={conv.id}
                 onClick={() => onSelectConversation(conv.id)}
                 className={cn(
-                  'w-full p-6 flex items-start gap-4 transition-all border-b border-white/[0.02] relative',
-                  activeConversationId === conv.id ? 'bg-emerald-500/5' : 'hover:bg-white/[0.02]',
+                  'w-full px-4 py-3 flex items-start gap-3 transition-all border-b border-white/[0.03] relative',
+                  activeConversationId === conv.id ? 'bg-white/5' : 'hover:bg-white/[0.03]',
                   isNewOrcamento && activeConversationId !== conv.id ? 'bg-emerald-500/[0.03]' : '',
                 )}
               >
-                {activeConversationId === conv.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                )}
                 {isNewOrcamento && (
                   <div className="absolute top-2 right-2">
                     <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-1.5 py-0.5 rounded-full">
@@ -114,18 +119,27 @@ export function ConversationList({
                     </span>
                   </div>
                 )}
-                <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center shrink-0 border border-[#1C3050] relative overflow-hidden">
-                  {avatar
-                    ? <img src={avatar} alt={name} loading="lazy" className="w-full h-full object-cover" />
-                    : <User className="text-[#4A6580]" size={24} />
-                  }
+
+                {/* Avatar with initials */}
+                <div className="relative shrink-0">
+                  <div className={cn('w-11 h-11 rounded-full flex items-center justify-center text-[13px] font-bold text-white', colorClass)}>
+                    {initials}
+                  </div>
+                  {/* Online indicator */}
                   <div className={cn(
-                    'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 border-2 border-[#1C3454] rounded-full',
+                    'absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-[#0E1C32] rounded-full',
                     isOnline ? 'bg-emerald-500' : 'bg-slate-600',
                   )} />
+                  {/* Unread badge */}
+                  {unread > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 shadow-md shadow-emerald-500/30">
+                      {unread}
+                    </span>
+                  )}
                 </div>
+
                 <div className="flex-1 text-left min-w-0">
-                  <div className="flex justify-between items-center mb-6 gap-6">
+                  <div className="flex justify-between items-center mb-0.5 gap-2">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <h4 className="text-sm font-bold text-white truncate">{name}</h4>
                       {role === 'client' && conv.prof_user_id && (
@@ -134,13 +148,13 @@ export function ConversationList({
                           tabIndex={0}
                           onClick={(e) => {
                             e.stopPropagation();
-                            onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), getOtherAvatar(conv, role));
+                            onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), conv.prof_profile?.avatar_url);
                           }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault();
                               e.stopPropagation();
-                              onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), getOtherAvatar(conv, role));
+                              onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), conv.prof_profile?.avatar_url);
                             }
                           }}
                           className="text-[9px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-1.5 py-0.5 rounded-full transition-all shrink-0 cursor-pointer select-none"
@@ -149,23 +163,16 @@ export function ConversationList({
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-[#4A6580] font-bold shrink-0">
+                    <span className="text-[10px] text-[#4A6580] shrink-0">
                       {new Date(conv.last_message_at ?? conv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   {conv.leadTitle && (
-                    <p className="text-xs text-emerald-400/70 truncate mt-0.5">📋 {conv.leadTitle}</p>
+                    <p className="text-[11px] text-emerald-400/70 truncate mb-0.5">📋 {conv.leadTitle}</p>
                   )}
-                  <div className="flex justify-between items-center gap-7">
-                    <p className="text-xs text-[#4A6580] truncate font-medium">
-                      {conv.last_message ? conv.last_message : conv.last_message_at ? '...' : 'Sem mensagens ainda'}
-                    </p>
-                    {unread > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-emerald-500/20">
-                        {unread}
-                      </span>
-                    )}
-                  </div>
+                  <p className="text-xs text-[#4A6580] truncate">
+                    {conv.last_message ?? (conv.last_message_at ? '...' : 'Sem mensagens ainda')}
+                  </p>
                   {isNewOrcamento && (
                     <span
                       role="button"
@@ -178,7 +185,7 @@ export function ConversationList({
                           onSelectConversation(conv.id);
                         }
                       }}
-                      className="mt-7 block w-full py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold rounded-lg transition-all text-center cursor-pointer select-none"
+                      className="mt-1.5 block w-full py-1 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded-lg transition-all text-center cursor-pointer select-none"
                     >
                       Responder orçamento →
                     </span>
@@ -188,8 +195,8 @@ export function ConversationList({
             );
           })
         ) : (
-          <div className="p-12 text-center">
-            <p className="text-xs text-[#4A6580] font-bold uppercase tracking-widest">Nenhuma conversa encontrada</p>
+          <div className="p-8 text-center">
+            <p className="text-xs text-[#4A6580] font-bold uppercase tracking-widest">Nenhuma conversa</p>
           </div>
         )}
       </div>

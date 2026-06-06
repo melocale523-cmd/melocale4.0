@@ -64,11 +64,11 @@ export function createApp() {
 
   const corsOptions: Parameters<typeof cors>[0] = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || ALLOWED_ORIGINS.has(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      if (!origin) return callback(null, true); // same-origin or curl
+      const isAllowed =
+        ALLOWED_ORIGINS.has(origin) ||
+        /^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin);
+      callback(isAllowed ? null : new Error("Not allowed by CORS"), isAllowed);
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,

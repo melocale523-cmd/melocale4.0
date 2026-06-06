@@ -13,6 +13,12 @@ interface MessageListProps {
   messagesEndRef: RefObject<HTMLDivElement | null>;
 }
 
+const IMAGE_EXTENSIONS = /\.(jpg|jpeg|png|webp|gif)$/i;
+
+function isImageUrl(url: string): boolean {
+  return url.startsWith('https') && (url.includes('/storage/') || url.includes('supabase'));
+}
+
 function getFileName(url: string): string {
   const parts = url.split('/');
   const raw = decodeURIComponent(parts[parts.length - 1] || 'arquivo');
@@ -23,6 +29,7 @@ function getFileName(url: string): string {
 
 function renderMessageContent(msg: Message) {
   const att = Array.isArray(msg.attachments) ? msg.attachments[0] : msg.attachments;
+
   if (att?.type === 'image') {
     return (
       <img
@@ -34,23 +41,49 @@ function renderMessageContent(msg: Message) {
       />
     );
   }
+
   if (att?.type === 'audio') {
     return <audio controls src={msg.body} className="max-w-full min-w-[200px]" />;
   }
+
   if (att?.type === 'file') {
+    if (att.fileName && IMAGE_EXTENSIONS.test(att.fileName)) {
+      return (
+        <img
+          src={msg.body}
+          alt={att.fileName}
+          loading="lazy"
+          className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
+          onClick={() => window.open(msg.body, '_blank')}
+        />
+      );
+    }
     return (
       <a
         href={msg.body}
         download={att.fileName}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-7 text-sm underline hover:no-underline"
+        className="flex items-center gap-2 text-sm underline hover:no-underline"
       >
         <Download size={14} />
         {getFileName(msg.body)}
       </a>
     );
   }
+
+  if (!att && isImageUrl(msg.body)) {
+    return (
+      <img
+        src={msg.body}
+        alt="Foto"
+        loading="lazy"
+        className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
+        onClick={() => window.open(msg.body, '_blank')}
+      />
+    );
+  }
+
   return <span className="whitespace-pre-wrap">{msg.body}</span>;
 }
 
@@ -64,59 +97,67 @@ export function MessageList({
   messagesEndRef,
 }: MessageListProps) {
   return (
-    <div className="flex-1 overflow-y-auto p-11 space-y-11 custom-scrollbar relative z-10">
+    <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2 custom-scrollbar relative z-10">
       {isLoading ? (
-        <div className="h-full flex items-center justify-center">
-          <Loader2 className="animate-spin text-emerald-500" size={32} />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="animate-spin text-emerald-500" size={28} />
         </div>
       ) : messages && messages.length > 0 ? (
         messages.map((msg) => {
           const isAi = msg.sender_type === 'ai';
           const mine = !isAi && msg.sender_type === role;
+          const timestamp = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           return (
+            // Outer row: full-width, justify-end for sent / justify-start for received
             <div
               key={msg.id}
               className={cn(
-                'flex flex-col max-w-[85%] sm:max-w-[70%] group animate-in slide-in-from-bottom-2',
-                mine ? 'ml-auto items-end' : 'mr-auto items-start',
+                'w-full flex animate-in slide-in-from-bottom-2',
+                mine ? 'justify-end' : 'justify-start',
               )}
             >
-              {isAi && (
-                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-6 ml-1">
-                  🤖 Assistente MeloCalé
-                </span>
-              )}
+              {/* Inner bubble container: max-width + alignment */}
               <div className={cn(
-                'p-4 rounded-2xl text-[13px] leading-relaxed relative shadow-lg',
-                mine
-                  ? 'bg-emerald-600 text-white rounded-tr-sm'
-                  : isAi
-                  ? 'bg-slate-700/80 text-slate-200 border border-slate-600/50 rounded-tl-sm italic'
-                  : 'bg-[#1C3454] text-slate-200 border border-[#1C3050] rounded-tl-sm hover:border-emerald-500/30 transition-colors',
+                'max-w-[75%] flex flex-col group',
+                mine ? 'items-end' : 'items-start',
               )}>
-                {renderMessageContent(msg)}
-              </div>
-              <div className="flex items-center gap-7 mt-7 px-1">
-                <span className="text-[10px] text-[#4A6580] font-bold uppercase tracking-wider">
-                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                {mine && (
-                  <div className="flex items-center">
-                    {msg.read_at
-                      ? <CheckCheck size={14} className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" />
-                      : <Check size={14} className="text-slate-600" />}
-                  </div>
+                {isAi && (
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 ml-1">
+                    🤖 Assistente MeloCalé
+                  </span>
                 )}
+                <div className={cn(
+                  'px-3 pt-2 pb-1.5 rounded-2xl text-[13px] leading-relaxed relative shadow-md',
+                  mine
+                    ? 'bg-[#10b981] text-white rounded-tr-sm'
+                    : isAi
+                    ? 'bg-slate-700/80 text-slate-200 border border-slate-600/50 rounded-tl-sm italic'
+                    : 'bg-white/10 text-white border border-white/[0.06] rounded-tl-sm',
+                )}>
+                  {renderMessageContent(msg)}
+                  {/* Timestamp inside bubble, bottom-right */}
+                  <div className={cn(
+                    'flex items-center justify-end gap-1 mt-1',
+                    mine ? 'opacity-70' : 'opacity-50',
+                  )}>
+                    <span className="text-[10px]">{timestamp}</span>
+                    {mine && (
+                      msg.read_at
+                        ? <CheckCheck size={12} className="text-white" />
+                        : <Check size={12} className="text-white/80" />
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           );
         })
       ) : (
-        <div className="h-full flex flex-col items-center justify-center text-center p-12">
-          <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-11 text-emerald-500 border border-emerald-500/20 shadow-2xl">
-            <Send size={32} />
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
+          <div className="w-16 h-16 bg-emerald-500/10 rounded-[1.5rem] flex items-center justify-center mb-4 text-emerald-500 border border-emerald-500/20 shadow-2xl">
+            <Send size={28} />
           </div>
-          <h4 className="text-white font-bold text-lg mb-7">Sem mensagens ainda</h4>
+          <h4 className="text-white font-bold text-base mb-2">Sem mensagens ainda</h4>
           <p className="text-[#4A6580] font-medium text-sm max-w-[200px]">
             Inicie uma conversa com o {otherLabel.toLowerCase()} para fechar o serviço.
           </p>
@@ -124,9 +165,9 @@ export function MessageList({
       )}
 
       {isTyping && (
-        <div className="flex flex-col items-start max-w-[70%] animate-in slide-in-from-bottom-2 duration-300">
-          <div className="bg-[#1C3454] text-[#94A3B8] py-8 px-5 rounded-2xl rounded-tl-sm border border-[#1C3050] flex items-center gap-8 shadow-lg">
-            <div className="flex gap-6 pt-1">
+        <div className="w-full flex justify-start animate-in slide-in-from-bottom-2 duration-300">
+          <div className="bg-white/10 border border-white/[0.06] text-slate-300 py-2.5 px-4 rounded-2xl rounded-tl-sm flex items-center gap-3 shadow-md">
+            <div className="flex gap-1 pt-0.5">
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.3s]" />
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
               <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce" />
