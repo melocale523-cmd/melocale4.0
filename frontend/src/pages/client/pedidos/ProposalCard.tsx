@@ -97,13 +97,13 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
       </div>
 
       {/* Actions */}
-      <div className="mt-4 space-y-2.5">
+      <div className="mt-4 space-y-3">
         {proposal.status === 'Enviada' || proposal.status === 'Proposta Enviada' ? (
           <>
             <button
               onClick={() => acceptMutation.mutate({ purchaseId: proposal.id })}
               disabled={anyPending}
-              className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-4 text-[15px] bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {acceptMutation.isPending
                 ? <Loader2 size={18} className="animate-spin" />
@@ -112,7 +112,7 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
             <button
               onClick={() => refuseMutation.mutate({ purchaseId: proposal.id })}
               disabled={anyPending}
-              className="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold rounded-2xl transition-all disabled:opacity-50"
+              className="w-full py-4 text-[15px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold rounded-2xl transition-all disabled:opacity-50"
             >
               {refuseMutation.isPending ? <Loader2 size={18} className="animate-spin mx-auto" /> : 'Recusar Proposta'}
             </button>
@@ -146,7 +146,7 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
             </button>
           </div>
         )}
-        <p className="text-[10px] text-[#4A6580] text-center uppercase tracking-wider mt-3">
+        <p className="text-[10px] text-[#4A6580] text-center uppercase tracking-wider mt-4">
           Analise com cuidado antes de aceitar • MeloCalé
         </p>
       </div>
