@@ -34,10 +34,10 @@ export function ProposalsModal({
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[#0E1C32]/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl max-w-md w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
 
         {/* Header */}
-        <div className="px-4 py-3 border-b border-[#243F6A] flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-[#243F6A] flex items-center justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-widest text-[#4A6580]">Propostas Recebidas</p>
             <h2 className="text-base font-bold text-white leading-tight">{pedido.title}</h2>
@@ -51,13 +51,13 @@ export function ProposalsModal({
         </div>
 
         {/* Progress */}
-        <div className="px-4 py-2 border-b border-[#243F6A] bg-[#0E1C32]/30">
+        <div className="px-5 py-3 border-b border-[#243F6A] bg-[#0E1C32]/30">
           <p className="text-[11px] font-bold uppercase tracking-widest text-[#4A6580] mb-1">Progresso do pedido</p>
           <LeadTimeline pedido={pedido} appointment={linkedAppointment} />
         </div>
 
         {/* Proposals list */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
           {proposalsLoading ? (
             <div className="py-10 flex flex-col items-center gap-3">
               <Loader2 className="animate-spin text-emerald-500" size={32} />

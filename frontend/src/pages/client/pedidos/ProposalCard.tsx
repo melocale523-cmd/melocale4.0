@@ -32,12 +32,12 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
   const { initials, colorClass } = getAvatarInfo(name);
 
   return (
-    <div className="bg-[#1C3454] border border-[#243F6A] rounded-2xl p-4">
+    <div className="bg-[#1C3454] border border-[#243F6A] rounded-2xl p-5">
       {/* Professional header */}
-      <div className="flex items-center gap-3">
-        <div className={cn('w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-sm font-bold text-white', colorClass)}>
+      <div className="flex items-center gap-4">
+        <div className={cn('w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-base font-bold text-white', colorClass)}>
           {proposal.profiles?.avatar_url ? (
-            <img src={proposal.profiles.avatar_url} loading="lazy" className="w-11 h-11 rounded-full object-cover" alt="avatar" />
+            <img src={proposal.profiles.avatar_url} loading="lazy" className="w-12 h-12 rounded-full object-cover" alt="avatar" />
           ) : initials}
         </div>
 
@@ -80,30 +80,30 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
       </div>
 
       {/* Description */}
-      <div className="bg-[#0E1C32] border border-[#243F6A] rounded-xl px-3 py-2.5 mt-3">
+      <div className="bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3 mt-4">
         <p className="text-[13px] text-[#94A3B8] italic">"{proposal.description}"</p>
       </div>
 
       {/* Price + duration */}
-      <div className="grid grid-cols-2 gap-2 mt-3">
-        <div className="bg-[#0E1C32] border border-[#243F6A] rounded-xl px-3 py-2.5">
+      <div className="grid grid-cols-2 gap-3 mt-4">
+        <div className="bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-0.5">Valor</p>
-          <p className="text-lg font-bold text-white">R$ {(proposal.price ?? 0).toLocaleString('pt-BR')}</p>
+          <p className="text-xl font-bold text-white">R$ {(proposal.price ?? 0).toLocaleString('pt-BR')}</p>
         </div>
-        <div className="bg-[#0E1C32] border border-[#243F6A] rounded-xl px-3 py-2.5">
+        <div className="bg-[#0E1C32] border border-[#243F6A] rounded-xl px-4 py-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-0.5">Prazo</p>
-          <p className="text-lg font-bold text-white">{proposal.duration}</p>
+          <p className="text-xl font-bold text-white">{proposal.duration}</p>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="mt-3 space-y-2">
+      <div className="mt-4 space-y-2.5">
         {proposal.status === 'Enviada' || proposal.status === 'Proposta Enviada' ? (
           <>
             <button
               onClick={() => acceptMutation.mutate({ purchaseId: proposal.id })}
               disabled={anyPending}
-              className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {acceptMutation.isPending
                 ? <Loader2 size={18} className="animate-spin" />
@@ -112,7 +112,7 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
             <button
               onClick={() => refuseMutation.mutate({ purchaseId: proposal.id })}
               disabled={anyPending}
-              className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold rounded-2xl transition-all disabled:opacity-50"
+              className="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold rounded-2xl transition-all disabled:opacity-50"
             >
               {refuseMutation.isPending ? <Loader2 size={18} className="animate-spin mx-auto" /> : 'Recusar Proposta'}
             </button>
@@ -146,7 +146,7 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
             </button>
           </div>
         )}
-        <p className="text-[10px] text-[#4A6580] text-center uppercase tracking-wider">
+        <p className="text-[10px] text-[#4A6580] text-center uppercase tracking-wider mt-3">
           Analise com cuidado antes de aceitar • MeloCalé
         </p>
       </div>
