@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import {
-  CheckCircle2, X, Send, MessageCircle, Loader2,
+  CheckCircle2, X, MessageCircle, Loader2,
 } from 'lucide-react';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { cn } from '../../../lib/utils';
@@ -126,12 +126,14 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
             <p className="text-[10px] text-[#4A6580] font-bold mt-1">Você recusou esta proposta.</p>
           </div>
         ) : (
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-center">
-            <div className="w-10 h-10 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Send size={20} />
+          <div className="bg-emerald-500/8 border border-emerald-500/20 rounded-2xl p-4 text-center">
+            <div className="w-10 h-10 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-2.5">
+              <CheckCircle2 size={20} className="text-emerald-500" />
             </div>
-            <p className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Interesse Enviado</p>
-            <p className="text-[10px] text-[#4A6580] font-bold mt-1">O profissional já recebeu seus dados de contato.</p>
+            <p className="text-[13px] font-bold text-emerald-400 mb-1">Interesse enviado</p>
+            <p className="text-xs text-[#4A6580] mb-3">
+              O profissional já recebeu seus dados de contato.
+            </p>
             <button
               onClick={async () => {
                 let chatId = proposal.chat_id;
@@ -140,9 +142,9 @@ export function ProposalCard({ proposal, acceptMutation, refuseMutation, onOpenP
                 }
                 if (chatId) navigate(`/cliente/mensagens?chatId=${chatId}`);
               }}
-              className="mt-3 w-full py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-500 transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2"
             >
-              <MessageCircle size={14} /> Abrir Chat
+              <MessageCircle size={15} /> Abrir Chat
             </button>
           </div>
         )}
