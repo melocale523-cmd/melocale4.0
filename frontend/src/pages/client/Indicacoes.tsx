@@ -136,10 +136,11 @@ export default function ClientIndicacoes() {
   function shareWhatsApp() {
     if (!referralData?.link) return
     const firstName = (referralData.full_name || '').split(' ')[0]
-    const intro = firstName ? `Olá! Sou ${firstName} e uso` : 'Uso'
+
     const text = isPro
-      ? `${intro} o MeloCalé pra conseguir clientes de serviços domésticos. 🔧\n\nCadastra pelo meu link e você começa a captar clientes hoje!\n\n👉 ${referralData.link}`
-      : `${intro} o MeloCalé pra contratar profissionais em casa. 🏠\n\nCria sua conta pelo meu link e encontre o profissional ideal!\n\n👉 ${referralData.link}`
+      ? `🔧 *Ei! Tô ganhando dinheiro extra pelo MeloCalé!*\n\nSou ${firstName || 'profissional'} e uso pra captar clientes de serviços domésticos aqui na cidade.\n\n✅ Clientes reais pedindo orçamento\n✅ Sem mensalidade pra começar\n✅ Você recebe pedidos na hora\n\n👉 Cria sua conta GRÁTIS pelo meu link:\n${referralData.link}\n\n_Código de convite: *${referralData.code}*_`
+      : `🏠 *Ei! Encontrei uma forma fácil de contratar profissionais!*\n\nSou ${firstName || 'cliente'} e uso o MeloCalé pra contratar eletricistas, encanadores, pintores e muito mais.\n\n✅ Profissionais verificados\n✅ Orçamento grátis\n✅ Avaliações reais de clientes\n\n👉 Cria sua conta GRÁTIS pelo meu link e já encontra o profissional ideal:\n${referralData.link}\n\n_Código de convite: *${referralData.code}*_`
+
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
