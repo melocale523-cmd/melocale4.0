@@ -141,7 +141,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Profile Completion */}
-      <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-3">
+      <div className="mt-4 bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="relative w-12 h-12 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
