@@ -141,7 +141,7 @@ export default function ProfessionalDashboard() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
+    <div className="w-full max-w-4xl mx-auto space-y-5">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-baseline justify-between gap-2">
@@ -170,7 +170,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Alerta de urgência — leads disponíveis */}
-      <div className="bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl px-4 py-3.5 flex items-center gap-3">
+      <div className="bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl px-5 py-4 flex items-center gap-4">
         <div className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
           <Activity size={16} className="text-emerald-400" />
         </div>
@@ -189,7 +189,7 @@ export default function ProfessionalDashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
         <div
-          className="rounded-xl p-4 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
+          className="rounded-xl p-5 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
           style={!isDark ? {
             background: 'linear-gradient(180deg, rgba(0,40,30,0.92) 0%, rgba(0,80,60,0.75) 100%)',
             backdropFilter: 'blur(14px)',
@@ -197,44 +197,44 @@ export default function ProfessionalDashboard() {
             border: '0.5px solid rgba(52,211,153,0.35)',
           } : undefined}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Moedas</h3>
             <Wallet size={14} className="text-[#6EE7B7] dark:text-emerald-500" />
           </div>
-          <p className="text-2xl font-bold text-white mb-1">{balanceCoins}</p>
+          <p className="text-2xl font-bold text-white mb-2">{balanceCoins}</p>
           <Link to="/profissional/carteira" className="text-[#A7F3D0] hover:text-[#6EE7B7] dark:text-emerald-500 dark:hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
             Recarregar <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Leads Comprados</h3>
             <Target size={14} className="text-blue-500" />
           </div>
-          <p className="text-2xl font-bold text-white mb-1">{purchaseCount}</p>
+          <p className="text-2xl font-bold text-white mb-2">{purchaseCount}</p>
           <Link to="/profissional/meus-leads" className="text-blue-400 hover:text-blue-300 text-xs font-medium flex items-center gap-1 transition-colors">
             Ver contatos <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Avaliação</h3>
             <Star size={14} className="text-purple-400 fill-purple-400/30" />
           </div>
-          <p className="text-2xl font-bold text-white mb-1">{avgRating > 0 ? avgRating.toFixed(1) : '—'}</p>
+          <p className="text-2xl font-bold text-white mb-2">{avgRating > 0 ? avgRating.toFixed(1) : '—'}</p>
           <Link to="/profissional/perfil" className="text-purple-400 hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
             Ver avaliações <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
             <Briefcase size={14} className="text-pink-400" />
           </div>
-          <p className="text-2xl font-bold text-white mb-1 truncate">
+          <p className="text-2xl font-bold text-white mb-2 truncate">
             {profile?.category || 'Não definida'}
           </p>
           <Link to="/profissional/perfil" className="text-pink-400 hover:text-pink-300 text-xs font-medium flex items-center gap-1 transition-colors">
@@ -247,8 +247,8 @@ export default function ProfessionalDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
 
         {/* Card A — Perfil completo */}
-        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-4 min-h-[110px]">
-          <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[130px]">
+          <div className="flex items-center gap-4">
             <div className="relative w-12 h-12 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
               <svg viewBox="0 0 36 36" className="absolute inset-0 w-12 h-12 -rotate-90">
                 <path
@@ -270,18 +270,18 @@ export default function ProfessionalDashboard() {
                 {completion.pct >= 100 ? 'Perfil Completo!' : 'Melhore seu Perfil'}
               </h4>
               {completion.pct < 100 ? (
-                <p className="text-slate-400 text-xs truncate">
+                <p className="text-slate-400 text-sm truncate">
                   Faltam: <span className="text-orange-400 font-medium">{completion.missing.join(', ')}</span>
                 </p>
               ) : (
-                <p className="text-emerald-400 text-xs">Recebe até <strong>3x mais contatos</strong>.</p>
+                <p className="text-emerald-400 text-sm">Recebe até <strong>3x mais contatos</strong>.</p>
               )}
             </div>
           </div>
           {completion.pct < 100 && (
             <Link
               to="/profissional/perfil"
-              className="mt-3 h-9 px-4 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white flex items-center justify-center rounded-lg transition-all gap-2 shadow-lg shadow-orange-500/20 w-full"
+              className="mt-4 h-10 px-4 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white flex items-center justify-center rounded-lg transition-all gap-2 shadow-lg shadow-orange-500/20 w-full"
             >
               Completar agora <ArrowRight size={14} />
             </Link>
@@ -289,43 +289,43 @@ export default function ProfessionalDashboard() {
         </div>
 
         {/* Card B — Próximo agendamento */}
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4 min-h-[110px]">
-          <div className="flex items-center gap-3">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[130px]">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
               <CalendarPlus size={18} className="text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-white font-bold text-sm">Próximo Agendamento</h4>
               {nextAppointment ? (
-                <p className="text-slate-400 text-xs truncate">
+                <p className="text-slate-400 text-sm truncate">
                   {new Date(nextAppointment.scheduled_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                   {nextAppointment.title ? ` • ${nextAppointment.title}` : ''}
                 </p>
               ) : (
-                <p className="text-slate-500 text-xs">Nenhum agendamento marcado</p>
+                <p className="text-slate-500 text-sm">Nenhum agendamento marcado</p>
               )}
             </div>
           </div>
           <Link
             to="/profissional/agenda"
-            className="mt-3 h-9 px-4 text-xs font-bold bg-[#0E1C32] border border-[#1C3050] hover:border-blue-500/30 text-blue-400 flex items-center justify-center rounded-lg transition-all gap-2 w-full"
+            className="mt-4 h-10 px-4 text-xs font-bold bg-[#0E1C32] border border-[#1C3050] hover:border-blue-500/30 text-blue-400 flex items-center justify-center rounded-lg transition-all gap-2 w-full"
           >
             Ver agenda completa <ArrowRight size={14} />
           </Link>
         </div>
 
         {/* Card C — Destaque Pontual */}
-        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C2A3A] border border-yellow-500/20 rounded-xl p-4 min-h-[110px]">
-          <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C2A3A] border border-yellow-500/20 rounded-xl p-5 min-h-[130px]">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
               <Star size={18} className="text-yellow-400 fill-yellow-400/30" />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-white font-bold text-sm">Destaque Pontual</h4>
-              <p className="text-slate-400 text-xs">Apareça no topo das buscas por 7 dias</p>
+              <p className="text-slate-400 text-sm">Apareça no topo das buscas por 7 dias</p>
             </div>
           </div>
-          <div className="mt-3">
+          <div className="mt-4">
             {isFeaturedActive && featuredUntil ? (
               <span className="inline-flex w-full items-center justify-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
                 <CheckCircle2 size={12} />
@@ -335,7 +335,7 @@ export default function ProfessionalDashboard() {
               <button
                 onClick={() => void handleActivateFeatured()}
                 disabled={featuredBusy}
-                className="h-9 px-4 text-xs font-semibold bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-wait text-black rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-yellow-500/20 w-full"
+                className="h-10 px-4 text-xs font-semibold bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-wait text-black rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-yellow-500/20 w-full"
               >
                 {featuredBusy ? <Loader2 size={13} className="animate-spin" /> : <Star size={13} className="fill-black/30" />}
                 Ativar por R$19
@@ -346,23 +346,23 @@ export default function ProfessionalDashboard() {
 
         {/* Card D — Assinatura */}
         <div className={cn(
-          'rounded-xl p-4 border min-h-[110px]',
+          'rounded-xl p-5 border min-h-[130px]',
           hasSubscription ? 'bg-gradient-to-r from-purple-500/10 to-[#1C3454] border-purple-500/20' : 'bg-[#1C3454] border-[#1C3050]',
         )}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
               <Crown size={18} className="text-purple-400" />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-white font-bold text-sm">Assinatura</h4>
-              <p className="text-slate-400 text-xs truncate">
+              <p className="text-slate-400 text-sm truncate">
                 {hasSubscription ? 'Você tem um plano ativo' : 'Tenha leads recorrentes todo mês'}
               </p>
             </div>
           </div>
           <button
             onClick={() => hasSubscription ? navigate('/profissional/assinatura') : setShowPlansModal(true)}
-            className="mt-3 h-9 px-4 text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center rounded-lg transition-all gap-2 w-full shadow-lg shadow-purple-500/20"
+            className="mt-4 h-10 px-4 text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center rounded-lg transition-all gap-2 w-full shadow-lg shadow-purple-500/20"
           >
             {hasSubscription ? 'Gerenciar assinatura' : 'Ver planos'} <ArrowRight size={14} />
           </button>
@@ -371,8 +371,8 @@ export default function ProfessionalDashboard() {
 
       {/* Primeiros Passos — only while steps remain */}
       {doneCount < steps.length && (
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Rocket size={16} className="text-orange-400" />
               <h2 className="text-lg font-bold text-white">Primeiros Passos para Faturar</h2>
@@ -380,18 +380,18 @@ export default function ProfessionalDashboard() {
             <span className="text-orange-400 text-xs font-bold">{doneCount}/{steps.length} concluídos</span>
           </div>
 
-          <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-3 border border-[#1C3050]">
+          <div className="w-full bg-slate-800/50 rounded-full h-1.5 mb-4 border border-[#1C3050]">
             <div
               className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
               style={{ width: `${checklistPct}%` }}
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {steps.map((step) => (
               <div
                 key={step.id}
-                className={`flex items-center gap-3 p-3.5 rounded-xl transition-colors ${
+                className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${
                   step.done
                     ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
                     : 'bg-[#0E1C32] border border-[#1C3050] hover:border-[#243F6A] cursor-pointer group'
@@ -425,16 +425,16 @@ export default function ProfessionalDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
             <Link
               to="/profissional/carteira"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-xl p-4 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-xl p-5 transition-colors group"
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs uppercase tracking-wide text-slate-400">Faturamento Est.</h3>
                 <TrendingUp size={14} className="text-emerald-500" />
               </div>
               <p className="text-2xl font-bold text-white mb-2">
                 R$ {stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
-              <div className="flex items-end gap-1 h-6 mb-2">
+              <div className="flex items-end gap-1 h-8 mb-3">
                 {[40, 60, 50, 80, 65, 100].map((h, i) => (
                   <div key={i} className="flex-1 bg-emerald-500/30 group-hover:bg-emerald-500/50 rounded-sm transition-colors" style={{ height: `${h}%` }} />
                 ))}
@@ -446,14 +446,14 @@ export default function ProfessionalDashboard() {
 
             <Link
               to="/profissional/carteira"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-xl p-4 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-xl p-5 transition-colors group"
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs uppercase tracking-wide text-slate-400">Propostas Aceitas</h3>
                 <Users size={14} className="text-blue-500" />
               </div>
               <p className="text-2xl font-bold text-white mb-2">{stats.acceptedProposalsCount}</p>
-              <div className="flex items-end gap-1 h-6 mb-2">
+              <div className="flex items-end gap-1 h-8 mb-3">
                 {[55, 70, 45, 90, 60, 75].map((h, i) => (
                   <div key={i} className="flex-1 bg-blue-500/30 group-hover:bg-blue-500/50 rounded-sm transition-colors" style={{ height: `${h}%` }} />
                 ))}
@@ -465,9 +465,9 @@ export default function ProfessionalDashboard() {
 
             <Link
               to="/profissional/meus-leads"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-xl p-4 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-xl p-5 transition-colors group"
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs uppercase tracking-wide text-slate-400">Ticket Médio</h3>
                 <Activity size={14} className="text-purple-400" />
               </div>
@@ -476,7 +476,7 @@ export default function ProfessionalDashboard() {
                   ? (stats.totalRevenue / stats.acceptedProposalsCount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
                   : '0,00'}
               </p>
-              <div className="flex items-end gap-1 h-6 mb-2">
+              <div className="flex items-end gap-1 h-8 mb-3">
                 {[60, 50, 80, 55, 70, 65].map((h, i) => (
                   <div key={i} className="flex-1 bg-purple-500/30 group-hover:bg-purple-500/50 rounded-sm transition-colors" style={{ height: `${h}%` }} />
                 ))}
