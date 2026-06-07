@@ -155,7 +155,7 @@ export default function ProfessionalLeads() {
           </Link>
         </div>
         {/* Mini KPIs de conversão */}
-        <div className="flex items-center gap-3 mt-4 flex-wrap">
+        <div className="flex items-center gap-3 mt-5 mb-1 flex-wrap">
           <span className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-1">
             🟢 {leads?.filter(l => new Date(l.created_at).toDateString() === new Date().toDateString()).length ?? 0} novos hoje
           </span>
