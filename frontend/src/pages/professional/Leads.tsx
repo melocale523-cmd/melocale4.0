@@ -381,101 +381,102 @@ export default function ProfessionalLeads() {
               <div
                 key={lead.id}
                 className={cn(
-                  "bg-[#1C3454] border rounded-xl p-3 flex flex-col transition-all group relative overflow-hidden text-left",
+                  "bg-[#132236] border rounded-2xl p-5 space-y-3 flex flex-col",
                   badges.some(b => b.label === 'Urgente')
                     ? "border-red-500/40 animate-pulse"
-                    : "border-[#1C3050] hover:border-emerald-500/30"
+                    : "border-white/[0.06]"
                 )}
               >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-emerald-500/10 transition-all" />
-
-                <div className="flex-1 relative z-10">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      {badges.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-1.5">
-                          {badges.map((b, i) => (
-                            <span key={i} className={`text-xs px-2 py-0.5 rounded-md font-semibold border ${b.color}`}>
-                              {b.icon} {b.label}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0 ml-2">
-                      <span className="text-xl font-bold text-emerald-400 block">{lead.price_coins || 1}</span>
-                      <span className="text-xs text-slate-500 uppercase tracking-tight">moedas</span>
-                    </div>
+                {/* Header: badges left, price right */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex flex-wrap gap-1">
+                    {badges.map((b, i) => (
+                      <span key={i} className={`text-xs px-2 py-0.5 rounded-md font-semibold border ${b.color}`}>
+                        {b.icon} {b.label}
+                      </span>
+                    ))}
                   </div>
-
-                  <h3 className="text-sm font-bold text-white mb-2 line-clamp-2 leading-tight group-hover:text-emerald-400 transition-colors">
-                    {lead.title}
-                  </h3>
-
-                  <div className="space-y-1.5 mb-3">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-300">
-                      <MapPin size={12} className="text-blue-500 shrink-0" />
-                      {lead.location || lead.city || 'São Paulo, SP'}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
-                      <DollarSign size={12} className="text-emerald-500 shrink-0" />
-                      {lead.budget_min && lead.budget_max ? `R$ ${lead.budget_min.toLocaleString('pt-BR')} – R$ ${lead.budget_max.toLocaleString('pt-BR')}` : 'A combinar'}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                      <Navigation size={12} className="text-purple-500 shrink-0" />
-                      {lead.location || 'Localização não informada'}
-                    </div>
-
-                    {lead.description && (
-                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{lead.description}</p>
-                    )}
-
-                    {lead.event_date && (
-                      <div className="text-slate-500 text-xs">
-                        📅 Para: {new Date(lead.event_date as string).toLocaleDateString('pt-BR')}
-                      </div>
-                    )}
-
-                    {(() => {
-                      const max = lead.max_purchases as number | undefined;
-                      const count = (lead.purchases_count as number | undefined) ?? 0;
-                      if (max == null) return null;
-                      const remaining = max - count;
-                      if (remaining <= 1) return <div className="text-xs font-bold text-red-400">🏆 Última vaga!</div>;
-                      return <div className="text-xs text-slate-400">👥 {remaining} vagas restantes</div>;
-                    })()}
-
-                    {((lead.purchases_count as number | undefined) ?? 0) > 0 && (
-                      <div className="text-xs text-amber-400/80">⚡ {lead.purchases_count as number} profissionais interessados</div>
-                    )}
-
-                    {Array.isArray(lead.images) && (lead.images as string[]).length > 0 && (
-                      <div className="flex gap-1 overflow-x-auto pb-1 mt-1" style={{ scrollbarWidth: 'none' }}>
-                        {(lead.images as string[]).map((url, idx) => (
-                          <img
-                            key={idx}
-                            src={url}
-                            alt={`Foto ${idx + 1}`}
-                            loading="lazy"
-                            role="button"
-                            aria-label="Ver imagem em tela cheia"
-                            onClick={(e) => { e.stopPropagation(); setLightboxImg({ images: lead.images as string[], index: idx }); }}
-                            className="w-16 h-16 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg px-3 py-1 text-sm font-bold shrink-0">
+                    {lead.price_coins || 1} 🪙
+                  </span>
                 </div>
 
+                {/* Title */}
+                <h3 className="font-bold text-white text-sm leading-snug line-clamp-2">
+                  {lead.title}
+                </h3>
+
+                {/* Info grid 2 cols */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                  <div className="flex items-center gap-1.5 text-slate-300">
+                    <MapPin size={12} className="text-blue-400 shrink-0" />
+                    <span className="truncate">{lead.location || lead.city || 'Não informado'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                    <DollarSign size={12} className="shrink-0" />
+                    <span className="truncate">
+                      {lead.budget_min && lead.budget_max
+                        ? `R$ ${lead.budget_min.toLocaleString('pt-BR')} – R$ ${lead.budget_max.toLocaleString('pt-BR')}`
+                        : 'A combinar'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-400">
+                    <Navigation size={12} className="text-purple-400 shrink-0" />
+                    <span className="truncate">{lead.location || 'Localização não informada'}</span>
+                  </div>
+                  {(() => {
+                    const max = lead.max_purchases as number | undefined;
+                    const count = (lead.purchases_count as number | undefined) ?? 0;
+                    if (max == null) return <div />;
+                    const remaining = max - count;
+                    if (remaining <= 1)
+                      return <div className="font-bold text-red-400">🏆 Última vaga!</div>;
+                    return <div className="text-slate-400">👥 {remaining} vagas restantes</div>;
+                  })()}
+                </div>
+
+                {/* Description */}
+                {lead.description && (
+                  <p className="text-xs text-slate-400 bg-white/5 rounded-lg px-3 py-2 leading-relaxed line-clamp-3">
+                    {lead.description}
+                  </p>
+                )}
+
+                {/* Extra info preserved */}
+                {lead.event_date && (
+                  <div className="text-slate-500 text-xs">
+                    📅 Para: {new Date(lead.event_date as string).toLocaleDateString('pt-BR')}
+                  </div>
+                )}
+                {((lead.purchases_count as number | undefined) ?? 0) > 0 && (
+                  <div className="text-xs text-amber-400/80">⚡ {lead.purchases_count as number} profissionais interessados</div>
+                )}
+                {Array.isArray(lead.images) && (lead.images as string[]).length > 0 && (
+                  <div className="flex gap-1 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                    {(lead.images as string[]).map((url, idx) => (
+                      <img
+                        key={idx}
+                        src={url}
+                        alt={`Foto ${idx + 1}`}
+                        loading="lazy"
+                        role="button"
+                        aria-label="Ver imagem em tela cheia"
+                        onClick={(e) => { e.stopPropagation(); setLightboxImg({ images: lead.images as string[], index: idx }); }}
+                        className="w-16 h-16 rounded-lg object-cover shrink-0 border border-[#243F6A] cursor-zoom-in hover:opacity-80 transition-opacity"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Purchase button */}
                 <button
                   onClick={() => handlePurchase(lead)}
                   disabled={purchaseMutation.isPending}
-                  className="w-full h-8 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-all text-xs flex items-center justify-center gap-1.5 relative z-10"
+                  className="w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all mt-auto"
                 >
                   {purchaseMutation.isPending
-                    ? <Loader2 className="animate-spin" size={13} />
-                    : <><ShoppingCart size={13} className="group-hover:scale-110 transition-transform" /> Adquirir Cliente</>
+                    ? <Loader2 className="animate-spin" size={15} />
+                    : <><ShoppingCart size={15} /> Adquirir Cliente · {lead.price_coins || 1} moedas</>
                   }
                 </button>
               </div>
