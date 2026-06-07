@@ -189,7 +189,7 @@ export default function ProfessionalDashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
         <div
-          className="rounded-xl p-5 min-h-[160px] flex flex-col justify-between dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
+          className="rounded-xl p-5 min-h-[200px] flex flex-col justify-between dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
           style={!isDark ? {
             background: 'linear-gradient(180deg, rgba(0,40,30,0.92) 0%, rgba(0,80,60,0.75) 100%)',
             backdropFilter: 'blur(14px)',
@@ -208,7 +208,7 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[160px] flex flex-col justify-between">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[200px] flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Leads Comprados</h3>
             <Target size={14} className="text-blue-500" />
@@ -220,7 +220,7 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[160px] flex flex-col justify-between">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[200px] flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Avaliação</h3>
             <Star size={14} className="text-purple-400 fill-purple-400/30" />
@@ -232,7 +232,7 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[160px] flex flex-col justify-between">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[200px] flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
             <Briefcase size={14} className="text-pink-400" />
