@@ -248,11 +248,11 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Grid 2x2 — Perfil / Agendamento / Destaque / Assinatura */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
 
         {/* Card A — Perfil completo */}
-        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[130px]">
-          <div className="flex items-center gap-4">
+        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[150px]">
+          <div className="flex items-center gap-5">
             <div className="relative w-12 h-12 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
               <svg viewBox="0 0 36 36" className="absolute inset-0 w-12 h-12 -rotate-90">
                 <path
@@ -270,7 +270,7 @@ export default function ProfessionalDashboard() {
               <span className="text-white font-bold text-xs">{completion.pct}%</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-white font-bold text-sm mb-1">
+              <h4 className="text-white font-bold text-base mb-1">
                 {completion.pct >= 100 ? 'Perfil Completo!' : 'Melhore seu Perfil'}
               </h4>
               {completion.pct < 100 ? (
@@ -285,7 +285,7 @@ export default function ProfessionalDashboard() {
           {completion.pct < 100 && (
             <Link
               to="/profissional/perfil"
-              className="mt-4 h-10 px-4 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white flex items-center justify-center rounded-lg transition-all gap-2 shadow-lg shadow-orange-500/20 w-full"
+              className="mt-5 h-11 px-4 text-sm font-bold bg-orange-600 hover:bg-orange-500 text-white flex items-center justify-center rounded-lg transition-all gap-2 shadow-lg shadow-orange-500/20 w-full"
             >
               Completar agora <ArrowRight size={14} />
             </Link>
@@ -293,13 +293,13 @@ export default function ProfessionalDashboard() {
         </div>
 
         {/* Card B — Próximo agendamento */}
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[130px]">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[150px]">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
               <CalendarPlus size={18} className="text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-white font-bold text-sm">Próximo Agendamento</h4>
+              <h4 className="text-white font-bold text-base">Próximo Agendamento</h4>
               {nextAppointment ? (
                 <p className="text-slate-400 text-sm truncate">
                   {new Date(nextAppointment.scheduled_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
@@ -312,7 +312,7 @@ export default function ProfessionalDashboard() {
           </div>
           <Link
             to="/profissional/agenda"
-            className="mt-4 h-10 px-4 text-xs font-bold bg-[#0E1C32] border border-[#1C3050] hover:border-blue-500/30 text-blue-400 flex items-center justify-center rounded-lg transition-all gap-2 w-full"
+            className="mt-5 h-11 px-4 text-sm font-bold bg-[#0E1C32] border border-[#1C3050] hover:border-blue-500/30 text-blue-400 flex items-center justify-center rounded-lg transition-all gap-2 w-full"
           >
             Ver agenda completa <ArrowRight size={14} />
           </Link>
