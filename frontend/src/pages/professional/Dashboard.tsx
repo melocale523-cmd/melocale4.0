@@ -248,7 +248,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Grid 2x2 — Perfil / Agendamento / Destaque / Assinatura */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-4">
 
         {/* Card A — Perfil completo */}
         <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[150px]">
