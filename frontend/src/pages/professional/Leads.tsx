@@ -369,7 +369,7 @@ export default function ProfessionalLeads() {
       </div>
 
       {/* Lead Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
         {leadsLoading ? (
           <div className="col-span-full py-16 flex justify-center">
             <LoadingSpinner size={28} label="Buscando novos clientes..." />
@@ -402,7 +402,7 @@ export default function ProfessionalLeads() {
                 </div>
 
                 {/* Title */}
-                <h3 className="font-bold text-white text-sm leading-snug line-clamp-2">
+                <h3 className="mt-1 font-bold text-white text-sm leading-snug line-clamp-2">
                   {lead.title}
                 </h3>
 
