@@ -189,7 +189,7 @@ export default function ProfessionalDashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
         <div
-          className="rounded-xl p-5 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
+          className="rounded-xl p-5 min-h-[120px] dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
           style={!isDark ? {
             background: 'linear-gradient(180deg, rgba(0,40,30,0.92) 0%, rgba(0,80,60,0.75) 100%)',
             backdropFilter: 'blur(14px)',
@@ -197,46 +197,42 @@ export default function ProfessionalDashboard() {
             border: '0.5px solid rgba(52,211,153,0.35)',
           } : undefined}
         >
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs uppercase tracking-wide text-slate-400">Moedas</h3>
-            <Wallet size={14} className="text-[#6EE7B7] dark:text-emerald-500" />
-          </div>
-          <p className="text-2xl font-bold text-white mb-2">{balanceCoins}</p>
+          <Wallet size={14} className="text-[#6EE7B7] dark:text-emerald-500 mb-4" />
+          <h3 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Moedas</h3>
+          <p className="text-3xl font-bold text-white mb-3">{balanceCoins}</p>
+          <div className="h-px bg-white/5 my-3" />
           <Link to="/profissional/carteira" className="text-[#A7F3D0] hover:text-[#6EE7B7] dark:text-emerald-500 dark:hover:text-emerald-400 text-xs font-medium flex items-center gap-1 transition-colors">
             Recarregar <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs uppercase tracking-wide text-slate-400">Leads Comprados</h3>
-            <Target size={14} className="text-blue-500" />
-          </div>
-          <p className="text-2xl font-bold text-white mb-2">{purchaseCount}</p>
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[120px]">
+          <Target size={14} className="text-blue-500 mb-4" />
+          <h3 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Leads Comprados</h3>
+          <p className="text-3xl font-bold text-white mb-3">{purchaseCount}</p>
+          <div className="h-px bg-white/5 my-3" />
           <Link to="/profissional/meus-leads" className="text-blue-400 hover:text-blue-300 text-xs font-medium flex items-center gap-1 transition-colors">
             Ver contatos <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs uppercase tracking-wide text-slate-400">Avaliação</h3>
-            <Star size={14} className="text-purple-400 fill-purple-400/30" />
-          </div>
-          <p className="text-2xl font-bold text-white mb-2">{avgRating > 0 ? avgRating.toFixed(1) : '—'}</p>
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[120px]">
+          <Star size={14} className="text-purple-400 fill-purple-400/30 mb-4" />
+          <h3 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Avaliação</h3>
+          <p className="text-3xl font-bold text-white mb-3">{avgRating > 0 ? avgRating.toFixed(1) : '—'}</p>
+          <div className="h-px bg-white/5 my-3" />
           <Link to="/profissional/perfil" className="text-purple-400 hover:text-purple-300 text-xs font-medium flex items-center gap-1 transition-colors">
             Ver avaliações <ArrowRight size={11} />
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
-            <Briefcase size={14} className="text-pink-400" />
-          </div>
-          <p className="text-2xl font-bold text-white mb-2 truncate">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[120px]">
+          <Briefcase size={14} className="text-pink-400 mb-4" />
+          <h3 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Categoria</h3>
+          <p className="text-3xl font-bold text-white mb-3 truncate">
             {profile?.category || 'Não definida'}
           </p>
+          <div className="h-px bg-white/5 my-3" />
           <Link to="/profissional/perfil" className="text-pink-400 hover:text-pink-300 text-xs font-medium flex items-center gap-1 transition-colors">
             {profile?.category ? 'Alterar' : 'Definir agora'} <ArrowRight size={11} />
           </Link>
