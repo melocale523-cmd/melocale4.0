@@ -155,7 +155,7 @@ export default function ProfessionalLeads() {
           </Link>
         </div>
         {/* Mini KPIs de conversão */}
-        <div className="flex items-center gap-3 mt-2 flex-wrap">
+        <div className="flex items-center gap-3 mt-4 flex-wrap">
           <span className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-1">
             🟢 {leads?.filter(l => new Date(l.created_at).toDateString() === new Date().toDateString()).length ?? 0} novos hoje
           </span>
@@ -176,7 +176,7 @@ export default function ProfessionalLeads() {
             placeholder="Buscar serviço... (ex: Pintura, Elétrica)"
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg pl-8 pr-3 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+            className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg pl-8 pr-3 py-3 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-all"
           />
           <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
         </div>
