@@ -170,7 +170,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Alerta de urgência — leads disponíveis */}
-      <div className="bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl px-5 py-4 flex items-center gap-4" style={{ marginTop: '1.25rem' }}>
+      <div className="bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl px-5 py-4 flex items-center gap-4" style={{ marginTop: '1.5rem' }}>
         <div className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
           <Activity size={16} className="text-emerald-400" />
         </div>
@@ -248,7 +248,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Grid 2x2 — Perfil / Agendamento / Destaque / Assinatura */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full" style={{ marginTop: '1.25rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full" style={{ marginTop: '1.25rem' }}>
 
         {/* Card A — Perfil completo */}
         <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[100px]">
