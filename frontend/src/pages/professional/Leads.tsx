@@ -176,7 +176,7 @@ export default function ProfessionalLeads() {
             placeholder="Buscar serviço... (ex: Pintura, Elétrica)"
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className="w-full h-8 bg-[#1C3454] border border-[#1C3050] rounded-lg pl-8 pr-3 py-3 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-all"
+            className="w-full h-11 bg-[#1C3454] border border-[#1C3050] rounded-lg pl-8 pr-3 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-all"
           />
           <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
         </div>
