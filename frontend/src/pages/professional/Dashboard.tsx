@@ -248,10 +248,10 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Grid 2x2 — Perfil / Agendamento / Destaque / Assinatura */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full" style={{ marginTop: '1rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full" style={{ marginTop: '0.5rem' }}>
 
         {/* Card A — Perfil completo */}
-        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[150px]">
+        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[100px]">
           <div className="flex items-center gap-5">
             <div className="relative w-12 h-12 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
               <svg viewBox="0 0 36 36" className="absolute inset-0 w-12 h-12 -rotate-90">
@@ -293,7 +293,7 @@ export default function ProfessionalDashboard() {
         </div>
 
         {/* Card B — Próximo agendamento */}
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[150px]">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5 min-h-[100px]">
           <div className="flex items-center gap-5">
             <div className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
               <CalendarPlus size={18} className="text-blue-400" />
