@@ -169,7 +169,7 @@ export default function ProfessionalLeads() {
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="mt-6 mb-2 flex gap-2 items-center">
+      <div className="mb-2 flex gap-2 items-center" style={{ marginTop: '2rem' }}>
         <div className="relative flex-1">
           <input
             type="text"
@@ -374,7 +374,7 @@ export default function ProfessionalLeads() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="mt-6 text-lg font-bold text-white flex items-center gap-2">
+        <h1 className="text-lg font-bold text-white flex items-center gap-2" style={{ marginTop: '2rem' }}>
           Clientes Disponíveis
           <span className="text-xs font-medium px-2 py-0.5 bg-white/5 border border-[#243F6A] rounded-md text-slate-500">
             {filteredLeads?.length || 0}
@@ -383,7 +383,7 @@ export default function ProfessionalLeads() {
       </div>
 
       {/* Lead Cards Grid */}
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl" style={{ marginTop: '1.5rem' }}>
         {leadsLoading ? (
           <div className="col-span-full py-16 flex justify-center">
             <LoadingSpinner size={28} label="Buscando novos clientes..." />
