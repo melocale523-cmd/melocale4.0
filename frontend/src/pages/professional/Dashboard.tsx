@@ -187,7 +187,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full" style={{ marginTop: '1rem' }}>
         <div
           className="rounded-xl p-5 min-h-[160px] flex flex-col justify-between dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
           style={!isDark ? {
@@ -248,7 +248,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Grid 2x2 — Perfil / Agendamento / Destaque / Assinatura */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full" style={{ marginTop: '1rem' }}>
 
         {/* Card A — Perfil completo */}
         <div className="mt-4 bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-5 min-h-[150px]">
@@ -423,7 +423,7 @@ export default function ProfessionalDashboard() {
 
       {/* Performance do Mês */}
       {stats && stats.totalRevenue > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2" style={{ marginTop: '1rem' }}>
           <h2 className="text-lg font-bold text-white">Performance do Mês</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
