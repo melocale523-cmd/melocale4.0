@@ -141,7 +141,7 @@ export default function ProfessionalDashboard() {
   }
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full max-w-4xl mx-auto space-y-4">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-baseline justify-between gap-2">
@@ -170,7 +170,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Alerta de urgência — leads disponíveis */}
-      <div className="bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
+      <div className="bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl px-4 py-3.5 flex items-center gap-3">
         <div className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
           <Activity size={16} className="text-emerald-400" />
         </div>
@@ -187,9 +187,9 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
         <div
-          className="rounded-xl p-3 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
+          className="rounded-xl p-4 dark:bg-[#1C3454] dark:border dark:border-[#1C3050]"
           style={!isDark ? {
             background: 'linear-gradient(180deg, rgba(0,40,30,0.92) 0%, rgba(0,80,60,0.75) 100%)',
             backdropFilter: 'blur(14px)',
@@ -207,7 +207,7 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Leads Comprados</h3>
             <Target size={14} className="text-blue-500" />
@@ -218,7 +218,7 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Avaliação</h3>
             <Star size={14} className="text-purple-400 fill-purple-400/30" />
@@ -229,7 +229,7 @@ export default function ProfessionalDashboard() {
           </Link>
         </div>
 
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
             <Briefcase size={14} className="text-pink-400" />
@@ -244,10 +244,10 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Grid 2x2 — Perfil / Agendamento / Destaque / Assinatura */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
 
         {/* Card A — Perfil completo */}
-        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-3">
+        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C3454] border border-orange-500/20 rounded-xl p-4 min-h-[110px]">
           <div className="flex items-center gap-3">
             <div className="relative w-12 h-12 rounded-full border-4 border-orange-500/20 flex items-center justify-center shrink-0">
               <svg viewBox="0 0 36 36" className="absolute inset-0 w-12 h-12 -rotate-90">
@@ -289,7 +289,7 @@ export default function ProfessionalDashboard() {
         </div>
 
         {/* Card B — Próximo agendamento */}
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4 min-h-[110px]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
               <CalendarPlus size={18} className="text-blue-400" />
@@ -315,7 +315,7 @@ export default function ProfessionalDashboard() {
         </div>
 
         {/* Card C — Destaque Pontual */}
-        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C2A3A] border border-yellow-500/20 rounded-xl p-3">
+        <div className="bg-gradient-to-r from-[#1C1613] to-[#1C2A3A] border border-yellow-500/20 rounded-xl p-4 min-h-[110px]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
               <Star size={18} className="text-yellow-400 fill-yellow-400/30" />
@@ -346,7 +346,7 @@ export default function ProfessionalDashboard() {
 
         {/* Card D — Assinatura */}
         <div className={cn(
-          'rounded-xl p-3 border',
+          'rounded-xl p-4 border min-h-[110px]',
           hasSubscription ? 'bg-gradient-to-r from-purple-500/10 to-[#1C3454] border-purple-500/20' : 'bg-[#1C3454] border-[#1C3050]',
         )}>
           <div className="flex items-center gap-3">
@@ -371,7 +371,7 @@ export default function ProfessionalDashboard() {
 
       {/* Primeiros Passos — only while steps remain */}
       {doneCount < steps.length && (
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Rocket size={16} className="text-orange-400" />
@@ -391,7 +391,7 @@ export default function ProfessionalDashboard() {
             {steps.map((step) => (
               <div
                 key={step.id}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                className={`flex items-center gap-3 p-3.5 rounded-xl transition-colors ${
                   step.done
                     ? 'bg-emerald-500/5 border border-emerald-500/20 cursor-default'
                     : 'bg-[#0E1C32] border border-[#1C3050] hover:border-[#243F6A] cursor-pointer group'
@@ -422,10 +422,10 @@ export default function ProfessionalDashboard() {
         <div className="space-y-2">
           <h2 className="text-lg font-bold text-white">Performance do Mês</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
             <Link
               to="/profissional/carteira"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-xl p-3 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-xl p-4 transition-colors group"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs uppercase tracking-wide text-slate-400">Faturamento Est.</h3>
@@ -446,7 +446,7 @@ export default function ProfessionalDashboard() {
 
             <Link
               to="/profissional/carteira"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-xl p-3 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-xl p-4 transition-colors group"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs uppercase tracking-wide text-slate-400">Propostas Aceitas</h3>
@@ -465,7 +465,7 @@ export default function ProfessionalDashboard() {
 
             <Link
               to="/profissional/meus-leads"
-              className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-xl p-3 transition-colors group"
+              className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-xl p-4 transition-colors group"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs uppercase tracking-wide text-slate-400">Ticket Médio</h3>
