@@ -136,26 +136,40 @@ export default function ProfessionalLeads() {
     <div className="w-full space-y-3">
 
       {/* Saldo Alert */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-yellow-500/10 text-yellow-500 rounded-lg flex items-center justify-center shrink-0">
-            <Coins size={18} />
+      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-yellow-500/10 text-yellow-500 rounded-lg flex items-center justify-center shrink-0">
+              <Coins size={18} />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-400">Saldo Disponível</p>
+              <p className="text-2xl font-bold text-white leading-none">
+                {walletLoading ? '...' : (typeof balance === 'number' ? Math.floor(balance) : 0)}
+                <span className="text-xs font-semibold text-yellow-500 uppercase tracking-wide ml-1">moedas</span>
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Saldo Disponível</p>
-            <p className="text-2xl font-bold text-white leading-none">
-              {walletLoading ? '...' : (typeof balance === 'number' ? Math.floor(balance) : 0)}
-              <span className="text-xs font-semibold text-yellow-500 uppercase tracking-wide ml-1">moedas</span>
-            </p>
-          </div>
+          <Link to="/profissional/carteira" className="h-8 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all flex items-center gap-1.5">
+            <Plus size={13} /> Recarregar
+          </Link>
         </div>
-        <Link to="/profissional/carteira" className="h-8 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all flex items-center gap-1.5">
-          <Plus size={13} /> Recarregar
-        </Link>
+        {/* Mini KPIs de conversão */}
+        <div className="flex items-center gap-3 mt-2 flex-wrap">
+          <span className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-1">
+            🟢 {leads?.filter(l => new Date(l.created_at).toDateString() === new Date().toDateString()).length ?? 0} novos hoje
+          </span>
+          <span className="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-full px-2.5 py-1">
+            ⚡ {leads?.filter(l => l.max_purchases && (l.max_purchases - ((l.purchases_count as number) ?? 0)) <= 2).length ?? 0} quase esgotados
+          </span>
+          <span className="flex items-center gap-1 text-xs text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-2.5 py-1">
+            🏆 Seja o 1º a fechar negócio
+          </span>
+        </div>
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="flex gap-2 items-center">
+      <div className="mt-5 flex gap-2 items-center">
         <div className="relative flex-1">
           <input
             type="text"
@@ -369,7 +383,7 @@ export default function ProfessionalLeads() {
       </div>
 
       {/* Lead Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-3xl">
         {leadsLoading ? (
           <div className="col-span-full py-16 flex justify-center">
             <LoadingSpinner size={28} label="Buscando novos clientes..." />
@@ -472,7 +486,7 @@ export default function ProfessionalLeads() {
                 <button
                   onClick={() => handlePurchase(lead)}
                   disabled={purchaseMutation.isPending}
-                  className="w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all mt-auto"
+                  className="w-full h-9 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all mt-auto text-xs"
                 >
                   {purchaseMutation.isPending
                     ? <Loader2 className="animate-spin" size={15} />
