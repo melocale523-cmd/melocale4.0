@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
-import { Eye, TrendingUp, CheckCircle2, DollarSign, Loader2, Calendar, AlertCircle } from 'lucide-react';
+import { Eye, TrendingUp, CheckCircle2, DollarSign, Loader2, Calendar, AlertCircle, Zap } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
 import { useInView } from '../../hooks/useInView';
@@ -13,7 +13,7 @@ function ChartsSkeleton() {
   return (
     <div className="grid lg:grid-cols-2 gap-3">
       {[0, 1].map((i) => (
-        <div key={i} className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 h-[280px] flex items-center justify-center">
+        <div key={i} className="bg-[#132236] border border-[#1C3050] rounded-2xl p-4 h-[280px] flex items-center justify-center">
           <Loader2 className="animate-spin text-emerald-500/40" size={28} />
         </div>
       ))}
@@ -55,7 +55,7 @@ export default function ProfessionalEstatisticas() {
   }
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-4">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -64,7 +64,7 @@ export default function ProfessionalEstatisticas() {
           <p className="text-xs uppercase tracking-wide text-slate-400">Acompanhe seu desempenho e crescimento</p>
         </div>
 
-        <div className="flex items-center bg-[#1C3454] p-1 rounded-lg border border-[#1C3050] gap-0.5">
+        <div className="flex items-center bg-[#0E1C32] border border-[#243F6A] rounded-xl p-1 gap-0.5">
           {([
             { id: '7d', label: '7 Dias' },
             { id: '30d', label: '30 Dias' },
@@ -77,7 +77,7 @@ export default function ProfessionalEstatisticas() {
               className={cn(
                 "h-8 px-3 text-xs font-semibold rounded-lg transition-all",
                 range === item.id
-                  ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
+                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
                   : "text-slate-500 hover:text-slate-300"
               )}
             >
@@ -89,38 +89,51 @@ export default function ProfessionalEstatisticas() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 transition-all hover:border-blue-500/30 group">
-          <div className="w-7 h-7 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 mb-2 group-hover:scale-110 transition-transform">
-            <Eye size={16} />
+        {/* Visualizações */}
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#378ADD' }} />
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400"><Eye size={16} /></div>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">+{stats?.visualizacoes || 0}</span>
           </div>
-          <h4 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Visualizações</h4>
-          <p className="text-2xl font-bold text-white">{stats?.visualizacoes || 0}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-1">Visualizações</p>
+          <p className="text-2xl font-bold text-blue-400">{stats?.visualizacoes || 0}</p>
+          <p className="text-[11px] text-[#4A6580] mt-1">no período</p>
         </div>
-
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 transition-all hover:border-purple-500/30 group">
-          <div className="w-7 h-7 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400 mb-2 group-hover:scale-110 transition-transform">
-            <TrendingUp size={16} />
+        {/* Propostas */}
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#a855f7' }} />
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400"><TrendingUp size={16} /></div>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-purple-500/10 text-purple-400">+{stats?.totalProposals || 0}</span>
           </div>
-          <h4 className="text-xs uppercase tracking-wide text-slate-400 mb-1">Propostas</h4>
-          <p className="text-2xl font-bold text-white">{stats?.totalProposals || 0}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-1">Propostas</p>
+          <p className="text-2xl font-bold text-purple-400">{stats?.totalProposals || 0}</p>
+          <p className="text-[11px] text-[#4A6580] mt-1">enviadas</p>
         </div>
-
-        <div className="bg-[#1C3454] border border-emerald-500/20 rounded-xl p-3 transition-all hover:border-emerald-500/40 group">
-          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500 mb-2 group-hover:scale-110 transition-transform">
-            <CheckCircle2 size={16} />
+        {/* Aceitas */}
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#10b981' }} />
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400"><CheckCircle2 size={16} /></div>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400">
+              {stats?.totalProposals ? Math.round((stats.acceptedProposalsCount / stats.totalProposals) * 100) : 0}%
+            </span>
           </div>
-          <h4 className="text-xs uppercase tracking-wide text-emerald-500/70 mb-1">Aceitas</h4>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-1">Aceitas</p>
           <p className="text-2xl font-bold text-emerald-400">{stats?.acceptedProposalsCount || 0}</p>
+          <p className="text-[11px] text-[#4A6580] mt-1">taxa de conversão</p>
         </div>
-
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 transition-all hover:border-yellow-500/30 group">
-          <div className="w-7 h-7 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-500 mb-2 group-hover:scale-110 transition-transform">
-            <DollarSign size={16} />
+        {/* Faturamento */}
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#f59e0b' }} />
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-400"><DollarSign size={16} /></div>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-400">est.</span>
           </div>
-          <h4 className="text-xs uppercase tracking-wide text-yellow-500/70 mb-1">Faturamento</h4>
-          <p className="text-2xl font-bold text-white">
-            R$ {(stats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
-          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-1">Faturamento</p>
+          <p className="text-2xl font-bold text-yellow-400">R$ {(stats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}</p>
+          <p className="text-[11px] text-[#4A6580] mt-1">no período</p>
         </div>
       </div>
 
@@ -129,7 +142,7 @@ export default function ProfessionalEstatisticas() {
         {seriesData.length === 0 ? (
           <div className="grid lg:grid-cols-2 gap-3">
             {[0, 1].map((i) => (
-              <div key={i} className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 h-[280px] flex flex-col items-center justify-center gap-2">
+              <div key={i} className="bg-[#132236] border border-[#1C3050] rounded-2xl p-4 h-[280px] flex flex-col items-center justify-center gap-2">
                 <AlertCircle size={24} className="text-slate-600" />
                 <p className="text-slate-500 text-xs uppercase tracking-wide">Sem dados disponíveis</p>
               </div>
@@ -148,8 +161,37 @@ export default function ProfessionalEstatisticas() {
         )}
       </div>
 
+      {/* Insights */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-4 flex items-start gap-3">
+          <div className="w-8 h-8 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 shrink-0"><TrendingUp size={15} /></div>
+          <div>
+            <p className="text-sm font-bold text-white mb-1">Taxa de conversão</p>
+            <p className="text-xs text-[#4A6580] leading-relaxed">
+              {stats?.totalProposals ? `${Math.round((stats.acceptedProposalsCount / stats.totalProposals) * 100)}% das propostas aceitas` : 'Envie propostas para ver sua taxa'}
+            </p>
+          </div>
+        </div>
+        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-4 flex items-start gap-3">
+          <div className="w-8 h-8 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-400 shrink-0"><DollarSign size={15} /></div>
+          <div>
+            <p className="text-sm font-bold text-white mb-1">ROI estimado</p>
+            <p className="text-xs text-[#4A6580] leading-relaxed">
+              {stats?.totalSpentCoins ? `${((stats.totalRevenue / (stats.totalSpentCoins / 10)) || 0).toFixed(1)}x de retorno vs investimento em leads` : 'Compre leads para calcular o ROI'}
+            </p>
+          </div>
+        </div>
+        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-4 flex items-start gap-3">
+          <div className="w-8 h-8 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 shrink-0"><Zap size={15} /></div>
+          <div>
+            <p className="text-sm font-bold text-white mb-1">Dica de crescimento</p>
+            <p className="text-xs text-[#4A6580] leading-relaxed">Responder leads em menos de 1h aumenta aceitação em até 3x</p>
+          </div>
+        </div>
+      </div>
+
       {/* Resumo do Período */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg">
             <Calendar size={15} />
@@ -160,9 +202,9 @@ export default function ProfessionalEstatisticas() {
         </div>
 
         <div className="grid sm:grid-cols-3 gap-3">
-          <div className="p-3 rounded-xl bg-white/[0.02] border border-[#1C3050]">
+          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
             <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Conversão</p>
-            <p className="text-2xl font-bold text-white">
+            <p className="text-2xl font-bold text-emerald-400">
               {stats?.totalProposals ? ((stats.acceptedProposalsCount / stats.totalProposals) * 100).toFixed(1) : '0.0'}%
             </p>
             <div className="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
@@ -173,15 +215,15 @@ export default function ProfessionalEstatisticas() {
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-white/[0.02] border border-[#1C3050]">
+          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
             <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Ticket Médio</p>
-            <p className="text-2xl font-bold text-white">
+            <p className="text-2xl font-bold text-yellow-400">
               R$ {stats?.acceptedProposalsCount ? (stats.totalRevenue / stats.acceptedProposalsCount).toLocaleString('pt-BR', { minimumFractionDigits: 0 }) : '0'}
             </p>
             <p className="text-slate-600 text-xs mt-1">Baseado em serviços aceitos</p>
           </div>
 
-          <div className="p-3 rounded-xl bg-white/[0.02] border border-[#1C3050]">
+          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
             <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">ROI (Est.)</p>
             <p className="text-2xl font-bold text-emerald-400">
               {stats?.totalSpentCoins ? ((stats.totalRevenue / (stats.totalSpentCoins / 10)) || 0).toFixed(1) : '0.0'}x
@@ -192,7 +234,7 @@ export default function ProfessionalEstatisticas() {
       </div>
 
       {/* Tabela de Detalhamento */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl overflow-hidden">
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl overflow-hidden">
         <div className="px-3 py-2 border-b border-[#1C3050] flex items-center justify-between">
           <div>
             <h3 className="text-white font-bold text-sm">Detalhamento por Período</h3>
@@ -205,7 +247,7 @@ export default function ProfessionalEstatisticas() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-white/[0.02]">
+              <tr className="bg-[#0d1929]">
                 <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">{range === '1y' || range === '90d' ? 'Mês' : 'Data'}</th>
                 <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Total Propostas</th>
                 <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Aceitas</th>
@@ -216,12 +258,14 @@ export default function ProfessionalEstatisticas() {
               {[...(stats?.seriesData || [])].reverse().map((day, idx) => (
                 <tr key={idx} className="hover:bg-white/[0.01] transition-colors group">
                   <td className="px-3 py-2 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
-                  <td className="px-3 py-2 text-sm text-slate-400">{day.total}</td>
                   <td className="px-3 py-2 text-sm text-slate-400">
-                    <span className={cn(day.aceitas > 0 ? "text-emerald-500 font-semibold" : "")}>{day.aceitas}</span>
+                    {day.total === 0 ? <span className="text-[#1C3050]">—</span> : day.total}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-slate-400">
+                    {day.aceitas === 0 ? <span className="text-[#1C3050]">—</span> : <span className={cn(day.aceitas > 0 ? "text-emerald-500 font-semibold" : "")}>{day.aceitas}</span>}
                   </td>
                   <td className="px-3 py-2 text-sm font-semibold text-slate-200">
-                    R$ {Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {Number(day.revenue) === 0 ? <span className="text-[#1C3050]">—</span> : `R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                   </td>
                 </tr>
               ))}
