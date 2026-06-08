@@ -81,7 +81,7 @@ export default function ProfessionalAgenda() {
   return (
     <div className="w-full space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2" style={{ marginBottom: '0.25rem' }}>
         <div>
           <h1 className="text-xl font-bold text-white mb-1.5">Calendário de Agendamentos</h1>
           <p className="text-[#94A3B8] text-sm">Gerencie seus compromissos e horários</p>
@@ -106,7 +106,9 @@ export default function ProfessionalAgenda() {
         </div>
       </div>
 
-      <AgendaStats stats={stats} isLoading={isLoading} />
+      <div style={{ marginTop: '1.25rem' }}>
+        <AgendaStats stats={stats} isLoading={isLoading} />
+      </div>
 
       <div className="grid lg:grid-cols-3 gap-4" style={{ marginTop: '1.25rem' }}>
         <div className="lg:col-span-2 bg-[#132236] border border-[#1C3050] rounded-2xl p-5">
