@@ -255,7 +255,7 @@ export default function ProfessionalAssinatura() {
     return total > 0 ? Math.min(100, Math.max(0, (elapsed / total) * 100)) : 0;
   })();
 
-  const hasActivePlan = !!(currentSubscription && currentSubscription.status === 'active');
+  const hasActivePlan = !!(currentSubscription && ['active', 'canceling'].includes(currentSubscription.status));
   const balanceNum = typeof balance === 'number' ? Math.floor(balance) : 0;
   const planDiscount = currentSubscription ? (getPlanDiscount(currentSubscription.package_id) || parseInt(PLAN_LEADS[currentSubscription.package_id] ?? '0')) : 0;
   const costPerCoin = hasActivePlan ? (planDiscount === 40 ? 0.249 : planDiscount === 55 ? 0.187 : 0.311) : 0.415;
