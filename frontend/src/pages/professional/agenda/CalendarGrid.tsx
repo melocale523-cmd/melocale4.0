@@ -118,10 +118,10 @@ export function CalendarGrid({
         })}
       </div>
 
-      <div className="flex flex-wrap gap-3 mt-4 px-4 py-4 bg-[#0d1929] rounded-xl border border-[#1C3050]" style={{ marginTop: '1rem' }}>
+      <div className="flex flex-wrap gap-4 mt-4 px-6 py-5 bg-[#0d1929] rounded-xl border border-[#1C3050]" style={{ marginTop: '1.25rem' }}>
         {(['scheduled', 'confirmed', 'rescheduled', 'completed', 'cancelled'] as AppStatus[]).map(s => (
-          <div key={s} className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
-            <div className={cn('w-2.5 h-2.5 rounded-full', DOT_COLOR[s])} />
+          <div key={s} className="flex items-center gap-2 text-xs font-bold text-[#4A6580] uppercase tracking-widest">
+            <div className={cn('w-3 h-3 rounded-full', DOT_COLOR[s])} />
             {STATUS_LABEL[s]}
           </div>
         ))}
