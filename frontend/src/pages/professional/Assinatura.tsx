@@ -255,8 +255,15 @@ export default function ProfessionalAssinatura() {
     return total > 0 ? Math.min(100, Math.max(0, (elapsed / total) * 100)) : 0;
   })();
 
+  const hasActivePlan = !!(currentSubscription && currentSubscription.status === 'active');
+  const balanceNum = typeof balance === 'number' ? Math.floor(balance) : 0;
+  const planDiscount = currentSubscription ? (getPlanDiscount(currentSubscription.package_id) || parseInt(PLAN_LEADS[currentSubscription.package_id] ?? '0')) : 0;
+  const costPerCoin = hasActivePlan ? (planDiscount === 40 ? 0.249 : planDiscount === 55 ? 0.187 : 0.311) : 0.415;
+  const costPerCoinPro = 0.249;
+  const economyVsPro = hasActivePlan ? 0 : (0.415 - 0.249) * balanceNum;
+
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
       {/* Status banner */}
       {statusMessage && (
@@ -273,33 +280,67 @@ export default function ProfessionalAssinatura() {
         </div>
       )}
 
-      {/* Oferta de boas-vindas */}
-      <div className="bg-gradient-to-r from-emerald-900/30 to-[#1C3454] border border-emerald-500/30 rounded-xl p-3 flex flex-col md:flex-row items-center justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-emerald-400 font-bold text-sm">🔥 Oferta especial</span>
-            <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-semibold rounded-md border border-red-500/20">
-              Tempo limitado
-            </span>
+      {/* Banner de urgência / boas-vindas */}
+      {hasActivePlan && daysUntilExpiry !== null && daysUntilExpiry <= 30 ? (
+        <div style={{ background:'linear-gradient(135deg,rgba(239,68,68,.08),rgba(234,88,12,.06))', border:'1px solid rgba(239,68,68,.25)', borderRadius:18, padding:'1.25rem 1.5rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#ef4444,#ea580c)' }} />
+          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+              <div style={{ width:8, height:8, borderRadius:'50%', background:'#ef4444', boxShadow:'0 0 8px #ef4444', animation:'pulse 2s infinite', flexShrink:0 }} />
+              <span style={{ color:'#f87171', fontWeight:700, fontSize:13 }}>⚠ Seu plano cancela em {daysUntilExpiry} dias — você cede espaço para concorrentes</span>
+            </div>
+            <button disabled={!!buyingId} onClick={() => handleCheckout('subscription', 'plan_pro')} style={{ height:38, padding:'0 20px', background:'linear-gradient(135deg,#ea580c,#ef4444)', border:'none', borderRadius:10, color:'white', fontWeight:700, fontSize:13, cursor:'pointer', boxShadow:'0 4px 16px rgba(239,68,68,.3)', whiteSpace:'nowrap' }}>
+              {buyingId === 'plan_pro' ? '...' : '⬆ Upgrade agora'}
+            </button>
           </div>
-          <h3 className="text-white font-bold text-sm">Comece com o Plano Starter por R$37/mês</h3>
-          <p className="text-slate-400 text-xs">25% de desconto em moedas. Cancele quando quiser.</p>
+          <p style={{ color:'#9ca3af', fontSize:12, marginTop:4 }}>Após o vencimento: perda do badge, desconto e destaque nas buscas.</p>
         </div>
-        <button
-          disabled={!!buyingId}
-          onClick={() => handleCheckout('subscription', 'plan_basic')}
-          className="h-10 px-6 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap"
-        >
-          {buyingId === 'plan_basic' ? <Loader2 size={14} className="animate-spin" /> : null}
-          Começar agora — sem risco →
-        </button>
-      </div>
+      ) : !hasActivePlan ? (
+        <div style={{ background:'linear-gradient(135deg,rgba(16,185,129,.08),rgba(5,150,105,.06))', border:'1px solid rgba(16,185,129,.25)', borderRadius:18, padding:'1.25rem 1.5rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap' }}>
+            <div>
+              <p style={{ color:'#34d399', fontWeight:700, fontSize:15, marginBottom:4 }}>🚀 Comece a receber mais clientes hoje mesmo</p>
+              <p style={{ color:'#6b7280', fontSize:12 }}>Profissionais com plano aparecem 2× mais e pagam até 55% menos por moeda.</p>
+            </div>
+            <button onClick={scrollToPlans} style={{ height:38, padding:'0 20px', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:10, color:'white', fontWeight:700, fontSize:13, cursor:'pointer', boxShadow:'0 4px 16px rgba(16,185,129,.3)', whiteSpace:'nowrap' }}>
+              Ver planos e assinar →
+            </button>
+          </div>
+        </div>
+      ) : null}
 
-      {/* Garantia */}
-      <div className="flex justify-center">
-        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5">
-          <span className="text-emerald-400">🛡️</span>
-          <span className="text-emerald-400 font-semibold text-xs">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
+      {/* KPI Row */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+        {/* Moedas */}
+        <div style={{ background:'#0e2038', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:16, position:'relative', overflow:'hidden', cursor:'pointer' }} onClick={() => navigate('/profissional/carteira')}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#f59e0b,#d97706)' }} />
+          <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:8 }}>Moedas</p>
+          <p style={{ fontFamily:"'DM Mono',monospace", fontSize:26, fontWeight:500, color:'#fbbf24', lineHeight:1, marginBottom:4 }}>{balanceNum}</p>
+          <p style={{ fontSize:11, color:'#4A6580' }}>≈ R$ {(balanceNum * costPerCoin).toFixed(2)} em leads</p>
+          <p style={{ fontSize:10, color:'#374151', fontStyle:'italic', marginTop:4 }}>clique para recarregar</p>
+        </div>
+        {/* Desconto */}
+        <div style={{ background:'#0e2038', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:16, position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
+          <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:8 }}>Desconto atual</p>
+          <p style={{ fontFamily:"'DM Mono',monospace", fontSize:26, fontWeight:500, color: hasActivePlan ? '#34d399' : '#f87171', lineHeight:1, marginBottom:4 }}>{hasActivePlan ? `${planDiscount}%` : '0%'}</p>
+          <p style={{ fontSize:11, color:'#4A6580' }}>{hasActivePlan ? `Plano ${PLAN_NAMES[currentSubscription!.package_id]}` : 'Sem plano ativo'}</p>
+        </div>
+        {/* Dias restantes */}
+        <div style={{ background:'#0e2038', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:16, position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background: daysUntilExpiry !== null && daysUntilExpiry <= 30 ? 'linear-gradient(90deg,#ef4444,#dc2626)' : 'linear-gradient(90deg,#378ADD,#1d6fa8)' }} />
+          <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:8 }}>Dias restantes</p>
+          <p style={{ fontFamily:"'DM Mono',monospace", fontSize:26, fontWeight:500, color: daysUntilExpiry !== null && daysUntilExpiry <= 30 ? '#f87171' : '#60a5fa', lineHeight:1, marginBottom:4 }}>{daysUntilExpiry ?? '—'}</p>
+          <p style={{ fontSize:11, color:'#4A6580' }}>{subscriptionStatus?.current_period_end ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR') : 'Sem assinatura'}</p>
+        </div>
+        {/* Custo/moeda */}
+        <div style={{ background:'#0e2038', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:16, position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#378ADD,#1d6fa8)' }} />
+          <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:8 }}>Custo/moeda</p>
+          <p style={{ fontFamily:"'DM Mono',monospace", fontSize:22, fontWeight:500, color: hasActivePlan ? '#34d399' : '#f87171', lineHeight:1, marginBottom:4 }}>R${costPerCoin.toFixed(3)}</p>
+          <p style={{ fontSize:11, color:'#4A6580' }}>{hasActivePlan ? 'com seu plano' : 'preço cheio'}</p>
+          {!hasActivePlan && <p style={{ fontSize:10, color:'#374151', marginTop:4 }}>PRO = R$0,249/moeda</p>}
         </div>
       </div>
 
