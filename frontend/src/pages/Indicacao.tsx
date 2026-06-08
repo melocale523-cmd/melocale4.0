@@ -356,11 +356,11 @@ export default function Indicacao() {
     <div className="w-full space-y-5" style={{ fontFamily:"'DM Sans',sans-serif" }}>
 
       {/* HERO */}
-      <div style={{ background:'linear-gradient(135deg,rgba(16,185,129,.1),rgba(5,150,105,.06))', border:'1px solid rgba(16,185,129,.25)', borderRadius:18, padding:'1.25rem 1.5rem', position:'relative', overflow:'hidden' }}>
+      <div style={{ background:'linear-gradient(135deg,rgba(16,185,129,.1),rgba(5,150,105,.06))', border:'1px solid rgba(16,185,129,.25)', borderRadius:'1.125rem', padding:'1.25rem 1.5rem', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
-        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'0.75rem', flexWrap:'wrap' }}>
           <div>
-            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.375rem' }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:'#10b981', boxShadow:'0 0 8px #10b981', flexShrink:0 }} />
               <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#34d399' }}>Programa de Indicações — Ativo</p>
             </div>
@@ -369,16 +369,16 @@ export default function Indicacao() {
               <span style={{ color:'#34d399', fontWeight:600 }}>{rewardLabel}</span> por indicação que assinar · Bônus de até <span style={{ color:'#fbbf24', fontWeight:600 }}>+60 moedas extras</span> por mês
             </p>
           </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:8, alignItems:'flex-end' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem', alignItems:'flex-end' }}>
             {hasDoubleBonus && (
-              <div style={{ background:'rgba(251,191,36,.12)', border:'1px solid rgba(251,191,36,.25)', borderRadius:10, padding:'6px 14px', textAlign:'center' }}>
+              <div style={{ background:'rgba(251,191,36,.12)', border:'1px solid rgba(251,191,36,.25)', borderRadius:'0.625rem', padding:'6px 14px', textAlign:'center' }}>
                 <p style={{ fontSize:11, fontWeight:700, color:'#fbbf24' }}>⚡ Bônus {bonusConfig!.multiplier}× ativo!</p>
-                {bonusConfig?.label && <p style={{ fontSize:10, color:'#4A6580', marginTop:2 }}>{bonusConfig.label}</p>}
+                {bonusConfig?.label && <p style={{ fontSize:10, color:'#4A6580', marginTop:'0.125rem' }}>{bonusConfig.label}</p>}
               </div>
             )}
             {nextTier && indToNext > 0 && (
-              <div style={{ background:'rgba(251,191,36,.08)', border:'1px solid rgba(251,191,36,.15)', borderRadius:10, padding:'8px 14px', textAlign:'center' }}>
-                <p style={{ fontSize:10, fontWeight:700, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:2 }}>Você está a</p>
+              <div style={{ background:'rgba(251,191,36,.08)', border:'1px solid rgba(251,191,36,.15)', borderRadius:'0.625rem', padding:'8px 14px', textAlign:'center' }}>
+                <p style={{ fontSize:10, fontWeight:700, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:'0.125rem' }}>Você está a</p>
                 <p style={{ fontSize:20, fontWeight:900, color:'#fbbf24', lineHeight:1 }}>{indToNext}</p>
                 <p style={{ fontSize:11, color:'#4A6580' }}>ind. para {nextTier.emoji} {nextTier.name}</p>
               </div>
@@ -388,101 +388,101 @@ export default function Indicacao() {
       </div>
 
       {/* LINK + KPIs */}
-      <div style={{ display:'grid', gridTemplateColumns:'1.1fr 1fr', gap:12 }}>
-        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1.1fr 1fr', gap:'0.75rem' }}>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
-          <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:10 }}>Seu link de indicação</p>
-          <div style={{ display:'flex', alignItems:'center', gap:8, background:'#0d1929', border:'1px solid #1C3050', borderRadius:10, padding:'9px 12px', marginBottom:10 }}>
+          <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.625rem' }}>Seu link de indicação</p>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.625rem', padding:'9px 12px', marginBottom:'0.625rem' }}>
             <span style={{ fontSize:11, color:'#94a3b8', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>{referralData?.link ?? '—'}</span>
-            <button onClick={copyLink} style={{ display:'inline-flex', alignItems:'center', padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:600, background:'rgba(16,185,129,.12)', color:'#34d399', border:'1px solid rgba(16,185,129,.2)', cursor:'pointer', flexShrink:0 }}>
+            <button onClick={copyLink} style={{ display:'inline-flex', alignItems:'center', padding:'3px 10px', borderRadius:'1.25rem', fontSize:11, fontWeight:600, background:'rgba(16,185,129,.12)', color:'#34d399', border:'1px solid rgba(16,185,129,.2)', cursor:'pointer', flexShrink:0 }}>
               <Copy size={11} style={{ marginRight:3 }} />{copied ? 'Copiado!' : 'Copiar'}
             </button>
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.75rem' }}>
             <p style={{ fontSize:12, color:'#4A6580' }}>Código:</p>
             <code style={{ fontFamily:'monospace', fontSize:14, fontWeight:600, color:'white', background:'#0d1929', padding:'3px 10px', borderRadius:6, border:'1px solid #1C3050' }}>{referralData?.code ?? '—'}</code>
           </div>
-          <button onClick={shareWhatsApp} style={{ width:'100%', height:40, background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:12, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, boxShadow:'0 4px 16px rgba(16,185,129,.25)', marginBottom:8 }}>
+          <button onClick={shareWhatsApp} style={{ width:'100%', height:40, background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.75rem', color:'white', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, boxShadow:'0 4px 16px rgba(16,185,129,.25)', marginBottom:'0.5rem' }}>
             Compartilhar no WhatsApp agora →
           </button>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
-            <button onClick={copyLink} style={{ height:32, background:'#0d1929', border:'1px solid #1C3050', borderRadius:8, color:'#94a3b8', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.375rem' }}>
+            <button onClick={copyLink} style={{ height:32, background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#94a3b8', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
               <Copy size={13} />Copiar
             </button>
-            <button onClick={() => setShowQr(v => !v)} style={{ height:32, background:'#0d1929', border:'1px solid #1C3050', borderRadius:8, color:'#94a3b8', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+            <button onClick={() => setShowQr(v => !v)} style={{ height:32, background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#94a3b8', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
               <QrCode size={13} />{showQr ? 'Fechar' : 'QR Code'}
             </button>
-            <button onClick={generateStoriesImage} disabled={generatingStories} style={{ height:32, background:'rgba(139,92,246,.1)', border:'1px solid rgba(139,92,246,.2)', borderRadius:8, color:'#a78bfa', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4, opacity: generatingStories ? .5 : 1 }}>
+            <button onClick={generateStoriesImage} disabled={generatingStories} style={{ height:32, background:'rgba(139,92,246,.1)', border:'1px solid rgba(139,92,246,.2)', borderRadius:'0.5rem', color:'#a78bfa', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4, opacity: generatingStories ? .5 : 1 }}>
               <Share2 size={13} />{generatingStories ? '...' : 'Stories'}
             </button>
           </div>
           {showQr && referralData?.link && (
-            <div style={{ marginTop:12, display:'flex', flexDirection:'column', alignItems:'center', gap:8, background:'white', padding:16, borderRadius:12 }}>
+            <div style={{ marginTop:'0.75rem', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem', background:'white', padding:'1rem', borderRadius:'0.75rem' }}>
               <QRCodeSVG value={referralData.link} size={160} bgColor="#ffffff" fgColor="#060d1a" level="M" />
               <p style={{ color:'#060d1a', fontSize:12, fontFamily:'monospace', fontWeight:700 }}>{referralData.code}</p>
             </div>
           )}
         </div>
 
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8 }}>
-            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:12, padding:10, textAlign:'center', position:'relative', overflow:'hidden' }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.5rem' }}>
+            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.75rem', padding:'0.625rem', textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'rgba(255,255,255,.1)' }} />
-              <p style={{ fontSize:20, fontWeight:900, color:'white', lineHeight:1, marginBottom:3 }}>{referralData?.stats.total ?? 0}</p>
+              <p style={{ fontSize:20, fontWeight:900, color:'white', lineHeight:1, marginBottom:'0.1875rem' }}>{referralData?.stats.total ?? 0}</p>
               <p style={{ fontSize:10, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.05em' }}>enviados</p>
             </div>
-            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:12, padding:10, textAlign:'center', position:'relative', overflow:'hidden' }}>
+            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.75rem', padding:'0.625rem', textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'rgba(96,165,250,.3)' }} />
-              <p style={{ fontSize:20, fontWeight:900, color:'#60a5fa', lineHeight:1, marginBottom:3 }}>{referralData?.stats.registered ?? 0}</p>
+              <p style={{ fontSize:20, fontWeight:900, color:'#60a5fa', lineHeight:1, marginBottom:'0.1875rem' }}>{referralData?.stats.registered ?? 0}</p>
               <p style={{ fontSize:10, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.05em' }}>cadastraram</p>
             </div>
-            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:12, padding:10, textAlign:'center', position:'relative', overflow:'hidden' }}>
+            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.75rem', padding:'0.625rem', textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'rgba(16,185,129,.3)' }} />
-              <p style={{ fontSize:20, fontWeight:900, color:'#34d399', lineHeight:1, marginBottom:3 }}>{totalEarned}</p>
+              <p style={{ fontSize:20, fontWeight:900, color:'#34d399', lineHeight:1, marginBottom:'0.1875rem' }}>{totalEarned}</p>
               <p style={{ fontSize:10, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.05em' }}>{isPro ? 'moedas' : 'créditos'}</p>
             </div>
           </div>
 
-          <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:14, padding:'1rem', position:'relative', overflow:'hidden', flex:1 }}>
+          <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.875rem', padding:'1rem', position:'relative', overflow:'hidden', flex:1 }}>
             <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.5rem' }}>
               <p style={{ fontSize:12, fontWeight:700, color:'white' }}>Nível atual</p>
-              <div style={{ display:'inline-flex', alignItems:'center', padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:600, background:'rgba(148,163,184,.08)', color: currentTier.color, border:`1px solid ${currentTier.border}` }}>{currentTier.emoji} {currentTier.name}</div>
+              <div style={{ display:'inline-flex', alignItems:'center', padding:'3px 10px', borderRadius:'1.25rem', fontSize:11, fontWeight:600, background:'rgba(148,163,184,.08)', color: currentTier.color, border:`1px solid ${currentTier.border}` }}>{currentTier.emoji} {currentTier.name}</div>
             </div>
-            <div style={{ height:5, background:'#0d1929', borderRadius:5, overflow:'hidden', marginBottom:6 }}>
+            <div style={{ height:5, background:'#0d1929', borderRadius:5, overflow:'hidden', marginBottom:'0.375rem' }}>
               <div style={{ width: nextTier ? `${Math.min(100, ((referralData?.stats.total ?? 0) / (currentTier.name === 'Bronze' ? 5 : currentTier.name === 'Prata' ? 10 : 20)) * 100)}%` : '100%', height:'100%', background:'linear-gradient(90deg,#10b981,#059669)', borderRadius:5, transition:'width .4s' }} />
             </div>
             {nextTier
-              ? <p style={{ fontSize:11, color:'#4A6580', marginBottom:8 }}>{indToNext} ind. para <span style={{ color: nextTier.color }}>{nextTier.name}</span> · <span style={{ color:'#34d399' }}>+{nextTier.bonus} bônus</span></p>
-              : <p style={{ fontSize:11, color:'#34d399', marginBottom:8, fontWeight:600 }}>Nível máximo atingido! 💎</p>
+              ? <p style={{ fontSize:11, color:'#4A6580', marginBottom:'0.5rem' }}>{indToNext} ind. para <span style={{ color: nextTier.color }}>{nextTier.name}</span> · <span style={{ color:'#34d399' }}>+{nextTier.bonus} bônus</span></p>
+              : <p style={{ fontSize:11, color:'#34d399', marginBottom:'0.5rem', fontWeight:600 }}>Nível máximo atingido! 💎</p>
             }
-            <div style={{ background:'rgba(251,191,36,.06)', border:'1px solid rgba(251,191,36,.12)', borderRadius:8, padding:'8px 10px' }}>
+            <div style={{ background:'rgba(251,191,36,.06)', border:'1px solid rgba(251,191,36,.12)', borderRadius:'0.5rem', padding:'8px 10px' }}>
               <p style={{ fontSize:11, color:'#fbbf24', fontWeight:600 }}>💡 {(referralData?.stats.total ?? 0) * 10 + (currentTier.bonus)} moedas = ~{Math.floor(((referralData?.stats.total ?? 0) * 10 + currentTier.bonus) / 10)} leads grátis</p>
-              <p style={{ fontSize:10, color:'#4A6580', marginTop:2 }}>sem gastar um centavo</p>
+              <p style={{ fontSize:10, color:'#4A6580', marginTop:'0.125rem' }}>sem gastar um centavo</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* METAS */}
-      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#a78bfa,#7c3aed)' }} />
-        <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:12 }}>Metas mensais — quanto você pode ganhar</p>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
+        <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:'0.75rem' }}>Metas mensais — quanto você pode ganhar</p>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'0.5rem' }}>
           {TIERS.map(t => (
-            <div key={t.name} style={{ background: t.bg, border:`1px solid ${t.border}`, borderRadius:10, padding:10 }}>
-              <p style={{ fontSize:18, marginBottom:4 }}>{t.emoji}</p>
-              <p style={{ fontSize:12, fontWeight:700, color: t.color, marginBottom:2 }}>{t.name}</p>
-              <p style={{ fontSize:10, color:'#4A6580', marginBottom:6 }}>{t.range} ind.</p>
+            <div key={t.name} style={{ background: t.bg, border:`1px solid ${t.border}`, borderRadius:'0.625rem', padding:'0.625rem' }}>
+              <p style={{ fontSize:18, marginBottom:'0.25rem' }}>{t.emoji}</p>
+              <p style={{ fontSize:12, fontWeight:700, color: t.color, marginBottom:'0.125rem' }}>{t.name}</p>
+              <p style={{ fontSize:10, color:'#4A6580', marginBottom:'0.375rem' }}>{t.range} ind.</p>
               <p style={{ fontSize:10, color: t.bonus > 0 ? '#34d399' : '#4A6580', fontWeight: t.bonus > 0 ? 600 : 400 }}>bônus {t.bonus > 0 ? `+${t.bonus}` : '—'}</p>
-              <div style={{ marginTop:6, paddingTop:6, borderTop:'1px solid rgba(255,255,255,.04)' }}>
+              <div style={{ marginTop:'0.375rem', paddingTop:6, borderTop:'1px solid rgba(255,255,255,.04)' }}>
                 <p style={{ fontSize:13, fontWeight:700, color: t.color }}>{t.name === 'Bronze' ? '10–40' : t.name === 'Prata' ? '65–105' : t.name === 'Ouro' ? '130–220' : '260+'}</p>
                 <p style={{ fontSize:10, color:'#4A6580' }}>moedas</p>
               </div>
             </div>
           ))}
         </div>
-        <div style={{ marginTop:10, background:'#0d1929', border:'1px solid #1C3050', borderRadius:8, padding:'8px 12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ marginTop:'0.625rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', padding:'8px 12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <p style={{ fontSize:11, color:'#4A6580' }}>Diamante este mês =</p>
           <p style={{ fontSize:12, fontWeight:700, color:'#a78bfa' }}>260+ moedas ≈ ~25 leads grátis</p>
         </div>
@@ -490,13 +490,13 @@ export default function Indicacao() {
 
       {/* META DO MÊS */}
       {monthly && (
-        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#818cf8,#a78bfa)' }} />
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.625rem' }}>
             <p style={{ fontSize:13, fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:7 }}><Target size={15} className="text-purple-400" /> Meta do mês</p>
             <p style={{ fontSize:11, color:'#4A6580' }}>{monthly.total_this_month}/{monthly.goal}</p>
           </div>
-          <div style={{ height:5, background:'#0d1929', borderRadius:5, overflow:'hidden', marginBottom:6 }}>
+          <div style={{ height:5, background:'#0d1929', borderRadius:5, overflow:'hidden', marginBottom:'0.375rem' }}>
             <div style={{ width:`${Math.min(100,(monthly.total_this_month/monthly.goal)*100)}%`, height:'100%', background: monthly.bonus_credited ? '#10b981' : 'linear-gradient(90deg,#818cf8,#a78bfa)', borderRadius:5, transition:'width .5s' }} />
           </div>
           <p style={{ fontSize:11, color:'#4A6580' }}>
@@ -508,18 +508,18 @@ export default function Indicacao() {
       )}
 
       {/* O QUE O INDICADO GANHA */}
-      <div style={{ background:'linear-gradient(135deg,rgba(96,165,250,.08),rgba(55,138,221,.05))', border:'1px solid rgba(96,165,250,.2)', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+      <div style={{ background:'linear-gradient(135deg,rgba(96,165,250,.08),rgba(55,138,221,.05))', border:'1px solid rgba(96,165,250,.2)', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#60a5fa,#378ADD)' }} />
-        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'0.75rem', flexWrap:'wrap' }}>
           <div style={{ flex:1 }}>
-            <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#60a5fa', marginBottom:6 }}>Para quem você indica</p>
-            <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:4 }}>Seu indicado também ganha ao assinar</p>
+            <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#60a5fa', marginBottom:'0.375rem' }}>Para quem você indica</p>
+            <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:'0.25rem' }}>Seu indicado também ganha ao assinar</p>
             <p style={{ fontSize:12, color:'#4A6580' }}>Moedas de boas-vindas incluídas — até <span style={{ color:'#fbbf24', fontWeight:600 }}>200 moedas grátis</span> no Elite</p>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:6, minWidth:220 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.375rem', minWidth:220 }}>
             {[{p:'Starter',m:'30',c:'#60a5fa'},{p:'PRO',m:'80',c:'#34d399'},{p:'Elite',m:'200',c:'#fbbf24'}].map(pl => (
-              <div key={pl.p} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', borderRadius:10, padding:8, textAlign:'center' }}>
-                <p style={{ fontSize:11, color:'#4A6580', marginBottom:3 }}>{pl.p}</p>
+              <div key={pl.p} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', borderRadius:'0.625rem', padding:8, textAlign:'center' }}>
+                <p style={{ fontSize:11, color:'#4A6580', marginBottom:'0.1875rem' }}>{pl.p}</p>
                 <p style={{ fontSize:16, fontWeight:700, color: pl.c }}>{pl.m}</p>
                 <p style={{ fontSize:10, color:'#4A6580' }}>moedas</p>
               </div>
@@ -530,14 +530,14 @@ export default function Indicacao() {
 
       {/* RANKING */}
       {ranking.length > 0 && (
-        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
-          <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:12, display:'flex', alignItems:'center', gap:7 }}><Trophy size={15} className="text-yellow-400" /> Top indicadores do mês</p>
-          <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+          <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:'0.75rem', display:'flex', alignItems:'center', gap:7 }}><Trophy size={15} className="text-yellow-400" /> Top indicadores do mês</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.375rem' }}>
             {ranking.map(r => {
               const isMe = r.referrer_id === user?.id
               return (
-                <div key={r.referrer_id} style={{ display:'flex', alignItems:'center', gap:10, background: isMe ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)', border:`1px solid ${isMe ? 'rgba(16,185,129,.2)' : 'rgba(255,255,255,.06)'}`, borderRadius:10, padding:'8px 12px' }}>
+                <div key={r.referrer_id} style={{ display:'flex', alignItems:'center', gap:'0.625rem', background: isMe ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)', border:`1px solid ${isMe ? 'rgba(16,185,129,.2)' : 'rgba(255,255,255,.06)'}`, borderRadius:'0.625rem', padding:'8px 12px' }}>
                   <span style={{ fontSize:14, fontWeight:700, width:24, textAlign:'center' }}>{medalEmoji(r.position)}</span>
                   {r.avatar_url
                     ? <img src={r.avatar_url} alt={r.full_name} style={{ width:28, height:28, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
@@ -553,21 +553,21 @@ export default function Indicacao() {
       )}
 
       {/* COMO FUNCIONA + FAQ */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' }}>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
           <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:14 }}>Como funciona</p>
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.625rem' }}>
             {[
               { icon:<Share2 size={15} />, title:'Compartilhe seu link', desc:`Envie para outros ${isPro ? 'profissionais' : 'clientes'} pelo WhatsApp, Instagram ou onde quiser.`, color:'#34d399' },
               { icon:<Users size={15} />, title:'Indicado se cadastra', desc:'Aparece automaticamente no seu painel.', color:'#60a5fa' },
               { icon:<CheckCircle size={15} />, title:'Indicado assina um plano', desc:'Qualquer plano pago conta.', color:'#fbbf24' },
               { icon:<Gift size={15} />, title:`Você ganha ${rewardLabel}`, desc:'Caem na carteira automaticamente.', color:'#a78bfa' },
             ].map((s, i) => (
-              <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:10 }}>
-                <div style={{ width:32, height:32, borderRadius:8, background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color: s.color }}>{s.icon}</div>
+              <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:'0.625rem' }}>
+                <div style={{ width:32, height:32, borderRadius:'0.5rem', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color: s.color }}>{s.icon}</div>
                 <div>
-                  <p style={{ fontSize:12, fontWeight:600, color:'white', marginBottom:2 }}>{s.title}</p>
+                  <p style={{ fontSize:12, fontWeight:600, color:'white', marginBottom:'0.125rem' }}>{s.title}</p>
                   <p style={{ fontSize:11, color:'#4A6580' }}>{s.desc}</p>
                 </div>
               </div>
@@ -575,18 +575,18 @@ export default function Indicacao() {
           </div>
         </div>
 
-        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#4A6580,#243F6A)' }} />
-          <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:12 }}>Perguntas frequentes</p>
-          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:'0.75rem' }}>Perguntas frequentes</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
             {[
               { q:'Quando recebo as moedas?', a:'Assim que o indicado assinar qualquer plano pago.' },
               { q:'Tem limite de indicações?', a:'Não. Indique quantas pessoas quiser, sem limite mensal.' },
               { q:'Bônus em cascata?', a:'Se seu indicado indicar alguém, você ganha mais 20 moedas extras automaticamente.' },
               { q:'As moedas expiram?', a:'No PRO e Elite nunca expiram. Use quando quiser.' },
             ].map((f, i) => (
-              <div key={i} style={{ background:'#0d1929', border:'1px solid #1C3050', borderRadius:8, padding:10 }}>
-                <p style={{ fontSize:11, fontWeight:600, color:'#8aafcf', marginBottom:4 }}>{f.q}</p>
+              <div key={i} style={{ background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', padding:'0.625rem' }}>
+                <p style={{ fontSize:11, fontWeight:600, color:'#8aafcf', marginBottom:'0.25rem' }}>{f.q}</p>
                 <p style={{ fontSize:11, color:'#4A6580', lineHeight:1.5 }}>{f.a}</p>
               </div>
             ))}
@@ -595,18 +595,18 @@ export default function Indicacao() {
       </div>
 
       {/* HISTÓRICO */}
-      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:16, padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#378ADD,#1d6fa8)' }} />
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.75rem' }}>
           <p style={{ fontSize:13, fontWeight:700, color:'white' }}>Suas indicações</p>
-          {referrals.length > 0 && <span style={{ background:'rgba(255,255,255,.06)', color:'#4A6580', fontSize:11, padding:'2px 8px', borderRadius:20, fontFamily:'monospace' }}>{referrals.length}</span>}
+          {referrals.length > 0 && <span style={{ background:'rgba(255,255,255,.06)', color:'#4A6580', fontSize:11, padding:'2px 8px', borderRadius:'1.25rem', fontFamily:'monospace' }}>{referrals.length}</span>}
         </div>
         {loadingList ? (
-          <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-            {[1,2,3].map(i => <div key={i} style={{ height:48, background:'#0d1929', borderRadius:10 }} />)}
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.375rem' }}>
+            {[1,2,3].map(i => <div key={i} style={{ height:48, background:'#0d1929', borderRadius:'0.625rem' }} />)}
           </div>
         ) : referrals.length === 0 ? (
-          <div style={{ border:'1px dashed rgba(255,255,255,.08)', borderRadius:14, padding:'2rem', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:8 }}>
+          <div style={{ border:'1px dashed rgba(255,255,255,.08)', borderRadius:'0.875rem', padding:'2rem', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
             <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(96,165,250,.1)', border:'1px solid rgba(96,165,250,.15)', display:'flex', alignItems:'center', justifyContent:'center' }}>
               <Users size={20} style={{ color:'#60a5fa' }} />
             </div>
@@ -614,23 +614,23 @@ export default function Indicacao() {
             <p style={{ fontSize:11, color:'#4A6580' }}>Compartilhe seu link e comece a ganhar moedas</p>
           </div>
         ) : (
-          <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.375rem' }}>
             {referrals.map(r => {
               const cfg = STATUS_CONFIG[r.status]
               const Icon = cfg.icon
               return (
-                <div key={r.id} style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)', borderRadius:10, padding:'10px 12px' }}>
+                <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'0.625rem', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)', borderRadius:'0.625rem', padding:'10px 12px' }}>
                   {r.referred_avatar
                     ? <img src={r.referred_avatar} alt={r.referred_name ?? ''} style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
-                    : <div style={{ padding:6, borderRadius:8, background: cfg.bg, flexShrink:0 }}><Icon size={14} className={cfg.color} /></div>
+                    : <div style={{ padding:6, borderRadius:'0.5rem', background: cfg.bg, flexShrink:0 }}><Icon size={14} className={cfg.color} /></div>
                   }
                   <div style={{ flex:1, minWidth:0 }}>
                     <p style={{ fontSize:12, fontWeight:500, color:'white', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.referred_name ?? 'Usuário'}</p>
                     <p style={{ fontSize:11, color:'#4A6580' }}>{fmtDate(r.created_at)}</p>
                   </div>
                   <div style={{ textAlign:'right', flexShrink:0 }}>
-                    <span style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:20 }} className={`${cfg.color} ${cfg.bg}`}>{cfg.label}</span>
-                    {r.status === 'credited' && <p style={{ fontSize:11, color:'#34d399', fontFamily:'monospace', marginTop:3 }}>+{r.reward_amount || baseReward}</p>}
+                    <span style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:'1.25rem' }} className={`${cfg.color} ${cfg.bg}`}>{cfg.label}</span>
+                    {r.status === 'credited' && <p style={{ fontSize:11, color:'#34d399', fontFamily:'monospace', marginTop:'0.1875rem' }}>+{r.reward_amount || baseReward}</p>}
                   </div>
                 </div>
               )
