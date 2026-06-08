@@ -60,8 +60,8 @@ export function CalendarGrid({
   });
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-3">
+    <div style={{ padding: '1.25rem' }}>
+      <div className="flex justify-between items-center" style={{ marginBottom: '1rem' }}>
         <h2 className="text-white font-bold text-base first-letter:uppercase">
           {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
         </h2>
@@ -82,7 +82,7 @@ export function CalendarGrid({
         <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 mt-1">
+      <div className="grid grid-cols-7 gap-2 mt-2">
         {calendarDays.map((day, idx) => {
           const isSelected = isSameDay(day, selectedDate);
           const isCurrentMonth = isSameMonth(day, monthStart);
@@ -94,7 +94,7 @@ export function CalendarGrid({
               key={idx}
               onClick={() => onSelectDay(day)}
               className={cn(
-                'h-20 rounded-lg border flex flex-col items-center justify-center text-xs font-semibold transition-all relative group cursor-pointer',
+                'min-h-[64px] rounded-lg border flex flex-col items-center justify-center text-xs font-semibold transition-all relative group cursor-pointer',
                 !isCurrentMonth ? 'opacity-[0.05] pointer-events-none' : '',
                 isSelected
                   ? 'bg-emerald-500 text-black border-emerald-500 shadow-lg shadow-emerald-500/30 scale-105'
@@ -103,6 +103,11 @@ export function CalendarGrid({
               )}
             >
               <span className="relative z-10">{format(day, 'd')}</span>
+              {dayAppts.length > 0 && !isSelected && (
+                <div style={{ fontSize:'9px', fontWeight:600, padding:'2px 5px', borderRadius:'4px', marginTop:'3px', background:'rgba(16,185,129,0.15)', color:'#34d399', maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                  {dayAppts[0].title}
+                </div>
+              )}
               {dotColor && !isSelected && (
                 <div className="mt-auto flex justify-center">
                   <div className={cn('w-1 h-1 rounded-full', dotColor)} />
@@ -113,7 +118,7 @@ export function CalendarGrid({
         })}
       </div>
 
-      <div className="flex flex-wrap gap-3 mt-3 px-3 py-2 bg-[#0E1C32]/60 rounded-lg border border-[#1C3050]/50">
+      <div className="flex flex-wrap gap-3 mt-4 px-4 py-4 bg-[#0d1929] rounded-xl border border-[#1C3050]" style={{ marginTop: '3.5rem' }}>
         {(['scheduled', 'confirmed', 'rescheduled', 'completed', 'cancelled'] as AppStatus[]).map(s => (
           <div key={s} className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
             <div className={cn('w-2.5 h-2.5 rounded-full', DOT_COLOR[s])} />
@@ -121,6 +126,6 @@ export function CalendarGrid({
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }

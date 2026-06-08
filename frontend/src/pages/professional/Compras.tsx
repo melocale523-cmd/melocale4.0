@@ -276,23 +276,22 @@ export default function ProfessionalCompras() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <h1 className="text-2xl font-bold text-white">Meus Clientes</h1>
-        <div className="text-xs font-bold px-8 py-6 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
+        <div className="text-xs font-bold px-4 py-2 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
           {purchases?.length || 0} adquiridos
         </div>
       </div>
 
-      <div className="flex gap-7 flex-wrap">
+      <div className="flex gap-2 flex-wrap" style={{ marginTop: '0.75rem' }}>
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
               activeTab === tab
-                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                : "bg-[#0E1C32] text-slate-400 border border-[#1C3050] hover:border-emerald-500/50"
+                ? "bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                : "bg-transparent text-slate-400 border border-[#243F6A] hover:border-emerald-500/50 px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap"
             )}
           >
             {tab}
@@ -316,191 +315,238 @@ export default function ProfessionalCompras() {
       ) : filteredPurchases.length > 0 ? (
         <div className="grid gap-9 md:grid-cols-2">
           {filteredPurchases.map((purchase) => (
-            <div key={purchase.id} className={cn(
-              "bg-[#1C3454] border border-slate-800/50 rounded-xl p-6 hover:border-emerald-500/30 transition-colors",
-              purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40 animate-pulse"
-            )}>
-              <div className="flex justify-between items-start mb-9">
-                <div>
-                  <h3 className="text-slate-200 font-medium">{purchase.leads?.title}</h3>
-                  <div className="flex items-center text-sm text-[#4A6580] mt-6">
-                    <Calendar size={14} className="mr-1.5" />
-                    {new Date(purchase.created_at || '').toLocaleDateString('pt-BR')}
+            <div
+              key={purchase.id}
+              className={cn(
+                "bg-gradient-to-b from-[#1C3454] to-[#0E1C32] border border-[#243F6A] rounded-2xl",
+                purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40"
+              )}
+            >
+              {/* Top gradient bar */}
+              <div style={{ height: '4px', background: 'linear-gradient(90deg, #10b981, #059669)' }} />
+
+              <div className="p-6 space-y-5">
+
+                {/* Header */}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-800 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    {(purchase.leads?.title ?? 'S')[0].toUpperCase()}
                   </div>
-                </div>
-                <div className="flex flex-col items-end gap-7 text-right">
-                  <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-6 rounded text-xs font-medium border border-emerald-500/20">
-                    Desbloqueado
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {purchase.status === 'Visualizada pelo Cliente' && <Eye size={12} className="text-blue-400" />}
-                    {purchase.status === 'Respondida pelo Cliente' && <CheckCircle size={12} className="text-emerald-400" />}
-                    <span className={cn(
-                      "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
-                      purchase.status === 'Pendente Proposta' ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
-                      purchase.status === 'Proposta Enviada' || purchase.status === 'Enviada' ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
-                      purchase.status === 'Visualizada pelo Cliente' ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" :
-                      purchase.status === 'Aceita' ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" :
-                      purchase.status === 'Recusada' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
-                      "bg-slate-500/10 text-slate-400 border border-slate-500/20"
-                    )}>
-                      {purchase.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Detalhes do Serviço */}
-              <div className="bg-[#0E1C32]/60 border border-[#1C3050] rounded-xl p-9 mb-9 space-y-2.5">
-                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Detalhes do Serviço</p>
-
-                {purchase.description && (
-                  <p className="text-[#94A3B8] text-xs leading-relaxed line-clamp-3">{purchase.description}</p>
-                )}
-
-                <div className="text-xs text-[#94A3B8] font-medium">
-                  💰 {purchase.budget_min && purchase.budget_max
-                    ? `R$ ${purchase.budget_min.toLocaleString('pt-BR')} – R$ ${purchase.budget_max.toLocaleString('pt-BR')}`
-                    : 'A combinar'}
-                </div>
-
-                {purchase.event_date && (
-                  <div className="text-xs text-[#94A3B8] font-medium">
-                    📅 Para: {new Date(purchase.event_date).toLocaleDateString('pt-BR')}
-                  </div>
-                )}
-
-                {(() => {
-                  if (!purchase.expires_at) return null;
-                  const diff = (new Date(purchase.expires_at).getTime() - Date.now()) / (1000 * 60 * 60);
-                  if (diff < 24) return <span className="inline-flex items-center px-7 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">🔥 URGENTE</span>;
-                  if (diff < 72) return <span className="inline-flex items-center px-7 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">⚡ Em breve</span>;
-                  return null;
-                })()}
-
-                {(purchase.city || purchase.state || purchase.location) && (
-                  <div className="text-xs text-[#94A3B8] font-medium">
-                    📍 {purchase.city && purchase.state
-                      ? `${purchase.city} - ${purchase.state}`
-                      : purchase.location || ''}
-                  </div>
-                )}
-
-                {Array.isArray(purchase.images) && purchase.images.length > 0 && (
-                  <div className="space-y-1.5 pt-1">
-                    <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">📸 Fotos do local</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(purchase.images as string[]).map((url, i) => (
-                        <button key={i} onClick={() => setLightboxUrl(url)}
-                          className="block w-12 h-12 rounded-lg overflow-hidden border border-[#243F6A] hover:border-emerald-500/40 transition-colors shrink-0">
-                          <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
-                        </button>
-                      ))}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-medium text-sm leading-snug truncate">{purchase.leads?.title}</h3>
+                    <div className="flex items-center gap-1.5 text-xs text-[#4A6580] mt-0.5">
+                      <Calendar size={12} />
+                      {new Date(purchase.created_at || '').toLocaleDateString('pt-BR')}
                     </div>
                   </div>
-                )}
-
-                {(() => {
-                  const max = purchase.max_purchases as number | undefined;
-                  const count = purchase.purchases_count as number | undefined;
-                  if (max == null || count == null) return null;
-                  const remaining = max - count;
-                  if (remaining <= 1) return <div className="text-xs font-bold text-emerald-400">🏆 Você é o único profissional com acesso</div>;
-                  return <div className="text-xs font-medium text-[#4A6580]">👥 {remaining} profissionais também viram este cliente</div>;
-                })()}
-              </div>
-
-              <div className="space-y-8 bg-[#0E1C32] p-9 rounded-lg border border-slate-800/50 relative overflow-hidden group/info">
-                {purchase.status === 'Respondida pelo Cliente' && (
-                  <div className="flex items-center gap-7 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-8 py-7 mb-6">
-                    <Zap size={13} className="text-emerald-400 shrink-0" />
-                    <p className="text-[11px] text-emerald-400 font-bold uppercase tracking-widest">Cliente pronto para contato</p>
-                  </div>
-                )}
-
-                <div className="flex items-center text-slate-300">
-                  <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <Phone size={16} className="text-[#94A3B8]" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-xs text-[#4A6580]">Telefone do Cliente</p>
-                    <p className="text-sm font-medium">
-                      {formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-[#4A6580] italic text-xs">Não informado</span>}
-                    </p>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-0.5 rounded text-xs font-medium border border-emerald-500/20">
+                      Desbloqueado
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {purchase.status === 'Visualizada pelo Cliente' && <Eye size={10} className="text-blue-400" />}
+                      {purchase.status === 'Respondida pelo Cliente' && <CheckCircle size={10} className="text-emerald-400" />}
+                      <span className={cn(
+                        "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
+                        purchase.status === 'Pendente Proposta' ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
+                        purchase.status === 'Proposta Enviada' || purchase.status === 'Enviada' ? "bg-blue-500/10 text-blue-500 border border-blue-500/20" :
+                        purchase.status === 'Visualizada pelo Cliente' ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" :
+                        purchase.status === 'Aceita' ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" :
+                        purchase.status === 'Recusada' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                        "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+                      )}>
+                        {purchase.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center text-slate-300">
-                  <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <Mail size={16} className="text-[#94A3B8]" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-xs text-[#4A6580]">E-mail</p>
-                    <p className="text-sm font-medium">
-                      {(purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email) || <span className="text-[#4A6580] italic text-xs">Não informado</span>}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center text-slate-300">
-                  <span className="bg-slate-800 p-1.5 rounded-md mr-3">
-                    <MapPin size={16} className="text-[#94A3B8]" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-xs text-[#4A6580]">Endereço (Aproximado)</p>
-                    <p className="text-sm font-medium">{purchase.leads?.clients?.city || purchase.leads?.profiles?.address || purchase.leads?.location}</p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="mt-5 flex gap-8 flex-wrap">
-                {(() => {
-                  const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
-                  const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
-                  if (hasPhone) {
+                {/* Detalhes do Serviço */}
+                <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-4 space-y-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Detalhes do Serviço</p>
+
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">💰 Orçamento</p>
+                      <p className="text-sm font-medium text-white">
+                        {purchase.budget_min && purchase.budget_max
+                          ? `R$ ${purchase.budget_min.toLocaleString('pt-BR')} – R$ ${purchase.budget_max.toLocaleString('pt-BR')}`
+                          : 'A combinar'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">📍 Localização</p>
+                      <p className="text-sm font-medium text-white">
+                        {purchase.city && purchase.state
+                          ? `${purchase.city} - ${purchase.state}`
+                          : purchase.location || '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {(() => {
+                    const max = purchase.max_purchases as number | undefined;
+                    const count = purchase.purchases_count as number | undefined;
+                    if (max == null || count == null) return null;
+                    const remaining = max - count;
                     return (
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">👥 Concorrência</p>
+                        {remaining <= 1
+                          ? <p className="text-sm font-medium text-emerald-400">🏆 Você é o único profissional com acesso</p>
+                          : <p className="text-sm font-medium text-white">{remaining} profissionais também viram</p>
+                        }
+                      </div>
+                    );
+                  })()}
+
+                  {(() => {
+                    if (!purchase.expires_at) return null;
+                    const diff = (new Date(purchase.expires_at).getTime() - Date.now()) / (1000 * 60 * 60);
+                    if (diff < 24) return <span className="inline-flex items-center px-2.5 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">🔥 URGENTE</span>;
+                    if (diff < 72) return <span className="inline-flex items-center px-2.5 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest">⚡ Em breve</span>;
+                    return null;
+                  })()}
+
+                  {purchase.event_date && (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">⏰ Data do Evento</p>
+                      <p className="text-sm font-medium text-white">{new Date(purchase.event_date).toLocaleDateString('pt-BR')}</p>
+                    </div>
+                  )}
+
+                  {purchase.description && (
+                    <p className="text-xs text-[#94A3B8] leading-relaxed line-clamp-3">{purchase.description}</p>
+                  )}
+
+                  {Array.isArray(purchase.images) && purchase.images.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">📸 Fotos do local</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(purchase.images as string[]).map((url, i) => (
+                          <button key={i} onClick={() => setLightboxUrl(url)}
+                            className="block w-12 h-12 rounded-lg overflow-hidden border border-[#243F6A] hover:border-emerald-500/40 transition-colors shrink-0">
+                            <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Contato do Cliente */}
+                <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-4 space-y-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Contato do Cliente</p>
+
+                  {purchase.status === 'Respondida pelo Cliente' && (
+                    <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-3 py-2">
+                      <Zap size={12} className="text-emerald-400 shrink-0" />
+                      <p className="text-[11px] text-emerald-400 font-bold uppercase tracking-widest">Cliente pronto para contato</p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3">
+                    <span className="bg-slate-800 p-1.5 rounded-md shrink-0">
+                      <Phone size={14} className="text-[#94A3B8]" />
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Telefone</p>
+                      <p className="text-sm font-medium text-white">
+                        {formatPhone(purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone) || <span className="text-[#4A6580] italic text-xs">Não informado</span>}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="bg-slate-800 p-1.5 rounded-md shrink-0">
+                      <Mail size={14} className="text-[#94A3B8]" />
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">E-mail</p>
+                      <p className="text-sm font-medium text-white">
+                        {(purchase.leads?.clients?.email ?? purchase.leads?.profiles?.email) || <span className="text-[#4A6580] italic text-xs">Não informado</span>}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="bg-slate-800 p-1.5 rounded-md shrink-0">
+                      <MapPin size={14} className="text-[#94A3B8]" />
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Endereço</p>
+                      <p className="text-sm font-medium text-white">
+                        {purchase.leads?.clients?.city || purchase.leads?.profiles?.address || purchase.leads?.location || <span className="text-[#4A6580] italic text-xs">Não informado</span>}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer — 3 col grid */}
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Chat */}
+                  <button
+                    onClick={async () => {
+                      let chatId = purchase.chat_id ?? null;
+                      if (!chatId) {
+                        chatId = await proposalService.ensureChatForPurchase(purchase.id);
+                      }
+                      if (chatId) navigate(`/profissional/mensagens?chatId=${chatId}`);
+                    }}
+                    className="bg-[#132236] border border-white/[0.06] h-9 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 hover:bg-white/5 transition-colors"
+                  >
+                    <MessageCircle size={13} /> Chat
+                  </button>
+
+                  {/* Proposal / status */}
+                  {purchase.status === 'Pendente Proposta' ? (
+                    <button
+                      onClick={() => openProposalModal(purchase)}
+                      className="bg-emerald-500 hover:bg-emerald-400 h-9 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <Send size={13} /> Proposta
+                    </button>
+                  ) : purchase.status === 'Proposta Enviada' || purchase.status === 'Enviada' ? (
+                    <div className="bg-blue-500/10 border border-blue-500/20 h-9 rounded-xl text-xs font-bold text-blue-400 flex items-center justify-center gap-1.5">
+                      <Clock size={13} /> Enviada
+                    </div>
+                  ) : purchase.status === 'Visualizada pelo Cliente' ? (
+                    <div className="bg-indigo-500/10 border border-indigo-500/20 h-9 rounded-xl text-xs font-bold text-indigo-400 flex items-center justify-center gap-1.5 animate-pulse">
+                      <Eye size={13} /> Visualizada
+                    </div>
+                  ) : purchase.status === 'Aceita' ? (
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 h-9 rounded-xl text-xs font-bold text-emerald-400 flex items-center justify-center gap-1.5">
+                      <CheckCircle size={13} /> Aceita
+                    </div>
+                  ) : purchase.status === 'Recusada' ? (
+                    <div className="bg-red-500/10 border border-red-500/20 h-9 rounded-xl text-xs font-bold text-red-400 flex items-center justify-center gap-1.5">
+                      <X size={13} /> Recusada
+                    </div>
+                  ) : (
+                    <div className="bg-slate-800/50 border border-slate-700/50 h-9 rounded-xl text-xs font-bold text-slate-400 flex items-center justify-center">
+                      {purchase.status}
+                    </div>
+                  )}
+
+                  {/* WhatsApp */}
+                  {(() => {
+                    const rawPhone = purchase.leads?.clients?.phone ?? purchase.leads?.profiles?.phone;
+                    const hasPhone = typeof rawPhone === 'string' && rawPhone.trim() !== '';
+                    return hasPhone ? (
                       <button
                         onClick={() => handleContact(purchase)}
-                        className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-7 bg-[#25D366] hover:bg-[#1ebe59] text-white shadow-lg shadow-[#25D366]/25"
+                        className="bg-[#25D366] hover:bg-[#1ebe59] h-9 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-[#25D366]/20"
                       >
-                        <MessageCircle size={16} /> Falar no WhatsApp
+                        <MessageCircle size={13} /> WA
+                      </button>
+                    ) : (
+                      <button disabled className="bg-slate-800 border border-slate-700 h-9 rounded-xl text-xs font-bold text-[#4A6580] flex items-center justify-center gap-1.5 cursor-not-allowed opacity-60">
+                        <Phone size={13} /> WA
                       </button>
                     );
-                  }
-                  return (
-                    <button disabled className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-7 bg-slate-800 text-[#4A6580] cursor-not-allowed opacity-60 border border-slate-700">
-                      <Phone size={16} /> Contato indisponível
-                    </button>
-                  );
-                })()}
-                {purchase.status === 'Pendente Proposta' && (
-                  <button
-                    onClick={() => openProposalModal(purchase)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-7 rounded-lg text-sm font-bold transition-all border border-[#243F6A] flex items-center justify-center gap-7"
-                  >
-                    <Send size={16} /> Enviar Proposta
-                  </button>
-                )}
-                {purchase.status === 'Proposta Enviada' && (
-                  <div className="flex-1 bg-blue-500/5 text-blue-500 py-7 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center justify-center gap-7">
-                    <Clock size={14} /> Enviada
-                  </div>
-                )}
-                {purchase.status === 'Visualizada pelo Cliente' && (
-                  <div className="flex-1 bg-indigo-500/5 text-indigo-400 py-7 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 flex items-center justify-center gap-7 animate-pulse">
-                    <Eye size={14} /> Visualizada
-                  </div>
-                )}
-                <button
-                  onClick={async () => {
-                    let chatId = purchase.chat_id ?? null;
-                    if (!chatId) {
-                      chatId = await proposalService.ensureChatForPurchase(purchase.id);
-                    }
-                    if (chatId) navigate(`/profissional/mensagens?chatId=${chatId}`);
-                  }}
-                  className="flex items-center gap-7 px-9 py-7 bg-[#1C3050] text-white text-sm font-semibold rounded-xl hover:bg-[#243d61] transition-all border border-[#2a4a6b]"
-                >
-                  <MessageCircle size={16} /> Chat
-                </button>
+                  })()}
+                </div>
+
               </div>
             </div>
           ))}
