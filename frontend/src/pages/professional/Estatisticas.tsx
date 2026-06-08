@@ -252,6 +252,7 @@ export default function ProfessionalEstatisticas() {
                 <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Total Propostas</th>
                 <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Aceitas</th>
                 <th className="px-3 py-2 text-xs uppercase tracking-wide text-emerald-400">Faturamento</th>
+                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -259,13 +260,19 @@ export default function ProfessionalEstatisticas() {
                 <tr key={idx} className="hover:bg-white/[0.01] transition-colors group">
                   <td className="px-3 py-2 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
                   <td className="px-3 py-2 text-sm text-slate-400">
-                    {day.total === 0 ? <span className="text-[#1C3050]">—</span> : day.total}
+                    {day.total === 0 ? <span style={{ color: '#1C3050' }}>—</span> : day.total}
                   </td>
-                  <td className="px-3 py-2 text-sm text-slate-400">
-                    {day.aceitas === 0 ? <span className="text-[#1C3050]">—</span> : <span className={cn(day.aceitas > 0 ? "text-emerald-500 font-semibold" : "")}>{day.aceitas}</span>}
+                  <td className="px-3 py-2 text-sm">
+                    {day.aceitas === 0 ? <span style={{ color: '#1C3050' }}>—</span> : <span className="text-emerald-500 font-semibold">{day.aceitas}</span>}
                   </td>
-                  <td className="px-3 py-2 text-sm font-semibold text-slate-200">
-                    {Number(day.revenue) === 0 ? <span className="text-[#1C3050]">—</span> : `R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  <td className="px-3 py-2 text-sm font-semibold">
+                    {Number(day.revenue) === 0 ? <span style={{ color: '#1C3050' }}>—</span> : <span className="text-emerald-400">{`R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}</span>}
+                  </td>
+                  <td className="px-3 py-2">
+                    {day.aceitas > 0
+                      ? <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Aceita</span>
+                      : <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-[#1C3050] text-[#4A6580]">Sem dados</span>
+                    }
                   </td>
                 </tr>
               ))}
