@@ -283,16 +283,15 @@ export default function ProfessionalCompras() {
         </div>
       </div>
 
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-2 flex-wrap">
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
               activeTab === tab
-                ? "bg-emerald-500 text-white"
-                : "bg-[#0E1C32] text-slate-400 border border-[#1C3050] hover:border-emerald-500/50"
+                ? "bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                : "bg-transparent text-slate-400 border border-[#243F6A] hover:border-emerald-500/50 px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap"
             )}
           >
             {tab}
@@ -319,14 +318,14 @@ export default function ProfessionalCompras() {
             <div
               key={purchase.id}
               className={cn(
-                "bg-[#1C3454] border border-[#1C3050] rounded-2xl overflow-hidden",
+                "bg-gradient-to-b from-[#1C3454] to-[#0E1C32] border border-[#243F6A] rounded-2xl overflow-hidden",
                 purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40"
               )}
             >
               {/* Top gradient bar */}
               <div style={{ height: '4px', background: 'linear-gradient(90deg, #10b981, #059669)' }} />
 
-              <div className="p-5 space-y-4">
+              <div className="p-6 space-y-5">
 
                 {/* Header */}
                 <div className="flex items-start gap-3">
@@ -363,7 +362,7 @@ export default function ProfessionalCompras() {
                 </div>
 
                 {/* Detalhes do Serviço */}
-                <div className="bg-[#0d1929] rounded-xl p-4 space-y-3">
+                <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-4 space-y-3">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Detalhes do Serviço</p>
 
                   <div className="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -436,7 +435,7 @@ export default function ProfessionalCompras() {
                 </div>
 
                 {/* Contato do Cliente */}
-                <div className="bg-[#0d1929] rounded-xl p-4 space-y-3">
+                <div className="bg-[#0E1C32] border border-[#1C3050] rounded-xl p-4 space-y-3">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Contato do Cliente</p>
 
                   {purchase.status === 'Respondida pelo Cliente' && (
