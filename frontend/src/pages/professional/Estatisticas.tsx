@@ -55,7 +55,7 @@ export default function ProfessionalEstatisticas() {
   }
 
   return (
-    <div className="w-full space-y-5">
+    <div className="w-full" style={{ paddingBottom: '2rem' }}>
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -88,7 +88,7 @@ export default function ProfessionalEstatisticas() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full" style={{ marginTop: '1.5rem' }}>
         {/* Visualizações */}
         <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden">
           <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#378ADD' }} />
@@ -138,7 +138,7 @@ export default function ProfessionalEstatisticas() {
       </div>
 
       {/* Charts — lazy-loaded when in viewport */}
-      <div ref={chartsRef}>
+      <div ref={chartsRef} style={{ marginTop: '1.5rem' }}>
         {seriesData.length === 0 ? (
           <div className="grid lg:grid-cols-2 gap-3">
             {[0, 1].map((i) => (
@@ -162,7 +162,7 @@ export default function ProfessionalEstatisticas() {
       </div>
 
       {/* Insights */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3" style={{ marginTop: '1.5rem' }}>
         <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-5 flex items-start gap-3">
           <div className="w-8 h-8 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 shrink-0"><TrendingUp size={15} /></div>
           <div>
@@ -191,7 +191,7 @@ export default function ProfessionalEstatisticas() {
       </div>
 
       {/* Resumo do Período */}
-      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6">
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6" style={{ marginTop: '1.5rem' }}>
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg">
             <Calendar size={15} />
@@ -234,7 +234,7 @@ export default function ProfessionalEstatisticas() {
       </div>
 
       {/* Tabela de Detalhamento */}
-      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl overflow-hidden">
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl overflow-hidden" style={{ marginTop: '1.5rem' }}>
         <div className="px-4 py-3 border-b border-[#1C3050] flex items-center justify-between">
           <div>
             <h3 className="text-white font-bold text-sm">Detalhamento por Período</h3>
@@ -260,18 +260,18 @@ export default function ProfessionalEstatisticas() {
                 <tr key={idx} className="hover:bg-white/[0.01] transition-colors group">
                   <td className="px-4 py-3 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
                   <td className="px-4 py-3 text-sm text-slate-400">
-                    <span style={{ color: day.total === 0 ? '#2a3f55' : 'inherit' }}>{day.total}</span>
+                    <span style={{ color: day.total === 0 ? '#3a5470' : 'inherit' }}>{day.total}</span>
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {day.aceitas === 0 ? <span style={{ color: '#2a3f55' }}>0</span> : <span className="text-emerald-500 font-semibold">{day.aceitas}</span>}
+                    {day.aceitas === 0 ? <span style={{ color: '#3a5470' }}>0</span> : <span className="text-emerald-500 font-semibold">{day.aceitas}</span>}
                   </td>
                   <td className="px-4 py-3 text-sm font-semibold">
-                    {Number(day.revenue) === 0 ? <span style={{ color: '#2a3f55' }}>R$ 0,00</span> : <span className="text-emerald-400">{`R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}</span>}
+                    {Number(day.revenue) === 0 ? <span style={{ color: '#3a5470' }}>R$ 0,00</span> : <span className="text-emerald-400">{`R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}</span>}
                   </td>
                   <td className="px-4 py-3">
                     {day.aceitas > 0
                       ? <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Aceita</span>
-                      : null
+                      : <span style={{ fontSize:'10px', fontWeight:700, color:'#3a5470' }}>—</span>
                     }
                   </td>
                 </tr>
