@@ -41,7 +41,7 @@ export function DaySidebar({
   declineMutation,
 }: DaySidebarProps) {
   return (
-    <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2 flex flex-col relative overflow-hidden group">
+    <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 flex flex-col relative overflow-hidden group">
       <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/10 transition-all duration-700" />
 
       <div className="flex items-center justify-between mb-2 relative z-10">
@@ -70,7 +70,7 @@ export function DaySidebar({
             const clientRequestedReschedule = app.status === 'rescheduled' && app.proposed_by === 'client';
             const profRequestedReschedule = app.status === 'rescheduled' && app.proposed_by === 'professional';
             return (
-              <div key={app.id} className="bg-[#0E1C32] border border-[#1C3050] p-10 rounded-xl space-y-2 hover:border-emerald-500/30 transition-all">
+              <div key={app.id} className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4 space-y-2 hover:border-emerald-500/30 transition-all">
                 {clientRequestedReschedule && app.proposed_at && (
                   <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-2">
                     <div className="flex items-center gap-2 mb-2">
@@ -144,7 +144,7 @@ export function DaySidebar({
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <button onClick={() => onOpenDetails(app)} className="flex-1 py-7 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-lg border border-[#243F6A] transition-all">
+                  <button onClick={() => onOpenDetails(app)} className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-lg border border-[#243F6A] transition-all">
                     Detalhes
                   </button>
                   {isActive(app.status) && (
@@ -186,7 +186,7 @@ export function DaySidebar({
         )}
       </div>
 
-      <div className="mt-13 pt-8 border-t border-[#1C3050] relative z-10">
+      <div className="pt-4 border-t border-[#1C3050] relative z-10" style={{ marginTop: '1.25rem' }}>
         <div className="flex justify-between items-center text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2">
           <span>Horários Populares</span>
           <span className="text-emerald-500/50">Disponível</span>
@@ -194,6 +194,24 @@ export function DaySidebar({
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-[#0E1C32] border border-[#1C3050] p-2 rounded-lg text-center text-xs text-slate-300 font-mono italic">09:00 - 10:00</div>
           <div className="bg-[#0E1C32] border border-[#1C3050] p-2 rounded-lg text-center text-xs text-slate-300 font-mono italic">14:00 - 15:00</div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '1rem' }} className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-3">Resumo do mês</p>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[#4A6580]">Próximo agendamento</span>
+            <span className="text-xs font-medium text-white">—</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[#4A6580]">Faturamento est.</span>
+            <span className="text-xs font-medium text-emerald-400">R$ 0,00</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[#4A6580]">Taxa de conclusão</span>
+            <span className="text-xs font-medium text-white">—</span>
+          </div>
         </div>
       </div>
     </div>

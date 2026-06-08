@@ -13,22 +13,34 @@ interface AgendaStatsProps {
 export function AgendaStats({ stats, isLoading }: AgendaStatsProps) {
   const val = (n: number) => (isLoading ? '—' : n);
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-2">
-        <h4 className="text-[#4A6580] text-xs font-bold uppercase tracking-widest mb-2">Total</h4>
-        <p className="text-lg font-bold text-white">{val(stats.total)}</p>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Total */}
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-4 overflow-hidden relative">
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#4A6580' }} />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-2">Total do mês</p>
+        <p className="text-2xl font-bold text-white">{val(stats.total)}</p>
+        <p className="text-[11px] text-[#4A6580] mt-1">agendamentos</p>
       </div>
-      <div className="bg-[#1C3454] border border-blue-500/20 rounded-xl p-2">
-        <h4 className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-2">Agendados</h4>
-        <p className="text-lg font-bold text-blue-400">{val(stats.pending)}</p>
+      {/* Agendados */}
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-4 overflow-hidden relative">
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#378ADD' }} />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-2">Agendados</p>
+        <p className="text-2xl font-bold text-blue-400">{val(stats.pending)}</p>
+        <p className="text-[11px] text-[#4A6580] mt-1">aguardando confirmação</p>
       </div>
-      <div className="bg-[#1C3454] border border-emerald-500/20 rounded-xl p-2">
-        <h4 className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-2">Concluídos</h4>
-        <p className="text-lg font-bold text-emerald-500">{val(stats.completed)}</p>
+      {/* Concluídos */}
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-4 overflow-hidden relative">
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#10b981' }} />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-2">Concluídos</p>
+        <p className="text-2xl font-bold text-emerald-400">{val(stats.completed)}</p>
+        <p className="text-[11px] text-[#4A6580] mt-1">serviços realizados</p>
       </div>
-      <div className="bg-[#1C3454] border border-yellow-500/20 rounded-xl p-2">
-        <h4 className="text-yellow-500 text-xs font-bold uppercase tracking-widest mb-2">Hoje</h4>
-        <p className="text-lg font-bold text-yellow-500">{val(stats.today)}</p>
+      {/* Hoje */}
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-4 overflow-hidden relative">
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#f59e0b' }} />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-2">Hoje</p>
+        <p className="text-2xl font-bold text-yellow-400">{val(stats.today)}</p>
+        <p className="text-[11px] text-[#4A6580] mt-1">compromissos hoje</p>
       </div>
     </div>
   );
