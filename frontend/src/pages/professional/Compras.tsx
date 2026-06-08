@@ -283,7 +283,7 @@ export default function ProfessionalCompras() {
         </div>
       </div>
 
-      <div className="flex gap-7 flex-wrap">
+      <div className="flex gap-3 flex-wrap">
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
@@ -291,7 +291,7 @@ export default function ProfessionalCompras() {
             className={cn(
               "px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
               activeTab === tab
-                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                ? "bg-emerald-500 text-white"
                 : "bg-[#0E1C32] text-slate-400 border border-[#1C3050] hover:border-emerald-500/50"
             )}
           >
@@ -319,7 +319,7 @@ export default function ProfessionalCompras() {
             <div
               key={purchase.id}
               className={cn(
-                "bg-[#132236] border border-white/[0.06] rounded-2xl overflow-hidden",
+                "bg-[#1C3454] border border-[#1C3050] rounded-2xl overflow-hidden",
                 purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40"
               )}
             >
