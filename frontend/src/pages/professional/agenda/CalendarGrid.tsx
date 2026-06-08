@@ -82,7 +82,7 @@ export function CalendarGrid({
         <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 mt-1">
+      <div className="grid grid-cols-7 gap-2 mt-2">
         {calendarDays.map((day, idx) => {
           const isSelected = isSameDay(day, selectedDate);
           const isCurrentMonth = isSameMonth(day, monthStart);
@@ -118,7 +118,7 @@ export function CalendarGrid({
         })}
       </div>
 
-      <div className="flex flex-wrap gap-3 mt-4 px-4 py-3 bg-[#0d1929] rounded-xl border border-[#1C3050]">
+      <div className="flex flex-wrap gap-3 mt-4 px-4 py-4 bg-[#0d1929] rounded-xl border border-[#1C3050]" style={{ marginTop: '1rem' }}>
         {(['scheduled', 'confirmed', 'rescheduled', 'completed', 'cancelled'] as AppStatus[]).map(s => (
           <div key={s} className="flex items-center gap-2 text-[10px] font-bold text-[#4A6580] uppercase tracking-widest">
             <div className={cn('w-2.5 h-2.5 rounded-full', DOT_COLOR[s])} />
