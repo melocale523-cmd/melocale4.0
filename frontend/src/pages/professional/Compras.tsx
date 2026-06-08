@@ -278,7 +278,7 @@ export default function ProfessionalCompras() {
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Meus Clientes</h1>
-        <div className="text-xs font-bold px-8 py-6 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
+        <div className="text-xs font-bold px-4 py-2 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
           {purchases?.length || 0} adquiridos
         </div>
       </div>
