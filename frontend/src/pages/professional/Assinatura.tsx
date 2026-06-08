@@ -263,6 +263,7 @@ export default function ProfessionalAssinatura() {
   const economyVsPro = hasActivePlan ? 0 : (0.415 - 0.249) * balanceNum;
 
   return (
+    <>
     <div className="w-full space-y-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
       {/* Status banner */}
@@ -370,7 +371,7 @@ export default function ProfessionalAssinatura() {
                 onMouseLeave={e => (e.currentTarget.style.transform='translateY(0)')}>
                 <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:topColor }} />
                 {isPopular && (
-                  <div style={{ position:'absolute', top:-1, left:'50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#10b981,#059669)', color:'white', fontSize:10, fontWeight:700, padding:'3px 12px', borderRadius:'0 0 10px 10px', whiteSpace:'nowrap' }}>
+                  <div style={{ position:'absolute', top:-14, left:'50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#10b981,#059669)', color:'white', fontSize:10, fontWeight:700, padding:'3px 12px', borderRadius:20, whiteSpace:'nowrap' }}>
                     ★ Melhor Custo-Benefício
                   </div>
                 )}
@@ -912,28 +913,29 @@ export default function ProfessionalAssinatura() {
         </div>
       )}
 
-      {/* Sticky Bar */}
-      <div style={{ position:'sticky', bottom:0, left:0, right:0, background:'rgba(7,15,28,.96)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderTop:'1px solid rgba(255,255,255,.06)', padding:'10px 1.5rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, zIndex:50, flexWrap:'wrap' }}>
-        <div style={{ fontSize:12, color:'#4A6580' }}>
-          <span style={{ color:'white', fontWeight:700 }}>{balanceNum} moedas</span>
-          {' · '}
-          <span>{hasActivePlan ? `Plano ${PLAN_NAMES[currentSubscription!.package_id]} · ${daysUntilExpiry ?? '—'} dias restantes` : 'Sem plano ativo · preço cheio'}</span>
-        </div>
-        <div style={{ display:'flex', gap:8 }}>
-          <button onClick={() => handleCheckout('one_time', 'pack_pro')} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-            🪙 Comprar moedas
-          </button>
-          {hasActivePlan ? (
-            <button onClick={() => setShowChangePlanModal(true)} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-              ↺ Mudar plano
-            </button>
-          ) : null}
-          <button onClick={() => handleCheckout('subscription', 'plan_pro')} disabled={!!buyingId} style={{ height:36, padding:'0 16px', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:10, color:'white', fontSize:12, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 12px rgba(16,185,129,.25)', opacity: buyingId ? .5 : 1 }}>
-            {buyingId === 'plan_pro' ? '...' : '⚡ Upgrade PRO →'}
-          </button>
-        </div>
-      </div>
-
     </div>
+
+    {/* Sticky Bar */}
+    <div style={{ position:'sticky', bottom:0, left:0, right:0, background:'rgba(7,15,28,.96)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderTop:'1px solid rgba(255,255,255,.06)', padding:'10px 1.5rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, zIndex:50, flexWrap:'wrap' }}>
+      <div style={{ fontSize:12, color:'#4A6580' }}>
+        <span style={{ color:'white', fontWeight:700 }}>{balanceNum} moedas</span>
+        {' · '}
+        <span>{hasActivePlan ? `Plano ${PLAN_NAMES[currentSubscription!.package_id]} · ${daysUntilExpiry ?? '—'} dias restantes` : 'Sem plano ativo · preço cheio'}</span>
+      </div>
+      <div style={{ display:'flex', gap:8 }}>
+        <button onClick={() => handleCheckout('one_time', 'pack_pro')} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer' }}>
+          🪙 Comprar moedas
+        </button>
+        {hasActivePlan ? (
+          <button onClick={() => setShowChangePlanModal(true)} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer' }}>
+            ↺ Mudar plano
+          </button>
+        ) : null}
+        <button onClick={() => handleCheckout('subscription', 'plan_pro')} disabled={!!buyingId} style={{ height:36, padding:'0 16px', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:10, color:'white', fontSize:12, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 12px rgba(16,185,129,.25)', opacity: buyingId ? .5 : 1 }}>
+          {buyingId === 'plan_pro' ? '...' : '⚡ Upgrade PRO →'}
+        </button>
+      </div>
+    </div>
+    </>
   );
 }
