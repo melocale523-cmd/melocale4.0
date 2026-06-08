@@ -276,14 +276,14 @@ export default function ProfessionalCompras() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <h1 className="text-2xl font-bold text-white">Meus Clientes</h1>
         <div className="text-xs font-bold px-4 py-2 bg-white/5 border border-[#243F6A] text-slate-300 rounded-full">
           {purchases?.length || 0} adquiridos
         </div>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap" style={{ marginTop: '1rem' }}>
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
