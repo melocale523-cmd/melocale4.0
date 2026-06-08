@@ -108,7 +108,7 @@ export default function ProfessionalAgenda() {
 
       <AgendaStats stats={stats} isLoading={isLoading} />
 
-      <div className="grid lg:grid-cols-3 gap-2">
+      <div className="grid lg:grid-cols-3 gap-4" style={{ marginTop: '1.25rem' }}>
         <div className="lg:col-span-2 bg-[#132236] border border-[#1C3050] rounded-2xl p-5">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">

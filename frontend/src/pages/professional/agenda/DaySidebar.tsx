@@ -44,7 +44,7 @@ export function DaySidebar({
     <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 flex flex-col relative overflow-hidden group">
       <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/10 transition-all duration-700" />
 
-      <div className="flex items-center justify-between mb-2 relative z-10">
+      <div className="flex items-center justify-between mb-4 relative z-10">
         <h3 className="text-white font-bold text-base first-letter:uppercase">
           {format(selectedDate, "eeee, d 'de' MMMM", { locale: ptBR })}
         </h3>
@@ -186,7 +186,7 @@ export function DaySidebar({
         )}
       </div>
 
-      <div className="pt-4 border-t border-[#1C3050] relative z-10" style={{ marginTop: '1.25rem' }}>
+      <div className="pt-4 border-t border-[#1C3050] relative z-10" style={{ marginTop: '1.5rem' }}>
         <div className="flex justify-between items-center text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2">
           <span>Horários Populares</span>
           <span className="text-emerald-500/50">Disponível</span>
@@ -197,7 +197,7 @@ export function DaySidebar({
         </div>
       </div>
 
-      <div style={{ marginTop: '1rem' }} className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
+      <div style={{ marginTop: '1.25rem' }} className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
         <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580] mb-3">Resumo do mês</p>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
