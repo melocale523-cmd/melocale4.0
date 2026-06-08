@@ -283,7 +283,7 @@ export default function ProfessionalCompras() {
         </div>
       </div>
 
-      <div className="flex gap-2 flex-wrap" style={{ marginTop: '1rem' }}>
+      <div className="flex gap-2 flex-wrap" style={{ marginTop: '0.75rem' }}>
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
@@ -318,7 +318,7 @@ export default function ProfessionalCompras() {
             <div
               key={purchase.id}
               className={cn(
-                "bg-gradient-to-b from-[#1C3454] to-[#0E1C32] border border-[#243F6A] rounded-2xl overflow-hidden",
+                "bg-gradient-to-b from-[#1C3454] to-[#0E1C32] border border-[#243F6A] rounded-2xl",
                 purchase.status === 'Respondida pelo Cliente' && "ring-2 ring-emerald-500/40"
               )}
             >
