@@ -560,161 +560,110 @@ export default function ProfessionalAssinatura() {
         </p>
       </div>
 
-      {/* Plano Atual + Saldo */}
-      <div className="grid lg:grid-cols-2 gap-3 pt-3 border-t border-slate-800">
+      {/* Grid Plano Atual + Saldo */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, paddingTop:'1.5rem', borderTop:'1px solid rgba(255,255,255,.06)' }}>
 
-        {/* Plano Atual */}
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl overflow-hidden flex flex-col">
-          <div className="bg-gradient-to-r from-emerald-900/30 via-emerald-900/10 to-transparent border-b border-[#1C3050] px-3 py-2 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-slate-400">Plano Atual</p>
-                <h2 className="text-white font-bold text-sm leading-tight">
-                  {currentSubscription
-                    ? `Plano ${PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}`
-                    : 'Sem plano ativo'}
-                </h2>
-              </div>
+        {/* Card Plano Atual */}
+        <div style={{ background:'linear-gradient(145deg,#071e30,#0e2038)', border:`1px solid ${hasActivePlan ? 'rgba(16,185,129,.22)' : 'rgba(55,138,221,.22)'}`, borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background: hasActivePlan ? 'linear-gradient(90deg,#10b981,#059669)' : 'linear-gradient(90deg,#378ADD,#1d6fa8)', borderRadius:'18px 18px 0 0' }} />
+          <div style={{ position:'relative', padding:'1.25rem 1.5rem', borderBottom:'1px solid rgba(255,255,255,.06)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div>
+              <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:4 }}>Plano Atual</p>
+              <p style={{ fontSize:18, fontWeight:900, color:'white' }}>
+                {currentSubscription ? `Plano ${PLAN_NAMES[currentSubscription.package_id] ?? currentSubscription.package_id}` : 'Sem plano ativo'}
+              </p>
             </div>
             {currentSubscription && (
-              <span className={`text-xs px-2 py-0.5 font-semibold rounded-md border shrink-0 ${(STATUS_LABELS[currentSubscription.status] ?? STATUS_LABELS['active']).colorClass}`}>
+              <span style={{ fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:20, border:`1px solid`, ...(STATUS_LABELS[currentSubscription.status] ? {
+                background: currentSubscription.status === 'active' ? 'rgba(16,185,129,.12)' : currentSubscription.status === 'canceling' ? 'rgba(249,115,22,.12)' : 'rgba(239,68,68,.12)',
+                color: currentSubscription.status === 'active' ? '#34d399' : currentSubscription.status === 'canceling' ? '#fb923c' : '#f87171',
+                borderColor: currentSubscription.status === 'active' ? 'rgba(16,185,129,.3)' : currentSubscription.status === 'canceling' ? 'rgba(249,115,22,.3)' : 'rgba(239,68,68,.3)',
+              } : {}) }}>
                 {(STATUS_LABELS[currentSubscription.status] ?? { label: currentSubscription.status }).label}
               </span>
             )}
           </div>
 
-          <div className="p-3 flex-1 flex flex-col">
+          <div style={{ padding:'1.25rem 1.5rem', flex:1, display:'flex', flexDirection:'column', gap:12 }}>
             {isSubscriptionLoading ? (
-              <div className="flex-1 flex items-center justify-center py-6">
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem 0' }}>
                 <Loader2 size={20} className="animate-spin text-emerald-500" />
               </div>
             ) : currentSubscription ? (
               <>
                 {subscriptionStatus?.cancel_at_period_end && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 mb-2 flex items-center gap-2">
-                    <AlertCircle size={13} className="text-red-400 shrink-0" />
-                    <p className="text-red-300 text-xs">
-                      Cancelamento agendado para{' '}
-                      <strong>
-                        {subscriptionStatus.current_period_end
-                          ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')
-                          : '—'}
-                      </strong>
+                  <div style={{ background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', borderRadius:10, padding:'10px 12px', display:'flex', alignItems:'center', gap:8 }}>
+                    <AlertCircle size={13} style={{ color:'#f87171', flexShrink:0 }} />
+                    <p style={{ color:'#fca5a5', fontSize:12 }}>
+                      Cancelamento agendado para <strong>{subscriptionStatus.current_period_end ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR') : '—'}</strong>
                     </p>
                   </div>
                 )}
-
                 {showExpiryWarning && !subscriptionStatus?.cancel_at_period_end && (
-                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-2 mb-2 flex items-start gap-2">
-                    <AlertCircle size={13} className="text-yellow-400 shrink-0 mt-0.5" />
-                    <p className="text-yellow-300 text-xs">
+                  <div style={{ background:'rgba(245,158,11,.08)', border:'1px solid rgba(245,158,11,.2)', borderRadius:10, padding:'10px 12px', display:'flex', alignItems:'flex-start', gap:8 }}>
+                    <AlertCircle size={13} style={{ color:'#fbbf24', flexShrink:0, marginTop:1 }} />
+                    <p style={{ color:'#fde68a', fontSize:12 }}>
                       Seu plano expira em <strong>{daysUntilExpiry} dia{daysUntilExpiry !== 1 ? 's' : ''}</strong>. Renove para não perder o acesso.
                     </p>
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  <div className="bg-[#0E1C32] rounded-lg p-2 border border-[#1C3050]">
-                    <p className="text-xs uppercase tracking-wide text-slate-400 mb-0.5">Desconto moedas</p>
-                    <p className="text-white font-bold text-lg">{PLAN_LEADS[currentSubscription.package_id] ?? '—'}</p>
-                  </div>
-
-                  <div className="bg-[#0E1C32] rounded-lg p-2 border border-[#1C3050]">
-                    <p className="text-xs uppercase tracking-wide text-slate-400 mb-0.5 flex items-center gap-1"><Calendar size={10} />Data início</p>
-                    <p className="text-white font-semibold text-sm">
-                      {currentSubscription.started_at
-                        ? new Date(currentSubscription.started_at).toLocaleDateString('pt-BR')
-                        : '—'}
-                    </p>
-                  </div>
-
-                  <div className="bg-[#0E1C32] rounded-lg p-2 border border-[#1C3050]">
-                    <p className="text-xs uppercase tracking-wide text-slate-400 mb-0.5 flex items-center gap-1">
-                      <RefreshCw size={10} />
-                      {subscriptionStatus?.cancel_at_period_end ? 'Encerra em' : 'Próx. renovação'}
-                    </p>
-                    <p className={`font-semibold text-sm ${subscriptionStatus?.cancel_at_period_end ? 'text-orange-400' : 'text-white'}`}>
-                      {subscriptionStatus?.current_period_end
-                        ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR')
-                        : '—'}
-                    </p>
-                  </div>
-
-                  <div className="bg-[#0E1C32] rounded-lg p-2 border border-[#1C3050]">
-                    <p className="text-xs uppercase tracking-wide text-slate-400 mb-0.5">Valor mensal</p>
-                    <p className="text-white font-bold text-lg">
-                      R$ {PLAN_PRICES[currentSubscription.package_id] ?? '—'}
-                    </p>
-                  </div>
+                {/* Meta grid 2x2 */}
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                  {[
+                    { label:'Desconto moedas', value: PLAN_LEADS[currentSubscription.package_id] ?? '—', color:'#34d399' },
+                    { label:'Valor mensal', value: `R$ ${PLAN_PRICES[currentSubscription.package_id] ?? '—'}`, color:'white' },
+                    { label:'Data início', value: currentSubscription.started_at ? new Date(currentSubscription.started_at).toLocaleDateString('pt-BR') : '—', color:'white' },
+                    { label: subscriptionStatus?.cancel_at_period_end ? 'Encerra em' : 'Próx. renovação', value: subscriptionStatus?.current_period_end ? new Date(subscriptionStatus.current_period_end * 1000).toLocaleDateString('pt-BR') : '—', color: subscriptionStatus?.cancel_at_period_end ? '#fb923c' : 'white' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ background:'rgba(0,0,0,.25)', border:'1px solid rgba(255,255,255,.06)', borderRadius:10, padding:'10px 12px' }}>
+                      <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#4A6580', marginBottom:4 }}>{item.label}</p>
+                      <p style={{ fontFamily:"'DM Mono',monospace", fontSize:16, fontWeight:500, color: item.color }}>{item.value}</p>
+                    </div>
+                  ))}
                 </div>
 
+                {/* Progress bar */}
                 {subscriptionStatus?.current_period_end && (
-                  <div className="mb-2">
-                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                  <div>
+                    <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'#4A6580', marginBottom:6 }}>
                       <span>Ciclo atual</span>
-                      <span>
-                        {daysUntilExpiry !== null && daysUntilExpiry >= 0
-                          ? `${daysUntilExpiry} dia${daysUntilExpiry !== 1 ? 's' : ''} restante${daysUntilExpiry !== 1 ? 's' : ''}`
-                          : 'Expirado'}
+                      <span style={{ color: daysUntilExpiry !== null && daysUntilExpiry <= 7 ? '#f87171' : '#4A6580' }}>
+                        {daysUntilExpiry !== null && daysUntilExpiry >= 0 ? `${daysUntilExpiry} dia${daysUntilExpiry !== 1 ? 's' : ''} restante${daysUntilExpiry !== 1 ? 's' : ''}` : 'Expirado'}
                       </span>
                     </div>
-                    <div className="w-full bg-white/5 rounded-full h-1">
-                      <div
-                        className="bg-emerald-500 h-1 rounded-full transition-all duration-500"
-                        style={{ width: `${cycleProgress}%` }}
-                      />
+                    <div style={{ height:5, background:'rgba(255,255,255,.06)', borderRadius:5, overflow:'hidden' }}>
+                      <div style={{ height:'100%', background:'linear-gradient(90deg,#10b981,#059669)', borderRadius:5, width:`${cycleProgress}%`, transition:'width .5s' }} />
                     </div>
                   </div>
                 )}
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                </div>
-                <p className="text-slate-400 text-sm font-medium mb-1">Nenhum plano ativo</p>
-                <p className="text-slate-600 text-xs">Escolha um plano acima para começar</p>
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'2rem 0', textAlign:'center', gap:8 }}>
+                <div style={{ width:52, height:52, borderRadius:'50%', background:'rgba(16,185,129,.1)', border:'1px solid rgba(16,185,129,.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>📋</div>
+                <p style={{ color:'white', fontWeight:700, fontSize:16 }}>Você não tem plano ativo</p>
+                <p style={{ color:'#4A6580', fontSize:12, lineHeight:1.5 }}>Sem plano você paga preço cheio e aparece menos nas buscas.</p>
               </div>
             )}
           </div>
 
-          <div className="px-3 pb-3 space-y-2">
-            <button
-              onClick={() => setShowChangePlanModal(true)}
-              className="w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg transition-colors flex justify-center items-center gap-2"
-            >
-              Mudar de Plano
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          <div style={{ padding:'1rem 1.5rem', borderTop:'1px solid rgba(255,255,255,.06)', display:'flex', flexDirection:'column', gap:8 }}>
+            <button onClick={() => setShowChangePlanModal(true)} style={{ width:'100%', height:42, background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:12, color:'white', fontWeight:700, fontSize:14, cursor:'pointer', boxShadow:'0 4px 16px rgba(16,185,129,.25)', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              {hasActivePlan ? 'Mudar de Plano →' : '⚡ Assinar PRO — R$67/mês'}
             </button>
-
             {currentSubscription && !subscriptionStatus?.cancel_at_period_end && (
               cancelConfirm ? (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                  <p className="text-red-300 text-xs text-center mb-2">Confirmar cancelamento da assinatura?</p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setCancelConfirm(false)}
-                      className="flex-1 h-8 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-lg transition-colors"
-                    >
-                      Não
-                    </button>
-                    <button
-                      onClick={handleCancelSubscription}
-                      disabled={cancelLoading}
-                      className="flex-1 h-8 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
-                    >
+                <div style={{ background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', borderRadius:10, padding:'10px 12px' }}>
+                  <p style={{ color:'#fca5a5', fontSize:12, textAlign:'center', marginBottom:8 }}>Confirmar cancelamento?</p>
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={() => setCancelConfirm(false)} style={{ flex:1, height:34, background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.1)', borderRadius:8, color:'#94a3b8', fontSize:12, fontWeight:600, cursor:'pointer' }}>Não</button>
+                    <button onClick={handleCancelSubscription} disabled={cancelLoading} style={{ flex:1, height:34, background:'#dc2626', border:'none', borderRadius:8, color:'white', fontSize:12, fontWeight:600, cursor:'pointer', opacity: cancelLoading ? .5 : 1, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
                       {cancelLoading ? <Loader2 size={13} className="animate-spin" /> : 'Sim, cancelar'}
                     </button>
                   </div>
                 </div>
               ) : (
-                <button
-                  onClick={() => setCancelConfirm(true)}
-                  className="w-full h-8 px-4 bg-transparent hover:bg-red-500/10 text-red-500 text-xs font-semibold rounded-lg transition-colors border border-red-500/20 hover:border-red-500/40"
-                >
+                <button onClick={() => setCancelConfirm(true)} style={{ width:'100%', height:32, background:'transparent', border:'1px solid rgba(239,68,68,.2)', borderRadius:8, color:'#f87171', fontSize:12, fontWeight:600, cursor:'pointer' }}>
                   Cancelar Assinatura
                 </button>
               )
@@ -722,82 +671,89 @@ export default function ProfessionalAssinatura() {
           </div>
         </div>
 
-        {/* Saldo de Moedas */}
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500 shrink-0"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.92-.88a2 2 0 0 1 2.81 2.81l-.88.92"/></svg>
-            <h2 className="text-sm font-bold text-white">Saldo de Moedas</h2>
-          </div>
+        {/* Card Saldo de Moedas */}
+        <div style={{ background:'linear-gradient(145deg,#0a1928,#0e2038,#110d2a)', border:'1px solid rgba(250,177,68,.2)', borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column', position:'relative' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#f59e0b,#d97706)', borderRadius:'18px 18px 0 0' }} />
+          <div style={{ position:'absolute', top:-40, left:-40, width:160, height:160, background:'radial-gradient(circle,rgba(250,177,68,.08),transparent 70%)', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', bottom:-40, right:-40, width:160, height:160, background:'radial-gradient(circle,rgba(16,185,129,.06),transparent 70%)', pointerEvents:'none' }} />
 
-          <div className="bg-[#0E1C32] border border-[#1C3050] rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2 text-emerald-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-              <h3 className="text-sm font-bold text-white">Minha Carteira</h3>
-            </div>
-
-            <div className="bg-[#1C3454] rounded-lg p-2 text-center mb-2 border border-[#1C3050]">
-              <p className="text-xs uppercase tracking-wide text-slate-400 mb-0.5">Saldo disponível</p>
-              <p className="text-2xl font-bold text-white">
-                {balanceLoading ? <LoadingSpinner size={20} className="inline-block" /> : balance} moedas
+          <div style={{ padding:'1.25rem 1.5rem', borderBottom:'1px solid rgba(255,255,255,.06)', position:'relative' }}>
+            <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:4 }}>Saldo de Moedas</p>
+            <div style={{ display:'flex', alignItems:'baseline', gap:8 }}>
+              <p style={{ fontFamily:"'DM Mono',monospace", fontSize:48, fontWeight:900, lineHeight:1, letterSpacing:'-2px', background:'linear-gradient(135deg,#fbbf24,#f59e0b,#d97706)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
+                {balanceLoading ? '...' : balanceNum}
               </p>
+              <span style={{ fontSize:14, color:'#f59e0b', fontWeight:700 }}>moedas</span>
             </div>
-
-            <button onClick={() => navigate('/profissional/carteira')} className="w-full h-8 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-colors">
-              Ir para carteira
-            </button>
+            <p style={{ fontSize:12, color:'#4A6580', marginTop:4 }}>≈ R$ {(balanceNum * costPerCoin).toFixed(2)} em leads com seu plano atual</p>
           </div>
 
-          <div className="bg-[#0E1C32] border border-[#1C3050] rounded-lg overflow-hidden flex-1">
-            <div className="px-3 py-2 border-b border-[#1C3050] flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white">Últimas Transações</h3>
-              <a href="/profissional/carteira" className="text-slate-500 hover:text-white text-xs transition-colors">
-                Ver tudo →
-              </a>
+          {/* Comparação de custos */}
+          <div style={{ padding:'1rem 1.5rem', flex:1, display:'flex', flexDirection:'column', gap:10 }}>
+            <div style={{ background:'rgba(0,0,0,.3)', border:'1px solid rgba(255,255,255,.06)', borderRadius:12, padding:'12px 14px' }}>
+              <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:8 }}>Custo por moeda nas suas {balanceNum} moedas</p>
+              {[
+                { label: hasActivePlan ? `${PLAN_NAMES[currentSubscription!.package_id]} (você)` : 'Sem plano (você)', cost: costPerCoin, color: hasActivePlan ? '#34d399' : '#f87171', tag: 'você' },
+                { label: 'Com PRO — 40% off', cost: 0.249, color: '#6ee7b7', tag: null },
+              ].map((item, i) => (
+                <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'6px 0', borderBottom: i === 0 ? '1px solid rgba(255,255,255,.04)' : 'none' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                    <span style={{ fontSize:12, color:'#94a3b8' }}>{item.label}</span>
+                    {item.tag && <span style={{ fontSize:10, fontWeight:700, padding:'1px 6px', borderRadius:20, background:'rgba(16,185,129,.12)', color:'#34d399', border:'1px solid rgba(16,185,129,.2)' }}>você</span>}
+                  </div>
+                  <span style={{ fontFamily:"'DM Mono',monospace", fontSize:13, fontWeight:500, color: item.color }}>R${item.cost.toFixed(3)}/moeda</span>
+                </div>
+              ))}
+              {!hasActivePlan && balanceNum > 0 && (
+                <div style={{ marginTop:8, padding:'6px 8px', background:'rgba(251,191,36,.08)', borderRadius:8, border:'1px solid rgba(251,191,36,.15)' }}>
+                  <p style={{ fontSize:11, color:'#fbbf24' }}>💡 Com PRO você economizaria R$ {((0.415 - 0.249) * balanceNum).toFixed(2)} nas suas moedas atuais</p>
+                </div>
+              )}
             </div>
 
-            {isTransactionsLoading ? (
-              <div className="flex justify-center py-6">
-                <Loader2 size={18} className="animate-spin text-emerald-500" />
+            {/* Últimas transações */}
+            <div style={{ background:'rgba(0,0,0,.2)', border:'1px solid rgba(255,255,255,.05)', borderRadius:12, overflow:'hidden' }}>
+              <div style={{ padding:'10px 14px', borderBottom:'1px solid rgba(255,255,255,.05)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <p style={{ fontSize:12, fontWeight:700, color:'white' }}>Últimas Transações</p>
+                <a href="/profissional/carteira" style={{ fontSize:11, color:'#4A6580', textDecoration:'none' }}>Ver tudo →</a>
               </div>
-            ) : recentTransactions && recentTransactions.length > 0 ? (
-              <ul className="divide-y divide-[#1C3050]">
-                {recentTransactions.map((tx) => (
-                  <li key={tx.id} className="px-3 py-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                        tx.type === 'deposit' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-400'
-                      }`}>
-                        {tx.type === 'deposit' ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+              {isTransactionsLoading ? (
+                <div style={{ display:'flex', justifyContent:'center', padding:'1rem' }}>
+                  <Loader2 size={18} className="animate-spin text-emerald-500" />
+                </div>
+              ) : recentTransactions && recentTransactions.length > 0 ? (
+                <ul style={{ listStyle:'none' }}>
+                  {recentTransactions.map((tx) => (
+                    <li key={tx.id} style={{ padding:'8px 14px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, borderBottom:'1px solid rgba(255,255,255,.03)' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0 }}>
+                        <div style={{ width:26, height:26, borderRadius:'50%', background: tx.type === 'deposit' ? 'rgba(16,185,129,.12)' : 'rgba(239,68,68,.12)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                          {tx.type === 'deposit' ? <ArrowUpRight size={13} style={{ color:'#34d399' }} /> : <ArrowDownRight size={13} style={{ color:'#f87171' }} />}
+                        </div>
+                        <div style={{ minWidth:0 }}>
+                          <p style={{ fontSize:12, color:'#e2e8f0', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{tx.description}</p>
+                          <p style={{ fontSize:11, color:'#4A6580' }}>{new Date(tx.created_at).toLocaleDateString('pt-BR')}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs text-slate-200 truncate">{tx.description}</p>
-                        <p className="text-xs text-slate-500">
-                          {new Date(tx.created_at).toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`text-xs font-semibold shrink-0 ${
-                      tx.type === 'deposit' ? 'text-emerald-400' : 'text-slate-300'
-                    }`}>
-                      {tx.type === 'deposit' ? '+' : '-'}{Math.abs(tx.amount)} moedas
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-slate-500 text-xs text-center py-6">Nenhuma transação encontrada.</p>
-            )}
-
-            <div className="px-3 py-2 border-t border-[#1C3050]">
-              <a
-                href="/profissional/carteira"
-                className="flex items-center justify-center gap-2 w-full h-8 bg-[#1C3050] hover:bg-[#243d63] border border-[#2a4a73] text-white text-xs font-medium rounded-lg transition-colors"
-              >
-                Ver histórico completo →
-              </a>
+                      <span style={{ fontFamily:"'DM Mono',monospace", fontSize:12, fontWeight:500, color: tx.type === 'deposit' ? '#34d399' : '#94a3b8', flexShrink:0 }}>
+                        {tx.type === 'deposit' ? '+' : '-'}{Math.abs(tx.amount)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ textAlign:'center', color:'#4A6580', fontSize:12, padding:'1rem' }}>Nenhuma transação encontrada.</p>
+              )}
             </div>
+          </div>
+
+          <div style={{ padding:'1rem 1.5rem', borderTop:'1px solid rgba(255,255,255,.06)' }}>
+            <button onClick={() => navigate('/profissional/carteira')} style={{ width:'100%', height:42, background:'linear-gradient(135deg,rgba(250,177,68,.15),rgba(217,119,6,.1))', border:'1px solid rgba(250,177,68,.25)', borderRadius:12, color:'#fbbf24', fontWeight:700, fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              🪙 Comprar Moedas Agora
+            </button>
+            <a href="/profissional/carteira" style={{ display:'block', textAlign:'center', marginTop:8, fontSize:12, color:'#4A6580', textDecoration:'none' }}>Ver histórico completo →</a>
           </div>
         </div>
+
       </div>
 
       {/* Modal Mudar de Plano */}
