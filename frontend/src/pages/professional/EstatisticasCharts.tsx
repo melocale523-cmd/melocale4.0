@@ -44,7 +44,7 @@ function EstatisticasCharts({ seriesData, range }: Props) {
 
   return (
     <div className="grid lg:grid-cols-2 gap-4">
-      <div className={`bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative transition-opacity `}>
+      <div className={`bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative transition-opacity `}>
         <div className="flex items-center justify-between" style={{ marginBottom: '1rem' }}>
           <div>
             <h3 className="text-white font-bold text-lg">Solicitações e Propostas</h3>
@@ -71,7 +71,7 @@ function EstatisticasCharts({ seriesData, range }: Props) {
         </div>
       </div>
 
-      <div className={`bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative transition-opacity `}>
+      <div className={`bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative transition-opacity `}>
         <div className="flex items-center justify-between" style={{ marginBottom: '1rem' }}>
           <div>
             <h3 className="text-white font-bold text-lg">Evolução Financeira</h3>

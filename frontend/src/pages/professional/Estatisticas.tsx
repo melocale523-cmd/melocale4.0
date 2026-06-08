@@ -55,7 +55,7 @@ export default function ProfessionalEstatisticas() {
   }
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-5">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -90,7 +90,7 @@ export default function ProfessionalEstatisticas() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
         {/* Visualizações */}
-        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden">
           <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#378ADD' }} />
           <div className="flex items-center justify-between mb-3">
             <div className="w-8 h-8 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400"><Eye size={16} /></div>
@@ -101,7 +101,7 @@ export default function ProfessionalEstatisticas() {
           <p className="text-[11px] text-[#4A6580] mt-1">no período</p>
         </div>
         {/* Propostas */}
-        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden">
           <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#a855f7' }} />
           <div className="flex items-center justify-between mb-3">
             <div className="w-8 h-8 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400"><TrendingUp size={16} /></div>
@@ -112,7 +112,7 @@ export default function ProfessionalEstatisticas() {
           <p className="text-[11px] text-[#4A6580] mt-1">enviadas</p>
         </div>
         {/* Aceitas */}
-        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden">
           <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#10b981' }} />
           <div className="flex items-center justify-between mb-3">
             <div className="w-8 h-8 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400"><CheckCircle2 size={16} /></div>
@@ -125,7 +125,7 @@ export default function ProfessionalEstatisticas() {
           <p className="text-[11px] text-[#4A6580] mt-1">taxa de conversão</p>
         </div>
         {/* Faturamento */}
-        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative overflow-hidden">
           <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'#f59e0b' }} />
           <div className="flex items-center justify-between mb-3">
             <div className="w-8 h-8 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-400"><DollarSign size={16} /></div>
@@ -163,7 +163,7 @@ export default function ProfessionalEstatisticas() {
 
       {/* Insights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-4 flex items-start gap-3">
+        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-5 flex items-start gap-3">
           <div className="w-8 h-8 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 shrink-0"><TrendingUp size={15} /></div>
           <div>
             <p className="text-sm font-bold text-white mb-1">Taxa de conversão</p>
@@ -172,7 +172,7 @@ export default function ProfessionalEstatisticas() {
             </p>
           </div>
         </div>
-        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-4 flex items-start gap-3">
+        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-5 flex items-start gap-3">
           <div className="w-8 h-8 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-400 shrink-0"><DollarSign size={15} /></div>
           <div>
             <p className="text-sm font-bold text-white mb-1">ROI estimado</p>
@@ -181,7 +181,7 @@ export default function ProfessionalEstatisticas() {
             </p>
           </div>
         </div>
-        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-4 flex items-start gap-3">
+        <div className="bg-[#0d1929] border border-[#1C3050] rounded-2xl p-5 flex items-start gap-3">
           <div className="w-8 h-8 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 shrink-0"><Zap size={15} /></div>
           <div>
             <p className="text-sm font-bold text-white mb-1">Dica de crescimento</p>
@@ -191,7 +191,7 @@ export default function ProfessionalEstatisticas() {
       </div>
 
       {/* Resumo do Período */}
-      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-5">
+      <div className="bg-[#132236] border border-[#1C3050] rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg">
             <Calendar size={15} />
@@ -202,7 +202,7 @@ export default function ProfessionalEstatisticas() {
         </div>
 
         <div className="grid sm:grid-cols-3 gap-3">
-          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
+          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-5">
             <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Conversão</p>
             <p className="text-2xl font-bold text-emerald-400">
               {stats?.totalProposals ? ((stats.acceptedProposalsCount / stats.totalProposals) * 100).toFixed(1) : '0.0'}%
@@ -215,7 +215,7 @@ export default function ProfessionalEstatisticas() {
             </div>
           </div>
 
-          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
+          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-5">
             <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Ticket Médio</p>
             <p className="text-2xl font-bold text-yellow-400">
               R$ {stats?.acceptedProposalsCount ? (stats.totalRevenue / stats.acceptedProposalsCount).toLocaleString('pt-BR', { minimumFractionDigits: 0 }) : '0'}
@@ -223,7 +223,7 @@ export default function ProfessionalEstatisticas() {
             <p className="text-slate-600 text-xs mt-1">Baseado em serviços aceitos</p>
           </div>
 
-          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-4">
+          <div className="bg-[#0d1929] border border-[#1C3050] rounded-xl p-5">
             <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">ROI (Est.)</p>
             <p className="text-2xl font-bold text-emerald-400">
               {stats?.totalSpentCoins ? ((stats.totalRevenue / (stats.totalSpentCoins / 10)) || 0).toFixed(1) : '0.0'}x
@@ -235,7 +235,7 @@ export default function ProfessionalEstatisticas() {
 
       {/* Tabela de Detalhamento */}
       <div className="bg-[#132236] border border-[#1C3050] rounded-2xl overflow-hidden">
-        <div className="px-3 py-2 border-b border-[#1C3050] flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-[#1C3050] flex items-center justify-between">
           <div>
             <h3 className="text-white font-bold text-sm">Detalhamento por Período</h3>
             <p className="text-xs uppercase tracking-wide text-slate-400">
@@ -248,30 +248,30 @@ export default function ProfessionalEstatisticas() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#0d1929]">
-                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">{range === '1y' || range === '90d' ? 'Mês' : 'Data'}</th>
-                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Total Propostas</th>
-                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Aceitas</th>
-                <th className="px-3 py-2 text-xs uppercase tracking-wide text-emerald-400">Faturamento</th>
-                <th className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">Status</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">{range === '1y' || range === '90d' ? 'Mês' : 'Data'}</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">Total Propostas</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">Aceitas</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-emerald-400">Faturamento</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {[...(stats?.seriesData || [])].reverse().map((day, idx) => (
                 <tr key={idx} className="hover:bg-white/[0.01] transition-colors group">
-                  <td className="px-3 py-2 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
-                  <td className="px-3 py-2 text-sm text-slate-400">
-                    {day.total === 0 ? <span style={{ color: '#1C3050' }}>—</span> : day.total}
+                  <td className="px-4 py-3 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
+                  <td className="px-4 py-3 text-sm text-slate-400">
+                    <span style={{ color: day.total === 0 ? '#2a3f55' : 'inherit' }}>{day.total}</span>
                   </td>
-                  <td className="px-3 py-2 text-sm">
-                    {day.aceitas === 0 ? <span style={{ color: '#1C3050' }}>—</span> : <span className="text-emerald-500 font-semibold">{day.aceitas}</span>}
+                  <td className="px-4 py-3 text-sm">
+                    {day.aceitas === 0 ? <span style={{ color: '#2a3f55' }}>0</span> : <span className="text-emerald-500 font-semibold">{day.aceitas}</span>}
                   </td>
-                  <td className="px-3 py-2 text-sm font-semibold">
-                    {Number(day.revenue) === 0 ? <span style={{ color: '#1C3050' }}>—</span> : <span className="text-emerald-400">{`R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}</span>}
+                  <td className="px-4 py-3 text-sm font-semibold">
+                    {Number(day.revenue) === 0 ? <span style={{ color: '#2a3f55' }}>R$ 0,00</span> : <span className="text-emerald-400">{`R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}</span>}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">
                     {day.aceitas > 0
                       ? <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Aceita</span>
-                      : <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-[#1C3050] text-[#4A6580]">Sem dados</span>
+                      : null
                     }
                   </td>
                 </tr>
