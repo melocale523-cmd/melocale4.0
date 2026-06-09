@@ -406,6 +406,9 @@ export default function ProfessionalPerfil() {
         </div>
       </div>
 
+      {/* Grid Endereço + Pagamentos */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+
       {/* Endereço */}
       <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
@@ -471,6 +474,8 @@ export default function ProfessionalPerfil() {
         </div>
         <p style={{ fontSize:'0.6875rem', color:'#4A6580', lineHeight:1.5 }}>Complete o cadastro no Stripe para começar a receber pagamentos diretamente na sua conta bancária.</p>
       </div>
+
+      </div>{/* fim grid Endereço + Pagamentos */}
 
       {/* Avaliações */}
       {reviewsData && (
