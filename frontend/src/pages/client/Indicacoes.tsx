@@ -613,6 +613,38 @@ export default function ClientIndicacoes() {
               </p>
             </div>
 
+            {/* Card — Tiers de bônus */}
+            <div style={{
+              ...cardBase,
+              borderTop: '3px solid #f59e0b',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                <Gift size={17} color="#f59e0b" />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Tiers de bônus</span>
+              </div>
+              {[
+                { label: '🥉 Bronze',   range: '1–4 ind.',   bonus: 'R$2/ind.',   bg: '#3d200015', border: '#92400e40', color: '#f59e0b' },
+                { label: '🥈 Prata',    range: '5–9 ind.',   bonus: '+R$1 bônus', bg: '#1e293b',   border: '#47556940', color: '#94a3b8' },
+                { label: '🥇 Ouro',     range: '10–19 ind.', bonus: '+R$2 bônus', bg: '#3d290015', border: '#b4530940', color: '#fbbf24' },
+                { label: '💎 Diamante', range: '20+ ind.',   bonus: '+R$4 bônus', bg: '#1a103d',   border: '#6d28d940', color: '#a78bfa' },
+              ].map(({ label, range, bonus, bg, border, color }) => (
+                <div key={label} style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '8px 10px', borderRadius: '8px', marginBottom: '6px',
+                  background: bg, border: `1px solid ${border}`,
+                }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color }}>{label}</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '11px', color: t.text, fontWeight: 600 }}>{bonus}</div>
+                    <div style={{ fontSize: '10px', color: t.muted }}>{range}</div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ borderTop: `1px solid ${t.border}`, marginTop: '6px', paddingTop: '8px', fontSize: '11px', color: t.muted, textAlign: 'center' }}>
+                Quanto mais indica, mais ganha por indicação
+              </div>
+            </div>
+
           </div>
           {/* ══ END RIGHT COLUMN ════════════════════════════════════ */}
         </div>
