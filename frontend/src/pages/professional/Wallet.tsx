@@ -33,7 +33,7 @@ export default function ProfessionalWallet() {
   if (isLoading && !transactions) return <LoadingSpinner />;
 
   return (
-    <div className="w-full space-y-5" style={{ fontFamily:"'DM Sans',sans-serif" }}>
+    <div className="w-full" style={{ fontFamily:"'DM Sans',sans-serif", display:'flex', flexDirection:'column', gap:'2rem' }}>
 
       {/* Header */}
       <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', flexWrap:'wrap', gap:'0.75rem' }}>
@@ -51,7 +51,7 @@ export default function ProfessionalWallet() {
       </div>
 
       {/* KPI Row */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.75rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1.5rem' }}>
         {/* Saldo */}
         <div style={{ background:'linear-gradient(145deg,#0a1928,#0e2038)', border:'1px solid rgba(16,185,129,.22)', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#10b981,#059669)' }} />
