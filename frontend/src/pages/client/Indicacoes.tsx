@@ -55,8 +55,41 @@ function loadImg(src: string): Promise<HTMLImageElement> {
   })
 }
 
-const CARD = 'bg-[#132236] border border-white/[0.06] rounded-2xl p-5'
-const CARD_HEADER = 'flex items-center gap-2 mb-4'
+// ── Design tokens ─────────────────────────────────────────────────────
+const t = {
+  bg: '#070f1c',
+  section: '#0a1928',
+  card: '#132236',
+  input: '#0d1929',
+  border: '#1C3050',
+  accent: '#10b981',
+  accentBg: 'rgba(16,185,129,0.08)',
+  accentBorder: 'rgba(16,185,129,0.25)',
+  text: '#f1f5f9',
+  muted: '#64748b',
+  subtle: '#94a3b8',
+}
+
+const cardBase: React.CSSProperties = {
+  background: t.card,
+  border: `1px solid ${t.border}`,
+  borderTop: `3px solid ${t.accent}`,
+  borderRadius: '1rem',
+  padding: '1.25rem',
+  fontFamily: 'DM Sans, sans-serif',
+  transition: 'transform .25s',
+}
+
+const kpiCard: React.CSSProperties = {
+  background: t.input,
+  border: `1px solid ${t.border}`,
+  borderRadius: '8px',
+  padding: '1rem .75rem',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '4px',
+}
 
 // ── Component ─────────────────────────────────────────────────────────
 export default function ClientIndicacoes() {
@@ -66,8 +99,6 @@ export default function ClientIndicacoes() {
   const [showQr, setShowQr] = useState(false)
   const [generatingStories, setGeneratingStories] = useState(false)
 
-  // Wait for auth to fully initialize before querying — avoids race where user is
-  // briefly null while the Supabase session is being restored
   const authReady = !isAuthLoading && !!user
 
   const { data: referralData, isLoading: loadingCode, isError: codeError } = useQuery<ReferralCode>({
@@ -105,8 +136,6 @@ export default function ClientIndicacoes() {
     staleTime: 60 * 1000,
   })
 
-  // React Query v5: when enabled=false, isLoading=false (idle/pending) — treat
-  // "auth still loading" as loading to avoid showing "—" before data arrives
   const isEffectivelyLoading = isAuthLoading || loadingCode
   const isListLoading = isAuthLoading || loadingList
 
@@ -238,288 +267,356 @@ export default function ClientIndicacoes() {
   }, [referralData, generatingStories, rewardLabel, rewardDesc])
 
   return (
-    <div className="w-full space-y-6">
+    <div style={{ background: t.bg, minHeight: '100vh', padding: '1.5rem', fontFamily: 'DM Sans, sans-serif' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-      {/* ── Header ────────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1 mb-3">
-            <span className="text-base leading-none">🎁</span>
-            <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">
-              Programa de Indicações
-            </span>
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Indique e Ganhe</h1>
-          <p className="text-white/50 text-sm leading-relaxed">
-            Compartilhe seu link. Quando seu indicado ativar, você recebe{' '}
-            <span className="text-emerald-400 font-bold">{rewardLabel}</span>{' '}
-            {rewardDesc}.
-          </p>
-        </div>
-        {hasDoubleBonus && (
-          <div className="shrink-0 bg-yellow-400/10 border border-yellow-400/20 rounded-2xl px-4 py-3 text-center">
-            <div className="text-yellow-400 text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-              <Zap size={11} className="fill-yellow-400" /> Bônus {bonusConfig!.multiplier}×
+        {/* ── Header ──────────────────────────────────────────────── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: t.accentBg, border: `1px solid ${t.accentBorder}`,
+              borderRadius: '999px', padding: '4px 12px', marginBottom: '12px',
+            }}>
+              <span style={{ fontSize: '14px', lineHeight: 1 }}>🎁</span>
+              <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: t.accent }}>
+                Programa de Indicações
+              </span>
             </div>
-            <div className="text-yellow-300 text-[10px] mt-0.5">
-              {bonusConfig?.label ?? 'ativo agora!'}
-            </div>
-            {bonusConfig?.expires_at && (
-              <div className="text-white/30 text-[9px] mt-0.5">
-                até {new Date(bonusConfig.expires_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* ── 2-column grid ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-
-        {/* ══ LEFT COLUMN ══════════════════════════════════════════ */}
-        <div className="space-y-4">
-
-          {/* Card 1 — Seu link de indicação */}
-          <div className={CARD}>
-            <div className={CARD_HEADER}>
-              <Link2 size={18} className="text-emerald-400" />
-              <span className="text-base font-semibold text-white">Seu link de indicação</span>
-            </div>
-
-            {isEffectivelyLoading ? (
-              <div className="space-y-3">
-                <div className="h-11 bg-white/5 rounded-xl animate-pulse" />
-                <div className="h-9 bg-white/5 rounded-lg animate-pulse w-1/2" />
-                <div className="h-24 bg-white/5 rounded-xl animate-pulse" />
-              </div>
-            ) : codeError ? (
-              <div className="flex flex-col items-center gap-2 py-6 text-center">
-                <p className="text-white/40 text-sm">Não foi possível carregar o seu link.</p>
-                <p className="text-white/30 text-xs">Verifique sua conexão e recarregue a página.</p>
-              </div>
-            ) : (
-              <>
-                {/* Link box */}
-                <div className="bg-[#0d1c2e] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between gap-3 mb-4">
-                  <span className="text-sm text-white/60 truncate font-mono flex-1">
-                    {referralData?.link ?? '—'}
-                  </span>
-                  <button
-                    onClick={copyLink}
-                    disabled={!referralData?.link}
-                    className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Copy size={13} />
-                    {copied ? 'Copiado!' : 'Copiar'}
-                  </button>
-                </div>
-
-                {/* Code */}
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-white/50 text-sm">Código:</span>
-                  <span className="font-mono font-bold text-white text-lg bg-[#0d1c2e] border border-white/10 rounded-lg px-4 py-2 tracking-widest">
-                    {referralData?.code ?? '—'}
-                  </span>
-                </div>
-
-                {/* Share buttons 2×2 */}
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={shareWhatsApp}
-                    disabled={!referralData?.link}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/20 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <MessageCircle size={16} /> WhatsApp
-                  </button>
-                  <button
-                    onClick={copyLink}
-                    disabled={!referralData?.link}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-white/5 border border-white/10 text-white hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Copy size={16} /> Copiar link
-                  </button>
-                  <button
-                    onClick={() => setShowQr(v => !v)}
-                    disabled={!referralData?.link}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-white/5 border border-white/10 text-white hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <QrCode size={16} /> {showQr ? 'Ocultar QR' : 'QR Code'}
-                  </button>
-                  <button
-                    onClick={generateStoriesImage}
-                    disabled={generatingStories || !referralData?.link}
-                    className="rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-all bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {generatingStories ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
-                    {generatingStories ? 'Gerando…' : 'Stories'}
-                  </button>
-                </div>
-
-                {/* QR panel */}
-                {showQr && referralData?.link && (
-                  <div className="mt-4 flex flex-col items-center gap-3 bg-white p-6 rounded-2xl">
-                    <QRCodeSVG value={referralData.link} size={160} bgColor="#ffffff" fgColor="#060d1a" level="M" />
-                    <p className="text-[#060d1a] text-xs font-mono font-bold">{referralData.code}</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Card 2 — Seus resultados */}
-          <div className={CARD}>
-            <div className={CARD_HEADER}>
-              <BarChart2 size={18} className="text-emerald-400" />
-              <span className="text-base font-semibold text-white">Seus resultados</span>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-[#0d1c2e] border border-white/10 rounded-xl py-4 flex flex-col items-center gap-1">
-                <span className="text-2xl font-bold text-white">
-                  {referralData?.stats.total ?? 0}
-                </span>
-                <span className="text-[10px] uppercase tracking-widest text-white/40">Indicados</span>
-              </div>
-              <div className="bg-[#0d1c2e] border border-white/10 rounded-xl py-4 flex flex-col items-center gap-1">
-                <span className="text-2xl font-bold text-orange-400">
-                  {referralData?.stats.converted ?? 0}
-                </span>
-                <span className="text-[10px] uppercase tracking-widest text-white/40">Ativos</span>
-              </div>
-              <div className="bg-[#0d1c2e] border border-white/10 rounded-xl py-4 flex flex-col items-center gap-1">
-                <span className="text-2xl font-bold text-emerald-400">
-                  {isPro ? totalEarned : `R$${(totalEarned / 3).toFixed(0)}`}
-                </span>
-                <span className="text-[10px] uppercase tracking-widest text-white/40">Ganhos</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 — Como funciona */}
-          <div className={CARD}>
-            <div className={CARD_HEADER}>
-              <Info size={18} className="text-emerald-400" />
-              <span className="text-base font-semibold text-white">Como funciona</span>
-            </div>
-            <div>
-              {[
-                {
-                  step: '1',
-                  title: 'Compartilhe seu link',
-                  desc: `Envie para outros ${isPro ? 'profissionais' : 'clientes'} pelo WhatsApp, Instagram ou onde quiser.`,
-                  circle: 'bg-emerald-500 text-white',
-                  isIcon: false,
-                },
-                {
-                  step: '2',
-                  title: 'Indicado se cadastra',
-                  desc: 'Quando alguém criar conta com seu link, você aparece no nosso radar.',
-                  circle: 'bg-emerald-500 text-white',
-                  isIcon: false,
-                },
-                {
-                  step: '3',
-                  title: `Você ganha ${rewardLabel}`,
-                  desc: isPro
-                    ? 'Assim que o indicado assinar qualquer plano, as moedas caem na sua carteira.'
-                    : 'Quando o indicado fizer o primeiro pedido, o crédito é adicionado.',
-                  circle: 'bg-emerald-500 text-white',
-                  isIcon: false,
-                },
-                {
-                  step: 'link',
-                  title: 'Bônus em cascata',
-                  desc: 'Quando seu indicado indica alguém, você ganha mais automaticamente!',
-                  circle: 'bg-purple-500/20 text-purple-400',
-                  isIcon: true,
-                },
-              ].map(({ step, title, desc, circle, isIcon }) => (
-                <div key={step} className="flex items-start gap-3 py-3 border-b border-white/5 last:border-0">
-                  <div className={`w-6 h-6 rounded-full ${circle} text-xs font-bold flex items-center justify-center shrink-0 mt-0.5`}>
-                    {isIcon ? <Link2 size={12} /> : step}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-white">{title}</p>
-                    <p className="text-xs text-white/50 mt-0.5 leading-relaxed">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ══ RIGHT COLUMN ════════════════════════════════════════ */}
-        <div className="space-y-4">
-
-          {/* Card — Suas indicações */}
-          <div className={CARD}>
-            <div className={CARD_HEADER}>
-              <Users size={18} className="text-emerald-400" />
-              <span className="text-base font-semibold text-white">Suas indicações</span>
-              {referrals.length > 0 && (
-                <span className="ml-auto bg-white/8 text-white/40 text-xs px-2 py-0.5 rounded-full font-mono">
-                  {referrals.length}
-                </span>
-              )}
-            </div>
-
-            {isListLoading ? (
-              <div className="space-y-2">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse" />
-                ))}
-              </div>
-            ) : referrals.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mb-3">
-                  <Gift size={24} className="text-white/20" />
-                </div>
-                <p className="text-sm text-white/40 font-medium">Nenhuma indicação ainda.</p>
-                <p className="text-xs text-white/30 mt-1">Compartilhe seu link e comece a ganhar!</p>
-              </div>
-            ) : (
-              <div>
-                {referrals.map((r) => {
-                  const name = r.referred_name || 'Usuário'
-                  const { initials, colorClass } = getAvatarInfo(name)
-                  const isCredited = r.status === 'credited'
-                  return (
-                    <div key={r.id} className="flex items-center gap-3 py-3 border-b border-white/5 last:border-0">
-                      <div className={`w-9 h-9 rounded-full ${colorClass} flex items-center justify-center text-[12px] font-bold text-white shrink-0`}>
-                        {initials}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{name}</p>
-                        <p className="text-xs text-white/40">
-                          {isCredited ? 'Ativo' : 'Pendente'}
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        {isCredited ? (
-                          <span className="text-emerald-400 text-sm font-bold">
-                            +{isPro ? `${r.reward_amount || baseReward}` : `R$${((r.reward_amount || baseReward) / 3).toFixed(0)}`}
-                          </span>
-                        ) : (
-                          <span className="text-white/40 text-xs">Aguardando</span>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Card — Saldo de indicações */}
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
-            <p className="text-sm font-semibold text-white mb-2">💰 Saldo de indicações</p>
-            <p className="text-3xl font-bold text-emerald-400">{balanceLabel}</p>
-            <p className="text-xs text-white/50 mt-1">
-              Crédito aplicado no próximo pedido automaticamente.
+            <h1 style={{ fontSize: '1.875rem', fontWeight: 900, color: t.text, margin: '0 0 8px' }}>
+              Indique e Ganhe
+            </h1>
+            <p style={{ color: t.muted, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
+              Compartilhe seu link. Quando seu indicado ativar, você recebe{' '}
+              <span style={{ color: t.accent, fontWeight: 700 }}>{rewardLabel}</span>{' '}
+              {rewardDesc}.
             </p>
           </div>
 
+          {hasDoubleBonus && (
+            <div style={{
+              flexShrink: 0,
+              background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)',
+              borderRadius: '1rem', padding: '12px 16px', textAlign: 'center',
+            }}>
+              <div style={{ color: '#facc15', fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Zap size={11} style={{ fill: '#facc15' }} /> Bônus {bonusConfig!.multiplier}×
+              </div>
+              <div style={{ color: '#fde047', fontSize: '10px', marginTop: '2px' }}>
+                {bonusConfig?.label ?? 'ativo agora!'}
+              </div>
+              {bonusConfig?.expires_at && (
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px', marginTop: '2px' }}>
+                  até {new Date(bonusConfig.expires_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        {/* ══ END RIGHT COLUMN ══════════════════════════════════════ */}
+
+        {/* ── 2-column grid ───────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
+
+          {/* ══ LEFT COLUMN ════════════════════════════════════════ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
+
+            {/* Card 1 — Seu link de indicação */}
+            <div style={cardBase}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                <Link2 size={17} color={t.accent} />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Seu link de indicação</span>
+              </div>
+
+              {isEffectivelyLoading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {[44, 36, 96].map(h => (
+                    <div key={h} style={{ height: h, background: 'rgba(255,255,255,0.05)', borderRadius: '10px', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                  ))}
+                </div>
+              ) : codeError ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '1.5rem 0', textAlign: 'center' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px', margin: 0 }}>Não foi possível carregar o seu link.</p>
+                  <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '11px', margin: 0 }}>Verifique sua conexão e recarregue a página.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Link box */}
+                  <div style={{
+                    background: t.input, border: `1px solid ${t.border}`, borderRadius: '10px',
+                    padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px',
+                  }}>
+                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', color: t.muted, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {referralData?.link ?? '—'}
+                    </span>
+                    <button
+                      onClick={copyLink}
+                      disabled={!referralData?.link}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '6px',
+                        background: t.accent, color: '#fff', fontSize: '13px', fontWeight: 700,
+                        padding: '6px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+                        flexShrink: 0, transition: 'opacity .2s', opacity: referralData?.link ? 1 : 0.4,
+                        fontFamily: 'DM Sans, sans-serif',
+                      }}
+                    >
+                      <Copy size={12} />
+                      {copied ? 'Copiado!' : 'Copiar'}
+                    </button>
+                  </div>
+
+                  {/* Code */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                    <span style={{ color: t.muted, fontSize: '13px' }}>Código:</span>
+                    <span style={{
+                      fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: '15px', color: t.text,
+                      background: t.input, border: `1px solid ${t.border}`, borderRadius: '6px',
+                      padding: '4px 12px', letterSpacing: '.12em',
+                    }}>
+                      {referralData?.code ?? '—'}
+                    </span>
+                  </div>
+
+                  {/* Share buttons 2×2 */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {/* WhatsApp */}
+                    <button
+                      onClick={shareWhatsApp}
+                      disabled={!referralData?.link}
+                      style={{
+                        borderRadius: '10px', padding: '11px 0', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', gap: '7px', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                        background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.25)',
+                        color: '#25D366', fontFamily: 'DM Sans, sans-serif', transition: 'background .2s',
+                        opacity: referralData?.link ? 1 : 0.4,
+                      }}
+                    >
+                      <MessageCircle size={15} /> WhatsApp
+                    </button>
+                    {/* Copiar link */}
+                    <button
+                      onClick={copyLink}
+                      disabled={!referralData?.link}
+                      style={{
+                        borderRadius: '10px', padding: '11px 0', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', gap: '7px', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                        background: t.input, border: `1px solid ${t.border}`,
+                        color: t.subtle, fontFamily: 'DM Sans, sans-serif', transition: 'background .2s',
+                        opacity: referralData?.link ? 1 : 0.4,
+                      }}
+                    >
+                      <Copy size={15} /> Copiar link
+                    </button>
+                    {/* QR Code */}
+                    <button
+                      onClick={() => setShowQr(v => !v)}
+                      disabled={!referralData?.link}
+                      style={{
+                        borderRadius: '10px', padding: '11px 0', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', gap: '7px', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                        background: t.input, border: `1px solid ${t.border}`,
+                        color: t.subtle, fontFamily: 'DM Sans, sans-serif', transition: 'background .2s',
+                        opacity: referralData?.link ? 1 : 0.4,
+                      }}
+                    >
+                      <QrCode size={15} /> {showQr ? 'Ocultar QR' : 'QR Code'}
+                    </button>
+                    {/* Stories */}
+                    <button
+                      onClick={generateStoriesImage}
+                      disabled={generatingStories || !referralData?.link}
+                      style={{
+                        borderRadius: '10px', padding: '11px 0', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', gap: '7px', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                        background: 'rgba(45,31,78,0.6)', border: '1px solid rgba(109,40,217,0.25)',
+                        color: '#a78bfa', fontFamily: 'DM Sans, sans-serif', transition: 'background .2s',
+                        opacity: (!generatingStories && referralData?.link) ? 1 : 0.5,
+                      }}
+                    >
+                      {generatingStories ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Share2 size={15} />}
+                      {generatingStories ? 'Gerando…' : 'Stories'}
+                    </button>
+                  </div>
+
+                  {/* QR panel */}
+                  {showQr && referralData?.link && (
+                    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', background: '#ffffff', borderRadius: '12px', padding: '24px' }}>
+                      <QRCodeSVG value={referralData.link} size={160} bgColor="#ffffff" fgColor="#060d1a" level="M" />
+                      <p style={{ color: '#060d1a', fontSize: '11px', fontFamily: 'DM Mono, monospace', fontWeight: 700, margin: 0 }}>{referralData.code}</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Card 2 — Seus resultados */}
+            <div style={cardBase}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                <BarChart2 size={17} color={t.accent} />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Seus resultados</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+                <div style={kpiCard}>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: t.text }}>
+                    {referralData?.stats.total ?? 0}
+                  </span>
+                  <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: t.muted }}>Indicados</span>
+                </div>
+                <div style={kpiCard}>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>
+                    {referralData?.stats.converted ?? 0}
+                  </span>
+                  <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: t.muted }}>Ativos</span>
+                </div>
+                <div style={kpiCard}>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: t.accent }}>
+                    {isPro ? totalEarned : `R$${(totalEarned / 3).toFixed(0)}`}
+                  </span>
+                  <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: t.muted }}>Ganhos</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 — Como funciona */}
+            <div style={cardBase}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                <Info size={17} color={t.accent} />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Como funciona</span>
+              </div>
+              <div>
+                {[
+                  {
+                    step: '1',
+                    title: 'Compartilhe seu link',
+                    desc: `Envie para outros ${isPro ? 'profissionais' : 'clientes'} pelo WhatsApp, Instagram ou onde quiser.`,
+                    circleStyle: { background: t.accent, color: '#fff' } as React.CSSProperties,
+                    isIcon: false,
+                  },
+                  {
+                    step: '2',
+                    title: 'Indicado se cadastra',
+                    desc: 'Quando alguém criar conta com seu link, você aparece no nosso radar.',
+                    circleStyle: { background: t.accent, color: '#fff' } as React.CSSProperties,
+                    isIcon: false,
+                  },
+                  {
+                    step: '3',
+                    title: `Você ganha ${rewardLabel}`,
+                    desc: isPro
+                      ? 'Assim que o indicado assinar qualquer plano, as moedas caem na sua carteira.'
+                      : 'Quando o indicado fizer o primeiro pedido, o crédito é adicionado.',
+                    circleStyle: { background: t.accent, color: '#fff' } as React.CSSProperties,
+                    isIcon: false,
+                  },
+                  {
+                    step: 'link',
+                    title: 'Bônus em cascata',
+                    desc: 'Quando seu indicado indica alguém, você ganha mais automaticamente!',
+                    circleStyle: { background: 'rgba(124,58,237,0.15)', color: '#a78bfa' } as React.CSSProperties,
+                    isIcon: true,
+                  },
+                ].map(({ step, title, desc, circleStyle, isIcon }) => (
+                  <div key={step} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 0', borderBottom: `1px solid ${t.border}` }}>
+                    <div style={{
+                      width: '24px', height: '24px', borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0, marginTop: '2px', fontSize: '11px', fontWeight: 700,
+                      ...circleStyle,
+                    }}>
+                      {isIcon ? <Link2 size={11} /> : step}
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '13px', fontWeight: 700, color: t.text, margin: '0 0 3px' }}>{title}</p>
+                      <p style={{ fontSize: '11px', color: t.muted, margin: 0, lineHeight: 1.5 }}>{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ══ RIGHT COLUMN ══════════════════════════════════════ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
+
+            {/* Card — Suas indicações */}
+            <div style={cardBase}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                <Users size={17} color={t.accent} />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Suas indicações</span>
+                {referrals.length > 0 && (
+                  <span style={{
+                    marginLeft: 'auto', background: t.border, color: t.muted,
+                    fontSize: '11px', padding: '2px 8px', borderRadius: '999px', fontFamily: 'DM Mono, monospace',
+                  }}>
+                    {referrals.length}
+                  </span>
+                )}
+              </div>
+
+              {isListLoading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {[1, 2, 3].map(i => (
+                    <div key={i} style={{ height: '48px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                  ))}
+                </div>
+              ) : referrals.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 0', textAlign: 'center', gap: '10px' }}>
+                  <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Gift size={24} color={t.border} />
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontWeight: 500, margin: 0 }}>Nenhuma indicação ainda.</p>
+                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', margin: 0 }}>Compartilhe seu link e comece a ganhar!</p>
+                </div>
+              ) : (
+                <div>
+                  {referrals.map((r) => {
+                    const name = r.referred_name || 'Usuário'
+                    const { initials, colorClass } = getAvatarInfo(name)
+                    const isCredited = r.status === 'credited'
+                    return (
+                      <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 0', borderBottom: `1px solid ${t.border}` }}>
+                        <div className={`${colorClass} w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0`}>
+                          {initials}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: '13px', fontWeight: 500, color: t.text, margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
+                          <p style={{ fontSize: '11px', color: t.muted, margin: 0 }}>
+                            {isCredited ? 'Ativo' : 'Pendente'}
+                          </p>
+                        </div>
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          {isCredited ? (
+                            <span style={{ fontFamily: 'DM Mono, monospace', color: t.accent, fontSize: '13px', fontWeight: 700 }}>
+                              +{isPro ? `${r.reward_amount || baseReward}` : `R$${((r.reward_amount || baseReward) / 3).toFixed(0)}`}
+                            </span>
+                          ) : (
+                            <span style={{ color: t.muted, fontSize: '11px' }}>Aguardando</span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Card — Saldo de indicações */}
+            <div style={{
+              background: '#0b2818', border: `1px solid ${t.accent}`,
+              borderRadius: '1rem', padding: '1.25rem', fontFamily: 'DM Sans, sans-serif',
+            }}>
+              <p style={{ fontSize: '13px', fontWeight: 700, color: t.accent, margin: '0 0 8px' }}>💰 Saldo de indicações</p>
+              <p style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.75rem', fontWeight: 700, color: t.accent, margin: '0 0 4px' }}>
+                {balanceLabel}
+              </p>
+              <p style={{ fontSize: '11px', color: '#4ade80', margin: 0 }}>
+                Crédito aplicado no próximo pedido automaticamente.
+              </p>
+            </div>
+
+          </div>
+          {/* ══ END RIGHT COLUMN ════════════════════════════════════ */}
+        </div>
+
       </div>
     </div>
   )
