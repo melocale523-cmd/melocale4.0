@@ -121,7 +121,7 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
             .single()
           if (referral && referral.status !== 'credited') {
             // Apply bonus multiplier from referral_config
-            let baseCoins = referral.referrer_role === 'professional' ? 60 : 30
+            let baseCoins = referral.referrer_role === 'professional' ? 60 : 6
             try {
               const { data: cfg } = await supabaseAdmin
                 .from('referral_config').select('multiplier, expires_at').eq('id', 1).single()

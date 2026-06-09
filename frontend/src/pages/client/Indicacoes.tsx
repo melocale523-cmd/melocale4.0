@@ -141,7 +141,7 @@ export default function ClientIndicacoes() {
 
   const hasDoubleBonus = (bonusConfig?.multiplier ?? 1) > 1
   const isPro = referralData?.role === 'professional'
-  const baseReward = isPro ? 60 : 30
+  const baseReward = isPro ? 60 : 6
   const effectiveReward = baseReward * (bonusConfig?.multiplier ?? 1)
   const rewardLabel = isPro ? `${effectiveReward} moedas` : `R$${(effectiveReward / 3).toFixed(0)}`
   const rewardDesc = isPro
