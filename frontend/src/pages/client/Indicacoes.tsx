@@ -623,10 +623,10 @@ export default function ClientIndicacoes() {
                 <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Tiers de bônus</span>
               </div>
               {[
-                { label: '🥉 Bronze',   range: '1–4 ind.',   bonus: 'R$2/ind.',   bg: '#3d200015', border: '#92400e40', color: '#f59e0b' },
-                { label: '🥈 Prata',    range: '5–9 ind.',   bonus: '+R$1 bônus', bg: '#1e293b',   border: '#47556940', color: '#94a3b8' },
-                { label: '🥇 Ouro',     range: '10–19 ind.', bonus: '+R$2 bônus', bg: '#3d290015', border: '#b4530940', color: '#fbbf24' },
-                { label: '💎 Diamante', range: '20+ ind.',   bonus: '+R$4 bônus', bg: '#1a103d',   border: '#6d28d940', color: '#a78bfa' },
+                { label: '🥉 Bronze',   range: '1–4 indicações',   bonus: 'R$2 – R$8',   bg: '#3d200015', border: '#92400e40', color: '#f59e0b' },
+                { label: '🥈 Prata',    range: '5–9 indicações',   bonus: 'R$10 – R$18', bg: '#1e293b',   border: '#47556940', color: '#94a3b8' },
+                { label: '🥇 Ouro',     range: '10–19 indicações', bonus: 'R$20 – R$38', bg: '#3d290015', border: '#b4530940', color: '#fbbf24' },
+                { label: '💎 Diamante', range: '20+ indicações',   bonus: 'R$40+',       bg: '#1a103d',   border: '#6d28d940', color: '#a78bfa' },
               ].map(({ label, range, bonus, bg, border, color }) => (
                 <div key={label} style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
