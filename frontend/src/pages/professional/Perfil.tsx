@@ -234,353 +234,290 @@ export default function ProfessionalPerfil() {
   }
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full" style={{ fontFamily:"'DM Sans',sans-serif", display:'flex', flexDirection:'column', gap:'1.5rem' }}>
 
       {/* Header */}
-      <div>
-        <h1 className="text-lg font-bold text-slate-100">Perfil Profissional</h1>
-        <p className="text-xs uppercase tracking-wide text-slate-400">Configure como os clientes verão seus serviços.</p>
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', flexWrap:'wrap', gap:'0.75rem' }}>
+        <div>
+          <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.25rem' }}>Perfil Profissional</p>
+          <h1 style={{ fontSize:'1.25rem', fontWeight:900, color:'white', marginBottom:'0.25rem' }}>Meu Perfil</h1>
+          <p style={{ fontSize:'0.75rem', color:'#4A6580' }}>Configure como os clientes verão seus serviços.</p>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
+          <div style={{ background:'rgba(16,185,129,.1)', color:'#34d399', border:'1px solid rgba(16,185,129,.2)', padding:'4px 12px', borderRadius:'1.25rem', fontSize:'0.75rem', fontWeight:600, display:'flex', alignItems:'center', gap:5 }}>
+            <CheckCircle size={13} /> Perfil ativo
+          </div>
+        </div>
       </div>
 
-      {/* Profile Card */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl overflow-hidden">
-        {/* Cover + Avatar */}
-        <div className="h-16 bg-gradient-to-r from-slate-800 to-emerald-900/30 relative">
-          <div className="absolute -bottom-8 left-3 flex items-end gap-3">
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
-            <div className="w-16 h-16 bg-slate-700 rounded-full border-4 border-[#1C3454] flex items-center justify-center text-slate-300 relative overflow-hidden shrink-0">
+      {/* Grid: Avatar + Dados */}
+      <div style={{ display:'grid', gridTemplateColumns:'200px 1fr', gap:'1rem' }}>
+
+        {/* Card Avatar */}
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.75rem', textAlign:'center' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#10b981,#059669)' }} />
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={avatarBusy} />
+          <div style={{ position:'relative', marginTop:'0.5rem' }}>
+            <div style={{ width:'5.25rem', height:'5.25rem', borderRadius:'50%', background:'linear-gradient(145deg,#0a1928,#132236)', border:'2px solid rgba(16,185,129,.3)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', flexShrink:0 }}>
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" loading="lazy" />
+                <img src={profile.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} loading="lazy" />
               ) : (
-                <User size={24} />
+                <User size={34} style={{ color:'#4A6580' }} />
               )}
               {avatarBusy && (
-                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                  <Loader2 size={14} className="text-white animate-spin" />
+                <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.7)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <Loader2 size={14} className="animate-spin" style={{ color:'white' }} />
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-2 mb-1">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={avatarBusy}
-                className="h-8 px-3 flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-wait text-white text-xs font-semibold rounded-lg transition-all whitespace-nowrap"
-              >
-                <Camera size={12} />
-                {profile?.avatar_url ? 'Alterar foto' : 'Adicionar foto'}
-              </button>
-              {profile?.avatar_url && !avatarBusy && (
-                <button
-                  type="button"
-                  onClick={() => removeMutation.mutate()}
-                  className="h-8 px-3 flex items-center gap-1.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 text-xs font-semibold rounded-lg transition-all whitespace-nowrap"
-                >
-                  <Trash2 size={12} /> Remover
-                </button>
-              )}
+            <div style={{ position:'absolute', bottom:2, right:2, width:'1.25rem', height:'1.25rem', borderRadius:'50%', background:'#10b981', display:'flex', alignItems:'center', justifyContent:'center', border:'2px solid #132236', cursor:'pointer' }} onClick={() => fileInputRef.current?.click()}>
+              <Camera size={11} style={{ color:'white' }} />
             </div>
-          </div>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-3 pt-12 space-y-3">
-          {successMsg && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-2 rounded-lg flex items-center gap-2 text-xs">
-              <CheckCircle2 size={14} className="shrink-0" /> Alterações salvas com sucesso!
-            </div>
-          )}
-          {validationError && (
-            <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-2 rounded-lg flex items-center gap-2 text-xs">
-              <AlertCircle size={14} className="shrink-0" />
-              {validationError}
-            </div>
-          )}
-          {saveMutation.isError && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg flex items-center gap-2 text-xs">
-              <AlertCircle size={14} className="shrink-0" />
-              {(saveMutation.error as Error).message}
-            </div>
-          )}
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-1">
-              <label className="text-xs uppercase tracking-wide text-slate-400">Nome Completo</label>
-              <div className="relative">
-                <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                <input
-                  name="name"
-                  maxLength={100}
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] text-slate-200 text-sm rounded-lg pl-8 pr-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
-                  placeholder="Seu nome"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs uppercase tracking-wide text-slate-400">E-mail</label>
-              <div className="relative">
-                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600" size={14} />
-                <input
-                  name="email"
-                  value={formData.email}
-                  disabled
-                  className="w-full h-8 bg-[#0E1C32]/50 border border-[#1C3050]/50 text-slate-600 cursor-not-allowed text-sm rounded-lg pl-8 pr-3 outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs uppercase tracking-wide text-slate-400">Telefone / WhatsApp</label>
-              <div className="relative">
-                <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                <input
-                  name="phone"
-                  maxLength={20}
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] text-slate-200 text-sm rounded-lg pl-8 pr-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
-                  placeholder="(11) 90000-0000"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs uppercase tracking-wide text-slate-400">Categoria Principal</label>
-              <div className="relative">
-                <Briefcase className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] text-slate-200 text-sm rounded-lg pl-8 pr-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all appearance-none"
-                >
-                  <option value="" disabled>Selecione sua categoria</option>
-                  {categorias.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              {formData.category === 'Outro' && (
-                <input
-                  type="text"
-                  placeholder="Descreva sua profissão..."
-                  maxLength={100}
-                  className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] text-slate-200 text-sm rounded-lg px-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all mt-1"
-                  value={formData.customCategory}
-                  onChange={e => setFormData(prev => ({ ...prev, customCategory: e.target.value }))}
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs uppercase tracking-wide text-slate-400">Raio de Atendimento (km)</label>
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                name="radius"
-                min="5" max="50" step="5"
-                value={formData.radius}
-                onChange={handleChange}
-                className="flex-1 accent-emerald-500"
-              />
-              <span className="bg-[#0E1C32] border border-[#1C3050] px-3 py-1 rounded-lg text-sm text-emerald-400 font-medium min-w-[4rem] text-center">
-                {formData.radius} km
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs uppercase tracking-wide text-slate-400">Resumo Profissional / Biografia</label>
-            <textarea
-              name="bio"
-              maxLength={500}
-              value={formData.bio}
-              onChange={handleChange}
-              rows={3}
-              className="w-full bg-[#0E1C32] border border-[#1C3050] text-slate-200 text-sm rounded-lg p-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all resize-none"
-              placeholder="Descreva suas habilidades, tempo de experiência e diferenciais..."
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={saveMutation.isPending}
-              className="h-10 px-6 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white text-sm font-bold rounded-lg transition-all flex items-center gap-2"
-            >
-              {saveMutation.isPending ? (
-                <><Loader2 size={14} className="animate-spin" /> Salvando...</>
-              ) : (
-                'Salvar Alterações'
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Address */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400 shrink-0">
-            <MapPin size={15} />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white">Endereço</h2>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Localização para agendamentos de visitas.</p>
+            <p style={{ fontSize:'0.9375rem', fontWeight:700, color:'white' }}>{profile?.full_name || 'Profissional'}</p>
+            <p style={{ fontSize:'0.75rem', color:'#4A6580' }}>{formData.category || 'Sem categoria'}</p>
+          </div>
+          <div style={{ display:'flex', gap:'0.375rem', width:'100%' }}>
+            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={avatarBusy} style={{ flex:1, height:'2rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#94a3b8', fontSize:'0.75rem', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+              <Camera size={13} />{profile?.avatar_url ? 'Alterar' : 'Adicionar'}
+            </button>
+            {profile?.avatar_url && !avatarBusy && (
+              <button type="button" onClick={() => removeMutation.mutate()} style={{ height:'2rem', padding:'0 0.625rem', background:'rgba(248,113,113,.08)', border:'1px solid rgba(248,113,113,.2)', borderRadius:'0.5rem', color:'#f87171', fontSize:'0.75rem', cursor:'pointer', display:'flex', alignItems:'center' }}>
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
+
+          {/* Completude */}
+          <div style={{ width:'100%', borderTop:'1px solid #1C3050', paddingTop:'0.75rem' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.375rem' }}>
+              <span style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#4A6580' }}>Completude</span>
+              <span style={{ fontSize:'0.6875rem', fontWeight:700, color:'#34d399' }}>
+                {[profile?.full_name, profile?.phone, profile?.category, profile?.bio, profile?.address_city].filter(Boolean).length * 20}%
+              </span>
+            </div>
+            <div style={{ height:'0.3125rem', background:'#0d1929', borderRadius:'0.3125rem', overflow:'hidden', marginBottom:'0.375rem' }}>
+              <div style={{ width:`${[profile?.full_name, profile?.phone, profile?.category, profile?.bio, profile?.address_city].filter(Boolean).length * 20}%`, height:'100%', background:'linear-gradient(90deg,#10b981,#059669)', borderRadius:'0.3125rem' }} />
+            </div>
+            <p style={{ fontSize:'0.625rem', color:'#4A6580' }}>
+              {!profile?.bio ? 'Adicione bio para melhorar' : !profile?.address_city ? 'Adicione endereço' : 'Perfil completo!'}
+            </p>
+          </div>
+
+          {/* Badges */}
+          <div style={{ width:'100%', borderTop:'1px solid #1C3050', paddingTop:'0.75rem', display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <span style={{ fontSize:'0.6875rem', color:'#4A6580' }}>Badge</span>
+              <span style={{ background:'rgba(96,165,250,.1)', color:'#60a5fa', border:'1px solid rgba(96,165,250,.2)', padding:'2px 8px', borderRadius:'1.25rem', fontSize:'0.625rem', fontWeight:700 }}>✅ Verificado</span>
+            </div>
           </div>
         </div>
 
+        {/* Dados + Bio */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
+
+          {/* Dados Pessoais */}
+          <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#60a5fa,#378ADD)' }} />
+            <div style={{ position:'absolute', top:'-1.25rem', right:'-1.25rem', width:'5rem', height:'5rem', background:'radial-gradient(circle,rgba(96,165,250,.06),transparent 70%)', pointerEvents:'none' }} />
+            <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'0.875rem' }}>
+              <User size={15} style={{ color:'#60a5fa' }} />Dados Pessoais
+            </p>
+
+            {successMsg && (
+              <div style={{ background:'rgba(16,185,129,.08)', border:'1px solid rgba(16,185,129,.2)', color:'#34d399', padding:'8px 12px', borderRadius:'0.625rem', display:'flex', alignItems:'center', gap:8, fontSize:'0.75rem', marginBottom:'0.75rem' }}>
+                <CheckCircle2 size={13} /> Alterações salvas com sucesso!
+              </div>
+            )}
+            {validationError && (
+              <div style={{ background:'rgba(245,158,11,.08)', border:'1px solid rgba(245,158,11,.2)', color:'#fbbf24', padding:'8px 12px', borderRadius:'0.625rem', display:'flex', alignItems:'center', gap:8, fontSize:'0.75rem', marginBottom:'0.75rem' }}>
+                <AlertCircle size={13} /> {validationError}
+              </div>
+            )}
+            {saveMutation.isError && (
+              <div style={{ background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', color:'#f87171', padding:'8px 12px', borderRadius:'0.625rem', display:'flex', alignItems:'center', gap:8, fontSize:'0.75rem', marginBottom:'0.75rem' }}>
+                <AlertCircle size={13} /> {(saveMutation.error as Error).message}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.625rem', marginBottom:'0.625rem' }}>
+                <div>
+                  <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.375rem' }}>Nome completo</p>
+                  <div style={{ position:'relative' }}>
+                    <User size={13} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#4A6580' }} />
+                    <input name="name" maxLength={100} value={formData.name} onChange={handleChange} required placeholder="Seu nome" style={{ width:'100%', height:'2.25rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#e2e8f0', fontSize:'0.8125rem', paddingLeft:'2rem', paddingRight:'0.75rem', outline:'none' }} />
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.375rem' }}>E-mail</p>
+                  <div style={{ position:'relative' }}>
+                    <Mail size={13} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#4A6580' }} />
+                    <input name="email" value={formData.email} disabled style={{ width:'100%', height:'2.25rem', background:'rgba(13,25,41,.5)', border:'1px solid rgba(28,48,80,.5)', borderRadius:'0.5rem', color:'#4A6580', fontSize:'0.8125rem', paddingLeft:'2rem', paddingRight:'0.75rem', outline:'none', cursor:'not-allowed' }} />
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.375rem' }}>Telefone / WhatsApp</p>
+                  <div style={{ position:'relative' }}>
+                    <Phone size={13} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#4A6580' }} />
+                    <input name="phone" maxLength={20} value={formData.phone} onChange={handleChange} required placeholder="(11) 90000-0000" style={{ width:'100%', height:'2.25rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#e2e8f0', fontSize:'0.8125rem', paddingLeft:'2rem', paddingRight:'0.75rem', outline:'none' }} />
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.375rem' }}>Categoria principal</p>
+                  <div style={{ position:'relative' }}>
+                    <Briefcase size={13} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#4A6580', zIndex:1 }} />
+                    <select name="category" value={formData.category} onChange={handleChange} style={{ width:'100%', height:'2.25rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#e2e8f0', fontSize:'0.8125rem', paddingLeft:'2rem', paddingRight:'0.75rem', outline:'none', appearance:'none' }}>
+                      <option value="" disabled>Selecione sua categoria</option>
+                      {categorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    </select>
+                  </div>
+                  {formData.category === 'Outro' && (
+                    <input type="text" placeholder="Descreva sua profissão..." maxLength={100} value={formData.customCategory} onChange={e => setFormData(prev => ({ ...prev, customCategory: e.target.value }))} style={{ width:'100%', height:'2.25rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#e2e8f0', fontSize:'0.8125rem', padding:'0 0.75rem', outline:'none', marginTop:'0.375rem' }} />
+                  )}
+                </div>
+              </div>
+
+              <div style={{ marginBottom:'0.75rem' }}>
+                <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.375rem' }}>Raio de atendimento (km)</p>
+                <div style={{ display:'flex', alignItems:'center', gap:'0.625rem' }}>
+                  <input type="range" name="radius" min="5" max="50" step="5" value={formData.radius} onChange={handleChange} style={{ flex:1 }} />
+                  <div style={{ background:'rgba(16,185,129,.12)', color:'#34d399', border:'1px solid rgba(16,185,129,.2)', padding:'3px 12px', borderRadius:'1.25rem', fontSize:'0.8125rem', fontWeight:700, whiteSpace:'nowrap' }}>{formData.radius} km</div>
+                </div>
+              </div>
+
+              <div style={{ display:'flex', justifyContent:'flex-end' }}>
+                <button type="submit" disabled={saveMutation.isPending} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 12px rgba(16,185,129,.2)', opacity: saveMutation.isPending ? .6 : 1 }}>
+                  {saveMutation.isPending ? <><Loader2 size={13} className="animate-spin" /> Salvando...</> : 'Salvar Alterações'}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Bio */}
+          <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#a78bfa,#7c3aed)' }} />
+            <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'0.75rem' }}>
+              <Briefcase size={15} style={{ color:'#a78bfa' }} />Resumo Profissional
+            </p>
+            <textarea name="bio" maxLength={500} value={formData.bio} onChange={handleChange} rows={3} placeholder="Descreva suas habilidades, tempo de experiência e diferenciais..." style={{ width:'100%', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#e2e8f0', fontSize:'0.8125rem', padding:'0.625rem 0.75rem', outline:'none', resize:'none', lineHeight:1.6 }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Grid Endereço + Pagamentos */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+
+      {/* Endereço */}
+      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
+        <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'0.875rem' }}>
+          <MapPin size={15} style={{ color:'#fbbf24' }} />Endereço · Localização para agendamentos
+        </p>
         {addrSuccessMsg && (
-          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-2 rounded-lg flex items-center gap-2 text-xs">
-            <CheckCircle2 size={14} className="shrink-0" /> Endereço salvo com sucesso!
+          <div style={{ background:'rgba(16,185,129,.08)', border:'1px solid rgba(16,185,129,.2)', color:'#34d399', padding:'8px 12px', borderRadius:'0.625rem', display:'flex', alignItems:'center', gap:8, fontSize:'0.75rem', marginBottom:'0.75rem' }}>
+            <CheckCircle2 size={13} /> Endereço salvo com sucesso!
           </div>
         )}
-
         <AddressForm value={addrValue} onChange={setAddrValue} />
-
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={() => savAddressMutation.mutate()}
-            disabled={savAddressMutation.isPending}
-            className="h-10 px-6 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-all flex items-center gap-2"
-          >
-            {savAddressMutation.isPending
-              ? <><Loader2 size={14} className="animate-spin" /> Salvando...</>
-              : 'Salvar Endereço'
-            }
+        <div style={{ display:'flex', justifyContent:'flex-end', marginTop:'0.75rem' }}>
+          <button type="button" onClick={() => savAddressMutation.mutate()} disabled={savAddressMutation.isPending} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 12px rgba(16,185,129,.2)', opacity: savAddressMutation.isPending ? .6 : 1 }}>
+            {savAddressMutation.isPending ? <><Loader2 size={13} className="animate-spin" /> Salvando...</> : 'Salvar Endereço'}
           </button>
         </div>
       </div>
 
       {/* Stripe Connect */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500 shrink-0">
-            <CreditCard size={15} />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-white">Recebimentos e Pagamentos</h2>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Conecte sua conta bancária para receber pagamentos.</p>
-          </div>
-        </div>
-
-        <div className="p-3 bg-[#0E1C32] border border-[#1C3050] rounded-lg flex items-center justify-between gap-3">
+      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#34d399,#10b981)' }} />
+        <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'0.875rem' }}>
+          <CreditCard size={15} style={{ color:'#34d399' }} />Recebimentos e Pagamentos
+        </p>
+        <div style={{ background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.625rem', padding:'0.75rem 0.875rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'0.75rem', marginBottom:'0.625rem' }}>
           {connectLoading ? (
-            <div className="flex items-center gap-2 text-slate-500 text-xs">
-              <Loader2 size={14} className="animate-spin" /> Verificando status...
+            <div style={{ display:'flex', alignItems:'center', gap:8, color:'#4A6580', fontSize:'0.75rem' }}>
+              <Loader2 size={13} className="animate-spin" /> Verificando status...
             </div>
           ) : connectStatusValue === 'active' ? (
-            <div className="flex items-center gap-2">
-              <CheckCircle size={16} className="text-emerald-400 shrink-0" />
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <CheckCircle size={15} style={{ color:'#34d399', flexShrink:0 }} />
               <div>
-                <p className="text-sm font-medium text-slate-200">
-                  Status: <span className="text-emerald-400">Ativo</span>
-                </p>
-                <p className="text-xs text-slate-500">Conta Stripe conectada e pronta para receber pagamentos.</p>
+                <p style={{ fontSize:'0.8125rem', fontWeight:600, color:'#e2e8f0' }}>Status: <span style={{ color:'#34d399' }}>Ativo</span></p>
+                <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>Conta Stripe conectada e pronta para receber pagamentos.</p>
               </div>
             </div>
           ) : connectStatusValue === 'pending' ? (
             <>
               <div>
-                <p className="text-sm font-medium text-slate-200">
-                  Status: <span className="text-amber-400">Pendente</span>
-                </p>
-                <p className="text-xs text-slate-500">Complete o cadastro no Stripe para começar a receber.</p>
+                <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3 }}>
+                  <div style={{ width:6, height:6, borderRadius:'50%', background:'#f59e0b', boxShadow:'0 0 6px #f59e0b' }} />
+                  <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'#f59e0b' }}>Pendente</p>
+                </div>
+                <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>Complete o cadastro no Stripe para começar a receber.</p>
               </div>
-              <button
-                onClick={handleConnectStripe}
-                disabled={connectBusy}
-                className="shrink-0 h-8 px-4 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-wait text-black text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5"
-              >
-                {connectBusy && <Loader2 size={13} className="animate-spin" />}
-                Continuar cadastro
+              <button onClick={handleConnectStripe} disabled={connectBusy} style={{ height:'2.125rem', padding:'0 0.875rem', background:'linear-gradient(135deg,#f59e0b,#d97706)', border:'none', borderRadius:'0.5rem', color:'black', fontSize:'0.75rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:5, flexShrink:0, opacity: connectBusy ? .6 : 1 }}>
+                {connectBusy && <Loader2 size={12} className="animate-spin" />} Continuar cadastro
               </button>
             </>
           ) : (
             <>
               <div>
-                <p className="text-sm font-medium text-slate-200">
-                  Status: <span className="text-slate-400">Não conectado</span>
-                </p>
-                <p className="text-xs text-slate-500">Para receber pagamentos, conclua o cadastro no Stripe.</p>
+                <p style={{ fontSize:'0.8125rem', fontWeight:600, color:'#e2e8f0' }}>Status: <span style={{ color:'#4A6580' }}>Não conectado</span></p>
+                <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>Para receber pagamentos, conclua o cadastro no Stripe.</p>
               </div>
-              <button
-                onClick={handleConnectStripe}
-                disabled={connectBusy}
-                className="shrink-0 h-8 px-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-wait text-white text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5"
-              >
-                {connectBusy && <Loader2 size={13} className="animate-spin" />}
-                Conectar com Stripe
+              <button onClick={handleConnectStripe} disabled={connectBusy} style={{ height:'2.125rem', padding:'0 0.875rem', background:'linear-gradient(135deg,#60a5fa,#378ADD)', border:'none', borderRadius:'0.5rem', color:'white', fontSize:'0.75rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:5, flexShrink:0, opacity: connectBusy ? .6 : 1 }}>
+                {connectBusy && <Loader2 size={12} className="animate-spin" />} Conectar com Stripe
               </button>
             </>
           )}
         </div>
+        <p style={{ fontSize:'0.6875rem', color:'#4A6580', lineHeight:1.5 }}>Complete o cadastro no Stripe para começar a receber pagamentos diretamente na sua conta bancária.</p>
       </div>
 
-      {/* Reviews */}
+      </div>{/* fim grid Endereço + Pagamentos */}
+
+      {/* Avaliações */}
       {reviewsData && (
-        <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-400 shrink-0">
-                <Star size={15} />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-white">Avaliações dos Clientes</h2>
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  {reviewsData.total} avaliação{reviewsData.total !== 1 ? 'ões' : ''} recebida{reviewsData.total !== 1 ? 's' : ''}
-                </p>
-              </div>
-            </div>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.875rem' }}>
+            <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8 }}>
+              <Star size={15} style={{ color:'#fbbf24' }} />Avaliações dos Clientes
+            </p>
             {reviewsData.total > 0 && (
-              <div className="flex flex-col items-end gap-0.5">
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map(s => (
-                    <Star
-                      key={s}
-                      size={13}
-                      className={s <= Math.round(reviewsData.average) ? 'text-yellow-400 fill-yellow-400' : 'text-[#1C3050] fill-[#1C3050]'}
-                    />
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:2 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:2 }}>
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} size={13} style={{ color: s <= Math.round(reviewsData.average) ? '#fbbf24' : '#1C3050', fill: s <= Math.round(reviewsData.average) ? '#fbbf24' : '#1C3050' }} />
                   ))}
                 </div>
-                <span className="text-xs font-bold text-yellow-400">
-                  {reviewsData.average.toFixed(1)}
-                </span>
+                <span style={{ fontSize:'0.75rem', fontWeight:700, color:'#fbbf24' }}>{reviewsData.average.toFixed(1)}</span>
               </div>
             )}
           </div>
-
           {reviewsData.reviews.length === 0 ? (
-            <p className="text-xs text-slate-500 text-center py-4 uppercase tracking-wide">Nenhuma avaliação ainda.</p>
+            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'1.5rem', gap:'0.5rem', textAlign:'center' }}>
+              <div style={{ width:'2.75rem', height:'2.75rem', borderRadius:'50%', background:'rgba(251,191,36,.1)', border:'1px solid rgba(251,191,36,.15)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <Star size={20} style={{ color:'#fbbf24' }} />
+              </div>
+              <p style={{ fontSize:'0.8125rem', fontWeight:500, color:'white' }}>Nenhuma avaliação ainda</p>
+              <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>As avaliações dos clientes aparecerão aqui.</p>
+            </div>
           ) : (
-            <div className="space-y-2">
+            <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
               {reviewsData.reviews.map(review => (
-                <div key={review.id} className="bg-[#0E1C32] border border-[#1C3050] rounded-lg p-3 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-slate-200">{review.client_name ?? 'Cliente'}</span>
-                    <span className="text-xs text-slate-500">
-                      {format(new Date(review.created_at), "dd 'de' MMM, yyyy", { locale: ptBR })}
-                    </span>
+                <div key={review.id} style={{ background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.625rem', padding:'0.75rem 0.875rem' }}>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.375rem' }}>
+                    <span style={{ fontSize:'0.8125rem', fontWeight:600, color:'#e2e8f0' }}>{review.client_name ?? 'Cliente'}</span>
+                    <span style={{ fontSize:'0.6875rem', color:'#4A6580' }}>{format(new Date(review.created_at), "dd 'de' MMM, yyyy", { locale: ptBR })}</span>
                   </div>
-                  <div className="flex items-center gap-0.5">
-                    {[1, 2, 3, 4, 5].map(s => (
-                      <Star
-                        key={s}
-                        size={11}
-                        className={s <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-[#1C3050] fill-[#1C3050]'}
-                      />
+                  <div style={{ display:'flex', alignItems:'center', gap:2, marginBottom:'0.375rem' }}>
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} size={11} style={{ color: s <= review.rating ? '#fbbf24' : '#1C3050', fill: s <= review.rating ? '#fbbf24' : '#1C3050' }} />
                     ))}
                   </div>
-                  {review.comment && (
-                    <p className="text-xs text-slate-400">{review.comment}</p>
-                  )}
+                  {review.comment && <p style={{ fontSize:'0.75rem', color:'#94a3b8', lineHeight:1.5 }}>{review.comment}</p>}
                 </div>
               ))}
             </div>
