@@ -75,161 +75,74 @@ export default function ProfessionalConfiguracoes() {
   };
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full" style={{ fontFamily:"'DM Sans',sans-serif", display:'flex', flexDirection:'column', gap:'1.5rem' }}>
 
       {/* Header */}
       <div>
-        <h1 className="text-lg font-bold text-white">Configurações</h1>
-        <p className="text-xs uppercase tracking-wide text-slate-400">Gerencie suas preferências de conta</p>
+        <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.25rem' }}>Configurações</p>
+        <h1 style={{ fontSize:'1.25rem', fontWeight:900, color:'white', marginBottom:'0.25rem' }}>Minhas Configurações</h1>
+        <p style={{ fontSize:'0.75rem', color:'#4A6580' }}>Gerencie suas preferências de conta</p>
       </div>
 
-      {/* Conta */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
-            <Shield size={14} className="text-emerald-400" />
-          </div>
-          <h2 className="text-sm font-bold text-white">Conta</h2>
-        </div>
-        <div className="divide-y divide-[#1C3050]">
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-400">E-mail</p>
-              <p className="text-sm text-slate-200">{user?.email}</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-400">Tipo de conta</p>
-              <p className="text-sm text-slate-200">Profissional</p>
-            </div>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wide">
-              Ativo
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Grid Conta + Segurança */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
 
-      {/* Notificações */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
-            <Bell size={14} className="text-emerald-400" />
-          </div>
-          <h2 className="text-sm font-bold text-white">Notificações</h2>
-        </div>
-        <div className="divide-y divide-[#1C3050]">
-          {[
-            { key: 'newLead', label: 'Novo lead disponível', desc: 'Quando um cliente solicitar um serviço na sua área' },
-            { key: 'appointmentConfirmed', label: 'Agendamento confirmado', desc: 'Quando um cliente confirmar um agendamento' },
-            { key: 'appointmentCancelled', label: 'Agendamento cancelado', desc: 'Quando um cliente cancelar um agendamento' },
-            { key: 'messages', label: 'Mensagens', desc: 'Quando receber uma nova mensagem' },
-            { key: 'promotions', label: 'Promoções e novidades', desc: 'Ofertas especiais e atualizações da plataforma' },
-          ].map(({ key, label, desc }) => (
-            <label key={key} className="flex items-center justify-between gap-3 py-2 cursor-pointer group">
+        {/* Conta */}
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#10b981,#059669)' }} />
+          <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'1rem' }}>
+            <Shield size={15} style={{ color:'#10b981' }} />Conta
+          </p>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
+            <div style={{ background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.625rem', padding:'0.75rem 1rem' }}>
+              <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.25rem' }}>E-mail</p>
+              <p style={{ fontSize:'0.8125rem', color:'#e2e8f0' }}>{user?.email}</p>
+            </div>
+            <div style={{ background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.625rem', padding:'0.75rem 1rem', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
               <div>
-                <p className="text-sm text-white group-hover:text-emerald-400 transition-colors">{label}</p>
-                <p className="text-xs text-slate-500">{desc}</p>
+                <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.25rem' }}>Tipo de conta</p>
+                <p style={{ fontSize:'0.8125rem', color:'#e2e8f0' }}>Profissional</p>
               </div>
-              <button
-                role="switch"
-                aria-checked={notifications[key as keyof typeof notifications]}
-                onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key as keyof typeof notifications] }))}
-                className={`relative shrink-0 w-10 h-6 rounded-full transition-colors ${
-                  notifications[key as keyof typeof notifications] ? 'bg-emerald-500' : 'bg-[#1C3050]'
-                }`}
-              >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                  notifications[key as keyof typeof notifications] ? 'left-5' : 'left-1'
-                }`} />
-              </button>
-            </label>
-          ))}
-        </div>
-        <div className="pt-3">
-          <button
-            onClick={handleSaveNotifications}
-            disabled={savingNotifications}
-            className="h-8 px-4 flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold rounded-lg transition-all disabled:opacity-50"
-          >
-            {savingNotifications ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
-            Salvar preferências
-          </button>
-        </div>
-      </div>
-
-      {/* Segurança */}
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
-            <Lock size={14} className="text-emerald-400" />
+              <span style={{ fontSize:'0.625rem', fontWeight:700, padding:'3px 10px', borderRadius:'1.25rem', background:'rgba(16,185,129,.12)', color:'#34d399', border:'1px solid rgba(16,185,129,.2)', textTransform:'uppercase', letterSpacing:'.06em' }}>
+                Ativo
+              </span>
+            </div>
           </div>
-          <h2 className="text-sm font-bold text-white">Segurança</h2>
-        </div>
-        <div className="flex items-center justify-between py-2">
-          <div>
-            <p className="text-sm text-white">Senha</p>
-            <p className="text-xs text-slate-500">Altere sua senha de acesso</p>
-          </div>
-          <button
-            onClick={() => setShowPasswordForm(v => !v)}
-            className="h-8 px-4 text-xs font-semibold text-emerald-400 hover:text-emerald-300 rounded-lg hover:bg-emerald-500/10 transition-all"
-          >
-            {showPasswordForm ? 'Cancelar' : 'Alterar senha'}
-          </button>
         </div>
 
-        {showPasswordForm && (
-          <div className="mt-2 pt-3 border-t border-[#1C3050] space-y-3">
-            <div className="space-y-1">
-              <label className="text-xs uppercase tracking-wide text-slate-400">Senha atual</label>
-              <input
-                type="password"
-                value={passwordForm.current}
-                onChange={e => setPasswordForm(f => ({ ...f, current: e.target.value }))}
-                placeholder="••••••••"
-                maxLength={128}
-                className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] rounded-lg px-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
-              />
+        {/* Segurança */}
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#60a5fa,#378ADD)' }} />
+          <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'1rem' }}>
+            <Lock size={15} style={{ color:'#60a5fa' }} />Segurança
+          </p>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.625rem', padding:'0.75rem 1rem', marginBottom: showPasswordForm ? '0.75rem' : 0 }}>
+            <div>
+              <p style={{ fontSize:'0.8125rem', fontWeight:600, color:'white', marginBottom:'0.125rem' }}>Senha</p>
+              <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>Altere sua senha de acesso</p>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs uppercase tracking-wide text-slate-400">Nova senha</label>
-              <input
-                type="password"
-                value={passwordForm.newPass}
-                onChange={e => setPasswordForm(f => ({ ...f, newPass: e.target.value }))}
-                placeholder="Mínimo 8 caracteres"
-                maxLength={128}
-                className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] rounded-lg px-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs uppercase tracking-wide text-slate-400">Confirmar nova senha</label>
-              <input
-                type="password"
-                value={passwordForm.confirm}
-                onChange={e => setPasswordForm(f => ({ ...f, confirm: e.target.value }))}
-                placeholder="Repita a nova senha"
-                maxLength={128}
-                className="w-full h-8 bg-[#0E1C32] border border-[#1C3050] rounded-lg px-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
-              />
-            </div>
-            <button
-              disabled={savingPassword}
-              onClick={async () => {
+            <button onClick={() => setShowPasswordForm(v => !v)} style={{ height:'2rem', padding:'0 0.875rem', background:'transparent', border:'1px solid rgba(96,165,250,.2)', borderRadius:'0.5rem', color:'#60a5fa', fontSize:'0.75rem', fontWeight:600, cursor:'pointer' }}>
+              {showPasswordForm ? 'Cancelar' : 'Alterar senha'}
+            </button>
+          </div>
+
+          {showPasswordForm && (
+            <div style={{ display:'flex', flexDirection:'column', gap:'0.625rem' }}>
+              {[
+                { label:'Senha atual', key:'current', placeholder:'••••••••' },
+                { label:'Nova senha', key:'newPass', placeholder:'Mínimo 8 caracteres' },
+                { label:'Confirmar nova senha', key:'confirm', placeholder:'Repita a nova senha' },
+              ].map(f => (
+                <div key={f.key}>
+                  <p style={{ fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.375rem' }}>{f.label}</p>
+                  <input type="password" value={passwordForm[f.key as keyof typeof passwordForm]} onChange={e => setPasswordForm(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.placeholder} maxLength={128} style={{ width:'100%', height:'2.25rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#e2e8f0', fontSize:'0.8125rem', padding:'0 0.75rem', outline:'none' }} />
+                </div>
+              ))}
+              <button disabled={savingPassword} onClick={async () => {
                 const { current, newPass, confirm } = passwordForm;
-                if (newPass.length < 8) {
-                  toast.error('A nova senha deve ter pelo menos 8 caracteres.');
-                  return;
-                }
-                if (newPass === current) {
-                  toast.error('A nova senha deve ser diferente da senha atual.');
-                  return;
-                }
-                if (newPass !== confirm) {
-                  toast.error('As senhas não coincidem.');
-                  return;
-                }
+                if (newPass.length < 8) { toast.error('A nova senha deve ter pelo menos 8 caracteres.'); return; }
+                if (newPass === current) { toast.error('A nova senha deve ser diferente da senha atual.'); return; }
+                if (newPass !== confirm) { toast.error('As senhas não coincidem.'); return; }
                 setSavingPassword(true);
                 try {
                   const { data: { session } } = await supabase.auth.getSession();
@@ -247,33 +160,61 @@ export default function ProfessionalConfiguracoes() {
                 } finally {
                   setSavingPassword(false);
                 }
-              }}
-              className="h-10 px-6 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg transition-all disabled:opacity-50"
-            >
-              {savingPassword ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-              Salvar nova senha
-            </button>
-          </div>
-        )}
+              }} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#60a5fa,#378ADD)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, opacity: savingPassword ? .6 : 1 }}>
+                {savingPassword ? <Loader2 size={13} className="animate-spin" /> : <Lock size={13} />}
+                Salvar nova senha
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Notificações */}
+      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#a78bfa,#7c3aed)' }} />
+        <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'1rem' }}>
+          <Bell size={15} style={{ color:'#a78bfa' }} />Notificações
+        </p>
+        <div style={{ display:'flex', flexDirection:'column', gap:'0' }}>
+          {[
+            { key:'newLead', label:'Novo lead disponível', desc:'Quando um cliente solicitar um serviço na sua área' },
+            { key:'appointmentConfirmed', label:'Agendamento confirmado', desc:'Quando um cliente confirmar um agendamento' },
+            { key:'appointmentCancelled', label:'Agendamento cancelado', desc:'Quando um cliente cancelar um agendamento' },
+            { key:'messages', label:'Mensagens', desc:'Quando receber uma nova mensagem' },
+            { key:'promotions', label:'Promoções e novidades', desc:'Ofertas especiais e atualizações da plataforma' },
+          ].map(({ key, label, desc }, i, arr) => (
+            <div key={key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', padding:'0.875rem 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none' }}>
+              <div>
+                <p style={{ fontSize:'0.8125rem', fontWeight:500, color: notifications[key as keyof typeof notifications] ? 'white' : '#94a3b8', marginBottom:'0.125rem' }}>{label}</p>
+                <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>{desc}</p>
+              </div>
+              <button role="switch" aria-checked={notifications[key as keyof typeof notifications]} onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key as keyof typeof notifications] }))}
+                style={{ position:'relative', flexShrink:0, width:'2.5rem', height:'1.5rem', borderRadius:'0.75rem', border:'none', cursor:'pointer', background: notifications[key as keyof typeof notifications] ? '#10b981' : '#1C3050', transition:'background .2s' }}>
+                <span style={{ position:'absolute', top:'0.25rem', width:'1rem', height:'1rem', borderRadius:'50%', background:'white', transition:'left .2s', left: notifications[key as keyof typeof notifications] ? '1.25rem' : '0.25rem' }} />
+              </button>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop:'1rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,.04)' }}>
+          <button onClick={handleSaveNotifications} disabled={savingNotifications} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 12px rgba(16,185,129,.2)', opacity: savingNotifications ? .6 : 1 }}>
+            {savingNotifications ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
+            Salvar preferências
+          </button>
+        </div>
       </div>
 
       {/* Zona de Perigo */}
-      <div className="bg-[#1C3454] border border-red-500/20 rounded-xl p-3">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 bg-red-500/10 rounded-lg flex items-center justify-center shrink-0">
-            <Settings size={14} className="text-red-400" />
-          </div>
-          <h2 className="text-sm font-bold text-white">Zona de Perigo</h2>
-        </div>
-        <div className="flex items-center justify-between py-2">
+      <div style={{ background:'#132236', border:'1px solid rgba(239,68,68,.2)', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#f87171,#dc2626)' }} />
+        <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'1rem' }}>
+          <Settings size={15} style={{ color:'#f87171' }} />Zona de Perigo
+        </p>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(239,68,68,.05)', border:'1px solid rgba(239,68,68,.15)', borderRadius:'0.625rem', padding:'0.75rem 1rem' }}>
           <div>
-            <p className="text-sm text-white">Desativar conta</p>
-            <p className="text-xs text-slate-500">Sua conta e dados serão desativados permanentemente</p>
+            <p style={{ fontSize:'0.8125rem', fontWeight:600, color:'white', marginBottom:'0.125rem' }}>Desativar conta</p>
+            <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>Sua conta e dados serão desativados permanentemente</p>
           </div>
-          <button
-            onClick={() => toast.error('Entre em contato com o suporte para desativar sua conta.')}
-            className="h-8 px-4 text-xs font-semibold text-red-400 hover:text-red-300 rounded-lg hover:bg-red-500/10 border border-red-500/20 transition-all"
-          >
+          <button onClick={() => toast.error('Entre em contato com o suporte para desativar sua conta.')} style={{ height:'2rem', padding:'0 0.875rem', background:'transparent', border:'1px solid rgba(239,68,68,.25)', borderRadius:'0.5rem', color:'#f87171', fontSize:'0.75rem', fontWeight:600, cursor:'pointer' }}>
             Desativar
           </button>
         </div>
