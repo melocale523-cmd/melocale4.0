@@ -205,7 +205,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
             <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-500/[0.03] blur-[120px] pointer-events-none rounded-full" />
 
             {/* Header */}
-            <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-[#0a1628] z-10">
+            <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between z-10" style={{ background: '#0a1928', borderTop: '3px solid #10b981' }}>
               <div className="flex items-center gap-3">
                 <button onClick={() => setShowChat(false)} className="md:hidden text-white/40 hover:text-white transition-colors">
                   <ChevronLeft size={22} />
@@ -221,7 +221,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                       <button
                         type="button"
                         onClick={() => setProfileModal({ userId: activeConversation.prof_user_id!, name: otherName, avatar: otherAvatar })}
-                        className="text-[10px] font-semibold text-white border border-white/20 bg-white/10 hover:bg-white/15 px-2.5 py-0.5 rounded-full transition-all shrink-0"
+                        style={{ background: '#132236', border: '1px solid #1C3050', borderRadius: '6px', padding: '3px 10px', fontSize: '11px', color: '#10b981', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', flexShrink: 0 }}
                       >
                         Ver perfil
                       </button>
@@ -233,6 +233,19 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                       {isOtherUserOnline ? 'Online' : 'Offline'}
                     </span>
                   </div>
+                  {role === 'client' && ((activeConversation as Record<string, unknown>).prof_category || (activeConversation as Record<string, unknown>).prof_city) && (
+                    <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
+                      {(activeConversation as Record<string, unknown>).prof_category && (
+                        <span style={{ fontSize: '10px', color: '#64748b' }}>{String((activeConversation as Record<string, unknown>).prof_category)}</span>
+                      )}
+                      {(activeConversation as Record<string, unknown>).prof_category && (activeConversation as Record<string, unknown>).prof_city && (
+                        <span style={{ fontSize: '10px', color: '#1C3050' }}>·</span>
+                      )}
+                      {(activeConversation as Record<string, unknown>).prof_city && (
+                        <span style={{ fontSize: '10px', color: '#64748b' }}>{String((activeConversation as Record<string, unknown>).prof_city)}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -263,10 +276,11 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
 
             {/* Lead banner */}
             {activeConversation.leadTitle && (
-              <div className="px-4 py-2 bg-emerald-500/[0.06] border-b border-emerald-500/10 flex items-center gap-2 z-10">
-                <span className="text-sm">📋</span>
-                <span className="text-xs text-emerald-400/80">Pedido:</span>
-                <span className="text-xs font-semibold text-white truncate">{activeConversation.leadTitle}</span>
+              <div style={{ padding: '8px 16px', background: '#0d1929', borderTop: '1px solid #1C3050', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 }}>
+                <span style={{ fontSize: '14px' }}>📋</span>
+                <span style={{ fontSize: '12px', color: '#64748b' }}>Pedido:</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#f1f5f9', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{activeConversation.leadTitle}</span>
+                <span style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '999px', padding: '2px 8px', fontSize: '10px', color: '#10b981', fontWeight: 700, flexShrink: 0 }}>Em andamento</span>
               </div>
             )}
 
