@@ -1,6 +1,7 @@
 // frontend/src/pages/Indicacao.tsx
 import { useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { toast } from 'sonner'
 import { Copy, Gift, Users, TrendingUp, CheckCircle, Clock, Award, QrCode, Trophy, Zap, Target, Share2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
@@ -67,6 +68,7 @@ function loadImg(src: string): Promise<HTMLImageElement> {
 }
 
 export default function Indicacao() {
+  const isMobile = useIsMobile()
   const user = useAuthStore((state) => state.user)
   const [copied, setCopied] = useState(false)
   const [showQr, setShowQr] = useState(false)
@@ -388,7 +390,7 @@ export default function Indicacao() {
       </div>
 
       {/* LINK + KPIs */}
-      <div style={{ display:'grid', gridTemplateColumns:'1.1fr 1fr', gap:'0.75rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1.1fr 1fr', gap:'0.75rem' }}>
         <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
           <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.625rem' }}>Seu link de indicação</p>
@@ -405,7 +407,7 @@ export default function Indicacao() {
           <button onClick={shareWhatsApp} style={{ width:'100%', height:40, background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.75rem', color:'white', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, boxShadow:'0 4px 16px rgba(16,185,129,.25)', marginBottom:'0.5rem' }}>
             Compartilhar no WhatsApp agora →
           </button>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.375rem' }}>
+          <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap:'0.375rem' }}>
             <button onClick={copyLink} style={{ height:32, background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#94a3b8', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
               <Copy size={13} />Copiar
             </button>
@@ -425,7 +427,7 @@ export default function Indicacao() {
         </div>
 
         <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.5rem' }}>
+          <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap:'0.5rem' }}>
             <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.75rem', padding:'0.625rem', textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'rgba(255,255,255,.1)' }} />
               <p style={{ fontSize:20, fontWeight:900, color:'white', lineHeight:1, marginBottom:'0.1875rem' }}>{referralData?.stats.total ?? 0}</p>
@@ -468,7 +470,7 @@ export default function Indicacao() {
       <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#a78bfa,#7c3aed)' }} />
         <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:'0.75rem' }}>Metas mensais — quanto você pode ganhar</p>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'0.5rem' }}>
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap:'0.5rem' }}>
           {TIERS.map(t => (
             <div key={t.name} style={{ background: t.bg, border:`1px solid ${t.border}`, borderRadius:'0.625rem', padding:'0.625rem' }}>
               <p style={{ fontSize:18, marginBottom:'0.25rem' }}>{t.emoji}</p>
@@ -516,7 +518,7 @@ export default function Indicacao() {
             <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:'0.25rem' }}>Seu indicado também ganha ao assinar</p>
             <p style={{ fontSize:12, color:'#4A6580' }}>Moedas de boas-vindas incluídas — até <span style={{ color:'#fbbf24', fontWeight:600 }}>200 moedas grátis</span> no Elite</p>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.375rem', minWidth:220 }}>
+          <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap:'0.375rem', minWidth: isMobile ? undefined : 220 }}>
             {[{p:'Starter',m:'30',c:'#60a5fa'},{p:'PRO',m:'80',c:'#34d399'},{p:'Elite',m:'200',c:'#fbbf24'}].map(pl => (
               <div key={pl.p} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', borderRadius:'0.625rem', padding:8, textAlign:'center' }}>
                 <p style={{ fontSize:11, color:'#4A6580', marginBottom:'0.1875rem' }}>{pl.p}</p>
@@ -553,7 +555,7 @@ export default function Indicacao() {
       )}
 
       {/* COMO FUNCIONA + FAQ */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:'0.75rem' }}>
         <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
           <p style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:14 }}>Como funciona</p>
