@@ -1,6 +1,6 @@
-import { useState, useEffect, type RefObject, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type RefObject, type FormEvent } from 'react';
 import {
-  Send, Paperclip, Smile, Mic, Image as ImageIcon,
+  Send, Paperclip, Smile, Mic, Camera,
   X, CalendarPlus,
 } from 'lucide-react';
 
@@ -48,6 +48,7 @@ export function MessageInput({
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!showAttachMenu) return;
@@ -251,17 +252,6 @@ export function MessageInput({
             <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '2px', zIndex: 1 }}>
               <button
                 type="button"
-                onClick={() => imageInputRef.current?.click()}
-                disabled={isUploading || !!pendingImageFile}
-                title="Enviar foto"
-                style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', borderRadius: '6px', transition: 'color .15s', opacity: (isUploading || !!pendingImageFile) ? 0.3 : 1 }}
-                onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.color = '#94a3b8'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
-              >
-                <ImageIcon size={16} />
-              </button>
-              <button
-                type="button"
                 onClick={e => { e.stopPropagation(); setShowAttachMenu(v => !v); }}
                 title="Anexar"
                 style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', borderRadius: '6px', transition: 'color .15s' }}
@@ -269,6 +259,17 @@ export function MessageInput({
                 onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
               >
                 <Paperclip size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={isUploading || !!pendingImageFile}
+                title="Câmera"
+                style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', borderRadius: '6px', transition: 'color .15s', opacity: (isUploading || !!pendingImageFile) ? 0.3 : 1 }}
+                onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.color = '#94a3b8'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
+              >
+                <Camera size={16} />
               </button>
             </div>
 
@@ -344,6 +345,21 @@ export function MessageInput({
         onChange={e => {
           const file = e.target.files?.[0];
           if (file) setPendingFile(file);
+          e.target.value = '';
+        }}
+      />
+      <input
+        type="file"
+        ref={cameraInputRef}
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setPendingImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+          }
           e.target.value = '';
         }}
       />

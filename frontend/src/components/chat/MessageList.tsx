@@ -1,6 +1,5 @@
 import { type RefObject } from 'react';
 import { Send, Loader2, Download, CheckCheck, Check } from 'lucide-react';
-import { cn } from '../../lib/utils';
 import type { Message } from '../../types/chat';
 
 interface MessageListProps {
@@ -14,6 +13,17 @@ interface MessageListProps {
 }
 
 const IMAGE_EXTENSIONS = /\.(jpg|jpeg|png|webp|gif)$/i;
+const AVATAR_COLORS = ['#1e40af', '#7e22ce', '#c2410c', '#0f766e'];
+
+function getAvatarInfo(name: string): { initials: string; color: string } {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const initials = parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+  let hash = 0;
+  for (const ch of name) hash = ch.charCodeAt(0) + ((hash << 5) - hash);
+  return { initials, color: AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] };
+}
 
 function isImageUrl(url: string): boolean {
   return url.startsWith('https') && (url.includes('/storage/') || url.includes('supabase'));
@@ -36,14 +46,14 @@ function renderMessageContent(msg: Message) {
         src={msg.body}
         alt="Foto"
         loading="lazy"
-        className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
+        style={{ maxWidth: '100%', borderRadius: '12px', maxHeight: '256px', objectFit: 'cover', cursor: 'pointer', display: 'block' }}
         onClick={() => window.open(msg.body, '_blank')}
       />
     );
   }
 
   if (att?.type === 'audio') {
-    return <audio controls src={msg.body} className="max-w-full min-w-[200px]" />;
+    return <audio controls src={msg.body} style={{ maxWidth: '100%', minWidth: '200px' }} />;
   }
 
   if (att?.type === 'file') {
@@ -53,7 +63,7 @@ function renderMessageContent(msg: Message) {
           src={msg.body}
           alt={att.fileName}
           loading="lazy"
-          className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
+          style={{ maxWidth: '100%', borderRadius: '12px', maxHeight: '256px', objectFit: 'cover', cursor: 'pointer', display: 'block' }}
           onClick={() => window.open(msg.body, '_blank')}
         />
       );
@@ -64,7 +74,7 @@ function renderMessageContent(msg: Message) {
         download={att.fileName}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-2 text-sm underline hover:no-underline"
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'inherit', textDecoration: 'underline' }}
       >
         <Download size={14} />
         {getFileName(msg.body)}
@@ -78,13 +88,23 @@ function renderMessageContent(msg: Message) {
         src={msg.body}
         alt="Foto"
         loading="lazy"
-        className="max-w-full rounded-xl max-h-64 object-cover cursor-pointer"
+        style={{ maxWidth: '100%', borderRadius: '12px', maxHeight: '256px', objectFit: 'cover', cursor: 'pointer', display: 'block' }}
         onClick={() => window.open(msg.body, '_blank')}
       />
     );
   }
 
-  return <span className="whitespace-pre-wrap">{msg.body}</span>;
+  return <span style={{ whiteSpace: 'pre-wrap' }}>{msg.body}</span>;
+}
+
+function formatDateLabel(dateStr: string): string {
+  const d = new Date(dateStr);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return 'Hoje';
+  if (d.toDateString() === yesterday.toDateString()) return 'Ontem';
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 export function MessageList({
@@ -96,84 +116,115 @@ export function MessageList({
   role,
   messagesEndRef,
 }: MessageListProps) {
+  // Group messages by calendar day
+  const grouped: { dateKey: string; label: string; msgs: Message[] }[] = [];
+  if (messages) {
+    for (const msg of messages) {
+      const key = new Date(msg.created_at).toDateString();
+      const last = grouped[grouped.length - 1];
+      if (!last || last.dateKey !== key) grouped.push({ dateKey: key, label: formatDateLabel(msg.created_at), msgs: [msg] });
+      else last.msgs.push(msg);
+    }
+  }
+
+  const { initials: otherInitials, color: otherColor } = getAvatarInfo(otherName);
+
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2 custom-scrollbar relative z-10">
+    <div style={{ flex: 1, overflowY: 'auto', background: '#070f1c', padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px', position: 'relative', zIndex: 10 }}>
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="animate-spin text-emerald-500" size={28} />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Loader2 className="animate-spin" size={28} style={{ color: '#10b981' }} />
         </div>
       ) : messages && messages.length > 0 ? (
-        messages.map((msg) => {
-          const isAi = msg.sender_type === 'ai';
-          const mine = !isAi && msg.sender_type === role;
-          const timestamp = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          return (
-            // Outer row: full-width, justify-end for sent / justify-start for received
-            <div
-              key={msg.id}
-              className={cn(
-                'w-full flex animate-in slide-in-from-bottom-2',
-                mine ? 'justify-end' : 'justify-start',
-              )}
-            >
-              {/* Inner bubble container: max-width + alignment */}
-              <div className={cn(
-                'max-w-[75%] flex flex-col group',
-                mine ? 'items-end' : 'items-start',
-              )}>
-                {isAi && (
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 ml-1">
-                    🤖 Assistente MeloCalé
-                  </span>
-                )}
-                <div className={cn(
-                  'px-3 pt-2 pb-1.5 rounded-2xl text-[13px] leading-relaxed relative shadow-md',
-                  mine
-                    ? 'bg-[#10b981] text-white rounded-tr-sm'
-                    : isAi
-                    ? 'bg-slate-700/80 text-slate-200 border border-slate-600/50 rounded-tl-sm italic'
-                    : 'bg-white/10 text-white border border-white/[0.06] rounded-tl-sm',
-                )}>
-                  {renderMessageContent(msg)}
-                  {/* Timestamp inside bubble, bottom-right */}
-                  <div className={cn(
-                    'flex items-center justify-end gap-1 mt-1',
-                    mine ? 'opacity-70' : 'opacity-50',
-                  )}>
-                    <span className="text-[10px]">{timestamp}</span>
-                    {mine && (
-                      msg.read_at
-                        ? <CheckCheck size={12} className="text-white" />
-                        : <Check size={12} className="text-white/80" />
-                    )}
-                  </div>
-                </div>
+        <>
+          {grouped.map(({ dateKey, label, msgs }) => (
+            <div key={dateKey}>
+              {/* Date separator */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '12px 0 8px' }}>
+                <div style={{ flex: 1, height: '1px', background: '#1C3050' }} />
+                <span style={{ fontSize: '10px', color: '#334155', fontWeight: 600, whiteSpace: 'nowrap', fontFamily: 'DM Sans, sans-serif' }}>
+                  {label}
+                </span>
+                <div style={{ flex: 1, height: '1px', background: '#1C3050' }} />
               </div>
+
+              {msgs.map(msg => {
+                const isAi = msg.sender_type === 'ai';
+                const mine = !isAi && msg.sender_type === role;
+                const timestamp = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                return (
+                  <div
+                    key={msg.id}
+                    style={{ width: '100%', display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start', marginBottom: '8px' }}
+                  >
+                    {/* Avatar for received messages */}
+                    {!mine && (
+                      <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: isAi ? '#475569' : otherColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, color: '#fff', flexShrink: 0, marginRight: '6px', alignSelf: 'flex-end' }}>
+                        {isAi ? '🤖' : otherInitials}
+                      </div>
+                    )}
+
+                    <div style={{ maxWidth: '75%', display: 'flex', flexDirection: 'column', alignItems: mine ? 'flex-end' : 'flex-start' }}>
+                      {isAi && (
+                        <span style={{ fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.08em', color: '#94a3b8', marginBottom: '4px', marginLeft: '4px' }}>
+                          Assistente MeloCalé
+                        </span>
+                      )}
+                      <div style={{
+                        padding: '8px 12px 6px', fontSize: '13px', lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                        ...(mine
+                          ? { background: '#10b981', color: '#fff', borderRadius: '18px 18px 4px 18px' }
+                          : isAi
+                          ? { background: 'rgba(71,85,105,0.5)', color: '#cbd5e1', border: '1px solid rgba(100,116,139,0.3)', borderRadius: '18px 18px 18px 4px', fontStyle: 'italic' }
+                          : { background: '#132236', color: '#e2e8f0', border: '1px solid #1C3050', borderRadius: '18px 18px 18px 4px' }
+                        ),
+                      }}>
+                        {renderMessageContent(msg)}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
+                          <span style={{ fontSize: '10px', fontFamily: 'DM Mono, monospace', color: mine ? 'rgba(255,255,255,0.6)' : '#334155' }}>{timestamp}</span>
+                          {mine && (
+                            msg.read_at
+                              ? <CheckCheck size={12} style={{ color: 'rgba(255,255,255,0.7)' }} />
+                              : <Check size={12} style={{ color: 'rgba(255,255,255,0.6)' }} />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })
+          ))}
+        </>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
-          <div className="w-16 h-16 bg-emerald-500/10 rounded-[1.5rem] flex items-center justify-center mb-4 text-emerald-500 border border-emerald-500/20 shadow-2xl">
-            <Send size={28} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '3rem' }}>
+          <div style={{ width: '64px', height: '64px', background: 'rgba(16,185,129,0.1)', borderRadius: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px', border: '1px solid rgba(16,185,129,0.2)' }}>
+            <Send size={28} style={{ color: '#10b981' }} />
           </div>
-          <h4 className="text-white font-bold text-base mb-2">Sem mensagens ainda</h4>
-          <p className="text-[#4A6580] font-medium text-sm max-w-[200px]">
+          <h4 style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '16px', margin: '0 0 8px', fontFamily: 'DM Sans, sans-serif' }}>Sem mensagens ainda</h4>
+          <p style={{ color: '#4A6580', fontSize: '14px', maxWidth: '200px', margin: 0, fontFamily: 'DM Sans, sans-serif' }}>
             Inicie uma conversa com o {otherLabel.toLowerCase()} para fechar o serviço.
           </p>
         </div>
       )}
 
+      {/* Typing indicator */}
       {isTyping && (
-        <div className="w-full flex justify-start animate-in slide-in-from-bottom-2 duration-300">
-          <div className="bg-white/10 border border-white/[0.06] text-slate-300 py-2.5 px-4 rounded-2xl rounded-tl-sm flex items-center gap-3 shadow-md">
-            <div className="flex gap-1 pt-0.5">
-              <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.3s]" />
-              <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
-              <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-bounce" />
+        <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#132236', border: '1px solid #1C3050', borderRadius: '18px 18px 18px 4px', padding: '10px 14px' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {['-0.3s', '-0.15s', '0s'].map((delay, i) => (
+                <div
+                  key={i}
+                  className="animate-bounce"
+                  style={{ width: '6px', height: '6px', background: 'rgba(16,185,129,0.6)', borderRadius: '50%', animationDelay: delay }}
+                />
+              ))}
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-tighter">
-              <span className="text-emerald-500">{otherName}</span> está digitando...
+            <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', margin: 0, fontFamily: 'DM Sans, sans-serif' }}>
+              <span style={{ color: '#10b981' }}>{otherName}</span>
+              <span style={{ color: '#475569' }}> está digitando...</span>
             </p>
           </div>
         </div>

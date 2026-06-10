@@ -1,5 +1,5 @@
-import { Search, Loader2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { useState } from 'react';
+import { Search, Loader2, Zap, ShieldCheck, Mic, Image as ImageIcon } from 'lucide-react';
 import type { ConversationWithProfiles } from '../../types/chat';
 
 interface ConversationListProps {
@@ -12,6 +12,18 @@ interface ConversationListProps {
   onlineUsers: string[];
   onSelectConversation: (id: string) => void;
   onViewProfessionalProfile: (userId: string, name: string, avatar: string | null | undefined) => void;
+}
+
+const AVATAR_COLORS = ['#1e40af', '#7e22ce', '#c2410c', '#0f766e'];
+
+function getAvatarInfo(name: string): { initials: string; color: string } {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const initials = parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+  let hash = 0;
+  for (const ch of name) hash = ch.charCodeAt(0) + ((hash << 5) - hash);
+  return { initials, color: AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] };
 }
 
 function getOtherName(conv: ConversationWithProfiles, role: 'professional' | 'client') {
@@ -39,15 +51,12 @@ function matchesSearch(conv: ConversationWithProfiles, role: 'professional' | 'c
   );
 }
 
-function getAvatarInfo(name: string): { initials: string; colorClass: string } {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const initials = parts.length >= 2
-    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-    : name.slice(0, 2).toUpperCase();
-  const palette = ['bg-blue-800', 'bg-purple-700', 'bg-orange-700', 'bg-teal-700'];
-  let hash = 0;
-  for (const ch of name) hash = ch.charCodeAt(0) + ((hash << 5) - hash);
-  return { initials, colorClass: palette[Math.abs(hash) % palette.length] };
+function getMessagePreview(msg: string | null | undefined): { icon: 'mic' | 'image' | null; text: string } {
+  if (!msg) return { icon: null, text: 'Sem mensagens ainda' };
+  const lower = msg.toLowerCase();
+  if (lower.includes('áudio') || lower.includes('audio')) return { icon: 'mic', text: msg };
+  if (lower.includes('foto') || lower.includes('imagem')) return { icon: 'image', text: msg };
+  return { icon: null, text: msg };
 }
 
 export function ConversationList({
@@ -61,6 +70,8 @@ export function ConversationList({
   onSelectConversation,
   onViewProfessionalProfile,
 }: ConversationListProps) {
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'active'>('all');
+
   const filtered = conversations
     ? conversations.filter(conv => {
         if (!searchQuery.trim()) return true;
@@ -68,124 +79,164 @@ export function ConversationList({
       })
     : [];
 
+  const totalUnread = conversations?.reduce((acc, conv) => acc + getUnreadCount(conv, role), 0) ?? 0;
+
+  const filters: { key: 'all' | 'unread' | 'active'; label: string }[] = [
+    { key: 'all', label: 'Todas' },
+    { key: 'unread', label: 'Não lidas' },
+    { key: 'active', label: 'Ativas' },
+  ];
+
   return (
-    <div className="flex w-[280px] border-r border-[#1C3050] flex-col shrink-0 bg-[#0E1C32]">
+    <div style={{ width: '290px', minWidth: '290px', background: '#0a1928', borderRight: '1px solid #1C3050', display: 'flex', flexDirection: 'column', height: '100%' }}>
+
       {/* Header */}
-      <div className="px-4 pt-5 pb-3 border-b border-[#1C3050] bg-[#0E1C32]">
-        <h2 className="text-xl font-bold text-white mb-3">Mensagens</h2>
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={15} />
+      <div style={{ padding: '18px 16px 12px', borderBottom: '1px solid #1C3050' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#f1f5f9', margin: 0, fontFamily: 'DM Sans, sans-serif' }}>Mensagens</h2>
+          {totalUnread > 0 && (
+            <span style={{ background: '#10b981', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: '999px', fontFamily: 'DM Mono, monospace' }}>
+              {totalUnread}
+            </span>
+          )}
+        </div>
+
+        {/* Search */}
+        <div style={{ position: 'relative' }}>
+          <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#334155' }} size={14} />
           <input
             type="text"
             placeholder="Buscar conversas..."
-            className="w-full bg-[#132236] border border-white/[0.06] rounded-full py-2 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all placeholder:text-white/30"
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={e => onSearchChange(e.target.value)}
+            style={{ width: '100%', boxSizing: 'border-box', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '10px', padding: '8px 10px 8px 34px', fontSize: '13px', color: '#f1f5f9', outline: 'none', fontFamily: 'DM Sans, sans-serif', transition: 'border-color .2s' }}
+            onFocus={e => { e.currentTarget.style.borderColor = 'rgba(16,185,129,0.35)'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = '#1C3050'; }}
           />
+        </div>
+
+        {/* Filter pills */}
+        <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>
+          {filters.map(({ key, label }) => {
+            const isActive = activeFilter === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveFilter(key)}
+                style={{
+                  padding: '3px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+                  background: isActive ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)',
+                  border: isActive ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                  color: isActive ? '#10b981' : '#475569',
+                  transition: 'all .2s',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      {/* Section label */}
+      <div style={{ padding: '8px 16px', fontSize: '10px', color: '#334155', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 700, fontFamily: 'DM Sans, sans-serif' }}>
+        Recentes
+      </div>
+
+      {/* List */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-full gap-3 opacity-50">
-            <Loader2 className="animate-spin text-emerald-500" size={20} />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#4A6580]">Carregando...</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '10px', opacity: 0.5 }}>
+            <Loader2 className="animate-spin" size={20} style={{ color: '#10b981' }} />
+            <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#4A6580', margin: 0 }}>Carregando...</p>
           </div>
         ) : filtered.length > 0 ? (
           filtered.map(conv => {
             const name = getOtherName(conv, role);
             const isOnline = onlineUsers.includes(getOtherUserId(conv, role) ?? '');
             const unread = getUnreadCount(conv, role);
-            const { initials, colorClass } = getAvatarInfo(name);
-            const isNewOrcamento =
-              role === 'professional' &&
-              conv.lead_id !== null &&
-              (conv.unread_for_prof ?? 0) > 0 &&
-              Date.now() - new Date(conv.created_at).getTime() < 48 * 60 * 60 * 1000;
+            const { initials, color } = getAvatarInfo(name);
+            const isSelected = activeConversationId === conv.id;
+            const isNewOrcamento = role === 'professional' && conv.lead_id !== null && (conv.unread_for_prof ?? 0) > 0 && Date.now() - new Date(conv.created_at).getTime() < 48 * 60 * 60 * 1000;
+            const preview = getMessagePreview(conv.last_message);
+
             return (
               <button
                 key={conv.id}
+                type="button"
                 onClick={() => onSelectConversation(conv.id)}
-                className={cn(
-                  'w-full px-4 py-3 flex items-start gap-3 transition-all border-b border-white/[0.03] relative',
-                  activeConversationId === conv.id ? 'bg-white/5' : 'hover:bg-white/[0.03]',
-                  isNewOrcamento && activeConversationId !== conv.id ? 'bg-emerald-500/[0.03]' : '',
-                )}
+                style={{
+                  width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'flex-start', gap: '10px',
+                  background: isSelected ? 'linear-gradient(90deg, #132236, #0d1929)' : 'transparent',
+                  borderLeft: `3px solid ${isSelected ? '#10b981' : 'transparent'}`,
+                  borderRight: 'none', borderTop: 'none', borderBottom: '1px solid rgba(255,255,255,0.03)',
+                  cursor: 'pointer', position: 'relative', transition: 'all .15s', textAlign: 'left', fontFamily: 'DM Sans, sans-serif',
+                }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
               >
                 {isNewOrcamento && (
-                  <div className="absolute top-2 right-2">
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-1.5 py-0.5 rounded-full">
-                      NOVO
-                    </span>
+                  <div style={{ position: 'absolute', top: '8px', right: '8px' }}>
+                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', padding: '1px 6px', borderRadius: '999px' }}>NOVO</span>
                   </div>
                 )}
 
-                {/* Avatar with initials */}
-                <div className="relative shrink-0">
-                  <div className={cn('w-11 h-11 rounded-full flex items-center justify-center text-[13px] font-bold text-white', colorClass)}>
+                {/* Avatar */}
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: '#fff' }}>
                     {initials}
                   </div>
-                  {/* Online indicator */}
-                  <div className={cn(
-                    'absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-[#0E1C32] rounded-full',
-                    isOnline ? 'bg-emerald-500' : 'bg-slate-600',
-                  )} />
-                  {/* Unread badge */}
+                  <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', borderRadius: '50%', background: isOnline ? '#10b981' : '#374151', border: '2px solid #0a1928' }} />
                   {unread > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 shadow-md shadow-emerald-500/30">
+                    <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#10b981', color: '#fff', fontSize: '9px', fontWeight: 800, minWidth: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '999px', padding: '0 3px' }}>
                       {unread}
                     </span>
                   )}
                 </div>
 
-                <div className="flex-1 text-left min-w-0">
-                  <div className="flex justify-between items-center mb-0.5 gap-2">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <h4 className="text-sm font-bold text-white truncate">{name}</h4>
+                {/* Content */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#f1f5f9', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</h4>
                       {role === 'client' && conv.prof_user_id && (
                         <span
                           role="button"
                           tabIndex={0}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), conv.prof_profile?.avatar_url);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), conv.prof_profile?.avatar_url);
-                            }
-                          }}
-                          className="text-[9px] font-bold text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 px-1.5 py-0.5 rounded-full transition-all shrink-0 cursor-pointer select-none"
+                          onClick={e => { e.stopPropagation(); onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), conv.prof_profile?.avatar_url); }}
+                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onViewProfessionalProfile(conv.prof_user_id!, getOtherName(conv, role), conv.prof_profile?.avatar_url); } }}
+                          style={{ fontSize: '9px', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '999px', padding: '1px 6px', flexShrink: 0, cursor: 'pointer', userSelect: 'none' }}
                         >
                           Ver perfil
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-[#4A6580] shrink-0">
+                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: '#334155', flexShrink: 0 }}>
                       {new Date(conv.last_message_at ?? conv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
+
                   {conv.leadTitle && (
-                    <p className="text-[11px] text-emerald-400/70 truncate mb-0.5">📋 {conv.leadTitle}</p>
+                    <p style={{ fontSize: '10px', color: '#10b981', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Zap size={9} style={{ flexShrink: 0 }} />
+                      {conv.leadTitle}
+                    </p>
                   )}
-                  <p className="text-xs text-[#4A6580] truncate">
-                    {conv.last_message ?? (conv.last_message_at ? '...' : 'Sem mensagens ainda')}
+
+                  <p style={{ fontSize: '12px', color: '#475569', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {preview.icon === 'mic' && <Mic size={11} color="#10b981" style={{ flexShrink: 0 }} />}
+                    {preview.icon === 'image' && <ImageIcon size={11} color="#60a5fa" style={{ flexShrink: 0 }} />}
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{preview.text}</span>
                   </p>
+
                   {isNewOrcamento && (
                     <span
                       role="button"
                       tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); onSelectConversation(conv.id); }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          onSelectConversation(conv.id);
-                        }
-                      }}
-                      className="mt-1.5 block w-full py-1 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded-lg transition-all text-center cursor-pointer select-none"
+                      onClick={e => { e.stopPropagation(); onSelectConversation(conv.id); }}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onSelectConversation(conv.id); } }}
+                      style={{ marginTop: '6px', display: 'block', padding: '4px 0', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', color: '#10b981', fontSize: '10px', fontWeight: 700, textAlign: 'center', cursor: 'pointer', userSelect: 'none', width: '100%' }}
                     >
                       Responder orçamento →
                     </span>
@@ -195,10 +246,21 @@ export function ConversationList({
             );
           })
         ) : (
-          <div className="p-8 text-center">
-            <p className="text-xs text-[#4A6580] font-bold uppercase tracking-widest">Nenhuma conversa</p>
+          <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: '#4A6580', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', margin: 0 }}>Nenhuma conversa</p>
           </div>
         )}
+      </div>
+
+      {/* Footer: security card */}
+      <div style={{ padding: '10px 12px 14px' }}>
+        <div style={{ background: '#132236', border: '1px solid #1C3050', borderRadius: '10px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ShieldCheck size={15} color="#10b981" style={{ flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#f1f5f9', lineHeight: 1.2, fontFamily: 'DM Sans, sans-serif' }}>Mensagens seguras</div>
+            <div style={{ fontSize: '10px', color: '#475569', fontFamily: 'DM Sans, sans-serif' }}>Criptografia SSL</div>
+          </div>
+        </div>
       </div>
     </div>
   );
