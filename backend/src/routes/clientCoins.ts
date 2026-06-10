@@ -89,4 +89,31 @@ router.post('/review-bonus', requireAuth, async (req: Request, res: Response) =>
   }
 })
 
+// POST /api/client-coins/first-order
+router.post('/first-order', requireAuth, async (req: Request, res: Response) => {
+  const userId = (req as AuthRequest).authUser!.id
+  try {
+    const { data: result } = await supabaseAdmin.rpc('credit_client_coins', {
+      p_user_id: userId,
+      p_amount: 100,
+      p_kind: 'first_order',
+      p_reference: `first_order_${userId}`,
+      p_metadata: {},
+    })
+    if (result?.error === 'already_credited') {
+      return res.json({ ok: true, already_credited: true })
+    }
+    void supabaseAdmin.from('notifications').insert({
+      user_id: userId,
+      title: '🎉 Primeiro pedido!',
+      body: 'Você ganhou 100 moedas por criar seu primeiro pedido!',
+      data: { type: 'first_order_bonus', coins: 100 },
+    })
+    return res.json({ ok: true, coins: 100 })
+  } catch (err) {
+    console.error('[client-coins] first-order error:', err)
+    return res.status(500).json({ error: 'internal_error' })
+  }
+})
+
 export default router

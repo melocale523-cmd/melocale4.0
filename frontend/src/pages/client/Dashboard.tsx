@@ -87,6 +87,11 @@ export default function ClientDashboard() {
       queryClient.invalidateQueries({ queryKey: ['clientRecentPedidos'] });
       setIsModalOpen(false);
       toast.success('Pedido criado com sucesso!');
+      // Creditar 100 moedas no primeiro pedido (idempotente no backend)
+      apiFetch('/api/client-coins/first-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).catch(() => {})
     },
     onError: (error: Error) => {
       toast.error(`Erro ao criar pedido: ${error.message}`);
