@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { type AddressValue, emptyAddress } from '../components/AddressForm';
+import { apiFetch } from '../lib/api';
 
 export function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -189,6 +190,12 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
             p_service_radius: 50,
           });
         }
+
+        apiFetch('/api/track/registration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: selectedRole, email: formData.email }),
+        }).catch(() => {});
 
         toast.success('Conta criada com sucesso! Verifique seu e-mail.');
         onClose();

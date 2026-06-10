@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
 import confetti from 'canvas-confetti';
+import { apiFetch } from '../../lib/api';
 
 export default function CompletarPerfil() {
   const { user, isAuthenticated, isLoading } = useAuthStore();
@@ -134,6 +135,12 @@ export default function CompletarPerfil() {
         if (Date.now() < end) requestAnimationFrame(frame);
       };
       frame();
+
+      apiFetch('/api/track/registration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role, email: user.email }),
+      }).catch(() => {});
 
       toast.success('🎉 Bem-vindo ao MeloCalé! Você ganhou 10 moedas de boas-vindas.');
       const dashboard = role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
