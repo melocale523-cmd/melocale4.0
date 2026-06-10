@@ -34,7 +34,7 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
         custom_data: data.customData ?? {},
       },
     ],
-    test_event_code: process.env.NODE_ENV !== 'production' ? 'TEST12345' : undefined,
+    test_event_code: process.env.NODE_ENV !== 'production' ? 'TEST8093' : undefined,
   };
 
   try {
