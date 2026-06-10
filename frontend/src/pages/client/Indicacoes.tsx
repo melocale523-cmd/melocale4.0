@@ -372,6 +372,89 @@ export default function ClientIndicacoes() {
           )}
         </div>
 
+        {/* ── Barra de progresso 3 cards ─────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+
+          {/* Card — Suas moedas */}
+          <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Coins size={15} color="#10b981" />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#10b981' }}>Suas moedas</span>
+            </div>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
+              {coinsData?.balance ?? 0}
+            </div>
+            <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
+              = R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')} · mín. 1.000 p/ sacar
+            </div>
+            <div style={{ marginTop: '10px', background: '#1C3050', borderRadius: '100px', height: '6px' }}>
+              <div style={{ background: '#10b981', borderRadius: '100px', height: '6px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
+              {Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas para o saque
+            </div>
+            {(() => {
+              const hasEnough = (coinsData?.balance ?? 0) >= 1000
+              return (
+                <button
+                  onClick={() => setShowWithdrawModal(true)}
+                  style={{
+                    marginTop: '12px', width: '100%',
+                    background: hasEnough ? '#10b981' : '#1C3050',
+                    color: hasEnough ? '#fff' : '#64748b',
+                    border: hasEnough ? 'none' : '1px solid #243F6A',
+                    borderRadius: '8px', padding: '8px 0', fontSize: '13px',
+                    fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  {hasEnough ? '💸 Sacar via Pix' : '💸 Sacar via Pix · faltam ' + Math.max(1000 - (coinsData?.balance ?? 0), 0) + ' moedas'}
+                </button>
+              )
+            })()}
+          </div>
+
+          {/* Card — Missão do mês */}
+          <div style={{ ...cardBase, borderTop: '3px solid #7c3aed' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <Target size={15} color="#a78bfa" />
+              <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Missão do mês</span>
+              <span style={{ marginLeft: 'auto', fontFamily: 'DM Mono, monospace', fontSize: '11px', color: '#a78bfa' }}>
+                {monthlyStats?.total_this_month ?? 0}/{monthlyStats?.goal ?? 5}
+              </span>
+            </div>
+            <div style={{ background: '#1C3050', borderRadius: '100px', height: '6px', marginBottom: '8px' }}>
+              <div style={{ background: monthlyStats?.bonus_credited ? '#10b981' : '#7c3aed', borderRadius: '100px', height: '6px', width: `${Math.min(((monthlyStats?.total_this_month ?? 0) / (monthlyStats?.goal ?? 5)) * 100, 100)}%`, transition: 'width .5s' }} />
+            </div>
+            {monthlyStats?.bonus_credited ? (
+              <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 700 }}>✅ Bônus de {monthlyStats.bonus_coins} moedas creditado!</div>
+            ) : (
+              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                Indique {Math.max((monthlyStats?.goal ?? 5) - (monthlyStats?.total_this_month ?? 0), 0)} pessoas esse mês e ganhe{' '}
+                <span style={{ color: '#a78bfa', fontWeight: 700 }}>{monthlyStats?.bonus_coins ?? 500} moedas bônus</span>
+              </div>
+            )}
+          </div>
+
+          {/* Card — Seu indicado também ganha */}
+          <div style={{ ...cardBase, borderTop: '3px solid #f59e0b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <Star size={15} color="#f59e0b" />
+              <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Seu indicado também ganha</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#0d1929', borderRadius: '8px', border: '1px solid #1C3050' }}>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>20</div>
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: t.text }}>moedas de boas-vindas</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>ao se cadastrar pelo seu link</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '8px', textAlign: 'center' }}>
+              = R$0,20 de crédito para usar na plataforma
+            </div>
+          </div>
+
+        </div>
+
         {/* ── 2-column grid ───────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '1.5rem', alignItems: 'start' }}>
 
@@ -731,88 +814,6 @@ export default function ClientIndicacoes() {
           {/* ══ END RIGHT COLUMN ════════════════════════════════════ */}
         </div>
 
-        {/* ── Barra de progresso 3 cards ─────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '1.5rem' }}>
-
-          {/* Card — Suas moedas */}
-          <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Coins size={15} color="#10b981" />
-              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#10b981' }}>Suas moedas</span>
-            </div>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
-              {coinsData?.balance ?? 0}
-            </div>
-            <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
-              = R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')} · mín. 1.000 p/ sacar
-            </div>
-            <div style={{ marginTop: '10px', background: '#1C3050', borderRadius: '100px', height: '6px' }}>
-              <div style={{ background: '#10b981', borderRadius: '100px', height: '6px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
-            </div>
-            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
-              {Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas para o saque
-            </div>
-            {(() => {
-              const hasEnough = (coinsData?.balance ?? 0) >= 1000
-              return (
-                <button
-                  onClick={() => setShowWithdrawModal(true)}
-                  style={{
-                    marginTop: '12px', width: '100%',
-                    background: hasEnough ? '#10b981' : '#1C3050',
-                    color: hasEnough ? '#fff' : '#64748b',
-                    border: hasEnough ? 'none' : '1px solid #243F6A',
-                    borderRadius: '8px', padding: '8px 0', fontSize: '13px',
-                    fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
-                  }}
-                >
-                  {hasEnough ? '💸 Sacar via Pix' : '💸 Sacar via Pix · faltam ' + Math.max(1000 - (coinsData?.balance ?? 0), 0) + ' moedas'}
-                </button>
-              )
-            })()}
-          </div>
-
-          {/* Card — Missão do mês */}
-          <div style={{ ...cardBase, borderTop: '3px solid #7c3aed' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <Target size={15} color="#a78bfa" />
-              <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Missão do mês</span>
-              <span style={{ marginLeft: 'auto', fontFamily: 'DM Mono, monospace', fontSize: '11px', color: '#a78bfa' }}>
-                {monthlyStats?.total_this_month ?? 0}/{monthlyStats?.goal ?? 5}
-              </span>
-            </div>
-            <div style={{ background: '#1C3050', borderRadius: '100px', height: '6px', marginBottom: '8px' }}>
-              <div style={{ background: monthlyStats?.bonus_credited ? '#10b981' : '#7c3aed', borderRadius: '100px', height: '6px', width: `${Math.min(((monthlyStats?.total_this_month ?? 0) / (monthlyStats?.goal ?? 5)) * 100, 100)}%`, transition: 'width .5s' }} />
-            </div>
-            {monthlyStats?.bonus_credited ? (
-              <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 700 }}>✅ Bônus de {monthlyStats.bonus_coins} moedas creditado!</div>
-            ) : (
-              <div style={{ fontSize: '12px', color: '#64748b' }}>
-                Indique {Math.max((monthlyStats?.goal ?? 5) - (monthlyStats?.total_this_month ?? 0), 0)} pessoas esse mês e ganhe{' '}
-                <span style={{ color: '#a78bfa', fontWeight: 700 }}>{monthlyStats?.bonus_coins ?? 500} moedas bônus</span>
-              </div>
-            )}
-          </div>
-
-          {/* Card — Seu indicado também ganha */}
-          <div style={{ ...cardBase, borderTop: '3px solid #f59e0b' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <Star size={15} color="#f59e0b" />
-              <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Seu indicado também ganha</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#0d1929', borderRadius: '8px', border: '1px solid #1C3050' }}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>20</div>
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: t.text }}>moedas de boas-vindas</div>
-                <div style={{ fontSize: '11px', color: '#64748b' }}>ao se cadastrar pelo seu link</div>
-              </div>
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '8px', textAlign: 'center' }}>
-              = R$0,20 de crédito para usar na plataforma
-            </div>
-          </div>
-
-        </div>
 
       </div>
 
