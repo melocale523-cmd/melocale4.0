@@ -136,6 +136,19 @@ export default function ClientIndicacoes() {
     staleTime: 60 * 1000,
   })
 
+  const { data: coinHistory = [] } = useQuery<{
+    id: string; amount: number; kind: string; balance_after: number; created_at: string
+  }[]>({
+    queryKey: ['clientCoinHistory'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/client-coins/transactions')
+      if (!res.ok) return []
+      return res.json()
+    },
+    enabled: authReady,
+    staleTime: 30 * 1000,
+  })
+
   const { data: coinsData } = useQuery({
     queryKey: ['clientCoins'],
     queryFn: async () => {
@@ -323,6 +336,21 @@ export default function ClientIndicacoes() {
       setGeneratingStories(false)
     }
   }, [referralData, generatingStories, rewardLabel, rewardDesc])
+
+  function kindLabel(kind: string): { icon: string; label: string } {
+    const map: Record<string, { icon: string; label: string }> = {
+      referral_signup:  { icon: '🔗', label: 'Cadastro via indicação' },
+      referral_order:   { icon: '🛒', label: 'Pedido de indicado' },
+      first_order:      { icon: '🎉', label: 'Primeiro pedido' },
+      profile_complete: { icon: '📋', label: 'Perfil completo' },
+      review:           { icon: '⭐', label: 'Avaliação enviada' },
+      mission:          { icon: '🏆', label: 'Missão do mês' },
+      withdrawal:       { icon: '💸', label: 'Saque via Pix' },
+      withdrawal_refund:{ icon: '↩️', label: 'Estorno de saque' },
+      test:             { icon: '🧪', label: 'Teste' },
+    }
+    return map[kind] ?? { icon: '🪙', label: kind }
+  }
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh', padding: '1.5rem', fontFamily: 'DM Sans, sans-serif' }}>
@@ -673,6 +701,61 @@ export default function ClientIndicacoes() {
                 ))}
               </div>
             </div>
+
+          {/* Card — Como ganhar moedas */}
+          <div style={cardBase}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+              <Coins size={17} color={t.accent} />
+              <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Como ganhar moedas</span>
+            </div>
+            {[
+              { icon: '🎉', label: 'Primeiro pedido', coins: 100 },
+              { icon: '📋', label: 'Completar perfil', coins: 50 },
+              { icon: '⭐', label: 'Avaliar profissional', coins: 30 },
+              { icon: '🔗', label: 'Se cadastrar via indicação', coins: 20 },
+              { icon: '💰', label: 'Indicar amigo (ele faz pedido)', coins: 200 },
+            ].map(({ icon, label, coins }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: `1px solid ${t.border}` }}>
+                <span style={{ fontSize: '18px', width: '24px', textAlign: 'center' }}>{icon}</span>
+                <span style={{ flex: 1, fontSize: '13px', color: t.text }}>{label}</span>
+                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', color: t.accent, fontWeight: 700 }}>+{coins}</span>
+              </div>
+            ))}
+            <div style={{ marginTop: '10px', fontSize: '11px', color: t.muted, textAlign: 'center' }}>
+              100 moedas = R$1,00 · mínimo 1.000 para sacar
+            </div>
+          </div>
+
+          {/* Card — Histórico de moedas */}
+          {coinHistory.length > 0 && (
+            <div style={cardBase}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                <BarChart2 size={17} color={t.accent} />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Histórico de moedas</span>
+                <span style={{ marginLeft: 'auto', background: t.border, color: t.muted, fontSize: '11px', padding: '2px 8px', borderRadius: '999px', fontFamily: 'DM Mono, monospace' }}>
+                  {coinHistory.length}
+                </span>
+              </div>
+              {coinHistory.slice(0, 10).map((tx, i) => {
+                const { icon, label } = kindLabel(tx.kind)
+                const isCredit = tx.amount > 0
+                return (
+                  <div key={tx.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: i < coinHistory.slice(0, 10).length - 1 ? `1px solid ${t.border}` : 'none' }}>
+                    <span style={{ fontSize: '16px', width: '24px', textAlign: 'center' }}>{icon}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '13px', color: t.text, fontWeight: 500 }}>{label}</div>
+                      <div style={{ fontSize: '10px', color: t.muted }}>
+                        {new Date(tx.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '13px', fontWeight: 700, color: isCredit ? t.accent : '#f87171' }}>
+                      {isCredit ? '+' : ''}{tx.amount}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
           {ranking.length > 0 && (
             <div style={cardBase}>
