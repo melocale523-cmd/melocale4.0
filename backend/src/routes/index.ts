@@ -8,6 +8,8 @@ import chatRouter from "./chat.js";
 import supportRouter from "./support.js";
 import adminRouter from "./admin.js";
 import referralsRouter from "./referrals.js";
+import clientCoinsRouter from "./clientCoins.js";
+import walletRouter from "./wallet.js";
 import trackRouter from "./track.js";
 import { PLANS } from "../config.js";
 
@@ -53,5 +55,7 @@ export function registerRoutes(app: Application) {
   app.use("/api", supportRouter);
   app.use("/api/admin", adminRouter);
   app.use("/api/referrals", referralsRouter);
+  app.use("/api/client-coins", clientCoinsRouter);
+  app.use("/api/wallet", walletRouter);
   app.use("/api", trackRouter);
 }

@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   Link2, Copy, MessageCircle, QrCode, Share2,
-  BarChart2, Info, Users, Gift, Loader2, Zap,
+  BarChart2, Info, Users, Gift, Loader2, Zap, Trophy, Coins, Target, Star, X,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuthStore } from '../../store/authStore'
@@ -126,6 +126,37 @@ export default function ClientIndicacoes() {
     enabled: authReady,
   })
 
+  const { data: ranking = [] } = useQuery<{ user_id: string; full_name: string; avatar_url: string | null; total_earned: number; position: number }[]>({
+    queryKey: ['clientCoinsRanking'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/client-coins/ranking')
+      if (!res.ok) return []
+      return res.json()
+    },
+    staleTime: 60 * 1000,
+  })
+
+  const { data: coinsData } = useQuery({
+    queryKey: ['clientCoins'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/client-coins/balance')
+      if (!res.ok) return { balance: 0, total_earned: 0 }
+      return res.json()
+    },
+    enabled: authReady,
+  })
+
+  const { data: monthlyStats } = useQuery({
+    queryKey: ['referral-monthly-stats'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/referrals/monthly-stats')
+      if (!res.ok) return { total_this_month: 0, goal: 5, bonus_credited: false, bonus_coins: 500 }
+      return res.json()
+    },
+    enabled: authReady,
+    staleTime: 60 * 1000,
+  })
+
   const { data: bonusConfig } = useQuery<BonusConfig>({
     queryKey: ['referral-config'],
     queryFn: async () => {
@@ -134,6 +165,33 @@ export default function ClientIndicacoes() {
       return res.json()
     },
     staleTime: 60 * 1000,
+  })
+
+  const queryClient = useQueryClient()
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false)
+  const [pixKey, setPixKey] = useState('')
+  const [pixKeyType, setPixKeyType] = useState('CPF')
+
+  const withdrawMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiFetch('/api/wallet/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pix_key: pixKey, pix_key_type: pixKeyType }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error === 'insufficient_balance' ? 'Saldo insuficiente. Mínimo: 1.000 moedas (R$10).' : err.error ?? 'Erro ao processar saque.')
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      toast.success('Pix enviado! Em instantes cai na sua conta. 🎉')
+      setShowWithdrawModal(false)
+      setPixKey('')
+      queryClient.invalidateQueries({ queryKey: ['clientCoins'] })
+    },
+    onError: (err: Error) => toast.error(err.message),
   })
 
   const isEffectivelyLoading = isAuthLoading || loadingCode
@@ -268,7 +326,7 @@ export default function ClientIndicacoes() {
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh', padding: '1.5rem', fontFamily: 'DM Sans, sans-serif' }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
         {/* ── Header ──────────────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -314,8 +372,91 @@ export default function ClientIndicacoes() {
           )}
         </div>
 
+        {/* ── Barra de progresso 3 cards ─────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+
+          {/* Card — Suas moedas */}
+          <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Coins size={15} color="#10b981" />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#10b981' }}>Suas moedas</span>
+            </div>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
+              {coinsData?.balance ?? 0}
+            </div>
+            <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
+              = R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')} · mín. 1.000 p/ sacar
+            </div>
+            <div style={{ marginTop: '10px', background: '#1C3050', borderRadius: '100px', height: '6px' }}>
+              <div style={{ background: '#10b981', borderRadius: '100px', height: '6px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
+              {Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas para o saque
+            </div>
+            {(() => {
+              const hasEnough = (coinsData?.balance ?? 0) >= 1000
+              return (
+                <button
+                  onClick={() => setShowWithdrawModal(true)}
+                  style={{
+                    marginTop: '12px', width: '100%',
+                    background: hasEnough ? '#10b981' : '#1C3050',
+                    color: hasEnough ? '#fff' : '#64748b',
+                    border: hasEnough ? 'none' : '1px solid #243F6A',
+                    borderRadius: '8px', padding: '8px 0', fontSize: '13px',
+                    fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  {hasEnough ? '💸 Sacar via Pix' : '💸 Sacar via Pix · faltam ' + Math.max(1000 - (coinsData?.balance ?? 0), 0) + ' moedas'}
+                </button>
+              )
+            })()}
+          </div>
+
+          {/* Card — Missão do mês */}
+          <div style={{ ...cardBase, borderTop: '3px solid #7c3aed' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <Target size={15} color="#a78bfa" />
+              <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Missão do mês</span>
+              <span style={{ marginLeft: 'auto', fontFamily: 'DM Mono, monospace', fontSize: '11px', color: '#a78bfa' }}>
+                {monthlyStats?.total_this_month ?? 0}/{monthlyStats?.goal ?? 5}
+              </span>
+            </div>
+            <div style={{ background: '#1C3050', borderRadius: '100px', height: '6px', marginBottom: '8px' }}>
+              <div style={{ background: monthlyStats?.bonus_credited ? '#10b981' : '#7c3aed', borderRadius: '100px', height: '6px', width: `${Math.min(((monthlyStats?.total_this_month ?? 0) / (monthlyStats?.goal ?? 5)) * 100, 100)}%`, transition: 'width .5s' }} />
+            </div>
+            {monthlyStats?.bonus_credited ? (
+              <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 700 }}>✅ Bônus de {monthlyStats.bonus_coins} moedas creditado!</div>
+            ) : (
+              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                Indique {Math.max((monthlyStats?.goal ?? 5) - (monthlyStats?.total_this_month ?? 0), 0)} pessoas esse mês e ganhe{' '}
+                <span style={{ color: '#a78bfa', fontWeight: 700 }}>{monthlyStats?.bonus_coins ?? 500} moedas bônus</span>
+              </div>
+            )}
+          </div>
+
+          {/* Card — Seu indicado também ganha */}
+          <div style={{ ...cardBase, borderTop: '3px solid #f59e0b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <Star size={15} color="#f59e0b" />
+              <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Seu indicado também ganha</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#0d1929', borderRadius: '8px', border: '1px solid #1C3050' }}>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>20</div>
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: t.text }}>moedas de boas-vindas</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>ao se cadastrar pelo seu link</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '8px', textAlign: 'center' }}>
+              = R$0,20 de crédito para usar na plataforma
+            </div>
+          </div>
+
+        </div>
+
         {/* ── 2-column grid ───────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '1.5rem', alignItems: 'start' }}>
 
           {/* ══ LEFT COLUMN ════════════════════════════════════════ */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
@@ -532,6 +673,29 @@ export default function ClientIndicacoes() {
                 ))}
               </div>
             </div>
+
+          {ranking.length > 0 && (
+            <div style={cardBase}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                <Trophy size={17} color="#f59e0b" />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Top indicadores do mês</span>
+              </div>
+              {ranking.slice(0, 5).map((r, i) => {
+                const medals = ['🥇', '🥈', '🥉']
+                const { initials, colorClass } = getAvatarInfo(r.full_name || 'U')
+                return (
+                  <div key={r.user_id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: i < 4 ? `1px solid ${t.border}` : 'none' }}>
+                    <span style={{ fontSize: '16px', width: '24px', textAlign: 'center' }}>{medals[i] ?? `${i + 1}º`}</span>
+                    <div className={`${colorClass} w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0`}>
+                      {initials}
+                    </div>
+                    <span style={{ flex: 1, fontSize: '13px', color: t.text, fontWeight: 500 }}>{r.full_name || 'Usuário'}</span>
+                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', color: t.accent, fontWeight: 700 }}>{r.total_earned} pts</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
           </div>
 
           {/* ══ RIGHT COLUMN ══════════════════════════════════════ */}
@@ -645,11 +809,99 @@ export default function ClientIndicacoes() {
               </div>
             </div>
 
+
           </div>
           {/* ══ END RIGHT COLUMN ════════════════════════════════════ */}
         </div>
 
+
       </div>
+
+      {showWithdrawModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#132236', border: '1px solid #1C3050', borderRadius: '1rem', padding: '1.5rem', width: '100%', maxWidth: '420px', fontFamily: 'DM Sans, sans-serif' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>💸 Sacar via Pix</span>
+              <button onClick={() => setShowWithdrawModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+                <X size={20} />
+              </button>
+            </div>
+            {(coinsData?.balance ?? 0) >= 1000 ? (
+              <>
+                <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '8px', padding: '12px', marginBottom: '1rem', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
+                    R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#4ade80' }}>{coinsData?.balance ?? 0} moedas disponíveis</div>
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Tipo de chave Pix</label>
+                  <select
+                    value={pixKeyType}
+                    onChange={e => setPixKeyType(e.target.value)}
+                    style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Sans, sans-serif' }}
+                  >
+                    <option value="CPF">CPF</option>
+                    <option value="EMAIL">E-mail</option>
+                    <option value="PHONE">Telefone</option>
+                    <option value="EVP">Chave aleatória</option>
+                    <option value="CNPJ">CNPJ</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Chave Pix</label>
+                  <input
+                    type="text"
+                    value={pixKey}
+                    onChange={e => setPixKey(e.target.value)}
+                    placeholder={pixKeyType === 'CPF' ? '000.000.000-00' : pixKeyType === 'EMAIL' ? 'seu@email.com' : pixKeyType === 'PHONE' ? '+5500000000000' : 'sua chave Pix'}
+                    style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '1rem', padding: '8px', background: '#0d1929', borderRadius: '6px' }}>
+                  ⚠️ O Pix será enviado instantaneamente. Verifique a chave antes de confirmar.
+                </div>
+                <button
+                  onClick={() => withdrawMutation.mutate()}
+                  disabled={!pixKey || withdrawMutation.isPending}
+                  style={{
+                    width: '100%', background: withdrawMutation.isPending ? '#065f46' : '#10b981',
+                    color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 0',
+                    fontSize: '14px', fontWeight: 700, cursor: pixKey ? 'pointer' : 'not-allowed',
+                    opacity: pixKey ? 1 : 0.5, fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  {withdrawMutation.isPending ? 'Processando...' : 'Confirmar saque'}
+                </button>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🪙</div>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.75rem', fontWeight: 700, color: '#f59e0b', marginBottom: '4px' }}>
+                  {coinsData?.balance ?? 0}/1000
+                </div>
+                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+                  Você precisa de <span style={{ color: '#10b981', fontWeight: 700 }}>1.000 moedas</span> para sacar.<br/>
+                  Faltam <span style={{ color: '#f59e0b', fontWeight: 700 }}>{Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas</span>.
+                </div>
+                <div style={{ background: '#1C3050', borderRadius: '100px', height: '8px', marginBottom: '16px' }}>
+                  <div style={{ background: '#f59e0b', borderRadius: '100px', height: '8px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
+                </div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px', background: '#0d1929', borderRadius: '8px', padding: '12px' }}>
+                  💡 Indique amigos e ganhe <span style={{ color: '#10b981', fontWeight: 700 }}>R$2 por indicação</span>.<br/>
+                  Com 5 indicações você já pode sacar!
+                </div>
+                <button
+                  onClick={() => setShowWithdrawModal(false)}
+                  style={{ width: '100%', background: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 0', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  Entendi, vou indicar amigos!
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

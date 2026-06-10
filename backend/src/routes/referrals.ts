@@ -230,6 +230,15 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
     // Level-2 cascade: credit 20 coins to the person who originally referred newUserId's referrer
     void supabaseAdmin.rpc('credit_cascade_referral', { p_level1_user_id: newUserId })
 
+    // Creditar 20 moedas ao novo usuário por se cadastrar via indicação
+    void supabaseAdmin.rpc('credit_client_coins', {
+      p_user_id: newUserId,
+      p_amount: 20,
+      p_kind: 'referral_signup',
+      p_reference: `referral_signup_${newUserId}`,
+      p_metadata: { referrer_code: code },
+    })
+
     return res.json({ success: true, referral_id: referral.id })
   } catch (err) {
     console.error('[referrals] register error:', err)
