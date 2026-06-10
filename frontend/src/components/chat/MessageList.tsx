@@ -39,7 +39,7 @@ function getFileName(url: string): string {
 
 const AVATAR_SENT_COLOR = 'linear-gradient(135deg,#1e40af,#3b82f6)'
 
-function AudioPlayer({ src, isMine, otherInitials, otherColor }: { src: string; isMine: boolean; otherInitials: string; otherColor: string }) {
+function AudioPlayer({ src, isMine, otherInitials, otherColor, timestamp }: { src: string; isMine: boolean; otherInitials: string; otherColor: string; timestamp: string }) {
   const audioRef = React.useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = React.useState(false)
   const [progress, setProgress] = React.useState(0)
@@ -61,7 +61,7 @@ function AudioPlayer({ src, isMine, otherInitials, otherColor }: { src: string; 
   const BARS = [4,8,14,20,10,18,6,16,24,11,19,13,22,7,17,12,21,5,15,23,9,20,13,18,5,22,11,16,8,14,4,9,15,21,10,19,6,17,25,12,20,14,22,7,18,13,21,9,16,11]
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
       <audio ref={audioRef} src={src}
         onLoadedMetadata={e => setDuration((e.target as HTMLAudioElement).duration)}
         onTimeUpdate={e => { const a = e.target as HTMLAudioElement; setCurrentTime(a.currentTime); setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0) }}
@@ -71,7 +71,7 @@ function AudioPlayer({ src, isMine, otherInitials, otherColor }: { src: string; 
       {/* Avatar esquerda (enviado) */}
       {isMine && (
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: AVATAR_SENT_COLOR, border: '2px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: '#fff' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: AVATAR_SENT_COLOR, border: '2px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: '#fff' }}>
             Eu
           </div>
           <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '16px', height: '16px', borderRadius: '50%', background: '#25d366', border: '2px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px' }}>🎤</div>
@@ -79,7 +79,7 @@ function AudioPlayer({ src, isMine, otherInitials, otherColor }: { src: string; 
       )}
 
       {/* Play/Pause */}
-      <button type="button" onClick={toggle} style={{ width: '38px', height: '38px', borderRadius: '50%', background: isMine ? 'rgba(255,255,255,0.22)' : 'rgba(16,185,129,0.2)', border: isMine ? 'none' : '1px solid rgba(16,185,129,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+      <button type="button" onClick={toggle} style={{ width: '34px', height: '34px', borderRadius: '50%', background: isMine ? 'rgba(255,255,255,0.22)' : 'rgba(16,185,129,0.2)', border: isMine ? 'none' : '1px solid rgba(16,185,129,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
         {playing
           ? <svg width="11" height="13" viewBox="0 0 11 13"><rect x="0" y="0" width="3.5" height="13" rx="1.5" fill={isMine ? 'rgba(255,255,255,0.95)' : '#10b981'}/><rect x="7.5" y="0" width="3.5" height="13" rx="1.5" fill={isMine ? 'rgba(255,255,255,0.95)' : '#10b981'}/></svg>
           : <svg width="12" height="14" viewBox="0 0 12 14"><polygon points="0,0 12,7 0,14" fill={isMine ? 'rgba(255,255,255,0.95)' : '#10b981'}/></svg>
@@ -90,27 +90,28 @@ function AudioPlayer({ src, isMine, otherInitials, otherColor }: { src: string; 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isMine ? 'rgba(255,255,255,0.9)' : '#10b981', flexShrink: 0 }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '26px', cursor: 'pointer', flex: 1, overflow: 'hidden' }}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '20px', cursor: 'pointer', flex: 1, overflow: 'hidden' }}
             onClick={e => { const rect = e.currentTarget.getBoundingClientRect(); const pct = (e.clientX - rect.left) / rect.width; if (audioRef.current) { audioRef.current.currentTime = pct * audioRef.current.duration; setProgress(pct * 100) } }}>
             {BARS.map((h, i) => (
               <span key={i} style={{ display: 'inline-block', width: '2px', borderRadius: '2px', flexShrink: 0, height: `${h}px`, background: progress > (i / BARS.length) * 100 ? (isMine ? '#fff' : '#10b981') : (isMine ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.2)'), transition: 'background .08s' }} />
             ))}
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: isMine ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.4)' }}>
             {playing || currentTime > 0 ? formatTime(currentTime) : formatTime(duration)}
           </span>
-          {isMine && (
-            <svg width="16" height="11" viewBox="0 0 16 11"><path d="M1 5.5l3 3L9 2" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 5.5l3 3L15 2" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: isMine ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.35)' }}>{timestamp}</span>
+            {isMine && <svg width="16" height="11" viewBox="0 0 16 11"><path d="M1 5.5l3 3L9 2" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 5.5l3 3L15 2" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+          </div>
         </div>
       </div>
 
       {/* Avatar direita (recebido) */}
       {!isMine && (
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: otherColor, border: '2px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: '#fff' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: otherColor, border: '2px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: '#fff' }}>
             {otherInitials}
           </div>
           <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '16px', height: '16px', borderRadius: '50%', background: '#475569', border: '2px solid #132236', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px' }}>🎤</div>
@@ -120,7 +121,7 @@ function AudioPlayer({ src, isMine, otherInitials, otherColor }: { src: string; 
   )
 }
 
-function renderMessageContent(msg: Message, mine: boolean, otherInitials: string, otherColor: string) {
+function renderMessageContent(msg: Message, mine: boolean, otherInitials: string, otherColor: string, timestamp: string) {
   const att = Array.isArray(msg.attachments) ? msg.attachments[0] : msg.attachments;
 
   if (att?.type === 'image') {
@@ -136,7 +137,7 @@ function renderMessageContent(msg: Message, mine: boolean, otherInitials: string
   }
 
   if (att?.type === 'audio') {
-    return <AudioPlayer src={msg.body} isMine={mine} otherInitials={otherInitials} otherColor={otherColor} />;
+    return <AudioPlayer src={msg.body} isMine={mine} otherInitials={otherInitials} otherColor={otherColor} timestamp={timestamp} />;
   }
 
   if (att?.type === 'file') {
@@ -235,6 +236,7 @@ export function MessageList({
                 const isAi = msg.sender_type === 'ai';
                 const mine = !isAi && msg.sender_type === role;
                 const timestamp = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const isAudio = (Array.isArray(msg.attachments) ? msg.attachments[0] : (msg.attachments as {type?:string}))?.type === 'audio';
 
                 return (
                   <div
@@ -262,11 +264,12 @@ export function MessageList({
                           ? { background: 'rgba(71,85,105,0.5)', color: '#cbd5e1', border: '1px solid rgba(100,116,139,0.3)', borderRadius: '18px 18px 18px 4px', fontStyle: 'italic' }
                           : { background: '#132236', color: '#e2e8f0', border: '1px solid #1C3050', borderRadius: '18px 18px 18px 4px' }
                         ),
+                        ...(isAudio && { padding: '5px 8px' }),
                       }}>
-                        {renderMessageContent(msg, mine, otherInitials, otherColor)}
+                        {renderMessageContent(msg, mine, otherInitials, otherColor, timestamp)}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
-                          <span style={{ fontSize: '10px', fontFamily: 'DM Mono, monospace', color: mine ? 'rgba(255,255,255,0.6)' : '#334155' }}>{timestamp}</span>
-                          {mine && (
+                          {!isAudio && <span style={{ fontSize: '10px', fontFamily: 'DM Mono, monospace', color: mine ? 'rgba(255,255,255,0.6)' : '#334155' }}>{timestamp}</span>}
+                          {mine && !isAudio && (
                             msg.read_at
                               ? <CheckCheck size={12} style={{ color: 'rgba(255,255,255,0.7)' }} />
                               : <Check size={12} style={{ color: 'rgba(255,255,255,0.6)' }} />
