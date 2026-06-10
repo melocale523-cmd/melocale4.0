@@ -56,10 +56,10 @@ function AudioPlayer({ src }: { src: string }) {
     return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`
   }
 
-  const BARS = [5, 9, 15, 20, 13, 18, 8, 15, 11, 6, 14, 10, 18, 7, 12]
+  const BARS = [3, 5, 8, 11, 7, 9, 4, 8, 6, 3, 7, 5, 9, 4, 6]
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '220px', maxWidth: '280px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '180px', maxWidth: '220px' }}>
       <audio
         ref={audioRef}
         src={src}
@@ -74,7 +74,7 @@ function AudioPlayer({ src }: { src: string }) {
       <button
         type="button"
         onClick={toggle}
-        style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+        style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
       >
         {playing
           ? <span style={{ width: '10px', height: '10px', display: 'flex', gap: '2px' }}><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /></span>
@@ -83,7 +83,7 @@ function AudioPlayer({ src }: { src: string }) {
       </button>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <div
-          style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '24px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '16px', cursor: 'pointer' }}
           onClick={e => {
             const rect = e.currentTarget.getBoundingClientRect()
             const pct = (e.clientX - rect.left) / rect.width
@@ -92,14 +92,14 @@ function AudioPlayer({ src }: { src: string }) {
         >
           {BARS.map((h, i) => (
             <span key={i} style={{
-              display: 'inline-block', width: '3px', borderRadius: '2px', flexShrink: 0,
+              display: 'inline-block', width: '2px', borderRadius: '2px', flexShrink: 0,
               height: `${h}px`,
               background: progress > (i / BARS.length) * 100 ? '#fff' : 'rgba(255,255,255,0.35)',
               transition: 'background .1s',
             }} />
           ))}
         </div>
-        <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: 'rgba(255,255,255,0.7)' }}>
+        <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '9px', color: 'rgba(255,255,255,0.7)' }}>
           {playing || currentTime > 0 ? formatTime(currentTime) : formatTime(duration)}
         </div>
       </div>
