@@ -60,4 +60,33 @@ router.post('/profile-complete', requireAuth, async (req: Request, res: Response
   }
 })
 
+// POST /api/client-coins/review-bonus
+router.post('/review-bonus', requireAuth, async (req: Request, res: Response) => {
+  const userId = (req as AuthRequest).authUser!.id
+  const { appointment_id } = req.body as { appointment_id?: string }
+  if (!appointment_id) return res.status(400).json({ error: 'missing_appointment_id' })
+  try {
+    const { data: result } = await supabaseAdmin.rpc('credit_client_coins', {
+      p_user_id: userId,
+      p_amount: 30,
+      p_kind: 'review',
+      p_reference: `review_${appointment_id}`,
+      p_metadata: { appointment_id },
+    })
+    if (result?.error === 'already_credited') {
+      return res.json({ ok: true, already_credited: true })
+    }
+    void supabaseAdmin.from('notifications').insert({
+      user_id: userId,
+      title: '⭐ Avaliação enviada!',
+      body: 'Você ganhou 30 moedas por avaliar o profissional!',
+      data: { type: 'review_bonus', coins: 30 },
+    })
+    return res.json({ ok: true, coins: 30 })
+  } catch (err) {
+    console.error('[client-coins] review-bonus error:', err)
+    return res.status(500).json({ error: 'internal_error' })
+  }
+})
+
 export default router
