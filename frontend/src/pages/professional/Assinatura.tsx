@@ -9,6 +9,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Loader2, CheckCircle2, AlertCircle, X, Calendar, RefreshCw, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { toast } from 'sonner';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const STATUS_LABELS: Record<string, { label: string; colorClass: string }> = {
   active:    { label: 'Ativo',                    colorClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
@@ -125,6 +126,7 @@ const CREDIT_PACKAGES = [
 
 export default function ProfessionalAssinatura() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const plansRef = useRef<HTMLDivElement>(null);
   const [buyingId, setBuyingId] = useState<string | null>(null);
@@ -312,7 +314,7 @@ export default function ProfessionalAssinatura() {
       ) : null}
 
       {/* KPI Row */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap:12 }}>
         {/* Moedas */}
         <div style={{ background:'#0e2038', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:16, position:'relative', overflow:'hidden', cursor:'pointer' }} onClick={() => navigate('/profissional/carteira')}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#f59e0b,#d97706)' }} />
@@ -356,7 +358,7 @@ export default function ProfessionalAssinatura() {
           </p>
         </div>
 
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap:12 }}>
           {CREDIT_PACKAGES.map((pkg) => {
             const totalCoins = pkg.coins + pkg.bonus;
             const costPerCoinPkg = (pkg.priceNum / totalCoins).toFixed(3);
@@ -446,7 +448,7 @@ export default function ProfessionalAssinatura() {
           </p>
         </div>
 
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, alignItems:'start' }}>
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap:12, alignItems:'start' }}>
           {SUBSCRIPTION_PLANS.map((plan) => {
             const isPopular = plan.popular;
             const borderColor = isPopular ? 'rgba(16,185,129,.35)' : plan.color === 'blue' ? 'rgba(55,138,221,.18)' : 'rgba(250,177,68,.2)';
@@ -458,7 +460,7 @@ export default function ProfessionalAssinatura() {
             const glowColor = isPopular ? 'rgba(16,185,129,.06)' : plan.color === 'blue' ? 'rgba(55,138,221,.06)' : 'rgba(245,158,11,.06)';
             const pack200cost = plan.id === 'plan_basic' ? '44,93' : plan.id === 'plan_pro' ? '35,94' : '26,96';
             return (
-              <div key={plan.id} style={{ background:bgGradient, border:`1px solid ${borderColor}`, borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column', position:'relative', transition:'transform .25s', marginTop: isPopular ? 0 : 16 }}
+              <div key={plan.id} style={{ background:bgGradient, border:`1px solid ${borderColor}`, borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column', position:'relative', transition:'transform .25s', marginTop: isMobile ? 0 : isPopular ? 0 : 16 }}
                 onMouseEnter={e => (e.currentTarget.style.transform='translateY(-3px)')}
                 onMouseLeave={e => (e.currentTarget.style.transform='translateY(0)')}>
                 <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:topGradient }} />
@@ -593,7 +595,7 @@ export default function ProfessionalAssinatura() {
       <div style={{ marginTop:'2rem' }}>
         <p style={{ fontSize:16, fontWeight:900, color:'white', marginBottom:4 }}>⭐ O que dizem os profissionais</p>
         <p style={{ fontSize:11, color:'#4A6580', marginBottom:'1rem' }}>Resultados reais de quem assinou</p>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap:12 }}>
           {[
             { name:'Carlos E.', city:'Jacobina - BA', role:'Eletricista', text:'"Assine o PRO e na primeira semana fechei 3 clientes. O plano se pagou em 2 dias."', result:'R$1.800 em 1 semana', stars:5 },
             { name:'Marcos S.', city:'Feira de Santana - BA', role:'Encanador', text:'"Antes pagava R$59 pelo pacote. Com PRO pago R$35. Economizei mais de R$280 em 4 meses."', result:'-R$280 em moedas', stars:5 },
@@ -637,7 +639,7 @@ export default function ProfessionalAssinatura() {
       {/* FAQ */}
       <div style={{ marginTop:'2rem' }}>
         <p style={{ fontSize:16, fontWeight:900, color:'white', marginBottom:'1rem' }}>❓ Perguntas Frequentes</p>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:10 }}>
           {[
             { q:'Quando sou cobrado?', a:'Na assinatura e todo mês na mesma data. Você pode cancelar a qualquer momento.' },
             { q:'Posso mudar de plano?', a:'Sim. Você pode fazer upgrade ou downgrade a qualquer momento pelo painel.' },
@@ -671,7 +673,7 @@ export default function ProfessionalAssinatura() {
       </div>
 
       {/* Grid Plano Atual + Saldo */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, paddingTop:'1.5rem', borderTop:'1px solid rgba(255,255,255,.06)' }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:16, paddingTop:'1.5rem', borderTop:'1px solid rgba(255,255,255,.06)' }}>
 
         {/* Card Plano Atual */}
         <div style={{ background:'linear-gradient(145deg,#071e30,#0e2038)', border:`1px solid ${hasActivePlan ? 'rgba(16,185,129,.22)' : 'rgba(55,138,221,.22)'}`, borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column' }}>
@@ -916,22 +918,22 @@ export default function ProfessionalAssinatura() {
     </div>
 
     {/* Sticky Bar */}
-    <div style={{ position:'sticky', bottom:0, left:0, right:0, background:'rgba(7,15,28,.96)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderTop:'1px solid rgba(255,255,255,.06)', padding:'10px 1.5rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, zIndex:50, flexWrap:'wrap' }}>
-      <div style={{ fontSize:12, color:'#4A6580' }}>
+    <div style={{ position:'sticky', bottom:0, left:0, right:0, background:'rgba(7,15,28,.96)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderTop:'1px solid rgba(255,255,255,.06)', padding: isMobile ? '10px 1rem' : '10px 1.5rem', display:'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', justifyContent:'space-between', gap: isMobile ? 8 : 12, zIndex:50, flexWrap:'wrap' }}>
+      <div style={{ fontSize: isMobile ? 13 : 12, color:'#4A6580' }}>
         <span style={{ color:'white', fontWeight:700 }}>{balanceNum} moedas</span>
         {' · '}
         <span>{hasActivePlan ? `Plano ${PLAN_NAMES[currentSubscription!.package_id]} · ${daysUntilExpiry ?? '—'} dias restantes` : 'Sem plano ativo · preço cheio'}</span>
       </div>
-      <div style={{ display:'flex', gap:8 }}>
-        <button onClick={() => handleCheckout('one_time', 'pack_pro')} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer' }}>
+      <div style={{ display:'flex', gap:8, flexDirection: isMobile ? 'column' : 'row', width: isMobile ? '100%' : undefined }}>
+        <button onClick={() => handleCheckout('one_time', 'pack_pro')} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer', width: isMobile ? '100%' : undefined, justifyContent: isMobile ? 'center' : undefined, display: isMobile ? 'flex' : undefined, alignItems: isMobile ? 'center' : undefined }}>
           🪙 Comprar moedas
         </button>
         {hasActivePlan ? (
-          <button onClick={() => setShowChangePlanModal(true)} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer' }}>
+          <button onClick={() => setShowChangePlanModal(true)} style={{ height:36, padding:'0 16px', background:'transparent', border:'1px solid rgba(255,255,255,.1)', borderRadius:10, color:'white', fontSize:12, fontWeight:600, cursor:'pointer', width: isMobile ? '100%' : undefined, justifyContent: isMobile ? 'center' : undefined, display: isMobile ? 'flex' : undefined, alignItems: isMobile ? 'center' : undefined }}>
             ↺ Mudar plano
           </button>
         ) : null}
-        <button onClick={() => handleCheckout('subscription', 'plan_pro')} disabled={!!buyingId} style={{ height:36, padding:'0 16px', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:10, color:'white', fontSize:12, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 12px rgba(16,185,129,.25)', opacity: buyingId ? .5 : 1 }}>
+        <button onClick={() => handleCheckout('subscription', 'plan_pro')} disabled={!!buyingId} style={{ height:36, padding:'0 16px', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:10, color:'white', fontSize:12, fontWeight:700, cursor:'pointer', boxShadow:'0 2px 12px rgba(16,185,129,.25)', opacity: buyingId ? .5 : 1, width: isMobile ? '100%' : undefined, justifyContent: isMobile ? 'center' : undefined, display: isMobile ? 'flex' : undefined, alignItems: isMobile ? 'center' : undefined }}>
           {buyingId === 'plan_pro' ? '...' : '⚡ Upgrade PRO →'}
         </button>
       </div>

@@ -12,9 +12,11 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 export default function ProfessionalPerfil() {
   const { user } = useAuthStore();
+  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -251,7 +253,7 @@ export default function ProfessionalPerfil() {
       </div>
 
       {/* Grid: Avatar + Dados */}
-      <div style={{ display:'grid', gridTemplateColumns:'200px 1fr', gap:'1rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '200px 1fr', gap:'1rem' }}>
 
         {/* Card Avatar */}
         <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.75rem', textAlign:'center' }}>
@@ -407,7 +409,7 @@ export default function ProfessionalPerfil() {
       </div>
 
       {/* Grid Endereço + Pagamentos */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:'1rem' }}>
 
       {/* Endereço */}
       <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
