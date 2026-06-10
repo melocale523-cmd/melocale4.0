@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Settings, Bell, Lock, Shield, Loader2, CheckCircle2 } from 'lucide-react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
 
 export default function ProfessionalConfiguracoes() {
   const { user } = useAuthStore();
+  const isMobile = useIsMobile();
 
   const [notifications, setNotifications] = useState({
     newLead: true,
@@ -85,7 +87,7 @@ export default function ProfessionalConfiguracoes() {
       </div>
 
       {/* Grid Conta + Segurança */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:'1rem' }}>
 
         {/* Conta */}
         <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>

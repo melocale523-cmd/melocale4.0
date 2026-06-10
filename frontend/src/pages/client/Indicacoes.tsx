@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useIsMobile } from '../../hooks/useIsMobile'
 import { toast } from 'sonner'
 import {
   Link2, Copy, MessageCircle, QrCode, Share2,
@@ -93,6 +94,7 @@ const kpiCard: React.CSSProperties = {
 
 // ── Component ─────────────────────────────────────────────────────────
 export default function ClientIndicacoes() {
+  const isMobile = useIsMobile()
   const user = useAuthStore((state) => state.user)
   const isAuthLoading = useAuthStore((state) => state.isLoading)
   const [copied, setCopied] = useState(false)
@@ -408,7 +410,7 @@ export default function ClientIndicacoes() {
               <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Como ganhar moedas</span>
               <span style={{ marginLeft: 'auto', fontSize: '11px', color: t.muted }}>100 moedas = R$1,00 · mín. 1.000 para sacar</span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,1fr)', gap: '8px' }}>
               {[
                 { icon: '🎉', label: 'Primeiro pedido', coins: 100 },
                 { icon: '📋', label: 'Completar perfil', coins: 50 },
@@ -456,7 +458,7 @@ export default function ClientIndicacoes() {
           )}
 
         {/* ── Barra de progresso 3 cards ─────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '12px', marginBottom: '1.5rem' }}>
 
           {/* Card — Suas moedas */}
           <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
@@ -542,7 +544,7 @@ export default function ClientIndicacoes() {
         </div>
 
         {/* ── 2-column grid ───────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '1.5rem', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 380px', gap: '1.5rem', alignItems: 'start' }}>
 
           {/* ══ LEFT COLUMN ════════════════════════════════════════ */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
@@ -604,7 +606,7 @@ export default function ClientIndicacoes() {
                   </div>
 
                   {/* Share buttons 2×2 */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
                     {/* WhatsApp */}
                     <button
                       onClick={shareWhatsApp}
@@ -681,7 +683,7 @@ export default function ClientIndicacoes() {
                 <BarChart2 size={17} color={t.accent} />
                 <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Seus resultados</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '10px' }}>
                 <div style={kpiCard}>
                   <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: t.text }}>
                     {referralData?.stats.total ?? 0}

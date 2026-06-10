@@ -3,9 +3,11 @@ import { walletService, leadService, transactionService } from '../../services/d
 import { Wallet, ArrowUpRight, ArrowDownRight, Loader2, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 export default function ProfessionalWallet() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const { data: balance, isLoading: isBalanceLoading } = useQuery({
     queryKey: ['walletBalance'],
@@ -51,7 +53,7 @@ export default function ProfessionalWallet() {
       </div>
 
       {/* KPI Row */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1.5rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap:'1.5rem' }}>
         {/* Saldo */}
         <div style={{ background:'linear-gradient(145deg,#0a1928,#0e2038)', border:'1px solid rgba(16,185,129,.22)', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#10b981,#059669)' }} />
@@ -137,7 +139,7 @@ export default function ProfessionalWallet() {
             <Loader2 size={20} className="animate-spin" style={{ color:'#10b981' }} />
           </div>
         ) : transactions && transactions.length > 0 ? (
-          <table style={{ width:'100%', borderCollapse:'collapse' }}>
+          <div style={{ overflowX: 'auto' }}><table style={{ width:'100%', borderCollapse:'collapse', minWidth: isMobile ? 480 : undefined }}>
             <thead>
               <tr style={{ background:'rgba(0,0,0,.2)' }}>
                 <th style={{ padding:'0.625rem 1rem', textAlign:'left', fontSize:'0.625rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#4A6580' }}>Descrição</th>
@@ -179,7 +181,7 @@ export default function ProfessionalWallet() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         ) : (
           <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'3rem', gap:'0.75rem', textAlign:'center' }}>
             <div style={{ width:'3rem', height:'3rem', borderRadius:'50%', background:'rgba(96,165,250,.1)', border:'1px solid rgba(96,165,250,.15)', display:'flex', alignItems:'center', justifyContent:'center' }}>
