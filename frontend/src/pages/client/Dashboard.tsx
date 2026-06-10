@@ -1,6 +1,6 @@
 import { useClientProfile } from '../../hooks/useClientProfile';
 import { isClientProfileComplete } from '../../lib/profileHelpers';
-import { AlertCircle, ArrowRight, Plus, Hammer, RefreshCw, CalendarCheck, MapPin, Tag, Zap, Droplets } from 'lucide-react';
+import { AlertCircle, ArrowRight, Plus, Hammer, RefreshCw, CalendarCheck, MapPin, Tag, Zap, Droplets, Coins } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
+import { apiFetch } from '../../lib/api';
 
 function categoryIcon(category: string) {
   const c = category?.toLowerCase() ?? '';
@@ -49,6 +50,15 @@ export default function ClientDashboard() {
   const { data: recentPedidos, isLoading: recentLoading } = useQuery({
     queryKey: ['clientRecentPedidos'],
     queryFn: () => leadService.getMyRequests().then(r => r.slice(0, 3)),
+  });
+
+  const { data: coinsData } = useQuery({
+    queryKey: ['clientCoins'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/client-coins/balance')
+      if (!res.ok) return { balance: 0, total_earned: 0 }
+      return res.json()
+    },
   });
 
   const { data: nextAppointment, isLoading: apptLoading } = useQuery({
@@ -308,6 +318,26 @@ export default function ClientDashboard() {
               </button>
             </div>
             <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-[60px] pointer-events-none" />
+          </div>
+
+          {/* Moedas */}
+          <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Coins size={16} color="#10b981" />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#10b981' }}>Suas moedas</span>
+            </div>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
+              {coinsData?.balance ?? 0}
+            </div>
+            <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
+              = R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')} · mínimo 1.000 p/ sacar
+            </div>
+            <div style={{ marginTop: '10px', background: '#1C3050', borderRadius: '100px', height: '6px' }}>
+              <div style={{ background: '#10b981', borderRadius: '100px', height: '6px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
+              {Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas para o saque
+            </div>
           </div>
 
           {/* Próximo agendamento */}
