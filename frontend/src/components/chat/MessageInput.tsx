@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type RefObject, type FormEvent } from 'react';
 import {
-  Send, Paperclip, Smile, Mic, Camera,
+  Send, Paperclip, Smile, Mic, Camera, Image as ImageIcon,
   X, CalendarPlus,
 } from 'lucide-react';
 
