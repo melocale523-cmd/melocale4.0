@@ -59,7 +59,7 @@ function AudioPlayer({ src }: { src: string }) {
   const BARS = [3, 5, 8, 11, 7, 9, 4, 8, 6, 3, 7, 5, 9, 4, 6]
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '180px', maxWidth: '220px' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', minWidth: '160px', maxWidth: '180px' }}>
       <audio
         ref={audioRef}
         src={src}
@@ -83,7 +83,7 @@ function AudioPlayer({ src }: { src: string }) {
       </button>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <div
-          style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '16px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '14px', cursor: 'pointer' }}
           onClick={e => {
             const rect = e.currentTarget.getBoundingClientRect()
             const pct = (e.clientX - rect.left) / rect.width
