@@ -6,6 +6,7 @@ import {
   Wrench, Trash2,
 } from 'lucide-react';
 import type { CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { Appointment } from '../../../services/appointmentService';
 
@@ -86,6 +87,7 @@ export function AppointmentDetailsModal({
   acceptMutation,
   declineMutation,
 }: AppointmentDetailsModalProps) {
+  const navigate = useNavigate();
   const sc = STATUS_COLOR[appointment.status];
   const clientName = appointment.client?.full_name || 'Cliente';
 
@@ -235,11 +237,17 @@ export function AppointmentDetailsModal({
             {/* Chat button */}
             <button
               type="button"
-              onClick={() => {}}
+              onClick={() => {
+                if (appointment.conversation_id) {
+                  navigate(`/profissional/mensagens?chatId=${appointment.conversation_id}`);
+                  onClose();
+                }
+              }}
               style={{
                 background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)',
                 borderRadius: '8px', padding: '4px 10px', fontSize: '11px', fontWeight: 600,
-                color: '#34d399', cursor: 'pointer', flexShrink: 0,
+                color: '#34d399', cursor: appointment.conversation_id ? 'pointer' : 'not-allowed',
+                flexShrink: 0, opacity: appointment.conversation_id ? 1 : 0.4,
               }}
             >
               Chat
