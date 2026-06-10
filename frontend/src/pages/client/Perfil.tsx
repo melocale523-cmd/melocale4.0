@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
+import { apiFetch } from '../../lib/api';
 
 function getAvatarInfo(name: string): { initials: string; colorClass: string } {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -112,6 +113,11 @@ export default function ClientePerfil() {
       invalidateClientProfile();
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 5000);
+      // Creditar 50 moedas por completar perfil (idempotente no backend)
+      apiFetch('/api/client-coins/profile-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).catch(() => {})
     },
   });
 
