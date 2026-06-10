@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import {
   Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2,
   RefreshCw, Star, Search,
@@ -43,6 +44,7 @@ const BAR_COLOR: Record<AppStatus, string> = {
 const AVATAR_COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
 
 export default function ClientAgenda() {
+  const isMobile = useIsMobile();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -371,7 +373,7 @@ export default function ClientAgenda() {
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '8px', marginBottom: '16px' }}>
         <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
           <p className="text-[11px] text-[#7a9ebf] uppercase tracking-widest mb-1.5">Total</p>
           <p className="text-2xl font-black text-white">{isLoading ? '—' : stats.total}</p>
@@ -421,7 +423,7 @@ export default function ClientAgenda() {
 
       {/* 2-column layout */}
       {!isLoading && sorted.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', alignItems: 'start' }}>
 
           {/* Left column — upcoming */}
           <div>

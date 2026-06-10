@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
 import { apiFetch } from '../../lib/api';
 
@@ -32,6 +33,7 @@ function statusColor(status: string) {
 }
 
 export default function ClientDashboard() {
+  const isMobile = useIsMobile();
   const { data: profile, isLoading: profileLoading, isError: profileError, refetch: refetchProfile } = useClientProfile();
   const queryClient = useQueryClient();
 
@@ -193,7 +195,7 @@ export default function ClientDashboard() {
       )}
 
       {/* STATS ROW */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '12px', marginBottom: '1.5rem' }}>
         {statCards.map((card) => (
           <div key={card.label} className="bg-[#132236] rounded-2xl p-4 border border-white/5">
             <p className="text-[11px] text-[#7a9ebf] uppercase tracking-widest mb-2">{card.label}</p>
@@ -208,7 +210,7 @@ export default function ClientDashboard() {
       </div>
 
       {/* CONTENT GRID */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '20px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: '20px', alignItems: 'start' }}>
 
         {/* COLUNA ESQUERDA — pedidos recentes */}
         <div>
