@@ -214,7 +214,7 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
 
     // Push + in-app notification to referrer
     const firstName = (newProfile?.full_name ?? 'Alguém').split(' ')[0]
-    const rewardHint = referrerProfile.role === 'professional' ? '60 moedas' : 'R$10'
+    const rewardHint = referrerProfile.role === 'professional' ? '60 moedas' : 'R$2'
     void sendPushToUser(referrerProfile.id, {
       title: '🎉 Nova indicação!',
       body: `${firstName} se cadastrou com seu link! +${rewardHint} quando ele ativar.`,
