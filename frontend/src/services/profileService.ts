@@ -77,32 +77,23 @@ export const clientProfileService = {
     }
 
     // Sync address fields to the clients table (used by professionals for appointment location).
-    // Non-fatal: if the user has no clients record the update is a no-op.
-    if (data.userEmail) {
-      const { data: clientRow } = await supabase
+    // clients.id === profiles.id (same auth UUID) — direct update, no-op if row doesn't exist.
+    const clientPayload: Record<string, unknown> = {};
+    if (data.address_street !== undefined)       clientPayload.address_street = data.address_street;
+    if (data.address_number !== undefined)       clientPayload.address_number = data.address_number;
+    if (data.address_block !== undefined)        clientPayload.address_block = data.address_block;
+    if (data.address_complement !== undefined)   clientPayload.address_complement = data.address_complement;
+    if (data.address_neighborhood !== undefined) clientPayload.address_neighborhood = data.address_neighborhood;
+    if (data.address_zipcode !== undefined)      clientPayload.address_zipcode = data.address_zipcode;
+    if (data.address_city !== undefined)         clientPayload.city = data.address_city;
+    if (data.address_state !== undefined)        clientPayload.state = data.address_state;
+    if (Object.keys(clientPayload).length > 0) {
+      const { error: clientError } = await supabase
         .from('clients')
-        .select('id')
-        .eq('email', data.userEmail)
-        .maybeSingle();
-      if (clientRow) {
-        const clientPayload: Record<string, unknown> = {};
-        if (data.address_street !== undefined)       clientPayload.address_street = data.address_street;
-        if (data.address_number !== undefined)       clientPayload.address_number = data.address_number;
-        if (data.address_block !== undefined)        clientPayload.address_block = data.address_block;
-        if (data.address_complement !== undefined)   clientPayload.address_complement = data.address_complement;
-        if (data.address_neighborhood !== undefined) clientPayload.address_neighborhood = data.address_neighborhood;
-        if (data.address_zipcode !== undefined)      clientPayload.address_zipcode = data.address_zipcode;
-        if (data.address_city !== undefined)         clientPayload.city = data.address_city;
-        if (data.address_state !== undefined)        clientPayload.state = data.address_state;
-        if (Object.keys(clientPayload).length > 0) {
-          const { error: clientError } = await supabase
-            .from('clients')
-            .update(clientPayload)
-            .eq('id', clientRow.id);
-          if (clientError) {
-            logService.warn('clientProfileService', 'clients address sync failed (non-fatal)', clientError);
-          }
-        }
+        .update(clientPayload)
+        .eq('id', userId);
+      if (clientError) {
+        logService.warn('clientProfileService', 'clients address sync failed (non-fatal)', clientError);
       }
     }
 
