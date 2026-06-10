@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   Link2, Copy, MessageCircle, QrCode, Share2,
-  BarChart2, Info, Users, Gift, Loader2, Zap, Trophy,
+  BarChart2, Info, Users, Gift, Loader2, Zap, Trophy, Coins, Target, Star,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuthStore } from '../../store/authStore'
@@ -133,6 +133,27 @@ export default function ClientIndicacoes() {
       if (!res.ok) return []
       return res.json()
     },
+    staleTime: 60 * 1000,
+  })
+
+  const { data: coinsData } = useQuery({
+    queryKey: ['clientCoins'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/client-coins/balance')
+      if (!res.ok) return { balance: 0, total_earned: 0 }
+      return res.json()
+    },
+    enabled: authReady,
+  })
+
+  const { data: monthlyStats } = useQuery({
+    queryKey: ['referral-monthly-stats'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/referrals/monthly-stats')
+      if (!res.ok) return { total_this_month: 0, goal: 5, bonus_credited: false, bonus_coins: 500 }
+      return res.json()
+    },
+    enabled: authReady,
     staleTime: 60 * 1000,
   })
 
@@ -675,6 +696,72 @@ export default function ClientIndicacoes() {
               ))}
               <div style={{ borderTop: `1px solid ${t.border}`, marginTop: '6px', paddingTop: '8px', fontSize: '11px', color: t.muted, textAlign: 'center' }}>
                 Quanto mais indica, mais ganha por indicação
+              </div>
+            </div>
+
+
+            {/* Card — Suas moedas */}
+            <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <Coins size={15} color="#10b981" />
+                <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#10b981' }}>Suas moedas</span>
+              </div>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
+                {coinsData?.balance ?? 0}
+              </div>
+              <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
+                = R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')} · mín. 1.000 p/ sacar
+              </div>
+              <div style={{ marginTop: '10px', background: '#1C3050', borderRadius: '100px', height: '6px' }}>
+                <div style={{ background: '#10b981', borderRadius: '100px', height: '6px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
+              </div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
+                {Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas para o saque
+              </div>
+            </div>
+
+            {/* Card — Missão do mês */}
+            <div style={{ ...cardBase, borderTop: '3px solid #7c3aed' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <Target size={15} color="#a78bfa" />
+                <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Missão do mês</span>
+                <span style={{ marginLeft: 'auto', fontFamily: 'DM Mono, monospace', fontSize: '11px', color: '#a78bfa' }}>
+                  {monthlyStats?.total_this_month ?? 0}/{monthlyStats?.goal ?? 5}
+                </span>
+              </div>
+              <div style={{ background: '#1C3050', borderRadius: '100px', height: '6px', marginBottom: '8px' }}>
+                <div style={{
+                  background: monthlyStats?.bonus_credited ? '#10b981' : '#7c3aed',
+                  borderRadius: '100px', height: '6px',
+                  width: `${Math.min(((monthlyStats?.total_this_month ?? 0) / (monthlyStats?.goal ?? 5)) * 100, 100)}%`,
+                  transition: 'width .5s',
+                }} />
+              </div>
+              {monthlyStats?.bonus_credited ? (
+                <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 700 }}>✅ Bônus de {monthlyStats.bonus_coins} moedas creditado!</div>
+              ) : (
+                <div style={{ fontSize: '12px', color: '#64748b' }}>
+                  Indique {Math.max((monthlyStats?.goal ?? 5) - (monthlyStats?.total_this_month ?? 0), 0)} pessoas esse mês e ganhe{' '}
+                  <span style={{ color: '#a78bfa', fontWeight: 700 }}>{monthlyStats?.bonus_coins ?? 500} moedas bônus</span>
+                </div>
+              )}
+            </div>
+
+            {/* Card — O que seu indicado ganha */}
+            <div style={{ ...cardBase, borderTop: '3px solid #f59e0b' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <Star size={15} color="#f59e0b" />
+                <span style={{ fontSize: '14px', fontWeight: 700, color: t.text }}>Seu indicado também ganha</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#0d1929', borderRadius: '8px', border: '1px solid #1C3050' }}>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>20</div>
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: t.text }}>moedas de boas-vindas</div>
+                  <div style={{ fontSize: '11px', color: '#64748b' }}>ao se cadastrar pelo seu link</div>
+                </div>
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '8px', textAlign: 'center' }}>
+                = R$0,20 de crédito para usar na plataforma
               </div>
             </div>
 
