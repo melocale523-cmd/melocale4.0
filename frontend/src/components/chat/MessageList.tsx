@@ -56,7 +56,7 @@ function AudioPlayer({ src }: { src: string }) {
     return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`
   }
 
-  const BARS = [2, 4, 6, 8, 5, 7, 3, 6, 4, 2, 5, 3, 7, 3, 4]
+  const BARS = [1,3,5,7,4,6,2,5,3,1,4,2,6,2,3,1,4,6,5,3,7,4,2,5]
 
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', minWidth: '240px', maxWidth: '300px' }}>
@@ -83,7 +83,7 @@ function AudioPlayer({ src }: { src: string }) {
       </button>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <div
-          style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '12px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '10px', cursor: 'pointer' }}
           onClick={e => {
             const rect = e.currentTarget.getBoundingClientRect()
             const pct = (e.clientX - rect.left) / rect.width
@@ -242,7 +242,7 @@ export function MessageList({
                         </span>
                       )}
                       <div style={{
-                        padding: '8px 12px 6px', fontSize: '13px', lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                        padding: '7px 12px', fontSize: '13px', lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
                         ...(mine
                           ? { background: '#10b981', color: '#fff', borderRadius: '18px 18px 4px 18px' }
                           : isAi
