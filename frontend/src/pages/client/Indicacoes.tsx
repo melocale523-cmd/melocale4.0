@@ -182,6 +182,7 @@ export default function ClientIndicacoes() {
 
   const queryClient = useQueryClient()
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
+  const [showRankingModal, setShowRankingModal] = useState(false)
   const [pixKey, setPixKey] = useState('')
   const [pixKeyType, setPixKeyType] = useState('CPF')
 
@@ -400,6 +401,60 @@ export default function ClientIndicacoes() {
           )}
         </div>
 
+        {/* ── Como ganhar moedas (largura total) */}
+          <div style={{ ...cardBase, marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <Coins size={17} color={t.accent} />
+              <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Como ganhar moedas</span>
+              <span style={{ marginLeft: 'auto', fontSize: '11px', color: t.muted }}>100 moedas = R$1,00 · mín. 1.000 para sacar</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+              {[
+                { icon: '🎉', label: 'Primeiro pedido', coins: 100 },
+                { icon: '📋', label: 'Completar perfil', coins: 50 },
+                { icon: '⭐', label: 'Avaliar profissional', coins: 30 },
+                { icon: '🔗', label: 'Cadastro via indicação', coins: 20 },
+                { icon: '💰', label: 'Indicar amigo (ele faz pedido)', coins: 200 },
+              ].map(({ icon, label, coins }) => (
+                <div key={label} style={{ background: t.input, border: `1px solid ${t.border}`, borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '20px', marginBottom: '6px' }}>{icon}</div>
+                  <div style={{ fontSize: '11px', color: t.text, fontWeight: 600, marginBottom: '6px', lineHeight: 1.3 }}>{label}</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', color: t.accent, fontWeight: 700, background: '#0b2818', border: '1px solid #10b98140', borderRadius: '999px', padding: '2px 8px', display: 'inline-block' }}>+{coins}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Top indicadores (largura total) */}
+          {ranking.length > 0 && (
+            <div style={{ ...cardBase, borderTop: '3px solid #f59e0b', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <Trophy size={17} color="#f59e0b" />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Top indicadores do mês</span>
+                <button
+                  onClick={() => setShowRankingModal(true)}
+                  style={{ marginLeft: 'auto', background: 'transparent', border: `1px solid ${t.border}`, borderRadius: '6px', padding: '4px 10px', fontSize: '11px', color: t.muted, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  Ver todos →
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {ranking.slice(0, 3).map((r, i) => {
+                  const medals = ['🥇', '🥈', '🥉']
+                  const { initials, colorClass } = getAvatarInfo(r.full_name || 'U')
+                  return (
+                    <div key={r.user_id} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', background: t.input, border: `1px solid ${t.border}`, borderRadius: '8px', padding: '8px 10px' }}>
+                      <span style={{ fontSize: '16px' }}>{medals[i]}</span>
+                      <div className={`${colorClass} w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0`}>{initials}</div>
+                      <span style={{ flex: 1, fontSize: '12px', color: t.text, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.full_name || 'Usuário'}</span>
+                      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '11px', color: t.accent, fontWeight: 700 }}>{r.total_earned}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
         {/* ── Barra de progresso 3 cards ─────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '1.5rem' }}>
 
@@ -412,8 +467,11 @@ export default function ClientIndicacoes() {
             <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
               {coinsData?.balance ?? 0}
             </div>
-            <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
-              = R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')} · mín. 1.000 p/ sacar
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '4px' }}>
+              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.25rem', fontWeight: 700, color: '#10b981' }}>
+                R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
+              </span>
+              <span style={{ fontSize: '10px', color: '#4ade80' }}>em reais · mín. R$10 p/ sacar</span>
             </div>
             <div style={{ marginTop: '10px', background: '#1C3050', borderRadius: '100px', height: '6px' }}>
               <div style={{ background: '#10b981', borderRadius: '100px', height: '6px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
@@ -702,30 +760,6 @@ export default function ClientIndicacoes() {
               </div>
             </div>
 
-          {/* Card — Como ganhar moedas */}
-          <div style={cardBase}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-              <Coins size={17} color={t.accent} />
-              <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Como ganhar moedas</span>
-            </div>
-            {[
-              { icon: '🎉', label: 'Primeiro pedido', coins: 100 },
-              { icon: '📋', label: 'Completar perfil', coins: 50 },
-              { icon: '⭐', label: 'Avaliar profissional', coins: 30 },
-              { icon: '🔗', label: 'Se cadastrar via indicação', coins: 20 },
-              { icon: '💰', label: 'Indicar amigo (ele faz pedido)', coins: 200 },
-            ].map(({ icon, label, coins }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: `1px solid ${t.border}` }}>
-                <span style={{ fontSize: '18px', width: '24px', textAlign: 'center' }}>{icon}</span>
-                <span style={{ flex: 1, fontSize: '13px', color: t.text }}>{label}</span>
-                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', color: t.accent, fontWeight: 700 }}>+{coins}</span>
-              </div>
-            ))}
-            <div style={{ marginTop: '10px', fontSize: '11px', color: t.muted, textAlign: 'center' }}>
-              100 moedas = R$1,00 · mínimo 1.000 para sacar
-            </div>
-          </div>
-
           {/* Card — Histórico de moedas */}
           {coinHistory.length > 0 && (
             <div style={cardBase}>
@@ -757,28 +791,6 @@ export default function ClientIndicacoes() {
             </div>
           )}
 
-          {ranking.length > 0 && (
-            <div style={cardBase}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-                <Trophy size={17} color="#f59e0b" />
-                <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Top indicadores do mês</span>
-              </div>
-              {ranking.slice(0, 5).map((r, i) => {
-                const medals = ['🥇', '🥈', '🥉']
-                const { initials, colorClass } = getAvatarInfo(r.full_name || 'U')
-                return (
-                  <div key={r.user_id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: i < 4 ? `1px solid ${t.border}` : 'none' }}>
-                    <span style={{ fontSize: '16px', width: '24px', textAlign: 'center' }}>{medals[i] ?? `${i + 1}º`}</span>
-                    <div className={`${colorClass} w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0`}>
-                      {initials}
-                    </div>
-                    <span style={{ flex: 1, fontSize: '13px', color: t.text, fontWeight: 500 }}>{r.full_name || 'Usuário'}</span>
-                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', color: t.accent, fontWeight: 700 }}>{r.total_earned} pts</span>
-                  </div>
-                )
-              })}
-            </div>
-          )}
           </div>
 
           {/* ══ RIGHT COLUMN ══════════════════════════════════════ */}
@@ -899,6 +911,33 @@ export default function ClientIndicacoes() {
 
 
       </div>
+
+      {showRankingModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ background: '#132236', border: '1px solid #1C3050', borderRadius: '1rem', padding: '1.5rem', width: '100%', maxWidth: '500px', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', fontFamily: 'DM Sans, sans-serif' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>🏆 Top indicadores do mês</span>
+              <button onClick={() => setShowRankingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {ranking.slice(0, 100).map((r, i) => {
+                const medals = ['🥇', '🥈', '🥉']
+                const { initials, colorClass } = getAvatarInfo(r.full_name || 'U')
+                return (
+                  <div key={r.user_id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: `1px solid ${t.border}` }}>
+                    <span style={{ fontSize: '16px', width: '28px', textAlign: 'center' }}>{medals[i] ?? `${i + 1}º`}</span>
+                    <div className={`${colorClass} w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0`}>{initials}</div>
+                    <span style={{ flex: 1, fontSize: '13px', color: t.text, fontWeight: 500 }}>{r.full_name || 'Usuário'}</span>
+                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', color: t.accent, fontWeight: 700 }}>{r.total_earned} pts</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showWithdrawModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>

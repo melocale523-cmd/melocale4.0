@@ -144,6 +144,16 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
                 data: { type: 'referral_reward', referral_id: referral.id, coins: rewardCoins },
               })
             }
+            // Creditar 200 moedas client_coins ao referrer quando indicado faz primeiro pedido
+            if (referral.referrer_role === 'client') {
+              void supabaseAdmin.rpc('credit_client_coins', {
+                p_user_id: referral.referrer_id,
+                p_amount: 200,
+                p_kind: 'referral_order',
+                p_reference: `referral_order_${referral.id}`,
+                p_metadata: { referred_id: userId, referral_id: referral.id },
+              })
+            }
           }
         } catch {
           // silencioso — não deixar falha de indicação quebrar o webhook
