@@ -752,18 +752,24 @@ export default function ClientIndicacoes() {
             <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
               {Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas para o saque
             </div>
-            {(coinsData?.balance ?? 0) >= 1000 && (
-              <button
-                onClick={() => setShowWithdrawModal(true)}
-                style={{
-                  marginTop: '12px', width: '100%', background: '#10b981', color: '#fff',
-                  border: 'none', borderRadius: '8px', padding: '8px 0', fontSize: '13px',
-                  fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
-                }}
-              >
-                💸 Sacar via Pix
-              </button>
-            )}
+            {(() => {
+              const hasEnough = (coinsData?.balance ?? 0) >= 1000
+              return (
+                <button
+                  onClick={() => setShowWithdrawModal(true)}
+                  style={{
+                    marginTop: '12px', width: '100%',
+                    background: hasEnough ? '#10b981' : '#1C3050',
+                    color: hasEnough ? '#fff' : '#64748b',
+                    border: hasEnough ? 'none' : '1px solid #243F6A',
+                    borderRadius: '8px', padding: '8px 0', fontSize: '13px',
+                    fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  {hasEnough ? '💸 Sacar via Pix' : '💸 Sacar via Pix · faltam ' + Math.max(1000 - (coinsData?.balance ?? 0), 0) + ' moedas'}
+                </button>
+              )
+            })()}
           </div>
 
           {/* Card — Missão do mês */}
@@ -819,51 +825,79 @@ export default function ClientIndicacoes() {
                 <X size={20} />
               </button>
             </div>
-            <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '8px', padding: '12px', marginBottom: '1rem', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
-                R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
+            {(coinsData?.balance ?? 0) >= 1000 ? (
+              <>
+                <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '8px', padding: '12px', marginBottom: '1rem', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
+                    R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#4ade80' }}>{coinsData?.balance ?? 0} moedas disponíveis</div>
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Tipo de chave Pix</label>
+                  <select
+                    value={pixKeyType}
+                    onChange={e => setPixKeyType(e.target.value)}
+                    style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Sans, sans-serif' }}
+                  >
+                    <option value="CPF">CPF</option>
+                    <option value="EMAIL">E-mail</option>
+                    <option value="PHONE">Telefone</option>
+                    <option value="EVP">Chave aleatória</option>
+                    <option value="CNPJ">CNPJ</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Chave Pix</label>
+                  <input
+                    type="text"
+                    value={pixKey}
+                    onChange={e => setPixKey(e.target.value)}
+                    placeholder={pixKeyType === 'CPF' ? '000.000.000-00' : pixKeyType === 'EMAIL' ? 'seu@email.com' : pixKeyType === 'PHONE' ? '+5500000000000' : 'sua chave Pix'}
+                    style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '1rem', padding: '8px', background: '#0d1929', borderRadius: '6px' }}>
+                  ⚠️ O Pix será enviado instantaneamente. Verifique a chave antes de confirmar.
+                </div>
+                <button
+                  onClick={() => withdrawMutation.mutate()}
+                  disabled={!pixKey || withdrawMutation.isPending}
+                  style={{
+                    width: '100%', background: withdrawMutation.isPending ? '#065f46' : '#10b981',
+                    color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 0',
+                    fontSize: '14px', fontWeight: 700, cursor: pixKey ? 'pointer' : 'not-allowed',
+                    opacity: pixKey ? 1 : 0.5, fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  {withdrawMutation.isPending ? 'Processando...' : 'Confirmar saque'}
+                </button>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🪙</div>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.75rem', fontWeight: 700, color: '#f59e0b', marginBottom: '4px' }}>
+                  {coinsData?.balance ?? 0}/1000
+                </div>
+                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+                  Você precisa de <span style={{ color: '#10b981', fontWeight: 700 }}>1.000 moedas</span> para sacar.<br/>
+                  Faltam <span style={{ color: '#f59e0b', fontWeight: 700 }}>{Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas</span>.
+                </div>
+                <div style={{ background: '#1C3050', borderRadius: '100px', height: '8px', marginBottom: '16px' }}>
+                  <div style={{ background: '#f59e0b', borderRadius: '100px', height: '8px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
+                </div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px', background: '#0d1929', borderRadius: '8px', padding: '12px' }}>
+                  💡 Indique amigos e ganhe <span style={{ color: '#10b981', fontWeight: 700 }}>R$2 por indicação</span>.<br/>
+                  Com 5 indicações você já pode sacar!
+                </div>
+                <button
+                  onClick={() => setShowWithdrawModal(false)}
+                  style={{ width: '100%', background: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 0', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  Entendi, vou indicar amigos!
+                </button>
               </div>
-              <div style={{ fontSize: '11px', color: '#4ade80' }}>{coinsData?.balance ?? 0} moedas disponíveis</div>
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Tipo de chave Pix</label>
-              <select
-                value={pixKeyType}
-                onChange={e => setPixKeyType(e.target.value)}
-                style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Sans, sans-serif' }}
-              >
-                <option value="CPF">CPF</option>
-                <option value="EMAIL">E-mail</option>
-                <option value="PHONE">Telefone</option>
-                <option value="EVP">Chave aleatória</option>
-                <option value="CNPJ">CNPJ</option>
-              </select>
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Chave Pix</label>
-              <input
-                type="text"
-                value={pixKey}
-                onChange={e => setPixKey(e.target.value)}
-                placeholder={pixKeyType === 'CPF' ? '000.000.000-00' : pixKeyType === 'EMAIL' ? 'seu@email.com' : pixKeyType === 'PHONE' ? '+5500000000000' : 'sua chave Pix'}
-                style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
-              />
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '1rem', padding: '8px', background: '#0d1929', borderRadius: '6px' }}>
-              ⚠️ O Pix será enviado instantaneamente. Verifique a chave antes de confirmar.
-            </div>
-            <button
-              onClick={() => withdrawMutation.mutate()}
-              disabled={!pixKey || withdrawMutation.isPending}
-              style={{
-                width: '100%', background: withdrawMutation.isPending ? '#065f46' : '#10b981',
-                color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 0',
-                fontSize: '14px', fontWeight: 700, cursor: pixKey ? 'pointer' : 'not-allowed',
-                opacity: pixKey ? 1 : 0.5, fontFamily: 'DM Sans, sans-serif',
-              }}
-            >
-              {withdrawMutation.isPending ? 'Processando...' : 'Confirmar saque'}
-            </button>
+            )}
           </div>
         </div>
       )}
