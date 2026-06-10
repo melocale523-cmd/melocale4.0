@@ -1,4 +1,4 @@
-import { type RefObject } from 'react';
+import React, { type RefObject } from 'react';
 import { Send, Loader2, Download, CheckCheck, Check } from 'lucide-react';
 import type { Message } from '../../types/chat';
 
@@ -37,6 +37,76 @@ function getFileName(url: string): string {
   return name.length > 30 ? name.substring(0, 27) + '...' : name;
 }
 
+function AudioPlayer({ src }: { src: string }) {
+  const audioRef = React.useRef<HTMLAudioElement>(null)
+  const [playing, setPlaying] = React.useState(false)
+  const [progress, setProgress] = React.useState(0)
+  const [duration, setDuration] = React.useState(0)
+  const [currentTime, setCurrentTime] = React.useState(0)
+
+  function toggle() {
+    const a = audioRef.current
+    if (!a) return
+    if (playing) { a.pause(); setPlaying(false) }
+    else { a.play(); setPlaying(true) }
+  }
+
+  function formatTime(s: number) {
+    const m = Math.floor(s / 60)
+    return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`
+  }
+
+  const BARS = [5, 9, 15, 20, 13, 18, 8, 15, 11, 6, 14, 10, 18, 7, 12]
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '220px', maxWidth: '280px' }}>
+      <audio
+        ref={audioRef}
+        src={src}
+        onLoadedMetadata={e => setDuration((e.target as HTMLAudioElement).duration)}
+        onTimeUpdate={e => {
+          const a = e.target as HTMLAudioElement
+          setCurrentTime(a.currentTime)
+          setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0)
+        }}
+        onEnded={() => { setPlaying(false); setProgress(0); setCurrentTime(0) }}
+      />
+      <button
+        type="button"
+        onClick={toggle}
+        style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+      >
+        {playing
+          ? <span style={{ width: '10px', height: '10px', display: 'flex', gap: '2px' }}><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /></span>
+          : <span style={{ width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: '10px solid #fff', marginLeft: '2px' }} />
+        }
+      </button>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '24px', cursor: 'pointer' }}
+          onClick={e => {
+            const rect = e.currentTarget.getBoundingClientRect()
+            const pct = (e.clientX - rect.left) / rect.width
+            if (audioRef.current) { audioRef.current.currentTime = pct * audioRef.current.duration; setProgress(pct * 100) }
+          }}
+        >
+          {BARS.map((h, i) => (
+            <span key={i} style={{
+              display: 'inline-block', width: '3px', borderRadius: '2px', flexShrink: 0,
+              height: `${h}px`,
+              background: progress > (i / BARS.length) * 100 ? '#fff' : 'rgba(255,255,255,0.35)',
+              transition: 'background .1s',
+            }} />
+          ))}
+        </div>
+        <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: 'rgba(255,255,255,0.7)' }}>
+          {playing || currentTime > 0 ? formatTime(currentTime) : formatTime(duration)}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function renderMessageContent(msg: Message) {
   const att = Array.isArray(msg.attachments) ? msg.attachments[0] : msg.attachments;
 
@@ -53,7 +123,7 @@ function renderMessageContent(msg: Message) {
   }
 
   if (att?.type === 'audio') {
-    return <audio controls src={msg.body} style={{ maxWidth: '100%', minWidth: '200px' }} />;
+    return <AudioPlayer src={msg.body} />;
   }
 
   if (att?.type === 'file') {
