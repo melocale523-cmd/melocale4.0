@@ -56,10 +56,10 @@ function AudioPlayer({ src }: { src: string }) {
     return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`
   }
 
-  const BARS = [1,3,5,7,4,6,2,5,3,1,4,2,6,2,3,1,4,6,5,3,7,4,2,5]
+  const BARS = [4,8,14,20,10,18,6,16,24,11,19,13,22,7,17,12,21,5,15,23,9,20,13,18,5,22,11,16,8,14,4,9,15,21,10,19,6,17,25,12,20,14,22,7,18,13,21,9,16,11]
 
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', minWidth: '240px', maxWidth: '300px' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0' }}>
       <audio
         ref={audioRef}
         src={src}
@@ -71,36 +71,51 @@ function AudioPlayer({ src }: { src: string }) {
         }}
         onEnded={() => { setPlaying(false); setProgress(0); setCurrentTime(0) }}
       />
+
+      {/* Play/Pause */}
       <button
         type="button"
         onClick={toggle}
-        style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+        style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.22)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
       >
-        {playing
-          ? <span style={{ width: '10px', height: '10px', display: 'flex', gap: '2px' }}><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /></span>
-          : <span style={{ width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: '10px solid #fff', marginLeft: '2px' }} />
-        }
+        {playing ? (
+          <svg width="11" height="13" viewBox="0 0 11 13"><rect x="0" y="0" width="3.5" height="13" rx="1.5" fill="rgba(255,255,255,0.95)"/><rect x="7.5" y="0" width="3.5" height="13" rx="1.5" fill="rgba(255,255,255,0.95)"/></svg>
+        ) : (
+          <svg width="12" height="14" viewBox="0 0 12 14"><polygon points="0,0 12,7 0,14" fill="rgba(255,255,255,0.95)"/></svg>
+        )}
       </button>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <div
-          style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '10px', cursor: 'pointer' }}
-          onClick={e => {
-            const rect = e.currentTarget.getBoundingClientRect()
-            const pct = (e.clientX - rect.left) / rect.width
-            if (audioRef.current) { audioRef.current.currentTime = pct * audioRef.current.duration; setProgress(pct * 100) }
-          }}
-        >
-          {BARS.map((h, i) => (
-            <span key={i} style={{
-              display: 'inline-block', width: '2px', borderRadius: '2px', flexShrink: 0,
-              height: `${h}px`,
-              background: progress > (i / BARS.length) * 100 ? '#fff' : 'rgba(255,255,255,0.35)',
-              transition: 'background .1s',
-            }} />
-          ))}
+
+      {/* Waveform + footer */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {/* Waveform row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          {/* Progress dot */}
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: playing ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.9)', flexShrink: 0 }} />
+          {/* Bars */}
+          <div
+            style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '26px', cursor: 'pointer' }}
+            onClick={e => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const pct = (e.clientX - rect.left) / rect.width
+              if (audioRef.current) { audioRef.current.currentTime = pct * audioRef.current.duration; setProgress(pct * 100) }
+            }}
+          >
+            {BARS.map((h, i) => (
+              <span key={i} style={{
+                display: 'inline-block', width: '2px', borderRadius: '2px', flexShrink: 0,
+                height: `${h}px`,
+                background: progress > (i / BARS.length) * 100 ? '#fff' : 'rgba(255,255,255,0.3)',
+                transition: 'background .08s',
+              }} />
+            ))}
+          </div>
         </div>
-        <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '9px', color: 'rgba(255,255,255,0.7)' }}>
-          {playing || currentTime > 0 ? formatTime(currentTime) : formatTime(duration)}
+
+        {/* Footer: time */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: 'rgba(255,255,255,0.65)' }}>
+            {playing || currentTime > 0 ? formatTime(currentTime) : formatTime(duration)}
+          </span>
         </div>
       </div>
     </div>
@@ -242,7 +257,7 @@ export function MessageList({
                         </span>
                       )}
                       <div style={{
-                        padding: '7px 12px', fontSize: '13px', lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                        padding: '8px 10px', fontSize: '13px', lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
                         ...(mine
                           ? { background: '#10b981', color: '#fff', borderRadius: '18px 18px 4px 18px' }
                           : isAi
