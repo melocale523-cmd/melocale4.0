@@ -59,7 +59,7 @@ function AudioPlayer({ src }: { src: string }) {
   const BARS = [4,8,14,20,10,18,6,16,24,11,19,13,22,7,17,12,21,5,15,23,9,20,13,18,5,22,11,16,8,14,4,9,15,21,10,19,6,17,25,12,20,14,22,7,18,13,21,9,16,11]
 
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0', minWidth: '220px' }}>
       <audio
         ref={audioRef}
         src={src}
@@ -93,7 +93,7 @@ function AudioPlayer({ src }: { src: string }) {
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: playing ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.9)', flexShrink: 0 }} />
           {/* Bars */}
           <div
-            style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '26px', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '26px', cursor: 'pointer', width: '160px', flexShrink: 0 }}
             onClick={e => {
               const rect = e.currentTarget.getBoundingClientRect()
               const pct = (e.clientX - rect.left) / rect.width
@@ -102,7 +102,7 @@ function AudioPlayer({ src }: { src: string }) {
           >
             {BARS.map((h, i) => (
               <span key={i} style={{
-                display: 'inline-block', width: '2px', borderRadius: '2px', flexShrink: 0,
+                display: 'inline-block', width: '2px', borderRadius: '2px',
                 height: `${h}px`,
                 background: progress > (i / BARS.length) * 100 ? '#fff' : 'rgba(255,255,255,0.3)',
                 transition: 'background .08s',
