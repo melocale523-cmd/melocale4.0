@@ -56,10 +56,10 @@ function AudioPlayer({ src }: { src: string }) {
     return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`
   }
 
-  const BARS = [3, 5, 8, 11, 7, 9, 4, 8, 6, 3, 7, 5, 9, 4, 6]
+  const BARS = [2, 4, 6, 8, 5, 7, 3, 6, 4, 2, 5, 3, 7, 3, 4]
 
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', minWidth: '160px', maxWidth: '180px' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', minWidth: '240px', maxWidth: '300px' }}>
       <audio
         ref={audioRef}
         src={src}
@@ -74,7 +74,7 @@ function AudioPlayer({ src }: { src: string }) {
       <button
         type="button"
         onClick={toggle}
-        style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+        style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
       >
         {playing
           ? <span style={{ width: '10px', height: '10px', display: 'flex', gap: '2px' }}><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /><span style={{ width: '3px', height: '100%', background: '#fff', borderRadius: '1px' }} /></span>
@@ -83,7 +83,7 @@ function AudioPlayer({ src }: { src: string }) {
       </button>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <div
-          style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '14px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '1px', height: '12px', cursor: 'pointer' }}
           onClick={e => {
             const rect = e.currentTarget.getBoundingClientRect()
             const pct = (e.clientX - rect.left) / rect.width
