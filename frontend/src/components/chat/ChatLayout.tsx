@@ -67,11 +67,12 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
     return () => { cancelled = true; };
   }, []);
 
-  // URL param → open chat
+  // URL param → open chat (also sets showChat so mobile shows the chat panel)
   useEffect(() => {
     const chatIdFromUrl = searchParams.get('chatId');
     if (chatIdFromUrl && chatIdFromUrl !== 'null' && chatIdFromUrl.length > 10) {
       setActiveConversationId(chatIdFromUrl);
+      setShowChat(true);
     }
   }, [searchParams]);
 

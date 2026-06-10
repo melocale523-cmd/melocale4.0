@@ -74,17 +74,24 @@ export function ConversationList({
 
   const filtered = conversations
     ? conversations.filter(conv => {
-        if (!searchQuery.trim()) return true;
-        return matchesSearch(conv, role, searchQuery.toLowerCase());
+        if (searchQuery.trim() && !matchesSearch(conv, role, searchQuery.toLowerCase())) return false;
+        if (activeFilter === 'unread') return getUnreadCount(conv, role) > 0;
+        if (activeFilter === 'active') {
+          const otherId = getOtherUserId(conv, role);
+          return onlineUsers.includes(otherId ?? '');
+        }
+        return true;
       })
     : [];
 
   const totalUnread = conversations?.reduce((acc, conv) => acc + getUnreadCount(conv, role), 0) ?? 0;
+  const unreadConvCount = conversations?.filter(c => getUnreadCount(c, role) > 0).length ?? 0;
+  const onlineConvCount = conversations?.filter(c => onlineUsers.includes(getOtherUserId(c, role) ?? '')).length ?? 0;
 
-  const filters: { key: 'all' | 'unread' | 'active'; label: string }[] = [
+  const filters: { key: 'all' | 'unread' | 'active'; label: string; badge?: number }[] = [
     { key: 'all', label: 'Todas' },
-    { key: 'unread', label: 'Não lidas' },
-    { key: 'active', label: 'Ativas' },
+    { key: 'unread', label: 'Não lidas', badge: unreadConvCount },
+    { key: 'active', label: 'Ativas', badge: onlineConvCount },
   ];
 
   return (
@@ -117,7 +124,7 @@ export function ConversationList({
 
         {/* Filter pills */}
         <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>
-          {filters.map(({ key, label }) => {
+          {filters.map(({ key, label, badge }) => {
             const isActive = activeFilter === key;
             return (
               <button
@@ -125,6 +132,7 @@ export function ConversationList({
                 type="button"
                 onClick={() => setActiveFilter(key)}
                 style={{
+                  display: 'flex', alignItems: 'center', gap: '4px',
                   padding: '3px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
                   background: isActive ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)',
                   border: isActive ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(255,255,255,0.06)',
@@ -133,6 +141,17 @@ export function ConversationList({
                 }}
               >
                 {label}
+                {badge != null && badge > 0 && (
+                  <span style={{
+                    background: isActive ? '#10b981' : 'rgba(255,255,255,0.12)',
+                    color: isActive ? '#fff' : '#94a3b8',
+                    fontSize: '9px', fontWeight: 800, minWidth: '14px', height: '14px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    borderRadius: '999px', padding: '0 3px', fontFamily: 'DM Mono, monospace',
+                  }}>
+                    {badge}
+                  </span>
+                )}
               </button>
             );
           })}
