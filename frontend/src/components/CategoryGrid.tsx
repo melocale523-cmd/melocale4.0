@@ -17,7 +17,7 @@ interface Props {
 
 export default function CategoryGrid({ userCity }: Props) {
   return (
-    <section className="py-28 border-t border-slate-800/50" style={{ background: 'linear-gradient(135deg, #0808fe 0%, #080884 50%, #080847 100%)' }}>
+    <section className="py-28 border-t border-slate-800/50" style={{ background: '#0f172a' }}>
       <div className="container-app">
 
         <div className="text-center" style={{ marginBottom: '2rem' }}>
@@ -34,7 +34,7 @@ export default function CategoryGrid({ userCity }: Props) {
             <Link
               key={cat.slug}
               to={`/login?mode=signup&servico=${cat.slug}`}
-              className="group flex flex-col items-center gap-3 bg-[#1C3454] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-5 transition-all duration-200"
+              className="group flex flex-col items-center gap-3 bg-[#1e2d45] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-5 transition-all duration-200"
             >
               <span className="text-4xl group-hover:scale-110 transition-transform duration-200">
                 {cat.emoji}
