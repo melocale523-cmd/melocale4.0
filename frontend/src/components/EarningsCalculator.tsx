@@ -39,7 +39,7 @@ export default function EarningsCalculator() {
   const profitPro = extra - 67
 
   return (
-    <section className="py-12 border-t border-slate-800/50" style={{ textAlign: 'center', background: '#182035' }}>
+    <section className="py-12" style={{ textAlign: 'center', background: '#182035', borderTop: '2px solid #10b981' }}>
       <div className="container-app">
 
         {/* Header */}

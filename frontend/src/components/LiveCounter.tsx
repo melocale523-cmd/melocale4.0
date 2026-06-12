@@ -51,7 +51,7 @@ export default function LiveCounter({ userCity }: Props) {
   return (
     <div
       className="w-full py-2.5 px-9"
-      style={{ background: '#182035', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: '#182035', borderTop: '2px solid #38bdf8', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-8">
         <span
