@@ -245,30 +245,30 @@ export default function ProfessionalEstatisticas() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse" style={{ minWidth: '520px' }}>
             <thead>
               <tr className="bg-[#0d1929]">
-                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">{range === '1y' || range === '90d' ? 'Mês' : 'Data'}</th>
-                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">Total Propostas</th>
-                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">Aceitas</th>
-                <th className="px-4 py-3 text-xs uppercase tracking-wide text-emerald-400">Faturamento</th>
-                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400">Status</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400 whitespace-nowrap" style={{ minWidth: '60px' }}>{range === '1y' || range === '90d' ? 'Mês' : 'Data'}</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400 whitespace-nowrap">Total Propostas</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400 whitespace-nowrap">Aceitas</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-emerald-400 whitespace-nowrap" style={{ minWidth: '100px' }}>Faturamento</th>
+                <th className="px-4 py-3 text-xs uppercase tracking-wide text-slate-400 whitespace-nowrap">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {[...(stats?.seriesData || [])].reverse().map((day, idx) => (
                 <tr key={idx} className="hover:bg-white/[0.01] transition-colors group">
-                  <td className="px-4 py-3 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{day.name}</td>
-                  <td className="px-4 py-3 text-sm text-slate-400">
+                  <td className="px-4 py-3 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors whitespace-nowrap">{day.name}</td>
+                  <td className="px-4 py-3 text-sm text-slate-400 whitespace-nowrap">
                     <span style={{ color: day.total === 0 ? '#3a5470' : 'inherit' }}>{day.total}</span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-4 py-3 text-sm whitespace-nowrap">
                     {day.aceitas === 0 ? <span style={{ color: '#3a5470' }}>0</span> : <span className="text-emerald-500 font-semibold">{day.aceitas}</span>}
                   </td>
-                  <td className="px-4 py-3 text-sm font-semibold">
+                  <td className="px-4 py-3 text-sm font-semibold whitespace-nowrap">
                     {Number(day.revenue) === 0 ? <span style={{ color: '#3a5470' }}>R$ 0,00</span> : <span className="text-emerald-400">{`R$ ${Number(day.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}</span>}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 whitespace-nowrap">
                     {day.aceitas > 0
                       ? <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Aceita</span>
                       : <span style={{ fontSize:'10px', fontWeight:700, color:'#3a5470' }}>—</span>
@@ -278,7 +278,7 @@ export default function ProfessionalEstatisticas() {
               ))}
               {(!stats?.seriesData || stats.seriesData.length === 0) && (
                 <tr>
-                  <td colSpan={4} className="px-3 py-10 text-center text-slate-500 text-xs uppercase tracking-wide">
+                  <td colSpan={5} className="px-3 py-10 text-center text-slate-500 text-xs uppercase tracking-wide">
                     Nenhum dado disponível no período selecionado.
                   </td>
                 </tr>

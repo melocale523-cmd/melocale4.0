@@ -237,7 +237,7 @@ export default function ProfessionalDashboard() {
             <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
             <Briefcase size={14} className="text-pink-400" />
           </div>
-          <p className="text-3xl font-bold text-white mt-3 truncate">
+          <p className="text-lg font-bold text-white mt-3 leading-tight break-words">
             {profile?.category || 'Não definida'}
           </p>
           <div className="h-px bg-white/5 mt-4 mb-3" />
@@ -432,7 +432,7 @@ export default function ProfessionalDashboard() {
               className="bg-[#1C3454] border border-[#1C3050] hover:border-emerald-500/30 rounded-xl p-5 transition-colors group"
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs uppercase tracking-wide text-slate-400">Faturamento Est.</h3>
+                <h3 className="text-[10px] uppercase tracking-wide text-slate-400 leading-tight break-words min-w-0">Faturamento Est.</h3>
                 <TrendingUp size={14} className="text-emerald-500" />
               </div>
               <p className="text-2xl font-bold text-white mb-2">
@@ -453,7 +453,7 @@ export default function ProfessionalDashboard() {
               className="bg-[#1C3454] border border-[#1C3050] hover:border-blue-500/30 rounded-xl p-5 transition-colors group"
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs uppercase tracking-wide text-slate-400">Propostas Aceitas</h3>
+                <h3 className="text-[10px] uppercase tracking-wide text-slate-400 leading-tight break-words min-w-0">Propostas Aceitas</h3>
                 <Users size={14} className="text-blue-500" />
               </div>
               <p className="text-2xl font-bold text-white mb-2">{stats.acceptedProposalsCount}</p>
@@ -472,7 +472,7 @@ export default function ProfessionalDashboard() {
               className="bg-[#1C3454] border border-[#1C3050] hover:border-purple-500/30 rounded-xl p-5 transition-colors group"
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs uppercase tracking-wide text-slate-400">Ticket Médio</h3>
+                <h3 className="text-[10px] uppercase tracking-wide text-slate-400 leading-tight break-words min-w-0">Ticket Médio</h3>
                 <Activity size={14} className="text-purple-400" />
               </div>
               <p className="text-2xl font-bold text-white mb-2">
