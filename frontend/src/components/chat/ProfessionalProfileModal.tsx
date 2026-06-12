@@ -74,16 +74,14 @@ export function ProfessionalProfileModal({ userId, name, avatar, onClose }: Prof
             {/* Info */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <h3 style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9', margin: '0 0 6px' }}>{name}</h3>
-              {prof?.category && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '6px', padding: '3px 10px', fontSize: '11px', color: '#10b981', marginBottom: '4px' }}>
-                  <Zap size={10} /> {prof.category}
-                </span>
-              )}
-              {prof?.city && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                  <MapPin size={11} /> {prof.city}
-                </div>
-              )}
+              {prof?.category
+                ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 6, padding: '3px 10px', fontSize: 11, color: '#10b981', marginBottom: 4 }}><Zap size={10} /> {prof.category}</span>
+                : <span style={{ fontSize: 11, color: '#334155', fontStyle: 'italic', marginBottom: 4, display: 'block' }}>Categoria não informada</span>
+              }
+              {prof?.city
+                ? <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', marginTop: 2 }}><MapPin size={11} /> {prof.city}</div>
+                : <div style={{ fontSize: 11, color: '#334155', fontStyle: 'italic', marginTop: 2 }}>Cidade não informada</div>
+              }
               {reviews.length > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
                   <div style={{ display: 'flex', gap: '2px' }}>
@@ -98,13 +96,13 @@ export function ProfessionalProfileModal({ userId, name, avatar, onClose }: Prof
             </div>
           </div>
 
-          {/* Stats grid */}
-          {reviews.length > 0 && (
+          {/* Stats grid — sempre visível após carregar */}
+          {!loading && prof && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '14px' }}>
               {[
-                { label: 'Avaliação', value: avgRating.toFixed(1) },
+                { label: 'Avaliação', value: reviews.length > 0 ? avgRating.toFixed(1) : '—' },
                 { label: 'Avaliações', value: String(reviews.length) },
-                { label: 'Status', value: prof?.is_active ? 'Ativo' : 'Inativo' },
+                { label: 'Status', value: prof.is_active ? 'Ativo' : 'Inativo' },
               ].map(({ label, value }) => (
                 <div key={label} style={{ background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>{value}</div>
@@ -123,14 +121,19 @@ export function ProfessionalProfileModal({ userId, name, avatar, onClose }: Prof
             </div>
           ) : (
             <>
-              {prof?.bio && (
+              {prof?.bio ? (
                 <div>
                   <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Sobre</p>
                   <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>{prof.bio}</p>
                 </div>
+              ) : prof && !prof.bio && (
+                <div>
+                  <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Sobre</p>
+                  <p style={{ fontSize: '13px', color: '#334155', fontStyle: 'italic', margin: 0 }}>Este profissional ainda não adicionou uma biografia.</p>
+                </div>
               )}
 
-              {reviews.length > 0 && (
+              {reviews.length > 0 ? (
                 <div>
                   <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Avaliações</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -150,12 +153,11 @@ export function ProfessionalProfileModal({ userId, name, avatar, onClose }: Prof
                     ))}
                   </div>
                 </div>
-              )}
-
-              {!prof?.bio && reviews.length === 0 && !loading && (
-                <p style={{ textAlign: 'center', color: '#475569', fontSize: '13px', padding: '2rem 0', margin: 0 }}>
-                  Nenhuma informação adicional disponível.
-                </p>
+              ) : (
+                <div>
+                  <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Avaliações</p>
+                  <p style={{ fontSize: '13px', color: '#334155', fontStyle: 'italic', margin: 0 }}>Nenhuma avaliação ainda.</p>
+                </div>
               )}
             </>
           )}
