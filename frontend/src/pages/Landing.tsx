@@ -140,7 +140,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#060d18', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: '100vh', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
 
       {/* ── 1. Banner ── */}
       {isFlashTime() ? (
@@ -177,7 +177,7 @@ export default function LandingPage() {
         {isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
         {/* ── 3. Hero 50/50 ── */}
-        <section style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden' }}>
+        <section style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: 'linear-gradient(135deg, #0808fe 0%, #080884 50%, #080847 100%)' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at top, rgba(16,185,129,.05) 0%, #060d18 60%)' }} />
           <div className="container-app" style={{ position: 'relative' }}>
 
@@ -262,7 +262,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 4. Trust bar ── */}
-        <section style={{ background: '#060d18', borderTop: '1px solid #0e2035', borderBottom: '1px solid #0e2035', padding: '24px 0' }}>
+        <section style={{ background: 'linear-gradient(135deg, #080847 0%, #080884 50%, #0808fe 100%)', borderTop: '1px solid #0e2035', borderBottom: '1px solid #0e2035', padding: '24px 0' }}>
           <div className="container-app">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
@@ -284,7 +284,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 5. Como funciona dual ── */}
-        <section id="como-funciona" style={{ background: '#060d18', borderBottom: '1px solid #0e2035', padding: '64px 0' }}>
+        <section id="como-funciona" style={{ background: 'linear-gradient(135deg, #0808fe 0%, #080884 50%, #080847 100%)', borderBottom: '1px solid #0e2035', padding: '64px 0' }}>
           <div className="container-app">
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.5rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Como funciona?</h2>
             <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>Três passos simples para cada lado da plataforma</p>
@@ -345,7 +345,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 6. Objeções ── */}
-        <section style={{ background: '#060d18', borderBottom: '1px solid #0e2035', padding: '64px 0' }}>
+        <section style={{ background: 'linear-gradient(135deg, #080847 0%, #080884 50%, #0808fe 100%)', borderBottom: '1px solid #0e2035', padding: '64px 0' }}>
           <div className="container-app">
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Por que confiar no MeloCalé?</h2>
             <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 440, margin: '0 auto 40px' }}>Respondemos os principais medos de cada lado</p>
@@ -390,7 +390,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 7. Garantia ── */}
-        <section style={{ background: '#060d18', borderBottom: '1px solid #0e2035', padding: '48px 0' }}>
+        <section style={{ background: 'linear-gradient(135deg, #0808fe 0%, #080884 50%, #080847 100%)', borderBottom: '1px solid #0e2035', padding: '48px 0' }}>
           <div className="container-app">
             <div style={{ maxWidth: 580, margin: '0 auto', background: 'linear-gradient(135deg,rgba(16,185,129,.06),rgba(16,185,129,.03))', border: '2px solid rgba(16,185,129,.28)', borderRadius: 20, padding: '32px 28px', textAlign: 'center' }}>
               <div style={{ fontSize: 42, marginBottom: 12 }}>🛡️</div>
@@ -406,7 +406,7 @@ export default function LandingPage() {
         <LiveCounter userCity={userCity} />
 
         {/* ── 9. Por que escolher + CompetitorTable ── */}
-        <section className="py-16 bg-[#0B1729] border-t border-slate-800/50">
+        <section className="py-16 border-t border-slate-800/50" style={{ background: 'linear-gradient(135deg, #080847 0%, #080884 50%, #0808fe 100%)' }}>
           <div className="container-app">
             <div className="text-center" style={{ marginBottom: '4rem' }}>
               <h2 className="text-2xl md:text-3xl font-bold text-white">
@@ -438,7 +438,7 @@ export default function LandingPage() {
         <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense></div>
 
         {/* ── 11. Stats + Depoimentos ── */}
-        <section style={{ background: '#060d18', borderTop: '1px solid #0e2035', padding: '64px 0' }}>
+        <section style={{ background: 'linear-gradient(135deg, #0808fe 0%, #080884 50%, #080847 100%)', borderTop: '1px solid #0e2035', padding: '64px 0' }}>
           <div className="container-app">
 
             {/* Stats dual */}
@@ -564,7 +564,7 @@ export default function LandingPage() {
         {!isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
         {/* ── 13. Planos ── */}
-        <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
+        <section id="planos" className="py-28 border-t border-slate-800/50" style={{ background: 'linear-gradient(135deg, #080847 0%, #080884 50%, #0808fe 100%)' }}>
           <div className="container-app">
             <div className="text-center mb-12" style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto', maxWidth: '48rem' }}>
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5" style={{ marginBottom: '1rem' }}>
@@ -727,7 +727,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 14. FAQ ── */}
-        <section style={{ background: '#060d18', borderTop: '1px solid #0e2035', padding: '64px 0' }}>
+        <section style={{ background: 'linear-gradient(135deg, #0808fe 0%, #080884 50%, #080847 100%)', borderTop: '1px solid #0e2035', padding: '64px 0' }}>
           <div className="container-app">
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 32 }}>Perguntas frequentes</h2>
             <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -753,7 +753,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 15. CTA Final Dual ── */}
-        <section style={{ background: '#060d18', borderTop: '1px solid #0e2035', padding: '64px 0' }}>
+        <section style={{ background: 'linear-gradient(135deg, #080847 0%, #080884 50%, #0808fe 100%)', borderTop: '1px solid #0e2035', padding: '64px 0' }}>
           <div className="container-app">
 
             {/* Timer */}
