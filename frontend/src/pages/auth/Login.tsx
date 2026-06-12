@@ -204,7 +204,7 @@ export default function Login() {
         setMode(selectedRole);
 
         await supabase.from('profiles').upsert({
-          id: signUpData.user?.id,
+          id: signUpData.user!.id,
           full_name: formData.name,
           phone: formData.phone || null,
           city: derivedCity || null,

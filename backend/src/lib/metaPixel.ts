@@ -34,19 +34,15 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
         custom_data: data.customData ?? {},
       },
     ],
-    test_event_code: process.env.NODE_ENV !== 'production' ? 'TEST8093' : undefined,
   };
 
   try {
-    console.log('[MetaPixel] enviando evento:', data.eventName, 'pixel:', PIXEL_ID ? 'ok' : 'MISSING', 'token:', ACCESS_TOKEN ? 'ok' : 'MISSING');
-    const response = await fetch(`${API_URL}?access_token=${ACCESS_TOKEN}`, {
+    await fetch(`${API_URL}?access_token=${ACCESS_TOKEN}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    const responseText = await response.text();
-    console.log('[MetaPixel] status:', response.status, 'response:', responseText);
-  } catch (err) {
-    console.error('[MetaPixel] Erro ao enviar evento:', err);
+  } catch {
+    // silencioso — falha de tracking não deve impactar o fluxo principal
   }
 }
