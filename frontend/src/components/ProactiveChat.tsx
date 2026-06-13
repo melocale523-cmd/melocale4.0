@@ -120,7 +120,7 @@ export default function ProactiveChat({ userCity }: Props) {
         </div>
 
         {/* Body */}
-        <div style={{ padding:'1rem' }}>
+        <div style={{ padding:'1rem', maxHeight:'60vh', overflowY:'auto' }}>
 
           {/* Mensagem bolha */}
           <div style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:'1rem' }}>
