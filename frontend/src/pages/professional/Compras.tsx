@@ -313,7 +313,7 @@ export default function ProfessionalCompras() {
           <LoadingSpinner size={32} label="Carregando seus clientes..." />
         </div>
       ) : filteredPurchases.length > 0 ? (
-        <div className="grid gap-9 md:grid-cols-2">
+        <div className="grid gap-9 md:grid-cols-2" style={{ marginTop:'1.5rem' }}>
           {filteredPurchases.map((purchase) => (
             <div
               key={purchase.id}
