@@ -182,12 +182,12 @@ export default function LandingPage() {
 
             {/* Eyebrow */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 20, padding: '4px 14px' }}>🔧 Para profissionais</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 20, padding: '4px 14px' }}>🏠 Para clientes</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 14px' }}>🔧 Para profissionais</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 20, padding: '4px 14px' }}>🏠 Para clientes</span>
             </div>
 
             {/* Headline */}
-            <h1 style={{ textAlign: 'center', fontSize: 'clamp(1.9rem, 5vw, 3rem)', fontWeight: 900, lineHeight: 1.15, marginBottom: 14, color: '#f0f6ff' }}>
+            <h1 style={{ textAlign: 'center', fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: 14, color: '#f0f6ff' }}>
               <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Ganhe mais</span>
               {' '}ou{' '}
               <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>contrate melhor</span>
@@ -195,7 +195,7 @@ export default function LandingPage() {
             </h1>
 
             {/* Subheadline */}
-            <p style={{ textAlign: 'center', fontSize: 15, color: '#6a9ab8', maxWidth: 560, margin: '0 auto 32px', lineHeight: 1.7 }}>
+            <p style={{ textAlign: 'center', fontSize: 17, color: '#94b8d8', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.7 }}>
               A plataforma que conecta profissionais qualificados a clientes que precisam de serviços — com segurança, agilidade e resultado.
             </p>
 
@@ -207,10 +207,10 @@ export default function LandingPage() {
                 style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 20, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 14, transition: 'all .2s' }}
                 onMouseEnter={hoverGreen.enter} onMouseLeave={hoverGreen.leave}
               >
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#f0f6ff', margin: 0, lineHeight: 1.3 }}>Aumente sua renda com leads qualificados</h3>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Aumente sua renda com leads qualificados</h3>
                 <p style={{ fontSize: 13, color: '#6a9ab8', margin: 0, lineHeight: 1.6 }}>Receba clientes prontos para contratar na sua cidade. Sem depender de indicação.</p>
-                <div style={{ background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
                   <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>resultado médio</span>
                   <span style={{ fontSize: 15, fontWeight: 900, color: '#10b981' }}>+R$1.800/mês extra</span>
                 </div>
@@ -222,7 +222,7 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 11, textDecoration: 'none', marginTop: 'auto' }}>
+                <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
                   Quero receber clientes agora →
                 </Link>
               </div>
@@ -232,10 +232,10 @@ export default function LandingPage() {
                 style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 20, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 14, transition: 'all .2s' }}
                 onMouseEnter={hoverBlue.enter} onMouseLeave={hoverBlue.leave}
               >
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#f0f6ff', margin: 0, lineHeight: 1.3 }}>Encontre o profissional certo em minutos</h3>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Encontre o profissional certo em minutos</h3>
                 <p style={{ fontSize: 13, color: '#6a9ab8', margin: 0, lineHeight: 1.6 }}>Receba até 5 orçamentos de profissionais verificados. Grátis, sem compromisso.</p>
-                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
                   <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>tempo médio de resposta</span>
                   <span style={{ fontSize: 15, fontWeight: 900, color: '#38bdf8' }}>47 minutos</span>
                 </div>
@@ -247,14 +247,14 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 11, textDecoration: 'none', marginTop: 'auto' }}>
+                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
                   Encontrar profissional agora →
                 </Link>
               </div>
             </div>
 
             {/* Proof row */}
-            <p style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: '#4a6a80' }}>
+            <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#7a9ab8' }}>
               371+ profissionais &nbsp;·&nbsp; 1.200+ serviços &nbsp;·&nbsp; 98% satisfação &nbsp;·&nbsp; 🔒 Grátis para começar
             </p>
           </div>
@@ -267,8 +267,8 @@ export default function LandingPage() {
               {[
                 { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(100,120,180,.30)', bg: 'rgba(56,100,200,.05)' },
                 { icon: '⚡', label: 'Resposta 47 min', sub: 'Média real', border: 'rgba(245,158,11,.25)', bg: 'rgba(245,158,11,.10)' },
-                { icon: '✅', label: 'Verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.30)', bg: 'rgba(16,185,129,.10)' },
-                { icon: '🛡️', label: 'Garantia 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.3)', bg: 'rgba(16,185,129,.12)' },
+                { icon: '✅', label: 'Verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)' },
+                { icon: '🛡️', label: 'Garantia 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.3)', bg: 'rgba(16,185,129,.14)' },
               ].map(item => (
                 <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
@@ -291,9 +291,9 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
 
               {/* Painel Verde — Profissional */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.30)', borderRadius: 18, padding: '24px 20px' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 6, padding: '3px 10px' }}>🔧 Profissional</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>🔧 Profissional</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {[
@@ -302,7 +302,7 @@ export default function LandingPage() {
                     { n: '03', title: 'Feche negócios', sub: '+R$1.800/mês', color: '#10b981' },
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
                       <div>
                         <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>{s.title}</p>
                         <p style={{ fontSize: 11, color: s.color, margin: 0, fontWeight: 700 }}>{s.sub}</p>
@@ -313,9 +313,9 @@ export default function LandingPage() {
               </div>
 
               {/* Painel Azul — Cliente */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.30)', borderRadius: 18, padding: '24px 20px' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 6, padding: '3px 10px' }}>🏠 Cliente</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>🏠 Cliente</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {[
@@ -352,8 +352,8 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
 
               {/* Painel Verde */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.30)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
                 {[
                   { emoji: '😰', q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o PRO por 7 meses. Média: +R$1.800/mês extra.' },
                   { emoji: '🤔', q: 'Os leads são de qualidade?', a: 'Clientes preenchem pedido detalhado antes de chegar até você. Já estão prontos para contratar.' },
@@ -369,8 +369,8 @@ export default function LandingPage() {
               </div>
 
               {/* Painel Azul */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.30)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
                 {[
                   { emoji: '😰', q: 'E se for golpe?', a: 'Todo profissional passa por validação de identidade. Garantia de 7 dias com dinheiro de volta.' },
                   { emoji: '💸', q: 'Vou pagar caro?', a: 'Você recebe até 5 orçamentos e escolhe o melhor preço. Nenhum compromisso antes de decidir.' },
@@ -391,7 +391,7 @@ export default function LandingPage() {
         {/* ── 7. Garantia ── */}
         <section style={{ background: '#0f172a', borderTop: '2px solid #f59e0b', padding: '48px 0' }}>
           <div className="container-app">
-            <div style={{ maxWidth: 580, margin: '0 auto', background: 'linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.03))', border: '2px solid rgba(16,185,129,.28)', borderRadius: 20, padding: '32px 28px', textAlign: 'center' }}>
+            <div style={{ maxWidth: 580, margin: '0 auto', background: 'linear-gradient(135deg,rgba(16,185,129,.14),rgba(16,185,129,.03))', border: '2px solid rgba(16,185,129,.28)', borderRadius: 20, padding: '32px 28px', textAlign: 'center' }}>
               <div style={{ fontSize: 42, marginBottom: 12 }}>🛡️</div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', marginBottom: 12 }}>Garantia incondicional de 7 dias</h3>
               <p style={{ fontSize: 14, color: '#6a9ab8', lineHeight: 1.7, margin: 0 }}>
@@ -442,7 +442,7 @@ export default function LandingPage() {
 
             {/* Stats dual */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginBottom: 48 }}>
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.30)', borderRadius: 18, padding: '24px 20px' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px' }}>
                 <p style={{ fontSize: 10, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🔧 Resultados dos profissionais</p>
                 <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
                   {[
@@ -457,7 +457,7 @@ export default function LandingPage() {
                   ))}
                 </div>
               </div>
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.30)', borderRadius: 18, padding: '24px 20px' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px' }}>
                 <p style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🏠 Resultados dos clientes</p>
                 <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
                   {[
@@ -481,9 +481,9 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5" style={{ marginBottom: 40 }}>
               {/* Depoimento 1 — Carlos */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.30)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
-                <div style={{ background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
                   <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>+R$1.800/mês</span>
                 </div>
@@ -503,9 +503,9 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 2 — Ana */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.30)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
-                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
                   <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>2 propostas em 47 min</span>
                 </div>
@@ -525,8 +525,8 @@ export default function LandingPage() {
               </div>
 
               {/* Depoimento 3 — Marcos */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(245,158,11,.30)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+              <div style={{ background: '#1a2d45', border: '1px solid rgba(245,158,11,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
                 <div style={{ background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.30)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
                   <span style={{ fontSize: 13, fontWeight: 900, color: '#f59e0b' }}>Renda principal</span>
@@ -583,9 +583,9 @@ export default function LandingPage() {
             </div>
 
             <div className="flex justify-center mb-10" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-3">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-4">
                 <span className="text-emerald-400 text-xl">🛡️</span>
-                <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
+                <span className="text-emerald-400 font-bold text-base">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
               </div>
             </div>
 
@@ -615,7 +615,7 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
               {/* GRATUITO */}
-              <div className="bg-[#1e2d45] rounded-2xl border border-slate-800 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
+              <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
                 <div className="mb-8">
                   <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -634,7 +634,7 @@ export default function LandingPage() {
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1e2d45] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
+              <div className="bg-[#1a2840] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-90 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
                 <div className="mb-8">
                   <div className="inline-block px-3 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Starter</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -659,8 +659,8 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '3.5rem 2rem' }}>
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '3.5rem 2rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)' }}>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-5 py-2 rounded-full text-sm font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
                 <div className="mb-8">
@@ -668,7 +668,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-16 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-base font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
                   Receber Meu Primeiro Lead →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
@@ -689,7 +689,7 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1e2d45] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
+              <div className="bg-[#1a2840] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-90 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
                 <div className="mb-8">
                   <div className="inline-block px-3 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">🏆 Elite</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -769,7 +769,7 @@ export default function LandingPage() {
               {/* Verde */}
               <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '28px 22px', display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center' }}>
                 <span style={{ fontSize: 32 }}>🔧</span>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.30)', borderRadius: 6, padding: '3px 10px' }}>Para profissionais</span>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>Para profissionais</span>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: '#f0f6ff', margin: 0 }}>Comece a receber clientes hoje</h3>
                 <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0 }}>Profissionais em {userCity} já estão recebendo leads qualificados.</p>
                 <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, width: '100%', background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 11, textDecoration: 'none' }}>
@@ -781,7 +781,7 @@ export default function LandingPage() {
               {/* Azul */}
               <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '28px 22px', display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center' }}>
                 <span style={{ fontSize: 32 }}>🏠</span>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.30)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: '#f0f6ff', margin: 0 }}>Encontre o profissional em 47 min</h3>
                 <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0 }}>Profissionais verificados disponíveis em {userCity} agora.</p>
                 <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, width: '100%', background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 11, textDecoration: 'none' }}>
