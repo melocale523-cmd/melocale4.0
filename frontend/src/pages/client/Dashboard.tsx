@@ -150,7 +150,7 @@ export default function ClientDashboard() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-700">
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-700" style={{ display:'flex', flexDirection:'column', gap:'2rem' }}>
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -195,9 +195,9 @@ export default function ClientDashboard() {
       )}
 
       {/* STATS ROW */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '1rem' }}>
         {statCards.map((card) => (
-          <div key={card.label} className="bg-[#132236] rounded-2xl p-4 border border-white/5">
+          <div key={card.label} className="bg-[#132236] rounded-2xl p-5 border border-white/5">
             <p className="text-[11px] text-[#7a9ebf] uppercase tracking-widest mb-2">{card.label}</p>
             <p className={cn(
               'text-3xl font-black',
@@ -210,7 +210,7 @@ export default function ClientDashboard() {
       </div>
 
       {/* CONTENT GRID */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: '20px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
 
         {/* COLUNA ESQUERDA — pedidos recentes */}
         <div>
@@ -286,7 +286,7 @@ export default function ClientDashboard() {
               })}
             </div>
           ) : (
-            <div className="bg-[#132236] rounded-xl p-8 border border-white/5 text-center flex flex-col items-center gap-4">
+            <div className="bg-[#132236] rounded-xl border border-white/5 text-center flex flex-col items-center" style={{ padding:'2.5rem 1.5rem', gap:'1.25rem' }}>
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                 <Hammer size={24} />
               </div>
@@ -305,9 +305,9 @@ export default function ClientDashboard() {
         </div>
 
         {/* COLUNA DIREITA */}
-        <div className="space-y-4">
+        <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
           {/* CTA card */}
-          <div className="bg-[#132236] rounded-2xl p-6 border border-white/5 relative overflow-hidden">
+          <div className="bg-[#132236] rounded-2xl border border-white/5 relative overflow-hidden" style={{ padding:'1.75rem' }}>
             <div className="relative z-10">
               <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mb-3">
                 <Hammer size={20} />
@@ -328,7 +328,7 @@ export default function ClientDashboard() {
           </div>
 
           {/* Moedas */}
-          <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
+          <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <Coins size={16} color="#10b981" />
               <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#10b981' }}>Suas moedas</span>
@@ -348,7 +348,7 @@ export default function ClientDashboard() {
           </div>
 
           {/* Próximo agendamento */}
-          <div className="bg-[#132236] rounded-2xl p-5 border border-white/5">
+          <div className="bg-[#132236] rounded-2xl border border-white/5" style={{ padding:'1.25rem 1.5rem' }}>
             <div className="flex items-center gap-2 mb-3">
               <CalendarCheck size={16} className="text-purple-400" />
               <p className="text-[11px] font-black text-[#7a9ebf] uppercase tracking-widest">Próximo agendamento</p>
