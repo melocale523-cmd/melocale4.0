@@ -50,7 +50,7 @@ export interface ClientProfile {
   state: string | null;
   created_at: string;
   total_leads: number;
-  recent_leads: { id: string; title: string; status: string; created_at: string }[];
+  recent_leads: { id: string; title: string; status: string; created_at: string; price_coins: number | null; budget_min: number | null; budget_max: number | null; purchased: boolean }[];
 }
 
 export interface ProfessionalReview {
