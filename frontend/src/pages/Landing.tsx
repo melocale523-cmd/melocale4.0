@@ -158,7 +158,7 @@ export default function LandingPage() {
       ) : (
         <div
           className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-xs md:text-sm font-black px-4 sm:px-6"
-          style={{ height: BANNER_H, background: '#0e1830', borderBottom: '1px solid #0e2035' }}
+          style={{ height: BANNER_H, background: '#ea580c', borderBottom: '1px solid #0e2035' }}
         >
           <span>🔥 Oferta especial expira em:</span>
           <span className="font-mono text-base md:text-lg tracking-widest bg-black/20 px-3 py-0.5 rounded-lg">
