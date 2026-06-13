@@ -355,7 +355,7 @@ export default function Indicacao() {
   }, [referralData, generatingStories, isPro, rewardLabel, rewardDesc])
 
   return (
-    <div className="w-full space-y-8" style={{ fontFamily:"'DM Sans',sans-serif" }}>
+    <div className="w-full" style={{ fontFamily:"'DM Sans',sans-serif", display:'flex', flexDirection:'column', gap:'2rem' }}>
 
       {/* HERO */}
       <div style={{ background:'linear-gradient(135deg,rgba(16,185,129,.1),rgba(5,150,105,.06))', border:'1px solid rgba(16,185,129,.25)', borderRadius:'1.125rem', padding:'1.75rem 2rem', position:'relative', overflow:'hidden' }}>
