@@ -141,7 +141,7 @@ export default function ProfessionalDashboard() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-5xl mx-auto space-y-6" style={{ padding: '0 1.5rem' }}>
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-baseline justify-between gap-2">
