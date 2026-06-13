@@ -200,11 +200,11 @@ export default function LandingPage() {
             </p>
 
             {/* Two cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 860, margin: '0 auto' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 860, margin: '0 auto', alignItems: 'stretch' }}>
 
               {/* Green — Profissional */}
               <div
-                style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s' }}
+                style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
                 onMouseEnter={hoverGreen.enter} onMouseLeave={hoverGreen.leave}
               >
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
@@ -229,7 +229,7 @@ export default function LandingPage() {
 
               {/* Blue — Cliente */}
               <div
-                style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s' }}
+                style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
                 onMouseEnter={hoverBlue.enter} onMouseLeave={hoverBlue.leave}
               >
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
@@ -261,20 +261,20 @@ export default function LandingPage() {
         </section>
 
         {/* ── 4. Trust bar ── */}
-        <section style={{ background: '#182035', borderTop: '2px solid #f59e0b', padding: '24px 0' }}>
+        <section style={{ background: '#182035', borderTop: '2px solid #f59e0b', padding: '28px 0' }}>
           <div className="container-app">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(100,120,180,.30)', bg: 'rgba(56,100,200,.05)' },
-                { icon: '⚡', label: 'Resposta 47 min', sub: 'Média real', border: 'rgba(245,158,11,.25)', bg: 'rgba(245,158,11,.10)' },
-                { icon: '✅', label: 'Verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)' },
-                { icon: '🛡️', label: 'Garantia 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.3)', bg: 'rgba(16,185,129,.14)' },
+                { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(56,189,248,.35)', bg: 'rgba(56,189,248,.08)', accent: '#38bdf8' },
+                { icon: '⚡', label: 'Resposta em 47 min', sub: 'Média real verificada', border: 'rgba(245,158,11,.35)', bg: 'rgba(245,158,11,.08)', accent: '#f59e0b' },
+                { icon: '✅', label: 'Profissionais verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.08)', accent: '#10b981' },
+                { icon: '🛡️', label: 'Garantia de 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)', accent: '#10b981' },
               ].map(item => (
-                <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 26, flexShrink: 0 }}>{item.icon}</span>
+                <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 28, flexShrink: 0 }}>{item.icon}</span>
                   <div>
-                    <p style={{ fontSize: 14, fontWeight: 800, color: '#f0f6ff', margin: 0, lineHeight: 1.2 }}>{item.label}</p>
-                    <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, marginTop: 2 }}>{item.sub}</p>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.2 }}>{item.label}</p>
+                    <p style={{ fontSize: 12, color: item.accent, margin: 0, marginTop: 3, fontWeight: 600 }}>{item.sub}</p>
                   </div>
                 </div>
               ))}
@@ -615,7 +615,7 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
               {/* GRATUITO */}
-              <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
+              <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-80 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', borderTop: '3px solid rgba(148,163,184,.3)' }}>
                 <div className="mb-8">
                   <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -634,7 +634,7 @@ export default function LandingPage() {
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1a2840] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-90 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
+              <div className="bg-[#1a2840] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', borderTop: '3px solid #38bdf8' }}>
                 <div className="mb-8">
                   <div className="inline-block px-3 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Starter</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -659,7 +659,7 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '3.5rem 2rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)' }}>
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '3.5rem 2rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)', borderTop: '3px solid #10b981' }}>
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-5 py-2 rounded-full text-sm font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
@@ -689,7 +689,7 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1a2840] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-90 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem' }}>
+              <div className="bg-[#1a2840] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', borderTop: '3px solid #f59e0b' }}>
                 <div className="mb-8">
                   <div className="inline-block px-3 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">🏆 Elite</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
@@ -731,17 +731,17 @@ export default function LandingPage() {
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 32 }}>Perguntas frequentes</h2>
             <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
               {FAQ_ITEMS.map((item, i) => (
-                <div key={i} style={{ background: '#1e2d45', border: `1px solid ${openFaq === i ? 'rgba(16,185,129,.3)' : '#0e2035'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s' }}>
+                <div key={i} style={{ background: '#1a2840', border: `1px solid ${openFaq === i ? 'rgba(16,185,129,.5)' : 'rgba(56,189,248,.15)'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s' }}>
                   <button
                     type="button"
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    style={{ width: '100%', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: 'none', border: 'none', color: '#f0f6ff', textAlign: 'left', fontFamily: "'DM Sans', sans-serif" }}
+                    style={{ width: '100%', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: 'none', border: 'none', color: '#f0f6ff', textAlign: 'left', fontFamily: "'DM Sans', sans-serif" }}
                   >
-                    <span style={{ fontSize: 14, fontWeight: 700 }}>{item.q}</span>
+                    <span style={{ fontSize: 15, fontWeight: 800 }}>{item.q}</span>
                     <span style={{ fontSize: 18, color: '#10b981', fontWeight: 900, flexShrink: 0, marginLeft: 12, transition: 'transform .2s', display: 'inline-block', transform: openFaq === i ? 'rotate(45deg)' : '' }}>+</span>
                   </button>
                   {openFaq === i && (
-                    <div style={{ padding: '0 18px 14px', fontSize: 13, color: '#6a9ab8', lineHeight: 1.7 }}>
+                    <div style={{ padding: '0 22px 18px', fontSize: 14, color: '#94b8d4', lineHeight: 1.7 }}>
                       {item.a}
                     </div>
                   )}

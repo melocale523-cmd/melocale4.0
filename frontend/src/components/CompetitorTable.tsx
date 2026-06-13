@@ -54,7 +54,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
               {features.map((f, i) => (
                 <tr
                   key={f.label}
-                  className={`border-b border-slate-800/60 ${i % 2 === 0 ? 'bg-[#0E1C32]' : 'bg-[#0B1729]'}`}
+                  className={`border-b border-slate-800/60 ${i % 2 === 0 ? 'bg-[#1a2840]' : 'bg-[#182035]'}`}
                 >
                   <td className="px-4 py-5 text-slate-300 font-medium">{f.label}</td>
                   <td className="px-4 py-5 text-center border-x border-emerald-500/30 bg-emerald-500/5">
@@ -71,7 +71,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         {/* Mobile cards */}
         <div className="md:hidden space-y-4" style={{ margin: '0 auto', width: '92%', maxWidth: '400px' }}>
           {features.map(f => (
-            <div key={f.label} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4">
+            <div key={f.label} className="bg-[#1e2d45] border border-slate-700 rounded-2xl p-4">
               <p className="text-white font-bold mb-3 text-sm text-left">{f.label}</p>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="flex flex-col items-center gap-1">
