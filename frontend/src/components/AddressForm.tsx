@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
+import { AlertCircle, Loader2, MapPin } from 'lucide-react';
 import { logService } from '../lib/logService';
 
 export interface AddressValue {
@@ -20,19 +20,89 @@ export const emptyAddress: AddressValue = {
 interface AddressFormProps {
   value: AddressValue;
   onChange: (address: AddressValue) => void;
-  /** 'profile' uses the compact dark-card style; 'signup' matches the modal input style */
   variant?: 'profile' | 'signup';
   cityError?: string;
+  initialGeoTrigger?: boolean;
 }
 
-export function AddressForm({ value, onChange, variant = 'profile', cityError }: AddressFormProps) {
+export function AddressForm({ value, onChange, variant = 'profile', cityError, initialGeoTrigger }: AddressFormProps) {
   const [loading, setLoading] = useState(false);
   const [cepError, setCepError] = useState<string | null>(null);
   const [viacepFilled, setViacepFilled] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const geoTriggeredRef = useRef(false);
 
   // Keep a ref to avoid stale closure inside the async fetch
   const latestValue = useRef(value);
   latestValue.current = value;
+
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) {
+      setGeoError('Geolocalização não suportada neste dispositivo.');
+      return;
+    }
+    setGeoLoading(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+            { headers: { 'Accept-Language': 'pt-BR' } }
+          );
+          const data = await res.json() as {
+            address?: { postcode?: string; road?: string; suburb?: string; neighbourhood?: string; city?: string; town?: string; village?: string; state?: string; }
+          };
+          const addr = data.address ?? {};
+          const cepDigits = (addr.postcode ?? '').replace(/\D/g, '').slice(0, 8);
+          const city = addr.city || addr.town || addr.village || '';
+          const neighborhood = addr.suburb || addr.neighbourhood || '';
+          const newAddress = {
+            ...latestValue.current,
+            cep: cepDigits,
+            street: addr.road || latestValue.current.street,
+            neighborhood,
+            city,
+            state: addr.state ? addr.state.slice(0, 2).toUpperCase() : latestValue.current.state,
+          };
+          onChange(newAddress);
+          setViacepFilled(true);
+          if (cepDigits.length === 8) {
+            const vRes = await fetch(`https://viacep.com.br/ws/${cepDigits}/json/`);
+            const vData = await vRes.json() as { erro?: boolean; logradouro?: string; bairro?: string; localidade?: string; uf?: string };
+            if (!vData.erro) {
+              onChange({
+                ...newAddress,
+                street: vData.logradouro || newAddress.street,
+                neighborhood: vData.bairro || neighborhood,
+                city: vData.localidade || city,
+                state: vData.uf || newAddress.state,
+              });
+            }
+          }
+        } catch {
+          setGeoError('Não foi possível obter o endereço. Preencha manualmente.');
+        } finally {
+          setGeoLoading(false);
+        }
+      },
+      () => {
+        setGeoError('Permissão negada. Preencha o CEP manualmente.');
+        setGeoLoading(false);
+      },
+      { timeout: 10000 }
+    );
+  };
+
+  useEffect(() => {
+    if (initialGeoTrigger && !geoTriggeredRef.current) {
+      geoTriggeredRef.current = true;
+      handleUseLocation();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialGeoTrigger]);
 
   const isSignup = variant === 'signup';
 
@@ -106,6 +176,24 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError }:
 
   return (
     <div className="space-y-0">
+      {geoLoading && (
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'0.75rem 1rem', background:'rgba(16,185,129,.08)', border:'1px solid rgba(16,185,129,.2)', borderRadius:12, marginBottom:'1.25rem' }}>
+          <Loader2 size={15} className="animate-spin" style={{ color:'#34d399', flexShrink:0 }} />
+          <p style={{ fontSize:13, color:'#34d399', margin:0 }}>Detectando sua localização...</p>
+        </div>
+      )}
+      {geoError && (
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'0.75rem 1rem', background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', borderRadius:12, marginBottom:'1.25rem' }}>
+          <AlertCircle size={15} style={{ color:'#f87171', flexShrink:0 }} />
+          <p style={{ fontSize:13, color:'#f87171', margin:0 }}>{geoError}</p>
+        </div>
+      )}
+      {!geoLoading && !geoError && viacepFilled && initialGeoTrigger && (
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'0.75rem 1rem', background:'rgba(16,185,129,.08)', border:'1px solid rgba(16,185,129,.2)', borderRadius:12, marginBottom:'1.25rem' }}>
+          <MapPin size={15} style={{ color:'#34d399', flexShrink:0 }} />
+          <p style={{ fontSize:13, color:'#34d399', margin:0 }}>Endereço detectado automaticamente ✓</p>
+        </div>
+      )}
       {/* CEP */}
       <div style={{ marginBottom: '1.25rem' }}>
         <label className={labelClass} style={{ marginBottom: '0.5rem' }}>

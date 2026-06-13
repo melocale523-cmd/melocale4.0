@@ -68,6 +68,8 @@ export default function Login() {
       });
   }, []);
 
+  const [geoTrigger, setGeoTrigger] = useState(false);
+
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password || !formData.name) {
@@ -76,6 +78,7 @@ export default function Login() {
     }
     const pwErr = validatePassword(formData.password);
     if (pwErr) { setError(pwErr); return; }
+    setGeoTrigger(true);
     setAuthStep('details');
     setError(null);
   };
@@ -574,7 +577,7 @@ export default function Login() {
                 </div>
                 <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
                   <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Endereço</label>
-                  <AddressForm value={address} onChange={setAddress} variant="signup" />
+                  <AddressForm value={address} onChange={setAddress} variant="signup" initialGeoTrigger={geoTrigger} />
                 </div>
                 {selectedRole === 'professional' && (
                   <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
