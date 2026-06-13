@@ -162,7 +162,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
     const [profileRes, clientRes, leadsRes, countRes] = await Promise.all([
       supabase.from('profiles').select('id, full_name, avatar_url, city, created_at').eq('id', clientId).single(),
       supabase.from('clients').select('state').eq('id', clientId).maybeSingle(),
-      supabase.from('leads').select('id, title, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }).limit(5),
+      supabase.from('leads').select('id, title, status, created_at, price_coins, budget_min, budget_max').eq('client_id', clientId).order('created_at', { ascending: false }).limit(5),
       supabase.from('leads').select('id', { count: 'exact', head: true }).eq('client_id', clientId),
     ]);
     if (profileRes.error || !profileRes.data) return;
@@ -170,7 +170,7 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
       ...profileRes.data,
       state: clientRes.data?.state ?? null,
       total_leads: countRes.count ?? 0,
-      recent_leads: leadsRes.data ?? [],
+      recent_leads: ((leadsRes.data as any[]) ?? []).map(l => ({ ...l, purchased: false })),
     });
   };
 
