@@ -75,7 +75,7 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
         }
       },
       () => {
-        setGeoError('Permissão negada. Preencha o CEP manualmente.');
+        setGeoError('Permissão negada. Preencha o endereço manualmente.');
         setGeoLoading(false);
       },
       { timeout: 10000 }
@@ -182,32 +182,6 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
           <p style={{ fontSize:13, color:'#34d399', margin:0 }}>Endereço detectado automaticamente ✓</p>
         </div>
       )}
-      {/* CEP */}
-      <div style={{ marginBottom: '1.25rem' }}>
-        <label className={labelClass} style={{ marginBottom: '0.5rem' }}>
-          CEP{autoFillHint}
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            inputMode="numeric"
-            value={formatCep(value.cep)}
-            onChange={handleCepChange}
-            placeholder="00000-000"
-            maxLength={9}
-            className={`${baseInput} pr-9`}
-          />
-          {loading && (
-            <Loader2 size={15} className="animate-spin text-emerald-500 absolute right-3 top-1/2 -translate-y-1/2" />
-          )}
-        </div>
-        {cepError && (
-          <p className="flex items-center gap-1.5 text-red-400 text-xs mt-1.5">
-            <AlertCircle size={12} className="shrink-0" /> {cepError}
-          </p>
-        )}
-      </div>
-
       {/* Rua + Número */}
       <div className="grid grid-cols-3 gap-8" style={{ marginBottom: '1.25rem' }}>
         <div className="col-span-2">
