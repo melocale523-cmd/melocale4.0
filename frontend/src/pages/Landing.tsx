@@ -622,7 +622,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-sm text-[#4A6580]">Para conhecer a plataforma</p>
                 </div>
-                <Link to="/login" className="inline-flex items-center justify-center w-full h-14 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4">
+                <Link to="/login" className="inline-flex items-center justify-center w-full h-14 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4" style={{ marginTop: '1.75rem', marginBottom: '1.75rem' }}>
                   Explorar Grátis →
                 </Link>
                 <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -641,7 +641,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Quero Receber Leads →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
@@ -669,7 +669,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Receber Meu Primeiro Lead →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
@@ -696,7 +696,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Dominar {userCity} Agora →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
