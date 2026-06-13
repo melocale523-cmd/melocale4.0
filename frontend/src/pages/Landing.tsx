@@ -412,7 +412,7 @@ export default function LandingPage() {
                 A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> —<br className="hidden lg:block" /> rápido, seguro e perto de você
               </h2>
             </div>
-            <div className="flex flex-col lg:flex-row gap-4 items-start">
+            <div className="flex flex-col lg:flex-row gap-4 items-start" style={{ maxWidth: '1000px', margin: '0 auto' }}>
               <div className="hidden lg:flex flex-col gap-2 w-[85px] shrink-0 relative">
                 {[
                   { icon: <ShieldCheck size={14} className="text-purple-400" />, bg: 'bg-purple-500/10', title: 'Profissionais Verificados' },
