@@ -69,6 +69,35 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
           };
           onChange(newAddress);
           setViacepFilled(true);
+
+          // Tenta refinar CEP via BrasilAPI search (mais preciso que Nominatim)
+          if (city && (addr.road || addr.suburb)) {
+            try {
+              const streetQuery = encodeURIComponent(addr.road || addr.suburb || '');
+              const cityQuery = encodeURIComponent(city);
+              const bRes = await fetch(
+                `https://brasilapi.com.br/api/cep/v2/search?city=${cityQuery}&street=${streetQuery}&state=${addr.state ? addr.state.slice(0, 2).toUpperCase() : ''}`
+              );
+              if (bRes.ok) {
+                const bData = await bRes.json() as Array<{ cep?: string; street?: string; neighborhood?: string; city?: string; state?: string }>;
+                if (Array.isArray(bData) && bData.length > 0) {
+                  const best = bData[0];
+                  const refinedCep = (best.cep ?? '').replace(/\D/g, '');
+                  onChange({
+                    ...newAddress,
+                    cep: refinedCep || newAddress.cep,
+                    street: best.street || newAddress.street,
+                    neighborhood: best.neighborhood || newAddress.neighborhood,
+                    city: best.city || newAddress.city,
+                    state: best.state || newAddress.state,
+                  });
+                  return;
+                }
+              }
+            } catch { /* fallback para ViaCEP */ }
+          }
+
+          // Fallback: refina com ViaCEP se CEP do Nominatim tiver 8 dígitos
           if (cepDigits.length === 8) {
             const vRes = await fetch(`https://viacep.com.br/ws/${cepDigits}/json/`);
             const vData = await vRes.json() as { erro?: boolean; logradouro?: string; bairro?: string; localidade?: string; uf?: string };
