@@ -99,10 +99,12 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
   useEffect(() => {
     if (initialGeoTrigger && !geoTriggeredRef.current) {
       geoTriggeredRef.current = true;
-      handleUseLocation();
+      // Pequeno delay para garantir que o componente está montado e visível
+      const t = setTimeout(() => handleUseLocation(), 300);
+      return () => clearTimeout(t);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialGeoTrigger]);
+  }, []);
 
   const isSignup = variant === 'signup';
 
