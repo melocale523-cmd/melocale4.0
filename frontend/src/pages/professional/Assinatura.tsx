@@ -314,7 +314,7 @@ export default function ProfessionalAssinatura() {
       ) : null}
 
       {/* KPI Row */}
-      <div style={{ display:'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap:12 }}>
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap:12, marginTop:'1.5rem' }}>
         {/* Moedas */}
         <div style={{ background:'#0e2038', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:16, position:'relative', overflow:'hidden', cursor:'pointer' }} onClick={() => navigate('/profissional/carteira')}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#f59e0b,#d97706)' }} />
@@ -348,7 +348,7 @@ export default function ProfessionalAssinatura() {
       </div>
 
       {/* Pacotes de Créditos Avulsos */}
-      <div style={{ marginTop:'1.5rem' }}>
+      <div style={{ marginTop:'2.5rem' }}>
         <div style={{ marginBottom:'1rem' }}>
           <h2 style={{ fontSize:18, fontWeight:900, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
             🪙 Pacotes de Créditos Avulsos
