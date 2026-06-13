@@ -615,43 +615,43 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
               {/* GRATUITO */}
-              <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-80 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', borderTop: '3px solid rgba(148,163,184,.3)' }}>
-                <div className="mb-8">
+              <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-80 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid rgba(148,163,184,.3)' }}>
+                <div className="mb-4">
                   <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-sm text-[#4A6580]">Para conhecer a plataforma</p>
                 </div>
-                <Link to="/login" className="inline-flex items-center justify-center w-full h-14 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4">
+                <Link to="/login" className="inline-flex items-center justify-center w-full h-11 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-3 text-sm font-bold transition-all mb-4 whitespace-nowrap">
                   Explorar Grátis →
                 </Link>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
-                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
-                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '1rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Desconto em moedas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '1rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Badge verificado</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
+                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
+                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '0.25rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Desconto em moedas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '0.25rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Badge verificado</li>
                 </ul>
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1a2840] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', borderTop: '3px solid #38bdf8' }}>
-                <div className="mb-8">
+              <div className="bg-[#1a2840] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid #38bdf8' }}>
+                <div className="mb-4">
                   <div className="inline-block px-3 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Starter</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-3 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20 whitespace-nowrap">
                   Quero Receber Leads →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
                   <span>⚠️</span><span>Apenas {vagas.starter} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
                 </ul>
                 <div className="mt-4 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
                   <p className="text-blue-300 text-xs text-center">Pacote R$59,90 → <strong>R$44,93</strong> com Starter</p>
@@ -659,28 +659,28 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '3.5rem 2rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)', borderTop: '3px solid #10b981' }}>
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '1.75rem 1.5rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)', borderTop: '3px solid #10b981' }}>
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-5 py-2 rounded-full text-sm font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
-                <div className="mb-8">
+                <div className="mb-4">
                   <div className="inline-block px-3 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">PRO</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-16 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-base font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-3 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30 whitespace-nowrap">
                   Receber Meu Primeiro Lead →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
                   <span>⚠️</span><span>Apenas {vagas.pro} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
-                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
-                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Moedas nunca expiram</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
+                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
+                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Moedas nunca expiram</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
                 </ul>
                 <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
                   <p className="text-emerald-300 text-xs text-center">Pacote R$59,90 → <strong>R$35,94</strong> com PRO</p>
@@ -689,25 +689,25 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1a2840] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', borderTop: '3px solid #f59e0b' }}>
-                <div className="mb-8">
+              <div className="bg-[#1a2840] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid #f59e0b' }}>
+                <div className="mb-4">
                   <div className="inline-block px-3 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">🏆 Elite</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-11 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-3 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20 whitespace-nowrap">
                   Dominar {userCity} Agora →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
                   <span>⚠️</span><span>Apenas {vagas.elite} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Até 3 profissionais na conta</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Até 3 profissionais na conta</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
                 </ul>
                 <div className="mt-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
                   <p className="text-yellow-300 text-xs text-center">Pacote R$119,90 → <strong>R$53,96</strong> com Elite</p>
@@ -715,7 +715,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="max-w-3xl mx-auto bg-[#1e2d45] border border-[#1C3050] rounded-2xl p-10 text-center" style={{ marginBottom: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="max-w-3xl mx-auto bg-[#1e2d45] border border-[#1C3050] rounded-2xl p-6 text-center" style={{ marginBottom: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
               <p className="text-[#94A3B8] text-sm mb-4">💡 Pense assim:</p>
               <p className="text-white text-xl font-bold mb-4">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
