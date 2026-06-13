@@ -24,10 +24,10 @@ function Check({ ok }: { ok: boolean }) {
 export default function CompetitorTable(_props: { userCity?: string }) {
   return (
     <>
-      <div className="mx-auto" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="mx-auto" style={{ maxWidth: '900px', margin: '0 auto' }}>
 
         {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 max-w-3xl mx-auto">
+        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#1C3454] border-b border-slate-800">
@@ -92,7 +92,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* CTA */}
-        <div className="text-center max-w-3xl mx-auto" style={{ marginTop: '2rem' }}>
+        <div className="text-center mx-auto" style={{ marginTop: '2rem' }}>
           <Link
             to="/login?mode=signup"
             className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-12 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"
