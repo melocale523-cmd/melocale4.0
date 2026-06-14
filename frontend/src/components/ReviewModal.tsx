@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { reviewService } from '../services/reviewService';
 import { cn } from '../lib/utils';
+import { apiFetch } from '../lib/api';
 
 interface ReviewModalProps {
   appointmentId: string;
@@ -39,6 +40,12 @@ export default function ReviewModal({
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
       queryClient.invalidateQueries({ queryKey: ['lead_reviewable'] });
       toast.success('Avaliação enviada!');
+      // Creditar 30 moedas por avaliar profissional (idempotente no backend)
+      apiFetch('/api/client-coins/review-bonus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointment_id: appointmentId }),
+      }).catch(() => {})
       onClose();
     },
     onError: () => toast.error('Erro ao enviar avaliação.'),

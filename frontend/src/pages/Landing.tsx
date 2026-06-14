@@ -15,11 +15,11 @@ const FomoNotification   = lazy(() => import('../components/FomoNotification'));
 const ExitIntentPopup    = lazy(() => import('../components/ExitIntentPopup'));
 const ProactiveChat      = lazy(() => import('../components/ProactiveChat'));
 
-const BANNER_H = 44; // px — height of the countdown banner
+const BANNER_H = 52;
 
 function isFlashTime(): boolean {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun, 6=Sat
+  const day = now.getDay();
   const hour = now.getHours();
   return day === 0 || day === 6 || (hour >= 18 && hour < 22);
 }
@@ -28,7 +28,6 @@ const CITY_CACHE_KEY = 'melocale_user_city';
 const CITY_CACHE_TTL = 30 * 60 * 1000;
 
 async function detectCity(): Promise<string> {
-  // Serve from cache if still fresh
   try {
     const cached = sessionStorage.getItem(CITY_CACHE_KEY);
     if (cached) {
@@ -84,29 +83,22 @@ export default function LandingPage() {
   const dashboardLink = role === 'admin' ? '/admin/dashboard' : role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
   const { isProfissional } = useUtmParams();
 
-  const [userCity, setUserCity] = useState("sua cidade");
-
-  // Countdown — starts fresh every page load, auto-restarts at zero
+  const [userCity, setUserCity] = useState('sua cidade');
   const [timer, setTimer] = useState({ h: 23, m: 59, s: 59 });
-
-  // Random "vagas restantes" per plan (3-7), generated once per page load
   const [vagas] = useState(() => ({
     starter: 3 + Math.floor(Math.random() * 5),
     pro:     3 + Math.floor(Math.random() * 5),
     elite:   3 + Math.floor(Math.random() * 5),
   }));
-
   const [showConversionWidgets, setShowConversionWidgets] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const delay = setTimeout(() => {
       detectCity().then(city => { if (!cancelled) setUserCity(city); });
     }, 1500);
-    return () => {
-      cancelled = true;
-      clearTimeout(delay);
-    };
+    return () => { cancelled = true; clearTimeout(delay); };
   }, []);
 
   useEffect(() => {
@@ -129,26 +121,50 @@ export default function LandingPage() {
 
   const pad = (n: number) => String(n).padStart(2, '0');
 
-  return (
-    <div className="min-h-screen bg-[#0E1C32] text-slate-200 font-sans selection:bg-emerald-500/30">
+  const FAQ_ITEMS = [
+    { q: 'Clientes pagam para usar?', a: 'Não. Clientes buscam e recebem orçamentos completamente grátis. Apenas profissionais pagam para acessar contatos.' },
+    { q: 'E se o profissional não aparecer?', a: 'Reembolso completo. Garantia de 7 dias em todos os planos — sem questionamentos.' },
+    { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa e sem fidelidade.' },
+    { q: 'Os profissionais são verificados?', a: 'Todos passam por validação de identidade antes de aparecer na plataforma.' },
+    { q: 'Funciona em qual cidade?', a: 'Jacobina, Feira de Santana, Irecê e Senhor do Bonfim — expandindo em breve.' },
+  ];
 
-      {/* ── Banner topo — countdown padrão ou relâmpago 18-22h/fins de semana ── */}
+  // shared hover helpers
+  const hoverGreen = {
+    enter: (e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(16,185,129,.45)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(16,185,129,.1)'; },
+    leave: (e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = 'rgba(16,185,129,.22)'; e.currentTarget.style.boxShadow = ''; },
+  };
+  const hoverBlue = {
+    enter: (e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(56,189,248,.45)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(56,189,248,.1)'; },
+    leave: (e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = 'rgba(56,189,248,.22)'; e.currentTarget.style.boxShadow = ''; },
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
+
+      {/* ── 1. Banner ── */}
       {isFlashTime() ? (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-xs md:text-sm font-black px-4 sm:px-6 flex-wrap"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white font-black px-4"
           style={{ height: BANNER_H, background: 'linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%)' }}
         >
-          <span>⚡ Oferta Relâmpago</span>
-          <span className="hidden sm:inline text-amber-200">—</span>
-          <span className="text-amber-100 font-bold">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
-          <Link to="/login?mode=signup" className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3 py-1.5 text-xs font-black transition-colors whitespace-nowrap">
+          <span className="text-sm">⚡ Oferta Relâmpago</span>
+          <span className="hidden sm:inline text-amber-200 text-sm">—</span>
+          <span className="hidden sm:inline text-amber-100 font-bold text-sm">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
+          <Link to="/login?mode=signup" className="ml-1 text-white rounded-lg px-3 py-1 text-xs font-black whitespace-nowrap" style={{ background:'rgba(255,255,255,.25)', animation:'aproveitar-pulse 1.5s ease-in-out infinite', boxShadow:'0 0 12px rgba(255,255,255,.6)' }}>
             Aproveitar →
           </Link>
+          <style>{`
+            @keyframes aproveitar-pulse {
+              0%, 100% { box-shadow: 0 0 8px rgba(255,255,255,.5), 0 0 20px rgba(255,200,0,.3); transform: scale(1); }
+              50% { box-shadow: 0 0 18px rgba(255,255,255,.9), 0 0 36px rgba(255,200,0,.6); transform: scale(1.06); }
+            }
+          `}</style>
         </div>
       ) : (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-xs md:text-sm font-black px-4 sm:px-6"
-          style={{ height: BANNER_H, background: 'linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #c2410c 100%)' }}
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white text-sm font-black px-4"
+          style={{ height: BANNER_H, background: '#ea580c', borderBottom: '1px solid #0e2035' }}
         >
           <span>🔥 Oferta especial expira em:</span>
           <span className="font-mono text-base md:text-lg tracking-widest bg-black/20 px-3 py-0.5 rounded-lg">
@@ -160,434 +176,401 @@ export default function LandingPage() {
         </div>
       )}
 
+      {/* ── 2. Navbar ── */}
       <Navbar topOffset={BANNER_H} />
 
       <main>
-        {/* ── Hero ── pt accounts for banner (44px) + nav (~64px) */}
-        <section id="hero" className="relative pt-36 pb-28 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0E1C32] to-[#0E1C32]"></div>
+        {isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
-          <div className="container-app relative">
-            <div className="grid lg:grid-cols-2 gap-10 items-start">
+        {/* ── 3. Hero 50/50 ── */}
+        <section style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: '#0f172a', borderTop: '2px solid #10b981' }}>
+          <div className="container-app" style={{ position: 'relative' }}>
 
-            {/* ── Coluna esquerda ── */}
-            <div className="">
-            {isProfissional ? (
-                /* ── Hero Profissional (utm_content=profissional) ── */
-                <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8 max-w-full overflow-hidden text-center lg:text-left">
-                    <Zap size={14} className="mr-2" /> Aumente sua renda em {userCity}
-                  </div>
-                  <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6 text-center lg:text-left">
-                    <span className="text-white">Profissional em</span><br />
-                    <span className="text-emerald-400">{userCity}?</span><br />
-                    <span className="text-white">Receba clientes</span><br />
-                    <span className="text-yellow-400">todo mês</span>
-                  </h1>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-8 text-center lg:text-left">
-                    Profissionais no MeloCalé faturam em média <strong className="text-white">R$2.800/mês</strong> extras com leads qualificados. Comece grátis hoje.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-5 mb-10 justify-center">
-                    <div className="flex flex-col">
-                      <Link
-                        to="/login?mode=signup&role=professional"
-                        className="h-16 inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-10 text-base font-bold transition-colors text-center"
-                      >
-                        Quero Cadastrar meu Serviço →
-                      </Link>
-                      <p className="text-xs text-slate-500 text-center mt-1.5">Grátis para começar • Sem cartão de crédito</p>
-                    </div>
-                    <a
-                      href="#planos"
-                      className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-start"
-                    >
-                      Ver Planos
-                    </a>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800 mt-6">
-                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
-                      <div className="flex items-center justify-center text-emerald-400 mb-2"><Zap size={16} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Leads qualificados</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Clientes prontos para contratar</p>
-                    </div>
-                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
-                      <div className="flex items-center justify-center text-yellow-500 mb-2"><ShieldCheck size={16} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Badge verificado</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Mais confiança, mais clientes</p>
-                    </div>
-                    <div className="bg-[#1C3454]/50 rounded-xl p-4 text-center">
-                      <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={16} /></div>
-                      <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Você define os preços</h3>
-                      <p className="hidden sm:block text-xs text-[#4A6580] mt-1">Controle total do seu negócio</p>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                /* ── Hero Cliente (padrão) ── */
-                <>
-                  <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-400 mb-8 max-w-full overflow-hidden text-center lg:text-left">
-                    <MapPin size={14} className="mr-2" /> Profissionais Verificados em {userCity}
-                  </div>
-                  <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-6 text-center lg:text-left">
-                    <span className="text-white">Encontre o</span><br />
-                    <span className="text-blue-400">Profissional</span><br />
-                    <span className="text-emerald-400">Certo</span><br />
-                    <span className="text-white">Perto de Você</span>
-                  </h1>
-                  <p className="text-base leading-relaxed text-[#94A3B8] mb-16 text-center lg:text-left" style={{ lineHeight: '2rem', paddingBottom: '1.5rem' }}>
-                    Conectamos você a profissionais qualificados para serviços em sua casa. Eletricistas, pintores, encanadores e muito mais.
-                  </p>
+            {/* Eyebrow */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 14px' }}>🔧 Para profissionais</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 20, padding: '4px 14px' }}>🏠 Para clientes</span>
+            </div>
 
-                  {/* CTA mobile — acima da dobra */}
-                  <div className="flex flex-col sm:hidden gap-5 mt-6 mb-10 items-center">
-                    <Link
-                      to="/login?mode=signup"
-                      className="w-full h-16 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl text-base text-center shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
-                    >
-                      {isProfissional ? 'Quero Receber Clientes Agora →' : `Encontrar Profissional em ${userCity} →`}
-                    </Link>
-                    <p className="text-center text-[11px] text-slate-400">✓ Grátis • ✓ Sem cartão • ✓ Cancele quando quiser</p>
-                  </div>
+            {/* Headline */}
+            <h1 style={{ textAlign: 'center', fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: 14, color: '#f0f6ff' }}>
+              <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Ganhe mais</span>
+              {' '}ou{' '}
+              <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>contrate melhor</span>
+              {' '}no interior da Bahia
+            </h1>
 
-                  <div className="hidden sm:flex flex-col gap-0 mb-10">
-                    <div className="flex flex-row gap-5">
-                      <Link
-                        to="/login?mode=signup&role=client"
-                        className="h-16 inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-base font-bold transition-colors text-center"
-                      >
-                        Encontrar Profissional em {userCity} →
-                      </Link>
-                      <a
-                        href="#como-funciona"
-                        className="h-14 inline-flex items-center justify-center bg-transparent border border-slate-700 hover:border-slate-500 text-white rounded-xl px-8 text-sm font-bold transition-colors text-center self-center"
-                      >
-                        Ver Como Funciona
-                      </a>
-                    </div>
-                    <p className="text-sm text-emerald-400 font-bold text-center w-full" style={{ marginTop: '0.75rem' }}>✓ Grátis • Até 5 orçamentos em minutos</p>
-                  </div>
-                </>
-            )}
-            </div>{/* fim coluna esquerda */}
+            {/* Subheadline */}
+            <p style={{ textAlign: 'center', fontSize: 17, color: '#94b8d8', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.7 }}>
+              A plataforma que conecta profissionais qualificados a clientes que precisam de serviços — com segurança, agilidade e resultado.
+            </p>
 
-            {/* ── Coluna direita — cards ── */}
-            <div className="hidden lg:flex flex-col gap-4 w-full">
-              {/* Card Para Profissionais */}
-              <div className="bg-[#1C3454]/80 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute -bottom-6 -right-6 opacity-[0.12] pointer-events-none">
-                  <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
-                    <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-10-2h4v2h-4V5zm10 13H4V9h16v9z"/>
-                  </svg>
+            {/* Two cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 860, margin: '0 auto', alignItems: 'stretch' }}>
+
+              {/* Green — Profissional */}
+              <div
+                style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
+                onMouseEnter={hoverGreen.enter} onMouseLeave={hoverGreen.leave}
+              >
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
+                <h3 style={{ fontSize: 21, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Aumente sua renda com leads qualificados</h3>
+                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Receba clientes prontos para contratar na sua cidade. Sem depender de indicação.</p>
+                <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 10, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                  <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>resultado médio</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#10b981', letterSpacing: '.01em' }}>+R$1.800/mês extra</span>
                 </div>
-                <div className="absolute -top-4 -left-4 opacity-[0.05] pointer-events-none rotate-12">
-                  <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
-                    <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-10-2h4v2h-4V5zm10 13H4V9h16v9z"/>
-                  </svg>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {['Leads prontos para contratar', 'Badge verificado no perfil', 'Planos a partir de R$37/mês', 'Comece grátis — sem cartão'].map(f => (
+                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ color: '#10b981', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: 12, color: '#94c4a8' }}>{f}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><Briefcase size={16} className="text-emerald-400" /></div>
-                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Profissionais</p>
-                <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Aumente sua renda com leads qualificados</h3>
-                <ul className="text-slate-300 text-xs" style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Comece grátis, sem compromisso</li>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Leads prontos para contratar</li>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Você controla seus preços</li>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-emerald-400 shrink-0" size={15}/> Planos a partir de R$37/mês</li>
-                </ul>
-                <Link to="/login?mode=signup&role=professional" className="h-9 w-full inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-lg text-xs transition-all">
-                  CADASTRE-SE JÁ →
+                <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
+                  Quero receber clientes agora →
                 </Link>
               </div>
 
-              {/* Card Para Clientes */}
-              <div className="bg-[#1C3454]/80 border border-blue-500/40 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute -bottom-6 -right-6 opacity-[0.12] pointer-events-none">
-                  <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
-                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/>
-                  </svg>
+              {/* Blue — Cliente */}
+              <div
+                style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
+                onMouseEnter={hoverBlue.enter} onMouseLeave={hoverBlue.leave}
+              >
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
+                <h3 style={{ fontSize: 21, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Encontre o profissional certo em minutos</h3>
+                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Receba até 5 orçamentos de profissionais verificados. Grátis, sem compromisso.</p>
+                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                  <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>tempo médio de resposta</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#38bdf8', letterSpacing: '.01em' }}>47 minutos</span>
                 </div>
-                <div className="absolute -top-4 -left-4 opacity-[0.05] pointer-events-none -rotate-12">
-                  <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400">
-                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/>
-                  </svg>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {['Profissionais verificados e avaliados', 'Até 5 orçamentos grátis', 'Compare preços e escolha o melhor', 'Garantia de 7 dias'].map(f => (
+                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ color: '#38bdf8', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: 12, color: '#94b8d4' }}>{f}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center" style={{ marginBottom: '0.75rem' }}><User size={16} className="text-blue-400" /></div>
-                <p className="text-blue-400 text-xs font-black uppercase tracking-widest" style={{ marginBottom: '0.5rem' }}>Para Clientes</p>
-                <h3 className="text-white font-bold text-base" style={{ marginBottom: '0.75rem' }}>Encontre o profissional ideal rapidamente</h3>
-                <ul className="text-slate-300 text-xs" style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Profissionais verificados e avaliados</li>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Receba até 5 orçamentos grátis</li>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Compare e escolha o melhor</li>
-                  <li className="flex items-center gap-2"><CheckIcon className="text-blue-400 shrink-0" size={15}/> Contratação 100% segura</li>
-                </ul>
-                <Link to="/login?mode=signup&role=client" className="h-9 w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-black rounded-lg text-xs transition-all">
-                  CADASTRE-SE JÁ →
+                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
+                  Encontrar profissional agora →
                 </Link>
               </div>
-            </div>{/* fim coluna direita */}
+            </div>
 
-            </div>{/* fim grid */}
-
-            {/* ── Mini cards largura total ── */}
-            {!isProfissional && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-8 border-t border-slate-800 mt-8 w-full" style={{ textAlign: 'center' }}>
-                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
-                  <div className="flex items-center justify-center text-emerald-400 mb-2"><ShieldCheck size={18} /></div>
-                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Pagamento 100% Seguro</h3>
-                  <p className="text-xs text-slate-400 mt-1">Transações protegidas</p>
-                </div>
-                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
-                  <div className="flex items-center justify-center text-yellow-500 mb-2"><Zap size={18} /></div>
-                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Respostas em até 24h</h3>
-                  <p className="text-xs text-slate-400 mt-1">Profissionais prontos</p>
-                </div>
-                <div className="bg-[#1C3454]/50 rounded-xl p-5 text-center">
-                  <div className="flex items-center justify-center text-blue-400 mb-2"><HeartHandshake size={18} /></div>
-                  <h3 className="font-bold text-white text-xs md:text-sm leading-tight">Profissionais Verificados</h3>
-                  <p className="text-xs text-slate-400 mt-1">Identidade confirmada</p>
-                </div>
-              </div>
-            )}
+            {/* Proof row */}
+            <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#7a9ab8' }}>
+              371+ profissionais &nbsp;·&nbsp; 1.200+ serviços &nbsp;·&nbsp; 98% satisfação &nbsp;·&nbsp; 🔒 Grátis para começar
+            </p>
           </div>
         </section>
 
-        {/* ── EarningsCalculator condicional (profissional) ── */}
-        {isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
+        {/* ── 4. Trust bar ── */}
+        <section style={{ background: '#182035', borderTop: '2px solid #f59e0b', padding: '28px 0' }}>
+          <div className="container-app">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(56,189,248,.35)', bg: 'rgba(56,189,248,.08)', accent: '#38bdf8' },
+                { icon: '⚡', label: 'Resposta em 47 min', sub: 'Média real verificada', border: 'rgba(245,158,11,.35)', bg: 'rgba(245,158,11,.08)', accent: '#f59e0b' },
+                { icon: '✅', label: 'Profissionais verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.08)', accent: '#10b981' },
+                { icon: '🛡️', label: 'Garantia de 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)', accent: '#10b981' },
+              ].map(item => (
+                <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 28, flexShrink: 0 }}>{item.icon}</span>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.2 }}>{item.label}</p>
+                    <p style={{ fontSize: 12, color: item.accent, margin: 0, marginTop: 3, fontWeight: 600 }}>{item.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        {/* Live Counter */}
+        {/* ── 5. Como funciona dual ── */}
+        <section id="como-funciona" style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
+          <div className="container-app">
+            <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.5rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Como funciona?</h2>
+            <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>Três passos simples para cada lado da plataforma</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
+
+              {/* Painel Verde — Profissional */}
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #10b981' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>🔧 Profissional</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {[
+                    { n: '01', title: 'Crie seu perfil', sub: '2 minutos', color: '#10b981' },
+                    { n: '02', title: 'Receba leads', sub: 'Diariamente', color: '#6ee7b7' },
+                    { n: '03', title: 'Feche negócios', sub: '+R$1.800/mês', color: '#10b981' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
+                      <div>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>{s.title}</p>
+                        <p style={{ fontSize: 11, color: s.color, margin: 0, fontWeight: 700 }}>{s.sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Painel Azul — Cliente */}
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #38bdf8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>🏠 Cliente</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {[
+                    { n: '01', title: 'Descreva o serviço', sub: '30 segundos', color: '#38bdf8' },
+                    { n: '02', title: 'Receba propostas', sub: '47 minutos', color: '#7dd3fc' },
+                    { n: '03', title: 'Contrate com segurança', sub: 'Garantia 7 dias', color: '#38bdf8' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
+                      <div>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>{s.title}</p>
+                        <p style={{ fontSize: 11, color: s.color, margin: 0, fontWeight: 700 }}>{s.sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 32 }}>
+              <Link to="/login?mode=signup" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 14, borderRadius: 12, textDecoration: 'none', padding: '0 28px', gap: 8 }}>
+                Começar agora — é grátis →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 6. Objeções ── */}
+        <section style={{ background: '#182035', borderTop: '2px solid #10b981', padding: '64px 0' }}>
+          <div className="container-app">
+            <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Por que confiar no MeloCalé?</h2>
+            <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 440, margin: '0 auto 40px' }}>Respondemos os principais medos de cada lado</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
+
+              {/* Painel Verde */}
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #10b981' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
+                {[
+                  { emoji: '😰', q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o PRO por 7 meses. Média: +R$1.800/mês extra.' },
+                  { emoji: '🤔', q: 'Os leads são de qualidade?', a: 'Clientes preenchem pedido detalhado antes de chegar até você. Já estão prontos para contratar.' },
+                  { emoji: '⏳', q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia.' },
+                ].map(item => (
+                  <div key={item.q}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span>{item.emoji}</span> {item.q}
+                    </p>
+                    <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Painel Azul */}
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #38bdf8' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
+                {[
+                  { emoji: '😰', q: 'E se for golpe?', a: 'Todo profissional passa por validação de identidade. Garantia de 7 dias com dinheiro de volta.' },
+                  { emoji: '💸', q: 'Vou pagar caro?', a: 'Você recebe até 5 orçamentos e escolhe o melhor preço. Nenhum compromisso antes de decidir.' },
+                  { emoji: '⏳', q: 'Tem profissional perto?', a: '371 profissionais em 4 cidades. Resposta em 47 minutos — não horas, não dias.' },
+                ].map(item => (
+                  <div key={item.q}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span>{item.emoji}</span> {item.q}
+                    </p>
+                    <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 7. Garantia ── */}
+        <section style={{ background: '#0f172a', borderTop: '2px solid #f59e0b', padding: '48px 0' }}>
+          <div className="container-app">
+            <div style={{ maxWidth: 580, margin: '0 auto', background: 'linear-gradient(135deg,rgba(16,185,129,.14),rgba(16,185,129,.03))', border: '2px solid rgba(16,185,129,.28)', borderRadius: 20, padding: '32px 28px', textAlign: 'center' }}>
+              <div style={{ fontSize: 42, marginBottom: 12 }}>🛡️</div>
+              <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', marginBottom: 12 }}>Garantia incondicional de 7 dias</h3>
+              <p style={{ fontSize: 14, color: '#6a9ab8', lineHeight: 1.7, margin: 0 }}>
+                Se você não ficar satisfeito nos primeiros 7 dias, devolvemos cada centavo — sem questionamentos, sem burocracia, sem fidelidade. <strong style={{ color: '#10b981' }}>Zero risco para você.</strong>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 8. LiveCounter ── */}
         <LiveCounter userCity={userCity} />
 
-        {/* ── Por que escolher + Tabela comparativa ── */}
-        <section className="py-16 bg-[#0B1729] border-t border-slate-800/50">
+        {/* ── 9. Por que escolher + CompetitorTable ── */}
+        <section className="py-16" style={{ background: '#182035', borderTop: '2px solid #10b981' }}>
           <div className="container-app">
-            {/* Título único */}
             <div className="text-center" style={{ marginBottom: '4rem' }}>
               <h2 className="text-2xl md:text-3xl font-bold text-white">
                 A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> —<br className="hidden lg:block" /> rápido, seguro e perto de você
               </h2>
             </div>
-
-            <div className="flex flex-col lg:flex-row gap-4 items-start">
-
-              {/* Coluna esquerda — 4 cards em grid 2x2 */}
+            <div className="flex flex-col lg:flex-row gap-4 items-start" style={{ maxWidth: '1000px', margin: '0 auto' }}>
               <div className="hidden lg:flex flex-col gap-2 w-[85px] shrink-0 relative">
                 {[
-                  {
-                    icon: <ShieldCheck size={14} className="text-purple-400" />,
-                    bg: 'bg-purple-500/10',
-                    title: 'Profissionais Verificados',
-                    desc: 'Todos os profissionais passam por verificação de documentos e avaliações',
-                  },
-                  {
-                    icon: <Zap size={14} className="text-emerald-400" />,
-                    bg: 'bg-emerald-500/10',
-                    title: 'Atendimento Rápido',
-                    desc: 'Receba orçamentos em minutos e agende serviços rapidamente',
-                  },
-                  {
-                    icon: <MapPin size={14} className="text-blue-400" />,
-                    bg: 'bg-blue-500/10',
-                    title: 'Perto de Você',
-                    desc: `Profissionais qualificados nos melhores bairros de ${userCity}`,
-                  },
-                  {
-                    icon: <ShieldCheck size={14} className="text-emerald-400" />,
-                    bg: 'bg-emerald-500/10',
-                    title: 'Pagamento Seguro',
-                    desc: 'Múltiplas opções de pagamento com garantia e proteção',
-                  },
+                  { icon: <ShieldCheck size={14} className="text-purple-400" />, bg: 'bg-purple-500/10', title: 'Profissionais Verificados' },
+                  { icon: <Zap size={14} className="text-emerald-400" />, bg: 'bg-emerald-500/10', title: 'Atendimento Rápido' },
+                  { icon: <MapPin size={14} className="text-blue-400" />, bg: 'bg-blue-500/10', title: 'Perto de Você' },
+                  { icon: <ShieldCheck size={14} className="text-emerald-400" />, bg: 'bg-emerald-500/10', title: 'Pagamento Seguro' },
                 ].map((item, i) => (
                   <div key={i} className="bg-[#0D2318] border border-emerald-500/70 rounded-lg p-2 flex flex-col items-center justify-center gap-1.5 aspect-square shadow-[0_0_16px_rgba(16,185,129,0.35)]">
-                    <div className={`w-7 h-7 rounded-md ${item.bg} flex items-center justify-center`}>
-                      {item.icon}
-                    </div>
+                    <div className={`w-7 h-7 rounded-md ${item.bg} flex items-center justify-center`}>{item.icon}</div>
                     <h3 className="text-white font-bold text-[10px] text-center leading-tight">{item.title}</h3>
                   </div>
                 ))}
-
               </div>
-
-              {/* Coluna direita — tabela comparativa inline */}
               <div className="flex-1">
                 <Suspense fallback={null}><CompetitorTable /></Suspense>
               </div>
-
             </div>
           </div>
         </section>
 
-        {/* ── Categorias de serviços ── */}
+        {/* ── 10. CategoryGrid ── */}
         <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense></div>
 
-        {/* ── Prova Social — Stats + Depoimentos ── */}
-        <section className="py-28 bg-[#0B1729] border-t border-slate-800/50">
+        {/* ── 11. Stats + Depoimentos ── */}
+        <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
           <div className="container-app">
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-12 text-center" style={{ marginBottom: '2rem', marginLeft: 'auto', marginRight: 'auto' }}>
-              <div>
-                <p className="text-2xl md:text-4xl font-extrabold text-emerald-400">371+</p>
-                <p className="text-sm text-[#94A3B8] mt-2">Profissionais cadastrados</p>
+            {/* Stats dual */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginBottom: 48 }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px' }}>
+                <p style={{ fontSize: 10, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🔧 Resultados dos profissionais</p>
+                <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
+                  {[
+                    { val: '371+', label: 'Profissionais' },
+                    { val: '+R$1.800', label: 'Renda/mês extra' },
+                    { val: '1º dia', label: '1º lead' },
+                  ].map(s => (
+                    <div key={s.label}>
+                      <p style={{ fontSize: 'clamp(1.1rem,3vw,1.6rem)', fontWeight: 900, color: '#10b981', margin: 0 }}>{s.val}</p>
+                      <p style={{ fontSize: 10, color: '#6a9ab8', margin: '4px 0 0' }}>{s.label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <p className="text-2xl md:text-4xl font-extrabold text-blue-400">1.200+</p>
-                <p className="text-sm text-[#94A3B8] mt-2">Serviços realizados este mês</p>
-              </div>
-              <div>
-                <p className="text-2xl md:text-4xl font-extrabold text-yellow-400">98%</p>
-                <p className="text-sm text-[#94A3B8] mt-2">de satisfação dos clientes</p>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px' }}>
+                <p style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🏠 Resultados dos clientes</p>
+                <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
+                  {[
+                    { val: '1.200+', label: 'Serviços' },
+                    { val: '47 min', label: 'Resp. média' },
+                    { val: '98%', label: 'Satisfação' },
+                  ].map(s => (
+                    <div key={s.label}>
+                      <p style={{ fontSize: 'clamp(1.1rem,3vw,1.6rem)', fontWeight: 900, color: '#38bdf8', margin: 0 }}>{s.val}</p>
+                      <p style={{ fontSize: 10, color: '#6a9ab8', margin: '4px 0 0' }}>{s.label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Depoimentos */}
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-6 mt-8" style={{ marginBottom: '2rem' }}>
-              Quem usa, <span className="text-emerald-400">recomenda</span>
+            <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 32 }}>
+              Quem usa, <span style={{ color: '#10b981' }}>recomenda</span>
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ marginBottom: '2rem' }}>
-              {/* Depoimento 1 — Carlos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col gap-5 overflow-hidden">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
-                  ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5" style={{ marginBottom: 40 }}>
+              {/* Depoimento 1 — Carlos */}
+              <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>+R$1.800/mês</span>
                 </div>
-                <p className="text-[#94A3B8] text-base leading-relaxed flex-1">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
+                </div>
+                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
                   "Em 2 semanas já tinha 3 clientes novos. O MeloCalé mudou meu mês — faturei R$1.800 a mais só com os leads da plataforma."
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
-                  <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-black text-sm shrink-0">
-                    C
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>C</div>
                   <div>
-                    <p className="text-white font-bold text-sm">Carlos Silva</p>
-                    <p className="text-[#4A6580] text-xs">Eletricista · Feira de Santana, BA</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Carlos Silva</p>
+                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Eletricista · Feira de Santana, BA</p>
                   </div>
                 </div>
               </div>
 
-              {/* Depoimento 2 — Ana (cliente) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col gap-5 overflow-hidden">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
-                  ))}
+              {/* Depoimento 2 — Ana */}
+              <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>2 propostas em 47 min</span>
                 </div>
-                <p className="text-[#94A3B8] text-base leading-relaxed flex-1">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
+                </div>
+                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
                   "Precisava de um encanador urgente. Em menos de 1 hora já tinha 2 orçamentos. Contratei na hora e o serviço foi excelente!"
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
-                  <div className="w-10 h-10 rounded-full bg-emerald-700 flex items-center justify-center text-white font-black text-sm shrink-0">
-                    A
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>A</div>
                   <div>
-                    <p className="text-white font-bold text-sm">Ana Rodrigues</p>
-                    <p className="text-[#4A6580] text-xs">Cliente · Jacobina, BA</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Ana Rodrigues</p>
+                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Jacobina, BA</p>
                   </div>
                 </div>
               </div>
 
-              {/* Depoimento 3 — Marcos (profissional) */}
-              <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col gap-5 overflow-hidden">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
-                  ))}
+              {/* Depoimento 3 — Marcos */}
+              <div style={{ background: '#1a2d45', border: '1px solid rgba(245,158,11,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                <div style={{ background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.30)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#f59e0b' }}>Renda principal</span>
                 </div>
-                <p className="text-[#94A3B8] text-base leading-relaxed flex-1">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
+                </div>
+                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
                   "Tinha medo de não conseguir clientes pela internet. Hoje o MeloCalé é minha principal fonte de trabalho. Vale cada centavo."
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800/60">
-                  <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white font-black text-sm shrink-0">
-                    M
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#c2410c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>M</div>
                   <div>
-                    <p className="text-white font-bold text-sm">Marcos Oliveira</p>
-                    <p className="text-[#4A6580] text-xs">Pintor · Irecê, BA</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Marcos Oliveira</p>
+                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Pintor · Irecê, BA</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* CTA pós-depoimentos */}
-            <div className="mt-12 text-center">
-              <p className="text-slate-400 text-sm mb-4" style={{ marginBottom: '1rem' }}>
-                Junte-se a <strong className="text-white">371+ profissionais</strong> e <strong className="text-white">1.200+ clientes</strong> que já usam o MeloCalé
-              </p>
-              <Link
-                to="/login?mode=signup"
-                className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all uppercase tracking-wide"
-                style={{ marginBottom: '1rem' }}
-              >
-                {isProfissional ? 'Quero Receber Clientes Agora →' : 'Quero Encontrar um Profissional →'}
+            {/* CTA dual pós-depoimentos */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <Link to="/login?mode=signup&role=client" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px' }}>
+                Ver profissionais disponíveis agora →
               </Link>
-              <p className="text-[11px] text-slate-300 mt-4">✓ Cadastro grátis • ✓ Sem cartão de crédito</p>
+              <Link to="/login?mode=signup&role=professional" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'transparent', color: '#38bdf8', fontWeight: 700, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px', border: '1px solid rgba(56,189,248,.3)' }}>
+                Quero receber clientes →
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* ── Calculadora de Ganhos (clientes) ── */}
+        {/* ── 12. EarningsCalculator (!isProfissional) ── */}
         {!isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
-
-        {/* ── Como Funciona ── */}
-        <section id="como-funciona" className="py-24 bg-[#0E1C32] border-t border-slate-800/50">
+        {/* ── 13. Planos ── */}
+        <section id="planos" className="py-28" style={{ background: '#182035', borderTop: '2px solid #f59e0b' }}>
           <div className="container-app">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3" style={{ marginBottom: '1rem' }}>Como funciona?</h2>
-              <p className="text-[#94A3B8] text-base text-center max-w-2xl mx-auto w-full" style={{ marginBottom: '3rem', textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>Três passos simples para contratar o profissional ideal</p>
-            </div>
-            <div className="relative">
-              {/* Connector line — desktop only */}
-              <div className="hidden lg:block absolute top-10 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-              <div className="grid lg:grid-cols-3 gap-10 relative w-full" style={{ marginBottom: '1.5rem' }}>
-                {[
-                  {
-                    num: '01',
-                    icon: <MapPin size={32} className="text-emerald-400" />,
-                    title: 'Encontre o profissional',
-                    desc: 'Busque por categoria ou serviço e veja perfis verificados com avaliações reais',
-                  },
-                  {
-                    num: '02',
-                    icon: <Zap size={32} className="text-blue-400" />,
-                    title: 'Solicite orçamento',
-                    desc: 'Descreva seu serviço e receba propostas de profissionais qualificados',
-                  },
-                  {
-                    num: '03',
-                    icon: <ShieldCheck size={32} className="text-yellow-400" />,
-                    title: 'Contrate com segurança',
-                    desc: 'Compare preços, escolha o melhor profissional e agende o serviço',
-                  },
-                ].map((step, i) => (
-                  <div key={i} className="flex flex-col items-center text-center gap-5">
-                    <div className="relative w-20 h-20 rounded-full bg-[#1C3454] border border-slate-700 flex items-center justify-center z-10">
-                      <span className="text-white text-xs font-bold absolute -top-2 -right-1 bg-[#0E1C32] px-1" style={{ color: '#FFFFFF' }}>{step.num}</span>
-                      {step.icon}
-                    </div>
-                    <div>
-                      <h3 className="text-white font-bold text-lg mb-2">{step.title}</h3>
-                      <p className="text-[#94A3B8] text-sm leading-relaxed max-w-sm mx-auto" style={{ marginBottom: '1rem' }}>{step.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-14 text-center">
-              <Link
-                to="/login?mode=signup"
-                className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-2xl text-base shadow-xl shadow-emerald-500/30 transition-all"
-              >
-                Começar Agora →
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Pricing ── */}
-        <section id="planos" className="py-28 bg-[#0E1C32] border-t border-slate-800/50">
-          <div className="container-app">
-
             <div className="text-center mb-12" style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto', maxWidth: '48rem' }}>
               <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 mb-5" style={{ marginBottom: '1rem' }}>
                 🔥 Oferta por tempo limitado
@@ -595,6 +578,10 @@ export default function LandingPage() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6" style={{ marginBottom: '1rem' }}>
                 Quanto você quer <span className="text-emerald-500">faturar</span> este mês?
               </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: 16 }}>
+                <span style={{ fontSize: 13, color: '#6a9ab8' }}>Para profissionais que querem</span>
+                <span style={{ fontSize: 13, color: '#6ee7b7', fontWeight: 700 }}>receber mais clientes</span>
+              </div>
               <p className="text-base leading-relaxed text-[#94A3B8] max-w-2xl mx-auto text-center" style={{ marginBottom: '1rem', textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
                 Profissionais na Melocale faturam em média <strong className="text-white">R$2.800/mês</strong> extras.<br />Escolha seu plano e comece hoje.
               </p>
@@ -602,13 +589,12 @@ export default function LandingPage() {
             </div>
 
             <div className="flex justify-center mb-10" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-3">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-4">
                 <span className="text-emerald-400 text-xl">🛡️</span>
-                <span className="text-emerald-400 font-bold text-sm">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
+                <span className="text-emerald-400 font-bold text-base">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
               </div>
             </div>
 
-            {/* Ancoragem de preço psicológica */}
             <div className="max-w-6xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ marginBottom: '1.5rem', marginLeft: 'auto', marginRight: 'auto', maxWidth: '72rem' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">☕</span>
@@ -634,47 +620,44 @@ export default function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
-
               {/* GRATUITO */}
-              <div className="bg-[#1C3454] rounded-2xl border border-slate-800 flex flex-col opacity-70 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', paddingTop: '3.5rem', paddingBottom: '3.5rem', paddingLeft: '2rem', paddingRight: '2rem' }}>
-                <div className="mb-8">
+              <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-80 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid rgba(148,163,184,.3)' }}>
+                <div className="mb-4">
                   <h3 className="text-[#94A3B8] font-bold text-sm uppercase tracking-widest mb-2">Gratuito</h3>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-sm text-[#4A6580]">Para conhecer a plataforma</p>
                 </div>
-                <Link to="/login" className="inline-flex items-center justify-center w-full h-14 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4">
+                <Link to="/login" className="inline-flex items-center justify-center w-full h-11 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-3 text-sm font-bold transition-all mt-4 mb-4 whitespace-nowrap" style={{ marginTop: '1.75rem', marginBottom: '1.75rem' }}>
                   Explorar Grátis →
                 </Link>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
-                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
-                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '1rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Desconto em moedas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '1rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Badge verificado</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
+                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
+                  <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '0.25rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Desconto em moedas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '0.25rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Badge verificado</li>
                 </ul>
               </div>
 
               {/* STARTER */}
-              <div className="bg-[#1C3454] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', paddingTop: '3.5rem', paddingBottom: '3.5rem', paddingLeft: '2rem', paddingRight: '2rem' }}>
-                <div className="mb-8">
+              <div className="bg-[#1a2840] rounded-2xl border border-blue-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid #38bdf8' }}>
+                <div className="mb-4">
                   <div className="inline-block px-3 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Starter</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-10 text-sm font-bold transition-all mb-4 shadow-lg shadow-blue-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-3 text-sm font-bold transition-all mt-3 mb-3 shadow-lg shadow-blue-500/20 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Quero Receber Leads →
                 </Link>
-                {/* Vagas urgência */}
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
-                  <span>⚠️</span>
-                  <span>Apenas {vagas.starter} vagas restantes em {userCity}</span>
+                  <span>⚠️</span><span>Apenas {vagas.starter} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 25% desconto em moedas avulsas</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Badge ✅ VERIFICADO</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Perfil público visível</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 30 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> Suporte por chat</li>
                 </ul>
                 <div className="mt-4 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
                   <p className="text-blue-300 text-xs text-center">Pacote R$59,90 → <strong>R$44,93</strong> com Starter</p>
@@ -682,30 +665,28 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '3.5rem 2rem', paddingTop: '3.5rem', paddingBottom: '3.5rem', paddingLeft: '2rem', paddingRight: '2rem' }}>
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase whitespace-nowrap">
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '1.75rem 1.5rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)', borderTop: '3px solid #10b981' }}>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-5 py-2 rounded-full text-sm font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
-                <div className="mb-8">
+                <div className="mb-4">
                   <div className="inline-block px-3 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">PRO</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-xl shadow-emerald-500/30">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-3 text-sm font-black transition-all mt-3 mb-3 shadow-xl shadow-emerald-500/30 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Receber Meu Primeiro Lead →
                 </Link>
-                {/* Vagas urgência */}
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
-                  <span>⚠️</span>
-                  <span>Apenas {vagas.pro} vagas restantes em {userCity}</span>
+                  <span>⚠️</span><span>Apenas {vagas.pro} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
-                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
-                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Moedas nunca expiram</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 40% desconto em moedas avulsas</li>
+                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Badge ⚡ PRO em destaque</li>
+                  <li className="flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> 2x mais visível nas buscas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Moedas nunca expiram</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 80 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-200 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-400 shrink-0 mt-0.5" size={16}/> Suporte prioritário (2h)</li>
                 </ul>
                 <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
                   <p className="text-emerald-300 text-xs text-center">Pacote R$59,90 → <strong>R$35,94</strong> com PRO</p>
@@ -714,27 +695,25 @@ export default function LandingPage() {
               </div>
 
               {/* ELITE */}
-              <div className="bg-[#1C3454] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-85 hover:opacity-100 transition-opacity duration-200" style={{ padding: '3.5rem 2rem', paddingTop: '3.5rem', paddingBottom: '3.5rem', paddingLeft: '2rem', paddingRight: '2rem' }}>
-                <div className="mb-8">
+              <div className="bg-[#1a2840] rounded-2xl border border-yellow-500/30 flex flex-col relative overflow-hidden opacity-95 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid #f59e0b' }}>
+                <div className="mb-4">
                   <div className="inline-block px-3 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">🏆 Elite</div>
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-14 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-10 text-sm font-black transition-all mb-4 shadow-lg shadow-yellow-500/20">
+                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-11 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-3 text-sm font-black transition-all mt-3 mb-3 shadow-lg shadow-yellow-500/20 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Dominar {userCity} Agora →
                 </Link>
-                {/* Vagas urgência */}
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
-                  <span>⚠️</span>
-                  <span>Apenas {vagas.elite} vagas restantes em {userCity}</span>
+                  <span>⚠️</span><span>Apenas {vagas.elite} vagas restantes em {userCity}</span>
                 </div>
-                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
-                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Até 3 profissionais na conta</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '1rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
+                <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 55% desconto em moedas avulsas</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Badge 🏆 ELITE dourado</li>
+                  <li className="flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Topo absoluto das buscas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Até 3 profissionais na conta</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> 🎁 200 moedas de boas-vindas</li>
+                  <li className="hidden sm:flex items-start gap-3 text-slate-300 text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-yellow-400 shrink-0 mt-0.5" size={16}/> Gerente de conta dedicado</li>
                 </ul>
                 <div className="mt-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
                   <p className="text-yellow-300 text-xs text-center">Pacote R$119,90 → <strong>R$53,96</strong> com Elite</p>
@@ -742,23 +721,95 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Ancoragem de ROI */}
-            <div className="max-w-3xl mx-auto bg-[#1C3454] border border-[#1C3050] rounded-2xl p-10 text-center" style={{ marginBottom: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="max-w-3xl mx-auto bg-[#1e2d45] border border-[#1C3050] rounded-2xl p-6 text-center" style={{ marginBottom: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
               <p className="text-[#94A3B8] text-sm mb-4">💡 Pense assim:</p>
               <p className="text-white text-xl font-bold mb-4">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
               </p>
               <p className="text-[#4A6580] text-sm">E com 40% de desconto em moedas, você acessa muito mais clientes pelo mesmo preço.</p>
             </div>
+          </div>
+        </section>
 
+        {/* ── 14. FAQ ── */}
+        <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
+          <div className="container-app">
+            <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 32 }}>Perguntas frequentes</h2>
+            <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {FAQ_ITEMS.map((item, i) => (
+                <div key={i} style={{ background: '#1a2840', border: `1px solid ${openFaq === i ? 'rgba(16,185,129,.5)' : 'rgba(56,189,248,.15)'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s' }}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    style={{ width: '100%', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: 'none', border: 'none', color: '#f0f6ff', textAlign: 'left', fontFamily: "'DM Sans', sans-serif" }}
+                  >
+                    <span style={{ fontSize: 15, fontWeight: 800 }}>{item.q}</span>
+                    <span style={{ fontSize: 18, color: '#10b981', fontWeight: 900, flexShrink: 0, marginLeft: 12, transition: 'transform .2s', display: 'inline-block', transform: openFaq === i ? 'rotate(45deg)' : '' }}>+</span>
+                  </button>
+                  {openFaq === i && (
+                    <div style={{ padding: '0 22px 18px', fontSize: 14, color: '#94b8d4', lineHeight: 1.7 }}>
+                      {item.a}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 15. CTA Final Dual ── */}
+        <section style={{ background: '#182035', borderTop: '2px solid #10b981', padding: '64px 0' }}>
+          <div className="container-app">
+
+            {/* Timer */}
+            <div style={{ textAlign: 'center', marginBottom: 32 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#6a9ab8', marginBottom: 8 }}>🔥 Oferta especial expira em:</p>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 36, fontWeight: 900, color: '#f59e0b', background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.2)', borderRadius: 10, padding: '10px 24px', letterSpacing: '.1em' }}>
+                {pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}
+              </span>
+            </div>
+
+            {/* Two cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 760, margin: '0 auto 28px' }}>
+
+              {/* Verde */}
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '36px 28px', display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center' }}>
+                <span style={{ fontSize: 40 }}>🔧</span>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>Para profissionais</span>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Comece a receber clientes hoje</h3>
+                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0 }}>Profissionais em {userCity} já estão recebendo leads qualificados.</p>
+                <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(16,185,129,.4)' }}>
+                  Quero receber clientes →
+                </Link>
+                <p style={{ fontSize: 10, color: '#4a6a80', margin: 0 }}>Grátis para começar · planos a partir de R$37/mês</p>
+              </div>
+
+              {/* Azul */}
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center' }}>
+                <span style={{ fontSize: 40 }}>🏠</span>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Encontre o profissional em 47 min</h3>
+                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0 }}>Profissionais verificados disponíveis em {userCity} agora.</p>
+                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(56,189,248,.4)' }}>
+                  Encontrar profissional →
+                </Link>
+                <p style={{ fontSize: 10, color: '#4a6a80', margin: 0 }}>Grátis · sem cartão · garantia de 7 dias</p>
+              </div>
+            </div>
+
+            {/* Trust row */}
+            <p style={{ textAlign: 'center', fontSize: 13, color: '#4a6a80' }}>
+              🔒 SSL &nbsp;·&nbsp; ⚡ 47 min &nbsp;·&nbsp; 🛡️ Garantia 7 dias &nbsp;·&nbsp; ✅ Verificados &nbsp;·&nbsp; 🚫 Sem spam
+            </p>
           </div>
         </section>
 
       </main>
 
+      {/* ── 16. Footer ── */}
       <Footer />
 
-      {/* ── Global conversion widgets ── */}
+      {/* ── 17. Widgets de conversão ── */}
       <StickyCtaMobile vagasPro={vagas.pro} userCity={userCity} />
       {showConversionWidgets && (
         <>

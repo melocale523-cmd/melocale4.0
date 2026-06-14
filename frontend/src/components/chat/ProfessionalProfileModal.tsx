@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Loader2, Star, Briefcase, MapPin } from 'lucide-react';
+import { X, Loader2, Star, Zap, MapPin } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { ProfessionalProfile, ProfessionalReview } from '../../types/chat';
 
@@ -43,82 +43,135 @@ export function ProfessionalProfileModal({ userId, name, avatar, onClose }: Prof
     : 0;
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-9">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-[#1C3454] border border-slate-700 rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
-        <div className="h-20 bg-gradient-to-r from-slate-800 to-emerald-900/30 shrink-0" />
-        <button type="button" onClick={onClose}
-          className="absolute top-4 right-4 p-7 rounded-xl bg-black/30 hover:bg-black/50 text-white transition-all">
-          <X size={18} />
-        </button>
-        <div className="px-11 -mt-10 pb-4 border-b border-slate-700/50 shrink-0">
-          <div className="flex items-end gap-9 mb-8">
-            <div className="w-20 h-20 rounded-full border-4 border-[#1C3454] bg-emerald-600 flex items-center justify-center text-white font-bold text-xl overflow-hidden shrink-0">
-              {avatar ? <img src={avatar} alt={name} className="w-full h-full object-cover" /> : initials}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }} onClick={onClose} />
+      <div style={{
+        position: 'relative', width: '100%', maxWidth: '420px', maxHeight: '85vh',
+        background: '#0a1928', border: '1px solid #1C3050', borderTop: '3px solid #10b981',
+        borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        fontFamily: 'DM Sans, sans-serif',
+      }}>
+
+        {/* Header */}
+        <div style={{ padding: '20px', borderBottom: '1px solid #1C3050', position: 'relative' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ position: 'absolute', top: '14px', right: '14px', width: '32px', height: '32px', background: '#132236', border: '1px solid #1C3050', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
+          >
+            <X size={16} />
+          </button>
+
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', paddingRight: '40px' }}>
+            {/* Avatar */}
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', border: '3px solid #10b981', background: '#1e40af', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+              {avatar
+                ? <img src={avatar} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <span style={{ fontSize: '20px', fontWeight: 700, color: '#fff' }}>{initials}</span>
+              }
             </div>
-            <div className="pb-1">
-              <h3 className="text-xl font-black text-white">{name}</h3>
-              {prof && (
-                <div className="flex flex-wrap gap-7 mt-6">
-                  {prof.category && <span className="text-xs text-emerald-400 font-medium flex items-center gap-6"><Briefcase size={12} /> {prof.category}</span>}
-                  {prof.city && <span className="text-xs text-[#94A3B8] flex items-center gap-6"><MapPin size={12} /> {prof.city}</span>}
+
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9', margin: '0 0 6px' }}>{name}</h3>
+              {prof?.category
+                ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 6, padding: '3px 10px', fontSize: 11, color: '#10b981', marginBottom: 4 }}><Zap size={10} /> {prof.category}</span>
+                : <span style={{ fontSize: 11, color: '#334155', fontStyle: 'italic', marginBottom: 4, display: 'block' }}>Categoria não informada</span>
+              }
+              {prof?.city
+                ? <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', marginTop: 2 }}><MapPin size={11} /> {prof.city}</div>
+                : <div style={{ fontSize: 11, color: '#334155', fontStyle: 'italic', marginTop: 2 }}>Cidade não informada</div>
+              }
+              {reviews.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+                  <div style={{ display: 'flex', gap: '2px' }}>
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} size={12} style={{ color: s <= Math.round(avgRating) ? '#facc15' : '#334155', fill: s <= Math.round(avgRating) ? '#facc15' : '#334155' }} />
+                    ))}
+                  </div>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '12px', fontWeight: 700, color: '#facc15' }}>{avgRating.toFixed(1)}</span>
+                  <span style={{ fontSize: '11px', color: '#475569' }}>({reviews.length} avaliação{reviews.length !== 1 ? 'ões' : ''})</span>
                 </div>
               )}
             </div>
           </div>
-          {reviews.length > 0 && (
-            <div className="flex items-center gap-7">
-              <div className="flex">
-                {[1,2,3,4,5].map(s => (
-                  <Star key={s} size={14} className={s <= Math.round(avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600 fill-slate-600'} />
-                ))}
-              </div>
-              <span className="text-yellow-400 font-bold text-sm">{avgRating.toFixed(1)}</span>
-              <span className="text-[#4A6580] text-xs">({reviews.length} avaliação{reviews.length !== 1 ? 'ões' : ''})</span>
+
+          {/* Stats grid — sempre visível após carregar */}
+          {!loading && prof && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '14px' }}>
+              {[
+                { label: 'Avaliação', value: reviews.length > 0 ? avgRating.toFixed(1) : '—' },
+                { label: 'Avaliações', value: String(reviews.length) },
+                { label: 'Status', value: prof.is_active ? 'Ativo' : 'Inativo' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>{value}</div>
+                  <div style={{ fontSize: '9px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '.06em', marginTop: '2px' }}>{label}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>
-        <div className="overflow-y-auto flex-1 p-11 space-y-9">
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {loading ? (
-            <div className="flex justify-center py-8"><Loader2 className="animate-spin text-emerald-500" size={28} /></div>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+              <Loader2 className="animate-spin" size={28} style={{ color: '#10b981' }} />
+            </div>
           ) : (
             <>
-              {prof?.bio && (
+              {prof?.bio ? (
                 <div>
-                  <p className="text-xs font-bold text-[#4A6580] uppercase tracking-widest mb-7">Sobre</p>
-                  <p className="text-sm text-[#94A3B8] leading-relaxed">{prof.bio}</p>
+                  <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Sobre</p>
+                  <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>{prof.bio}</p>
+                </div>
+              ) : prof && !prof.bio && (
+                <div>
+                  <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Sobre</p>
+                  <p style={{ fontSize: '13px', color: '#334155', fontStyle: 'italic', margin: 0 }}>Este profissional ainda não adicionou uma biografia.</p>
                 </div>
               )}
-              {reviews.length > 0 && (
+
+              {reviews.length > 0 ? (
                 <div>
-                  <p className="text-xs font-bold text-[#4A6580] uppercase tracking-widest mb-8">Avaliações</p>
-                  <div className="space-y-8">
+                  <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Avaliações</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {reviews.map(r => (
-                      <div key={r.id} className="bg-[#0E1C32] rounded-xl p-9 space-y-7">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-slate-200">{r.client_name ?? 'Cliente'}</span>
-                          <span className="text-xs text-[#4A6580]">{new Date(r.created_at).toLocaleDateString('pt-BR')}</span>
+                      <div key={r.id} style={{ background: '#0d1929', border: '1px solid #1C3050', borderRadius: '10px', padding: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0' }}>{(r as Record<string, unknown>).client_name as string ?? 'Cliente'}</span>
+                          <span style={{ fontSize: '11px', color: '#475569' }}>{new Date(r.created_at).toLocaleDateString('pt-BR')}</span>
                         </div>
-                        <div className="flex">
-                          {[1,2,3,4,5].map(s => (
-                            <Star key={s} size={12} className={s <= r.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'} />
+                        <div style={{ display: 'flex', gap: '2px', marginBottom: '6px' }}>
+                          {[1, 2, 3, 4, 5].map(s => (
+                            <Star key={s} size={11} style={{ color: s <= r.rating ? '#facc15' : '#334155', fill: s <= r.rating ? '#facc15' : '#334155' }} />
                           ))}
                         </div>
-                        {r.comment && <p className="text-xs text-[#94A3B8]">{r.comment}</p>}
+                        {r.comment && <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>{r.comment}</p>}
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
-              {!prof?.bio && reviews.length === 0 && !loading && (
-                <p className="text-center text-[#4A6580] text-sm py-9">Nenhuma informação adicional disponível.</p>
+              ) : (
+                <div>
+                  <p style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 8px' }}>Avaliações</p>
+                  <p style={{ fontSize: '13px', color: '#334155', fontStyle: 'italic', margin: 0 }}>Nenhuma avaliação ainda.</p>
+                </div>
               )}
             </>
           )}
         </div>
-        <div className="px-11 py-9 border-t border-slate-700/50 shrink-0">
-          <button type="button" onClick={onClose}
-            className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all text-sm">
+
+        {/* Footer */}
+        <div style={{ padding: '12px 16px', borderTop: '1px solid #1C3050' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ width: '100%', padding: '10px 0', background: '#10b981', color: '#fff', fontWeight: 700, fontSize: '14px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'background .2s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#059669'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#10b981'; }}
+          >
             Fechar
           </button>
         </div>

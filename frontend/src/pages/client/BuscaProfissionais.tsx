@@ -51,30 +51,30 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
   return (
     <>
       <div className={cn(
-        'bg-[#132236] rounded-xl p-4 border flex flex-col gap-0 transition-all cursor-default',
+        'bg-[#132236] rounded-xl border flex flex-col transition-all cursor-default',
         isFeatured
           ? 'border-yellow-500/30 hover:border-yellow-400/50 shadow-lg shadow-yellow-500/5'
           : 'border-white/5 hover:border-emerald-500/20',
-      )}>
+      )} style={{ padding:'1.25rem', gap:'0.75rem' }}>
         {/* Top: avatar + info */}
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {prof.avatarUrl ? (
             <img
               src={prof.avatarUrl}
               alt={prof.fullName}
               className={cn(
-                'w-12 h-12 rounded-xl object-cover shrink-0',
+                'w-14 h-14 rounded-xl object-cover shrink-0',
                 isFeatured ? 'border-2 border-yellow-500/40' : 'border border-white/10',
               )}
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-[#0e1d30] border border-white/5 flex items-center justify-center shrink-0 text-sm font-black text-[#4a6580]">
+            <div className="w-14 h-14 rounded-xl bg-[#0e1d30] border border-white/5 flex items-center justify-center shrink-0 text-sm font-black text-[#4a6580]">
               {initials}
             </div>
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-start gap-1.5 flex-wrap mb-0.5">
-              <h3 className="text-sm font-bold text-white truncate">{prof.fullName || 'Profissional'}</h3>
+              <h3 className="text-base font-bold text-white truncate">{prof.fullName || 'Profissional'}</h3>
               {isFeatured && (
                 <span className="inline-flex items-center gap-1 text-[9px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded px-1.5 py-0.5 uppercase shrink-0">
                   <Star size={8} className="fill-yellow-400" /> Destaque
@@ -101,21 +101,21 @@ function ProfCard({ prof }: { prof: ProfissionalResult }) {
 
         {/* Bio */}
         {prof.bio && (
-          <p className="text-[11px] text-[#4a6580] line-clamp-2 leading-relaxed mt-2">{prof.bio}</p>
+          <p className="text-xs text-[#4a6580] line-clamp-2 leading-relaxed">{prof.bio}</p>
         )}
 
         {/* Footer buttons */}
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-2">
           <button
             onClick={() => setPerfilOpen(true)}
-            className="flex-1 flex items-center justify-center gap-1 py-1.5 border border-white/10 hover:border-emerald-500/30 text-[#7a9ebf] hover:text-emerald-400 text-[11px] font-bold rounded-lg transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 border border-white/10 hover:border-emerald-500/30 text-[#7a9ebf] hover:text-emerald-400 text-xs font-bold rounded-xl transition-all"
           >
-            <ExternalLink size={11} />
+            <ExternalLink size={13} />
             Ver perfil
           </button>
           <button
             onClick={() => setOrcamentoOpen(true)}
-            className="flex-[2] py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold rounded-lg transition-all"
+            className="flex-[2] py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all"
           >
             Solicitar orçamento
           </button>
@@ -174,18 +174,18 @@ export default function BuscaProfissionais() {
     useBuscaProfissionais({ query: search, category, city, minRating, sortBy }, user?.id);
 
   return (
-    <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-500" style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
 
       {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-black text-white tracking-tight mb-1">Buscar Profissionais</h1>
+      <div>
+        <h1 className="text-2xl font-black text-white tracking-tight mb-2">Buscar Profissionais</h1>
         <p className="text-[#94A3B8] text-sm">Encontre o profissional certo para o seu serviço.</p>
       </div>
 
       {/* Filtros */}
-      <div className="bg-[#132236] border border-white/5 rounded-xl p-4 mb-4">
+      <div className="bg-[#132236] border border-white/5 rounded-xl" style={{ padding:'1.25rem' }}>
         {/* Row 1 */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 group">
             <Search
               size={14}
@@ -196,13 +196,13 @@ export default function BuscaProfissionais() {
               placeholder="Nome ou categoria..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-[#0e1d30] border border-white/5 rounded-lg py-2 pl-8 pr-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all placeholder:text-[#4A6580]"
+              className="w-full bg-[#0e1d30] border border-white/5 rounded-lg py-2.5 pl-8 pr-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all placeholder:text-[#4A6580]"
             />
           </div>
           <select
             value={category}
             onChange={e => setCategory(e.target.value)}
-            className="bg-[#0e1d30] border border-white/5 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all sm:w-44"
+            className="bg-[#0e1d30] border border-white/5 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all sm:w-44"
           >
             <option value="">Todas as categorias</option>
             {(categories ?? []).map(c => (
@@ -219,13 +219,13 @@ export default function BuscaProfissionais() {
               placeholder="Cidade..."
               value={city}
               onChange={e => setCity(e.target.value)}
-              className="w-full bg-[#0e1d30] border border-white/5 rounded-lg py-2 pl-8 pr-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all placeholder:text-[#4A6580]"
+              className="w-full bg-[#0e1d30] border border-white/5 rounded-lg py-2.5 pl-8 pr-3 text-sm text-white focus:outline-none focus:border-emerald-500/40 transition-all placeholder:text-[#4A6580]"
             />
           </div>
         </div>
 
         {/* Row 2 */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-4">
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-[#94A3B8] font-bold uppercase tracking-widest shrink-0">Avaliação mín:</span>
             <button
@@ -288,10 +288,10 @@ export default function BuscaProfissionais() {
         </div>
       ) : (
         <>
-          <p className="text-[10px] text-[#4a6580] font-bold uppercase tracking-widest mb-2">
+          <p className="text-xs text-[#4a6580] font-bold uppercase tracking-widest mb-1">
             {profissionais.length} profissional{profissionais.length !== 1 ? 'is' : ''} encontrado{profissionais.length !== 1 ? 's' : ''}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {profissionais.map(prof => (
               <ProfCard key={prof.id} prof={prof} />
             ))}

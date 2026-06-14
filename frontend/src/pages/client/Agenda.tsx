@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import {
   Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2,
   RefreshCw, Star, Search,
@@ -43,6 +44,7 @@ const BAR_COLOR: Record<AppStatus, string> = {
 const AVATAR_COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
 
 export default function ClientAgenda() {
+  const isMobile = useIsMobile();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -204,9 +206,9 @@ export default function ClientAgenda() {
     const avatarBg = AVATAR_COLORS[profName.charCodeAt(0) % AVATAR_COLORS.length];
 
     const btnBase: React.CSSProperties = {
-      borderRadius: '6px', padding: '4px 8px', fontSize: '10px', fontWeight: 700,
+      borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: 700,
       cursor: anyPending ? 'not-allowed' : 'pointer',
-      display: 'inline-flex', alignItems: 'center', gap: '4px',
+      display: 'inline-flex', alignItems: 'center', gap: '6px',
       opacity: anyPending ? 0.5 : 1, transition: 'all 0.15s',
     };
     const btnPrimary: React.CSSProperties = { ...btnBase, background: '#10b981', color: 'white', border: 'none' };
@@ -219,33 +221,33 @@ export default function ClientAgenda() {
     return (
       <div
         key={appt.id}
-        className="bg-[#132236] rounded-xl border border-white/5 mb-2 overflow-hidden"
+        className="bg-[#132236] rounded-xl border border-white/5 mb-3 overflow-hidden"
         style={{ opacity: appt.status === 'cancelled' ? 0.65 : 1 }}
       >
         {/* Top section */}
-        <div className="p-3 flex gap-2">
+        <div className="p-4 flex gap-3">
           <div style={{ width: '3px', background: barColor, borderRadius: '3px', flexShrink: 0, alignSelf: 'stretch' }} />
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+            className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-sm font-bold"
             style={{ background: avatarBg + '33', border: `1.5px solid ${avatarBg}55`, color: avatarBg }}
           >
             {profInitials}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-white font-bold text-sm truncate">{appt.title}</p>
-              <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
+              <p className="text-white font-bold text-base truncate">{appt.title}</p>
+              <span className={cn('text-xs font-bold px-2 py-1 rounded border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
                 {STATUS_LABEL[appt.status]}
               </span>
             </div>
-            <p className="text-[11px] text-[#7a9ebf] mt-0.5">{profName}{profCategory ? ` · ${profCategory}` : ''}</p>
-            <div className="flex flex-wrap gap-x-3 mt-0.5">
-              <span className="flex items-center gap-1 text-[10px] text-[#4a6580]">
-                <Clock size={9} /> {format(dt, "dd/MM/yy HH:mm")}
+            <p className="text-sm text-[#7a9ebf] mt-1">{profName}{profCategory ? ` · ${profCategory}` : ''}</p>
+            <div className="flex flex-wrap gap-x-3 mt-1">
+              <span className="flex items-center gap-1 text-xs text-[#4a6580]">
+                <Clock size={12} /> {format(dt, "dd/MM/yy HH:mm")}
               </span>
               {appt.location && (
-                <span className="flex items-center gap-1 text-[10px] text-[#4a6580]">
-                  <MapPin size={9} /> {appt.location}
+                <span className="flex items-center gap-1 text-xs text-[#4a6580]">
+                  <MapPin size={12} /> {appt.location}
                 </span>
               )}
             </div>
@@ -257,7 +259,7 @@ export default function ClientAgenda() {
 
         {/* Actions bar — upcoming */}
         {!isHistory && !isCancelling && (
-          <div className="px-3 py-2 flex flex-wrap gap-1.5 items-center" style={{ background: 'rgba(0,0,0,0.15)' }}>
+          <div className="px-3 py-3 flex flex-wrap gap-2 items-center" style={{ background: 'rgba(0,0,0,0.15)' }}>
             {canConfirmPresenca && (
               <button disabled={anyPending} onClick={() => confirmPresencaMutation.mutate(appt.id)} style={btnPrimary}>
                 {confirmPresencaMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : <CheckCircle2 size={10} />}
@@ -362,31 +364,27 @@ export default function ClientAgenda() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-500" style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
 
       {/* Header */}
-      <div style={{ marginBottom: '16px' }}>
+      <div>
         <h1 className="text-2xl font-black text-white tracking-tight">Minha Agenda</h1>
         <p className="text-[#94A3B8] text-sm mt-1">Acompanhe seus agendamentos com profissionais</p>
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
-        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
-          <p className="text-[11px] text-[#7a9ebf] uppercase tracking-widest mb-1.5">Total</p>
-          <p className="text-2xl font-black text-white">{isLoading ? '—' : stats.total}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.5rem' }}>
+        <div style={{ background:'#132540', border:'1px solid rgba(255,255,255,.06)', borderRadius:10, padding:'0.75rem', textAlign:'center' }}>
+          <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#4a6580', margin:'0 0 4px' }}>Total</p>
+          <p style={{ fontSize:24, fontWeight:700, color:'white', margin:0, lineHeight:1 }}>{isLoading ? '—' : stats.total}</p>
         </div>
-        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
-          <p className="text-[11px] text-emerald-400 uppercase tracking-widest mb-1.5">Confirmados</p>
-          <p className={cn('text-2xl font-black', stats.confirmed > 0 ? 'text-emerald-400' : 'text-white')}>
-            {isLoading ? '—' : stats.confirmed}
-          </p>
+        <div style={{ background:'#132540', border:'1px solid rgba(16,185,129,.2)', borderRadius:10, padding:'0.75rem', textAlign:'center' }}>
+          <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#10b981', margin:'0 0 4px' }}>Confirm.</p>
+          <p style={{ fontSize:24, fontWeight:700, color: stats.confirmed > 0 ? '#34d399' : 'white', margin:0, lineHeight:1 }}>{isLoading ? '—' : stats.confirmed}</p>
         </div>
-        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
-          <p className="text-[11px] text-yellow-400 uppercase tracking-widest mb-1.5">Pendentes</p>
-          <p className={cn('text-2xl font-black', stats.pending > 0 ? 'text-yellow-400' : 'text-white')}>
-            {isLoading ? '—' : stats.pending}
-          </p>
+        <div style={{ background:'#132540', border:'1px solid rgba(245,158,11,.2)', borderRadius:10, padding:'0.75rem', textAlign:'center' }}>
+          <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#f59e0b', margin:'0 0 4px' }}>Pendentes</p>
+          <p style={{ fontSize:24, fontWeight:700, color: stats.pending > 0 ? '#fbbf24' : 'white', margin:0, lineHeight:1 }}>{isLoading ? '—' : stats.pending}</p>
         </div>
       </div>
 
@@ -421,7 +419,7 @@ export default function ClientAgenda() {
 
       {/* 2-column layout */}
       {!isLoading && sorted.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
           {/* Left column — upcoming */}
           <div>

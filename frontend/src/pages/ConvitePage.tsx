@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { Helmet } from 'react-helmet-async'
 import { Gift, Star, Loader2, UserCircle } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 
@@ -58,6 +59,17 @@ export default function ConvitePage() {
 
   return (
     <div className="min-h-screen bg-[#060d1a] flex flex-col items-center justify-center px-9 py-12">
+      <Helmet>
+        <title>Você foi convidado para o MeloCalé!</title>
+        <meta property="og:title" content="Você foi convidado para o MeloCalé!" />
+        <meta property="og:description" content="Encontre profissionais verificados para serviços domésticos. Orçamento grátis, avaliações reais." />
+        <meta property="og:image" content="https://www.melocale.com.br/og-convite.png" />
+        <meta property="og:image:width" content="1024" />
+        <meta property="og:image:height" content="1024" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://www.melocale.com.br/og-convite.png" />
+      </Helmet>
       {/* Background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
