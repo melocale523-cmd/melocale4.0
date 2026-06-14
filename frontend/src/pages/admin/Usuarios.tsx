@@ -78,7 +78,17 @@ export default function AdminUsuarios() {
 
   const { data: usuarios = [], isLoading, refetch } = useQuery({
     queryKey: ['adminUsersEnriched'],
-    queryFn: () => adminService.getUsersEnriched(),
+    queryFn: async () => {
+      const [users, authData] = await Promise.all([
+        adminService.getUsersEnriched(),
+        adminService.getUserAuthData(),
+      ]);
+      return users.map(u => ({
+        ...u,
+        email: authData[u.id]?.email ?? u.email,
+        last_sign_in_at: authData[u.id]?.last_sign_in_at ?? u.last_sign_in_at,
+      }));
+    },
     staleTime: 60_000,
   });
 
