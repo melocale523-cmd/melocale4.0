@@ -89,7 +89,7 @@ function RejectModal({ professional, onConfirm, onCancel, isPending }: RejectMod
   const [reason, setReason] = useState('');
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ width: '100%', maxWidth: 420, background: '#0E1C32', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
+      <div style={{ width: '100%', maxWidth: 420, background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
         <div style={{ height: 3, background: '#f87171' }} />
         <div style={{ padding: '1.5rem' }}>
           <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Rejeitar profissional</p>
@@ -224,7 +224,7 @@ export default function AdminPendentes() {
         </div>
         <button
           onClick={() => { setLocalList(null); refetch(); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0a1624', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0d1e33', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
         >
           <RefreshCw size={12} /> Atualizar
         </button>
@@ -233,7 +233,7 @@ export default function AdminPendentes() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
         {kpis.map(k => (
-          <div key={k.label} style={{ background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem' }}>
+          <div key={k.label} style={{ background: '#0d1e33', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem' }}>
             <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#64748b', margin: '0 0 5px' }}>{k.label}</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
           </div>
@@ -247,7 +247,7 @@ export default function AdminPendentes() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Buscar por nome, cidade, categoria, telefone..."
-          style={{ width: '100%', background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
+          style={{ width: '100%', background: '#0d1e33', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
         />
       </div>
 
@@ -285,7 +285,7 @@ export default function AdminPendentes() {
         return (
           <div
             key={p.user_id}
-            style={{ background: '#0E1C32', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}
+            style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}
           >
             {/* Stripe topo */}
             <div style={{ height: 3, background: sc }} />

@@ -117,7 +117,7 @@ function SectionLabel({ label, count }: { label: string; count: number }) {
 
 function SkeletonCard() {
   return (
-    <div style={{ background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '1rem', overflow: 'hidden', opacity: 0.5 }}>
+    <div style={{ background: '#0d1e33', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '1rem', overflow: 'hidden', opacity: 0.5 }}>
       <div style={{ height: 3, background: 'rgba(255,255,255,0.08)' }} />
       <div style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -238,7 +238,7 @@ export default function AdminAprovados() {
     }[u.role];
 
     return (
-      <div key={u.user_id} style={{ background: '#0E1C32', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
+      <div key={u.user_id} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
         <div style={{ height: 3, background: sc }} />
         <div style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
 
@@ -312,7 +312,7 @@ export default function AdminAprovados() {
                 label: 'Telefone',
               },
             ].map((stat, i) => (
-              <div key={i} style={{ padding: '0.625rem 0.75rem', background: '#091520', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+              <div key={i} style={{ padding: '0.625rem 0.75rem', background: '#0f1f35', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                 <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>{stat.label}</p>
                 {stat.icon}
               </div>
@@ -385,7 +385,7 @@ export default function AdminAprovados() {
         </div>
         <button
           onClick={() => refetch()}
-          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0a1624', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0d1e33', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
         >
           <RefreshCw size={12} /> Atualizar
         </button>
@@ -394,7 +394,7 @@ export default function AdminAprovados() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
         {kpis.map((k, i) => (
-          <div key={k.label} style={{ background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', overflow: 'hidden', position: 'relative' }}>
+          <div key={k.label} style={{ background: '#0d1e33', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', overflow: 'hidden', position: 'relative' }}>
             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: kpiColors[i] }} />
             <div style={{ paddingLeft: 12 }}>
               <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#64748b', margin: '0 0 5px' }}>{k.label}</p>
@@ -423,7 +423,7 @@ export default function AdminAprovados() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nome, email, cidade, categoria, telefone..."
-            style={{ width: '100%', background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', background: '#0d1e33', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
           />
         </div>
       </div>
