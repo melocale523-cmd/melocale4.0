@@ -206,9 +206,9 @@ export default function ClientAgenda() {
     const avatarBg = AVATAR_COLORS[profName.charCodeAt(0) % AVATAR_COLORS.length];
 
     const btnBase: React.CSSProperties = {
-      borderRadius: '6px', padding: '4px 8px', fontSize: '10px', fontWeight: 700,
+      borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: 700,
       cursor: anyPending ? 'not-allowed' : 'pointer',
-      display: 'inline-flex', alignItems: 'center', gap: '4px',
+      display: 'inline-flex', alignItems: 'center', gap: '6px',
       opacity: anyPending ? 0.5 : 1, transition: 'all 0.15s',
     };
     const btnPrimary: React.CSSProperties = { ...btnBase, background: '#10b981', color: 'white', border: 'none' };
@@ -221,33 +221,33 @@ export default function ClientAgenda() {
     return (
       <div
         key={appt.id}
-        className="bg-[#132236] rounded-xl border border-white/5 mb-2 overflow-hidden"
+        className="bg-[#132236] rounded-xl border border-white/5 mb-3 overflow-hidden"
         style={{ opacity: appt.status === 'cancelled' ? 0.65 : 1 }}
       >
         {/* Top section */}
-        <div className="p-3 flex gap-2">
+        <div className="p-4 flex gap-3">
           <div style={{ width: '3px', background: barColor, borderRadius: '3px', flexShrink: 0, alignSelf: 'stretch' }} />
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+            className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-sm font-bold"
             style={{ background: avatarBg + '33', border: `1.5px solid ${avatarBg}55`, color: avatarBg }}
           >
             {profInitials}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-white font-bold text-sm truncate">{appt.title}</p>
-              <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
+              <p className="text-white font-bold text-base truncate">{appt.title}</p>
+              <span className={cn('text-xs font-bold px-2 py-1 rounded border whitespace-nowrap shrink-0', STATUS_BADGE[appt.status])}>
                 {STATUS_LABEL[appt.status]}
               </span>
             </div>
-            <p className="text-[11px] text-[#7a9ebf] mt-0.5">{profName}{profCategory ? ` · ${profCategory}` : ''}</p>
-            <div className="flex flex-wrap gap-x-3 mt-0.5">
-              <span className="flex items-center gap-1 text-[10px] text-[#4a6580]">
-                <Clock size={9} /> {format(dt, "dd/MM/yy HH:mm")}
+            <p className="text-sm text-[#7a9ebf] mt-1">{profName}{profCategory ? ` · ${profCategory}` : ''}</p>
+            <div className="flex flex-wrap gap-x-3 mt-1">
+              <span className="flex items-center gap-1 text-xs text-[#4a6580]">
+                <Clock size={12} /> {format(dt, "dd/MM/yy HH:mm")}
               </span>
               {appt.location && (
-                <span className="flex items-center gap-1 text-[10px] text-[#4a6580]">
-                  <MapPin size={9} /> {appt.location}
+                <span className="flex items-center gap-1 text-xs text-[#4a6580]">
+                  <MapPin size={12} /> {appt.location}
                 </span>
               )}
             </div>
@@ -259,7 +259,7 @@ export default function ClientAgenda() {
 
         {/* Actions bar — upcoming */}
         {!isHistory && !isCancelling && (
-          <div className="px-3 py-2 flex flex-wrap gap-1.5 items-center" style={{ background: 'rgba(0,0,0,0.15)' }}>
+          <div className="px-3 py-3 flex flex-wrap gap-2 items-center" style={{ background: 'rgba(0,0,0,0.15)' }}>
             {canConfirmPresenca && (
               <button disabled={anyPending} onClick={() => confirmPresencaMutation.mutate(appt.id)} style={btnPrimary}>
                 {confirmPresencaMutation.isPending ? <Loader2 size={10} className="animate-spin" /> : <CheckCircle2 size={10} />}
