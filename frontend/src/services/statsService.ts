@@ -355,6 +355,17 @@ export const adminService = {
     return true;
   },
 
+  async getUserAuthData(): Promise<Record<string, { email: string | null; last_sign_in_at: string | null }>> {
+    try {
+      const res = await apiFetch('/api/admin/users-enriched');
+      if (!res.ok) return {};
+      const users = await res.json() as Array<{ id: string; email: string | null; last_sign_in_at: string | null }>;
+      return Object.fromEntries(users.map(u => [u.id, { email: u.email, last_sign_in_at: u.last_sign_in_at }]));
+    } catch {
+      return {};
+    }
+  },
+
   async getObservabilityMetrics() {
     const [convRes, msgRes, purchaseRes, notifRes] = await Promise.all([
       supabase.from('conversations').select('*', { count: 'exact', head: true }),
