@@ -41,14 +41,14 @@ function fmtDate(d: string) {
 }
 
 function CompletenessBar({ value }: { value: number }) {
-  const color = value >= 90 ? '#1D9E75' : value >= 70 ? '#BA7517' : '#A32D2D';
+  const color = value >= 90 ? '#34d399' : value >= 70 ? '#f59e0b' : '#f87171';
   return (
     <div style={{ width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-        <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Completude</span>
+        <span style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em' }}>Completude</span>
         <span style={{ fontSize: 11, fontWeight: 700, color }}>{value}%</span>
       </div>
-      <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,.07)', overflow: 'hidden' }}>
+      <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${value}%`, background: color, borderRadius: 99, transition: 'width .4s' }} />
       </div>
     </div>
@@ -60,7 +60,7 @@ function Avatar({ name, url, size = 46 }: { name: string; url: string | null; si
     return <img src={url} alt={name} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />;
   }
   return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: 'rgba(29,158,117,.15)', border: '1.5px solid rgba(29,158,117,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, fontWeight: 700, color: '#1D9E75', flexShrink: 0 }}>
+    <div style={{ width: size, height: size, borderRadius: '50%', background: 'rgba(29,158,117,0.15)', border: '1.5px solid rgba(29,158,117,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, fontWeight: 700, color: '#1D9E75', flexShrink: 0 }}>
       {initials(name)}
     </div>
   );
@@ -71,10 +71,10 @@ function Hint({ completeness }: { completeness: number }) {
     <span style={{ fontSize: 11, color: '#f87171' }}>⚠ Perfil incompleto — revisar antes de aprovar</span>
   );
   if (completeness < 90) return (
-    <span style={{ fontSize: 11, color: '#BA7517' }}>ℹ Perfil razoável — verificar dados</span>
+    <span style={{ fontSize: 11, color: '#f59e0b' }}>ℹ Perfil razoável — verificar dados</span>
   );
   return (
-    <span style={{ fontSize: 11, color: '#1D9E75' }}>✓ Perfil bem preenchido — pronto para aprovação</span>
+    <span style={{ fontSize: 11, color: '#34d399' }}>✓ Perfil bem preenchido — pronto para aprovação</span>
   );
 }
 
@@ -88,31 +88,31 @@ interface RejectModalProps {
 function RejectModal({ professional, onConfirm, onCancel, isPending }: RejectModalProps) {
   const [reason, setReason] = useState('');
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.75)', backdropFilter: 'blur(4px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ width: '100%', maxWidth: 420, background: '#0E1C32', border: '0.5px solid var(--color-border-tertiary)', borderRadius: '1rem', overflow: 'hidden' }}>
-        <div style={{ height: 3, background: '#A32D2D' }} />
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ width: '100%', maxWidth: 420, background: '#0E1C32', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
+        <div style={{ height: 3, background: '#f87171' }} />
         <div style={{ padding: '1.5rem' }}>
           <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Rejeitar profissional</p>
-          <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)', margin: '0 0 1.25rem' }}>{professional.full_name}</p>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 1.25rem' }}>{professional.full_name}</p>
           <textarea
             value={reason}
             onChange={e => setReason(e.target.value)}
             placeholder="Motivo (opcional)"
             rows={3}
-            style={{ width: '100%', background: 'rgba(255,255,255,.04)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: '.5rem', padding: '.75rem', fontSize: 13, color: 'white', outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+            style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '.5rem', padding: '.75rem', fontSize: 13, color: 'white', outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
           />
           <div style={{ display: 'flex', gap: 8, marginTop: '1rem' }}>
             <button
               onClick={onCancel}
               disabled={isPending}
-              style={{ flex: 1, height: 38, background: 'transparent', border: '0.5px solid var(--color-border-tertiary)', borderRadius: '.5rem', color: 'var(--color-text-tertiary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ flex: 1, height: 38, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '.5rem', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               Cancelar
             </button>
             <button
               onClick={() => onConfirm(reason)}
               disabled={isPending}
-              style={{ flex: 1, height: 38, background: '#A32D2D', border: 'none', borderRadius: '.5rem', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: isPending ? .6 : 1 }}
+              style={{ flex: 1, height: 38, background: '#7f1d1d', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '.5rem', color: '#fca5a5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: isPending ? .6 : 1 }}
             >
               {isPending && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
               Confirmar rejeição
@@ -208,9 +208,9 @@ export default function AdminPendentes() {
 
   const kpis = [
     { label: 'Na fila', value: String(list.length), color: 'white' },
-    { label: 'Aprovados hoje', value: String(approvedToday), color: '#1D9E75' },
+    { label: 'Aprovados hoje', value: String(approvedToday), color: '#34d399' },
     { label: 'Rejeitados (mês)', value: '0', color: '#f87171' },
-    { label: 'Tempo médio fila', value: formatQueueTime(avgQueue), color: '#BA7517' },
+    { label: 'Tempo médio fila', value: formatQueueTime(avgQueue), color: '#f59e0b' },
   ];
 
   return (
@@ -220,11 +220,11 @@ export default function AdminPendentes() {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Profissionais Pendentes</h1>
-          <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: 0 }}>Aprovação manual de novos cadastros · ordenado por mais antigo</p>
+          <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Aprovação manual de novos cadastros · ordenado por mais antigo</p>
         </div>
         <button
           onClick={() => { setLocalList(null); refetch(); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: 'var(--color-background-secondary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, color: 'var(--color-text-tertiary)', fontSize: 12, cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0a1624', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
         >
           <RefreshCw size={12} /> Atualizar
         </button>
@@ -233,8 +233,8 @@ export default function AdminPendentes() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
         {kpis.map(k => (
-          <div key={k.label} style={{ background: 'var(--color-background-secondary)', borderRadius: '.5rem', padding: '.875rem 1rem' }}>
-            <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--color-text-tertiary)', margin: '0 0 5px' }}>{k.label}</p>
+          <div key={k.label} style={{ background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem' }}>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#64748b', margin: '0 0 5px' }}>{k.label}</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
           </div>
         ))}
@@ -242,36 +242,36 @@ export default function AdminPendentes() {
 
       {/* Toolbar */}
       <div style={{ position: 'relative' }}>
-        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-tertiary)', pointerEvents: 'none' }} />
+        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Buscar por nome, cidade, categoria, telefone..."
-          style={{ width: '100%', background: 'var(--color-background-secondary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
+          style={{ width: '100%', background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
         />
       </div>
 
       {/* Separador de seção */}
       {!isLoading && filtered.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.07em', whiteSpace: 'nowrap' }}>{filtered.length} aguardando revisão</span>
-          <div style={{ flex: 1, height: 1, background: 'var(--color-border-tertiary)' }} />
+          <span style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.07em', whiteSpace: 'nowrap' }}>{filtered.length} aguardando revisão</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
         </div>
       )}
 
       {/* Loading */}
       {isLoading && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-          <Loader2 size={28} style={{ color: '#1D9E75', animation: 'spin 1s linear infinite' }} />
+          <Loader2 size={28} style={{ color: '#34d399', animation: 'spin 1s linear infinite' }} />
         </div>
       )}
 
       {/* Empty state */}
       {!isLoading && filtered.length === 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '4rem 1rem', color: 'var(--color-text-tertiary)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '4rem 1rem', color: '#64748b' }}>
           <CheckCircle size={48} style={{ opacity: .3 }} />
           <p style={{ fontSize: 15, fontWeight: 600, color: 'white', margin: 0 }}>Nenhum profissional pendente</p>
-          <p style={{ fontSize: 13, margin: 0, textAlign: 'center' }}>
+          <p style={{ fontSize: 13, margin: 0, textAlign: 'center', color: '#64748b' }}>
             {search ? 'Nenhum resultado para a busca.' : 'Todos os novos cadastros são aprovados automaticamente no MVP.'}
           </p>
         </div>
@@ -280,15 +280,15 @@ export default function AdminPendentes() {
       {/* Cards */}
       {!isLoading && filtered.map(p => {
         const isOld = p.hours_in_queue > 24;
-        const stripeColor = isOld ? '#BA7517' : '#1D9E75';
+        const sc = isOld ? '#f59e0b' : '#34d399';
 
         return (
           <div
             key={p.user_id}
-            style={{ background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: '1rem', overflow: 'hidden' }}
+            style={{ background: '#0E1C32', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}
           >
             {/* Stripe topo */}
-            <div style={{ height: 3, background: stripeColor }} />
+            <div style={{ height: 3, background: sc }} />
 
             <div style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
@@ -299,28 +299,30 @@ export default function AdminPendentes() {
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 3px' }}>{p.full_name}</p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <span style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 3 }}>
                         <MapPin size={10} />{p.city}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: 'rgba(29,158,117,.12)', color: '#1D9E75', border: '0.5px solid rgba(29,158,117,.3)' }}>
+                      {/* categoria badge — neutro */}
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '0.5px solid rgba(255,255,255,0.1)' }}>
                         {p.category}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: isOld ? 'rgba(186,117,23,.12)' : 'rgba(29,158,117,.08)', color: isOld ? '#BA7517' : '#1D9E75', border: `0.5px solid ${isOld ? 'rgba(186,117,23,.3)' : 'rgba(29,158,117,.2)'}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {/* fila badge */}
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: isOld ? 'rgba(186,117,23,0.1)' : 'rgba(29,158,117,0.08)', color: isOld ? '#f59e0b' : '#34d399', border: `0.5px solid ${isOld ? 'rgba(186,117,23,0.25)' : 'rgba(29,158,117,0.2)'}`, display: 'flex', alignItems: 'center', gap: 4 }}>
                         <Clock size={9} />{formatQueueTime(p.hours_in_queue)} na fila
                       </span>
                     </div>
                   </div>
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', whiteSpace: 'nowrap', flexShrink: 0 }}>{fmtDate(p.created_at)}</span>
+                <span style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', flexShrink: 0 }}>{fmtDate(p.created_at)}</span>
               </div>
 
               {/* Divider */}
-              <div style={{ height: 1, background: 'var(--color-border-tertiary)' }} />
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
 
               {/* Row 2 — métricas */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr 1fr', gap: '1rem', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: 10, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>Telefone</p>
+                  <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>Telefone</p>
                   <a
                     href={`tel:${p.phone}`}
                     style={{ fontSize: 12, color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
@@ -330,22 +332,22 @@ export default function AdminPendentes() {
                 </div>
                 <CompletenessBar value={p.completeness} />
                 <div>
-                  <p style={{ fontSize: 10, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>Experiência</p>
+                  <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>Experiência</p>
                   <span style={{ fontSize: 12, color: 'white', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Briefcase size={11} style={{ color: 'var(--color-text-tertiary)' }} />
+                    <Briefcase size={11} style={{ color: '#64748b' }} />
                     {p.experience_years} {p.experience_years === 1 ? 'ano' : 'anos'}
                   </span>
                 </div>
                 <div>
-                  <p style={{ fontSize: 10, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>Fila</p>
-                  <span style={{ fontSize: 12, color: isOld ? '#BA7517' : '#1D9E75', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>Fila</p>
+                  <span style={{ fontSize: 12, color: isOld ? '#f59e0b' : '#34d399', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Clock size={11} />{formatQueueTime(p.hours_in_queue)}
                   </span>
                 </div>
               </div>
 
               {/* Divider */}
-              <div style={{ height: 1, background: 'var(--color-border-tertiary)' }} />
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
 
               {/* Row 3 — hint + ações */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
@@ -354,13 +356,13 @@ export default function AdminPendentes() {
                   <button
                     onClick={() => setRejectTarget(p)}
                     disabled={rejectMutation.isPending && rejectTarget?.user_id === p.user_id}
-                    style={{ height: 34, padding: '0 14px', borderRadius: '.5rem', background: 'transparent', border: '0.5px solid rgba(240,149,133,.5)', color: '#A32D2D', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+                    style={{ height: 34, padding: '0 14px', borderRadius: '.5rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
                   >
                     <XCircle size={13} /> Rejeitar
                   </button>
                   <button
                     onClick={() => window.location.assign(`/admin/usuarios?uid=${p.user_id}`)}
-                    style={{ height: 34, padding: '0 14px', borderRadius: '.5rem', background: 'transparent', border: '0.5px solid rgba(133,183,235,.5)', color: '#185FA5', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+                    style={{ height: 34, padding: '0 14px', borderRadius: '.5rem', background: 'transparent', border: '1px solid rgba(96,165,250,0.3)', color: '#60a5fa', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
                   >
                     <User size={13} /> Ver perfil
                   </button>

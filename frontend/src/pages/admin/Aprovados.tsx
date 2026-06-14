@@ -21,7 +21,6 @@ interface ApprovedUser {
   coins_balance: number;
   leads_purchased: number;
   completeness: number | null;
-  // merged from getUserAuthData
   email?: string | null;
   last_sign_in_at?: string | null;
 }
@@ -61,17 +60,17 @@ function formatPlan(plan_id: string | null, sub_status: string | null): string {
 }
 
 function stripeColor(u: ApprovedUser): string {
-  if (u.sub_status === 'canceling') return '#BA7517';
+  if (u.sub_status === 'canceling') return '#f59e0b';
   if (u.role === 'professional' && u.sub_status === 'active') return '#1D9E75';
-  if (u.role === 'professional') return '#888780';
+  if (u.role === 'professional') return '#64748b';
   if (u.role === 'client') return '#185FA5';
   return '#534AB7';
 }
 
 function planColor(plan_id: string | null, sub_status: string | null): string {
-  if (!plan_id) return 'var(--color-text-tertiary)';
-  if (sub_status === 'canceling') return '#BA7517';
-  if (sub_status === 'canceled') return '#888780';
+  if (!plan_id) return '#64748b';
+  if (sub_status === 'canceling') return '#f59e0b';
+  if (sub_status === 'canceled') return '#64748b';
   const map: Record<string, string> = {
     plan_basic: '#60a5fa', plan_starter: '#60a5fa',
     plan_pro: '#34d399', plan_business: '#34d399',
@@ -87,7 +86,7 @@ function Avatar({ name, url, size = 46 }: { name: string; url: string | null; si
     return <img src={url} alt={name} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />;
   }
   return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: '1.5px solid rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.33, fontWeight: 700, color: '#94a3b8', flexShrink: 0 }}>
+    <div style={{ width: size, height: size, borderRadius: '50%', background: 'rgba(29,158,117,0.15)', border: '1.5px solid rgba(29,158,117,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.33, fontWeight: 700, color: '#1D9E75', flexShrink: 0 }}>
       {initials(name)}
     </div>
   );
@@ -95,43 +94,43 @@ function Avatar({ name, url, size = 46 }: { name: string; url: string | null; si
 
 function Hint({ u }: { u: ApprovedUser }) {
   if (u.sub_status === 'canceling')
-    return <span style={{ fontSize: 11, color: '#BA7517' }}>⚠ Assinatura cancelando — contatar para retenção</span>;
+    return <span style={{ fontSize: 11, color: '#f59e0b' }}>⚠ Assinatura cancelando — contatar para retenção</span>;
   if (u.role === 'professional' && !u.plan_id)
-    return <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>ℹ Sem plano — nunca assinou</span>;
+    return <span style={{ fontSize: 11, color: '#64748b' }}>ℹ Sem plano — nunca assinou</span>;
   if (u.role === 'professional' && (u.completeness ?? 100) < 80)
-    return <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>ℹ Perfil incompleto ({u.completeness}%)</span>;
+    return <span style={{ fontSize: 11, color: '#64748b' }}>ℹ Perfil incompleto ({u.completeness}%)</span>;
   if (u.role === 'professional' && u.leads_purchased === 0)
-    return <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>ℹ Nunca comprou lead</span>;
-  return <span style={{ fontSize: 11, color: '#1D9E75' }}>✓ Usuário ativo</span>;
+    return <span style={{ fontSize: 11, color: '#64748b' }}>ℹ Nunca comprou lead</span>;
+  return <span style={{ fontSize: 11, color: '#34d399' }}>✓ Usuário ativo</span>;
 }
 
 function SectionLabel({ label, count }: { label: string; count: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.07em', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.07em', whiteSpace: 'nowrap' }}>
         {label} ({count})
       </span>
-      <div style={{ flex: 1, height: 1, background: 'var(--color-border-tertiary)' }} />
+      <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
     </div>
   );
 }
 
 function SkeletonCard() {
   return (
-    <div style={{ background: 'var(--color-background-secondary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: '1rem', overflow: 'hidden', opacity: 0.5 }}>
-      <div style={{ height: 3, background: 'rgba(255,255,255,.08)' }} />
+    <div style={{ background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '1rem', overflow: 'hidden', opacity: 0.5 }}>
+      <div style={{ height: 3, background: 'rgba(255,255,255,0.08)' }} />
       <div style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(255,255,255,.06)' }} />
+          <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ height: 13, width: '40%', borderRadius: 4, background: 'rgba(255,255,255,.07)' }} />
-            <div style={{ height: 11, width: '60%', borderRadius: 4, background: 'rgba(255,255,255,.05)' }} />
+            <div style={{ height: 13, width: '40%', borderRadius: 4, background: 'rgba(255,255,255,0.04)' }} />
+            <div style={{ height: 11, width: '60%', borderRadius: 4, background: 'rgba(255,255,255,0.04)' }} />
           </div>
         </div>
-        <div style={{ height: 1, background: 'var(--color-border-tertiary)' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 8 }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} style={{ height: 36, borderRadius: 6, background: 'rgba(255,255,255,.05)' }} />
+            <div key={i} style={{ height: 36, borderRadius: 6, background: 'rgba(255,255,255,0.04)' }} />
           ))}
         </div>
       </div>
@@ -182,12 +181,12 @@ export default function AdminAprovados() {
 
   const kpis = useMemo(() => [
     { label: 'Total aprovados', value: list.length, color: 'white' },
-    { label: 'Profissionais', value: list.filter(u => u.role === 'professional').length, color: '#1D9E75' },
+    { label: 'Profissionais', value: list.filter(u => u.role === 'professional').length, color: '#34d399' },
     { label: 'Clientes', value: list.filter(u => u.role === 'client').length, color: '#60a5fa' },
     { label: 'Com plano ativo', value: list.filter(u => u.sub_status === 'active').length, color: '#fbbf24' },
   ], [list]);
 
-  const kpiColors = ['white', '#1D9E75', '#60a5fa', '#fbbf24'];
+  const kpiColors = ['white', '#34d399', '#60a5fa', '#fbbf24'];
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -232,8 +231,14 @@ export default function AdminAprovados() {
       ? `mailto:${u.email}`
       : u.phone ? `tel:${u.phone}` : undefined;
 
+    const roleBadge = {
+      professional: { bg: 'rgba(29,158,117,0.12)', color: '#34d399', border: 'rgba(29,158,117,0.25)' },
+      client:       { bg: 'rgba(96,165,250,0.1)',  color: '#60a5fa', border: 'rgba(96,165,250,0.2)' },
+      admin:        { bg: 'rgba(167,139,250,0.1)', color: '#a78bfa', border: 'rgba(167,139,250,0.2)' },
+    }[u.role];
+
     return (
-      <div key={u.user_id} style={{ background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: '1rem', overflow: 'hidden' }}>
+      <div key={u.user_id} style={{ background: '#0E1C32', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
         <div style={{ height: 3, background: sc }} />
         <div style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
 
@@ -243,31 +248,31 @@ export default function AdminAprovados() {
               <Avatar name={u.full_name} url={u.avatar_url} />
               <div style={{ minWidth: 0 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name}</p>
-                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
+                <div style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
                   <MapPin size={10} />
                   <span>{u.city}</span>
                   {u.email && <><span style={{ opacity: .4 }}>·</span><span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>{u.email}</span></>}
                 </div>
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                   {/* role badge */}
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: u.role === 'professional' ? 'rgba(29,158,117,.12)' : u.role === 'admin' ? 'rgba(83,74,183,.15)' : 'rgba(24,95,165,.12)', color: u.role === 'professional' ? '#1D9E75' : u.role === 'admin' ? '#a78bfa' : '#60a5fa', border: `0.5px solid ${u.role === 'professional' ? 'rgba(29,158,117,.3)' : u.role === 'admin' ? 'rgba(83,74,183,.3)' : 'rgba(24,95,165,.3)'}` }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: roleBadge.bg, color: roleBadge.color, border: `0.5px solid ${roleBadge.border}` }}>
                     {roleLabels[u.role as RoleFilter]}
                   </span>
                   {/* plano badge */}
                   {isProfessional && (
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: 'rgba(255,255,255,.05)', color: pc, border: '0.5px solid rgba(255,255,255,.1)' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.05)', color: pc, border: '0.5px solid rgba(255,255,255,0.1)' }}>
                       {formatPlan(u.plan_id, u.sub_status)}
                     </span>
                   )}
                   {/* alerta canceling */}
                   {u.sub_status === 'canceling' && (
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: 'rgba(186,117,23,.12)', color: '#BA7517', border: '0.5px solid rgba(186,117,23,.3)' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: 'rgba(186,117,23,0.12)', color: '#f59e0b', border: '0.5px solid rgba(186,117,23,0.25)' }}>
                       ⚠ Cancelando
                     </span>
                   )}
                   {/* categoria */}
                   {u.category && (
-                    <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 99, background: 'rgba(255,255,255,.04)', color: 'var(--color-text-tertiary)', border: '0.5px solid var(--color-border-tertiary)' }}>
+                    <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '0.5px solid rgba(255,255,255,0.1)' }}>
                       {u.category}
                     </span>
                   )}
@@ -275,16 +280,16 @@ export default function AdminAprovados() {
               </div>
             </div>
             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <p style={{ fontSize: 10, color: 'var(--color-text-tertiary)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '.05em' }}>Aprovado</p>
+              <p style={{ fontSize: 10, color: '#64748b', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '.05em' }}>Aprovado</p>
               <p style={{ fontSize: 12, color: 'white', fontWeight: 600, margin: 0 }}>{formatDate(u.approved_at)}</p>
             </div>
           </div>
 
           {/* Divider */}
-          <div style={{ height: 1, background: 'var(--color-border-tertiary)' }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
 
           {/* Stats grid 5 cols */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 0 }}>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 0 }}>
             {[
               {
                 icon: <span style={{ fontSize: 11, color: pc, fontWeight: 700 }}>{formatPlan(u.plan_id, u.sub_status)}</span>,
@@ -295,27 +300,27 @@ export default function AdminAprovados() {
                 label: 'Moedas',
               },
               {
-                icon: <span style={{ fontSize: 12, fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><ShoppingBag size={11} style={{ color: 'var(--color-text-tertiary)' }} />{u.leads_purchased}</span>,
+                icon: <span style={{ fontSize: 12, fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><ShoppingBag size={11} style={{ color: '#64748b' }} />{u.leads_purchased}</span>,
                 label: 'Leads comprados',
               },
               {
-                icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Calendar size={11} style={{ color: 'var(--color-text-tertiary)' }} />{formatDate(u.last_sign_in_at)}</span>,
+                icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Calendar size={11} style={{ color: '#64748b' }} />{formatDate(u.last_sign_in_at)}</span>,
                 label: 'Último login',
               },
               {
-                icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} style={{ color: 'var(--color-text-tertiary)' }} />{formatPhone(u.phone)}</span>,
+                icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} style={{ color: '#64748b' }} />{formatPhone(u.phone)}</span>,
                 label: 'Telefone',
               },
             ].map((stat, i) => (
-              <div key={i} style={{ padding: '0.625rem 0.75rem', borderRight: i < 4 ? '0.5px solid var(--color-border-tertiary)' : 'none' }}>
-                <p style={{ fontSize: 10, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>{stat.label}</p>
+              <div key={i} style={{ padding: '0.625rem 0.75rem', background: '#091520', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>{stat.label}</p>
                 {stat.icon}
               </div>
             ))}
           </div>
 
           {/* Divider */}
-          <div style={{ height: 1, background: 'var(--color-border-tertiary)' }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
 
           {/* Row 3 — hint + ações */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
@@ -326,7 +331,7 @@ export default function AdminAprovados() {
                   <button
                     onClick={() => toggleActiveMutation.mutate({ user_id: u.user_id, is_active: false, role: u.role })}
                     disabled={toggleActiveMutation.isPending}
-                    style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '0.5px solid rgba(240,149,133,.5)', color: '#A32D2D', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                    style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                   >
                     <PowerOff size={12} /> Desativar
                   </button>
@@ -334,7 +339,7 @@ export default function AdminAprovados() {
                   <button
                     onClick={() => toggleActiveMutation.mutate({ user_id: u.user_id, is_active: true, role: u.role })}
                     disabled={toggleActiveMutation.isPending}
-                    style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '0.5px solid rgba(29,158,117,.4)', color: '#1D9E75', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                    style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: '#1D9E75', border: 'none', color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                   >
                     <Power size={12} /> Reativar
                   </button>
@@ -343,7 +348,7 @@ export default function AdminAprovados() {
               {!isProfessional && (
                 <button
                   onClick={() => toast.info('Desativação de clientes em breve.')}
-                  style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '0.5px solid var(--color-border-tertiary)', color: 'var(--color-text-tertiary)', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                  style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                 >
                   <PowerOff size={12} /> Desativar
                 </button>
@@ -351,14 +356,14 @@ export default function AdminAprovados() {
               {contactHref && (
                 <a
                   href={contactHref}
-                  style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '0.5px solid var(--color-border-tertiary)', color: 'var(--color-text-tertiary)', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                  style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
                 >
                   <MessageSquare size={12} /> Contatar
                 </a>
               )}
               <a
                 href="/admin/usuarios"
-                style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '0.5px solid rgba(133,183,235,.5)', color: '#185FA5', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '1px solid rgba(96,165,250,0.3)', color: '#60a5fa', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
               >
                 <User size={12} /> Ver perfil
               </a>
@@ -376,11 +381,11 @@ export default function AdminAprovados() {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Usuários Aprovados</h1>
-          <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: 0 }}>Lista completa de usuários ativos na plataforma</p>
+          <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Lista completa de usuários ativos na plataforma</p>
         </div>
         <button
           onClick={() => refetch()}
-          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: 'var(--color-background-secondary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, color: 'var(--color-text-tertiary)', fontSize: 12, cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0a1624', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
         >
           <RefreshCw size={12} /> Atualizar
         </button>
@@ -389,10 +394,10 @@ export default function AdminAprovados() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
         {kpis.map((k, i) => (
-          <div key={k.label} style={{ background: 'var(--color-background-secondary)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', gap: 0, overflow: 'hidden', position: 'relative' }}>
-            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: kpiColors[i], borderRadius: '0.5rem 0 0 0.5rem' }} />
+          <div key={k.label} style={{ background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', overflow: 'hidden', position: 'relative' }}>
+            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: kpiColors[i] }} />
             <div style={{ paddingLeft: 12 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--color-text-tertiary)', margin: '0 0 5px' }}>{k.label}</p>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#64748b', margin: '0 0 5px' }}>{k.label}</p>
               <p style={{ fontSize: 22, fontWeight: 700, color: kpiColors[i], margin: 0, lineHeight: 1 }}>{k.value}</p>
             </div>
           </div>
@@ -406,19 +411,19 @@ export default function AdminAprovados() {
             <button
               key={r}
               onClick={() => setFilterRole(r)}
-              style={{ height: 34, padding: '0 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterRole === r ? '0.5px solid rgba(29,158,117,.4)' : '0.5px solid var(--color-border-tertiary)', background: filterRole === r ? 'rgba(29,158,117,.1)' : 'transparent', color: filterRole === r ? '#1D9E75' : 'var(--color-text-tertiary)' }}
+              style={{ height: 34, padding: '0 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterRole === r ? '1px solid rgba(29,158,117,0.3)' : '1px solid rgba(255,255,255,0.08)', background: filterRole === r ? 'rgba(29,158,117,0.12)' : 'transparent', color: filterRole === r ? '#34d399' : '#64748b' }}
             >
               {roleLabels[r]} <span style={{ opacity: .6 }}>({roleCounts[r]})</span>
             </button>
           ))}
         </div>
         <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
-          <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-tertiary)', pointerEvents: 'none' }} />
+          <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nome, email, cidade, categoria, telefone..."
-            style={{ width: '100%', background: 'var(--color-background-secondary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', background: '#0a1624', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
           />
         </div>
       </div>
@@ -434,14 +439,14 @@ export default function AdminAprovados() {
 
       {/* Empty */}
       {!isLoading && filtered.length === 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '4rem 1rem', color: 'var(--color-text-tertiary)' }}>
-          <User size={48} style={{ opacity: .2 }} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '4rem 1rem' }}>
+          <User size={48} style={{ opacity: .2, color: '#64748b' }} />
           <p style={{ fontSize: 15, fontWeight: 600, color: 'white', margin: 0 }}>Nenhum usuário encontrado</p>
-          <p style={{ fontSize: 13, margin: 0 }}>{search ? 'Nenhum resultado para a busca.' : 'Sem usuários aprovados ainda.'}</p>
+          <p style={{ fontSize: 13, margin: 0, color: '#64748b' }}>{search ? 'Nenhum resultado para a busca.' : 'Sem usuários aprovados ainda.'}</p>
         </div>
       )}
 
-      {/* Cards — com seções quando filtro = all */}
+      {/* Cards */}
       {!isLoading && filtered.length > 0 && (
         filterRole === 'all'
           ? (
