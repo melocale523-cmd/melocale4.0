@@ -24,42 +24,98 @@ async function calcAvgResponseTime(): Promise<string> {
 
 export const adminService = {
   async getDashboardSummary() {
-    let totalRevenue = 0;
-    let avgResponseTime = '—';
     try {
-      const [totalUsersRes, activeLeadsRes, pendingDisputesRes, purchasesRes, avgTime] = await Promise.all([
+      const [
+        totalUsersRes,
+        activeLeadsRes,
+        pendingDisputesRes,
+        ticketsRes,
+        paymentsRes,
+        subscriptionsRes,
+        professionaisRes,
+        churnRes,
+        newUsersMonthRes,
+        coinCirculationRes,
+      ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'open'),
         supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase
-          .from('lead_purchases')
-          .select('price')
-          .not('price', 'is', null)
-          .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
-        calcAvgResponseTime(),
+        supabase.from('support_tickets').select('*', { count: 'exact', head: true }).neq('status', 'resolved'),
+        supabase.from('payments').select('amount, package_id, paid_at').eq('status', 'paid').not('paid_at', 'is', null),
+        supabase.from('user_subscriptions').select('package_id, status'),
+        supabase.from('professionals').select('*', { count: 'exact', head: true }),
+        supabase.from('user_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'canceling'),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+        supabase.from('wallets').select('balance_coins'),
       ]);
 
-      if (purchasesRes.data) {
-        totalRevenue = (purchasesRes.data as { price: number | null }[]).reduce((acc, p) => acc + Number(p.price ?? 0), 0);
-      }
-      avgResponseTime = avgTime;
+      const payments = (paymentsRes.data ?? []) as { amount: number; package_id: string; paid_at: string }[];
+
+      // Faturamento total
+      const totalRevenue = payments.reduce((acc, p) => acc + p.amount, 0) / 100;
+
+      // Faturamento por tipo
+      const revenueSubscriptions = payments
+        .filter(p => p.package_id.startsWith('plan_'))
+        .reduce((acc, p) => acc + p.amount, 0) / 100;
+      const revenueCoinPacks = payments
+        .filter(p => !p.package_id.startsWith('plan_'))
+        .reduce((acc, p) => acc + p.amount, 0) / 100;
+
+      // Faturamento por mês (últimos 3 meses)
+      const monthlyRevenue: Record<string, number> = {};
+      payments.forEach(p => {
+        const key = p.paid_at.slice(0, 7); // YYYY-MM
+        monthlyRevenue[key] = (monthlyRevenue[key] ?? 0) + p.amount / 100;
+      });
+
+      // MRR (assinaturas ativas)
+      const PLAN_PRICES: Record<string, number> = {
+        plan_basic: 37, plan_starter: 37,
+        plan_pro: 67, plan_business: 67,
+        plan_elite: 127,
+      };
+      const activeSubs = (subscriptionsRes.data ?? []).filter((s: { status: string }) => s.status === 'active');
+      const mrr = activeSubs.reduce((acc: number, s: { package_id: string }) => acc + (PLAN_PRICES[s.package_id] ?? 0), 0);
+
+      // Breakdown de pagamentos por package
+      const packageBreakdown: Record<string, { qtd: number; total: number }> = {};
+      payments.forEach(p => {
+        if (!packageBreakdown[p.package_id]) packageBreakdown[p.package_id] = { qtd: 0, total: 0 };
+        packageBreakdown[p.package_id].qtd += 1;
+        packageBreakdown[p.package_id].total += p.amount / 100;
+      });
+
+      // Moedas em circulação
+      const totalCoins = ((coinCirculationRes.data ?? []) as { balance_coins: number }[])
+        .reduce((acc, w) => acc + (w.balance_coins ?? 0), 0);
 
       return {
         totalUsers: totalUsersRes.count ?? 0,
         activeLeads: activeLeadsRes.count ?? 0,
-        estimatedRevenue: totalRevenue,
-        pendingVerifications: 0,
-        avgResponseTime,
         pendingDisputes: pendingDisputesRes.count ?? 0,
+        openTickets: ticketsRes.count ?? 0,
+        totalRevenue,
+        revenueSubscriptions,
+        revenueCoinPacks,
+        monthlyRevenue,
+        mrr,
+        totalProfessionals: professionaisRes.count ?? 0,
+        churnCount: churnRes.count ?? 0,
+        newUsersThisMonth: newUsersMonthRes.count ?? 0,
+        totalCoinsCirculation: totalCoins,
+        packageBreakdown,
+        pendingVerifications: 0,
+        avgResponseTime: '—',
+        estimatedRevenue: totalRevenue,
       };
     } catch {
       return {
-        totalUsers: 0,
-        activeLeads: 0,
-        estimatedRevenue: totalRevenue,
-        pendingVerifications: 0,
-        avgResponseTime,
-        pendingDisputes: 0,
+        totalUsers: 0, activeLeads: 0, pendingDisputes: 0, openTickets: 0,
+        totalRevenue: 0, revenueSubscriptions: 0, revenueCoinPacks: 0,
+        monthlyRevenue: {}, mrr: 0, totalProfessionals: 0, churnCount: 0,
+        newUsersThisMonth: 0, totalCoinsCirculation: 0, packageBreakdown: {},
+        pendingVerifications: 0, avgResponseTime: '—', estimatedRevenue: 0,
       };
     }
   },
