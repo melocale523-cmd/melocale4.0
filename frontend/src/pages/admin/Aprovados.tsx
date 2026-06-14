@@ -21,6 +21,9 @@ interface ApprovedUser {
   coins_balance: number;
   leads_purchased: number;
   completeness: number | null;
+  client_coins_balance: number;
+  pedidos_criados: number;
+  agendamentos: number;
   email?: string | null;
   last_sign_in_at?: string | null;
 }
@@ -226,6 +229,7 @@ export default function AdminAprovados() {
     const sc = stripeColor(u);
     const pc = planColor(u.plan_id, u.sub_status);
     const isProfessional = u.role === 'professional';
+    const isClient = u.role === 'client';
 
     const contactHref = u.email
       ? `mailto:${u.email}`
@@ -288,36 +292,36 @@ export default function AdminAprovados() {
           {/* Divider */}
           <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
 
-          {/* Stats grid 5 cols */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 0 }}>
-            {[
-              {
-                icon: <span style={{ fontSize: 11, color: pc, fontWeight: 700 }}>{formatPlan(u.plan_id, u.sub_status)}</span>,
-                label: 'Plano',
-              },
-              {
-                icon: <span style={{ fontSize: 12, fontWeight: 700, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 3 }}><Coins size={11} />{u.coins_balance}</span>,
-                label: 'Moedas',
-              },
-              {
-                icon: <span style={{ fontSize: 12, fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><ShoppingBag size={11} style={{ color: '#64748b' }} />{u.leads_purchased}</span>,
-                label: 'Leads comprados',
-              },
-              {
-                icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Calendar size={11} style={{ color: '#64748b' }} />{formatDate(u.last_sign_in_at)}</span>,
-                label: 'Último login',
-              },
-              {
-                icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} style={{ color: '#64748b' }} />{formatPhone(u.phone)}</span>,
-                label: 'Telefone',
-              },
-            ].map((stat, i) => (
-              <div key={i} style={{ padding: '0.625rem 0.75rem', background: '#0f1f35', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>{stat.label}</p>
-                {stat.icon}
+          {/* Stats grid — dinâmico por role */}
+          {(() => {
+            const statsCols = isProfessional ? [
+              { label: 'Plano', icon: <span style={{ fontSize: 11, color: pc, fontWeight: 700 }}>{formatPlan(u.plan_id, u.sub_status)}</span> },
+              { label: 'Moedas', icon: <span style={{ fontSize: 12, fontWeight: 700, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 3 }}><Coins size={11} />{u.coins_balance}</span> },
+              { label: 'Leads comprados', icon: <span style={{ fontSize: 12, fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><ShoppingBag size={11} style={{ color: '#64748b' }} />{u.leads_purchased}</span> },
+              { label: 'Último login', icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Calendar size={11} style={{ color: '#64748b' }} />{formatDate(u.last_sign_in_at)}</span> },
+              { label: 'Telefone', icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} style={{ color: '#64748b' }} />{formatPhone(u.phone)}</span> },
+            ] : isClient ? [
+              { label: 'Pedidos criados', icon: <span style={{ fontSize: 12, fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><ShoppingBag size={11} style={{ color: '#64748b' }} />{u.pedidos_criados}</span> },
+              { label: 'Agendamentos', icon: <span style={{ fontSize: 12, fontWeight: 700, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 3 }}><Calendar size={11} />{u.agendamentos}</span> },
+              { label: 'Moedas', icon: <span style={{ fontSize: 12, fontWeight: 700, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 3 }}><Coins size={11} />{u.client_coins_balance}</span> },
+              { label: 'Último login', icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Calendar size={11} style={{ color: '#64748b' }} />{formatDate(u.last_sign_in_at)}</span> },
+              { label: 'Telefone', icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} style={{ color: '#64748b' }} />{formatPhone(u.phone)}</span> },
+            ] : [
+              { label: 'Acesso', icon: <span style={{ fontSize: 11, color: '#a78bfa' }}>Total</span> },
+              { label: 'Último login', icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Calendar size={11} style={{ color: '#64748b' }} />{formatDate(u.last_sign_in_at)}</span> },
+              { label: 'Telefone', icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} style={{ color: '#64748b' }} />{formatPhone(u.phone)}</span> },
+            ];
+            return (
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'grid', gridTemplateColumns: `repeat(${statsCols.length}, 1fr)`, gap: 0 }}>
+                {statsCols.map((stat, i) => (
+                  <div key={i} style={{ padding: '0.625rem 0.75rem', background: '#0f1f35', borderRight: i < statsCols.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                    <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>{stat.label}</p>
+                    {stat.icon}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()}
 
           {/* Divider */}
           <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
@@ -394,7 +398,7 @@ export default function AdminAprovados() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
         {kpis.map((k, i) => (
-          <div key={k.label} style={{ background: '#0d1e33', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', overflow: 'hidden', position: 'relative' }}>
+          <div key={k.label} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', overflow: 'hidden', position: 'relative' }}>
             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: kpiColors[i] }} />
             <div style={{ paddingLeft: 12 }}>
               <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#64748b', margin: '0 0 5px' }}>{k.label}</p>
