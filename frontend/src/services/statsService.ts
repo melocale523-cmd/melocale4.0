@@ -22,6 +22,33 @@ async function calcAvgResponseTime(): Promise<string> {
   return '—';
 }
 
+export interface EnrichedUser {
+  id: string;
+  full_name: string | null;
+  role: 'client' | 'professional' | 'admin';
+  phone: string | null;
+  city: string | null;
+  created_at: string;
+  email: string | null;
+  last_sign_in_at: string | null;
+  email_confirmed_at: string | null;
+  category: string | null;
+  is_active: boolean | null;
+  bio: string | null;
+  professional_id: string | null;
+  package_id: string | null;
+  sub_status: string | null;
+  sub_started_at: string | null;
+  balance_coins: number | null;
+  total_leads: number;
+  total_appointments: number;
+  total_spent: number;
+  total_payments: number;
+  leads_purchased: number;
+  total_reviews: number;
+  avg_rating: number;
+}
+
 export const adminService = {
   async getDashboardSummary() {
     try {
@@ -117,6 +144,85 @@ export const adminService = {
         newUsersThisMonth: 0, totalCoinsCirculation: 0, packageBreakdown: {},
         pendingVerifications: 0, avgResponseTime: '—', estimatedRevenue: 0,
       };
+    }
+  },
+
+  async getUsersEnriched(): Promise<EnrichedUser[]> {
+    try {
+      const [profilesRes, prosRes, subsRes, walletsRes, leadsRes, apptsRes, paymentsRes, purchasesRes] = await Promise.all([
+        supabase.from('profiles').select('id, full_name, role, phone, city, created_at').order('created_at', { ascending: false }),
+        supabase.from('professionals').select('id, user_id, category, is_active, bio'),
+        supabase.from('user_subscriptions').select('user_id, package_id, status, started_at'),
+        supabase.from('wallets').select('professional_id, balance_coins'),
+        supabase.from('leads').select('client_id'),
+        supabase.from('appointments').select('client_id'),
+        supabase.from('payments').select('user_id, amount, status'),
+        supabase.from('lead_purchases').select('professional_id'),
+      ]);
+
+      const profiles = (profilesRes.data ?? []) as { id: string; full_name: string | null; role: string; phone: string | null; city: string | null; created_at: string }[];
+      const pros = (prosRes.data ?? []) as { id: string; user_id: string; category: string | null; is_active: boolean; bio: string | null }[];
+      const subs = (subsRes.data ?? []) as { user_id: string; package_id: string; status: string; started_at: string }[];
+      const wallets = (walletsRes.data ?? []) as { professional_id: string; balance_coins: number }[];
+      const leads = (leadsRes.data ?? []) as { client_id: string }[];
+      const appts = (apptsRes.data ?? []) as { client_id: string }[];
+      const payments = (paymentsRes.data ?? []) as { user_id: string; amount: number; status: string }[];
+      const purchases = (purchasesRes.data ?? []) as { professional_id: string }[];
+
+      const prosMap = Object.fromEntries(pros.map(p => [p.user_id, p]));
+      const subsMap = Object.fromEntries(subs.map(s => [s.user_id, s]));
+      const walletsMap = Object.fromEntries(wallets.map(w => [w.professional_id, w]));
+
+      const leadsCount: Record<string, number> = {};
+      leads.forEach(l => { leadsCount[l.client_id] = (leadsCount[l.client_id] ?? 0) + 1; });
+
+      const apptsCount: Record<string, number> = {};
+      appts.forEach(a => { apptsCount[a.client_id] = (apptsCount[a.client_id] ?? 0) + 1; });
+
+      const paymentsMap: Record<string, { total: number; count: number }> = {};
+      payments.filter(p => p.status === 'paid').forEach(p => {
+        if (!paymentsMap[p.user_id]) paymentsMap[p.user_id] = { total: 0, count: 0 };
+        paymentsMap[p.user_id].total += p.amount;
+        paymentsMap[p.user_id].count += 1;
+      });
+
+      const purchasesCount: Record<string, number> = {};
+      purchases.forEach(lp => { purchasesCount[lp.professional_id] = (purchasesCount[lp.professional_id] ?? 0) + 1; });
+
+      return profiles.map(p => {
+        const pro = prosMap[p.id];
+        const sub = subsMap[p.id];
+        const wallet = pro ? walletsMap[pro.id] : null;
+        const paid = paymentsMap[p.id];
+        return {
+          id: p.id,
+          full_name: p.full_name,
+          role: p.role as 'client' | 'professional' | 'admin',
+          phone: p.phone,
+          city: p.city,
+          created_at: p.created_at,
+          email: null,
+          last_sign_in_at: null,
+          email_confirmed_at: null,
+          category: pro?.category ?? null,
+          is_active: pro?.is_active ?? null,
+          bio: pro?.bio ?? null,
+          professional_id: pro?.id ?? null,
+          package_id: sub?.package_id ?? null,
+          sub_status: sub?.status ?? null,
+          sub_started_at: sub?.started_at ?? null,
+          balance_coins: wallet?.balance_coins ?? null,
+          total_leads: leadsCount[p.id] ?? 0,
+          total_appointments: apptsCount[p.id] ?? 0,
+          total_spent: paid ? paid.total / 100 : 0,
+          total_payments: paid?.count ?? 0,
+          leads_purchased: pro ? (purchasesCount[pro.id] ?? 0) : 0,
+          total_reviews: 0,
+          avg_rating: 0,
+        };
+      });
+    } catch {
+      return [];
     }
   },
 
