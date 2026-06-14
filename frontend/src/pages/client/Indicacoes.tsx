@@ -9,6 +9,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuthStore } from '../../store/authStore'
 import { apiFetch } from '../../lib/api'
+import { supabase } from '../../lib/supabase'
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface ReferralCode {
@@ -187,6 +188,66 @@ export default function ClientIndicacoes() {
   const [showRankingModal, setShowRankingModal] = useState(false)
   const [pixKey, setPixKey] = useState('')
   const [pixKeyType, setPixKeyType] = useState('CPF')
+
+  // Inline withdrawal state
+  const [coinsAmount, setCoinsAmount] = useState('1000')
+  const [inlinePixKey, setInlinePixKey] = useState('')
+  const [inlinePixKeyType, setInlinePixKeyType] = useState('CPF')
+  const [withdrawError, setWithdrawError] = useState<string | null>(null)
+
+  interface WithdrawalHistoryItem {
+    id: string
+    coins_amount: number
+    brl_amount: number
+    pix_key: string
+    pix_key_type: string
+    status: 'pending' | 'approved' | 'paid' | 'rejected'
+    admin_note: string | null
+    requested_at: string
+    processed_at: string | null
+  }
+
+  const { data: withdrawalHistory = [] } = useQuery<WithdrawalHistoryItem[]>({
+    queryKey: ['withdrawalHistory', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select('id, coins_amount, brl_amount, pix_key, pix_key_type, status, admin_note, requested_at, processed_at')
+        .order('requested_at', { ascending: false })
+      if (error) return []
+      return (data ?? []) as WithdrawalHistoryItem[]
+    },
+    enabled: authReady,
+  })
+
+  const hasPendingWithdrawal = withdrawalHistory.some(w => w.status === 'pending' || w.status === 'approved')
+
+  const inlineWithdrawMutation = useMutation({
+    mutationFn: async () => {
+      const amount = parseInt(coinsAmount, 10)
+      if (isNaN(amount) || amount < 1000) throw new Error('Mínimo de 1.000 moedas para sacar.')
+      if (amount > (coinsData?.balance ?? 0)) throw new Error('Saldo insuficiente.')
+      if (!inlinePixKey.trim()) throw new Error('Informe sua chave Pix.')
+      const { error } = await supabase.rpc('request_withdrawal', {
+        p_coins_amount: amount,
+        p_pix_key: inlinePixKey.trim(),
+        p_pix_key_type: inlinePixKeyType,
+      })
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      toast.success('Solicitação de saque enviada! Em breve você receberá o valor via Pix. 🎉')
+      setCoinsAmount('1000')
+      setInlinePixKey('')
+      setWithdrawError(null)
+      queryClient.invalidateQueries({ queryKey: ['clientCoins'] })
+      queryClient.invalidateQueries({ queryKey: ['withdrawalHistory'] })
+    },
+    onError: (err: Error) => {
+      setWithdrawError(err.message)
+      toast.error(err.message)
+    },
+  })
 
   const withdrawMutation = useMutation({
     mutationFn: async () => {
@@ -542,6 +603,174 @@ export default function ClientIndicacoes() {
           </div>
 
         </div>
+
+        {/* ── Inline Withdrawal ─────────────────────────────────── */}
+        <div style={{
+          background: t.card,
+          border: `1px solid ${t.border}`,
+          borderLeft: '4px solid #1D9E75',
+          borderRadius: '1rem',
+          padding: '1.25rem',
+          marginBottom: '1.5rem',
+          fontFamily: 'DM Sans, sans-serif',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <Coins size={17} color="#1D9E75" />
+            <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Sacar moedas via Pix</span>
+            <span style={{ marginLeft: 'auto', fontSize: '11px', color: t.muted }}>100 moedas = R$1,00 · mín. 1.000</span>
+          </div>
+
+          {(coinsData?.balance ?? 0) < 1000 ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '12px' }}>
+              <span style={{ fontSize: '1.5rem' }}>🪙</span>
+              <div>
+                <div style={{ fontSize: '13px', color: '#f1f5f9', fontWeight: 600 }}>Saldo insuficiente para saque</div>
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                  Você tem <span style={{ color: '#f59e0b', fontWeight: 700 }}>{coinsData?.balance ?? 0}</span> moedas.
+                  Faltam <span style={{ color: '#10b981', fontWeight: 700 }}>{Math.max(1000 - (coinsData?.balance ?? 0), 0)}</span> para sacar.
+                </div>
+              </div>
+            </div>
+          ) : hasPendingWithdrawal ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.2)', borderRadius: '8px', padding: '12px' }}>
+              <span style={{ fontSize: '1.5rem' }}>⏳</span>
+              <div>
+                <div style={{ fontSize: '13px', color: '#fde047', fontWeight: 600 }}>Saque em andamento</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>Aguarde o processamento do saque atual antes de solicitar outro.</div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
+                {/* Amount */}
+                <div>
+                  <label style={{ fontSize: '12px', color: t.muted, display: 'block', marginBottom: '6px' }}>Quantidade de moedas</label>
+                  <input
+                    type="number"
+                    value={coinsAmount}
+                    min={1000}
+                    max={coinsData?.balance ?? 0}
+                    onChange={e => { setCoinsAmount(e.target.value); setWithdrawError(null) }}
+                    style={{ width: '100%', background: t.input, border: `1px solid ${t.border}`, borderRadius: '8px', padding: '10px 12px', color: t.text, fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
+                  />
+                  <div style={{ fontSize: '11px', color: '#1D9E75', marginTop: '4px', fontFamily: 'DM Mono, monospace' }}>
+                    = R${(Math.max(parseInt(coinsAmount, 10) || 0, 0) / 100).toFixed(2).replace('.', ',')}
+                  </div>
+                </div>
+                {/* Pix type */}
+                <div>
+                  <label style={{ fontSize: '12px', color: t.muted, display: 'block', marginBottom: '6px' }}>Tipo de chave Pix</label>
+                  <select
+                    value={inlinePixKeyType}
+                    onChange={e => setInlinePixKeyType(e.target.value)}
+                    style={{ width: '100%', background: t.input, border: `1px solid ${t.border}`, borderRadius: '8px', padding: '10px 12px', color: t.text, fontSize: '13px', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box' }}
+                  >
+                    <option value="CPF">CPF</option>
+                    <option value="CNPJ">CNPJ</option>
+                    <option value="EMAIL">E-mail</option>
+                    <option value="PHONE">Telefone</option>
+                    <option value="EVP">Chave aleatória</option>
+                  </select>
+                </div>
+                {/* Pix key */}
+                <div style={{ gridColumn: isMobile ? undefined : '1 / -1' }}>
+                  <label style={{ fontSize: '12px', color: t.muted, display: 'block', marginBottom: '6px' }}>Chave Pix</label>
+                  <input
+                    type="text"
+                    value={inlinePixKey}
+                    onChange={e => { setInlinePixKey(e.target.value); setWithdrawError(null) }}
+                    placeholder={inlinePixKeyType === 'CPF' ? '000.000.000-00' : inlinePixKeyType === 'EMAIL' ? 'seu@email.com' : inlinePixKeyType === 'PHONE' ? '+5511999999999' : inlinePixKeyType === 'CNPJ' ? '00.000.000/0001-00' : 'chave aleatória (EVP)'}
+                    style={{ width: '100%', background: t.input, border: `1px solid ${t.border}`, borderRadius: '8px', padding: '10px 12px', color: t.text, fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+
+              {withdrawError && (
+                <div style={{ marginTop: '10px', padding: '8px 12px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: '8px', fontSize: '12px', color: '#f87171' }}>
+                  ⚠️ {withdrawError}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '12px', alignItems: 'center' }}>
+                <div style={{ flex: 1, fontSize: '11px', color: t.muted }}>
+                  ⚠️ Verifique a chave antes de confirmar. O saque é processado em até 24h.
+                </div>
+                <button
+                  onClick={() => inlineWithdrawMutation.mutate()}
+                  disabled={!inlinePixKey.trim() || inlineWithdrawMutation.isPending}
+                  style={{
+                    flexShrink: 0, background: inlineWithdrawMutation.isPending ? '#0d6e4f' : '#1D9E75',
+                    color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 20px',
+                    fontSize: '13px', fontWeight: 700, cursor: !inlinePixKey.trim() || inlineWithdrawMutation.isPending ? 'not-allowed' : 'pointer',
+                    opacity: !inlinePixKey.trim() ? 0.5 : 1, fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap',
+                  }}
+                >
+                  {inlineWithdrawMutation.isPending ? '⏳ Enviando…' : '💸 Solicitar saque'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ── Withdrawal History ─────────────────────────────────── */}
+        {withdrawalHistory.length > 0 && (
+          <div style={{ ...cardBase, marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+              <Coins size={17} color={t.muted} />
+              <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Histórico de saques</span>
+              <span style={{ marginLeft: 'auto', background: t.border, color: t.muted, fontSize: '11px', padding: '2px 8px', borderRadius: '999px', fontFamily: 'DM Mono, monospace' }}>
+                {withdrawalHistory.length}
+              </span>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <thead>
+                  <tr style={{ borderBottom: `1px solid ${t.border}` }}>
+                    {['Data', 'Moedas', 'Valor R$', 'Chave Pix', 'Status', 'Nota'].map(h => (
+                      <th key={h} style={{ padding: '6px 10px', textAlign: 'left', color: t.muted, fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {withdrawalHistory.map((w, i) => {
+                    const statusColors: Record<string, { bg: string; color: string; label: string }> = {
+                      pending:  { bg: 'rgba(234,179,8,0.1)',   color: '#fde047', label: '⏳ Pendente'  },
+                      approved: { bg: 'rgba(96,165,250,0.1)',  color: '#60a5fa', label: '✅ Aprovado'  },
+                      paid:     { bg: 'rgba(52,211,153,0.1)',  color: '#34d399', label: '💸 Pago'       },
+                      rejected: { bg: 'rgba(248,113,113,0.1)', color: '#f87171', label: '❌ Rejeitado' },
+                    }
+                    const s = statusColors[w.status] ?? statusColors.pending
+                    return (
+                      <tr key={w.id} style={{ borderBottom: i < withdrawalHistory.length - 1 ? `1px solid rgba(255,255,255,0.05)` : 'none' }}>
+                        <td style={{ padding: '8px 10px', color: t.muted, whiteSpace: 'nowrap' }}>
+                          {new Date(w.requested_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' })}
+                        </td>
+                        <td style={{ padding: '8px 10px', fontFamily: 'DM Mono, monospace', color: t.text, fontWeight: 700 }}>
+                          {w.coins_amount.toLocaleString('pt-BR')}
+                        </td>
+                        <td style={{ padding: '8px 10px', fontFamily: 'DM Mono, monospace', color: '#1D9E75', fontWeight: 700 }}>
+                          R${(w.brl_amount ?? (w.coins_amount / 100)).toFixed(2).replace('.', ',')}
+                        </td>
+                        <td style={{ padding: '8px 10px', color: t.subtle, maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '11px' }}>{w.pix_key}</span>
+                          <span style={{ marginLeft: '4px', fontSize: '9px', color: t.muted, background: t.input, padding: '1px 5px', borderRadius: '4px' }}>{w.pix_key_type}</span>
+                        </td>
+                        <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
+                          <span style={{ background: s.bg, color: s.color, fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px' }}>
+                            {s.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '8px 10px', color: t.muted, fontSize: '11px', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {w.admin_note ?? '—'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* ── 2-column grid ───────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 380px', gap: '1.5rem', alignItems: 'start' }}>
