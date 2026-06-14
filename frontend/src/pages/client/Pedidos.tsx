@@ -148,10 +148,10 @@ export default function Pedidos() {
   const isMutating = createRequestMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-500" style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tight mb-2">Meus Pedidos</h1>
+          <h1 className="text-4xl font-black text-white tracking-tight mb-3">Meus Pedidos</h1>
           <p className="text-[#94A3B8] font-medium">Gerencie e acompanhe suas solicitações de serviço em tempo real.</p>
         </div>
         <button
@@ -174,15 +174,15 @@ export default function Pedidos() {
         />
       </div>
 
-      <div style={{ display: 'flex', gap: '4px', marginTop: '1rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '6px' }}>
         {STATUS_TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setStatusFilter(tab === 'Todos' ? 'todos' : tab)}
             style={{
-              padding: '6px 16px',
-              borderRadius: '8px',
-              fontSize: '12px',
+              padding: '8px 18px',
+              borderRadius: '10px',
+              fontSize: '13px',
               fontWeight: 700,
               transition: 'all 0.15s',
               border: (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
@@ -201,7 +201,7 @@ export default function Pedidos() {
         ))}
       </div>
 
-      <div style={{ marginTop: '0.75rem' }}>
+      <div>
         {isLoading ? (
           <div className="p-20 flex justify-center">
             <LoadingSpinner size={48} label="Sincronizando seus pedidos..." />
