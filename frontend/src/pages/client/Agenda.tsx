@@ -364,31 +364,27 @@ export default function ClientAgenda() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-500" style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
 
       {/* Header */}
-      <div style={{ marginBottom: '16px' }}>
+      <div>
         <h1 className="text-2xl font-black text-white tracking-tight">Minha Agenda</h1>
         <p className="text-[#94A3B8] text-sm mt-1">Acompanhe seus agendamentos com profissionais</p>
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '8px', marginBottom: '16px' }}>
-        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
-          <p className="text-[11px] text-[#7a9ebf] uppercase tracking-widest mb-1.5">Total</p>
-          <p className="text-2xl font-black text-white">{isLoading ? '—' : stats.total}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.5rem' }}>
+        <div style={{ background:'#132540', border:'1px solid rgba(255,255,255,.06)', borderRadius:10, padding:'0.75rem', textAlign:'center' }}>
+          <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#4a6580', margin:'0 0 4px' }}>Total</p>
+          <p style={{ fontSize:24, fontWeight:700, color:'white', margin:0, lineHeight:1 }}>{isLoading ? '—' : stats.total}</p>
         </div>
-        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
-          <p className="text-[11px] text-emerald-400 uppercase tracking-widest mb-1.5">Confirmados</p>
-          <p className={cn('text-2xl font-black', stats.confirmed > 0 ? 'text-emerald-400' : 'text-white')}>
-            {isLoading ? '—' : stats.confirmed}
-          </p>
+        <div style={{ background:'#132540', border:'1px solid rgba(16,185,129,.2)', borderRadius:10, padding:'0.75rem', textAlign:'center' }}>
+          <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#10b981', margin:'0 0 4px' }}>Confirm.</p>
+          <p style={{ fontSize:24, fontWeight:700, color: stats.confirmed > 0 ? '#34d399' : 'white', margin:0, lineHeight:1 }}>{isLoading ? '—' : stats.confirmed}</p>
         </div>
-        <div className="bg-[#132236] rounded-xl p-4 border border-white/5">
-          <p className="text-[11px] text-yellow-400 uppercase tracking-widest mb-1.5">Pendentes</p>
-          <p className={cn('text-2xl font-black', stats.pending > 0 ? 'text-yellow-400' : 'text-white')}>
-            {isLoading ? '—' : stats.pending}
-          </p>
+        <div style={{ background:'#132540', border:'1px solid rgba(245,158,11,.2)', borderRadius:10, padding:'0.75rem', textAlign:'center' }}>
+          <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#f59e0b', margin:'0 0 4px' }}>Pendentes</p>
+          <p style={{ fontSize:24, fontWeight:700, color: stats.pending > 0 ? '#fbbf24' : 'white', margin:0, lineHeight:1 }}>{isLoading ? '—' : stats.pending}</p>
         </div>
       </div>
 
@@ -423,7 +419,7 @@ export default function ClientAgenda() {
 
       {/* 2-column layout */}
       {!isLoading && sorted.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
           {/* Left column — upcoming */}
           <div>
