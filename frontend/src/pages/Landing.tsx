@@ -15,7 +15,7 @@ const FomoNotification   = lazy(() => import('../components/FomoNotification'));
 const ExitIntentPopup    = lazy(() => import('../components/ExitIntentPopup'));
 const ProactiveChat      = lazy(() => import('../components/ProactiveChat'));
 
-const BANNER_H = 44;
+const BANNER_H = 52;
 
 function isFlashTime(): boolean {
   const now = new Date();
@@ -145,19 +145,19 @@ export default function LandingPage() {
       {/* ── 1. Banner ── */}
       {isFlashTime() ? (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-sm md:text-sm font-black px-5 sm:px-6 flex-wrap"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white font-black px-4"
           style={{ height: BANNER_H, background: 'linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%)' }}
         >
-          <span>⚡ Oferta Relâmpago</span>
-          <span className="hidden sm:inline text-amber-200">—</span>
-          <span className="text-amber-100 font-bold">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
-          <Link to="/login?mode=signup" className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3 py-1.5 text-xs font-black transition-colors whitespace-nowrap">
+          <span className="text-sm">⚡ Oferta Relâmpago</span>
+          <span className="hidden sm:inline text-amber-200 text-sm">—</span>
+          <span className="hidden sm:inline text-amber-100 font-bold text-sm">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
+          <Link to="/login?mode=signup" className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3 py-1 text-xs font-black transition-colors whitespace-nowrap">
             Aproveitar →
           </Link>
         </div>
       ) : (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-sm md:text-sm font-black px-5 sm:px-6"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white text-sm font-black px-4"
           style={{ height: BANNER_H, background: '#ea580c', borderBottom: '1px solid #0e2035' }}
         >
           <span>🔥 Oferta especial expira em:</span>

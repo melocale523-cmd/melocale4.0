@@ -57,7 +57,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
           isScrolled ? 'bg-[#0E1C32]/80 backdrop-blur-md border-[#1C3050] shadow-lg' : 'bg-transparent border-transparent'
         )}
       >
-        <div className="flex items-center justify-between gap-4" style={{ width: '100%', paddingLeft: '1rem', paddingRight: '1rem' }}>
+        <div className="flex items-center justify-between gap-2" style={{ width: '100%', paddingLeft: '0.75rem', paddingRight: '0.75rem' }}>
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group shrink-0" title="Ir para a página inicial">
             <div className="w-9 h-9 md:w-10 md:h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black group-hover:scale-110 transition-transform">
@@ -82,7 +82,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
           </div>
 
           {/* Right side — always visible */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* ThemeToggle — desktop only */}
             <div className="hidden md:block">
               <ThemeToggle />
