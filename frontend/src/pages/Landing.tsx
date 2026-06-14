@@ -145,7 +145,7 @@ export default function LandingPage() {
       {/* ── 1. Banner ── */}
       {isFlashTime() ? (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-xs md:text-sm font-black px-4 sm:px-6 flex-wrap"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-sm md:text-sm font-black px-5 sm:px-6 flex-wrap"
           style={{ height: BANNER_H, background: 'linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%)' }}
         >
           <span>⚡ Oferta Relâmpago</span>
@@ -157,7 +157,7 @@ export default function LandingPage() {
         </div>
       ) : (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-xs md:text-sm font-black px-4 sm:px-6"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 md:gap-4 text-white text-sm md:text-sm font-black px-5 sm:px-6"
           style={{ height: BANNER_H, background: '#ea580c', borderBottom: '1px solid #0e2035' }}
         >
           <span>🔥 Oferta especial expira em:</span>

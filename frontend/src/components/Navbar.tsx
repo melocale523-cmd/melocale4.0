@@ -57,7 +57,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
           isScrolled ? 'bg-[#0E1C32]/80 backdrop-blur-md border-[#1C3050] shadow-lg' : 'bg-transparent border-transparent'
         )}
       >
-        <div className="flex items-center justify-between gap-4" style={{ width: '100%', paddingLeft: '2rem', paddingRight: '2rem' }}>
+        <div className="flex items-center justify-between gap-4" style={{ width: '100%', paddingLeft: '1rem', paddingRight: '1rem' }}>
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group shrink-0" title="Ir para a página inicial">
             <div className="w-9 h-9 md:w-10 md:h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black group-hover:scale-110 transition-transform">
@@ -93,7 +93,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
                 {/* Entrar — always visible, compact on mobile */}
                 <Link
                   to="/login?mode=login"
-                  className="px-3 py-1.5 md:px-5 md:py-2.5 border border-emerald-500/60 text-emerald-400 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-emerald-500/10 whitespace-nowrap"
+                  className="px-4 py-2 md:px-5 md:py-2.5 border border-emerald-500/60 text-emerald-400 rounded-xl text-sm md:text-sm font-black transition-all hover:bg-emerald-500/10 whitespace-nowrap"
                 >
                   Entrar
                 </Link>
@@ -101,7 +101,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
                 <Link
                   to="/login?mode=signup"
                   className={cn(
-                    'px-3 py-1.5 md:px-5 md:py-2.5 rounded-xl text-xs md:text-sm font-black transition-all whitespace-nowrap',
+                    'px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-sm md:text-sm font-black transition-all whitespace-nowrap',
                     pastHero
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/30'
                       : 'bg-yellow-400 hover:bg-yellow-500 text-black'
