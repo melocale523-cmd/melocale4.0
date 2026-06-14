@@ -151,9 +151,15 @@ export default function LandingPage() {
           <span className="text-sm">⚡ Oferta Relâmpago</span>
           <span className="hidden sm:inline text-amber-200 text-sm">—</span>
           <span className="hidden sm:inline text-amber-100 font-bold text-sm">Cadastre agora e ganhe <strong className="text-white">100 moedas extras!</strong></span>
-          <Link to="/login?mode=signup" className="ml-1 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3 py-1 text-xs font-black transition-colors whitespace-nowrap">
+          <Link to="/login?mode=signup" className="ml-1 text-white rounded-lg px-3 py-1 text-xs font-black whitespace-nowrap" style={{ background:'rgba(255,255,255,.25)', animation:'aproveitar-pulse 1.5s ease-in-out infinite', boxShadow:'0 0 12px rgba(255,255,255,.6)' }}>
             Aproveitar →
           </Link>
+          <style>{`
+            @keyframes aproveitar-pulse {
+              0%, 100% { box-shadow: 0 0 8px rgba(255,255,255,.5), 0 0 20px rgba(255,200,0,.3); transform: scale(1); }
+              50% { box-shadow: 0 0 18px rgba(255,255,255,.9), 0 0 36px rgba(255,200,0,.6); transform: scale(1.06); }
+            }
+          `}</style>
         </div>
       ) : (
         <div
