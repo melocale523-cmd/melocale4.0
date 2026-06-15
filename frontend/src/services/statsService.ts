@@ -27,6 +27,15 @@ async function calcAvgResponseTime(professionalId: string): Promise<string> {
   return `${hours} horas`;
 }
 
+async function calcAvgResponseTimeGlobal(): Promise<string> {
+  const { data, error } = await supabase.rpc('get_avg_response_time_hours_global');
+  if (error || data === null) return '—';
+  const hours = Number(data);
+  if (hours < 1) return 'menos de 1h';
+  if (hours === 1) return '1 hora';
+  return `${hours} horas`;
+}
+
 export interface EnrichedUser {
   id: string;
   full_name: string | null;
@@ -138,7 +147,7 @@ export const adminService = {
         totalCoinsCirculation: totalCoins,
         packageBreakdown,
         pendingVerifications: 0,
-        avgResponseTime: '—',
+        avgResponseTime: await calcAvgResponseTimeGlobal(),
         estimatedRevenue: totalRevenue,
       };
     } catch {
