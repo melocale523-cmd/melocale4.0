@@ -3,6 +3,7 @@ import type { UseMutationResult } from '@tanstack/react-query';
 import { apiFetch } from '../../../lib/api';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useAuthStore } from '../../../store/authStore';
 
 interface StepMoedasProps {
   completeMutation: UseMutationResult<void, Error, void>;
@@ -11,15 +12,19 @@ interface StepMoedasProps {
 
 export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
   const [buying, setBuying] = useState(false);
+  const { user } = useAuthStore();
 
   const handleBuy = async () => {
     setBuying(true);
     try {
       await completeMutation.mutateAsync();
-      const res = await apiFetch('/api/create-coins-checkout', {
+      const res = await apiFetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ package: 'starter' }),
+        body: JSON.stringify({
+          package_id: 'pack_starter',
+          user_id: user!.id,
+        }),
       });
       if (!res.ok) throw new Error('Erro ao abrir checkout');
       const { url } = await res.json();
