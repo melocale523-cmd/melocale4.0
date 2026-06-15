@@ -187,7 +187,7 @@ export default function ClientIndicacoes() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
   const [showRankingModal, setShowRankingModal] = useState(false)
   const [pixKey, setPixKey] = useState('')
-  const [pixKeyType, setPixKeyType] = useState('CPF')
+  const [pixKeyType, setPixKeyType] = useState('cpf')
   const [modalCoinsAmount, setModalCoinsAmount] = useState('1000')
 
   interface WithdrawalHistoryItem {
@@ -1118,11 +1118,11 @@ export default function ClientIndicacoes() {
                 onChange={e => setPixKeyType(e.target.value)}
                 style={{ width: '100%', background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box' }}
               >
-                <option value="CPF">CPF</option>
-                <option value="EMAIL">E-mail</option>
-                <option value="PHONE">Telefone</option>
-                <option value="EVP">Chave aleatória</option>
-                <option value="CNPJ">CNPJ</option>
+                <option value="cpf">CPF</option>
+                <option value="email">E-mail</option>
+                <option value="phone">Telefone</option>
+                <option value="random">Chave aleatória</option>
+                <option value="cnpj">CNPJ</option>
               </select>
             </div>
 
@@ -1133,7 +1133,7 @@ export default function ClientIndicacoes() {
                 type="text"
                 value={pixKey}
                 onChange={e => setPixKey(e.target.value)}
-                placeholder={pixKeyType === 'CPF' ? '000.000.000-00' : pixKeyType === 'EMAIL' ? 'seu@email.com' : pixKeyType === 'PHONE' ? '+5511999999999' : pixKeyType === 'CNPJ' ? '00.000.000/0001-00' : 'chave aleatória (EVP)'}
+                placeholder={pixKeyType === 'cpf' ? '000.000.000-00' : pixKeyType === 'email' ? 'seu@email.com' : pixKeyType === 'phone' ? '+5511999999999' : pixKeyType === 'cnpj' ? '00.000.000/0001-00' : 'chave aleatória'}
                 style={{ width: '100%', background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
               />
             </div>
