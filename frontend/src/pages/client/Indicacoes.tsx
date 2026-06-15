@@ -9,6 +9,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuthStore } from '../../store/authStore'
 import { apiFetch } from '../../lib/api'
+import { supabase } from '../../lib/supabase'
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface ReferralCode {
@@ -186,26 +187,58 @@ export default function ClientIndicacoes() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
   const [showRankingModal, setShowRankingModal] = useState(false)
   const [pixKey, setPixKey] = useState('')
-  const [pixKeyType, setPixKeyType] = useState('CPF')
+  const [pixKeyType, setPixKeyType] = useState('cpf')
+  const [modalCoinsAmount, setModalCoinsAmount] = useState('1000')
+
+  interface WithdrawalHistoryItem {
+    id: string
+    coins_amount: number
+    brl_amount: number
+    pix_key: string
+    pix_key_type: string
+    status: 'pending' | 'approved' | 'paid' | 'rejected'
+    admin_note: string | null
+    requested_at: string
+    processed_at: string | null
+  }
+
+  const { data: withdrawalHistory = [] } = useQuery<WithdrawalHistoryItem[]>({
+    queryKey: ['withdrawalHistory', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select('id, coins_amount, brl_amount, pix_key, pix_key_type, status, admin_note, requested_at, processed_at')
+        .order('requested_at', { ascending: false })
+      if (error) return []
+      return (data ?? []) as WithdrawalHistoryItem[]
+    },
+    enabled: authReady,
+  })
+
+  const hasPendingWithdrawal = withdrawalHistory.some(w => w.status === 'pending' || w.status === 'approved')
+  const totalWithdrawn = withdrawalHistory
+    .filter(w => w.status === 'paid')
+    .reduce((sum, w) => sum + (w.coins_amount ?? 0), 0)
 
   const withdrawMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiFetch('/api/wallet/withdraw', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pix_key: pixKey, pix_key_type: pixKeyType }),
+      const amount = parseInt(modalCoinsAmount, 10)
+      if (isNaN(amount) || amount < 1000) throw new Error('Mínimo de 1.000 moedas para sacar.')
+      if (amount > (coinsData?.balance ?? 0)) throw new Error('Saldo insuficiente.')
+      if (!pixKey.trim()) throw new Error('Informe sua chave Pix.')
+      const { error } = await supabase.rpc('request_withdrawal', {
+        p_coins_amount: amount,
+        p_pix_key: pixKey.trim(),
+        p_pix_key_type: pixKeyType,
       })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error === 'insufficient_balance' ? 'Saldo insuficiente. Mínimo: 1.000 moedas (R$10).' : err.error ?? 'Erro ao processar saque.')
-      }
-      return res.json()
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
-      toast.success('Pix enviado! Em instantes cai na sua conta. 🎉')
+      toast.success('Saque solicitado com sucesso! Você receberá o valor em até 24h. 🎉')
       setShowWithdrawModal(false)
       setPixKey('')
       queryClient.invalidateQueries({ queryKey: ['clientCoins'] })
+      queryClient.invalidateQueries({ queryKey: ['withdrawalHistory'] })
     },
     onError: (err: Error) => toast.error(err.message),
   })
@@ -461,44 +494,79 @@ export default function ClientIndicacoes() {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '12px', marginBottom: '1.5rem' }}>
 
           {/* Card — Suas moedas */}
-          <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Coins size={15} color="#10b981" />
-              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#10b981' }}>Suas moedas</span>
+          <div style={{ background: '#0d1e33', border: '1px solid #1e3a5f', borderRadius: '1rem', overflow: 'hidden' }}>
+            <div style={{ height: '2px', background: 'linear-gradient(90deg, #10b981, #059669)' }} />
+            <div style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '15px' }}>🪙</span>
+                  <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#64748b' }}>SUAS MOEDAS</span>
+                </div>
+                {(coinsData?.balance ?? 0) >= 1000 ? (
+                  <span style={{ fontSize: '11px', color: '#10b981', background: 'rgba(16,185,129,0.12)', borderRadius: '999px', padding: '3px 8px', fontWeight: 600 }}>Saldo disponível</span>
+                ) : (
+                  <span style={{ fontSize: '11px', color: '#f59e0b', background: 'rgba(245,158,11,0.12)', borderRadius: '999px', padding: '3px 8px', fontWeight: 600 }}>Saque indisponível</span>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '4px' }}>
+                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '42px', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
+                  {(coinsData?.balance ?? 0).toLocaleString('pt-BR')}
+                </span>
+                <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}>moedas</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '16px' }}>
+                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '15px', fontWeight: 700, color: '#f1f5f9' }}>
+                  R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
+                </span>
+                <span style={{ fontSize: '12px', color: '#475569' }}>em reais</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ background: '#0a1928', borderRadius: '0.625rem', padding: '0.75rem' }}>
+                  <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: '4px' }}>Ganhas total</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>
+                    {(coinsData?.total_earned ?? 0).toLocaleString('pt-BR')}
+                  </div>
+                </div>
+                <div style={{ background: '#0a1928', borderRadius: '0.625rem', padding: '0.75rem' }}>
+                  <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: '4px' }}>Já sacadas</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>
+                    {totalWithdrawn.toLocaleString('pt-BR')}
+                  </div>
+                </div>
+                <div style={{ background: '#0a1928', borderRadius: '0.625rem', padding: '0.75rem' }}>
+                  <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: '4px' }}>Indicações</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>
+                    {referralData?.stats.total ?? 0}
+                  </div>
+                </div>
+                <div style={{ background: '#0a1928', borderRadius: '0.625rem', padding: '0.75rem' }}>
+                  <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: '4px' }}>Mín. p/ saque</div>
+                  {(coinsData?.balance ?? 0) >= 1000 ? (
+                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '16px', fontWeight: 700, color: '#10b981' }}>✓ OK</div>
+                  ) : (
+                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '14px', fontWeight: 700, color: '#f59e0b' }}>
+                      Faltam {(1000 - (coinsData?.balance ?? 0)).toLocaleString('pt-BR')}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setModalCoinsAmount(String(coinsData?.balance ?? 1000))
+                  setShowWithdrawModal(true)
+                }}
+                disabled={(coinsData?.balance ?? 0) < 1000 || hasPendingWithdrawal}
+                style={{
+                  width: '100%', background: '#10b981', color: '#fff', border: 'none',
+                  borderRadius: '0.75rem', padding: '12px 0', fontSize: '14px', fontWeight: 700,
+                  cursor: (coinsData?.balance ?? 0) < 1000 || hasPendingWithdrawal ? 'not-allowed' : 'pointer',
+                  opacity: (coinsData?.balance ?? 0) < 1000 || hasPendingWithdrawal ? 0.4 : 1,
+                  fontFamily: 'DM Sans, sans-serif', transition: 'opacity .2s',
+                }}
+              >
+                {hasPendingWithdrawal ? '⏳ Saque em andamento' : 'Sacar via Pix'}
+              </button>
             </div>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
-              {coinsData?.balance ?? 0}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '4px' }}>
-              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.25rem', fontWeight: 700, color: '#10b981' }}>
-                R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
-              </span>
-              <span style={{ fontSize: '10px', color: '#4ade80' }}>em reais · mín. R$10 p/ sacar</span>
-            </div>
-            <div style={{ marginTop: '10px', background: '#1C3050', borderRadius: '100px', height: '6px' }}>
-              <div style={{ background: '#10b981', borderRadius: '100px', height: '6px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
-            </div>
-            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
-              {Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas para o saque
-            </div>
-            {(() => {
-              const hasEnough = (coinsData?.balance ?? 0) >= 1000
-              return (
-                <button
-                  onClick={() => setShowWithdrawModal(true)}
-                  style={{
-                    marginTop: '12px', width: '100%',
-                    background: hasEnough ? '#10b981' : '#1C3050',
-                    color: hasEnough ? '#fff' : '#64748b',
-                    border: hasEnough ? 'none' : '1px solid #243F6A',
-                    borderRadius: '8px', padding: '8px 0', fontSize: '13px',
-                    fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
-                  }}
-                >
-                  {hasEnough ? '💸 Sacar via Pix' : '💸 Sacar via Pix · faltam ' + Math.max(1000 - (coinsData?.balance ?? 0), 0) + ' moedas'}
-                </button>
-              )
-            })()}
           </div>
 
           {/* Card — Missão do mês */}
@@ -542,6 +610,66 @@ export default function ClientIndicacoes() {
           </div>
 
         </div>
+
+        {/* ── Withdrawal History ─────────────────────────────────── */}
+        {withdrawalHistory.length > 0 && (
+          <div style={{ ...cardBase, marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+              <Coins size={17} color={t.muted} />
+              <span style={{ fontSize: '15px', fontWeight: 600, color: t.text }}>Histórico de saques</span>
+              <span style={{ marginLeft: 'auto', background: t.border, color: t.muted, fontSize: '11px', padding: '2px 8px', borderRadius: '999px', fontFamily: 'DM Mono, monospace' }}>
+                {withdrawalHistory.length}
+              </span>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <thead>
+                  <tr style={{ borderBottom: `1px solid ${t.border}` }}>
+                    {['Data', 'Moedas', 'Valor R$', 'Chave Pix', 'Status', 'Nota'].map(h => (
+                      <th key={h} style={{ padding: '6px 10px', textAlign: 'left', color: t.muted, fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {withdrawalHistory.map((w, i) => {
+                    const statusColors: Record<string, { bg: string; color: string; label: string }> = {
+                      pending:  { bg: 'rgba(234,179,8,0.1)',   color: '#fde047', label: '⏳ Pendente'  },
+                      approved: { bg: 'rgba(96,165,250,0.1)',  color: '#60a5fa', label: '✅ Aprovado'  },
+                      paid:     { bg: 'rgba(52,211,153,0.1)',  color: '#34d399', label: '💸 Pago'       },
+                      rejected: { bg: 'rgba(248,113,113,0.1)', color: '#f87171', label: '❌ Rejeitado' },
+                    }
+                    const s = statusColors[w.status] ?? statusColors.pending
+                    return (
+                      <tr key={w.id} style={{ borderBottom: i < withdrawalHistory.length - 1 ? `1px solid rgba(255,255,255,0.05)` : 'none' }}>
+                        <td style={{ padding: '8px 10px', color: t.muted, whiteSpace: 'nowrap' }}>
+                          {new Date(w.requested_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' })}
+                        </td>
+                        <td style={{ padding: '8px 10px', fontFamily: 'DM Mono, monospace', color: t.text, fontWeight: 700 }}>
+                          {w.coins_amount.toLocaleString('pt-BR')}
+                        </td>
+                        <td style={{ padding: '8px 10px', fontFamily: 'DM Mono, monospace', color: '#1D9E75', fontWeight: 700 }}>
+                          R${(w.brl_amount ?? (w.coins_amount / 100)).toFixed(2).replace('.', ',')}
+                        </td>
+                        <td style={{ padding: '8px 10px', color: t.subtle, maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '11px' }}>{w.pix_key}</span>
+                          <span style={{ marginLeft: '4px', fontSize: '9px', color: t.muted, background: t.input, padding: '1px 5px', borderRadius: '4px' }}>{w.pix_key_type}</span>
+                        </td>
+                        <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
+                          <span style={{ background: s.bg, color: s.color, fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px' }}>
+                            {s.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '8px 10px', color: t.muted, fontSize: '11px', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {w.admin_note ?? '—'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* ── 2-column grid ───────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 380px', gap: '1.5rem', alignItems: 'start' }}>
@@ -942,87 +1070,96 @@ export default function ClientIndicacoes() {
       )}
 
       {showWithdrawModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#132236', border: '1px solid #1C3050', borderRadius: '1rem', padding: '1.5rem', width: '100%', maxWidth: '420px', fontFamily: 'DM Sans, sans-serif' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>💸 Sacar via Pix</span>
-              <button onClick={() => setShowWithdrawModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '1rem' }}>
+          <div style={{ background: '#0d1e33', border: '1px solid #1e3a5f', borderRadius: '1rem', padding: '1.5rem', width: '100%', maxWidth: '400px', fontFamily: 'DM Sans, sans-serif' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>💸</span>
+                <span style={{ fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>Sacar via Pix</span>
+              </div>
+              <button onClick={() => setShowWithdrawModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px', display: 'flex' }}>
                 <X size={20} />
               </button>
             </div>
-            {(coinsData?.balance ?? 0) >= 1000 ? (
-              <>
-                <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '8px', padding: '12px', marginBottom: '1rem', textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
-                    R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#4ade80' }}>{coinsData?.balance ?? 0} moedas disponíveis</div>
-                </div>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Tipo de chave Pix</label>
-                  <select
-                    value={pixKeyType}
-                    onChange={e => setPixKeyType(e.target.value)}
-                    style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Sans, sans-serif' }}
-                  >
-                    <option value="CPF">CPF</option>
-                    <option value="EMAIL">E-mail</option>
-                    <option value="PHONE">Telefone</option>
-                    <option value="EVP">Chave aleatória</option>
-                    <option value="CNPJ">CNPJ</option>
-                  </select>
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Chave Pix</label>
-                  <input
-                    type="text"
-                    value={pixKey}
-                    onChange={e => setPixKey(e.target.value)}
-                    placeholder={pixKeyType === 'CPF' ? '000.000.000-00' : pixKeyType === 'EMAIL' ? 'seu@email.com' : pixKeyType === 'PHONE' ? '+5500000000000' : 'sua chave Pix'}
-                    style={{ width: '100%', background: '#0d1929', border: '1px solid #1C3050', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
-                  />
-                </div>
-                <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '1rem', padding: '8px', background: '#0d1929', borderRadius: '6px' }}>
-                  ⚠️ O Pix será enviado instantaneamente. Verifique a chave antes de confirmar.
-                </div>
-                <button
-                  onClick={() => withdrawMutation.mutate()}
-                  disabled={!pixKey || withdrawMutation.isPending}
-                  style={{
-                    width: '100%', background: withdrawMutation.isPending ? '#065f46' : '#10b981',
-                    color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 0',
-                    fontSize: '14px', fontWeight: 700, cursor: pixKey ? 'pointer' : 'not-allowed',
-                    opacity: pixKey ? 1 : 0.5, fontFamily: 'DM Sans, sans-serif',
-                  }}
-                >
-                  {withdrawMutation.isPending ? 'Processando...' : 'Confirmar saque'}
-                </button>
-              </>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🪙</div>
-                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.75rem', fontWeight: 700, color: '#f59e0b', marginBottom: '4px' }}>
-                  {coinsData?.balance ?? 0}/1000
-                </div>
-                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
-                  Você precisa de <span style={{ color: '#10b981', fontWeight: 700 }}>1.000 moedas</span> para sacar.<br/>
-                  Faltam <span style={{ color: '#f59e0b', fontWeight: 700 }}>{Math.max(1000 - (coinsData?.balance ?? 0), 0)} moedas</span>.
-                </div>
-                <div style={{ background: '#1C3050', borderRadius: '100px', height: '8px', marginBottom: '16px' }}>
-                  <div style={{ background: '#f59e0b', borderRadius: '100px', height: '8px', width: `${Math.min(((coinsData?.balance ?? 0) / 1000) * 100, 100)}%`, transition: 'width .5s' }} />
-                </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px', background: '#0d1929', borderRadius: '8px', padding: '12px' }}>
-                  💡 Indique amigos e ganhe <span style={{ color: '#10b981', fontWeight: 700 }}>R$2 por indicação</span>.<br/>
-                  Com 5 indicações você já pode sacar!
-                </div>
-                <button
-                  onClick={() => setShowWithdrawModal(false)}
-                  style={{ width: '100%', background: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 0', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
-                >
-                  Entendi, vou indicar amigos!
-                </button>
+
+            {/* Balance card */}
+            <div style={{ background: '#0a1928', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.25rem', textAlign: 'center' }}>
+              <div style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: '6px' }}>SALDO DISPONÍVEL</div>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '2rem', fontWeight: 700, color: '#10b981', lineHeight: 1 }}>
+                R${((coinsData?.balance ?? 0) / 100).toFixed(2).replace('.', ',')}
               </div>
-            )}
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                {(coinsData?.balance ?? 0).toLocaleString('pt-BR')} moedas · mín. R$10,00 p/ sacar
+              </div>
+            </div>
+
+            {/* Amount input */}
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Quantidade de moedas</label>
+              <input
+                type="number"
+                value={modalCoinsAmount}
+                min={1000}
+                max={coinsData?.balance ?? 0}
+                onChange={e => setModalCoinsAmount(e.target.value)}
+                style={{ width: '100%', background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
+              />
+              <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px', fontFamily: 'DM Mono, monospace' }}>
+                = R${(Math.max(parseInt(modalCoinsAmount, 10) || 0, 0) / 100).toFixed(2).replace('.', ',')}
+              </div>
+            </div>
+
+            {/* Pix type */}
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Tipo de chave Pix</label>
+              <select
+                value={pixKeyType}
+                onChange={e => setPixKeyType(e.target.value)}
+                style={{ width: '100%', background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box' }}
+              >
+                <option value="cpf">CPF</option>
+                <option value="email">E-mail</option>
+                <option value="phone">Telefone</option>
+                <option value="random">Chave aleatória</option>
+                <option value="cnpj">CNPJ</option>
+              </select>
+            </div>
+
+            {/* Pix key */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '6px' }}>Chave Pix</label>
+              <input
+                type="text"
+                value={pixKey}
+                onChange={e => setPixKey(e.target.value)}
+                placeholder={pixKeyType === 'cpf' ? '000.000.000-00' : pixKeyType === 'email' ? 'seu@email.com' : pixKeyType === 'phone' ? '+5511999999999' : pixKeyType === 'cnpj' ? '00.000.000/0001-00' : 'chave aleatória'}
+                style={{ width: '100%', background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '10px 12px', color: '#f1f5f9', fontSize: '13px', fontFamily: 'DM Mono, monospace', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* Warning */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: '8px', padding: '10px 12px', marginBottom: '1.25rem' }}>
+              <span style={{ color: '#f59e0b', fontSize: '14px', flexShrink: 0 }}>⚠️</span>
+              <span style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.5 }}>
+                Verifique a chave antes de confirmar. O saque é processado em até 24h.
+              </span>
+            </div>
+
+            {/* Submit */}
+            <button
+              onClick={() => withdrawMutation.mutate()}
+              disabled={!pixKey.trim() || withdrawMutation.isPending}
+              style={{
+                width: '100%', background: withdrawMutation.isPending ? '#065f46' : '#10b981',
+                color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 0',
+                fontSize: '14px', fontWeight: 700,
+                cursor: !pixKey.trim() || withdrawMutation.isPending ? 'not-allowed' : 'pointer',
+                opacity: !pixKey.trim() ? 0.5 : 1, fontFamily: 'DM Sans, sans-serif',
+              }}
+            >
+              {withdrawMutation.isPending ? '⏳ Processando…' : 'Confirmar saque'}
+            </button>
           </div>
         </div>
       )}
