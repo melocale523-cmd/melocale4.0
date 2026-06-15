@@ -1,84 +1,111 @@
-import { Loader2, Coins, ArrowLeft, Zap, ShieldCheck, TrendingUp } from 'lucide-react';
+import { Loader2, ArrowLeft, ShoppingCart } from 'lucide-react';
 import type { UseMutationResult } from '@tanstack/react-query';
+import { apiFetch } from '../../../lib/api';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface StepMoedasProps {
   completeMutation: UseMutationResult<void, Error, void>;
   onBack: () => void;
 }
 
-const FEATURES = [
-  {
-    icon: <Zap size={20} className="text-yellow-400" />,
-    title: 'Acesso a leads qualificados',
-    description: 'Clientes reais que precisam de serviços agora. Compre moedas e desbloqueie o contato.',
-  },
-  {
-    icon: <ShieldCheck size={20} className="text-emerald-400" />,
-    title: 'Pagamento único por lead',
-    description: 'Você paga apenas para ver os dados do cliente. Sem mensalidade obrigatória.',
-  },
-  {
-    icon: <TrendingUp size={20} className="text-blue-400" />,
-    title: 'Quanto mais leads, mais oportunidades',
-    description: 'Profissionais ativos faturam em média 3x mais do que os inativos na plataforma.',
-  },
-];
-
 export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
+  const [buying, setBuying] = useState(false);
+
+  const handleBuy = async () => {
+    setBuying(true);
+    try {
+      await completeMutation.mutateAsync();
+      const res = await apiFetch('/api/create-coins-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ package: 'starter' }),
+      });
+      if (!res.ok) throw new Error('Erro ao abrir checkout');
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao processar.');
+      setBuying(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    await completeMutation.mutateAsync();
+  };
+
+  const saldo = 20;
+  const custo = 60;
+  const faltam = custo - saldo;
+  const pct = Math.round((saldo / custo) * 100);
+
   return (
-    <div className="space-y-8">
-      <div className="space-y-7">
-        <div className="flex items-center gap-8">
-          <div className="w-12 h-12 bg-yellow-400/10 rounded-2xl flex items-center justify-center">
-            <Coins size={26} className="text-yellow-400" />
-          </div>
-          <h2 className="text-3xl font-black text-white tracking-tight">Como funciona</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 32, marginBottom: 8 }}>🪙</div>
+        <h2 style={{ color: '#f1f5f9', fontSize: 20, fontWeight: 900, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+          Quase lá! Faltam {faltam} moedas
+        </h2>
+        <p style={{ color: '#64748b', fontSize: 13, margin: 0 }}>
+          Você ganhou {saldo} moedas de boas-vindas — cada lead custa {custo}
+        </p>
+      </div>
+
+      {/* Saldo card */}
+      <div style={{ background: '#0a1928', border: '1px solid #1C3050', borderRadius: '.75rem', padding: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 12, color: '#64748b' }}>Seu saldo atual</span>
+          <span style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', fontFamily: 'DM Mono, monospace' }}>{saldo} moedas</span>
         </div>
-        <p className="text-[#7A9EBF] font-medium">
-          Entenda como o sistema de moedas te conecta com clientes prontos para contratar.
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <span style={{ fontSize: 12, color: '#64748b' }}>Custo por lead</span>
+          <span style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b', fontFamily: 'DM Mono, monospace' }}>{custo} moedas</span>
+        </div>
+        <div style={{ height: 1, background: '#1C3050', marginBottom: 10 }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#f87171' }}>Faltam</span>
+          <span style={{ fontSize: 22, fontWeight: 700, color: '#f87171', fontFamily: 'DM Mono, monospace' }}>{faltam} moedas</span>
+        </div>
+        <div style={{ marginTop: 8, background: '#1C3050', borderRadius: 999, height: 5 }}>
+          <div style={{ width: `${pct}%`, background: '#f59e0b', borderRadius: 999, height: 5 }} />
+        </div>
+        <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, textAlign: 'right' }}>{saldo} / {custo} moedas</div>
       </div>
 
-      <div className="space-y-9">
-        {FEATURES.map((f) => (
-          <div key={f.title} className="flex gap-9 p-10 bg-[#1C3454] border border-[#243F6A] rounded-2xl">
-            <div className="w-10 h-10 bg-[#0E1C32] rounded-xl flex items-center justify-center shrink-0">
-              {f.icon}
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm">{f.title}</p>
-              <p className="text-[#7A9EBF] text-xs mt-6 leading-relaxed">{f.description}</p>
-            </div>
-          </div>
-        ))}
+      {/* Dica */}
+      <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '.75rem', padding: '.875rem', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
+        <div>
+          <div style={{ fontSize: 12, color: '#f1f5f9', fontWeight: 700, marginBottom: 2 }}>Pacote recomendado para começar</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>60 moedas por R$3,00 — acesse seu primeiro cliente hoje</div>
+        </div>
       </div>
 
-      <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-10">
-        <p className="text-yellow-400 text-xs font-black uppercase tracking-widest mb-6">Bônus de boas-vindas</p>
-        <p className="text-white text-sm font-medium leading-relaxed">
-          Seu perfil está pronto. Comece a receber leads e expanda seu negócio hoje mesmo.
-        </p>
-      </div>
-
-      <div className="space-y-8 pt-2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 4 }}>
         <button
           type="button"
-          onClick={() => completeMutation.mutate()}
-          disabled={completeMutation.isPending}
-          className="w-full h-14 bg-yellow-400 hover:bg-yellow-300 text-black font-black rounded-2xl transition-all flex items-center justify-center gap-7 text-lg uppercase tracking-widest shadow-lg shadow-yellow-400/20 disabled:opacity-50"
+          onClick={handleBuy}
+          disabled={buying || completeMutation.isPending}
+          style={{ width: '100%', height: 52, background: '#10b981', border: 'none', borderRadius: '1rem', color: '#fff', fontSize: 14, fontWeight: 900, cursor: buying ? 'not-allowed' : 'pointer', opacity: buying ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'DM Sans, sans-serif', letterSpacing: '.03em' }}
         >
-          {completeMutation.isPending
-            ? <Loader2 size={22} className="animate-spin" />
-            : 'Começar a usar a plataforma'
-          }
+          {buying ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <ShoppingCart size={18} />}
+          {buying ? 'Aguarde...' : 'Comprar 60 moedas — R$3,00'}
+        </button>
+        <button
+          type="button"
+          onClick={handleSkip}
+          disabled={completeMutation.isPending || buying}
+          style={{ width: '100%', background: 'none', border: 'none', color: '#475569', fontSize: 12, cursor: 'pointer', padding: '8px 0', fontFamily: 'DM Sans, sans-serif' }}
+        >
+          Ver todos os pacotes de moedas
         </button>
         <button
           type="button"
           onClick={onBack}
-          disabled={completeMutation.isPending}
-          className="w-full h-11 flex items-center justify-center gap-7 text-[#7A9EBF] hover:text-white text-sm font-bold transition-colors"
+          disabled={completeMutation.isPending || buying}
+          style={{ width: '100%', height: 40, background: 'none', border: 'none', color: '#475569', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: 'DM Sans, sans-serif' }}
         >
-          <ArrowLeft size={16} /> Voltar
+          <ArrowLeft size={14} /> Voltar
         </button>
       </div>
     </div>

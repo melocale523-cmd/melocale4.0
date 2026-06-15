@@ -3,11 +3,12 @@ import { cn } from '../../lib/utils';
 import { useOnboarding } from '../../hooks/useOnboarding';
 import { StepFoto } from './onboarding/StepFoto';
 import { StepBio } from './onboarding/StepBio';
+import { StepLeads } from './onboarding/StepLeads';
 import { StepMoedas } from './onboarding/StepMoedas';
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
-const STEP_LABELS = ['Foto', 'Perfil', 'Como funciona'];
+const STEP_LABELS = ['Foto', 'Perfil', 'Leads', 'Moedas'];
 
 export default function Onboarding() {
   const [step, setStep] = useState<Step>(1);
@@ -63,9 +64,15 @@ export default function Onboarding() {
             />
           )}
           {step === 3 && (
+            <StepLeads
+              onNext={() => setStep(4)}
+              onBack={() => setStep(2)}
+            />
+          )}
+          {step === 4 && (
             <StepMoedas
               completeMutation={completeMutation}
-              onBack={() => setStep(2)}
+              onBack={() => setStep(3)}
             />
           )}
         </div>
