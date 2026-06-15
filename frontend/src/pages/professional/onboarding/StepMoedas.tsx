@@ -82,7 +82,7 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
         <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
         <div>
           <div style={{ fontSize: 12, color: '#f1f5f9', fontWeight: 700, marginBottom: 2 }}>Pacote recomendado para começar</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>60 moedas por R$3,00 — acesse seu primeiro cliente hoje</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>60 moedas por R$24,90 — acesse seu primeiro cliente hoje</div>
         </div>
       </div>
 
@@ -94,7 +94,7 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
           style={{ width: '100%', height: 52, background: '#10b981', border: 'none', borderRadius: '1rem', color: '#fff', fontSize: 14, fontWeight: 900, cursor: buying ? 'not-allowed' : 'pointer', opacity: buying ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'DM Sans, sans-serif', letterSpacing: '.03em' }}
         >
           {buying ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <ShoppingCart size={18} />}
-          {buying ? 'Aguarde...' : 'Comprar 60 moedas — R$3,00'}
+          {buying ? 'Aguarde...' : 'Comprar 60 moedas — R$24,90'}
         </button>
         <button
           type="button"
