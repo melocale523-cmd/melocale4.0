@@ -69,7 +69,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* Mobile cards */}
-        <div className="md:hidden space-y-4" style={{ margin: '0 auto', width: '92%', maxWidth: '400px' }}>
+        <div className="md:hidden space-y-4" style={{ margin: '0 auto', width: '100%', maxWidth: '400px', paddingLeft: '1rem', paddingRight: '1rem', boxSizing: 'border-box' }}>
           {features.map(f => (
             <div key={f.label} className="bg-[#1e2d45] border border-slate-700 rounded-2xl p-4">
               <p className="text-white font-bold mb-3 text-sm text-left">{f.label}</p>
