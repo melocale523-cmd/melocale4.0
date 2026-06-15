@@ -619,7 +619,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-0" style={{ marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-4 sm:px-0" style={{ marginBottom: '2rem' }}>
               {/* GRATUITO */}
               <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-80 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid rgba(148,163,184,.3)' }}>
                 <div className="mb-4">
@@ -665,7 +665,7 @@ export default function LandingPage() {
               </div>
 
               {/* PRO — DESTAQUE */}
-              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '1.75rem 1.5rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)', borderTop: '3px solid #10b981' }}>
+              <div className="bg-gradient-to-b from-[#1c1d28] to-[#1C3454] rounded-2xl border-2 border-emerald-500 flex flex-col relative mt-6 sm:mt-0 z-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.4)]" style={{ padding: '1.75rem 1.5rem', boxShadow: '0 0 60px -5px rgba(16,185,129,.5), 0 0 120px -20px rgba(16,185,129,.25)', borderTop: '3px solid #10b981' }}>
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black px-5 py-2 rounded-full text-sm font-black tracking-wider uppercase whitespace-nowrap">
                   ⚡ Mais Popular
                 </div>
