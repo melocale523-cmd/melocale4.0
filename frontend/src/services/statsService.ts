@@ -394,5 +394,95 @@ export const adminService = {
       purchases: purchaseRes.count ?? 0,
       notifications: notifRes.count ?? 0,
     };
-  }
+  },
+
+  async getRankingProfissionais(): Promise<RankedProfessional[]> {
+    const [profsRes, coinsRes, paymentsRes, subsRes] = await Promise.all([
+      supabase.from('professionals').select('id, user_id, category, city, created_at, is_active'),
+      supabase.from('professional_coins').select('professional_id, balance, total_earned'),
+      supabase.from('payments').select('user_id, amount, status').eq('status', 'paid'),
+      supabase.from('user_subscriptions').select('user_id, package_id, status').in('status', ['active', 'canceling']),
+    ]);
+
+    const profs = (profsRes.data ?? []) as Array<{ id: string; user_id: string; category: string | null; city: string | null; created_at: string; is_active: boolean }>;
+    const coins = (coinsRes.data ?? []) as Array<{ professional_id: string; balance: number; total_earned: number }>;
+    const payments = (paymentsRes.data ?? []) as Array<{ user_id: string; amount: number; status: string }>;
+    const subs = (subsRes.data ?? []) as Array<{ user_id: string; package_id: string; status: string }>;
+
+    const userIds = profs.map(p => p.user_id);
+    const profilesRes = userIds.length > 0
+      ? await supabase.from('profiles').select('id, full_name, avatar_url, address_state').in('id', userIds)
+      : { data: [] };
+    const profilesData = (profilesRes.data ?? []) as Array<{ id: string; full_name: string | null; avatar_url: string | null; address_state: string | null }>;
+
+    // Lookup maps — professional_coins.professional_id === profiles.id === auth UUID
+    const coinsMap = new Map(coins.map(c => [c.professional_id, c]));
+    const profileMap = new Map(profilesData.map(p => [p.id, p]));
+    const subsMap = new Map(subs.map(s => [s.user_id, s]));
+
+    const paymentsByUser = new Map<string, { count: number; total: number }>();
+    for (const p of payments) {
+      const cur = paymentsByUser.get(p.user_id) ?? { count: 0, total: 0 };
+      cur.count++;
+      cur.total += p.amount ?? 0;
+      paymentsByUser.set(p.user_id, cur);
+    }
+
+    const enriched: RankedProfessional[] = profs.map(prof => {
+      const coinData = coinsMap.get(prof.user_id);
+      const profile = profileMap.get(prof.user_id);
+      const sub = subsMap.get(prof.user_id);
+      const pay = paymentsByUser.get(prof.user_id) ?? { count: 0, total: 0 };
+      return {
+        professional_id: prof.id,
+        user_id: prof.user_id,
+        full_name: profile?.full_name ?? 'Sem nome',
+        avatar_url: profile?.avatar_url ?? null,
+        category: prof.category ?? null,
+        city: prof.city ?? null,
+        state: profile?.address_state ?? null,
+        created_at: prof.created_at,
+        is_active: prof.is_active ?? false,
+        coins: coinData?.balance ?? 0,
+        total_earned: coinData?.total_earned ?? 0,
+        payment_count: pay.count,
+        total_spent: pay.total,
+        plan: sub?.package_id ?? null,
+        plan_status: sub?.status ?? null,
+        score: 0,
+      };
+    });
+
+    const maxCoins = Math.max(...enriched.map(p => p.coins), 1);
+    const maxPayments = Math.max(...enriched.map(p => p.payment_count), 1);
+
+    for (const p of enriched) {
+      p.score = Math.round(
+        (p.coins / maxCoins) * 50 +
+        (p.payment_count / maxPayments) * 30 +
+        (p.plan ? 20 : 0)
+      );
+    }
+
+    return enriched.sort((a, b) => b.score - a.score);
+  },
+};
+
+export type RankedProfessional = {
+  professional_id: string;
+  user_id: string;
+  full_name: string;
+  avatar_url: string | null;
+  category: string | null;
+  city: string | null;
+  state: string | null;
+  created_at: string;
+  is_active: boolean;
+  coins: number;
+  total_earned: number;
+  payment_count: number;
+  total_spent: number;
+  plan: string | null;
+  plan_status: string | null;
+  score: number;
 };

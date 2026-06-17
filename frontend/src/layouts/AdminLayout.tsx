@@ -7,7 +7,7 @@ import {
   Users, Briefcase, BarChart3, Settings, ShieldAlert,
   LogOut, ArrowLeft, Menu, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -18,6 +18,7 @@ const ADMIN_NAVIGATION = [
   { name: 'Observabilidade', href: '/admin/observabilidade', icon: Activity },
   { name: 'Disputas', href: '/admin/disputas', icon: AlertOctagon },
   { name: 'Usuários', href: '/admin/usuarios', icon: Users },
+  { name: 'Ranking', href: '/admin/ranking', icon: Trophy },
   { name: 'Pendentes', href: '/admin/pendentes', icon: Clock },
   { name: 'Aprovados', href: '/admin/aprovados', icon: CheckCircle },
   { name: 'Clientes', href: '/admin/clientes', icon: UserCircle },
