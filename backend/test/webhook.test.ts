@@ -91,6 +91,8 @@ describe('POST /api/stripe-webhook', () => {
       data: null,
       error: { code: '23505', message: 'duplicate key value' },
     });
+    // ignoreDuplicates upsert (payments audit) must also be present
+    dupChain.upsert = vi.fn().mockResolvedValue({ data: null, error: null });
     mockFrom.mockReturnValue(dupChain);
     mockRpc.mockResolvedValue({ error: null });
 
@@ -104,6 +106,65 @@ describe('POST /api/stripe-webhook', () => {
     expect(res.body).toEqual({ received: true });
   });
 
+  it('returns 500 when user_subscriptions upsert fails on subscription checkout', async () => {
+    const subEvent = makeCheckoutEvent({ type: 'subscription', package_id: 'plan_pro' });
+    mockConstructEvent.mockReturnValue(subEvent);
+
+    const upsertChain: any = {};
+    upsertChain.select = vi.fn(() => upsertChain);
+    upsertChain.eq = vi.fn(() => upsertChain);
+    upsertChain.maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    upsertChain.upsert = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: 'db connection error', code: '08000' },
+    });
+
+    mockFrom.mockImplementation(() => upsertChain);
+    mockRpc.mockResolvedValue({ error: null });
+
+    const res = await request(app)
+      .post('/api/stripe-webhook')
+      .set('stripe-signature', VALID_SIG)
+      .set('content-type', 'application/json')
+      .send(Buffer.from(JSON.stringify(subEvent)));
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('subscription_write_failed');
+  });
+
+  it('returns 500 when user_subscriptions update fails on subscription.updated event', async () => {
+    const subUpdatedEvent = {
+      type: 'customer.subscription.updated',
+      id: 'evt_sub_upd',
+      data: {
+        object: {
+          id: 'sub_test_123',
+          cancel_at_period_end: false,
+          status: 'active',
+        },
+      },
+    };
+    mockConstructEvent.mockReturnValue(subUpdatedEvent);
+
+    const updateChain: any = {};
+    updateChain.update = vi.fn(() => updateChain);
+    updateChain.eq = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: 'network timeout', code: '08006' },
+    });
+
+    mockFrom.mockImplementation(() => updateChain);
+
+    const res = await request(app)
+      .post('/api/stripe-webhook')
+      .set('stripe-signature', VALID_SIG)
+      .set('content-type', 'application/json')
+      .send(Buffer.from(JSON.stringify(subUpdatedEvent)));
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('subscription_update_failed');
+  });
+
   it('processes new event: calls credit_wallet and inserts transaction', async () => {
     mockConstructEvent.mockReturnValue(makeCheckoutEvent());
 
@@ -111,6 +172,8 @@ describe('POST /api/stripe-webhook', () => {
     noTxChain.select = vi.fn(() => noTxChain);
     noTxChain.eq = vi.fn(() => noTxChain);
     noTxChain.maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    // payments audit upsert (added by PR #280)
+    noTxChain.upsert = vi.fn().mockResolvedValue({ data: null, error: null });
 
     const insertChain: any = {};
     insertChain.insert = vi.fn().mockResolvedValue({ data: { id: 'new-tx' }, error: null });
@@ -120,10 +183,7 @@ describe('POST /api/stripe-webhook', () => {
       return noTxChain;
     });
 
-    mockRpc.mockImplementation((fn: string) => {
-      if (fn === 'credit_wallet') return Promise.resolve({ error: null });
-      return Promise.resolve({ error: null });
-    });
+    mockRpc.mockResolvedValue({ error: null });
 
     const res = await request(app)
       .post('/api/stripe-webhook')
@@ -132,7 +192,7 @@ describe('POST /api/stripe-webhook', () => {
       .send(Buffer.from(JSON.stringify(makeCheckoutEvent())));
 
     expect(res.status).toBe(200);
-    expect(mockRpc).toHaveBeenCalledWith('credit_wallet', expect.objectContaining({
+    expect(mockRpc).toHaveBeenCalledWith('credit_professional_coins', expect.objectContaining({
       p_user_id: USER_ID,
       p_amount: 60,
     }));

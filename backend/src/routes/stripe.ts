@@ -86,17 +86,25 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
       const stripeSubId = typeof session.subscription === "string"
         ? session.subscription
         : (session.subscription as { id?: string } | null)?.id ?? null;
-      try {
-        await supabaseAdmin.from("user_subscriptions").upsert({
+
+      const { error: subErr } = await supabaseAdmin.from("user_subscriptions").upsert({
+        user_id: userId,
+        stripe_subscription_id: stripeSubId,
+        package_id: packageId,
+        status: "active",
+        started_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+
+      if (subErr) {
+        console.error('[webhook] CRÍTICO: falha ao gravar user_subscription', {
+          session_id: session.id,
           user_id: userId,
-          stripe_subscription_id: stripeSubId,
           package_id: packageId,
-          status: "active",
-          started_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id" });
-      } catch (subErr) {
-        console.error("Erro ao gravar user_subscription:", subErr instanceof Error ? subErr.message : String(subErr));
+          error: subErr.message,
+          timestamp: new Date().toISOString(),
+        });
+        res.status(500).json({ error: "subscription_write_failed" }); return;
       }
 
       const userEmail = session.customer_details?.email ?? undefined;
@@ -233,12 +241,18 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
     } else {
       newStatus = subscription.status;
     }
-    try {
-      await supabaseAdmin.from("user_subscriptions")
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq("stripe_subscription_id", subscription.id);
-    } catch (updErr) {
-      console.error("Erro ao atualizar user_subscription:", updErr instanceof Error ? updErr.message : String(updErr));
+    const { error: updErr } = await supabaseAdmin.from("user_subscriptions")
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq("stripe_subscription_id", subscription.id);
+
+    if (updErr) {
+      console.error('[webhook] CRÍTICO: falha ao atualizar status de user_subscription', {
+        subscription_id: subscription.id,
+        new_status: newStatus,
+        error: updErr.message,
+        timestamp: new Date().toISOString(),
+      });
+      res.status(500).json({ error: "subscription_update_failed" }); return;
     }
   }
 
