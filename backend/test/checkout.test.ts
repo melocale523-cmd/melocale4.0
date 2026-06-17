@@ -1,3 +1,6 @@
+// Reviewed 2026-06-17 (pós PR280/282/283): added .in() to subChain mock
+// (user_subscriptions query uses .in() for status filter); added STRIPE_PRICE_PRO
+// to setup.ts so subscription checkout path can resolve the price_id.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
@@ -61,6 +64,7 @@ describe('POST /api/create-checkout-session', () => {
     const subChain: any = {};
     subChain.select = vi.fn(() => subChain);
     subChain.eq = vi.fn(() => subChain);
+    subChain.in = vi.fn(() => subChain);
     subChain.maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
 
     mockFrom.mockImplementation((table: string) => {

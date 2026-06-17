@@ -1,3 +1,5 @@
+// Reviewed 2026-06-17 (pós PR280/282/283): test names updated to reflect
+// current RPC (credit_professional_coins) and payment audit via payments.upsert.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
@@ -82,16 +84,11 @@ describe('POST /api/stripe-webhook', () => {
     expect(res.status).toBe(400);
   });
 
-  it('deduplicates: returns received:true when insert hits unique constraint', async () => {
+  it('returns received:true for one_time events (payments.upsert uses ignoreDuplicates)', async () => {
     mockConstructEvent.mockReturnValue(makeCheckoutEvent());
 
-    // insert returns 23505 unique-constraint error → dedup path
+    // payments.upsert uses ignoreDuplicates:true — duplicates are silently skipped
     const dupChain: any = {};
-    dupChain.insert = vi.fn().mockResolvedValue({
-      data: null,
-      error: { code: '23505', message: 'duplicate key value' },
-    });
-    // ignoreDuplicates upsert (payments audit) must also be present
     dupChain.upsert = vi.fn().mockResolvedValue({ data: null, error: null });
     mockFrom.mockReturnValue(dupChain);
     mockRpc.mockResolvedValue({ error: null });
@@ -165,24 +162,17 @@ describe('POST /api/stripe-webhook', () => {
     expect(res.body.error).toBe('subscription_update_failed');
   });
 
-  it('processes new event: calls credit_wallet and inserts transaction', async () => {
+  it('processes one_time event: calls credit_professional_coins and records payment audit', async () => {
     mockConstructEvent.mockReturnValue(makeCheckoutEvent());
 
-    const noTxChain: any = {};
-    noTxChain.select = vi.fn(() => noTxChain);
-    noTxChain.eq = vi.fn(() => noTxChain);
-    noTxChain.maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-    // payments audit upsert (added by PR #280)
-    noTxChain.upsert = vi.fn().mockResolvedValue({ data: null, error: null });
+    const chain: any = {};
+    chain.select = vi.fn(() => chain);
+    chain.eq = vi.fn(() => chain);
+    chain.maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    // payments.upsert records the audit row (ignoreDuplicates:true)
+    chain.upsert = vi.fn().mockResolvedValue({ data: null, error: null });
 
-    const insertChain: any = {};
-    insertChain.insert = vi.fn().mockResolvedValue({ data: { id: 'new-tx' }, error: null });
-
-    mockFrom.mockImplementation((table: string) => {
-      if (table === 'wallet_transactions') return { ...noTxChain, ...insertChain };
-      return noTxChain;
-    });
-
+    mockFrom.mockReturnValue(chain);
     mockRpc.mockResolvedValue({ error: null });
 
     const res = await request(app)
@@ -196,5 +186,6 @@ describe('POST /api/stripe-webhook', () => {
       p_user_id: USER_ID,
       p_amount: 60,
     }));
+    expect(chain.upsert).toHaveBeenCalled();
   });
 });

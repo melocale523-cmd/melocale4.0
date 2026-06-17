@@ -1,3 +1,4 @@
+// Reviewed 2026-06-17 (pós PR280/282/283): no deficiências encontradas neste arquivo.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
