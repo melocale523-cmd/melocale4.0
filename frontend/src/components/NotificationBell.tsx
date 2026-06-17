@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Bell, BellRing, X, Check,
   Trophy, Coins, Briefcase, MessageCircle,
@@ -77,9 +78,19 @@ export default function NotificationBell() {
   const queryClient   = useQueryClient();
   const [open, setOpen]     = useState(false);
   const [filter, setFilter] = useState<FilterId>('all');
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
   const ref             = useRef<HTMLDivElement>(null);
+  const buttonRef       = useRef<HTMLButtonElement>(null);
   const hasBeenOpened   = useRef(false);
   const { isSupported, isSubscribed, subscribe } = usePushNotifications();
+
+  const handleToggle = useCallback(() => {
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+    setOpen(o => !o);
+  }, [open]);
 
   // ── data ────────────────────────────────────────────────────────────────────
   const { data: notifications = [] } = useQuery<Notification[]>({
@@ -116,9 +127,13 @@ export default function NotificationBell() {
   }, [user?.id, queryClient]);
 
   // ── click outside ─────────────────────────────────────────────────────────
+  const dropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      const insideWrapper = ref.current?.contains(target);
+      const insidePortal  = dropdownRef.current?.contains(target);
+      if (!insideWrapper && !insidePortal) setOpen(false);
     };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
@@ -174,7 +189,8 @@ export default function NotificationBell() {
 
       {/* Bell button */}
       <button
-        onClick={() => setOpen(o => !o)}
+        ref={buttonRef}
+        onClick={handleToggle}
         aria-label="Notificações"
         style={{
           position: 'relative', width: 44, height: 44,
@@ -198,11 +214,11 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown */}
-      {open && (
-        <div style={{
-          position: 'absolute', right: 0, top: 'calc(100% + 8px)',
-          width: 360, zIndex: 9999,
+      {/* Dropdown — rendered via portal to escape header's stacking context */}
+      {open && createPortal(
+        <div ref={dropdownRef} style={{
+          position: 'fixed', top: dropdownPos.top, right: dropdownPos.right,
+          width: 360, zIndex: 99999,
           background: '#0E1C32',
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 16,
@@ -327,7 +343,8 @@ export default function NotificationBell() {
               Ver todas as notificações
             </span>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
