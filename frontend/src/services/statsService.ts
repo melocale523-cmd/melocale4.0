@@ -87,7 +87,7 @@ export const adminService = {
         supabase.from('professionals').select('*', { count: 'exact', head: true }),
         supabase.from('user_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'canceling'),
         supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
-        supabase.from('wallets').select('balance_coins'),
+        supabase.from('professional_coins').select('balance'),
       ]);
 
       const payments = (paymentsRes.data ?? []) as { amount: number; package_id: string; paid_at: string }[];
@@ -128,8 +128,8 @@ export const adminService = {
       });
 
       // Moedas em circulação
-      const totalCoins = ((coinCirculationRes.data ?? []) as { balance_coins: number }[])
-        .reduce((acc, w) => acc + (w.balance_coins ?? 0), 0);
+      const totalCoins = ((coinCirculationRes.data ?? []) as { balance: number }[])
+        .reduce((acc, w) => acc + (w.balance ?? 0), 0);
 
       return {
         totalUsers: totalUsersRes.count ?? 0,
@@ -163,11 +163,11 @@ export const adminService = {
 
   async getUsersEnriched(): Promise<EnrichedUser[]> {
     try {
-      const [profilesRes, prosRes, subsRes, walletsRes, leadsRes, apptsRes, paymentsRes, purchasesRes] = await Promise.all([
+      const [profilesRes, prosRes, subsRes, coinsRes, leadsRes, apptsRes, paymentsRes, purchasesRes] = await Promise.all([
         supabase.from('profiles').select('id, full_name, role, phone, city, created_at').order('created_at', { ascending: false }),
         supabase.from('professionals').select('id, user_id, category, is_active, bio'),
         supabase.from('user_subscriptions').select('user_id, package_id, status, started_at'),
-        supabase.from('wallets').select('professional_id, balance_coins'),
+        supabase.from('professional_coins').select('professional_id, balance'),
         supabase.from('leads').select('client_id'),
         supabase.from('appointments').select('client_id'),
         supabase.from('payments').select('user_id, amount, status'),
@@ -177,7 +177,7 @@ export const adminService = {
       const profiles = (profilesRes.data ?? []) as { id: string; full_name: string | null; role: string; phone: string | null; city: string | null; created_at: string }[];
       const pros = (prosRes.data ?? []) as { id: string; user_id: string; category: string | null; is_active: boolean; bio: string | null }[];
       const subs = (subsRes.data ?? []) as { user_id: string; package_id: string; status: string; started_at: string }[];
-      const wallets = (walletsRes.data ?? []) as { professional_id: string; balance_coins: number }[];
+      const coins = (coinsRes.data ?? []) as { professional_id: string; balance: number }[];
       const leads = (leadsRes.data ?? []) as { client_id: string }[];
       const appts = (apptsRes.data ?? []) as { client_id: string }[];
       const payments = (paymentsRes.data ?? []) as { user_id: string; amount: number; status: string }[];
@@ -185,7 +185,9 @@ export const adminService = {
 
       const prosMap = Object.fromEntries(pros.map(p => [p.user_id, p]));
       const subsMap = Object.fromEntries(subs.map(s => [s.user_id, s]));
-      const walletsMap = Object.fromEntries(wallets.map(w => [w.professional_id, w]));
+      // professional_coins.professional_id armazena profiles.id (auth user_id), não professionals.id
+      // — conforme a função SQL credit_professional_coins(), que usa p_user_id como chave diretamente.
+      const coinsMap = Object.fromEntries(coins.map(c => [c.professional_id, c.balance]));
 
       const leadsCount: Record<string, number> = {};
       leads.forEach(l => { leadsCount[l.client_id] = (leadsCount[l.client_id] ?? 0) + 1; });
@@ -206,7 +208,6 @@ export const adminService = {
       return profiles.map(p => {
         const pro = prosMap[p.id];
         const sub = subsMap[p.id];
-        const wallet = pro ? walletsMap[pro.id] : null;
         const paid = paymentsMap[p.id];
         return {
           id: p.id,
@@ -225,7 +226,7 @@ export const adminService = {
           package_id: sub?.package_id ?? null,
           sub_status: sub?.status ?? null,
           sub_started_at: sub?.started_at ?? null,
-          balance_coins: wallet?.balance_coins ?? null,
+          balance_coins: pro ? (coinsMap[p.id] ?? null) : null,
           total_leads: leadsCount[p.id] ?? 0,
           total_appointments: apptsCount[p.id] ?? 0,
           total_spent: paid ? paid.total / 100 : 0,
