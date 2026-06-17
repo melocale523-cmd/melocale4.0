@@ -457,10 +457,12 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
     const profName = profile?.full_name ?? "Profissional";
 
     // Call the existing RPC that credits coins atomically
+    const now = Date.now();
     const { error: rpcError } = await supabaseAdmin.rpc("credit_professional_coins", {
       p_user_id: user_id,
       p_amount: coins,
-      p_description: motivo ?? "Premiação manual pelo admin",
+      p_stripe_session_id: `admin_award_${now}`,
+      p_stripe_event_id: `admin_award_${user_id}_${now}`,
     });
 
     if (rpcError) {
@@ -472,11 +474,9 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
     await supabaseAdmin.from("notifications").insert({
       user_id,
       title: "🏆 Você foi premiado!",
-      message: motivo
+      body: motivo
         ? `Você recebeu ${coins} moedas: ${motivo}`
         : `Você recebeu ${coins} moedas como prêmio do admin.`,
-      type: "coins",
-      read: false,
     });
 
     // Telegram alert (best-effort)
