@@ -196,6 +196,30 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
       if (process.env.NODE_ENV !== "production") {
         console.log(`[webhook] coins creditados: userId=${userId} coins=${coinsAmount} sessionId=${session.id}`);
       }
+
+      // Registrar auditoria de pagamento — idempotente via UNIQUE(stripe_session_id)
+      const paymentIntentId = typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : (session.payment_intent as Stripe.PaymentIntent | null)?.id ?? null;
+      const { error: paymentAuditErr } = await supabaseAdmin.from("payments").upsert({
+        user_id: userId,
+        stripe_session_id: session.id,
+        stripe_payment_intent_id: paymentIntentId,
+        amount: session.amount_total ?? 0,
+        currency: (session.currency ?? "brl").toUpperCase(),
+        coins: coinsAmount,
+        status: "paid",
+        package_id: packageId ?? null,
+        paid_at: new Date().toISOString(),
+      }, { onConflict: "stripe_session_id", ignoreDuplicates: true });
+      if (paymentAuditErr) {
+        // Não-crítico: moedas já foram creditadas com sucesso — apenas logar para diagnóstico
+        console.error('[webhook] falha ao gravar auditoria em payments:', {
+          session_id: session.id,
+          user_id: userId,
+          error: paymentAuditErr.message,
+        });
+      }
     }
   }
 
