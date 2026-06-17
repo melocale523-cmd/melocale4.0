@@ -88,6 +88,32 @@ router.get("/user-emails", requireAuth, requireAdmin, async (req: AuthRequest, r
   }
 });
 
+router.get("/users-enriched", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const result: Array<{ id: string; email: string | null; last_sign_in_at: string | null }> = [];
+    let page = 1;
+    while (true) {
+      const { data, error } = await withTimeout(
+        supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
+      );
+      if (error || !data?.users?.length) break;
+      data.users.forEach((u) => {
+        result.push({
+          id: u.id,
+          email: u.email ?? null,
+          last_sign_in_at: u.last_sign_in_at ?? null,
+        });
+      });
+      if (data.users.length < 1000) break;
+      page++;
+    }
+    return res.json(result);
+  } catch (err) {
+    console.error("/api/admin/users-enriched error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao buscar dados de autenticação." });
+  }
+});
+
 router.post("/categories", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { name, slug } = req.body;

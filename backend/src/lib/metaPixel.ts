@@ -34,7 +34,6 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
         custom_data: data.customData ?? {},
       },
     ],
-    test_event_code: process.env.NODE_ENV !== 'production' ? 'TEST12345' : undefined,
   };
 
   try {
@@ -43,7 +42,7 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-  } catch (err) {
-    console.error('[MetaPixel] Erro ao enviar evento:', err);
+  } catch {
+    // silencioso — falha de tracking não deve impactar o fluxo principal
   }
 }

@@ -43,15 +43,15 @@ function EstatisticasCharts({ seriesData, range }: Props) {
   const barSize = range === '7d' ? 30 : range === '30d' ? 12 : 30;
 
   return (
-    <div className="grid lg:grid-cols-2 gap-11">
-      <div className={`bg-[#1C3454] border border-[#1C3050] rounded-3xl p-8 relative transition-opacity `}>
-        <div className="flex items-center justify-between mb-13">
+    <div className="grid lg:grid-cols-2 gap-4">
+      <div className={`bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative transition-opacity `}>
+        <div className="flex items-center justify-between" style={{ marginBottom: '1rem' }}>
           <div>
             <h3 className="text-white font-bold text-lg">Solicitações e Propostas</h3>
-            <p className="text-[#4A6580] text-xs mt-6">Comparativo de atividade no período</p>
+            <p className="text-[#4A6580] text-xs" style={{ marginTop: '0.25rem' }}>Comparativo de atividade no período</p>
           </div>
         </div>
-        <div className="h-[300px] w-full">
+        <div className="h-[260px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={seriesData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
@@ -71,14 +71,14 @@ function EstatisticasCharts({ seriesData, range }: Props) {
         </div>
       </div>
 
-      <div className={`bg-[#1C3454] border border-[#1C3050] rounded-3xl p-8 relative transition-opacity `}>
-        <div className="flex items-center justify-between mb-13">
+      <div className={`bg-[#132236] border border-[#1C3050] rounded-2xl p-6 relative transition-opacity `}>
+        <div className="flex items-center justify-between" style={{ marginBottom: '1rem' }}>
           <div>
             <h3 className="text-white font-bold text-lg">Evolução Financeira</h3>
-            <p className="text-[#4A6580] text-xs mt-6">Crescimento do faturamento estimado</p>
+            <p className="text-[#4A6580] text-xs" style={{ marginTop: '0.25rem' }}>Crescimento do faturamento estimado</p>
           </div>
         </div>
-        <div className="h-[300px] w-full">
+        <div className="h-[260px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={seriesData}>
               <defs>

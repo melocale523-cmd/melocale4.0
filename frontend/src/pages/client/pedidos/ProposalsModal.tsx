@@ -1,4 +1,4 @@
-import { X, MessageCircle, Inbox, Loader2 } from 'lucide-react';
+import { X, Inbox, Loader2 } from 'lucide-react';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { PedidoItem, Proposal } from '../../../hooks/usePedidosData';
 import { LeadTimeline } from './LeadTimeline';
@@ -32,38 +32,36 @@ export function ProposalsModal({
   onOpenProfile,
 }: ProposalsModalProps) {
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-9">
-      <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
-      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-[2.5rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[#0E1C32]/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-3xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
 
-        <div className="p-8 border-b border-[#1C3050] flex items-center justify-between bg-[#1C3454]">
-          <div className="flex items-center gap-9">
-            <div className="w-14 h-14 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center">
-              <MessageCircle size={28} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black text-white tracking-tight">Propostas Recebidas</h2>
-              <p className="text-[#94A3B8] font-medium">{pedido.title}</p>
-            </div>
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-[#243F6A] flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#4A6580]">Propostas Recebidas</p>
+            <h2 className="text-base font-bold text-white leading-tight">{pedido.title}</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-8 bg-white/5 hover:bg-white/10 rounded-2xl text-[#4A6580] hover:text-white transition-all"
+            className="w-8 h-8 rounded-full bg-[#0E1C32] border border-[#243F6A] text-[#4A6580] hover:text-white flex items-center justify-center transition-colors shrink-0"
           >
-            <X size={24} />
+            <X size={15} />
           </button>
         </div>
 
-        <div className="px-8 py-9 border-b border-[#1C3050] bg-[#0E1C32]/20">
-          <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest mb-7">Progresso do pedido</p>
+        {/* Progress */}
+        <div className="px-5 py-3 border-b border-[#243F6A] bg-[#0E1C32]/30">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#4A6580] mb-1">Progresso do pedido</p>
           <LeadTimeline pedido={pedido} appointment={linkedAppointment} />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-11 custom-scrollbar bg-[#0E1C32]/30">
+        {/* Proposals list */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
           {proposalsLoading ? (
-            <div className="py-20 flex flex-col items-center gap-9">
-              <Loader2 className="animate-spin text-blue-500" size={40} />
-              <p className="text-xs font-black uppercase tracking-widest text-[#4A6580]">Buscando orçamentos...</p>
+            <div className="py-10 flex flex-col items-center gap-3">
+              <Loader2 className="animate-spin text-emerald-500" size={32} />
+              <p className="text-xs font-bold uppercase tracking-widest text-[#4A6580]">Buscando orçamentos...</p>
             </div>
           ) : proposals.length > 0 ? (
             proposals.map(proposal => (
@@ -76,16 +74,14 @@ export function ProposalsModal({
               />
             ))
           ) : (
-            <div className="py-20 text-center flex flex-col items-center justify-center gap-9 opacity-50 grayscale">
-              <Inbox size={64} className="text-slate-700" />
-              <p className="text-white font-black text-lg">Nenhuma proposta ainda</p>
-              <p className="text-[#4A6580] text-sm font-medium leading-relaxed max-w-xs mx-auto">Assim que os profissionais enviarem orçamentos, eles aparecerão aqui para sua avaliação.</p>
+            <div className="py-8 text-center flex flex-col items-center justify-center gap-2 opacity-50">
+              <Inbox size={32} className="text-slate-600" />
+              <p className="text-white font-bold text-sm">Nenhuma proposta ainda</p>
+              <p className="text-[#4A6580] text-xs leading-relaxed max-w-xs mx-auto">
+                Assim que os profissionais enviarem orçamentos, eles aparecerão aqui para sua avaliação.
+              </p>
             </div>
           )}
-        </div>
-
-        <div className="p-11 bg-[#1C3454] border-t border-[#1C3050] flex items-center justify-center">
-          <p className="text-[10px] text-[#4A6580] font-bold uppercase tracking-[0.2em]">Analise com cuidado antes de aceitar • MeloCalé</p>
         </div>
       </div>
     </div>

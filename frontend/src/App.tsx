@@ -29,6 +29,7 @@ const ClientPerfil = lazy(() => import('./pages/client/Perfil'));
 const ClientAgenda = lazy(() => import('./pages/client/Agenda'));
 const ClientConfiguracoes = lazy(() => import('./pages/client/Configuracoes'));
 const ClientBuscaProfissionais = lazy(() => import('./pages/client/BuscaProfissionais'));
+const ClientIndicacoes = lazy(() => import('./pages/client/Indicacoes'));
 
 // Lazy-loaded pages — professional
 const ProfessionalDashboard = lazy(() => import('./pages/professional/Dashboard'));
@@ -59,6 +60,7 @@ const AdminCategorias = lazy(() => import('./pages/admin/Categorias'));
 const AdminSuporte = lazy(() => import('./pages/admin/Suporte'));
 const AdminTestes = lazy(() => import('./pages/admin/Testes'));
 const AdminRelatorios = lazy(() => import('./pages/admin/Relatorios'));
+const AdminSaques = lazy(() => import('./pages/admin/Saques'));
 
 const CompletarPerfil = lazy(() => import('./pages/auth/CompletarPerfil'));
 
@@ -270,7 +272,7 @@ const router = createBrowserRouter([
           { path: 'agenda', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientAgenda /></Suspense></ErrorBoundary> },
           { path: 'configuracoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientConfiguracoes /></Suspense></ErrorBoundary> },
           { path: 'busca', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientBuscaProfissionais /></Suspense></ErrorBoundary> },
-          { path: 'indicacao', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><Indicacao /></Suspense></ErrorBoundary> },
+          { path: 'indicacao', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><ClientIndicacoes /></Suspense></ErrorBoundary> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
       },
@@ -317,6 +319,7 @@ const router = createBrowserRouter([
           { path: 'pacotes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense></ErrorBoundary> },
           { path: 'categorias', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminCategorias /></Suspense></ErrorBoundary> },
           { path: 'transacoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense></ErrorBoundary> },
+          { path: 'saques', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSaques /></Suspense></ErrorBoundary> },
           { path: 'financeiro-auditoria', element: <AdminEmBreve /> },
           { path: 'auditoria-logs', element: <AdminEmBreve /> },
           { path: 'equipe', element: <AdminEmBreve /> },

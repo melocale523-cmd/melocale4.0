@@ -1,6 +1,7 @@
 // frontend/src/pages/Indicacao.tsx
 import { useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { toast } from 'sonner'
 import { Copy, Gift, Users, TrendingUp, CheckCircle, Clock, Award, QrCode, Trophy, Zap, Target, Share2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
@@ -67,6 +68,7 @@ function loadImg(src: string): Promise<HTMLImageElement> {
 }
 
 export default function Indicacao() {
+  const isMobile = useIsMobile()
   const user = useAuthStore((state) => state.user)
   const [copied, setCopied] = useState(false)
   const [showQr, setShowQr] = useState(false)
@@ -131,6 +133,16 @@ export default function Indicacao() {
   const totalEarned = referrals
     .filter(r => r.status === 'credited')
     .reduce((acc, r) => acc + (r.reward_amount || baseReward), 0)
+
+  const TIERS = [
+    { emoji:'🥉', name:'Bronze',   range:'1–4',  bonus: 0,  color:'#94a3b8', border:'rgba(148,163,184,.2)', bg:'rgba(148,163,184,.04)' },
+    { emoji:'🥈', name:'Prata',    range:'5–9',  bonus: 15, color:'#60a5fa', border:'rgba(96,165,250,.2)',  bg:'rgba(96,165,250,.04)'  },
+    { emoji:'🥇', name:'Ouro',     range:'10–19',bonus: 30, color:'#fbbf24', border:'rgba(251,191,36,.2)', bg:'rgba(251,191,36,.04)'  },
+    { emoji:'💎', name:'Diamante', range:'20+',  bonus: 60, color:'#a78bfa', border:'rgba(167,139,250,.2)',bg:'rgba(167,139,250,.04)' },
+  ]
+  const currentTier = (referralData?.stats.total ?? 0) >= 20 ? TIERS[3] : (referralData?.stats.total ?? 0) >= 10 ? TIERS[2] : (referralData?.stats.total ?? 0) >= 5 ? TIERS[1] : TIERS[0]
+  const nextTier = TIERS[TIERS.indexOf(currentTier) + 1] ?? null
+  const indToNext = nextTier ? (currentTier.name === 'Bronze' ? 5 : currentTier.name === 'Prata' ? 10 : 20) - (referralData?.stats.total ?? 0) : 0
 
   async function copyLink() {
     if (!referralData?.link) return
@@ -343,267 +355,292 @@ export default function Indicacao() {
   }, [referralData, generatingStories, isPro, rewardLabel, rewardDesc])
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full" style={{ fontFamily:"'DM Sans',sans-serif", display:'flex', flexDirection:'column', gap:'2rem' }}>
 
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-9">
-        <div>
-          <div className="flex items-center gap-7 mb-7">
-            <div className="p-1.5 rounded-lg bg-emerald-400/10">
-              <Gift className="w-4 h-4 text-emerald-400" />
+      {/* HERO */}
+      <div style={{ background:'linear-gradient(135deg,rgba(16,185,129,.1),rgba(5,150,105,.06))', border:'1px solid rgba(16,185,129,.25)', borderRadius:'1.125rem', padding:'1.75rem 2rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap' }}>
+          <div>
+            <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.375rem' }}>
+              <div style={{ width:8, height:8, borderRadius:'50%', background:'#10b981', boxShadow:'0 0 8px #10b981', flexShrink:0 }} />
+              <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#34d399' }}>Programa de Indicações — Ativo</p>
             </div>
-            <span className="text-xs font-mono uppercase tracking-widest text-slate-500">programa de indicações</span>
+            <p style={{ fontSize:24, fontWeight:900, color:'white', marginBottom:5 }}>Indique e Ganhe</p>
+            <p style={{ fontSize:15, color:'#4A6580' }}>
+              <span style={{ color:'#34d399', fontWeight:600 }}>{rewardLabel}</span> por indicação que assinar · Bônus de até <span style={{ color:'#fbbf24', fontWeight:600 }}>+60 moedas extras</span> por mês
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-6">Indique e Ganhe</h1>
-          <p className="text-slate-400 text-sm">
-            Compartilhe seu link. Quando seu indicado ativar, você recebe{' '}
-            <span className="text-emerald-400 font-semibold">{rewardLabel}</span> {rewardDesc}.
-          </p>
-        </div>
-        {hasDoubleBonus && (
-          <div className="shrink-0 bg-yellow-400/15 border border-yellow-400/30 rounded-2xl px-9 py-8 text-center">
-            <div className="text-yellow-400 text-xs font-black uppercase tracking-wider flex items-center gap-6">
-              <Zap size={12} className="fill-yellow-400" /> Bônus {bonusConfig!.multiplier}×
-            </div>
-            <div className="text-yellow-300 text-[10px] mt-0.5">
-              {bonusConfig?.label ?? 'ativo agora!'}
-            </div>
-            {bonusConfig?.expires_at && (
-              <div className="text-slate-500 text-[9px] mt-0.5">
-                até {new Date(bonusConfig.expires_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem', alignItems:'flex-end' }}>
+            {hasDoubleBonus && (
+              <div style={{ background:'rgba(251,191,36,.12)', border:'1px solid rgba(251,191,36,.25)', borderRadius:'0.625rem', padding:'6px 14px', textAlign:'center' }}>
+                <p style={{ fontSize:12, fontWeight:700, color:'#fbbf24' }}>⚡ Bônus {bonusConfig!.multiplier}× ativo!</p>
+                {bonusConfig?.label && <p style={{ fontSize:10, color:'#4A6580', marginTop:'0.125rem' }}>{bonusConfig.label}</p>}
               </div>
             )}
+            {nextTier && indToNext > 0 && (
+              <div style={{ background:'rgba(251,191,36,.08)', border:'1px solid rgba(251,191,36,.15)', borderRadius:'0.625rem', padding:'8px 14px', textAlign:'center' }}>
+                <p style={{ fontSize:10, fontWeight:700, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:'0.125rem' }}>Você está a</p>
+                <p style={{ fontSize:24, fontWeight:900, color:'#fbbf24', lineHeight:1 }}>{indToNext}</p>
+                <p style={{ fontSize:12, color:'#4A6580' }}>ind. para {nextTier.emoji} {nextTier.name}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* LINK + KPIs */}
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1.1fr 1fr', gap:'1rem' }}>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
+          <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#4A6580', marginBottom:'0.625rem' }}>Seu link de indicação</p>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.625rem', padding:'9px 12px', marginBottom:'0.625rem' }}>
+            <span style={{ fontSize:12, color:'#94a3b8', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>{referralData?.link ?? '—'}</span>
+            <button onClick={copyLink} style={{ display:'inline-flex', alignItems:'center', padding:'3px 10px', borderRadius:'1.25rem', fontSize:12, fontWeight:600, background:'rgba(16,185,129,.12)', color:'#34d399', border:'1px solid rgba(16,185,129,.2)', cursor:'pointer', flexShrink:0 }}>
+              <Copy size={11} style={{ marginRight:3 }} />{copied ? 'Copiado!' : 'Copiar'}
+            </button>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.75rem' }}>
+            <p style={{ fontSize:12, color:'#4A6580' }}>Código:</p>
+            <code style={{ fontFamily:'monospace', fontSize:14, fontWeight:600, color:'white', background:'#0d1929', padding:'3px 10px', borderRadius:6, border:'1px solid #1C3050' }}>{referralData?.code ?? '—'}</code>
+          </div>
+          <button onClick={shareWhatsApp} style={{ width:'100%', height:40, background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.75rem', color:'white', fontSize:15, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, boxShadow:'0 4px 16px rgba(16,185,129,.25)', marginBottom:'0.5rem' }}>
+            Compartilhar no WhatsApp agora →
+          </button>
+          <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap:'0.375rem' }}>
+            <button onClick={copyLink} style={{ height:32, background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#94a3b8', fontSize:12, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+              <Copy size={13} />Copiar
+            </button>
+            <button onClick={() => setShowQr(v => !v)} style={{ height:32, background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', color:'#94a3b8', fontSize:12, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+              <QrCode size={13} />{showQr ? 'Fechar' : 'QR Code'}
+            </button>
+            <button onClick={generateStoriesImage} disabled={generatingStories} style={{ height:32, background:'rgba(139,92,246,.1)', border:'1px solid rgba(139,92,246,.2)', borderRadius:'0.5rem', color:'#a78bfa', fontSize:12, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:4, opacity: generatingStories ? .5 : 1 }}>
+              <Share2 size={13} />{generatingStories ? '...' : 'Stories'}
+            </button>
+          </div>
+          {showQr && referralData?.link && (
+            <div style={{ marginTop:'0.75rem', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem', background:'white', padding:'1rem', borderRadius:'0.75rem' }}>
+              <QRCodeSVG value={referralData.link} size={160} bgColor="#ffffff" fgColor="#060d1a" level="M" />
+              <p style={{ color:'#060d1a', fontSize:12, fontFamily:'monospace', fontWeight:700 }}>{referralData.code}</p>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+          <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap:'0.5rem' }}>
+            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.75rem', padding:'0.625rem', textAlign:'center', position:'relative', overflow:'hidden' }}>
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'rgba(255,255,255,.1)' }} />
+              <p style={{ fontSize:24, fontWeight:900, color:'white', lineHeight:1, marginBottom:'0.1875rem' }}>{referralData?.stats.total ?? 0}</p>
+              <p style={{ fontSize:10, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.05em' }}>enviados</p>
+            </div>
+            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.75rem', padding:'0.625rem', textAlign:'center', position:'relative', overflow:'hidden' }}>
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'rgba(96,165,250,.3)' }} />
+              <p style={{ fontSize:24, fontWeight:900, color:'#60a5fa', lineHeight:1, marginBottom:'0.1875rem' }}>{referralData?.stats.registered ?? 0}</p>
+              <p style={{ fontSize:10, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.05em' }}>cadastraram</p>
+            </div>
+            <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.75rem', padding:'0.625rem', textAlign:'center', position:'relative', overflow:'hidden' }}>
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'rgba(16,185,129,.3)' }} />
+              <p style={{ fontSize:24, fontWeight:900, color:'#34d399', lineHeight:1, marginBottom:'0.1875rem' }}>{totalEarned}</p>
+              <p style={{ fontSize:10, color:'#4A6580', textTransform:'uppercase', letterSpacing:'.05em' }}>{isPro ? 'moedas' : 'créditos'}</p>
+            </div>
+          </div>
+
+          <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'0.875rem', padding:'1rem', position:'relative', overflow:'hidden', flex:1 }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.5rem' }}>
+              <p style={{ fontSize:12, fontWeight:700, color:'white' }}>Nível atual</p>
+              <div style={{ display:'inline-flex', alignItems:'center', padding:'3px 10px', borderRadius:'1.25rem', fontSize:12, fontWeight:600, background:'rgba(148,163,184,.08)', color: currentTier.color, border:`1px solid ${currentTier.border}` }}>{currentTier.emoji} {currentTier.name}</div>
+            </div>
+            <div style={{ height:5, background:'#0d1929', borderRadius:5, overflow:'hidden', marginBottom:'0.375rem' }}>
+              <div style={{ width: nextTier ? `${Math.min(100, ((referralData?.stats.total ?? 0) / (currentTier.name === 'Bronze' ? 5 : currentTier.name === 'Prata' ? 10 : 20)) * 100)}%` : '100%', height:'100%', background:'linear-gradient(90deg,#10b981,#059669)', borderRadius:5, transition:'width .4s' }} />
+            </div>
+            {nextTier
+              ? <p style={{ fontSize:12, color:'#4A6580', marginBottom:'0.5rem' }}>{indToNext} ind. para <span style={{ color: nextTier.color }}>{nextTier.name}</span> · <span style={{ color:'#34d399' }}>+{nextTier.bonus} bônus</span></p>
+              : <p style={{ fontSize:12, color:'#34d399', marginBottom:'0.5rem', fontWeight:600 }}>Nível máximo atingido! 💎</p>
+            }
+            <div style={{ background:'rgba(251,191,36,.06)', border:'1px solid rgba(251,191,36,.12)', borderRadius:'0.5rem', padding:'8px 10px' }}>
+              <p style={{ fontSize:12, color:'#fbbf24', fontWeight:600 }}>💡 {(referralData?.stats.total ?? 0) * 10 + (currentTier.bonus)} moedas = ~{Math.floor(((referralData?.stats.total ?? 0) * 10 + currentTier.bonus) / 10)} leads grátis</p>
+              <p style={{ fontSize:10, color:'#4A6580', marginTop:'0.125rem' }}>sem gastar um centavo</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* METAS */}
+      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#a78bfa,#7c3aed)' }} />
+        <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:'0.75rem' }}>Metas mensais — quanto você pode ganhar</p>
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap:'0.5rem' }}>
+          {TIERS.map(t => (
+            <div key={t.name} style={{ background: t.bg, border:`1px solid ${t.border}`, borderRadius:'0.625rem', padding:'0.625rem' }}>
+              <p style={{ fontSize:18, marginBottom:'0.25rem' }}>{t.emoji}</p>
+              <p style={{ fontSize:12, fontWeight:700, color: t.color, marginBottom:'0.125rem' }}>{t.name}</p>
+              <p style={{ fontSize:10, color:'#4A6580', marginBottom:'0.375rem' }}>{t.range} ind.</p>
+              <p style={{ fontSize:10, color: t.bonus > 0 ? '#34d399' : '#4A6580', fontWeight: t.bonus > 0 ? 600 : 400 }}>bônus {t.bonus > 0 ? `+${t.bonus}` : '—'}</p>
+              <div style={{ marginTop:'0.375rem', paddingTop:6, borderTop:'1px solid rgba(255,255,255,.04)' }}>
+                <p style={{ fontSize:15, fontWeight:700, color: t.color }}>{t.name === 'Bronze' ? '10–40' : t.name === 'Prata' ? '65–105' : t.name === 'Ouro' ? '130–220' : '260+'}</p>
+                <p style={{ fontSize:10, color:'#4A6580' }}>moedas</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop:'0.625rem', background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', padding:'8px 12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <p style={{ fontSize:12, color:'#4A6580' }}>Diamante este mês =</p>
+          <p style={{ fontSize:12, fontWeight:700, color:'#a78bfa' }}>260+ moedas ≈ ~25 leads grátis</p>
+        </div>
+      </div>
+
+      {/* META DO MÊS */}
+      {monthly && (
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#818cf8,#a78bfa)' }} />
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.625rem' }}>
+            <p style={{ fontSize:15, fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:7 }}><Target size={15} className="text-purple-400" /> Meta do mês</p>
+            <p style={{ fontSize:12, color:'#4A6580' }}>{monthly.total_this_month}/{monthly.goal}</p>
+          </div>
+          <div style={{ height:5, background:'#0d1929', borderRadius:5, overflow:'hidden', marginBottom:'0.375rem' }}>
+            <div style={{ width:`${Math.min(100,(monthly.total_this_month/monthly.goal)*100)}%`, height:'100%', background: monthly.bonus_credited ? '#10b981' : 'linear-gradient(90deg,#818cf8,#a78bfa)', borderRadius:5, transition:'width .5s' }} />
+          </div>
+          <p style={{ fontSize:12, color:'#4A6580' }}>
+            {monthly.bonus_credited
+              ? 'Parabéns! Você já ganhou o bônus este mês. 🎉'
+              : `Mais ${monthly.goal - monthly.total_this_month} indicação${monthly.goal - monthly.total_this_month !== 1 ? 'ões' : ''} para ganhar ${monthly.bonus_coins} moedas bônus!`}
+          </p>
+        </div>
+      )}
+
+      {/* O QUE O INDICADO GANHA */}
+      <div style={{ background:'linear-gradient(135deg,rgba(96,165,250,.08),rgba(55,138,221,.05))', border:'1px solid rgba(96,165,250,.2)', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#60a5fa,#378ADD)' }} />
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap' }}>
+          <div style={{ flex:1 }}>
+            <p style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#60a5fa', marginBottom:'0.375rem' }}>Para quem você indica</p>
+            <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:'0.25rem' }}>Seu indicado também ganha ao assinar</p>
+            <p style={{ fontSize:12, color:'#4A6580' }}>Moedas de boas-vindas incluídas — até <span style={{ color:'#fbbf24', fontWeight:600 }}>200 moedas grátis</span> no Elite</p>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap:'0.375rem', minWidth: isMobile ? undefined : 220 }}>
+            {[{p:'Starter',m:'30',c:'#60a5fa'},{p:'PRO',m:'80',c:'#34d399'},{p:'Elite',m:'200',c:'#fbbf24'}].map(pl => (
+              <div key={pl.p} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', borderRadius:'0.625rem', padding:8, textAlign:'center' }}>
+                <p style={{ fontSize:12, color:'#4A6580', marginBottom:'0.1875rem' }}>{pl.p}</p>
+                <p style={{ fontSize:16, fontWeight:700, color: pl.c }}>{pl.m}</p>
+                <p style={{ fontSize:10, color:'#4A6580' }}>moedas</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* RANKING */}
+      {ranking.length > 0 && (
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
+          <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:'0.75rem', display:'flex', alignItems:'center', gap:7 }}><Trophy size={15} className="text-yellow-400" /> Top indicadores do mês</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.375rem' }}>
+            {ranking.map(r => {
+              const isMe = r.referrer_id === user?.id
+              return (
+                <div key={r.referrer_id} style={{ display:'flex', alignItems:'center', gap:'0.625rem', background: isMe ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)', border:`1px solid ${isMe ? 'rgba(16,185,129,.2)' : 'rgba(255,255,255,.06)'}`, borderRadius:'0.625rem', padding:'8px 12px' }}>
+                  <span style={{ fontSize:14, fontWeight:700, width:24, textAlign:'center' }}>{medalEmoji(r.position)}</span>
+                  {r.avatar_url
+                    ? <img src={r.avatar_url} alt={r.full_name} style={{ width:28, height:28, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
+                    : <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(255,255,255,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'#4A6580', flexShrink:0 }}>{r.full_name.charAt(0).toUpperCase()}</div>
+                  }
+                  <span style={{ flex:1, fontSize:15, color:'white', fontWeight:500 }}>{r.full_name}{isMe && <span style={{ color:'#34d399', fontSize:12 }}> (você)</span>}</span>
+                  <span style={{ fontSize:15, fontFamily:'monospace', fontWeight:700, color:'#94a3b8' }}>{r.total}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* COMO FUNCIONA + FAQ */}
+      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:'1rem' }}>
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#10b981,#059669)' }} />
+          <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:14 }}>Como funciona</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.625rem' }}>
+            {[
+              { icon:<Share2 size={15} />, title:'Compartilhe seu link', desc:`Envie para outros ${isPro ? 'profissionais' : 'clientes'} pelo WhatsApp, Instagram ou onde quiser.`, color:'#34d399' },
+              { icon:<Users size={15} />, title:'Indicado se cadastra', desc:'Aparece automaticamente no seu painel.', color:'#60a5fa' },
+              { icon:<CheckCircle size={15} />, title:'Indicado assina um plano', desc:'Qualquer plano pago conta.', color:'#fbbf24' },
+              { icon:<Gift size={15} />, title:`Você ganha ${rewardLabel}`, desc:'Caem na carteira automaticamente.', color:'#a78bfa' },
+            ].map((s, i) => (
+              <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:'0.625rem' }}>
+                <div style={{ width:32, height:32, borderRadius:'0.5rem', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color: s.color }}>{s.icon}</div>
+                <div>
+                  <p style={{ fontSize:12, fontWeight:600, color:'white', marginBottom:'0.125rem' }}>{s.title}</p>
+                  <p style={{ fontSize:12, color:'#4A6580' }}>{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#4A6580,#243F6A)' }} />
+          <p style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:'0.75rem' }}>Perguntas frequentes</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+            {[
+              { q:'Quando recebo as moedas?', a:'Assim que o indicado assinar qualquer plano pago.' },
+              { q:'Tem limite de indicações?', a:'Não. Indique quantas pessoas quiser, sem limite mensal.' },
+              { q:'Bônus em cascata?', a:'Se seu indicado indicar alguém, você ganha mais 20 moedas extras automaticamente.' },
+              { q:'As moedas expiram?', a:'No PRO e Elite nunca expiram. Use quando quiser.' },
+            ].map((f, i) => (
+              <div key={i} style={{ background:'#0d1929', border:'1px solid #1C3050', borderRadius:'0.5rem', padding:'0.625rem' }}>
+                <p style={{ fontSize:12, fontWeight:600, color:'#8aafcf', marginBottom:'0.25rem' }}>{f.q}</p>
+                <p style={{ fontSize:12, color:'#4A6580', lineHeight:1.5 }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* HISTÓRICO */}
+      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.75rem', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,#378ADD,#1d6fa8)' }} />
+        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.75rem' }}>
+          <p style={{ fontSize:15, fontWeight:700, color:'white' }}>Suas indicações</p>
+          {referrals.length > 0 && <span style={{ background:'rgba(255,255,255,.06)', color:'#4A6580', fontSize:12, padding:'2px 8px', borderRadius:'1.25rem', fontFamily:'monospace' }}>{referrals.length}</span>}
+        </div>
+        {loadingList ? (
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.375rem' }}>
+            {[1,2,3].map(i => <div key={i} style={{ height:48, background:'#0d1929', borderRadius:'0.625rem' }} />)}
+          </div>
+        ) : referrals.length === 0 ? (
+          <div style={{ border:'1px dashed rgba(255,255,255,.08)', borderRadius:'0.875rem', padding:'2rem', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
+            <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(96,165,250,.1)', border:'1px solid rgba(96,165,250,.15)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Users size={20} style={{ color:'#60a5fa' }} />
+            </div>
+            <p style={{ fontSize:15, color:'white', fontWeight:500 }}>Nenhuma indicação ainda</p>
+            <p style={{ fontSize:12, color:'#4A6580' }}>Compartilhe seu link e comece a ganhar moedas</p>
+          </div>
+        ) : (
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.375rem' }}>
+            {referrals.map(r => {
+              const cfg = STATUS_CONFIG[r.status]
+              const Icon = cfg.icon
+              return (
+                <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'0.625rem', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)', borderRadius:'0.625rem', padding:'10px 12px' }}>
+                  {r.referred_avatar
+                    ? <img src={r.referred_avatar} alt={r.referred_name ?? ''} style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
+                    : <div style={{ padding:6, borderRadius:'0.5rem', background: cfg.bg, flexShrink:0 }}><Icon size={14} className={cfg.color} /></div>
+                  }
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p style={{ fontSize:12, fontWeight:500, color:'white', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.referred_name ?? 'Usuário'}</p>
+                    <p style={{ fontSize:12, color:'#4A6580' }}>{fmtDate(r.created_at)}</p>
+                  </div>
+                  <div style={{ textAlign:'right', flexShrink:0 }}>
+                    <span style={{ fontSize:12, fontWeight:600, padding:'2px 8px', borderRadius:'1.25rem' }} className={`${cfg.color} ${cfg.bg}`}>{cfg.label}</span>
+                    {r.status === 'credited' && <p style={{ fontSize:12, color:'#34d399', fontFamily:'monospace', marginTop:'0.1875rem' }}>+{r.reward_amount || baseReward}</p>}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
 
-      {/* ── Two-column grid ─────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-11">
-
-        {/* ════ LEFT COLUMN ════ */}
-        <div className="space-y-10">
-
-          {/* Link card */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-10 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
-            <div className="flex items-center gap-7 mb-9">
-              <Award className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-semibold text-white">Seu link de indicação</span>
-            </div>
-
-            {loadingCode ? (
-              <div className="space-y-8">
-                <div className="h-12 bg-white/5 rounded-xl animate-pulse" />
-                <div className="h-8 bg-white/5 rounded-xl animate-pulse w-1/2" />
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-7 bg-[#0c1829] border border-white/8 rounded-xl px-9 py-8 mb-8">
-                  <span className="text-slate-400 text-xs flex-1 truncate font-mono">{referralData?.link ?? '—'}</span>
-                  <button onClick={copyLink} className="flex items-center gap-1.5 bg-emerald-400/15 hover:bg-emerald-400/25 border border-emerald-400/30 text-emerald-400 text-xs font-semibold px-8 py-1.5 rounded-lg transition-colors shrink-0">
-                    <Copy className="w-3.5 h-3.5" />
-                    {copied ? 'Copiado!' : 'Copiar'}
-                  </button>
-                </div>
-                <div className="flex items-center gap-8 mb-9">
-                  <span className="text-xs text-slate-500">Código:</span>
-                  <span className="font-mono font-bold text-lg text-white tracking-widest bg-white/5 px-9 py-6 rounded-lg border border-white/8">
-                    {referralData?.code ?? '—'}
-                  </span>
-                </div>
-
-                {/* Action buttons */}
-                <div className="grid grid-cols-2 gap-7 mb-7">
-                  <button onClick={copyLink} className="flex items-center justify-center gap-7 bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-medium py-8 rounded-xl transition-colors">
-                    <Copy size={15} /> Copiar link
-                  </button>
-                  <button onClick={shareWhatsApp} className="flex items-center justify-center gap-7 bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/30 text-[#25D366] text-sm font-semibold py-8 rounded-xl transition-colors">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    WhatsApp
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-7">
-                  <button onClick={() => setShowQr(v => !v)} className="flex items-center justify-center gap-7 bg-white/5 hover:bg-white/10 border border-white/8 text-slate-300 text-sm py-2.5 rounded-xl transition-colors">
-                    <QrCode size={14} /> {showQr ? 'Ocultar QR' : 'QR Code'}
-                  </button>
-                  <button
-                    onClick={generateStoriesImage}
-                    disabled={generatingStories}
-                    className="flex items-center justify-center gap-7 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-sm py-2.5 rounded-xl transition-colors disabled:opacity-50"
-                  >
-                    <Share2 size={14} /> {generatingStories ? 'Gerando…' : 'Stories'}
-                  </button>
-                </div>
-
-                {showQr && referralData?.link && (
-                  <div className="mt-9 flex flex-col items-center gap-7 bg-white p-10 rounded-2xl">
-                    <QRCodeSVG value={referralData.link} size={180} bgColor="#ffffff" fgColor="#060d1a" level="M" />
-                    <p className="text-[#060d1a] text-xs font-mono font-bold">{referralData.code}</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* How it works */}
-          <div className="bg-white/3 border border-white/8 rounded-2xl p-10">
-            <h3 className="text-sm font-semibold text-white mb-9 flex items-center gap-7">
-              <TrendingUp className="w-4 h-4 text-blue-400" /> Como funciona
-            </h3>
-            <div className="space-y-9">
-              {[
-                { step: '1', title: 'Compartilhe seu link', desc: `Envie para outros ${isPro ? 'profissionais' : 'clientes'} pelo WhatsApp, Instagram ou onde quiser.`, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-                { step: '2', title: 'Indicado se cadastra', desc: 'Quando alguém criar a conta com seu link, você aparece no nosso radar.', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
-                { step: '3', title: `Você ganha ${rewardLabel}`, desc: isPro ? 'Assim que o indicado assinar qualquer plano, as moedas caem na sua carteira.' : 'Quando o indicado fizer o primeiro pedido, o crédito é adicionado.', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-                { step: '🔗', title: 'Bônus em cascata', desc: 'Quando seu indicado indica alguém, você ganha mais 20 moedas automaticamente!', color: 'text-purple-400', bg: 'bg-purple-400/10' },
-              ].map(({ step, title, desc, color, bg }) => (
-                <div key={step} className="flex gap-8">
-                  <div className={`w-7 h-7 rounded-full ${bg} ${color} flex items-center justify-center text-xs font-bold shrink-0 mt-0.5`}>{step}</div>
-                  <div>
-                    <div className="text-sm font-medium text-white">{title}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ════ RIGHT COLUMN ════ */}
-        <div className="space-y-10">
-
-          {/* Stats */}
-          {referralData && (
-            <div className="grid grid-cols-3 gap-8">
-              <div className="bg-white/5 border border-white/8 rounded-2xl p-9 text-center">
-                <div className="text-2xl font-bold font-mono text-white">{referralData.stats.total}</div>
-                <div className="text-xs text-slate-500 mt-6">enviados</div>
-              </div>
-              <div className="bg-white/5 border border-white/8 rounded-2xl p-9 text-center">
-                <div className="text-2xl font-bold font-mono text-blue-400">{referralData.stats.registered}</div>
-                <div className="text-xs text-slate-500 mt-6">cadastraram</div>
-              </div>
-              <div className="bg-emerald-400/8 border border-emerald-400/20 rounded-2xl p-9 text-center">
-                <div className="text-2xl font-bold font-mono text-emerald-400">{totalEarned}</div>
-                <div className="text-xs text-slate-500 mt-6">{isPro ? 'moedas' : 'créditos'}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Monthly goal */}
-          {monthly && (
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-10">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-7">
-                  <Target size={15} className="text-purple-400" />
-                  <span className="text-sm font-semibold text-white">Meta do mês</span>
-                </div>
-                {monthly.bonus_credited ? (
-                  <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-7 py-0.5 rounded-full">500 moedas ✓</span>
-                ) : (
-                  <span className="text-[10px] text-slate-500">{monthly.total_this_month}/{monthly.goal}</span>
-                )}
-              </div>
-              <div className="w-full bg-white/8 rounded-full h-2 mb-7">
-                <div
-                  className="h-2 rounded-full transition-all duration-500"
-                  style={{
-                    width: `${Math.min(100, (monthly.total_this_month / monthly.goal) * 100)}%`,
-                    background: monthly.bonus_credited
-                      ? '#10b981'
-                      : 'linear-gradient(90deg, #818cf8, #a78bfa)',
-                  }}
-                />
-              </div>
-              <p className="text-xs text-slate-500">
-                {monthly.bonus_credited
-                  ? 'Parabéns! Você já ganhou o bônus de 500 moedas este mês.'
-                  : `Mais ${monthly.goal - monthly.total_this_month} indicação${monthly.goal - monthly.total_this_month !== 1 ? 'ões' : ''} para ganhar 500 moedas bônus!`}
-              </p>
-            </div>
-          )}
-
-          {/* Ranking */}
-          {ranking.length > 0 && (
-            <div className="bg-white/3 border border-white/8 rounded-2xl p-10">
-              <h3 className="text-sm font-semibold text-white mb-9 flex items-center gap-7">
-                <Trophy className="w-4 h-4 text-yellow-400" /> Top indicadores do mês
-              </h3>
-              <div className="space-y-7">
-                {ranking.map((r) => {
-                  const isMe = r.referrer_id === user?.id
-                  return (
-                    <div key={r.referrer_id} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${isMe ? 'bg-emerald-400/10 border border-emerald-400/20' : 'bg-white/4'}`}>
-                      <span className="text-sm font-black w-6 text-center">{medalEmoji(r.position)}</span>
-                      {r.avatar_url ? (
-                        <img src={r.avatar_url} alt={r.full_name} className="w-7 h-7 rounded-full object-cover shrink-0" />
-                      ) : (
-                        <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-slate-400 shrink-0">
-                          {r.full_name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      <span className="flex-1 text-sm text-white font-medium truncate">
-                        {r.full_name}{isMe && <span className="text-emerald-400 text-xs ml-1">(você)</span>}
-                      </span>
-                      <span className="text-sm font-mono font-bold text-slate-300 shrink-0">{r.total}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Referral history */}
-          <div>
-            <h3 className="text-sm font-semibold text-white mb-8 flex items-center gap-7">
-              <Users className="w-4 h-4 text-slate-400" /> Suas indicações
-              {referrals.length > 0 && (
-                <span className="bg-white/8 text-slate-400 text-xs px-7 py-0.5 rounded-full font-mono">{referrals.length}</span>
-              )}
-            </h3>
-            {loadingList ? (
-              <div className="space-y-7">
-                {[1,2,3].map(i => <div key={i} className="h-14 bg-white/5 rounded-xl animate-pulse" />)}
-              </div>
-            ) : referrals.length === 0 ? (
-              <div className="bg-white/3 border border-dashed border-white/10 rounded-2xl p-8 text-center">
-                <Gift className="w-8 h-8 text-slate-600 mx-auto mb-8" />
-                <p className="text-slate-500 text-sm">Nenhuma indicação ainda.<br />Compartilhe seu link e comece a ganhar!</p>
-              </div>
-            ) : (
-              <div className="space-y-7">
-                {referrals.map((r) => {
-                  const cfg = STATUS_CONFIG[r.status]
-                  const Icon = cfg.icon
-                  return (
-                    <div key={r.id} className="flex items-center gap-8 bg-white/4 border border-white/8 rounded-xl px-9 py-8">
-                      {r.referred_avatar ? (
-                        <img src={r.referred_avatar} alt={r.referred_name ?? ''} className="w-8 h-8 rounded-full object-cover shrink-0" />
-                      ) : (
-                        <div className={`p-1.5 rounded-lg ${cfg.bg} shrink-0`}>
-                          <Icon className={`w-3.5 h-3.5 ${cfg.color}`} />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-white truncate">{r.referred_name ?? 'Usuário'}</div>
-                        <div className="text-xs text-slate-600">{fmtDate(r.created_at)}</div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className={`text-xs font-semibold ${cfg.color} ${cfg.bg} px-2 py-0.5 rounded-full`}>{cfg.label}</div>
-                        {r.status === 'credited' && (
-                          <div className="text-xs text-emerald-400 font-mono mt-6">+{r.reward_amount || baseReward}</div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-        </div>
-        {/* ════ END RIGHT COLUMN ════ */}
-      </div>
     </div>
   )
 }

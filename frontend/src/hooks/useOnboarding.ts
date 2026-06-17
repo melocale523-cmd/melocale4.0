@@ -39,7 +39,7 @@ export function useOnboarding() {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       queryClient.invalidateQueries({ queryKey: ['professional'] });
       queryClient.invalidateQueries({ queryKey: ['my_professional_id'] });
-      navigate('/profissional/dashboard');
+      navigate('/profissional/carteira');
     },
     onError: (err: Error) => toast.error(err.message),
   });

@@ -24,10 +24,10 @@ function Check({ ok }: { ok: boolean }) {
 export default function CompetitorTable(_props: { userCity?: string }) {
   return (
     <>
-      <div className="mx-auto" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className="mx-auto" style={{ maxWidth: '900px', margin: '0 auto' }}>
 
         {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 max-w-3xl mx-auto">
+        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#1C3454] border-b border-slate-800">
@@ -54,7 +54,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
               {features.map((f, i) => (
                 <tr
                   key={f.label}
-                  className={`border-b border-slate-800/60 ${i % 2 === 0 ? 'bg-[#0E1C32]' : 'bg-[#0B1729]'}`}
+                  className={`border-b border-slate-800/60 ${i % 2 === 0 ? 'bg-[#1a2840]' : 'bg-[#182035]'}`}
                 >
                   <td className="px-4 py-5 text-slate-300 font-medium">{f.label}</td>
                   <td className="px-4 py-5 text-center border-x border-emerald-500/30 bg-emerald-500/5">
@@ -69,9 +69,9 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* Mobile cards */}
-        <div className="md:hidden space-y-4" style={{ margin: '0 auto', width: '92%', maxWidth: '400px' }}>
+        <div className="md:hidden space-y-4" style={{ margin: '0 auto', width: '100%', maxWidth: '400px', paddingLeft: '1rem', paddingRight: '1rem', boxSizing: 'border-box' }}>
           {features.map(f => (
-            <div key={f.label} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4">
+            <div key={f.label} className="bg-[#1e2d45] border border-slate-700 rounded-2xl p-4">
               <p className="text-white font-bold mb-3 text-sm text-left">{f.label}</p>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="flex flex-col items-center gap-1">
@@ -92,7 +92,7 @@ export default function CompetitorTable(_props: { userCity?: string }) {
         </div>
 
         {/* CTA */}
-        <div className="text-center max-w-3xl mx-auto" style={{ marginTop: '2rem' }}>
+        <div className="text-center mx-auto" style={{ marginTop: '2rem' }}>
           <Link
             to="/login?mode=signup"
             className="inline-flex items-center gap-2 h-14 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-12 rounded-xl text-base shadow-xl shadow-emerald-500/20 transition-all uppercase tracking-wide"

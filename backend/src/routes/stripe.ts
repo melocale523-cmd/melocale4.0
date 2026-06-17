@@ -121,7 +121,7 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
             .single()
           if (referral && referral.status !== 'credited') {
             // Apply bonus multiplier from referral_config
-            let baseCoins = referral.referrer_role === 'professional' ? 60 : 30
+            let baseCoins = referral.referrer_role === 'professional' ? 60 : 6
             try {
               const { data: cfg } = await supabaseAdmin
                 .from('referral_config').select('multiplier, expires_at').eq('id', 1).single()
@@ -142,6 +142,16 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
                 title: '🎉 Indicação recompensada!',
                 body: `Seu indicado ativou a conta. Você ganhou ${rewardCoins} moedas!`,
                 data: { type: 'referral_reward', referral_id: referral.id, coins: rewardCoins },
+              })
+            }
+            // Creditar 200 moedas client_coins ao referrer quando indicado faz primeiro pedido
+            if (referral.referrer_role === 'client') {
+              void supabaseAdmin.rpc('credit_client_coins', {
+                p_user_id: referral.referrer_id,
+                p_amount: 200,
+                p_kind: 'referral_order',
+                p_reference: `referral_order_${referral.id}`,
+                p_metadata: { referred_id: userId, referral_id: referral.id },
               })
             }
           }
@@ -185,6 +195,30 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
       }
       if (process.env.NODE_ENV !== "production") {
         console.log(`[webhook] coins creditados: userId=${userId} coins=${coinsAmount} sessionId=${session.id}`);
+      }
+
+      // Registrar auditoria de pagamento — idempotente via UNIQUE(stripe_session_id)
+      const paymentIntentId = typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : (session.payment_intent as Stripe.PaymentIntent | null)?.id ?? null;
+      const { error: paymentAuditErr } = await supabaseAdmin.from("payments").upsert({
+        user_id: userId,
+        stripe_session_id: session.id,
+        stripe_payment_intent_id: paymentIntentId,
+        amount: session.amount_total ?? 0,
+        currency: (session.currency ?? "brl").toUpperCase(),
+        coins: coinsAmount,
+        status: "paid",
+        package_id: packageId ?? null,
+        paid_at: new Date().toISOString(),
+      }, { onConflict: "stripe_session_id", ignoreDuplicates: true });
+      if (paymentAuditErr) {
+        // Não-crítico: moedas já foram creditadas com sucesso — apenas logar para diagnóstico
+        console.error('[webhook] falha ao gravar auditoria em payments:', {
+          session_id: session.id,
+          user_id: userId,
+          error: paymentAuditErr.message,
+        });
       }
     }
   }

@@ -68,6 +68,8 @@ export default function Login() {
       });
   }, []);
 
+  const [geoTrigger, setGeoTrigger] = useState(false);
+
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password || !formData.name) {
@@ -76,6 +78,7 @@ export default function Login() {
     }
     const pwErr = validatePassword(formData.password);
     if (pwErr) { setError(pwErr); return; }
+    setGeoTrigger(true);
     setAuthStep('details');
     setError(null);
   };
@@ -204,7 +207,7 @@ export default function Login() {
         setMode(selectedRole);
 
         await supabase.from('profiles').upsert({
-          id: signUpData.user?.id,
+          id: signUpData.user!.id,
           full_name: formData.name,
           phone: formData.phone || null,
           city: derivedCity || null,
@@ -247,14 +250,17 @@ export default function Login() {
 
         fetch(`${API_URL}/api/track/registration`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${signUpData.session?.access_token ?? ''}`,
-          },
-          body: JSON.stringify({ role: selectedRole }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: selectedRole, email: signUpData.user?.email }),
         }).catch(() => {});
 
-        toast.success("Conta criada! Verifique seu e-mail.");
+        // Login automático após cadastro
+        await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        toast.success("Conta criada com sucesso!");
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
@@ -571,7 +577,7 @@ export default function Login() {
                 </div>
                 <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>
                   <label className="block text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1" style={{ marginBottom: '0.75rem' }}>Endereço</label>
-                  <AddressForm value={address} onChange={setAddress} variant="signup" />
+                  <AddressForm value={address} onChange={setAddress} variant="signup" initialGeoTrigger={geoTrigger} />
                 </div>
                 {selectedRole === 'professional' && (
                   <div className="space-y-2" style={{ marginBottom: '1.5rem' }}>

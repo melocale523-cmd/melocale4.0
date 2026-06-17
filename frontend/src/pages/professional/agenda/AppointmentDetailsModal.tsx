@@ -1,10 +1,12 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
-  X, List, User, Clock, MapPin, RefreshCw, CheckCircle2, AlertTriangle,
-  Calendar as CalendarIcon,
+  X, Phone, MapPin, RefreshCw, CalendarCheck, Clock,
+  Calendar as CalendarIcon, AlertTriangle, CheckCircle2,
+  Wrench, Trash2,
 } from 'lucide-react';
-import { cn } from '../../../lib/utils';
+import type { CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { Appointment } from '../../../services/appointmentService';
 
@@ -18,12 +20,12 @@ const STATUS_LABEL: Record<AppStatus, string> = {
   rescheduled: 'Reagendando',
 };
 
-const STATUS_BADGE: Record<AppStatus, string> = {
-  scheduled: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  confirmed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  completed: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-  cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
-  rescheduled: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+const STATUS_COLOR: Record<AppStatus, { bg: string; text: string; border: string }> = {
+  scheduled:   { bg: 'rgba(59,130,246,0.1)',  text: '#60a5fa', border: 'rgba(59,130,246,0.2)'  },
+  confirmed:   { bg: 'rgba(16,185,129,0.1)',  text: '#34d399', border: 'rgba(16,185,129,0.2)'  },
+  completed:   { bg: 'rgba(100,116,139,0.1)', text: '#94a3b8', border: 'rgba(100,116,139,0.2)' },
+  cancelled:   { bg: 'rgba(239,68,68,0.1)',   text: '#f87171', border: 'rgba(239,68,68,0.2)'   },
+  rescheduled: { bg: 'rgba(251,146,60,0.1)',  text: '#fb923c', border: 'rgba(251,146,60,0.2)'  },
 };
 
 interface AppointmentDetailsModalProps {
@@ -41,6 +43,40 @@ function isActive(s: AppStatus) {
   return s === 'scheduled' || s === 'confirmed';
 }
 
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+const card: CSSProperties = {
+  background: '#070f1c',
+  border: '1px solid #1C3050',
+  borderRadius: '12px',
+  padding: '12px',
+};
+
+const lbl: CSSProperties = {
+  fontSize: '10px',
+  fontWeight: 600,
+  color: '#4a6580',
+  textTransform: 'uppercase',
+  letterSpacing: '0.06em',
+  display: 'block',
+  marginBottom: '3px',
+};
+
+const iconBadge = (bg: string): CSSProperties => ({
+  width: '32px',
+  height: '32px',
+  borderRadius: '8px',
+  background: bg,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+});
+
 export function AppointmentDetailsModal({
   appointment,
   onClose,
@@ -51,162 +87,301 @@ export function AppointmentDetailsModal({
   acceptMutation,
   declineMutation,
 }: AppointmentDetailsModalProps) {
+  const navigate = useNavigate();
+  const sc = STATUS_COLOR[appointment.status];
+  const clientName = appointment.client?.full_name || 'Cliente';
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#1C3454] border border-[#243F6A] rounded-xl p-2 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <div className="p-2.5 bg-emerald-500/20 text-emerald-500 rounded-lg"><List size={24} /></div>
-            Detalhes do Agendamento
-          </h2>
-          <button onClick={onClose} className="text-[#4A6580] hover:text-white transition-colors">
-            <X size={24} />
-          </button>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      {/* Overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} onClick={onClose} />
+
+      {/* Modal */}
+      <div style={{
+        position: 'relative',
+        background: '#0a1928',
+        border: '1px solid #1C3050',
+        borderRadius: '16px',
+        maxWidth: '360px',
+        width: '100%',
+        overflow: 'hidden',
+        boxShadow: '0 25px 50px rgba(0,0,0,0.6)',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+      }}>
+        {/* Header */}
+        <div style={{
+          borderTop: '3px solid #10b981',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid #1C3050',
+          position: 'sticky',
+          top: 0,
+          background: '#0a1928',
+          zIndex: 1,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ padding: '6px', background: 'rgba(16,185,129,0.1)', borderRadius: '8px', color: '#10b981', display: 'flex' }}>
+              <CalendarCheck size={16} />
+            </div>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: '#f1f5f9', lineHeight: 1.2 }}>Detalhes do agendamento</div>
+              <div style={{ fontSize: '10px', color: '#4a6580', marginTop: '2px' }}>Visita técnica</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Status badge */}
+            <span style={{
+              fontSize: '10px',
+              fontWeight: 700,
+              color: sc.text,
+              background: sc.bg,
+              border: `1px solid ${sc.border}`,
+              borderRadius: '20px',
+              padding: '3px 8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}>
+              {STATUS_LABEL[appointment.status]}
+            </span>
+            <button
+              onClick={onClose}
+              style={{ color: '#4a6580', background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', lineHeight: 1 }}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
-        {appointment.status === 'rescheduled' && appointment.proposed_by === 'client' && appointment.proposed_at && (
-          <div className="mb-11 bg-orange-500/10 border border-orange-500/30 rounded-xl p-2">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle size={16} className="text-orange-400" />
-              <p className="text-sm font-bold text-orange-400">Cliente solicitou reagendamento para:</p>
+        {/* Body */}
+        <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+          {/* Banner reagendamento */}
+          {appointment.status === 'rescheduled' && appointment.proposed_by === 'client' && appointment.proposed_at && (
+            <div style={{
+              background: 'rgba(251,146,60,0.08)',
+              border: '1px solid rgba(251,146,60,0.2)',
+              borderRadius: '12px',
+              padding: '12px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <AlertTriangle size={14} style={{ color: '#fb923c', flexShrink: 0 }} />
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#fb923c' }}>Cliente solicitou reagendamento para:</span>
+              </div>
+              <p style={{ fontSize: '12px', color: '#fdba74', marginBottom: '10px' }}>
+                {format(new Date(appointment.proposed_at), "eeee, dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+              </p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => { acceptMutation.mutate(appointment); onClose(); }}
+                  disabled={anyPending}
+                  style={{
+                    flex: 1, background: '#10b981', color: '#000', fontWeight: 700,
+                    fontSize: '12px', borderRadius: '10px', padding: '8px',
+                    border: 'none', cursor: anyPending ? 'not-allowed' : 'pointer',
+                    opacity: anyPending ? 0.5 : 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  }}
+                >
+                  <CheckCircle2 size={14} /> Aceitar
+                </button>
+                <button
+                  onClick={() => { declineMutation.mutate(appointment); onClose(); }}
+                  disabled={anyPending}
+                  style={{
+                    flex: 1, background: 'rgba(239,68,68,0.08)', color: '#f87171', fontWeight: 700,
+                    fontSize: '12px', borderRadius: '10px', padding: '8px',
+                    border: '1px solid rgba(239,68,68,0.2)', cursor: anyPending ? 'not-allowed' : 'pointer',
+                    opacity: anyPending ? 0.5 : 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  }}
+                >
+                  <X size={14} /> Recusar
+                </button>
+              </div>
             </div>
-            <p className="text-sm text-orange-300 mb-2">
-              {format(new Date(appointment.proposed_at), "eeee, dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => { acceptMutation.mutate(appointment); onClose(); }}
-                disabled={anyPending}
-                className="flex-1 py-7 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <CheckCircle2 size={16} /> Aceitar
-              </button>
-              <button
-                onClick={() => { declineMutation.mutate(appointment); onClose(); }}
-                disabled={anyPending}
-                className="flex-1 py-7 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-lg border border-red-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <X size={16} /> Recusar
-              </button>
+          )}
+
+          {/* ID */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '10px', fontWeight: 600, color: '#4a6580', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ID</span>
+            <span style={{ fontSize: '11px', fontFamily: "'DM Mono', 'Courier New', monospace", color: '#64748b' }}>
+              #{appointment.id.slice(0, 8)}
+            </span>
+          </div>
+
+          {/* Card cliente */}
+          <div style={{ ...card, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Avatar */}
+            <div style={{
+              width: '38px', height: '38px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 700, color: '#fff', fontSize: '12px', flexShrink: 0,
+            }}>
+              {getInitials(clientName)}
+            </div>
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#f1f5f9', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {clientName}
+              </div>
+              {appointment.client?.phone && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#4a6580' }}>
+                  <Phone size={10} /> {appointment.client.phone}
+                </div>
+              )}
+            </div>
+            {/* Chat button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (appointment.conversation_id) {
+                  navigate(`/profissional/mensagens?chatId=${appointment.conversation_id}`);
+                  onClose();
+                }
+              }}
+              style={{
+                background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)',
+                borderRadius: '8px', padding: '4px 10px', fontSize: '11px', fontWeight: 600,
+                color: '#34d399', cursor: appointment.conversation_id ? 'pointer' : 'not-allowed',
+                flexShrink: 0, opacity: appointment.conversation_id ? 1 : 0.4,
+              }}
+            >
+              Chat
+            </button>
+          </div>
+
+          {/* Card serviço */}
+          <div style={{ ...card, display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+            <div style={iconBadge('rgba(99,102,241,0.1)')}>
+              <Wrench size={16} style={{ color: '#818cf8' }} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={lbl}>Serviço</span>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#f1f5f9' }}>{appointment.title}</div>
+              {appointment.description && (
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>{appointment.description}</div>
+              )}
             </div>
           </div>
-        )}
 
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="p-2 bg-[#0E1C32] border border-[#1C3050] rounded-xl">
-              <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest mb-2">Status</p>
-              <span className={cn('text-xs font-bold', STATUS_BADGE[appointment.status].split(' ')[1])}>
-                {STATUS_LABEL[appointment.status].toUpperCase()}
-              </span>
-            </div>
-            <div className="p-2 bg-[#0E1C32] border border-[#1C3050] rounded-xl">
-              <p className="text-[10px] font-bold text-[#4A6580] uppercase tracking-widest mb-2">ID</p>
-              <span className="text-xs font-mono text-slate-300">#{appointment.id.slice(0, 8)}</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 p-2 border border-[#1C3050] rounded-xl bg-[#0E1C32]/30">
-              <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500">
-                <User size={24} />
+          {/* Data + Horário */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ ...card, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={iconBadge('rgba(16,185,129,0.08)')}>
+                <CalendarIcon size={14} style={{ color: '#34d399' }} />
               </div>
               <div>
-                <p className="text-xs text-[#4A6580]">Cliente</p>
-                <p className="text-white font-bold text-base">{appointment.client?.full_name || 'Cliente'}</p>
-                {appointment.client?.phone && (
-                  <p className="text-[#4A6580] text-xs">{appointment.client.phone}</p>
-                )}
+                <span style={lbl}>Data</span>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#f1f5f9' }}>
+                  {format(new Date(appointment.scheduled_at), 'dd/MM/yyyy')}
+                </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-2 p-2 border border-[#1C3050] rounded-xl bg-[#0E1C32]/30">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400">
-                <CalendarIcon size={24} />
+            <div style={{ ...card, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={iconBadge('rgba(16,185,129,0.08)')}>
+                <Clock size={14} style={{ color: '#34d399' }} />
               </div>
               <div>
-                <p className="text-xs text-[#4A6580]">Serviço / Título</p>
-                <p className="text-white font-bold text-base">{appointment.title}</p>
-                {appointment.description && (
-                  <p className="text-[#4A6580] text-xs mt-2">{appointment.description}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex items-center gap-2 p-2 border border-[#1C3050] rounded-xl bg-[#0E1C32]/30">
-                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-[#94A3B8]">
-                  <CalendarIcon size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] text-[#4A6580] uppercase font-bold">Data</p>
-                  <p className="text-white font-bold text-sm">{format(new Date(appointment.scheduled_at), 'dd/MM/yyyy')}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 p-2 border border-[#1C3050] rounded-xl bg-[#0E1C32]/30">
-                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-[#94A3B8]">
-                  <Clock size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] text-[#4A6580] uppercase font-bold">Horário</p>
-                  <p className="text-white font-bold text-sm">{format(new Date(appointment.scheduled_at), 'HH:mm')}</p>
+                <span style={lbl}>Horário</span>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#f1f5f9' }}>
+                  {format(new Date(appointment.scheduled_at), 'HH:mm')}
                 </div>
               </div>
             </div>
-
-            {appointment.location && (
-              <div className="flex items-center gap-2 p-2 border border-[#1C3050] rounded-xl bg-[#0E1C32]/30">
-                <MapPin size={16} className="text-[#94A3B8] shrink-0" />
-                <p className="text-slate-300 text-sm">{appointment.location}</p>
-              </div>
-            )}
-
-            {appointment.cancelled_reason && (
-              <div className="p-2 border border-red-500/20 rounded-xl bg-red-500/5">
-                <p className="text-[10px] text-red-400 uppercase font-bold mb-2">Motivo do cancelamento</p>
-                <p className="text-slate-300 text-sm">{appointment.cancelled_reason}</p>
-              </div>
-            )}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 pt-4">
-            {isActive(appointment.status) && (
-              <>
-                <button
-                  onClick={() => onUpdateStatus(appointment.id, 'completed', appointment.client_id)}
-                  disabled={anyPending}
-                  className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
-                >
-                  Concluir Atendimento
-                </button>
-                <button
-                  onClick={() => { onProposeOpen(appointment); onClose(); }}
-                  disabled={anyPending}
-                  className="flex-1 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-bold rounded-xl border border-blue-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  <RefreshCw size={16} /> Propor Nova Data
-                </button>
-                <button
-                  onClick={() => { onCancelTarget({ id: appointment.id, clientId: appointment.client_id }); onClose(); }}
-                  disabled={anyPending}
-                  className="flex-1 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl border border-red-500/20 transition-all disabled:opacity-50"
-                >
-                  Cancelar
-                </button>
-              </>
-            )}
-            {appointment.status === 'completed' && (
-              <div className="w-full py-2 bg-emerald-500/10 text-emerald-500 font-bold rounded-xl border border-emerald-500/20 flex items-center justify-center gap-2">
-                <CheckCircle2 size={20} /> Atendimento Concluído
+          {/* Endereço */}
+          {appointment.location && (
+            <div style={{ ...card, display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+              <div style={iconBadge('rgba(251,191,36,0.08)')}>
+                <MapPin size={14} style={{ color: '#fbbf24' }} />
               </div>
-            )}
-            {appointment.status === 'cancelled' && (
-              <div className="w-full py-2 bg-red-500/10 text-red-400 font-bold rounded-xl border border-red-500/20 flex items-center justify-center gap-2">
-                <X size={20} /> Agendamento Cancelado
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={lbl}>Endereço</span>
+                <div style={{ fontSize: '12px', color: '#f1f5f9' }}>{appointment.location}</div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Motivo cancelamento */}
+          {appointment.cancelled_reason && (
+            <div style={{
+              background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.15)',
+              borderRadius: '12px', padding: '12px',
+            }}>
+              <span style={{ ...lbl, color: '#f87171' }}>Motivo do cancelamento</span>
+              <div style={{ fontSize: '12px', color: '#94a3b8' }}>{appointment.cancelled_reason}</div>
+            </div>
+          )}
+
+          {/* Botões de ação */}
+          {isActive(appointment.status) && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+              <button
+                onClick={() => onUpdateStatus(appointment.id, 'completed', appointment.client_id)}
+                disabled={anyPending}
+                style={{
+                  background: '#10b981', border: 'none', borderRadius: '12px', padding: '10px 4px',
+                  cursor: anyPending ? 'not-allowed' : 'pointer', opacity: anyPending ? 0.5 : 1,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                }}
+              >
+                <CheckCircle2 size={16} style={{ color: '#000' }} />
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#000' }}>Concluir</span>
+              </button>
+              <button
+                onClick={() => { onProposeOpen(appointment); onClose(); }}
+                disabled={anyPending}
+                style={{
+                  background: '#070f1c', border: '1px solid #1C3050', borderRadius: '12px', padding: '10px 4px',
+                  cursor: anyPending ? 'not-allowed' : 'pointer', opacity: anyPending ? 0.5 : 1,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                }}
+              >
+                <RefreshCw size={16} style={{ color: '#60a5fa' }} />
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#60a5fa' }}>Nova data</span>
+              </button>
+              <button
+                onClick={() => { onCancelTarget({ id: appointment.id, clientId: appointment.client_id }); onClose(); }}
+                disabled={anyPending}
+                style={{
+                  background: '#070f1c', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', padding: '10px 4px',
+                  cursor: anyPending ? 'not-allowed' : 'pointer', opacity: anyPending ? 0.5 : 1,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                }}
+              >
+                <Trash2 size={16} style={{ color: '#f87171' }} />
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#f87171' }}>Cancelar</span>
+              </button>
+            </div>
+          )}
+
+          {/* Status final */}
+          {appointment.status === 'completed' && (
+            <div style={{
+              background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)',
+              borderRadius: '12px', padding: '12px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+            }}>
+              <CheckCircle2 size={16} style={{ color: '#34d399' }} />
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#34d399' }}>Atendimento Concluído</span>
+            </div>
+          )}
+          {appointment.status === 'cancelled' && (
+            <div style={{
+              background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '12px', padding: '12px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+            }}>
+              <X size={16} style={{ color: '#f87171' }} />
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#f87171' }}>Agendamento Cancelado</span>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

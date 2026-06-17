@@ -1,9 +1,8 @@
-import { useState, type RefObject, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type RefObject, type FormEvent } from 'react';
 import {
-  Send, Paperclip, Smile, Mic, Image as ImageIcon,
-  Loader2, Square, X, CalendarPlus,
+  Send, Paperclip, Smile, Mic, Camera, Image as ImageIcon,
+  X, CalendarPlus,
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
 
 const EMOJIS = ['👍', '🤝', '✅', '🏠', '🛠️', '🎨', '📐', '💰', '📅', '📍'];
 
@@ -45,126 +44,282 @@ export function MessageInput({
   onOpenScheduleModal,
 }: MessageInputProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!showAttachMenu) return;
+    const handler = () => setShowAttachMenu(false);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [showAttachMenu]);
+
+  function clearImagePreview() {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    setPendingImageFile(null);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
+
+  function clearFilePreview() {
+    setPendingFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  function flushPendingImage() {
+    if (!pendingImageFile) return;
+    onFileUpload(pendingImageFile, 'image');
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    setPendingImageFile(null);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
+
+  function flushPendingFile() {
+    if (!pendingFile) return;
+    onFileUpload(pendingFile, 'file');
+    setPendingFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  const handleFormSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const hasText = !!messageInput.trim();
+
+    if (pendingImageFile && !hasText && !pendingFile) {
+      flushPendingImage();
+      return;
+    }
+    if (pendingFile && !hasText && !pendingImageFile) {
+      flushPendingFile();
+      return;
+    }
+    if (pendingImageFile) flushPendingImage();
+    if (pendingFile) flushPendingFile();
+    if (hasText) onSendMessage(e);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInput(e.target.value);
     onTypingBroadcast();
   };
 
-  const RecordingIndicator = (
-    <div className="flex items-center gap-8 px-9 py-7 bg-red-500/10 rounded-xl border border-red-500/20 animate-pulse">
-      <div className="w-2 h-2 bg-red-500 rounded-full" />
-      <span className="text-xs font-mono font-bold text-red-500">
-        {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
-      </span>
-      <button type="button" onClick={onStopRecording} className="p-6 hover:bg-black/20 rounded-md text-red-500">
-        <Square size={16} fill="currentColor" />
-      </button>
-    </div>
-  );
+  const hasPending = !!pendingImageFile || !!pendingFile;
+  const showSend = !!messageInput.trim() || hasPending;
 
-  const SendButton = (
-    <button
-      disabled={!messageInput.trim() || sendMessagePending}
-      type="submit"
-      className="w-14 h-14 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[1.25rem] flex items-center justify-center transition-all shadow-xl shadow-emerald-500/20 disabled:grayscale disabled:opacity-30 disabled:cursor-not-allowed shrink-0 relative active:scale-90"
-    >
-      <Send size={22} className="translate-x-0.5 -translate-y-0.5" />
-      {sendMessagePending && <div className="absolute inset-0 bg-emerald-500/20 rounded-[1.25rem] animate-pulse" />}
-    </button>
-  );
-
-  const TextInput = (
-    <div className="flex-1 relative group">
-      <input
-        value={messageInput}
-        maxLength={2000}
-        onChange={handleInputChange}
-        placeholder={inputPlaceholder}
-        className="w-full bg-[#0E1C32] border border-[#1C3050] rounded-[1.25rem] py-9 px-11 pr-14 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium shadow-inner"
-      />
-      <button
-        type="button"
-        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-        className={cn('absolute right-4 top-1/2 -translate-y-1/2 transition-colors', showEmojiPicker ? 'text-yellow-500' : 'text-slate-600 hover:text-yellow-500')}
-      >
-        <Smile size={24} />
-      </button>
-    </div>
-  );
+  const attachMenuItems = [
+    {
+      icon: <ImageIcon size={16} color="#10b981" />,
+      label: 'Fotos e vídeos',
+      bg: '#10b98120',
+      onClick: () => { imageInputRef.current?.click(); setShowAttachMenu(false); },
+    },
+    {
+      icon: <Paperclip size={16} color="#60a5fa" />,
+      label: 'Documento',
+      bg: '#3b82f620',
+      onClick: () => { fileInputRef.current?.click(); setShowAttachMenu(false); },
+    },
+    ...(role === 'professional' && onOpenScheduleModal ? [{
+      icon: <CalendarPlus size={16} color="#a78bfa" />,
+      label: 'Agendar visita',
+      bg: '#7c3aed20',
+      onClick: () => { onOpenScheduleModal(); setShowAttachMenu(false); },
+    }] : []),
+  ];
 
   return (
-    <div className="p-11 pb-8 border-t border-[#1C3050] bg-[#1C3454]/80 backdrop-blur-xl z-20 relative">
+    <div style={{ background: '#0a1928', borderTop: '1px solid #1C3050', padding: '10px 14px 8px', zIndex: 20, position: 'relative' }}>
+      <style>{`@keyframes wave { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1); } }`}</style>
+
+      {/* Emoji picker */}
       {showEmojiPicker && (
-        <div className="absolute bottom-28 left-6 right-6 p-9 bg-[#1C3454] border border-[#243F6A] rounded-2xl shadow-2xl flex flex-wrap gap-7 animate-in slide-in-from-bottom-4 duration-300 border-b-4 border-b-emerald-500/20 z-50">
+        <div style={{ position: 'absolute', bottom: '72px', left: '14px', right: '14px', padding: '10px', background: '#132236', border: '1px solid #1C3050', borderRadius: '16px', display: 'flex', flexWrap: 'wrap', gap: '6px', zIndex: 50 }}>
           {EMOJIS.map(emoji => (
             <button
               key={emoji}
+              type="button"
               onClick={() => { setMessageInput(messageInput + emoji); setShowEmojiPicker(false); }}
-              className="text-2xl hover:scale-125 transition-transform p-7 bg-white/5 rounded-xl hover:bg-emerald-500/20"
+              style={{ fontSize: '20px', padding: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', border: 'none', cursor: 'pointer', transition: 'transform .15s' }}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.25)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
             >
               {emoji}
             </button>
           ))}
           <button
+            type="button"
             onClick={() => setShowEmojiPicker(false)}
-            className="absolute -top-3 -right-3 w-8 h-8 bg-black border border-[#243F6A] rounded-full flex items-center justify-center text-[#4A6580] hover:text-white"
+            style={{ position: 'absolute', top: '-10px', right: '-10px', width: '22px', height: '22px', background: '#0d1c2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}
           >
-            <X size={14} />
+            <X size={11} />
           </button>
         </div>
       )}
 
-      {role === 'professional' ? (
-        <form onSubmit={onSendMessage} className="flex flex-col gap-7">
-          <div className="flex items-center gap-7">
-            {TextInput}
-            {SendButton}
+      {/* Image preview */}
+      {imagePreview && (
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '4px', marginBottom: '8px' }}>
+          <img src={imagePreview} alt="Preview" style={{ height: '80px', width: '80px', objectFit: 'cover', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }} />
+          <button
+            type="button"
+            onClick={clearImagePreview}
+            style={{ width: '20px', height: '20px', background: 'rgba(0,0,0,0.7)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', marginLeft: '-12px', marginTop: '-4px', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', flexShrink: 0 }}
+          >
+            <X size={10} />
+          </button>
+        </div>
+      )}
+
+      {/* File preview */}
+      {pendingFile && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '8px 12px' }}>
+          <Paperclip size={14} color="rgba(255,255,255,0.4)" style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pendingFile.name}</span>
+          <button type="button" onClick={clearFilePreview} style={{ color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+            <X size={12} />
+          </button>
+        </div>
+      )}
+
+      {/* Main row */}
+      {isRecording ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            type="button"
+            onClick={onStopRecording}
+            style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#1C3050', border: '1px solid #243F6A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+          >
+            <X size={18} color="#94a3b8" />
+          </button>
+          <div style={{ flex: 1, background: '#0d1929', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '24px', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444', flexShrink: 0, animation: 'pulse 1.2s ease-in-out infinite' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flex: 1 }}>
+              {[8, 14, 10, 18, 12, 16, 8, 14, 10, 12].map((h, i) => (
+                <span key={i} style={{
+                  display: 'inline-block', width: '3px', height: `${h}px`,
+                  background: '#ef4444', borderRadius: '2px', opacity: 0.7,
+                  animation: `wave ${0.8 + (i % 3) * 0.15}s ease-in-out infinite alternate`,
+                  animationDelay: `${i * 0.07}s`,
+                }} />
+              ))}
+            </div>
+            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '13px', fontWeight: 700, color: '#ef4444', flexShrink: 0 }}>
+              {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+            </span>
           </div>
-          <div className="flex items-center gap-6 px-1">
-            {isRecording ? RecordingIndicator : (
-              <>
-                <button type="button" onClick={onStartRecording} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Gravar Áudio">
-                  {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Mic size={20} />}
-                </button>
-                <button type="button" onClick={() => imageInputRef.current?.click()} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Foto">
-                  <ImageIcon size={20} />
-                </button>
-                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Arquivo">
-                  <Paperclip size={20} />
-                </button>
-                {onOpenScheduleModal && (
-                  <button type="button" onClick={onOpenScheduleModal} disabled={isUploading} className="p-2.5 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Agendar Visita">
-                    <CalendarPlus size={20} />
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        </form>
+          <button
+            type="button"
+            onClick={onStopRecording}
+            style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#10b981', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }}
+          >
+            <Send size={16} color="#fff" style={{ transform: 'translateX(1px) translateY(-1px)' }} />
+          </button>
+        </div>
       ) : (
-        <form onSubmit={onSendMessage} className="flex items-center gap-8">
-          <div className="flex items-center gap-1.5 bg-white/5 py-6 px-1.5 rounded-[1.25rem] border border-[#1C3050] shadow-inner">
-            {isRecording ? RecordingIndicator : (
-              <>
-                <button type="button" onClick={onStartRecording} disabled={isUploading} className="p-8 text-[#4A6580] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all disabled:opacity-50" title="Gravar Áudio">
-                  {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Mic size={20} />}
-                </button>
-                <button type="button" onClick={() => imageInputRef.current?.click()} disabled={isUploading} className="p-8 text-[#4A6580] hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Foto">
-                  <ImageIcon size={20} />
-                </button>
-                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="p-8 text-[#4A6580] hover:text-purple-500 hover:bg-purple-500/10 rounded-xl transition-all disabled:opacity-50" title="Enviar Arquivo">
-                  <Paperclip size={20} />
-                </button>
-              </>
+        <form onSubmit={handleFormSubmit} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Input wrapper */}
+          <div style={{ flex: 1, position: 'relative' }}>
+            {/* Emoji button — left inside input */}
+            <button
+              type="button"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: showEmojiPicker ? '#facc15' : 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, zIndex: 1 }}
+            >
+              <Smile size={17} />
+            </button>
+
+            <input
+              value={messageInput}
+              maxLength={2000}
+              onChange={handleInputChange}
+              placeholder={inputPlaceholder}
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                background: '#0d1929', border: '1px solid #1C3050', borderRadius: '24px',
+                padding: '9px 80px 9px 40px',
+                fontSize: '14px', color: '#f1f5f9', outline: 'none',
+                fontFamily: 'DM Sans, sans-serif', transition: 'border-color .2s',
+              }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(16,185,129,0.35)'; }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#1C3050'; }}
+            />
+
+            {/* Camera + clip — right inside input */}
+            <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '2px', zIndex: 1 }}>
+              <button
+                type="button"
+                onClick={e => { e.stopPropagation(); setShowAttachMenu(v => !v); }}
+                title="Anexar"
+                style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', borderRadius: '6px', transition: 'color .15s' }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#94a3b8'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
+              >
+                <Paperclip size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={isUploading || !!pendingImageFile}
+                title="Câmera"
+                style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', borderRadius: '6px', transition: 'color .15s', opacity: (isUploading || !!pendingImageFile) ? 0.3 : 1 }}
+                onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.color = '#94a3b8'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
+              >
+                <Camera size={16} />
+              </button>
+            </div>
+
+            {/* Attach menu */}
+            {showAttachMenu && (
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{ position: 'absolute', bottom: '50px', right: '0px', background: '#132236', border: '1px solid #1C3050', borderRadius: '12px', padding: '6px', zIndex: 50, minWidth: '160px' }}
+              >
+                {attachMenuItems.map(({ icon, label, bg, onClick }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={onClick}
+                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', color: '#e2e8f0', fontSize: '13px', fontFamily: 'DM Sans, sans-serif' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#1C3050'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon}</div>
+                    {label}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
-          {TextInput}
-          {SendButton}
+
+          {/* Mic / Send toggle */}
+          {!showSend ? (
+            <button
+              type="button"
+              onClick={onStartRecording}
+              disabled={isUploading}
+              title="Gravar Áudio"
+              style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#10b981', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: isUploading ? 'not-allowed' : 'pointer', flexShrink: 0, transition: 'all .2s', boxShadow: '0 4px 12px rgba(16,185,129,0.25)', opacity: isUploading ? 0.5 : 1 }}
+            >
+              <Mic size={18} color="#fff" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={sendMessagePending}
+              style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#10b981', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: sendMessagePending ? 'not-allowed' : 'pointer', flexShrink: 0, transition: 'all .2s', boxShadow: '0 4px 12px rgba(16,185,129,0.25)', opacity: sendMessagePending ? 0.5 : 1 }}
+            >
+              <Send size={16} color="#fff" style={{ transform: 'translateX(1px) translateY(-1px)' }} />
+            </button>
+          )}
         </form>
       )}
 
-      <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-9 text-center">
+      <p style={{ fontSize: '10px', color: '#1e293b', textAlign: 'center', padding: '5px 0 0', letterSpacing: '.04em', margin: 0 }}>
         As mensagens são protegidas por SSL em trânsito
       </p>
 
@@ -174,13 +329,39 @@ export function MessageInput({
         ref={imageInputRef}
         accept="image/*"
         className="hidden"
-        onChange={e => { if (e.target.files?.[0]) onFileUpload(e.target.files[0], 'image'); e.target.value = ''; }}
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setPendingImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+          }
+          e.target.value = '';
+        }}
       />
       <input
         type="file"
         ref={fileInputRef}
         className="hidden"
-        onChange={e => { if (e.target.files?.[0]) onFileUpload(e.target.files[0], 'file'); e.target.value = ''; }}
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file) setPendingFile(file);
+          e.target.value = '';
+        }}
+      />
+      <input
+        type="file"
+        ref={cameraInputRef}
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setPendingImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+          }
+          e.target.value = '';
+        }}
       />
     </div>
   );

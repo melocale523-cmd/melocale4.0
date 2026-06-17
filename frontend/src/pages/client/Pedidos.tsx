@@ -148,57 +148,66 @@ export default function Pedidos() {
   const isMutating = createRequestMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-11">
+    <div className="max-w-6xl mx-auto animate-in fade-in duration-500" style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tight mb-7">Meus Pedidos</h1>
+          <h1 className="text-4xl font-black text-white tracking-tight mb-3">Meus Pedidos</h1>
           <p className="text-[#94A3B8] font-medium">Gerencie e acompanhe suas solicitações de serviço em tempo real.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-7 px-8 py-9 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
         >
           <Plus size={20} />
           Novo Pedido
         </button>
       </div>
 
-      <div className="space-y-9">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
-          <input
-            type="text"
-            placeholder="Buscar um pedido específico..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-9 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
-          />
-        </div>
-        <div className="flex gap-7 flex-wrap">
-          {STATUS_TABS.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setStatusFilter(tab === 'Todos' ? 'todos' : tab)}
-              className={cn(
-                'px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all',
-                (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
-                  : 'bg-[#1C3454] border border-[#1C3050] text-[#94A3B8] hover:text-white hover:border-white/20',
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      <div className="relative group" style={{ marginBottom: 0 }}>
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4A6580] group-focus-within:text-emerald-500 transition-colors" size={20} />
+        <input
+          type="text"
+          placeholder="Buscar um pedido específico..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="w-full bg-[#1C3454] border border-[#1C3050] rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
+        />
       </div>
 
-      <div className="bg-[#1C3454] border border-[#1C3050] rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <div style={{ display: 'flex', gap: '6px' }}>
+        {STATUS_TABS.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setStatusFilter(tab === 'Todos' ? 'todos' : tab)}
+            style={{
+              padding: '8px 18px',
+              borderRadius: '10px',
+              fontSize: '13px',
+              fontWeight: 700,
+              transition: 'all 0.15s',
+              border: (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
+                ? '1.5px solid #10b981'
+                : '1.5px solid rgba(255,255,255,0.08)',
+              background: (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
+                ? 'rgba(16,185,129,0.12)'
+                : 'rgba(255,255,255,0.03)',
+              color: (statusFilter === 'todos' && tab === 'Todos') || statusFilter === tab
+                ? '#34d399'
+                : '#7a9ebf',
+            }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      <div>
         {isLoading ? (
           <div className="p-20 flex justify-center">
             <LoadingSpinner size={48} label="Sincronizando seus pedidos..." />
           </div>
         ) : (
-          <div className="divide-y divide-white/[0.03]">
+          <div>
             {filteredPedidos.map(pedido => {
               const reviewable = reviewableMap?.[pedido.id];
               return (

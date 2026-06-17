@@ -1,23 +1,21 @@
-import { Router, Response } from "express";
+import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { AuthRequest, requireAuth } from "../middleware/auth.js";
-import { sensitiveLimiter } from "../config.js";
 import { sendMetaEvent } from "../lib/metaPixel.js";
 
 const router = Router();
 
 const registrationSchema = z.object({
   role: z.enum(["client", "professional"]),
+  email: z.string().email().optional(),
 });
 
 // POST /api/track/registration
 // Called by the frontend after Supabase Auth signup + profile creation completes.
-router.post("/track/registration", sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
+router.post("/track/registration", async (req: Request, res: Response) => {
   const parsed = registrationSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "role inválido." });
+  if (!parsed.success) return res.status(400).json({ error: "dados inválidos." });
 
-  const { role } = parsed.data;
-  const email = req.authUser!.email;
+  const { role, email } = parsed.data;
 
   void sendMetaEvent({
     eventName: "CompleteRegistration",
