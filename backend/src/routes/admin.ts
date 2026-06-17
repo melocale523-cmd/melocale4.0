@@ -431,4 +431,75 @@ router.get("/reports/transactions", requireAuth, requireAdmin, async (req: AuthR
   }
 });
 
+// ── POST /api/admin/premiar-profissional ──────────────────────────────────────
+router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { user_id, coins, motivo } = req.body as {
+      user_id?: string;
+      coins?: number;
+      motivo?: string;
+    };
+
+    if (!user_id || typeof user_id !== "string") {
+      return res.status(400).json({ error: "user_id obrigatório" });
+    }
+    if (!coins || typeof coins !== "number" || coins < 1 || coins > 10_000) {
+      return res.status(400).json({ error: "coins deve ser um número entre 1 e 10000" });
+    }
+
+    // Fetch professional name for notifications/Telegram
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user_id)
+      .single();
+
+    const profName = profile?.full_name ?? "Profissional";
+
+    // Call the existing RPC that credits coins atomically
+    const { error: rpcError } = await supabaseAdmin.rpc("credit_professional_coins", {
+      p_user_id: user_id,
+      p_amount: coins,
+      p_description: motivo ?? "Premiação manual pelo admin",
+    });
+
+    if (rpcError) {
+      console.error("[premiar-profissional] RPC error:", rpcError.message);
+      return res.status(500).json({ error: "Falha ao creditar moedas" });
+    }
+
+    // In-app notification
+    await supabaseAdmin.from("notifications").insert({
+      user_id,
+      title: "🏆 Você foi premiado!",
+      message: motivo
+        ? `Você recebeu ${coins} moedas: ${motivo}`
+        : `Você recebeu ${coins} moedas como prêmio do admin.`,
+      type: "coins",
+      read: false,
+    });
+
+    // Telegram alert (best-effort)
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (token && chatId) {
+      const text =
+        `🏆 *Premiação manual*\n` +
+        `Profissional: *${profName}*\n` +
+        `Moedas: *${coins}*` +
+        (motivo ? `\nMotivo: ${motivo}` : "");
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
+      }).catch(() => {});
+    }
+
+    return res.json({ success: true, coins_awarded: coins });
+  } catch (err: unknown) {
+    console.error("[premiar-profissional] error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro interno." });
+  }
+});
+
 export default router;

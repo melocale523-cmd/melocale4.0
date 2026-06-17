@@ -1,28 +1,28 @@
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RefreshCw, Trophy } from 'lucide-react';
 import { adminService, type RankedProfessional } from '../../services/statsService';
 
-// ── palette ──────────────────────────────────────────────────────────────────
+// ── palette ───────────────────────────────────────────────────────────────────
 const C = {
-  bg:          '#0E1C32',
-  card:        '#1C3454',
-  cardSec:     '#132236',
-  text:        '#F1F5F9',
-  textSec:     '#94A3B8',
-  textTert:    '#64748B',
-  border:      'rgba(255,255,255,0.08)',
-  gold1:       '#BA7517',
-  gold2:       '#EF9F27',
-  silver1:     '#888780',
-  silver2:     '#B4B2A9',
-  bronze1:     '#993C1D',
-  bronze2:     '#D85A30',
-  green:       '#1D9E75',
-  blue:        '#185FA5',
-  red:         '#A32D2D',
-  amber:       '#EF9F27',
-  emerald:     '#10b981',
+  bg:       '#0E1C32',
+  card:     '#1C3454',
+  cardSec:  '#132236',
+  text:     '#F1F5F9',
+  textSec:  '#94A3B8',
+  textTert: '#64748B',
+  border:   'rgba(255,255,255,0.08)',
+  gold1:    '#BA7517',
+  gold2:    '#EF9F27',
+  silver1:  '#888780',
+  silver2:  '#B4B2A9',
+  bronze1:  '#993C1D',
+  bronze2:  '#D85A30',
+  green:    '#1D9E75',
+  blue:     '#185FA5',
+  red:      '#A32D2D',
+  amber:    '#EF9F27',
+  emerald:  '#10b981',
 };
 
 const RANK = [
@@ -36,6 +36,8 @@ const PLAN_NAMES: Record<string, string> = {
   plan_pro:      'PRO',
   plan_business: 'Elite',
 };
+
+const QUICK_COINS = [10, 30, 50, 100, 200];
 
 type TabId = 'score' | 'coins' | 'subs' | 'spent';
 const TABS: { id: TabId; label: string }[] = [
@@ -162,23 +164,171 @@ function Avatar({ p, size = 48 }: { p: RankedProfessional; size?: number }) {
   );
 }
 
+// ── Premiar Modal ─────────────────────────────────────────────────────────────
+interface PremiarModalProps {
+  professional: RankedProfessional;
+  onClose: () => void;
+}
+
+function PremiarModal({ professional, onClose }: PremiarModalProps) {
+  const qc = useQueryClient();
+  const [coins, setCoins] = useState(30);
+  const [motivo, setMotivo] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      await adminService.premiarProfissional(professional.user_id, coins, motivo || undefined);
+      setSuccess(true);
+      void qc.invalidateQueries({ queryKey: ['adminRanking'] });
+      setTimeout(onClose, 2000);
+    } catch {
+      alert('Erro ao premiar. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.7)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: C.card, borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          padding: '1.5rem', maxWidth: 420, width: '90%',
+        }}
+      >
+        {success ? (
+          <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🏆</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>Prêmio enviado!</div>
+            <div style={{ fontSize: 13, color: C.textSec, marginTop: 4 }}>
+              {coins} moedas creditadas para {professional.full_name}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Header */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>Premiar profissional</div>
+              <div style={{ fontSize: 13, color: C.textSec, marginTop: 3 }}>
+                {professional.full_name}
+              </div>
+            </div>
+
+            {/* Quick coins */}
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ fontSize: 12, color: C.textTert, marginBottom: 8, fontWeight: 600 }}>
+                Moedas a conceder
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                {QUICK_COINS.map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setCoins(v)}
+                    style={{
+                      padding: '5px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                      background: coins === v ? C.emerald : C.cardSec,
+                      color: coins === v ? '#fff' : C.textSec,
+                      border: `1px solid ${coins === v ? C.emerald : 'rgba(255,255,255,0.1)'}`,
+                      transition: 'all 0.15s',
+                    }}
+                  >{v}</button>
+                ))}
+              </div>
+              <input
+                type="number"
+                min={1}
+                max={10000}
+                value={coins}
+                onChange={e => setCoins(Math.max(1, Math.min(10000, Number(e.target.value))))}
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: C.cardSec, border: '1px solid rgba(255,255,255,0.1)',
+                  color: C.text, borderRadius: 8, padding: '8px 12px',
+                  fontSize: 14, outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Motivo */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: 12, color: C.textTert, marginBottom: 8, fontWeight: 600 }}>
+                Motivo (opcional)
+              </div>
+              <input
+                type="text"
+                placeholder="Ex: Melhor profissional do mês"
+                value={motivo}
+                onChange={e => setMotivo(e.target.value)}
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: C.cardSec, border: '1px solid rgba(255,255,255,0.1)',
+                  color: C.text, borderRadius: 8, padding: '8px 12px',
+                  fontSize: 13, outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                onClick={onClose}
+                style={{
+                  padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                  background: 'transparent', color: C.textSec,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              >Cancelar</button>
+              <button
+                onClick={() => void handleConfirm()}
+                disabled={loading}
+                style={{
+                  padding: '10px 20px', borderRadius: 8, cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: 13, fontWeight: 700,
+                  background: loading ? `${C.emerald}80` : C.emerald, color: '#fff',
+                  border: 'none', opacity: loading ? 0.8 : 1,
+                }}
+              >{loading ? 'Enviando…' : `Premiar ${coins} moedas`}</button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Podium card (top 3) ───────────────────────────────────────────────────────
-function PodiumCard({ p, rank, maxCoins }: { p: RankedProfessional; rank: number; maxCoins: number }) {
+function PodiumCard({
+  p, rank, maxCoins, onPremiar,
+}: {
+  p: RankedProfessional;
+  rank: number;
+  maxCoins: number;
+  onPremiar: (p: RankedProfessional) => void;
+}) {
   const { grad, medal } = RANK[rank];
   const isFirst = rank === 0;
   const badges = getBadges(p, maxCoins);
 
   return (
     <div style={{
-      background: C.card,
-      borderRadius: 16,
-      overflow: 'hidden',
+      background: C.card, borderRadius: 16, overflow: 'hidden',
       display: 'flex', flexDirection: 'column',
       transform: isFirst ? 'scale(1.03)' : 'none',
       boxShadow: isFirst ? '0 8px 32px rgba(0,0,0,0.4)' : '0 4px 16px rgba(0,0,0,0.2)',
       border: `1px solid ${C.border}`,
     }}>
-      {/* colour stripe */}
       <div style={{ height: 5, background: grad }} />
 
       <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -186,12 +336,11 @@ function PodiumCard({ p, rank, maxCoins }: { p: RankedProfessional; rank: number
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 22 }}>{medal}</span>
           <button
-            onClick={() => console.log('premiar', p.user_id)}
+            onClick={() => onPremiar(p)}
             style={{
               fontSize: 11, padding: '3px 10px', borderRadius: 20,
               background: `${C.gold1}20`, color: C.gold2,
-              border: `1px solid ${C.gold1}50`, cursor: 'pointer',
-              fontWeight: 600,
+              border: `1px solid ${C.gold1}50`, cursor: 'pointer', fontWeight: 600,
             }}>Premiar</button>
         </div>
 
@@ -217,9 +366,9 @@ function PodiumCard({ p, rank, maxCoins }: { p: RankedProfessional; rank: number
         {/* 4 mini-cards */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
           {[
-            { label: 'Moedas', value: p.coins.toLocaleString('pt-BR') },
-            { label: 'Gasto', value: `R$${fmtBRL(p.total_spent)}` },
-            { label: 'Pagamentos', value: p.payment_count },
+            { label: 'Moedas',        value: p.coins.toLocaleString('pt-BR') },
+            { label: 'Gasto',         value: `R$${fmtBRL(p.total_spent)}` },
+            { label: 'Pagamentos',    value: p.payment_count },
             { label: 'Na plataforma', value: tempoNaPlataforma(p.created_at) },
           ].map(({ label, value }) => (
             <div key={label} style={{
@@ -252,6 +401,7 @@ function PodiumCard({ p, rank, maxCoins }: { p: RankedProfessional; rank: number
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Ranking() {
   const [activeTab, setActiveTab] = useState<TabId>('score');
+  const [premiarTarget, setPremiarTarget] = useState<RankedProfessional | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['adminRanking'],
@@ -262,16 +412,16 @@ export default function Ranking() {
   const sorted = useMemo(() => {
     if (!data) return [];
     return [...data].sort((a, b) => {
-      if (activeTab === 'coins')  return b.coins - a.coins;
-      if (activeTab === 'subs')   return (b.plan ? 1 : 0) - (a.plan ? 1 : 0) || b.coins - a.coins;
-      if (activeTab === 'spent')  return b.total_spent - a.total_spent;
+      if (activeTab === 'coins') return b.coins - a.coins;
+      if (activeTab === 'subs')  return (b.plan ? 1 : 0) - (a.plan ? 1 : 0) || b.coins - a.coins;
+      if (activeTab === 'spent') return b.total_spent - a.total_spent;
       return b.score - a.score;
     });
   }, [data, activeTab]);
 
-  const maxCoins    = useMemo(() => Math.max(...(data ?? []).map(p => p.coins), 1), [data]);
-  const maxPayments = useMemo(() => Math.max(...(data ?? []).map(p => p.payment_count), 1), [data]);
-  const maxScore    = useMemo(() => Math.max(...(data ?? []).map(p => p.score), 1), [data]);
+  const maxCoins    = useMemo(() => Math.max(...(sorted).map(p => p.coins), 1), [sorted]);
+  const maxPayments = useMemo(() => Math.max(...(sorted).map(p => p.payment_count), 1), [sorted]);
+  const maxScore    = useMemo(() => Math.max(...(sorted).map(p => p.score), 1), [sorted]);
 
   const kpi = useMemo(() => {
     if (!data) return null;
@@ -282,9 +432,11 @@ export default function Ranking() {
     return { totalCoins, totalRevenue, withPlan, avgScore };
   }, [data]);
 
-  // podium order: 2nd(left), 1st(center), 3rd(right)
-  const podium = [sorted[1], sorted[0], sorted[2]].filter(Boolean) as RankedProfessional[];
-  const podiumRanks = [1, 0, 2]; // rank index for RANK[]
+  // podium order: 2nd(left), 1st(center), 3rd(right) — driven by `sorted`
+  const podium      = [sorted[1], sorted[0], sorted[2]].filter(Boolean) as RankedProfessional[];
+  const podiumRanks = [1, 0, 2]; // maps podium slot → RANK[] index
+
+  const openPremiar = (p: RankedProfessional) => setPremiarTarget(p);
 
   if (isLoading) return <SkeletonPage />;
 
@@ -309,7 +461,7 @@ export default function Ranking() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>
 
-      {/* ── Topbar ─────────────────────────────────────────────────────── */}
+      {/* ── Topbar ──────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -322,10 +474,11 @@ export default function Ranking() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {/* live dot */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem',
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.4rem',
             background: `${C.green}15`, border: `1px solid ${C.green}40`,
-            borderRadius: 20, padding: '4px 10px' }}>
+            borderRadius: 20, padding: '4px 10px',
+          }}>
             <div style={{
               width: 7, height: 7, borderRadius: '50%', background: C.green,
               boxShadow: `0 0 6px ${C.green}`,
@@ -343,7 +496,7 @@ export default function Ranking() {
         </div>
       </div>
 
-      {/* ── Tabs ───────────────────────────────────────────────────────── */}
+      {/* ── Tabs ────────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
         {TABS.map(tab => {
           const active = activeTab === tab.id;
@@ -359,14 +512,14 @@ export default function Ranking() {
         })}
       </div>
 
-      {/* ── KPI cards ──────────────────────────────────────────────────── */}
+      {/* ── KPI cards ───────────────────────────────────────────────────── */}
       {kpi && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>
           {[
             { label: 'Moedas ativas (total)', value: kpi.totalCoins.toLocaleString('pt-BR'), sub: 'saldo somado de todos' },
-            { label: 'Receita total',          value: `R$ ${fmtBRL(kpi.totalRevenue)}`, sub: 'payments com status paid' },
-            { label: 'Com plano ativo',        value: `${kpi.withPlan} / ${sorted.length}`, sub: 'active + canceling' },
-            { label: 'Score médio',            value: kpi.avgScore.toString(), sub: 'média da plataforma' },
+            { label: 'Receita total',          value: `R$ ${fmtBRL(kpi.totalRevenue)}`,      sub: 'payments com status paid' },
+            { label: 'Com plano ativo',        value: `${kpi.withPlan} / ${sorted.length}`,  sub: 'active + canceling' },
+            { label: 'Score médio',            value: kpi.avgScore.toString(),               sub: 'média da plataforma' },
           ].map(({ label, value, sub }) => (
             <div key={label} style={{
               background: C.card, borderRadius: 12, padding: '1rem',
@@ -380,22 +533,27 @@ export default function Ranking() {
         </div>
       )}
 
-      {/* ── Pódio top 3 ────────────────────────────────────────────────── */}
+      {/* ── Pódio top 3 ─────────────────────────────────────────────────── */}
       {sorted.length > 0 && (
         <>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.textSec, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Pódio
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', alignItems: 'end' }}>
-            {podium.map((p, i) => {
-              const rank = podiumRanks[i];
-              return <PodiumCard key={p.user_id} p={p} rank={rank} maxCoins={maxCoins} />;
-            })}
+            {podium.map((p, i) => (
+              <PodiumCard
+                key={p.user_id}
+                p={p}
+                rank={podiumRanks[i]}
+                maxCoins={maxCoins}
+                onPremiar={openPremiar}
+              />
+            ))}
           </div>
         </>
       )}
 
-      {/* ── Tabela completa ─────────────────────────────────────────────── */}
+      {/* ── Tabela completa ──────────────────────────────────────────────── */}
       <div>
         <div style={{ fontSize: 13, fontWeight: 700, color: C.textSec, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
           Ranking completo
@@ -492,7 +650,7 @@ export default function Ranking() {
                   {/* ação */}
                   <div>
                     <button
-                      onClick={() => console.log('premiar', p.user_id)}
+                      onClick={() => openPremiar(p)}
                       style={{
                         fontSize: 11, padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
                         background: `${C.gold1}20`, color: C.gold2,
@@ -514,9 +672,9 @@ export default function Ranking() {
       }}>
         <span style={{ fontWeight: 600, color: C.textTert }}>Fórmula do score:</span>
         {[
-          { color: C.emerald, label: 'Moedas 50%' },
+          { color: C.emerald, label: 'Moedas 50%'     },
           { color: C.blue,    label: 'Pagamentos 30%' },
-          { color: C.green,   label: 'Plano ativo 20%' },
+          { color: C.green,   label: 'Plano ativo 20%'},
         ].map(({ color, label }) => (
           <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, display: 'inline-block' }} />
@@ -525,10 +683,16 @@ export default function Ranking() {
         ))}
       </div>
 
+      {/* ── Premiar Modal ────────────────────────────────────────────────── */}
+      {premiarTarget && (
+        <PremiarModal
+          professional={premiarTarget}
+          onClose={() => setPremiarTarget(null)}
+        />
+      )}
+
       <style>{`
-        @keyframes ping {
-          75%, 100% { transform: scale(1.6); opacity: 0; }
-        }
+        @keyframes ping { 75%, 100% { transform: scale(1.6); opacity: 0; } }
       `}</style>
     </div>
   );

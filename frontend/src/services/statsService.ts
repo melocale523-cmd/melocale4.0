@@ -466,6 +466,16 @@ export const adminService = {
 
     return enriched.sort((a, b) => b.score - a.score);
   },
+
+  async premiarProfissional(user_id: string, coins: number, motivo?: string) {
+    const res = await apiFetch('/api/admin/premiar-profissional', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id, coins, motivo }),
+    });
+    if (!res.ok) throw new Error('Erro ao premiar profissional');
+    return res.json() as Promise<{ success: boolean; coins_awarded: number }>;
+  },
 };
 
 export type RankedProfessional = {
