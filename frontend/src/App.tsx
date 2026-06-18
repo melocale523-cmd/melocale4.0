@@ -75,6 +75,7 @@ const Termos = lazy(() => import('./pages/Termos'));
 const Privacidade = lazy(() => import('./pages/Privacidade'));
 const Seguranca = lazy(() => import('./pages/Seguranca'));
 const ServiceCityPage = lazy(() => import('./pages/seo/ServiceCityPage'));
+const Notificacoes = lazy(() => import('./pages/Notificacoes'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -332,6 +333,10 @@ const router = createBrowserRouter([
           { path: 'configuracoes', element: <AdminEmBreve /> },
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
+      },
+      {
+        path: '/notificacoes',
+        element: <AuthGuard><ErrorBoundary><Suspense fallback={<PageLoader />}><Notificacoes /></Suspense></ErrorBoundary></AuthGuard>
       },
       {
         path: '/servicos/:slug',
