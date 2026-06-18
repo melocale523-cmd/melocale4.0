@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../database.types';
 
-let _client: ReturnType<typeof createClient> | null = null;
+let _client: ReturnType<typeof createClient<Database>> | null = null;
 
 export function getSupabaseClient() {
   if (_client) return _client;
@@ -18,7 +19,7 @@ export function getSupabaseClient() {
     throw new Error("❌ VITE_SUPABASE_ANON_KEY inválida: JWT muito curto (esperado >100 caracteres)");
   }
 
-  _client = createClient(supabaseUrl, supabaseAnonKey, {
+  _client = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     global: {
       fetch: (url, options) => globalThis.fetch(url, options),
     },
