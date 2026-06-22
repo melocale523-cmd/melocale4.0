@@ -36,6 +36,16 @@ router.get('/ranking', async (_req: Request, res: Response) => {
 router.post('/profile-complete', requireAuth, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).authUser!.id
   try {
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name, phone, city')
+      .eq('id', userId)
+      .maybeSingle()
+
+    if (!profile?.full_name?.trim() || !profile?.phone?.trim() || !profile?.city?.trim()) {
+      return res.status(403).json({ error: 'profile_incomplete' })
+    }
+
     const { data: result } = await supabaseAdmin.rpc('credit_client_coins', {
       p_user_id: userId,
       p_amount: 50,
@@ -66,6 +76,17 @@ router.post('/review-bonus', requireAuth, async (req: Request, res: Response) =>
   const { appointment_id } = req.body as { appointment_id?: string }
   if (!appointment_id) return res.status(400).json({ error: 'missing_appointment_id' })
   try {
+    const { data: review } = await supabaseAdmin
+      .from('reviews')
+      .select('id')
+      .eq('appointment_id', appointment_id)
+      .eq('client_id', userId)
+      .maybeSingle()
+
+    if (!review) {
+      return res.status(403).json({ error: 'review_not_found_or_not_owned' })
+    }
+
     const { data: result } = await supabaseAdmin.rpc('credit_client_coins', {
       p_user_id: userId,
       p_amount: 30,
@@ -93,6 +114,17 @@ router.post('/review-bonus', requireAuth, async (req: Request, res: Response) =>
 router.post('/first-order', requireAuth, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).authUser!.id
   try {
+    const { data: anyLead } = await supabaseAdmin
+      .from('leads')
+      .select('id')
+      .eq('client_id', userId)
+      .limit(1)
+      .maybeSingle()
+
+    if (!anyLead) {
+      return res.status(403).json({ error: 'no_orders_found' })
+    }
+
     const { data: result } = await supabaseAdmin.rpc('credit_client_coins', {
       p_user_id: userId,
       p_amount: 100,
