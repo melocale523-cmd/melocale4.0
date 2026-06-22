@@ -6,7 +6,7 @@ import { Loader2, AlertCircle, ArrowLeft, ChevronRight, Briefcase, User as UserI
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
-import { API_URL } from '../../lib/api';
+import { API_URL, apiFetch } from '../../lib/api';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
 
 function validatePassword(password: string): string | null {
@@ -234,20 +234,6 @@ export default function Login() {
           });
         }
 
-        const pendingRef = sessionStorage.getItem('melocale_ref');
-        if (pendingRef && signUpData.user?.id) {
-          try {
-            await fetch(`${API_URL}/api/referrals/register`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ code: pendingRef, newUserId: signUpData.user.id }),
-            });
-          } catch {
-            // silencioso — não bloquear o cadastro por falha de indicação
-          }
-          sessionStorage.removeItem('melocale_ref');
-        }
-
         fetch(`${API_URL}/api/track/registration`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -259,6 +245,19 @@ export default function Login() {
           email: formData.email,
           password: formData.password,
         });
+
+        const pendingRef = sessionStorage.getItem('melocale_ref');
+        if (pendingRef && signUpData.user?.id) {
+          sessionStorage.removeItem('melocale_ref');
+          try {
+            await apiFetch('/api/referrals/register', {
+              method: 'POST',
+              body: JSON.stringify({ code: pendingRef, newUserId: signUpData.user.id }),
+            });
+          } catch (refErr) {
+            console.error('[referral] falha ao registrar indicação:', refErr);
+          }
+        }
 
         toast.success("Conta criada com sucesso!");
       } else {
