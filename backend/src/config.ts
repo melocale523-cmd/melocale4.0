@@ -136,3 +136,18 @@ export const sensitiveLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Muitas requisições. Tente novamente em alguns minutos." },
 });
+
+export const ALLOWED_CHECKOUT_ORIGINS = [
+  "https://www.melocale.com.br",
+  "https://melocale.com.br",
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+export function resolveFrontendUrl(requestOrigin: string | undefined): string {
+  const origin = requestOrigin ?? "";
+  return (
+    ALLOWED_CHECKOUT_ORIGINS.includes(origin)
+      ? origin
+      : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
+  ).replace(/\/$/, "");
+}

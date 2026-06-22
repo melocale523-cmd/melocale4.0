@@ -240,7 +240,7 @@ router.post("/push/subscribe", sensitiveLimiter, requireAuth, async (req: AuthRe
   }
 });
 
-router.delete("/push/unsubscribe", requireAuth, async (req: AuthRequest, res: Response) => {
+router.delete("/push/unsubscribe", sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { endpoint } = req.body || {};
     if (!endpoint) return res.status(400).json({ error: "endpoint obrigatório." });
