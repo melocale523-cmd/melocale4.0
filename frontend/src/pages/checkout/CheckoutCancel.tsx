@@ -158,7 +158,7 @@ export default function CheckoutCancel() {
                 </span>
               </div>
               <p style={{ fontSize: 12, color: '#7d93ad', margin: 0, textAlign: 'left' }}>
-                {pkg.coins} moedas · {pkg.description}
+                {pkg.coins + pkg.bonus} moedas · {pkg.description}
               </p>
             </div>
           )}
