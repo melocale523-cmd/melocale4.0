@@ -12,6 +12,7 @@ import {
   STRIPE_PRICE_IDS,
   getPackagePriceId,
   coinPackagesCache,
+  resolveFrontendUrl,
 } from "../config.js";
 import { AuthRequest, requireAuth } from "../middleware/auth.js";
 import { withTimeout } from "../lib/timeout.js";
@@ -295,17 +296,7 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const ALLOWED_ORIGINS = [
-      "https://www.melocale.com.br",
-      "https://melocale.com.br",
-      process.env.FRONTEND_URL,
-    ].filter(Boolean) as string[];
-    const requestOrigin = req.headers.origin ?? "";
-    const frontendUrl = (
-      ALLOWED_ORIGINS.includes(requestOrigin)
-        ? requestOrigin
-        : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
-    ).replace(/\/$/, "");
+    const frontendUrl = resolveFrontendUrl(req.headers.origin);
 
     if (type === "subscription" || package_id in SUBSCRIPTION_PLANS) {
       const plan = SUBSCRIPTION_PLANS[package_id];
@@ -474,17 +465,7 @@ router.post("/create-account-link", requireAuth, async (req: AuthRequest, res: R
       return res.status(400).json({ error: "Conta Stripe não encontrada. Crie uma conta primeiro." });
     }
 
-    const ALLOWED_ORIGINS_CONNECT = [
-      "https://www.melocale.com.br",
-      "https://melocale.com.br",
-      process.env.FRONTEND_URL,
-    ].filter(Boolean) as string[];
-    const requestOriginConnect = req.headers.origin ?? "";
-    const frontendUrl = (
-      ALLOWED_ORIGINS_CONNECT.includes(requestOriginConnect)
-        ? requestOriginConnect
-        : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
-    ).replace(/\/$/, "");
+    const frontendUrl = resolveFrontendUrl(req.headers.origin);
 
     const accountLink = await stripe.accountLinks.create({
       account: prof.stripe_account_id,
@@ -535,17 +516,7 @@ router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res
     }
     const connectedAccountId = prof.stripe_account_id;
 
-    const ALLOWED_ORIGINS_SVC = [
-      "https://www.melocale.com.br",
-      "https://melocale.com.br",
-      process.env.FRONTEND_URL,
-    ].filter(Boolean) as string[];
-    const requestOriginSvc = req.headers.origin ?? "";
-    const frontendUrl = (
-      ALLOWED_ORIGINS_SVC.includes(requestOriginSvc)
-        ? requestOriginSvc
-        : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
-    ).replace(/\/$/, "");
+    const frontendUrl = resolveFrontendUrl(req.headers.origin);
 
     const idempotencyKey = `service-payment-${authUser.id}-${amountInCents}-${Math.floor(Date.now() / 60000)}`
     const session = await stripe.checkout.sessions.create({
@@ -709,17 +680,7 @@ router.post("/create-featured-checkout", requireAuth, async (req: AuthRequest, r
       return res.status(403).json({ error: "Apenas profissionais podem adquirir destaque." });
     }
 
-    const ALLOWED_ORIGINS_FEAT = [
-      "https://www.melocale.com.br",
-      "https://melocale.com.br",
-      process.env.FRONTEND_URL,
-    ].filter(Boolean) as string[];
-    const requestOriginFeat = req.headers.origin ?? "";
-    const frontendUrl = (
-      ALLOWED_ORIGINS_FEAT.includes(requestOriginFeat)
-        ? requestOriginFeat
-        : process.env.FRONTEND_URL ?? "https://www.melocale.com.br"
-    ).replace(/\/$/, "");
+    const frontendUrl = resolveFrontendUrl(req.headers.origin);
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",

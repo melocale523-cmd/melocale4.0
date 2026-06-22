@@ -1,6 +1,6 @@
 // backend/src/routes/referrals.ts
 import { Router, Request, Response } from 'express'
-import { requireAuth, AuthRequest } from '../middleware/auth.js'
+import { requireAuth, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 import { sendPushToUser } from '../lib/push.js'
 
@@ -191,6 +191,11 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
   const { code, newUserId } = req.body as { code?: string; newUserId?: string }
   if (!code || !newUserId) return res.status(400).json({ error: 'missing_params' })
 
+  const authUser = (req as AuthRequest).authUser!;
+  if (newUserId !== authUser.id) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
+
   try {
     const { data: referrerProfile } = await supabaseAdmin
       .from('profiles').select('id, role, full_name').eq('referral_code', code).single()
@@ -247,13 +252,7 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
 })
 
 // PUT /api/referrals/config — admin only
-router.put('/config', requireAuth, async (req: Request, res: Response) => {
-  const callerId = (req as AuthRequest).authUser!.id
-  // Check admin role
-  const { data: profile } = await supabaseAdmin
-    .from('profiles').select('role').eq('id', callerId).single()
-  if (profile?.role !== 'admin') return res.status(403).json({ error: 'forbidden' })
-
+router.put('/config', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { multiplier, expires_at, label } = req.body as { multiplier?: number; expires_at?: string | null; label?: string | null }
   if (!multiplier || multiplier < 1 || multiplier > 10)
     return res.status(400).json({ error: 'invalid_multiplier' })

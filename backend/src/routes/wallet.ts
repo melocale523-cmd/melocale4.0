@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { requireAuth, AuthRequest } from '../middleware/auth.js'
-import { supabaseAdmin } from '../config.js'
+import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 
 const router = Router()
 const ASAAS_BASE = 'https://api.asaas.com/v3'
@@ -20,7 +20,7 @@ async function asaasFetch(path: string, options: RequestInit = {}) {
 
 // POST /api/wallet/withdraw
 // Body: { pix_key: string, pix_key_type: 'CPF'|'CNPJ'|'EMAIL'|'PHONE'|'EVP' }
-router.post('/withdraw', requireAuth, async (req: Request, res: Response) => {
+router.post('/withdraw', sensitiveLimiter, requireAuth, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).authUser!.id
   const { pix_key, pix_key_type } = req.body as { pix_key?: string; pix_key_type?: string }
 

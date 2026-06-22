@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { sendMetaEvent } from "../lib/metaPixel.js";
+import { sensitiveLimiter } from "../config.js";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const registrationSchema = z.object({
 
 // POST /api/track/registration
 // Called by the frontend after Supabase Auth signup + profile creation completes.
-router.post("/track/registration", async (req: Request, res: Response) => {
+router.post("/track/registration", sensitiveLimiter, async (req: Request, res: Response) => {
   const parsed = registrationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "dados inválidos." });
 
