@@ -125,7 +125,12 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
   } else if (type === 'message') {
     url = '/profissional/mensagens'
   } else if (dataUrl) {
-    url = dataUrl
+    try {
+      const parsed = new URL(dataUrl, self.location.origin)
+      url = parsed.origin === self.location.origin ? parsed.pathname + parsed.search : '/'
+    } catch {
+      url = '/'
+    }
   }
 
   event.waitUntil(self.clients.openWindow(url))
