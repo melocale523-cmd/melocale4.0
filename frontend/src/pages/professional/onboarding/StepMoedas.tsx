@@ -24,6 +24,7 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
         body: JSON.stringify({
           package_id: 'pack_starter',
           user_id: user!.id,
+          return_to: '/profissional/dashboard',
         }),
       });
       if (!res.ok) throw new Error('Erro ao abrir checkout');
@@ -41,7 +42,6 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
 
   const saldo = 20;
   const custo = 60;
-  const faltam = custo - saldo;
   const pct = Math.round((saldo / custo) * 100);
 
   return (
@@ -49,10 +49,10 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>🪙</div>
         <h2 style={{ color: '#f1f5f9', fontSize: 20, fontWeight: 900, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
-          Quase lá! Faltam {faltam} moedas
+          Você começa com {saldo} moedas de bônus
         </h2>
         <p style={{ color: '#64748b', fontSize: 13, margin: 0 }}>
-          Você ganhou {saldo} moedas de boas-vindas — cada lead custa {custo}
+          Cada cliente custa {custo} moedas pra liberar o contato. Suas moedas não expiram.
         </p>
       </div>
 
@@ -63,16 +63,11 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
           <span style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', fontFamily: 'DM Mono, monospace' }}>{saldo} moedas</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <span style={{ fontSize: 12, color: '#64748b' }}>Custo por lead</span>
-          <span style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b', fontFamily: 'DM Mono, monospace' }}>{custo} moedas</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>Custo por cliente</span>
+          <span style={{ fontSize: 18, fontWeight: 700, color: '#10b981', fontFamily: 'DM Mono, monospace' }}>{custo} moedas</span>
         </div>
-        <div style={{ height: 1, background: '#1C3050', marginBottom: 10 }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#f87171' }}>Faltam</span>
-          <span style={{ fontSize: 22, fontWeight: 700, color: '#f87171', fontFamily: 'DM Mono, monospace' }}>{faltam} moedas</span>
-        </div>
-        <div style={{ marginTop: 8, background: '#1C3050', borderRadius: 999, height: 5 }}>
-          <div style={{ width: `${pct}%`, background: '#f59e0b', borderRadius: 999, height: 5 }} />
+        <div style={{ marginTop: 2, background: '#1C3050', borderRadius: 999, height: 5 }}>
+          <div style={{ width: `${pct}%`, background: '#10b981', borderRadius: 999, height: 5 }} />
         </div>
         <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, textAlign: 'right' }}>{saldo} / {custo} moedas</div>
       </div>
@@ -81,7 +76,7 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
       <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '.75rem', padding: '.875rem', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
         <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
         <div>
-          <div style={{ fontSize: 12, color: '#f1f5f9', fontWeight: 700, marginBottom: 2 }}>Pacote recomendado para começar</div>
+          <div style={{ fontSize: 12, color: '#f1f5f9', fontWeight: 700, marginBottom: 2 }}>Sugestão</div>
           <div style={{ fontSize: 11, color: '#64748b' }}>60 moedas por R$24,90 — acesse seu primeiro cliente hoje</div>
         </div>
       </div>
@@ -100,9 +95,9 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
           type="button"
           onClick={handleSkip}
           disabled={completeMutation.isPending || buying}
-          style={{ width: '100%', background: 'none', border: 'none', color: '#475569', fontSize: 12, cursor: 'pointer', padding: '8px 0', fontFamily: 'DM Sans, sans-serif' }}
+          style={{ width: '100%', height: 52, background: 'none', border: '1px solid #2c4564', borderRadius: '1rem', color: '#e2e8f0', fontSize: 14, fontWeight: 900, cursor: completeMutation.isPending || buying ? 'not-allowed' : 'pointer', opacity: completeMutation.isPending || buying ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', letterSpacing: '.03em' }}
         >
-          Ver todos os pacotes de moedas
+          Continuar para o painel sem comprar
         </button>
         <button
           type="button"
