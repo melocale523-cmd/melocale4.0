@@ -269,10 +269,18 @@ const checkoutRateLimit = rateLimit({
   message: { error: "Muitas tentativas de checkout. Aguarde 1 hora e tente novamente." },
 });
 
+function sanitizeReturnTo(value: unknown): string {
+  const fallback = '/profissional/dashboard';
+  if (typeof value !== 'string') return fallback;
+  if (!value.startsWith('/') || value.startsWith('//') || value.includes('://')) return fallback;
+  return value;
+}
+
 const checkoutSchema = z.object({
   type: z.enum(["coins", "plan", "one_time", "subscription"]).optional(),
   package_id: z.string().min(1),
   user_id: z.string().uuid(),
+  return_to: z.string().optional(),
 });
 
 router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (req: AuthRequest, res: Response) => {
@@ -281,7 +289,7 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
 
   try {
     const authUser = req.authUser!;
-    const { type, package_id, user_id } = parsed.data;
+    const { type, package_id, user_id, return_to } = parsed.data;
 
     if (user_id !== authUser.id) {
       return res.status(403).json({ error: "Não autorizado." });
@@ -321,7 +329,7 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
           type: "subscription",
         },
         success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${frontendUrl}/checkout/cancel`,
+        cancel_url: `${frontendUrl}/checkout/cancel?return_to=${encodeURIComponent(sanitizeReturnTo(return_to))}&package_id=${encodeURIComponent(package_id)}&type=${encodeURIComponent(type ?? 'subscription')}`,
       });
 
       return res.json({ id: session.id, url: session.url });
@@ -366,7 +374,7 @@ router.post("/create-checkout-session", requireAuth, checkoutRateLimit, async (r
         type: String(type || "one_time"),
       },
       success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${frontendUrl}/checkout/cancel`,
+      cancel_url: `${frontendUrl}/checkout/cancel?return_to=${encodeURIComponent(sanitizeReturnTo(return_to))}&package_id=${encodeURIComponent(package_id)}&type=${encodeURIComponent(type ?? 'one_time')}`,
     });
 
     return res.json({ id: session.id, url: session.url });

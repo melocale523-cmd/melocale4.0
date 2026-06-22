@@ -24,6 +24,7 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
         body: JSON.stringify({
           package_id: 'pack_starter',
           user_id: user!.id,
+          return_to: '/profissional/dashboard',
         }),
       });
       if (!res.ok) throw new Error('Erro ao abrir checkout');

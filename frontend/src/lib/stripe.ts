@@ -22,7 +22,7 @@ export const getStripe = () => {
   return stripePromise;
 };
 
-export const initiateCheckout = async (type: 'one_time' | 'subscription', id: string) => {
+export const initiateCheckout = async (type: 'one_time' | 'subscription', id: string, returnTo?: string) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Usuário não autenticado. Faça login para continuar.");
 
@@ -31,7 +31,12 @@ export const initiateCheckout = async (type: 'one_time' | 'subscription', id: st
     throw new Error("ID inválido no frontend: " + id);
   }
 
-  const payload = { type, package_id: id, user_id: user.id };
+  const payload = {
+    type,
+    package_id: id,
+    user_id: user.id,
+    return_to: returnTo ?? window.location.pathname,
+  };
 
   const response = await apiFetch('/api/create-checkout-session', {
     method: 'POST',

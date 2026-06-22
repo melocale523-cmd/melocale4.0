@@ -6,6 +6,7 @@ import { initiateCheckout } from '../../lib/stripe';
 import { apiFetch } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
+import { CREDIT_PACKAGES } from '../../lib/coinPackages';
 import { Loader2, CheckCircle2, AlertCircle, X, Calendar, RefreshCw, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { toast } from 'sonner';
@@ -93,36 +94,6 @@ const SUBSCRIPTION_PLANS = [
   },
 ];
 
-const CREDIT_PACKAGES = [
-  {
-    id: 'pack_starter',
-    name: 'Básico',
-    coins: 60,
-    price: '24,90',
-    priceNum: 24.90,
-    description: 'Para o primeiro cliente',
-    bonus: 0,
-  },
-  {
-    id: 'pack_pro',
-    name: 'Popular',
-    coins: 180,
-    price: '59,90',
-    priceNum: 59.90,
-    description: 'Melhor custo por moeda',
-    bonus: 20,
-    popular: true,
-  },
-  {
-    id: 'pack_premium',
-    name: 'Máximo',
-    coins: 480,
-    price: '119,90',
-    priceNum: 119.90,
-    description: 'Para não perder nenhum lead',
-    bonus: 80,
-  },
-];
 
 export default function ProfessionalAssinatura() {
   const navigate = useNavigate();
