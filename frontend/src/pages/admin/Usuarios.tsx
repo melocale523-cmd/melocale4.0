@@ -3,6 +3,7 @@ import { Search, MoreVertical, CheckCircle, XCircle, Loader2, Copy, X, Phone, Ma
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService, type EnrichedUser } from '../../services/statsService';
 import { toast } from 'sonner';
+import { apiFetch } from '../../lib/api';
 
 type RoleFilter = 'all' | 'client' | 'professional' | 'admin';
 
