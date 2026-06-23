@@ -83,6 +83,7 @@ export default function CompletarPerfil() {
       const finalCategory = formData.category === 'Outro' ? formData.customCategory : formData.category;
 
       const payload = {
+        role,
         phone: formData.phone.trim(),
         city: derivedCity || null,
         cep: address.cep || null,
