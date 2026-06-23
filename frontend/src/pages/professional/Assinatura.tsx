@@ -16,7 +16,8 @@ import PlanComparisonTable from './assinatura/PlanComparisonTable';
 import ChangePlanModal from './assinatura/ChangePlanModal';
 import CurrentPlanCard from './assinatura/CurrentPlanCard';
 import CoinBalanceCard from './assinatura/CoinBalanceCard';
-import MarketingContent from './assinatura/MarketingContent';
+import MarketingTop from './assinatura/MarketingTop';
+import MarketingBottom from './assinatura/MarketingBottom';
 
 export default function ProfessionalAssinatura() {
   const navigate = useNavigate();
@@ -243,7 +244,7 @@ export default function ProfessionalAssinatura() {
         isMobile={isMobile}
       />
 
-      <MarketingContent onScrollToPlans={scrollToPlans} isMobile={isMobile} />
+      <MarketingTop onScrollToPlans={scrollToPlans} />
 
       <SubscriptionPlansSection
         ref={plansRef}
@@ -256,6 +257,8 @@ export default function ProfessionalAssinatura() {
         buyingId={buyingId}
         onSubscribe={(id) => handleCheckout('subscription', id)}
       />
+
+      <MarketingBottom onScrollToPlans={scrollToPlans} isMobile={isMobile} />
 
       {/* Grid Plano Atual + Saldo */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,.06)' }}>
