@@ -3,8 +3,12 @@ import { Router, Request, Response } from 'express'
 import { requireAuth, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 import { sendPushToUser } from '../lib/push.js'
+import { REFERRAL_COINS_PROFESSIONAL, REFERRAL_BASE_COINS_CLIENT, REFERRAL_BONUS_MONTHLY } from '../config/referralConstants.js'
 
 const router = Router()
+
+let _configCache: { data: unknown; ts: number } | null = null
+const CONFIG_CACHE_TTL = 60_000 // 60 segundos
 
 function generateCode(userId: string): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -32,7 +36,13 @@ async function getConfig(): Promise<{ multiplier: number; expires_at: string | n
 // GET /api/referrals/config — current bonus multiplier
 router.get('/config', async (_req: Request, res: Response) => {
   try {
-    return res.json(await getConfig())
+    const now = Date.now()
+    if (_configCache && now - _configCache.ts < CONFIG_CACHE_TTL) {
+      return res.json(_configCache.data)
+    }
+    const data = await getConfig()
+    _configCache = { data, ts: now }
+    return res.json(data)
   } catch {
     return res.json({ multiplier: 1, expires_at: null, label: null })
   }
@@ -108,7 +118,7 @@ router.get('/monthly-stats', requireAuth, async (req: Request, res: Response) =>
       total_this_month: monthlyRefs?.length ?? 0,
       goal: 5,
       bonus_credited: !!bonus,
-      bonus_coins: 500,
+      bonus_coins: REFERRAL_BONUS_MONTHLY,
     })
   } catch (err) {
     console.error('[referrals] monthly-stats error:', err)
@@ -219,7 +229,7 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
 
     // Push + in-app notification to referrer
     const firstName = (newProfile?.full_name ?? 'Alguém').split(' ')[0]
-    const rewardHint = referrerProfile.role === 'professional' ? '60 moedas' : 'R$2'
+    const rewardHint = referrerProfile.role === 'professional' ? `${REFERRAL_COINS_PROFESSIONAL} moedas` : 'R$2'
     void sendPushToUser(referrerProfile.id, {
       title: '🎉 Nova indicação!',
       body: `${firstName} se cadastrou com seu link! +${rewardHint} quando ele ativar.`,
@@ -260,6 +270,7 @@ router.put('/config', requireAuth, requireAdmin, async (req: AuthRequest, res: R
     await supabaseAdmin.from('referral_config')
       .update({ multiplier, expires_at: expires_at ?? null, label: label ?? null, updated_at: new Date().toISOString() })
       .eq('id', 1)
+    _configCache = null
     return res.json({ success: true })
   } catch {
     return res.status(500).json({ error: 'internal_error' })
