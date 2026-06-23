@@ -31,12 +31,39 @@ export default function CheckoutSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1C32] flex items-center justify-center p-9">
-      <div className="bg-[#1C1F26] p-8 rounded-2xl border border-emerald-500/20 max-w-md w-full text-center flex flex-col items-center">
-        <CheckCircle2 className="text-emerald-500 mb-11" size={64} />
-        <h1 className="text-2xl font-bold text-white mb-7">Pagamento confirmado!</h1>
-        <p className="text-[#94A3B8] mb-11">Seu pagamento foi processado. As moedas serão creditadas em instantes.<br/>Redirecionando para sua carteira...</p>
-        <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+    <div style={{
+      minHeight: '100vh',
+      background: '#0E1C32',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2.25rem',
+    }}>
+      <div style={{
+        background: '#0a1928',
+        padding: '2rem',
+        borderRadius: '1rem',
+        border: '1px solid rgba(16,185,129,0.2)',
+        maxWidth: '28rem',
+        width: '100%',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+        <CheckCircle2 style={{ color: '#10b981', marginBottom: '2.75rem' }} size={64} />
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ffffff', marginBottom: '1.75rem', margin: '0 0 1.75rem' }}>Pagamento confirmado!</h1>
+        <p style={{ color: '#94A3B8', marginBottom: '2.75rem' }}>
+          Seu pagamento foi processado. As moedas serão creditadas em instantes.<br/>Redirecionando para sua carteira...
+        </p>
+        <div style={{
+          width: '3rem',
+          height: '3rem',
+          borderRadius: '50%',
+          border: '4px solid rgba(16,185,129,0.3)',
+          borderTopColor: '#10b981',
+          animation: 'spin 1s linear infinite',
+        }}></div>
       </div>
     </div>
   );

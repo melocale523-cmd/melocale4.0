@@ -17,6 +17,7 @@ import {
 import { AuthRequest, requireAuth } from "../middleware/auth.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendMetaEvent } from "../lib/metaPixel.js";
+import { REFERRAL_COINS_PROFESSIONAL, REFERRAL_BASE_COINS_CLIENT, REFERRAL_CLIENT_ORDER_COINS } from "../config/referralConstants.js";
 
 const router = Router();
 
@@ -130,7 +131,7 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
             .single()
           if (referral && referral.status !== 'credited') {
             // Apply bonus multiplier from referral_config
-            let baseCoins = referral.referrer_role === 'professional' ? 60 : 6
+            let baseCoins = referral.referrer_role === 'professional' ? REFERRAL_COINS_PROFESSIONAL : REFERRAL_BASE_COINS_CLIENT
             try {
               const { data: cfg } = await supabaseAdmin
                 .from('referral_config').select('multiplier, expires_at').eq('id', 1).single()
@@ -157,7 +158,7 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
             if (referral.referrer_role === 'client') {
               void supabaseAdmin.rpc('credit_client_coins', {
                 p_user_id: referral.referrer_id,
-                p_amount: 200,
+                p_amount: REFERRAL_CLIENT_ORDER_COINS,
                 p_kind: 'referral_order',
                 p_reference: `referral_order_${referral.id}`,
                 p_metadata: { referred_id: userId, referral_id: referral.id },

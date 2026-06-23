@@ -6,13 +6,19 @@ import { useAuthStore } from '../../store/authStore';
 import { getCoinPackage } from '../../lib/coinPackages';
 import { toast } from 'sonner';
 
-const ALLOWED_RETURN_PREFIXES = ['/profissional/', '/cliente/'];
+const ALLOWED_RETURN_PREFIXES = ['/profissional/', '/cliente/']
 
 function safeReturnTo(value: string | null, role?: string | null): string {
-  if (value && ALLOWED_RETURN_PREFIXES.some((p) => value.startsWith(p))) {
-    return value;
+  const fallback = role === 'client' ? '/cliente/dashboard' : '/profissional/dashboard'
+  if (!value) return fallback
+  try {
+    // Usa URL API com base fictícia para validar pathname sem risco de open redirect
+    const { pathname } = new URL(value, 'https://melocale.com.br')
+    if (ALLOWED_RETURN_PREFIXES.some((p) => pathname.startsWith(p))) return pathname
+  } catch {
+    // value inválido como URL
   }
-  return role === 'client' ? '/cliente/dashboard' : '/profissional/dashboard';
+  return fallback
 }
 
 export default function CheckoutCancel() {

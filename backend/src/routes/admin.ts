@@ -63,6 +63,22 @@ router.delete("/professionals/:userId", requireAuth, requireAdmin, async (req: A
   }
 });
 
+// PATCH /api/admin/fix-role/:userId
+// Corrige inconsistência: seta profiles.role = 'professional' para usuário que tem row em professionals mas role errado
+router.patch("/fix-role/:userId", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { error } = await withTimeout(
+      supabaseAdmin.from("profiles").update({ role: "professional" }).eq("id", userId)
+    );
+    if (error) throw error;
+    return res.json({ ok: true });
+  } catch (err: unknown) {
+    console.error("/api/admin/fix-role PATCH error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro interno." });
+  }
+});
+
 router.get("/user-emails", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const ids = (req.query.ids as string || "").split(",").filter(Boolean).slice(0, 100);
