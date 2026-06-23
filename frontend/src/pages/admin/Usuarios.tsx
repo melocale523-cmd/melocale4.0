@@ -107,6 +107,19 @@ export default function AdminUsuarios() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const fixRoleMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await apiFetch(`/api/admin/fix-role/${userId}`, { method: 'PATCH' });
+      if (!res.ok) throw new Error('Falha ao corrigir role');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success('Role corrigido para professional ✅');
+      queryClient.invalidateQueries({ queryKey: ['adminUsersEnriched'] });
+    },
+    onError: () => toast.error('Erro ao corrigir role'),
+  });
+
   const filtered = usuarios.filter(u => {
     const matchRole = filterRole === 'all' || u.role === filterRole;
     const q = search.toLowerCase();
@@ -292,7 +305,7 @@ export default function AdminUsuarios() {
                           <MessageSquare size={11} /> Contatar
                         </ActionBtn>
                         {inconsistent && (
-                          <ActionBtn onClick={() => toast.info('Corrija o role no banco: profiles.role = professional')} variant="danger">
+                          <ActionBtn onClick={() => fixRoleMutation.mutate(u.id)} variant="danger">
                             <AlertTriangle size={11} /> Corrigir role
                           </ActionBtn>
                         )}
