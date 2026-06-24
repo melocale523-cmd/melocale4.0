@@ -252,7 +252,7 @@ export default function AdminUsuarios() {
   const SortHeader = ({ field, label }: { field: string; label: string }) => (
     <th
       onClick={() => handleSort(field)}
-      style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: sortField === field ? '#34d399' : '#4a6580', textAlign: 'left', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+      style={{ padding: '0.625rem 0.75rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: sortField === field ? '#34d399' : '#4a6580', textAlign: 'left', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
         {label}
@@ -265,7 +265,7 @@ export default function AdminUsuarios() {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 1200, margin: '0 auto' }}>
 
       {/* Overlay de loading ao atualizar */}
       {isRefreshing && (
@@ -301,9 +301,9 @@ export default function AdminUsuarios() {
           { label: 'Pendências',         value: String(pendenciasCount),     color: pendenciasCount > 0 ? '#f87171' : '#4a6580' },
           { label: 'Risco churn',        value: String(churnRiskCount),      color: churnRiskCount > 0 ? '#f87171' : '#4a6580' },
         ].map(k => (
-          <div key={k.label} style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1rem' }}>
+          <div key={k.label} style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '0.75rem' }}>
             <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#4a6580', margin: '0 0 6px' }}>{k.label}</p>
-            <p style={{ fontSize: 22, fontWeight: 700, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
+            <p style={{ fontSize: 18, fontWeight: 700, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
           </div>
         ))}
       </div>
@@ -386,10 +386,10 @@ export default function AdminUsuarios() {
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 960 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 860 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
-                  <th style={{ padding: '0.75rem 0.75rem 0.75rem 1rem', width: 36 }}>
+                  <th style={{ padding: '0.625rem 0.625rem 0.625rem 0.75rem', width: 36 }}>
                     <input
                       type="checkbox"
                       checked={sortedFiltered.length > 0 && selected.size === sortedFiltered.length}
@@ -398,12 +398,12 @@ export default function AdminUsuarios() {
                     />
                   </th>
                   <SortHeader field="full_name" label="Usuário" />
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Contato</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Tipo</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Plano / Atividade</th>
+                  <th style={{ padding: '0.625rem 0.75rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Contato</th>
+                  <th style={{ padding: '0.625rem 0.75rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Tipo</th>
+                  <th style={{ padding: '0.625rem 0.75rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Plano / Atividade</th>
                   <SortHeader field="created_at" label="Cadastro" />
                   <SortHeader field="last_sign_in_at" label="Último login" />
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Ações</th>
+                  <th style={{ padding: '0.625rem 0.75rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -421,14 +421,14 @@ export default function AdminUsuarios() {
                   return (
                     <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,.04)', background: selected.has(u.id) ? 'rgba(16,185,129,.04)' : undefined }}>
                       {/* Checkbox */}
-                      <td style={{ padding: '0.75rem 0.75rem 0.75rem 1rem' }}>
+                      <td style={{ padding: '0.625rem 0.625rem 0.625rem 0.75rem' }}>
                         <input type="checkbox" checked={selected.has(u.id)} onChange={() => toggleSelect(u.id)} style={{ cursor: 'pointer', accentColor: '#10b981' }} />
                       </td>
 
                       {/* Usuário + Score */}
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                          <div style={{ width: 34, height: 34, borderRadius: 10, background: inconsistent ? 'rgba(245,158,11,.15)' : av.bg, border: `1.5px solid ${inconsistent ? 'rgba(245,158,11,.3)' : av.color + '44'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: inconsistent ? '#fbbf24' : av.color, flexShrink: 0 }}>
+                      <td style={{ padding: '0.625rem 0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: inconsistent ? 'rgba(245,158,11,.15)' : av.bg, border: `1.5px solid ${inconsistent ? 'rgba(245,158,11,.3)' : av.color + '44'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: inconsistent ? '#fbbf24' : av.color, flexShrink: 0 }}>
                             {initials}
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>
@@ -451,7 +451,7 @@ export default function AdminUsuarios() {
                       </td>
 
                       {/* Contato */}
-                      <td style={{ padding: '0.75rem 1rem' }}>
+                      <td style={{ padding: '0.625rem 0.75rem' }}>
                         <p style={{ fontSize: 12, color: '#94a3b8', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
                           {highlight(u.email ?? '—', searchQuery)}
                         </p>
@@ -459,7 +459,7 @@ export default function AdminUsuarios() {
                       </td>
 
                       {/* Tipo + Origem */}
-                      <td style={{ padding: '0.75rem 1rem' }}>
+                      <td style={{ padding: '0.625rem 0.75rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, display: 'inline-block' }}>{rb.label}</span>
                           {u.category && <Pill color="#4a6580">{highlight(u.category, searchQuery)}</Pill>}
@@ -470,7 +470,7 @@ export default function AdminUsuarios() {
                       </td>
 
                       {/* Plano / Atividade */}
-                      <td style={{ padding: '0.75rem 1rem' }}>
+                      <td style={{ padding: '0.625rem 0.75rem' }}>
                         {u.role === 'professional' ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -493,7 +493,7 @@ export default function AdminUsuarios() {
                       </td>
 
                       {/* Cadastro */}
-                      <td style={{ padding: '0.75rem 1rem' }}>
+                      <td style={{ padding: '0.625rem 0.75rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <Pill><Calendar size={10} />{fmtDate(u.created_at)}</Pill>
                           <Pill><Clock size={10} />{new Date(u.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</Pill>
@@ -501,7 +501,7 @@ export default function AdminUsuarios() {
                       </td>
 
                       {/* Último login */}
-                      <td style={{ padding: '0.75rem 1rem' }}>
+                      <td style={{ padding: '0.625rem 0.75rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <Pill color={daysLogin > 30 ? '#f87171' : '#4a6580'}>
                             <Calendar size={10} />{fmtDate(u.last_sign_in_at)}
@@ -514,7 +514,7 @@ export default function AdminUsuarios() {
                       </td>
 
                       {/* Ações */}
-                      <td style={{ padding: '0.75rem 1rem' }}>
+                      <td style={{ padding: '0.625rem 0.75rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           {u.role === 'professional' && u.is_active === true && (
                             <ActionBtn onClick={() => { if (window.confirm('Confirma desativar este usuário?')) updateStatusMutation.mutate({ id: u.id, status: 'inactive' }); }} variant="danger">
@@ -665,7 +665,7 @@ export default function AdminUsuarios() {
                 </div>
               )}
 
-              <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '0.625rem 0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 11, color: '#4a6580', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>ID: {profileModal.id}</span>
                 <button onClick={() => { navigator.clipboard.writeText(profileModal.id); toast.success('ID copiado!'); }} style={{ background: 'none', border: 'none', color: '#4a6580', cursor: 'pointer', padding: 4, flexShrink: 0 }}>
                   <Copy size={13} />
