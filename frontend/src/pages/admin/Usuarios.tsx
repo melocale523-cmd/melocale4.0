@@ -428,8 +428,11 @@ export default function AdminUsuarios() {
                       {/* Usuário + Score */}
                       <td style={{ padding: '0.5rem 0.625rem' }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-                          <div style={{ width: 26, height: 26, borderRadius: 8, background: inconsistent ? 'rgba(245,158,11,.15)' : av.bg, border: `1.5px solid ${inconsistent ? 'rgba(245,158,11,.3)' : av.color + '44'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: inconsistent ? '#fbbf24' : av.color, flexShrink: 0 }}>
-                            {initials}
+                          <div style={{ width: 26, height: 26, borderRadius: 8, background: inconsistent ? 'rgba(245,158,11,.15)' : av.bg, border: `1.5px solid ${inconsistent ? 'rgba(245,158,11,.3)' : av.color + '44'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: inconsistent ? '#fbbf24' : av.color, flexShrink: 0, overflow: 'hidden' }}>
+                            {u.avatar_url
+                              ? <img src={u.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} />
+                              : initials
+                            }
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
@@ -577,8 +580,11 @@ export default function AdminUsuarios() {
             <div style={{ background: '#132540', padding: '1.25rem', flexShrink: 0, paddingTop: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 14, background: ROLE_AVATAR[profileModal.role]?.bg ?? 'rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: ROLE_AVATAR[profileModal.role]?.color ?? '#94a3b8' }}>
-                    {(profileModal.full_name ?? profileModal.email ?? '?').charAt(0).toUpperCase()}
+                  <div style={{ width: 52, height: 52, borderRadius: 14, background: ROLE_AVATAR[profileModal.role]?.bg ?? 'rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: ROLE_AVATAR[profileModal.role]?.color ?? '#94a3b8', overflow: 'hidden' }}>
+                    {profileModal.avatar_url
+                      ? <img src={profileModal.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }} />
+                      : (profileModal.full_name ?? profileModal.email ?? '?').charAt(0).toUpperCase()
+                    }
                   </div>
                   <div>
                     <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 5px' }}>{profileModal.full_name ?? 'Sem nome'}</p>
