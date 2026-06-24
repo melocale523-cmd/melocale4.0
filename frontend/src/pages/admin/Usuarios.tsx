@@ -73,8 +73,7 @@ function ActionBtn({ onClick, children, variant = 'default' }: { onClick: () => 
 export default function AdminUsuarios() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterRole, setFilterRole] = useState<RoleFilter>('all');
-  const [filterType, setFilterType] = useState<'all' | 'pendencias' | 'churn'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'client' | 'professional' | 'admin' | 'pendencias' | 'churn'>('all');
   const [profileModal, setProfileModal] = useState<EnrichedUser | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -187,7 +186,6 @@ export default function AdminUsuarios() {
   };
 
   const filtered = usuarios.filter(u => {
-    const matchRole = filterRole === 'all' || u.role === filterRole;
     const q = searchQuery.toLowerCase();
     const matchSearch = !q ||
       (u.full_name ?? '').toLowerCase().includes(q) ||
@@ -195,10 +193,13 @@ export default function AdminUsuarios() {
       (u.city ?? '').toLowerCase().includes(q) ||
       (u.category ?? '').toLowerCase().includes(q) ||
       (u.phone ?? '').includes(q);
-    let matchType = true;
-    if (filterType === 'pendencias') matchType = !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u);
-    else if (filterType === 'churn') matchType = isChurnRisk(u);
-    return matchRole && matchSearch && matchType;
+    let matchFilter = true;
+    if (activeFilter === 'client') matchFilter = u.role === 'client';
+    else if (activeFilter === 'professional') matchFilter = u.role === 'professional';
+    else if (activeFilter === 'admin') matchFilter = u.role === 'admin';
+    else if (activeFilter === 'pendencias') matchFilter = !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u);
+    else if (activeFilter === 'churn') matchFilter = isChurnRisk(u);
+    return matchSearch && matchFilter;
   });
 
   const sortedFiltered = [...filtered].sort((a, b) => {
@@ -239,7 +240,6 @@ export default function AdminUsuarios() {
   };
 
   const counts = {
-    all: usuarios.length,
     client: usuarios.filter(u => u.role === 'client').length,
     professional: usuarios.filter(u => u.role === 'professional').length,
     admin: usuarios.filter(u => u.role === 'admin').length,
@@ -311,25 +311,25 @@ export default function AdminUsuarios() {
       {/* Filtros + busca */}
       <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 6 }}>
-          {(['all', 'client', 'professional', 'admin'] as RoleFilter[]).map(r => (
+          {(['all', 'client', 'professional', 'admin'] as const).map(r => (
             <button
               key={r}
-              onClick={() => setFilterRole(r)}
-              style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterRole === r ? '1px solid rgba(16,185,129,.4)' : '1px solid rgba(255,255,255,.06)', background: filterRole === r ? 'rgba(16,185,129,.1)' : '#132540', color: filterRole === r ? '#34d399' : '#94a3b8', transition: 'all .15s' }}
+              onClick={() => setActiveFilter(r)}
+              style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: activeFilter === r ? '1px solid rgba(16,185,129,.4)' : '1px solid rgba(255,255,255,.06)', background: activeFilter === r ? 'rgba(16,185,129,.1)' : '#132540', color: activeFilter === r ? '#34d399' : '#94a3b8', transition: 'all .15s' }}
             >
-              {ROLE_LABELS[r]} <span style={{ opacity: .6 }}>({counts[r]})</span>
+              {ROLE_LABELS[r]} <span style={{ opacity: .6 }}>({r === 'all' ? usuarios.length : counts[r]})</span>
             </button>
           ))}
         </div>
         <button
-          onClick={() => setFilterType(t => t === 'pendencias' ? 'all' : 'pendencias')}
-          style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterType === 'pendencias' ? '1px solid rgba(248,113,113,.4)' : '1px solid rgba(255,255,255,.06)', background: filterType === 'pendencias' ? 'rgba(248,113,113,.1)' : '#132540', color: filterType === 'pendencias' ? '#f87171' : '#94a3b8' }}
+          onClick={() => setActiveFilter(f => f === 'pendencias' ? 'all' : 'pendencias')}
+          style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: activeFilter === 'pendencias' ? '1px solid rgba(248,113,113,.4)' : '1px solid rgba(255,255,255,.06)', background: activeFilter === 'pendencias' ? 'rgba(248,113,113,.1)' : '#132540', color: activeFilter === 'pendencias' ? '#f87171' : '#94a3b8' }}
         >
           ⚠ Pendências ({pendenciasCount})
         </button>
         <button
-          onClick={() => setFilterType(t => t === 'churn' ? 'all' : 'churn')}
-          style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterType === 'churn' ? '1px solid rgba(248,113,113,.4)' : '1px solid rgba(255,255,255,.06)', background: filterType === 'churn' ? 'rgba(248,113,113,.1)' : '#132540', color: filterType === 'churn' ? '#f87171' : '#94a3b8' }}
+          onClick={() => setActiveFilter(f => f === 'churn' ? 'all' : 'churn')}
+          style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: activeFilter === 'churn' ? '1px solid rgba(248,113,113,.4)' : '1px solid rgba(255,255,255,.06)', background: activeFilter === 'churn' ? 'rgba(248,113,113,.1)' : '#132540', color: activeFilter === 'churn' ? '#f87171' : '#94a3b8' }}
         >
           🔴 Risco churn ({churnRiskCount})
         </button>
