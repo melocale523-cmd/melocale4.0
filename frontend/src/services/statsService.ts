@@ -61,6 +61,7 @@ export interface EnrichedUser {
   leads_purchased: number;
   total_reviews: number;
   avg_rating: number;
+  origin: 'meta_ads' | 'organic' | 'referral' | null;
 }
 
 export const adminService = {
@@ -234,6 +235,7 @@ export const adminService = {
           leads_purchased: pro ? (purchasesCount[pro.id] ?? 0) : 0,
           total_reviews: 0,
           avg_rating: 0,
+          origin: null,
         };
       });
     } catch {

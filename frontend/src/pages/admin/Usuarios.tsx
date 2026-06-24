@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, MoreVertical, CheckCircle, XCircle, Loader2, Copy, X, Phone, MapPin, Calendar, Coins, Shield, User, ShoppingBag, AlertTriangle, MessageSquare, RefreshCw, Receipt, Star } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Loader2, Copy, X, Phone, MapPin, Calendar, Coins, Shield, User, ShoppingBag, AlertTriangle, MessageSquare, RefreshCw, Receipt, ChevronUp, ChevronDown, ChevronsUpDown, Clock } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService, type EnrichedUser } from '../../services/statsService';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 
 type RoleFilter = 'all' | 'client' | 'professional' | 'admin';
 
@@ -55,9 +56,9 @@ function Pill({ children, color = '#4a6580' }: { children: React.ReactNode; colo
 
 function ActionBtn({ onClick, children, variant = 'default' }: { onClick: () => void; children: React.ReactNode; variant?: 'default' | 'danger' | 'success' }) {
   const colors = {
-    default: { border: 'rgba(255,255,255,.08)', color: '#7a9ebf', hover: '#fff' },
-    danger:  { border: 'rgba(239,68,68,.2)',    color: '#f87171', hover: '#fca5a5' },
-    success: { border: 'rgba(16,185,129,.2)',   color: '#34d399', hover: '#6ee7b7' },
+    default: { border: 'rgba(255,255,255,.08)', color: '#7a9ebf' },
+    danger:  { border: 'rgba(239,68,68,.2)',    color: '#f87171' },
+    success: { border: 'rgba(16,185,129,.2)',   color: '#34d399' },
   }[variant];
   return (
     <button
@@ -71,11 +72,16 @@ function ActionBtn({ onClick, children, variant = 'default' }: { onClick: () => 
 
 export default function AdminUsuarios() {
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState<RoleFilter>('all');
-  const [selected, setSelected] = useState<EnrichedUser | null>(null);
+  const [filterType, setFilterType] = useState<'all' | 'pendencias' | 'churn'>('all');
+  const [profileModal, setProfileModal] = useState<EnrichedUser | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [sortField, setSortField] = useState<string>('created_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [editingUser, setEditingUser] = useState<{ id: string; field: 'name' | 'category'; value: string } | null>(null);
 
   const { data: usuarios = [], isLoading, refetch } = useQuery({
     queryKey: ['adminUsersEnriched'],
@@ -121,17 +127,115 @@ export default function AdminUsuarios() {
     onError: () => toast.error('Erro ao corrigir role'),
   });
 
+  const saveEditMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: 'name' | 'category'; value: string }) => {
+      const { error } = await supabase.from('profiles').update(
+        field === 'name' ? { full_name: value } : { category: value }
+      ).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Salvo com sucesso!');
+      setEditingUser(null);
+      queryClient.invalidateQueries({ queryKey: ['adminUsersEnriched'] });
+    },
+    onError: () => toast.error('Erro ao salvar'),
+  });
+
+  const hasInconsistency = (u: EnrichedUser) => u.role !== 'professional' && !!u.professional_id && !!u.category;
+
+  const getProfileScore = (u: EnrichedUser): number => {
+    let score = 0;
+    if (u.full_name?.trim()) score += 20;
+    if (u.phone) score += 20;
+    if (u.city) score += 20;
+    if (u.role === 'professional') {
+      if (u.category) score += 20;
+      if (u.package_id) score += 20;
+    } else {
+      score += 40;
+    }
+    return score;
+  };
+
+  const getScoreColor = (score: number) => score >= 80 ? '#34d399' : score >= 50 ? '#fbbf24' : '#f87171';
+
+  const isChurnRisk = (u: EnrichedUser): boolean => {
+    if (u.role !== 'professional') return false;
+    const coins = u.balance_coins ?? 0;
+    const lastLogin = u.last_sign_in_at ? new Date(u.last_sign_in_at) : null;
+    const daysSinceLogin = lastLogin ? (Date.now() - lastLogin.getTime()) / 86400000 : 999;
+    return coins === 0 && daysSinceLogin > 7;
+  };
+
+  const daysSince = (date: string | null): number => {
+    if (!date) return 999;
+    return Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
+  };
+
+  const highlight = (text: string, query: string): React.ReactNode => {
+    if (!query) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return <>{text.slice(0, idx)}<mark style={{ background: 'rgba(251,191,36,.3)', borderRadius: 2, padding: '0 1px' }}>{text.slice(idx, idx + query.length)}</mark>{text.slice(idx + query.length)}</>;
+  };
+
+  const handleSort = (field: string) => {
+    if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortField(field); setSortDir('asc'); }
+  };
+
   const filtered = usuarios.filter(u => {
     const matchRole = filterRole === 'all' || u.role === filterRole;
-    const q = search.toLowerCase();
+    const q = searchQuery.toLowerCase();
     const matchSearch = !q ||
       (u.full_name ?? '').toLowerCase().includes(q) ||
       (u.email ?? '').toLowerCase().includes(q) ||
       (u.city ?? '').toLowerCase().includes(q) ||
       (u.category ?? '').toLowerCase().includes(q) ||
       (u.phone ?? '').includes(q);
-    return matchRole && matchSearch;
+    let matchType = true;
+    if (filterType === 'pendencias') matchType = !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u);
+    else if (filterType === 'churn') matchType = isChurnRisk(u);
+    return matchRole && matchSearch && matchType;
   });
+
+  const sortedFiltered = [...filtered].sort((a, b) => {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    if (sortField === 'full_name') return dir * (a.full_name ?? '').localeCompare(b.full_name ?? '');
+    if (sortField === 'balance_coins') return dir * ((a.balance_coins ?? 0) - (b.balance_coins ?? 0));
+    if (sortField === 'last_sign_in_at') return dir * (new Date(a.last_sign_in_at ?? 0).getTime() - new Date(b.last_sign_in_at ?? 0).getTime());
+    if (sortField === 'created_at') return dir * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    if (sortField === 'score') return dir * (getProfileScore(a) - getProfileScore(b));
+    return 0;
+  });
+
+  const toggleSelect = (id: string) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const toggleSelectAll = () => {
+    if (selected.size === sortedFiltered.length) setSelected(new Set());
+    else setSelected(new Set(sortedFiltered.map(u => u.id)));
+  };
+
+  const selectedUsers = sortedFiltered.filter(u => selected.has(u.id));
+
+  const exportCSV = (users: EnrichedUser[]) => {
+    const headers = ['Nome', 'Email', 'Role', 'Telefone', 'Cidade', 'Categoria', 'Plano', 'Moedas', 'Cadastro', 'Último login'];
+    const rows = users.map(u => [
+      u.full_name ?? '', u.email ?? '', u.role, u.phone ?? '',
+      u.city ?? '', u.category ?? '', u.package_id ?? '',
+      String(u.balance_coins ?? 0), u.created_at, u.last_sign_in_at ?? '',
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'usuarios.csv'; a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const counts = {
     all: usuarios.length,
@@ -140,10 +244,24 @@ export default function AdminUsuarios() {
     admin: usuarios.filter(u => u.role === 'admin').length,
   };
 
-  const totalSpent = usuarios.reduce((a, u) => a + u.total_spent, 0);
-  const emailsOk = usuarios.length;
+  const semPlano = usuarios.filter(u => u.role === 'professional' && !u.package_id).length;
+  const pendenciasCount = usuarios.filter(u => !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u)).length;
+  const churnRiskCount = usuarios.filter(isChurnRisk).length;
 
-  const hasInconsistency = (u: EnrichedUser) => u.role !== 'professional' && !!u.professional_id && !!u.category;
+  const SortHeader = ({ field, label }: { field: string; label: string }) => (
+    <th
+      onClick={() => handleSort(field)}
+      style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: sortField === field ? '#34d399' : '#4a6580', textAlign: 'left', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+    >
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+        {label}
+        {sortField === field
+          ? sortDir === 'asc' ? <ChevronUp size={10} /> : <ChevronDown size={10} />
+          : <ChevronsUpDown size={10} style={{ opacity: 0.3 }} />
+        }
+      </span>
+    </th>
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1400, margin: '0 auto' }}>
@@ -155,19 +273,24 @@ export default function AdminUsuarios() {
           <p style={{ fontSize: 12, color: '#4a6580', margin: 0 }}>Espelho direto do banco · {usuarios.length} usuários cadastrados</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={() => exportCSV(sortedFiltered)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, color: '#4a6580', fontSize: 12, cursor: 'pointer' }}>
+            Exportar CSV
+          </button>
           <button onClick={() => refetch()} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, color: '#4a6580', fontSize: 12, cursor: 'pointer' }}>
             <RefreshCw size={12} /> Atualizar
           </button>
         </div>
       </div>
 
-      {/* KPI cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.625rem' }}>
+      {/* KPI cards — 6 cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: '0.625rem' }}>
         {[
-          { label: 'Total usuários', value: String(usuarios.length), color: 'white' },
-          { label: 'Profissionais ativos', value: String(counts.professional), color: '#34d399' },
-          { label: 'Gasto total plataforma', value: `R$${Math.round(totalSpent).toLocaleString('pt-BR')}`, color: '#fbbf24' },
-          { label: 'Emails confirmados', value: `${emailsOk}/${usuarios.length}`, color: '#60a5fa' },
+          { label: 'Total usuários',     value: String(usuarios.length),    color: 'white' },
+          { label: 'Profissionais',      value: String(counts.professional), color: '#34d399' },
+          { label: 'Clientes',           value: String(counts.client),       color: '#60a5fa' },
+          { label: 'Sem plano',          value: String(semPlano),            color: semPlano > 0 ? '#fbbf24' : '#4a6580' },
+          { label: 'Pendências',         value: String(pendenciasCount),     color: pendenciasCount > 0 ? '#f87171' : '#4a6580' },
+          { label: 'Risco churn',        value: String(churnRiskCount),      color: churnRiskCount > 0 ? '#f87171' : '#4a6580' },
         ].map(k => (
           <div key={k.label} style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1rem' }}>
             <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#4a6580', margin: '0 0 6px' }}>{k.label}</p>
@@ -177,7 +300,7 @@ export default function AdminUsuarios() {
       </div>
 
       {/* Filtros + busca */}
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 6 }}>
           {(['all', 'client', 'professional', 'admin'] as RoleFilter[]).map(r => (
             <button
@@ -189,16 +312,62 @@ export default function AdminUsuarios() {
             </button>
           ))}
         </div>
+        <button
+          onClick={() => setFilterType(t => t === 'pendencias' ? 'all' : 'pendencias')}
+          style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterType === 'pendencias' ? '1px solid rgba(248,113,113,.4)' : '1px solid rgba(255,255,255,.06)', background: filterType === 'pendencias' ? 'rgba(248,113,113,.1)' : '#132540', color: filterType === 'pendencias' ? '#f87171' : '#94a3b8' }}
+        >
+          ⚠ Pendências ({pendenciasCount})
+        </button>
+        <button
+          onClick={() => setFilterType(t => t === 'churn' ? 'all' : 'churn')}
+          style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterType === 'churn' ? '1px solid rgba(248,113,113,.4)' : '1px solid rgba(255,255,255,.06)', background: filterType === 'churn' ? 'rgba(248,113,113,.1)' : '#132540', color: filterType === 'churn' ? '#f87171' : '#94a3b8' }}
+        >
+          🔴 Risco churn ({churnRiskCount})
+        </button>
         <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
           <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#4a6580' }} />
           <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
             placeholder="Buscar por nome, email, cidade, categoria, telefone..."
             style={{ width: '100%', background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '0.625rem 0.875rem 0.625rem 2.25rem', fontSize: 13, color: 'white', outline: 'none', boxSizing: 'border-box' }}
           />
         </div>
       </div>
+
+      {/* Barra de ações em massa */}
+      {selected.size > 0 && (
+        <div style={{ background: 'rgba(16,185,129,.08)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 10, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12, color: '#34d399' }}>{selected.size} selecionados</span>
+          <div style={{ flex: 1 }} />
+          <ActionBtn onClick={() => { selectedUsers.forEach(u => { if (u.phone) window.open(`https://wa.me/55${u.phone!.replace(/\D/g, '')}`, '_blank'); }); }}>
+            WhatsApp em massa
+          </ActionBtn>
+          <ActionBtn onClick={() => exportCSV(selectedUsers)}>
+            Exportar seleção
+          </ActionBtn>
+          <ActionBtn onClick={() => setSelected(new Set())}>
+            Limpar seleção
+          </ActionBtn>
+        </div>
+      )}
+
+      {/* Edição inline */}
+      {editingUser && (
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.08)', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>
+            {editingUser.field === 'name' ? 'Definir nome' : 'Definir categoria'}
+          </span>
+          <input
+            value={editingUser.value}
+            onChange={e => setEditingUser(prev => prev ? { ...prev, value: e.target.value } : null)}
+            style={{ flex: 1, background: '#0E1C32', border: '1px solid rgba(255,255,255,.1)', borderRadius: 8, padding: '6px 10px', color: 'white', fontSize: 12 }}
+            autoFocus
+          />
+          <ActionBtn onClick={() => saveEditMutation.mutate(editingUser)} variant="success">Salvar</ActionBtn>
+          <ActionBtn onClick={() => setEditingUser(null)}>Cancelar</ActionBtn>
+        </div>
+      )}
 
       {/* Tabela */}
       <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, overflow: 'hidden' }}>
@@ -207,168 +376,228 @@ export default function AdminUsuarios() {
             <Loader2 size={28} className="animate-spin" style={{ color: '#10b981' }} />
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
-                {['Usuário', 'Contato', 'Tipo', 'Plano / Atividade', 'Datas & Status', 'Ações'].map(h => (
-                  <th key={h} style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(u => {
-                const av = ROLE_AVATAR[u.role] ?? { bg: 'rgba(255,255,255,.06)', color: '#94a3b8' };
-                const rb = ROLE_BADGE[u.role] ?? { bg: 'rgba(255,255,255,.06)', color: '#94a3b8', border: 'rgba(255,255,255,.1)', label: u.role };
-                const plan = u.package_id ? PLAN_META[u.package_id] : null;
-                const subSt = u.sub_status ? SUB_ST[u.sub_status] : null;
-                const initials = (u.full_name ?? u.email ?? '?').charAt(0).toUpperCase();
-                const inconsistent = hasInconsistency(u);
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 960 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+                  <th style={{ padding: '0.75rem 0.75rem 0.75rem 1rem', width: 36 }}>
+                    <input
+                      type="checkbox"
+                      checked={sortedFiltered.length > 0 && selected.size === sortedFiltered.length}
+                      onChange={toggleSelectAll}
+                      style={{ cursor: 'pointer', accentColor: '#10b981' }}
+                    />
+                  </th>
+                  <SortHeader field="full_name" label="Usuário" />
+                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Contato</th>
+                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Tipo</th>
+                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Plano / Atividade</th>
+                  <SortHeader field="created_at" label="Cadastro" />
+                  <SortHeader field="last_sign_in_at" label="Último login" />
+                  <th style={{ padding: '0.75rem 1rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedFiltered.map(u => {
+                  const av = ROLE_AVATAR[u.role] ?? { bg: 'rgba(255,255,255,.06)', color: '#94a3b8' };
+                  const rb = ROLE_BADGE[u.role] ?? { bg: 'rgba(255,255,255,.06)', color: '#94a3b8', border: 'rgba(255,255,255,.1)', label: u.role };
+                  const plan = u.package_id ? PLAN_META[u.package_id] : null;
+                  const subSt = u.sub_status ? SUB_ST[u.sub_status] : null;
+                  const initials = (u.full_name ?? u.email ?? '?').charAt(0).toUpperCase();
+                  const inconsistent = hasInconsistency(u);
+                  const score = getProfileScore(u);
+                  const churnUser = isChurnRisk(u);
+                  const daysLogin = daysSince(u.last_sign_in_at);
 
-                return (
-                  <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
-                    {/* Usuário */}
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 38, height: 38, borderRadius: 10, background: inconsistent ? 'rgba(245,158,11,.15)' : av.bg, border: `1.5px solid ${inconsistent ? 'rgba(245,158,11,.3)' : av.color + '44'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: inconsistent ? '#fbbf24' : av.color, flexShrink: 0 }}>{initials}</div>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <p style={{ fontSize: 13, fontWeight: 600, color: 'white', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name ?? 'Sem nome'}</p>
-                            {inconsistent && <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 5px', borderRadius: 4, background: 'rgba(245,158,11,.12)', color: '#fbbf24', border: '1px solid rgba(245,158,11,.2)', flexShrink: 0 }}>⚠ inconsistente</span>}
+                  return (
+                    <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,.04)', background: selected.has(u.id) ? 'rgba(16,185,129,.04)' : undefined }}>
+                      {/* Checkbox */}
+                      <td style={{ padding: '0.75rem 0.75rem 0.75rem 1rem' }}>
+                        <input type="checkbox" checked={selected.has(u.id)} onChange={() => toggleSelect(u.id)} style={{ cursor: 'pointer', accentColor: '#10b981' }} />
+                      </td>
+
+                      {/* Usuário + Score */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                          <div style={{ width: 34, height: 34, borderRadius: 10, background: inconsistent ? 'rgba(245,158,11,.15)' : av.bg, border: `1.5px solid ${inconsistent ? 'rgba(245,158,11,.3)' : av.color + '44'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: inconsistent ? '#fbbf24' : av.color, flexShrink: 0 }}>
+                            {initials}
                           </div>
-                          {u.city && <Pill><MapPin size={10} />{u.city}</Pill>}
-                        </div>
-                      </div>
-                    </td>
-                    {/* Contato */}
-                    <td style={{ padding: '1rem' }}>
-                      <p style={{ fontSize: 12, color: '#94a3b8', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>{u.email ?? '—'}</p>
-                      {u.phone && <Pill><Phone size={10} />{u.phone}</Pill>}
-                    </td>
-                    {/* Tipo */}
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, display: 'inline-block' }}>{rb.label}</span>
-                        {u.category && <Pill color="#4a6580">{u.category}</Pill>}
-                      </div>
-                    </td>
-                    {/* Plano / Atividade */}
-                    <td style={{ padding: '1rem' }}>
-                      {u.role === 'professional' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: plan?.color ?? '#4a6580' }}>{plan?.label ?? 'Sem plano'}</span>
-                            {subSt && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, color: subSt.color, border: `1px solid ${subSt.color}44`, background: subSt.color + '12' }}>{subSt.label}</span>}
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: u.full_name ? 'white' : '#4a6580', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {highlight(u.full_name || 'sem nome', searchQuery)}
+                              </p>
+                              {inconsistent && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(245,158,11,.12)', color: '#fbbf24', border: '1px solid rgba(245,158,11,.2)', flexShrink: 0 }}>⚠</span>}
+                              {churnUser && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(239,68,68,.12)', color: '#f87171', border: '1px solid rgba(239,68,68,.2)', flexShrink: 0 }}>churn</span>}
+                            </div>
+                            {u.city && <Pill><MapPin size={9} />{u.city}</Pill>}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                              <span style={{ fontSize: 10, color: getScoreColor(score), flexShrink: 0 }}>{score}%</span>
+                              <div style={{ flex: 1, height: 3, background: 'rgba(255,255,255,.08)', borderRadius: 2, minWidth: 40 }}>
+                                <div style={{ width: `${score}%`, height: '100%', background: getScoreColor(score), borderRadius: 2 }} />
+                              </div>
+                            </div>
                           </div>
-                          {u.sub_started_at && <Pill><Calendar size={10} />Desde {fmtDate(u.sub_started_at)}</Pill>}
-                          {u.balance_coins !== null && <Pill color="#fbbf24"><Coins size={10} />{u.balance_coins} moedas</Pill>}
-                          {u.total_payments > 0 && <Pill color="#34d399"><Receipt size={10} />{u.total_payments} pagamentos · R${fmtBRL(u.total_spent)}</Pill>}
                         </div>
-                      ) : u.role === 'client' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                          <Pill><ShoppingBag size={10} />{u.total_leads} pedidos criados</Pill>
-                          {u.total_appointments > 0 && <Pill><Calendar size={10} />{u.total_appointments} agendamentos</Pill>}
-                          {u.total_spent > 0 && <Pill color="#34d399"><Receipt size={10} />R${fmtBRL(u.total_spent)} gastos</Pill>}
-                        </div>
-                      ) : (
-                        <Pill><Shield size={10} />Acesso total</Pill>
-                      )}
-                    </td>
-                    {/* Datas & Status */}
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        <Pill><User size={10} />Cadastro: {fmtDate(u.created_at)}</Pill>
-                        {u.last_sign_in_at && <Pill>Login: {fmtDate(u.last_sign_in_at)}</Pill>}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: u.is_active === false ? '#ef4444' : '#10b981', display: 'inline-block' }} />
-                          <span style={{ fontSize: 11, fontWeight: 600, color: u.is_active === false ? '#f87171' : '#34d399' }}>
-                            {u.is_active === false ? 'Inativo' : 'Ativo'}
+                      </td>
+
+                      {/* Contato */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <p style={{ fontSize: 12, color: '#94a3b8', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                          {highlight(u.email ?? '—', searchQuery)}
+                        </p>
+                        {u.phone && <Pill><Phone size={10} />{u.phone}</Pill>}
+                      </td>
+
+                      {/* Tipo + Origem */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, display: 'inline-block' }}>{rb.label}</span>
+                          {u.category && <Pill color="#4a6580">{highlight(u.category, searchQuery)}</Pill>}
+                          <span style={{ fontSize: 10, color: '#60a5fa' }}>
+                            {u.origin === 'meta_ads' ? '📣 Meta Ads' : u.origin === 'referral' ? '👥 Indicação' : '🌐 Orgânico'}
                           </span>
                         </div>
-                      </div>
-                    </td>
-                    {/* Ações */}
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                        {u.role === 'professional' && u.is_active === true && (
-                          <ActionBtn onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'inactive' })} variant="danger">
-                            <XCircle size={11} /> Desativar
-                          </ActionBtn>
+                      </td>
+
+                      {/* Plano / Atividade */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        {u.role === 'professional' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: plan?.color ?? '#4a6580' }}>{plan?.label ?? 'Sem plano'}</span>
+                              {subSt && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, color: subSt.color, border: `1px solid ${subSt.color}44`, background: subSt.color + '12' }}>{subSt.label}</span>}
+                            </div>
+                            {u.sub_started_at && <Pill><Calendar size={10} />Desde {fmtDate(u.sub_started_at)}</Pill>}
+                            {u.balance_coins !== null && <Pill color="#fbbf24"><Coins size={10} />{u.balance_coins} moedas</Pill>}
+                            {u.total_payments > 0 && <Pill color="#34d399"><Receipt size={10} />{u.total_payments} pag. · R${fmtBRL(u.total_spent)}</Pill>}
+                          </div>
+                        ) : u.role === 'client' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            <Pill><ShoppingBag size={10} />{u.total_leads} pedidos</Pill>
+                            {u.total_appointments > 0 && <Pill><Calendar size={10} />{u.total_appointments} agendamentos</Pill>}
+                            {u.total_spent > 0 && <Pill color="#34d399"><Receipt size={10} />R${fmtBRL(u.total_spent)}</Pill>}
+                          </div>
+                        ) : (
+                          <Pill><Shield size={10} />Acesso total</Pill>
                         )}
-                        {u.role === 'professional' && u.is_active === false && (
-                          <ActionBtn onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'active' })} variant="success">
-                            <CheckCircle size={11} /> Ativar
+                      </td>
+
+                      {/* Cadastro */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <Pill><Calendar size={10} />{fmtDate(u.created_at)}</Pill>
+                          <Pill><Clock size={10} />{new Date(u.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</Pill>
+                        </div>
+                      </td>
+
+                      {/* Último login */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <Pill color={daysLogin > 30 ? '#f87171' : '#4a6580'}>
+                            <Calendar size={10} />{fmtDate(u.last_sign_in_at)}
+                            {daysLogin > 30 && <span style={{ fontSize: 9, background: 'rgba(239,68,68,.1)', color: '#f87171', padding: '1px 3px', borderRadius: 3, marginLeft: 2 }}>{daysLogin}d</span>}
+                          </Pill>
+                          {u.last_sign_in_at && (
+                            <Pill><Clock size={10} />{new Date(u.last_sign_in_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</Pill>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Ações */}
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {u.role === 'professional' && u.is_active === true && (
+                            <ActionBtn onClick={() => { if (window.confirm('Confirma desativar este usuário?')) updateStatusMutation.mutate({ id: u.id, status: 'inactive' }); }} variant="danger">
+                              <XCircle size={11} /> Desativar
+                            </ActionBtn>
+                          )}
+                          {u.role === 'professional' && u.is_active === false && (
+                            <ActionBtn onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'active' })} variant="success">
+                              <CheckCircle size={11} /> Ativar
+                            </ActionBtn>
+                          )}
+                          <ActionBtn onClick={() => setProfileModal(u)}>
+                            <User size={11} /> Ver perfil
                           </ActionBtn>
-                        )}
-                        <ActionBtn onClick={() => setSelected(u)}>
-                          <User size={11} /> Ver perfil
-                        </ActionBtn>
-                        <ActionBtn onClick={() => { navigator.clipboard.writeText(u.phone ?? ''); toast.success('Telefone copiado!'); }}>
-                          <MessageSquare size={11} /> Contatar
-                        </ActionBtn>
-                        {inconsistent && (
-                          <ActionBtn onClick={() => fixRoleMutation.mutate(u.id)} variant="danger">
-                            <AlertTriangle size={11} /> Corrigir role
+                          {u.phone && (
+                            <ActionBtn onClick={() => window.open(`https://wa.me/55${u.phone!.replace(/\D/g, '')}`, '_blank')}>
+                              <MessageSquare size={11} /> WhatsApp
+                            </ActionBtn>
+                          )}
+                          {!u.full_name?.trim() && (
+                            <ActionBtn onClick={() => setEditingUser({ id: u.id, field: 'name', value: '' })}>
+                              <User size={11} /> Definir nome
+                            </ActionBtn>
+                          )}
+                          {u.role === 'professional' && !u.category && (
+                            <ActionBtn onClick={() => setEditingUser({ id: u.id, field: 'category', value: '' })}>
+                              Definir categoria
+                            </ActionBtn>
+                          )}
+                          {inconsistent && (
+                            <ActionBtn onClick={() => { if (window.confirm('Confirma corrigir role para professional?')) fixRoleMutation.mutate(u.id); }} variant="danger">
+                              <AlertTriangle size={11} /> Corrigir role
+                            </ActionBtn>
+                          )}
+                          <ActionBtn onClick={() => { navigator.clipboard.writeText(u.id); toast.success('ID copiado!'); }}>
+                            <Copy size={11} /> Copiar ID
                           </ActionBtn>
-                        )}
-                        <ActionBtn onClick={() => { navigator.clipboard.writeText(u.id); toast.success('ID copiado!'); }}>
-                          <Copy size={11} /> Copiar ID
-                        </ActionBtn>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-              {filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ padding: '3rem', textAlign: 'center', color: '#4a6580', fontSize: 13 }}>Nenhum usuário encontrado.</td></tr>
-              )}
-            </tbody>
-          </table>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {sortedFiltered.length === 0 && (
+                  <tr><td colSpan={8} style={{ padding: '3rem', textAlign: 'center', color: '#4a6580', fontSize: 13 }}>Nenhum usuário encontrado.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
-      {/* Modal premium */}
-      {selected && (
+      {/* Modal perfil */}
+      {profileModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(6px)' }} onClick={() => setSelected(null)} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(6px)' }} onClick={() => setProfileModal(null)} />
           <div style={{ position: 'relative', width: '100%', maxWidth: 480, background: '#0E1C32', border: '1px solid rgba(255,255,255,.09)', borderRadius: 20, overflow: 'hidden', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}>
 
-            {/* Stripe colorida topo */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: selected.role === 'professional' ? 'linear-gradient(90deg,#10b981,#059669)' : selected.role === 'admin' ? 'linear-gradient(90deg,#8b5cf6,#6d28d9)' : 'linear-gradient(90deg,#3b82f6,#1d4ed8)' }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: profileModal.role === 'professional' ? 'linear-gradient(90deg,#10b981,#059669)' : profileModal.role === 'admin' ? 'linear-gradient(90deg,#8b5cf6,#6d28d9)' : 'linear-gradient(90deg,#3b82f6,#1d4ed8)' }} />
 
-            {/* Header modal */}
             <div style={{ background: '#132540', padding: '1.25rem', flexShrink: 0, paddingTop: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 14, background: ROLE_AVATAR[selected.role]?.bg ?? 'rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: ROLE_AVATAR[selected.role]?.color ?? '#94a3b8' }}>
-                    {(selected.full_name ?? selected.email ?? '?').charAt(0).toUpperCase()}
+                  <div style={{ width: 52, height: 52, borderRadius: 14, background: ROLE_AVATAR[profileModal.role]?.bg ?? 'rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: ROLE_AVATAR[profileModal.role]?.color ?? '#94a3b8' }}>
+                    {(profileModal.full_name ?? profileModal.email ?? '?').charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 5px' }}>{selected.full_name ?? 'Sem nome'}</p>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 5px' }}>{profileModal.full_name ?? 'Sem nome'}</p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: ROLE_BADGE[selected.role]?.bg, color: ROLE_BADGE[selected.role]?.color, border: `1px solid ${ROLE_BADGE[selected.role]?.border}` }}>
-                        {ROLE_BADGE[selected.role]?.label ?? selected.role}
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: ROLE_BADGE[profileModal.role]?.bg, color: ROLE_BADGE[profileModal.role]?.color, border: `1px solid ${ROLE_BADGE[profileModal.role]?.border}` }}>
+                        {ROLE_BADGE[profileModal.role]?.label ?? profileModal.role}
                       </span>
-                      {hasInconsistency(selected) && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(245,158,11,.12)', color: '#fbbf24', border: '1px solid rgba(245,158,11,.25)' }}>⚠ inconsistente</span>}
+                      {hasInconsistency(profileModal) && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(245,158,11,.12)', color: '#fbbf24', border: '1px solid rgba(245,158,11,.25)' }}>⚠ inconsistente</span>
+                      )}
                     </div>
                   </div>
                 </div>
-                <button onClick={() => setSelected(null)} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(0,0,0,.3)', border: 'none', color: '#4a6580', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={() => setProfileModal(null)} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(0,0,0,.3)', border: 'none', color: '#4a6580', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <X size={14} />
                 </button>
               </div>
             </div>
 
             <div style={{ overflowY: 'auto', flex: 1, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
-              {/* Dados básicos */}
               <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '1rem' }}>
                 <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#4a6580', margin: '0 0 0.75rem' }}>Dados básicos</p>
                 {[
-                  { icon: <User size={12} />, label: 'Email', value: selected.email ?? '—' },
-                  { icon: <Phone size={12} />, label: 'Telefone', value: selected.phone ?? '—' },
-                  { icon: <MapPin size={12} />, label: 'Cidade', value: selected.city ?? '—' },
-                  { icon: <Calendar size={12} />, label: 'Cadastro', value: fmtDate(selected.created_at) },
-                  { icon: <Calendar size={12} />, label: 'Último login', value: fmtDate(selected.last_sign_in_at) },
+                  { icon: <User size={12} />, label: 'Email', value: profileModal.email ?? '—' },
+                  { icon: <Phone size={12} />, label: 'Telefone', value: profileModal.phone ?? '—' },
+                  { icon: <MapPin size={12} />, label: 'Cidade', value: profileModal.city ?? '—' },
+                  { icon: <Calendar size={12} />, label: 'Cadastro', value: fmtDate(profileModal.created_at) },
+                  { icon: <Calendar size={12} />, label: 'Último login', value: fmtDate(profileModal.last_sign_in_at) },
                 ].map(row => (
                   <div key={row.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,.04)' }}>
                     <span style={{ fontSize: 12, color: '#4a6580', display: 'flex', alignItems: 'center', gap: 5 }}>{row.icon}{row.label}</span>
@@ -377,18 +606,17 @@ export default function AdminUsuarios() {
                 ))}
               </div>
 
-              {/* Profissional */}
-              {selected.role === 'professional' && (
+              {profileModal.role === 'professional' && (
                 <div style={{ background: 'rgba(16,185,129,.05)', border: '1px solid rgba(16,185,129,.15)', borderRadius: 10, padding: '1rem' }}>
                   <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#10b981', margin: '0 0 0.75rem' }}>Dados profissionais</p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.75rem' }}>
                     {[
-                      { label: 'Categoria', value: selected.category ?? '—', color: 'white' },
-                      { label: 'Status', value: selected.is_active ? 'Ativo' : 'Inativo', color: selected.is_active ? '#34d399' : '#f87171' },
-                      { label: 'Plano', value: selected.package_id ? (PLAN_META[selected.package_id]?.label ?? selected.package_id) : 'Sem plano', color: selected.package_id ? (PLAN_META[selected.package_id]?.color ?? 'white') : '#4a6580' },
-                      { label: 'Assinatura', value: selected.sub_status ? (SUB_ST[selected.sub_status]?.label ?? selected.sub_status) : '—', color: selected.sub_status ? (SUB_ST[selected.sub_status]?.color ?? '#94a3b8') : '#4a6580' },
-                      { label: 'Moedas', value: String(selected.balance_coins ?? 0), color: '#fbbf24' },
-                      { label: 'Pagamentos', value: String(selected.total_payments), color: 'white' },
+                      { label: 'Categoria',   value: profileModal.category ?? '—',  color: 'white' },
+                      { label: 'Status',      value: profileModal.is_active ? 'Ativo' : 'Inativo', color: profileModal.is_active ? '#34d399' : '#f87171' },
+                      { label: 'Plano',       value: profileModal.package_id ? (PLAN_META[profileModal.package_id]?.label ?? profileModal.package_id) : 'Sem plano', color: profileModal.package_id ? (PLAN_META[profileModal.package_id]?.color ?? 'white') : '#4a6580' },
+                      { label: 'Assinatura',  value: profileModal.sub_status ? (SUB_ST[profileModal.sub_status]?.label ?? profileModal.sub_status) : '—', color: profileModal.sub_status ? (SUB_ST[profileModal.sub_status]?.color ?? '#94a3b8') : '#4a6580' },
+                      { label: 'Moedas',      value: String(profileModal.balance_coins ?? 0), color: '#fbbf24' },
+                      { label: 'Pagamentos',  value: String(profileModal.total_payments), color: 'white' },
                     ].map(s => (
                       <div key={s.label} style={{ background: 'rgba(0,0,0,.2)', borderRadius: 8, padding: '0.625rem', textAlign: 'center' }}>
                         <p style={{ fontSize: 10, color: '#4a6580', margin: '0 0 3px', textTransform: 'uppercase', letterSpacing: '.05em' }}>{s.label}</p>
@@ -396,29 +624,28 @@ export default function AdminUsuarios() {
                       </div>
                     ))}
                   </div>
-                  {selected.total_spent > 0 && (
+                  {profileModal.total_spent > 0 && (
                     <div style={{ background: 'rgba(16,185,129,.08)', border: '1px solid rgba(16,185,129,.15)', borderRadius: 8, padding: '0.625rem 0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: 12, color: '#4a6580' }}>Total gasto na plataforma</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: '#34d399' }}>R${fmtBRL(selected.total_spent)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#34d399' }}>R${fmtBRL(profileModal.total_spent)}</span>
                     </div>
                   )}
-                  {selected.sub_started_at && (
-                    <p style={{ fontSize: 11, color: '#4a6580', margin: '0.5rem 0 0' }}>Plano ativo desde {fmtDate(selected.sub_started_at)}</p>
+                  {profileModal.sub_started_at && (
+                    <p style={{ fontSize: 11, color: '#4a6580', margin: '0.5rem 0 0' }}>Plano ativo desde {fmtDate(profileModal.sub_started_at)}</p>
                   )}
-                  {selected.bio && <p style={{ fontSize: 12, color: '#4a6580', margin: '0.75rem 0 0', lineHeight: 1.5, fontStyle: 'italic' }}>"{selected.bio}"</p>}
+                  {profileModal.bio && <p style={{ fontSize: 12, color: '#4a6580', margin: '0.75rem 0 0', lineHeight: 1.5, fontStyle: 'italic' }}>"{profileModal.bio}"</p>}
                 </div>
               )}
 
-              {/* Cliente */}
-              {selected.role === 'client' && (
+              {profileModal.role === 'client' && (
                 <div style={{ background: 'rgba(59,130,246,.05)', border: '1px solid rgba(59,130,246,.15)', borderRadius: 10, padding: '1rem' }}>
                   <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#60a5fa', margin: '0 0 0.75rem' }}>Dados do cliente</p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                     {[
-                      { label: 'Pedidos', value: String(selected.total_leads), color: 'white' },
-                      { label: 'Agendamentos', value: String(selected.total_appointments), color: 'white' },
-                      { label: 'Total gasto', value: selected.total_spent > 0 ? `R$${fmtBRL(selected.total_spent)}` : 'R$0,00', color: selected.total_spent > 0 ? '#34d399' : '#4a6580' },
-                      { label: 'Pagamentos', value: String(selected.total_payments), color: 'white' },
+                      { label: 'Pedidos',      value: String(profileModal.total_leads),       color: 'white' },
+                      { label: 'Agendamentos', value: String(profileModal.total_appointments), color: 'white' },
+                      { label: 'Total gasto',  value: profileModal.total_spent > 0 ? `R$${fmtBRL(profileModal.total_spent)}` : 'R$0,00', color: profileModal.total_spent > 0 ? '#34d399' : '#4a6580' },
+                      { label: 'Pagamentos',   value: String(profileModal.total_payments),    color: 'white' },
                     ].map(s => (
                       <div key={s.label} style={{ background: 'rgba(0,0,0,.2)', borderRadius: 8, padding: '0.625rem', textAlign: 'center' }}>
                         <p style={{ fontSize: 10, color: '#4a6580', margin: '0 0 3px', textTransform: 'uppercase', letterSpacing: '.05em' }}>{s.label}</p>
@@ -429,25 +656,26 @@ export default function AdminUsuarios() {
                 </div>
               )}
 
-              {/* ID */}
               <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 11, color: '#4a6580', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>ID: {selected.id}</span>
-                <button onClick={() => { navigator.clipboard.writeText(selected.id); toast.success('ID copiado!'); }} style={{ background: 'none', border: 'none', color: '#4a6580', cursor: 'pointer', padding: 4, flexShrink: 0 }}>
+                <span style={{ fontSize: 11, color: '#4a6580', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>ID: {profileModal.id}</span>
+                <button onClick={() => { navigator.clipboard.writeText(profileModal.id); toast.success('ID copiado!'); }} style={{ background: 'none', border: 'none', color: '#4a6580', cursor: 'pointer', padding: 4, flexShrink: 0 }}>
                   <Copy size={13} />
                 </button>
               </div>
             </div>
 
-            {/* Footer */}
             <div style={{ padding: '0.875rem 1.25rem', borderTop: '1px solid rgba(255,255,255,.06)', flexShrink: 0, display: 'flex', gap: 8 }}>
               <button
-                onClick={() => { navigator.clipboard.writeText(selected.phone ?? ''); toast.success('Telefone copiado!'); }}
+                onClick={() => {
+                  if (profileModal.phone) window.open(`https://wa.me/55${profileModal.phone.replace(/\D/g, '')}`, '_blank');
+                  else toast.error('Sem telefone cadastrado');
+                }}
                 style={{ flex: 1, height: 38, background: '#132540', border: '1px solid rgba(255,255,255,.08)', borderRadius: 10, color: '#7a9ebf', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                <MessageSquare size={14} /> Contatar
+                <MessageSquare size={14} /> WhatsApp
               </button>
               <button
-                onClick={() => setSelected(null)}
+                onClick={() => setProfileModal(null)}
                 style={{ flex: 1, height: 38, background: '#10b981', border: 'none', borderRadius: 10, color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
               >
                 Fechar
