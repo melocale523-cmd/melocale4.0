@@ -77,6 +77,7 @@ export default function AdminUsuarios() {
   const [filterType, setFilterType] = useState<'all' | 'pendencias' | 'churn'>('all');
   const [profileModal, setProfileModal] = useState<EnrichedUser | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [sortField, setSortField] = useState<string>('created_at');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
@@ -266,6 +267,14 @@ export default function AdminUsuarios() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1400, margin: '0 auto' }}>
 
+      {/* Overlay de loading ao atualizar */}
+      {isRefreshing && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(14,28,50,.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+          <Loader2 size={40} className="animate-spin" style={{ color: '#10b981' }} />
+          <p style={{ fontSize: 13, color: '#94a3b8', margin: 0 }}>Atualizando usuários...</p>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
@@ -276,7 +285,7 @@ export default function AdminUsuarios() {
           <button onClick={() => exportCSV(sortedFiltered)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, color: '#4a6580', fontSize: 12, cursor: 'pointer' }}>
             Exportar CSV
           </button>
-          <button onClick={() => refetch()} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, color: '#4a6580', fontSize: 12, cursor: 'pointer' }}>
+          <button onClick={async () => { setIsRefreshing(true); await refetch(); setIsRefreshing(false); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, color: '#4a6580', fontSize: 12, cursor: 'pointer' }}>
             <RefreshCw size={12} /> Atualizar
           </button>
         </div>
