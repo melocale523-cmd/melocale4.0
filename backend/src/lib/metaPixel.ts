@@ -13,6 +13,9 @@ interface MetaEventData {
   eventSourceUrl: string;
   userEmail?: string;
   userPhone?: string;
+  userName?: string;
+  userCity?: string;
+  userState?: string;
   fbp?: string;
   fbc?: string;
   clientIp?: string;
@@ -26,6 +29,9 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
   const userData: Record<string, string> = {};
   if (data.userEmail)       userData.em                = hashSHA256(data.userEmail);
   if (data.userPhone)       userData.ph                = hashSHA256(data.userPhone);
+  if (data.userName)        userData.fn                = hashSHA256(data.userName);
+  if (data.userCity)        userData.ct                = hashSHA256(data.userCity);
+  if (data.userState)       userData.st                = hashSHA256(data.userState);
   if (data.fbp)             userData.fbp               = data.fbp;
   if (data.fbc)             userData.fbc               = data.fbc;
   if (data.clientIp)        userData.client_ip_address = data.clientIp;

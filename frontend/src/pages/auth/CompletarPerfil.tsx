@@ -144,7 +144,7 @@ export default function CompletarPerfil() {
       apiFetch('/api/track/registration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, email: user.email, fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
+        body: JSON.stringify({ role, email: user.email, phone: formData.phone || undefined, city: address.city || undefined, state: address.state || undefined, fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
       }).catch(() => {});
 
       toast.success('🎉 Bem-vindo ao MeloCalé! Você ganhou 10 moedas de boas-vindas.');
