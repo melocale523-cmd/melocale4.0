@@ -13,6 +13,10 @@ interface MetaEventData {
   eventSourceUrl: string;
   userEmail?: string;
   userPhone?: string;
+  fbp?: string;
+  fbc?: string;
+  clientIp?: string;
+  clientUserAgent?: string;
   customData?: Record<string, unknown>;
 }
 
@@ -20,8 +24,12 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
   if (!PIXEL_ID || !ACCESS_TOKEN) return;
 
   const userData: Record<string, string> = {};
-  if (data.userEmail) userData.em = hashSHA256(data.userEmail);
-  if (data.userPhone) userData.ph = hashSHA256(data.userPhone);
+  if (data.userEmail)       userData.em                = hashSHA256(data.userEmail);
+  if (data.userPhone)       userData.ph                = hashSHA256(data.userPhone);
+  if (data.fbp)             userData.fbp               = data.fbp;
+  if (data.fbc)             userData.fbc               = data.fbc;
+  if (data.clientIp)        userData.client_ip_address = data.clientIp;
+  if (data.clientUserAgent) userData.client_user_agent = data.clientUserAgent;
 
   const payload = {
     data: [

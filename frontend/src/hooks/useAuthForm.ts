@@ -191,10 +191,14 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
           });
         }
 
+        const getCookie = (name: string) => {
+          const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+          return match ? match[2] : undefined;
+        };
         apiFetch('/api/track/registration', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: selectedRole, email: formData.email }),
+          body: JSON.stringify({ role: selectedRole, email: formData.email, fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
         }).catch(() => {});
 
         toast.success('Conta criada com sucesso! Verifique seu e-mail.');

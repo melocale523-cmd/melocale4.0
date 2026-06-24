@@ -137,10 +137,14 @@ export default function CompletarPerfil() {
       };
       frame();
 
+      const getCookie = (name: string) => {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? match[2] : undefined;
+      };
       apiFetch('/api/track/registration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, email: user.email }),
+        body: JSON.stringify({ role, email: user.email, fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
       }).catch(() => {});
 
       toast.success('🎉 Bem-vindo ao MeloCalé! Você ganhou 10 moedas de boas-vindas.');
