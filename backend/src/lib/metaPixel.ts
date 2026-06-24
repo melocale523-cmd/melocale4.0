@@ -42,7 +42,7 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-  } catch {
-    // silencioso — falha de tracking não deve impactar o fluxo principal
+  } catch (err) {
+    console.error('[metaPixel] sendMetaEvent error:', err instanceof Error ? err.message : String(err));
   }
 }

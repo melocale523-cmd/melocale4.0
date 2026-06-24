@@ -17,6 +17,7 @@ router.post("/track/registration", sensitiveLimiter, async (req: Request, res: R
   if (!parsed.success) return res.status(400).json({ error: "dados inválidos." });
 
   const { role, email } = parsed.data;
+  console.log(`[track] registration called — role: ${role}, email: ${email ?? 'N/A'}`);
 
   void sendMetaEvent({
     eventName: "CompleteRegistration",
