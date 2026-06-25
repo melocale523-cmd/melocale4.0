@@ -12,13 +12,9 @@ import { startAiChatResponder } from "./src/jobs/aiChatResponder.js";
 import { startStripeAuditJob } from "./src/jobs/stripeAudit.js";
 import { startHealthCheckJob } from "./src/jobs/healthCheck.js";
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV ?? "development",
-  enabled: process.env.NODE_ENV === "production",
-  tracesSampleRate: 0.1,
-  integrations: [Sentry.expressIntegration()],
-});
+// Sentry.init() agora roda em instrument.ts, carregado via `node --import`
+// (ver package.json) antes deste arquivo — necessário pra instrumentação
+// automática do Express funcionar em ESM.
 
 process.on("uncaughtException", (err) => {
   Sentry.captureException(err);

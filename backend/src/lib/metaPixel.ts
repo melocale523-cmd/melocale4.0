@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import * as Sentry from '@sentry/node';
 
 const PIXEL_ID = process.env.META_PIXEL_ID!;
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN!;
@@ -57,6 +58,6 @@ export async function sendMetaEvent(data: MetaEventData): Promise<void> {
       body: JSON.stringify(payload),
     });
   } catch (err) {
-    console.error('[metaPixel] sendMetaEvent error:', err instanceof Error ? err.message : String(err));
+    Sentry.captureException(err, { tags: { module: 'metaPixel' } });
   }
 }
