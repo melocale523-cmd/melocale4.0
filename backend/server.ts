@@ -10,6 +10,7 @@ import { startAppointmentReminderJob } from "./src/jobs/appointmentReminder.js";
 import { startReferralBonusJob } from "./src/jobs/referralBonus.js";
 import { startAiChatResponder } from "./src/jobs/aiChatResponder.js";
 import { startStripeAuditJob } from "./src/jobs/stripeAudit.js";
+import { startHealthCheckJob } from "./src/jobs/healthCheck.js";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -104,6 +105,7 @@ async function startServer() {
   startReferralBonusJob();
   startAiChatResponder();
   startStripeAuditJob();
+  startHealthCheckJob();
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);

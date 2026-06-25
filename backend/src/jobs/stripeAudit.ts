@@ -72,6 +72,12 @@ async function runStripeAudit(): Promise<void> {
     }
 
     console.log(`[stripeAudit] concluído — verificados: ${checked}, órfãos: ${orphans}`);
+
+    const { error: insertErr } = await supabaseAdmin.from("stripe_audit_runs").insert({
+      payments_checked: checked,
+      orphans_found: orphans,
+    });
+    if (insertErr) console.error("[stripeAudit] falha ao persistir resultado:", insertErr.message);
   } catch (err: unknown) {
     console.error("[stripeAudit] erro inesperado:", err instanceof Error ? err.message : String(err));
   }
