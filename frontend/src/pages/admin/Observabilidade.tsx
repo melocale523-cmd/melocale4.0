@@ -231,9 +231,9 @@ export default function AdminObservabilidade() {
   const stripeDown = health?.stripe.status === 'down';
   const anySlow = (health?.db.latency_ms ?? 0) > SLOW_DB_MS || (health?.stripe.latency_ms ?? 0) > SLOW_STRIPE_MS;
 
-  const overall = backendDown || dbDown
+  const overall = backendDown || dbDown || stripeDown
     ? { label: 'FORA DO AR', color: '#f87171', Icon: ShieldX }
-    : stripeDown || anySlow
+    : anySlow
     ? { label: 'DEGRADADO', color: '#fbbf24', Icon: ShieldAlert }
     : { label: 'OPERACIONAL', color: '#34d399', Icon: ShieldCheck };
 
