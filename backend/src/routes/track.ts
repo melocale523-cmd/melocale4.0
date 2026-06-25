@@ -28,8 +28,6 @@ router.post("/track/registration", sensitiveLimiter, async (req: Request, res: R
     ?? undefined;
   const clientUserAgent = req.headers['user-agent'] ?? undefined;
 
-  console.log(`[track] registration called — role: ${role}, email: ${email ?? 'N/A'}`);
-
   void sendMetaEvent({
     eventName: "CompleteRegistration",
     eventSourceUrl: "https://www.melocale.com.br/cadastro",
