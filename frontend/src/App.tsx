@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
 import { useTheme } from './hooks/useTheme';
+import { useUtmCapture } from './hooks/useUtmCapture';
 import { toast } from 'sonner';
 import AuthLayout from './layouts/AuthLayout';
 import ClientLayout from './layouts/ClientLayout';
@@ -352,6 +353,7 @@ const router = createBrowserRouter([
 
 export default function App() {
   useTheme(); // apply persisted/system theme on initialization
+  useUtmCapture(); // captura utm_source/medium/campaign na entrada do app
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
