@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore, Role } from '../../store/authStore';
+import { readOAuthSignupRole, clearOAuthSignupFlag } from '../../lib/oauthSignupFlag';
 import { toast } from 'sonner';
 
 export default function AuthInitializer({ children }: { children: React.ReactNode }) {
@@ -38,17 +39,13 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
 
       if (isMounted) setLoading(true);
 
-      // Read storage flags synchronously BEFORE any await — sessionStorage can be
-      // cleared mid-flight by some browsers; localStorage survives OAuth redirects.
-      const lsRole = localStorage.getItem('melocale_signup_role_ls') as Role | null;
-      const ssSignupRole = sessionStorage.getItem('melocale_signup_role') as Role | null;
-      const signupRole: Role | null = lsRole || ssSignupRole;
+      // signupRole só é honrada se a URL atual confirmar volta real do redirect do Google
+      // (?oauth=1) E a flag tiver menos de 5min — ver lib/oauthSignupFlag.ts pro porquê.
+      const signupRole: Role | null = readOAuthSignupRole();
       const loginRole = sessionStorage.getItem('melocale_login_role') as Role | null;
 
       if (import.meta.env.DEV) {
         console.log('[Auth] processSession userId:', userId);
-        console.log('[Auth] lsRole (localStorage):', lsRole);
-        console.log('[Auth] ssSignupRole (sessionStorage):', ssSignupRole);
         console.log('[Auth] signupRole resolved:', signupRole);
         console.log('[Auth] user_metadata:', session.user.user_metadata);
       }
@@ -68,8 +65,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
         let finalRole: Role = (profile?.role as Role | undefined) ?? 'client';
 
         // Always clean up all signup/login storage flags in one place
-        localStorage.removeItem('melocale_signup_role_ls');
-        sessionStorage.removeItem('melocale_signup_role');
+        clearOAuthSignupFlag();
         sessionStorage.removeItem('melocale_is_signup');
         sessionStorage.removeItem('melocale_login_role');
         localStorage.removeItem('pending_oauth_role');

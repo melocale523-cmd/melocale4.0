@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { API_URL, apiFetch } from '../../lib/api';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
+import { setOAuthSignupFlag, clearOAuthSignupFlag } from '../../lib/oauthSignupFlag';
 import { resolveSignupOrigin } from '../../hooks/useUtmCapture';
 
 function validatePassword(password: string): string | null {
@@ -86,8 +87,7 @@ export default function Login() {
 
   const handleGoogleLogin = async (role: 'client' | 'professional') => {
     if (isSignUp) {
-      sessionStorage.setItem('melocale_signup_role', role);
-      localStorage.setItem('melocale_signup_role_ls', role); // survives cross-origin OAuth redirect
+      setOAuthSignupFlag(role);
       sessionStorage.setItem('melocale_is_signup', 'true');
     } else {
       sessionStorage.setItem('melocale_login_role', role);
@@ -102,8 +102,7 @@ export default function Login() {
       });
       if (error) throw error;
     } catch (err) {
-      sessionStorage.removeItem('melocale_signup_role');
-      localStorage.removeItem('melocale_signup_role_ls');
+      clearOAuthSignupFlag();
       sessionStorage.removeItem('melocale_is_signup');
       sessionStorage.removeItem('melocale_login_role');
       toast.error('Erro ao entrar com Google: ' + (err instanceof Error ? err.message : String(err)));
