@@ -20,6 +20,15 @@ Sentry.init({
   tracesSampleRate: 0.1,
   replaysSessionSampleRate: 0.05,
   replaysOnErrorSampleRate: 1.0,
+  // Ignora erros cuja origem (top do stack trace) é uma extensão de navegador —
+  // ex: extensão de cupom/cashback fazendo telemetria própria que falha. Isso
+  // não é erro do MeloCalé, mas o Sentry intercepta todo fetch/exception da
+  // página, inclusive de extensões instaladas no navegador de quem acessa.
+  denyUrls: [
+    /^chrome-extension:\/\//,
+    /^moz-extension:\/\//,
+    /^safari-web-extension:\/\//,
+  ],
   beforeSend(event) {
     if (event.request?.cookies) delete event.request.cookies;
     if (event.request?.headers?.Authorization) {
