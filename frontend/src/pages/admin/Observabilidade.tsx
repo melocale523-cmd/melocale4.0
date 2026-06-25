@@ -65,13 +65,20 @@ interface SentryIssuesResponse {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const SCHEDULED_JOBS = [
+interface ScheduledJob {
+  name: string;
+  schedule: string;
+  description: string;
+  note?: string;
+}
+
+const SCHEDULED_JOBS: ScheduledJob[] = [
   { name: 'Health Check', schedule: 'a cada 5 min', description: 'Mede latência de DB/Stripe, event loop lag e grava em system_health_checks' },
-  { name: 'Lembretes de pedidos', schedule: 'a cada hora', description: 'Envia notificações push para pedidos pendentes de resposta' },
-  { name: 'Lembrete de agendamento', schedule: 'a cada hora', description: 'Notifica clientes sobre serviços agendados próximos' },
-  { name: 'Bônus de indicação', schedule: 'a cada hora', description: 'Processa bônus de referral pendentes e credita moedas' },
-  { name: 'AI Chat Responder', schedule: 'a cada 2 min', description: 'Responde automaticamente chats marcados para resposta via IA' },
-  { name: 'Auditoria Stripe', schedule: 'diário às 08:00 BRT', description: 'Compara payment intents do Stripe vs payments no banco — alerta órfãos no Telegram' },
+  { name: 'Lembrete de agendamento — janela 23–25h', schedule: 'a cada 1 hora (setInterval)', description: 'Push pro cliente e profissional quando o serviço está entre 23h e 25h no futuro (reminders.ts)', note: 'Dois jobs cobrem a mesma janela de 24h por implementações separadas — reminders.ts usa setInterval, appointmentReminder.ts usa cron "0 * * * *" e checa reminder_sent_at para evitar duplicata.' },
+  { name: 'Lembrete de agendamento — cron horário', schedule: 'a cada 1 hora, no minuto 00', description: 'Mesma janela de 24h antes, lógica complementar com marca reminder_sent_at (appointmentReminder.ts)' },
+  { name: 'Bônus de indicação', schedule: 'a cada 6 horas', description: 'Aplica bônus de moedas por indicações confirmadas no mês (referralBonus.ts)' },
+  { name: 'Resposta automática da IA no chat', schedule: 'a cada 30 minutos', description: 'IA responde em nome da plataforma se o profissional não respondeu em 1h (aiChatResponder.ts)' },
+  { name: 'Auditoria Stripe — pagamentos órfãos', schedule: 'diariamente às 08:00 BRT', description: 'Compara PaymentIntents do Stripe com a tabela payments, alerta no Telegram se achar órfão (stripeAudit.ts)' },
 ];
 
 const SLOW_DB_MS = 600;
@@ -458,6 +465,12 @@ export default function AdminObservabilidade() {
                   <span style={{ fontSize: 10, color: '#60a5fa', fontWeight: 700, background: 'rgba(96,165,250,.1)', padding: '2px 6px', borderRadius: 4 }}>{job.schedule}</span>
                 </div>
                 <p style={{ fontSize: 11, color: '#4a6580', margin: '2px 0 0' }}>{job.description}</p>
+                {job.note && (
+                  <p style={{ fontSize: 11, color: '#fbbf24', margin: '4px 0 0', display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+                    <AlertTriangle size={11} style={{ flexShrink: 0, marginTop: 1 }} />
+                    {job.note}
+                  </p>
+                )}
               </div>
             </div>
           ))}
