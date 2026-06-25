@@ -1,6 +1,7 @@
 import { Router, Response } from "express";
 import { AuthRequest, requireAuth, requireAdmin } from "../middleware/auth.js";
 import { supabaseAdmin, coinPackagesCache, loadCoinPackages } from "../config.js";
+import { runHealthCheck, estimateSystemLoadPct } from "../lib/systemHealthCheck.js";
 import { withTimeout } from "../lib/timeout.js";
 
 const router = Router();
@@ -519,30 +520,141 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
 });
 
 // Health check real pra página de Observabilidade — diferente de /api/health (público,
-// trivial, usado por monitores externos). Esse aqui mede latência real do Supabase.
+// trivial, usado por monitores externos). Mede latência real de Supabase e Stripe, uptime
+// do processo, memória, event loop lag, tamanho do banco, info de deploy (env vars
+// automáticas do Render), freshness do webhook de pagamentos e carga estimada do sistema.
 // Se a requisição chegou até aqui, o backend já está "up" por definição.
 router.get("/system-health", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
-  const dbStart = Date.now();
-  let dbStatus: "up" | "down" = "up";
-  let dbLatencyMs: number | null = null;
+  const result = await runHealthCheck();
+  const mem = process.memoryUsage();
+  const heapUsedMb = Math.round((mem.heapUsed / 1024 / 1024) * 10) / 10;
+  const heapTotalMb = Math.round((mem.heapTotal / 1024 / 1024) * 10) / 10;
 
-  try {
-    const { error } = await withTimeout(
-      supabaseAdmin.from("profiles").select("id", { head: true, count: "exact" }).limit(1),
-      3000
-    );
-    dbLatencyMs = Date.now() - dbStart;
-    if (error) dbStatus = "down";
-  } catch {
-    dbStatus = "down";
-    dbLatencyMs = Date.now() - dbStart;
-  }
+  const { data: lastPayment } = await supabaseAdmin
+    .from("payments")
+    .select("paid_at")
+    .eq("status", "paid")
+    .not("paid_at", "is", null)
+    .order("paid_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const loadPct = estimateSystemLoadPct({
+    heapUsedMb,
+    heapTotalMb,
+    eventLoopLagMs: result.eventLoopLagMs,
+    dbLatencyMs: result.dbLatencyMs,
+  });
 
   return res.json({
-    backend: { status: "up" },
-    db: { status: dbStatus, latency_ms: dbLatencyMs },
+    backend: {
+      status: "up",
+      uptime_seconds: Math.floor(process.uptime()),
+      memory_mb: { heap_used: heapUsedMb, heap_total: heapTotalMb, rss: Math.round((mem.rss / 1024 / 1024) * 10) / 10 },
+      event_loop_lag_ms: result.eventLoopLagMs,
+      deploy: {
+        commit: process.env.RENDER_GIT_COMMIT ? process.env.RENDER_GIT_COMMIT.slice(0, 7) : null,
+        branch: process.env.RENDER_GIT_BRANCH ?? null,
+      },
+    },
+    db: { status: result.dbStatus, latency_ms: result.dbLatencyMs, size_mb: result.dbSizeMb },
+    stripe: { status: result.stripeStatus, latency_ms: result.stripeLatencyMs },
+    load_pct: loadPct,
+    last_payment_at: lastPayment?.paid_at ?? null,
     checked_at: new Date().toISOString(),
   });
+});
+
+// Checklist de configuração — quais env vars críticas estão presentes ou faltando, sem
+// NUNCA expor valor (só booleano). Resolve a pergunta "o que falta configurar" num lugar
+// só, em vez de descobrir aos poucos pelos avisos espalhados pela página.
+router.get("/config-status", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const checks = [
+    { key: "SUPABASE_URL", label: "Supabase URL", present: !!process.env.SUPABASE_URL, critical: true },
+    { key: "SUPABASE_SERVICE_ROLE_KEY", label: "Supabase Service Role Key", present: !!process.env.SUPABASE_SERVICE_ROLE_KEY, critical: true },
+    { key: "STRIPE_SECRET_KEY", label: "Stripe Secret Key", present: !!process.env.STRIPE_SECRET_KEY, critical: true },
+    { key: "STRIPE_WEBHOOK_SECRET", label: "Stripe Webhook Secret", present: !!process.env.STRIPE_WEBHOOK_SECRET, critical: true },
+    { key: "ANTHROPIC_API_KEY", label: "Anthropic API Key (IA do chat)", present: !!process.env.ANTHROPIC_API_KEY, critical: true },
+    { key: "SENTRY_DSN", label: "Sentry DSN (captura de erros)", present: !!process.env.SENTRY_DSN, critical: false },
+    { key: "SENTRY_API_TOKEN", label: "Sentry API Token (timeline de issues)", present: !!process.env.SENTRY_API_TOKEN, critical: false },
+    { key: "SENTRY_ORG_SLUG", label: "Sentry Org Slug", present: !!process.env.SENTRY_ORG_SLUG, critical: false },
+    { key: "SENTRY_PROJECT_SLUGS", label: "Sentry Project Slugs", present: !!process.env.SENTRY_PROJECT_SLUGS, critical: false },
+    { key: "TELEGRAM_BOT_TOKEN", label: "Telegram Bot Token (alertas auditoria Stripe)", present: !!process.env.TELEGRAM_BOT_TOKEN, critical: false },
+    { key: "TELEGRAM_CHAT_ID", label: "Telegram Chat ID", present: !!process.env.TELEGRAM_CHAT_ID, critical: false },
+    { key: "VAPID_PUBLIC_KEY", label: "VAPID Public Key (push notifications)", present: !!process.env.VAPID_PUBLIC_KEY, critical: false },
+    { key: "VAPID_PRIVATE_KEY", label: "VAPID Private Key", present: !!process.env.VAPID_PRIVATE_KEY, critical: false },
+  ];
+  return res.json({ checks });
+});
+
+// Histórico das últimas 24h gravadas pelo cron healthCheck.ts (a cada 5min) — uptime% real
+// por target + detecção de incidentes (transições up→down), sem depender do Sentry estar
+// configurado. Também devolve o resultado da última auditoria Stripe (stripeAudit.ts),
+// que antes só ia pro Telegram e se perdia.
+router.get("/health-history", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await supabaseAdmin
+      .from("system_health_checks")
+      .select("backend_status, db_status, db_latency_ms, stripe_status, stripe_latency_ms, event_loop_lag_ms, db_size_mb, checked_at")
+      .gte("checked_at", since)
+      .order("checked_at", { ascending: true });
+
+    if (error) throw error;
+
+    const rows = data ?? [];
+
+    const uptimePct = (field: "backend_status" | "db_status" | "stripe_status"): number | null => {
+      if (rows.length === 0) return null;
+      const upCount = rows.filter((r) => r[field] === "up").length;
+      return Math.round((upCount / rows.length) * 1000) / 10;
+    };
+
+    type Target = "backend" | "db" | "stripe";
+    const fieldsByTarget: Array<{ target: Target; field: "backend_status" | "db_status" | "stripe_status" }> = [
+      { target: "backend", field: "backend_status" },
+      { target: "db", field: "db_status" },
+      { target: "stripe", field: "stripe_status" },
+    ];
+
+    const incidents: Array<{ target: Target; started_at: string }> = [];
+    for (const { target, field } of fieldsByTarget) {
+      for (let i = 1; i < rows.length; i++) {
+        if (rows[i - 1][field] === "up" && rows[i][field] === "down") {
+          incidents.push({ target, started_at: rows[i].checked_at as string });
+        }
+      }
+    }
+    incidents.sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
+
+    const { data: lastAudit } = await supabaseAdmin
+      .from("stripe_audit_runs")
+      .select("payments_checked, orphans_found, ran_at")
+      .order("ran_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return res.json({
+      checks_count: rows.length,
+      series: rows.map((r) => ({
+        checked_at: r.checked_at,
+        db_latency_ms: r.db_latency_ms,
+        stripe_latency_ms: r.stripe_latency_ms,
+        event_loop_lag_ms: r.event_loop_lag_ms,
+      })),
+      db_size_mb: rows.length > 0 ? rows[rows.length - 1].db_size_mb : null,
+      uptime_24h: {
+        backend: uptimePct("backend_status"),
+        db: uptimePct("db_status"),
+        stripe: uptimePct("stripe_status"),
+      },
+      incidents: incidents.slice(0, 10),
+      last_stripe_audit: lastAudit ?? null,
+    });
+  } catch (err) {
+    console.error("/api/admin/health-history error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao buscar histórico." });
+  }
 });
 
 // Issues recentes do Sentry (backend + frontend) pra timeline de incidentes real.
