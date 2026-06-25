@@ -30,17 +30,6 @@ const getScoreLabel = (score: number) =>
 
 const DAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-const heatData: number[][] = DAY_LABELS.map((_, day) =>
-  Array.from({ length: 24 }, (_, hour) => {
-    if (hour < 6) return 0.05;
-    const peak = hour >= 8 && hour <= 20;
-    const weekend = day === 0 || day === 6;
-    return peak
-      ? (weekend ? 0.5 : 0.85) * (0.4 + 0.6 * Math.sin(((hour - 8) * Math.PI) / 12))
-      : 0.15;
-  })
-);
-
 const EVT_COLOR = { payment: '#34d399', lead: '#60a5fa', signup: '#a78bfa' } as const;
 const EVT_ICON = { payment: '💰', lead: '📬', signup: '👤' } as const;
 
@@ -151,6 +140,33 @@ export default function AdminDashboard() {
     },
     staleTime: 60_000,
   });
+
+  const { data: heatmap } = useQuery({
+    queryKey: ['adminHeatmap'],
+    queryFn: async () => {
+      const since = new Date(Date.now() - 90 * 86400000).toISOString();
+      const [profilesRes, leadsRes, paymentsRes] = await Promise.all([
+        supabase.from('profiles').select('created_at').gte('created_at', since),
+        supabase.from('leads').select('created_at').gte('created_at', since),
+        supabase.from('payments').select('paid_at').eq('status', 'paid').gte('paid_at', since),
+      ]);
+      const counts = Array.from({ length: 7 }, () => Array(24).fill(0));
+      const bump = (ts: string | null | undefined) => {
+        if (!ts) return;
+        const d = new Date(ts);
+        counts[d.getDay()][d.getHours()] += 1;
+      };
+      (profilesRes.data ?? []).forEach((r: { created_at: string }) => bump(r.created_at));
+      (leadsRes.data ?? []).forEach((r: { created_at: string }) => bump(r.created_at));
+      (paymentsRes.data ?? []).forEach((r: { paid_at: string }) => bump(r.paid_at));
+      const total = counts.flat().reduce((a, b) => a + b, 0);
+      const max = Math.max(1, ...counts.flat());
+      return { grid: counts.map(row => row.map(v => v / max)), total };
+    },
+    staleTime: 300_000,
+  });
+
+  const heatData = heatmap?.grid ?? Array.from({ length: 7 }, () => Array(24).fill(0));
 
   if (isLoading)
     return (
@@ -422,6 +438,11 @@ export default function AdminDashboard() {
         {/* Mapa de calor */}
         <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 1rem' }}>Mapa de calor · atividade</p>
+          {heatmap && heatmap.total === 0 ? (
+            <p style={{ fontSize: 11, color: '#4a6580', textAlign: 'center', padding: '1.5rem 0' }}>
+              Ainda sem eventos suficientes nos últimos 90 dias
+            </p>
+          ) : (
           <div style={{ overflowX: 'auto' }}>
             <div style={{ display: 'grid', gridTemplateColumns: `28px repeat(24, 1fr)`, gap: 2, minWidth: 380 }}>
               <div />
@@ -442,6 +463,7 @@ export default function AdminDashboard() {
               ])}
             </div>
           </div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: '0.625rem' }}>
             <span style={{ fontSize: 9, color: '#4a6580' }}>Baixa</span>
             {[0.1, 0.3, 0.5, 0.7, 0.9].map(v => (

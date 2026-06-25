@@ -467,7 +467,7 @@ export default function AdminUsuarios() {
                           <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, display: 'inline-block' }}>{rb.label}</span>
                           {u.category && <Pill color="#4a6580">{highlight(u.category, searchQuery)}</Pill>}
                           <span style={{ fontSize: 10, color: '#60a5fa' }}>
-                            {u.origin === 'meta_ads' ? '📣 Meta Ads' : u.origin === 'referral' ? '👥 Indicação' : '🌐 Orgânico'}
+                            {u.origin === 'meta_ads' ? '📣 Meta Ads' : u.origin === 'referral' ? '👥 Indicação' : u.origin === 'organic' ? '🌐 Orgânico' : '❔ Desconhecido'}
                           </span>
                         </div>
                       </td>

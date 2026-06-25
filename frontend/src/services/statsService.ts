@@ -166,7 +166,7 @@ export const adminService = {
   async getUsersEnriched(): Promise<EnrichedUser[]> {
     try {
       const [profilesRes, prosRes, subsRes, coinsRes, leadsRes, apptsRes, paymentsRes, purchasesRes] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, role, phone, city, created_at, avatar_url').order('created_at', { ascending: false }),
+        supabase.from('profiles').select('id, full_name, role, phone, city, created_at, avatar_url, origin').order('created_at', { ascending: false }),
         supabase.from('professionals').select('id, user_id, category, is_active, bio'),
         supabase.from('user_subscriptions').select('user_id, package_id, status, started_at'),
         supabase.from('professional_coins').select('professional_id, balance'),
@@ -176,7 +176,7 @@ export const adminService = {
         supabase.from('lead_purchases').select('professional_id'),
       ]);
 
-      const profiles = (profilesRes.data ?? []) as { id: string; full_name: string | null; role: string; phone: string | null; city: string | null; created_at: string; avatar_url: string | null }[];
+      const profiles = (profilesRes.data ?? []) as { id: string; full_name: string | null; role: string; phone: string | null; city: string | null; created_at: string; avatar_url: string | null; origin: 'meta_ads' | 'organic' | 'referral' | null }[];
       const pros = (prosRes.data ?? []) as { id: string; user_id: string; category: string | null; is_active: boolean; bio: string | null }[];
       const subs = (subsRes.data ?? []) as { user_id: string; package_id: string; status: string; started_at: string }[];
       const coins = (coinsRes.data ?? []) as { professional_id: string; balance: number }[];
@@ -236,7 +236,7 @@ export const adminService = {
           leads_purchased: pro ? (purchasesCount[pro.id] ?? 0) : 0,
           total_reviews: 0,
           avg_rating: 0,
-          origin: null,
+          origin: p.origin ?? null,
           avatar_url: p.avatar_url ?? null,
         };
       });

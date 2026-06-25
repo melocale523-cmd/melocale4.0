@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { API_URL, apiFetch } from '../../lib/api';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
+import { resolveSignupOrigin } from '../../hooks/useUtmCapture';
 
 function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -212,6 +213,7 @@ export default function Login() {
           phone: formData.phone || null,
           city: derivedCity || null,
           role: selectedRole,
+          origin: resolveSignupOrigin(),
           cep: address.cep || null,
           address_zipcode: address.cep || null,
           address_street: address.street || null,

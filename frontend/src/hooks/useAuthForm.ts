@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { type AddressValue, emptyAddress } from '../components/AddressForm';
 import { apiFetch } from '../lib/api';
+import { resolveSignupOrigin } from './useUtmCapture';
 
 export function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -169,6 +170,7 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
           phone: formData.phone || null,
           city: derivedCity || null,
           role: selectedRole,
+          origin: resolveSignupOrigin(),
           cep: address.cep || null,
           address_zipcode: address.cep || null,
           address_street: address.street || null,

@@ -1092,6 +1092,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          origin: string | null
           phone: string | null
           referral_code: string | null
           referred_by_code: string | null
@@ -1114,6 +1115,7 @@ export type Database = {
           created_at?: string
           full_name: string
           id: string
+          origin?: string | null
           phone?: string | null
           referral_code?: string | null
           referred_by_code?: string | null
@@ -1136,6 +1138,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          origin?: string | null
           phone?: string | null
           referral_code?: string | null
           referred_by_code?: string | null
@@ -2806,4 +2809,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
