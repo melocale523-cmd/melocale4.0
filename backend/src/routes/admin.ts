@@ -669,25 +669,32 @@ router.get("/sentry-issues", requireAuth, requireAdmin, async (req: AuthRequest,
     return res.json({ configured: false, issues: [] });
   }
 
+  const since = Date.now() - 24 * 60 * 60 * 1000;
+
   try {
     const results = await Promise.all(
       projects.map(async (project) => {
+        // statsPeriod só afeta o gráfico interno de cada issue, NÃO filtra quais issues
+        // a API retorna — por isso o filtro real de 24h é feito abaixo, em lastSeen.
+        // limit maior (25, não 10) pra ter candidatos suficientes depois do filtro.
         const r = await fetch(
-          `https://sentry.io/api/0/projects/${org}/${project}/issues/?statsPeriod=24h&query=is:unresolved&limit=10`,
+          `https://sentry.io/api/0/projects/${org}/${project}/issues/?sort=date&query=is:unresolved&limit=25`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!r.ok) return [];
         const data = (await r.json()) as Array<{
           title: string; count: string; level: string; lastSeen: string; permalink: string;
         }>;
-        return data.map((i) => ({
-          title: i.title,
-          count: Number(i.count),
-          level: i.level,
-          lastSeen: i.lastSeen,
-          url: i.permalink,
-          project,
-        }));
+        return data
+          .filter((i) => new Date(i.lastSeen).getTime() > since)
+          .map((i) => ({
+            title: i.title,
+            count: Number(i.count),
+            level: i.level,
+            lastSeen: i.lastSeen,
+            url: i.permalink,
+            project,
+          }));
       })
     );
     const issues = results
