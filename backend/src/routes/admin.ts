@@ -518,4 +518,75 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
   }
 });
 
+// Health check real pra página de Observabilidade — diferente de /api/health (público,
+// trivial, usado por monitores externos). Esse aqui mede latência real do Supabase.
+// Se a requisição chegou até aqui, o backend já está "up" por definição.
+router.get("/system-health", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const dbStart = Date.now();
+  let dbStatus: "up" | "down" = "up";
+  let dbLatencyMs: number | null = null;
+
+  try {
+    const { error } = await withTimeout(
+      supabaseAdmin.from("profiles").select("id", { head: true, count: "exact" }).limit(1),
+      3000
+    );
+    dbLatencyMs = Date.now() - dbStart;
+    if (error) dbStatus = "down";
+  } catch {
+    dbStatus = "down";
+    dbLatencyMs = Date.now() - dbStart;
+  }
+
+  return res.json({
+    backend: { status: "up" },
+    db: { status: dbStatus, latency_ms: dbLatencyMs },
+    checked_at: new Date().toISOString(),
+  });
+});
+
+// Issues recentes do Sentry (backend + frontend) pra timeline de incidentes real.
+// Sem SENTRY_API_TOKEN/SENTRY_ORG_SLUG/SENTRY_PROJECT_SLUGS configurados no Render,
+// responde configured:false — front mostra aviso em vez de fingir que não tem erro.
+router.get("/sentry-issues", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const token = process.env.SENTRY_API_TOKEN;
+  const org = process.env.SENTRY_ORG_SLUG;
+  const projects = (process.env.SENTRY_PROJECT_SLUGS || "").split(",").map((p) => p.trim()).filter(Boolean);
+
+  if (!token || !org || projects.length === 0) {
+    return res.json({ configured: false, issues: [] });
+  }
+
+  try {
+    const results = await Promise.all(
+      projects.map(async (project) => {
+        const r = await fetch(
+          `https://sentry.io/api/0/projects/${org}/${project}/issues/?statsPeriod=24h&query=is:unresolved&limit=10`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!r.ok) return [];
+        const data = (await r.json()) as Array<{
+          title: string; count: string; level: string; lastSeen: string; permalink: string;
+        }>;
+        return data.map((i) => ({
+          title: i.title,
+          count: Number(i.count),
+          level: i.level,
+          lastSeen: i.lastSeen,
+          url: i.permalink,
+          project,
+        }));
+      })
+    );
+    const issues = results
+      .flat()
+      .sort((a, b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime())
+      .slice(0, 20);
+    return res.json({ configured: true, issues });
+  } catch (err) {
+    console.error("/api/admin/sentry-issues error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao buscar issues do Sentry." });
+  }
+});
+
 export default router;
