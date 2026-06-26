@@ -62,6 +62,7 @@ const AdminTestes = lazy(() => import('./pages/admin/Testes'));
 const AdminRelatorios = lazy(() => import('./pages/admin/Relatorios'));
 const AdminSaques = lazy(() => import('./pages/admin/Saques'));
 const AdminRanking = lazy(() => import('./pages/admin/Ranking'));
+const AdminLandingPreview = lazy(() => import('./pages/admin/LandingPreview'));
 
 const CompletarPerfil = lazy(() => import('./pages/auth/CompletarPerfil'));
 
@@ -323,6 +324,7 @@ const router = createBrowserRouter([
           { path: 'transacoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense></ErrorBoundary> },
           { path: 'saques', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSaques /></Suspense></ErrorBoundary> },
           { path: 'ranking', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminRanking /></Suspense></ErrorBoundary> },
+          { path: 'landing', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminLandingPreview /></Suspense></ErrorBoundary> },
           { path: 'financeiro-auditoria', element: <AdminEmBreve /> },
           { path: 'auditoria-logs', element: <AdminEmBreve /> },
           { path: 'equipe', element: <AdminEmBreve /> },

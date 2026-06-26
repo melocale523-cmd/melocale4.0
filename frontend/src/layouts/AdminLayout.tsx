@@ -7,7 +7,7 @@ import {
   Users, Briefcase, BarChart3, Settings, ShieldAlert,
   LogOut, ArrowLeft, Menu, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy, Monitor
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -16,6 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 const ADMIN_NAVIGATION = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: BarChart3 },
   { name: 'Observabilidade', href: '/admin/observabilidade', icon: Activity },
+  { name: 'Landing Preview', href: '/admin/landing', icon: Monitor },
   { name: 'Disputas', href: '/admin/disputas', icon: AlertOctagon },
   { name: 'Usuários', href: '/admin/usuarios', icon: Users },
   { name: 'Ranking', href: '/admin/ranking', icon: Trophy },
