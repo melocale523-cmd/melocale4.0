@@ -323,14 +323,14 @@ export default function LandingPage() {
         {/* ── 4. Trust bar ── */}
         <section style={{ background: '#182035', borderTop: '2px solid #f59e0b', padding: '28px 0' }}>
           <div className="container-app">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
               {[
                 { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(56,189,248,.35)', bg: 'rgba(56,189,248,.08)', accent: '#38bdf8' },
                 { icon: '⚡', label: 'Resposta em 47 min', sub: 'Média real verificada', border: 'rgba(245,158,11,.35)', bg: 'rgba(245,158,11,.08)', accent: '#f59e0b' },
                 { icon: '✅', label: 'Profissionais verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.08)', accent: '#10b981' },
                 { icon: '🛡️', label: 'Garantia de 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)', accent: '#10b981' },
               ].map(item => (
-                <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, minWidth: 160 }}>
                   <span style={{ fontSize: 28, flexShrink: 0 }}>{item.icon}</span>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.2 }}>{item.label}</p>
@@ -539,7 +539,7 @@ export default function LandingPage() {
               Quem usa, <span style={{ color: '#10b981' }}>recomenda</span>
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5" style={{ marginBottom: 40 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 760, margin: '0 auto 40px' }}>
               {/* Depoimento 1 — Carlos Augusto */}
               <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 12 }}>
                 <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
@@ -602,6 +602,28 @@ export default function LandingPage() {
                   <div>
                     <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Simone Marques</p>
                     <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Limpeza residencial · Salvador, BA</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Depoimento 4 — Francisco Oliveira */}
+              <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 12 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>Serviço excelente</span>
+                </div>
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
+                </div>
+                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
+                  "Descrevi o problema, em 40 minutos tinha 3 orçamentos. Nunca pensei que fosse tão fácil de encontrar um profissional de confiança."
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>FO</div>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Francisco Oliveira</p>
+                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Jacobina, BA</p>
                   </div>
                 </div>
               </div>
