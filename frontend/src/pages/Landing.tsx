@@ -96,7 +96,7 @@ export default function LandingPage() {
     elite:   3 + Math.floor(Math.random() * 5),
   }));
   const [showConversionWidgets, setShowConversionWidgets] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,20 +126,52 @@ export default function LandingPage() {
 
   const pad = (n: number) => String(n).padStart(2, '0');
 
+  const stepsData = isProfissional ? [
+    { n: '01', title: 'Crie seu perfil', sub: '2 minutos', desc: `Adicione seu serviço, foto e área de atuação. Seu perfil fica visível para clientes de ${displayCity} imediatamente.`, color: '#10b981', bg: 'rgba(16,185,129,.14)', border: 'rgba(16,185,129,.35)' },
+    { n: '02', title: 'Receba leads no celular', sub: 'Todo dia', desc: 'Clientes preenchem pedido detalhado — você recebe o contato direto. Só chegam quem já quer contratar.', color: '#10b981', bg: 'rgba(16,185,129,.14)', border: 'rgba(16,185,129,.35)' },
+    { n: '03', title: 'Feche e fature', sub: '+R$1.800/mês extra', desc: 'Entre em contato, faça o orçamento, feche o serviço. Profissionais ativos fecham 3–5 serviços por semana.', color: '#10b981', bg: 'rgba(16,185,129,.14)', border: 'rgba(16,185,129,.35)' },
+  ] : [
+    { n: '01', title: 'Descreva o serviço', sub: '30 segundos', desc: 'Conte o que precisa — eletricista, pintor, encanador. Quanto mais detalhe, melhor o orçamento.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
+    { n: '02', title: 'Receba propostas', sub: 'Até 5 em 47 min', desc: `Profissionais verificados de ${displayCity} entram em contato. Compare preços sem sair de casa.`, color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
+    { n: '03', title: 'Contrate com segurança', sub: 'Garantia 7 dias', desc: 'Escolha o melhor, pague com segurança. Insatisfeito em 7 dias? Devolvemos tudo.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
+  ];
+
+  const trustData = isProfissional ? [
+    { icon: '💰', q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o PRO por 7 meses. Com 3 serviços por semana, o ROI é de mais de 2.000% ao mês.', color: '#10b981', border: 'rgba(16,185,129,.35)' },
+    { icon: '🎯', q: 'Os leads são sérios?', a: 'Clientes preenchem pedido detalhado antes de chegar até você. Zero lead "só pra saber o preço" — chegam prontos para fechar.', color: '#10b981', border: 'rgba(16,185,129,.35)' },
+    { icon: '⚡', q: 'Quanto tempo leva?', a: 'Perfil em 2 minutos. Primeiros leads no mesmo dia. Em uma semana você já tem retorno sobre o investimento.', color: '#10b981', border: 'rgba(16,185,129,.35)' },
+  ] : [
+    { icon: '🛡️', q: 'É seguro de verdade?', a: 'Todo profissional passa por validação de identidade. Mais seguro que pedir indicação no grupo do WhatsApp — onde você não sabe nada do prestador.', color: '#38bdf8', border: 'rgba(56,189,248,.35)' },
+    { icon: '💸', q: 'Vou economizar?', a: 'Com 5 orçamentos para comparar, clientes economizam em média 23% no preço final. Você escolhe com calma — sem pressão.', color: '#38bdf8', border: 'rgba(56,189,248,.35)' },
+    { icon: '📍', q: 'Tem perto de mim?', a: `Profissionais ativos em ${displayCity} e região. Resposta em 47 minutos — não dias esperando alguém indicar.`, color: '#38bdf8', border: 'rgba(56,189,248,.35)' },
+  ];
+
+  const statsData = isProfissional ? [
+    { val: '+R$1.800', lbl: 'Renda extra por mês', sub: 'média dos profissionais ativos', color: '#10b981' },
+    { val: '1º dia', lbl: 'Primeiro lead chega', sub: 'após criar o perfil', color: '#10b981' },
+    { val: '3–5x', lbl: 'Mais serviços por semana', sub: 'vs. só indicação', color: '#10b981' },
+  ] : [
+    { val: '47 min', lbl: 'Tempo médio de resposta', sub: 'do pedido ao 1º orçamento', color: '#38bdf8' },
+    { val: '23%', lbl: 'Economia média', sub: 'comparando 5 orçamentos', color: '#38bdf8' },
+    { val: '98%', lbl: 'Satisfação', sub: 'avaliação pós-serviço', color: '#38bdf8' },
+  ];
+
   const FAQ_PROF = [
-    { q: 'Quantos leads vou receber por mês?', a: 'Depende da sua categoria. Em Salvador, profissionais ativos recebem em média 8–15 leads por mês no plano PRO.' },
-    { q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o plano PRO por 7 meses. A média dos profissionais é +R$1.800/mês extra.' },
-    { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa e sem fidelidade.' },
-    { q: 'Tem cliente na minha área em Salvador?', a: 'Sim. Estamos ativos em Salvador e expandindo bairro a bairro. Você vê os leads disponíveis antes de contratar.' },
-    { q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia.' },
+    { q: 'Quantos leads vou receber por mês?', a: `Em ${displayCity}, profissionais ativos no plano PRO recebem em média 8–15 leads por mês. Depende da categoria — eletricistas e encanadores têm mais demanda. Você pode ver os leads disponíveis antes de assinar.` },
+    { q: 'Vale o investimento se sou autônomo?', a: '1 cliente de R$500 já paga o plano PRO por 7 meses. Se você fechar apenas 1 serviço por mês via plataforma, já teve retorno. A maioria dos profissionais ativos fecha 3–5 por semana.' },
+    { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa, sem fidelidade, sem ligação de retenção. Zero burocracia.' },
+    { q: `Tem cliente na minha área em ${displayCity}?`, a: `Estamos ativos em ${displayCity} e região. Você vê os leads disponíveis na sua categoria antes de assinar qualquer plano.` },
+    { q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia. Em uma semana você já tem retorno sobre o investimento.' },
+    { q: 'Preciso de cartão de crédito para começar?', a: 'Não. O cadastro e criação do perfil são totalmente gratuitos. Você só paga quando escolher um plano pago — e mesmo assim pode cancelar quando quiser.' },
   ];
 
   const FAQ_CLIENTE = [
-    { q: 'Isso é seguro? Não é golpe?', a: 'Todo profissional passa por validação de identidade antes de aparecer na plataforma. Garantia de 7 dias com dinheiro de volta.' },
-    { q: 'Clientes pagam para usar?', a: 'Não. Você busca, recebe orçamentos e escolhe o melhor — tudo grátis, sem cartão.' },
-    { q: 'E se o profissional não aparecer?', a: 'Reembolso completo. Garantia de 7 dias — sem questionamentos.' },
-    { q: 'Tem profissional no meu bairro em Salvador?', a: 'Estamos ativos em vários bairros de Salvador. Após descrever o serviço você vê quem está disponível perto de você.' },
-    { q: 'E se o serviço ficar mal feito?', a: 'Nossa garantia de 7 dias cobre isso. Abrindo uma disputa, devolvemos seu dinheiro sem burocracia.' },
+    { q: 'Isso é seguro? Não é golpe?', a: 'Todo profissional passa por validação de identidade antes de aparecer na plataforma. É mais seguro do que contratar pelo boca a boca do grupo do WhatsApp, onde você não sabe nada sobre quem vai entrar na sua casa.' },
+    { q: 'Clientes realmente não pagam nada?', a: 'Zero. O MeloCalé é financiado pelos profissionais que pagam mensalidade para receber leads. Para você, cliente, é 100% grátis — sem cartão, sem taxa oculta, sem nada.' },
+    { q: 'E se o profissional não aparecer?', a: 'Reembolso completo. Garantia de 7 dias em todos os casos — sem questionamentos, sem burocracia.' },
+    { q: `Tem profissional no meu bairro em ${displayCity}?`, a: `Estamos ativos em ${displayCity} e região. Após descrever o serviço você vê quem está disponível perto de você com tempo de resposta estimado.` },
+    { q: 'E se o serviço ficar mal feito?', a: 'Nossa garantia de 7 dias cobre isso. Basta abrir uma disputa pelo app — devolvemos seu dinheiro sem burocracia.' },
+    { q: 'Como funciona o pagamento ao profissional?', a: 'Você paga pelo app com segurança via Stripe. O profissional só recebe após a confirmação do serviço concluído. Seu dinheiro fica protegido em todas as etapas.' },
   ];
 
   const FAQ_DUAL = [
@@ -164,6 +196,25 @@ export default function LandingPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
+
+      {/* ── 0. Live Ticker ── */}
+      {(isProfissional || isCliente) && (
+        <div style={{ background: isProfissional ? '#064e3b' : '#1e3a5f', padding: '6px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap', zIndex: 61, position: 'relative' }}>
+          {isProfissional ? (
+            <>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>34 profissionais online agora</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>12 leads enviados hoje em {displayCity}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>Pintor de {displayCity} fechou 2 contratos hoje</span>
+            </>
+          ) : (
+            <>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>34 clientes buscando profissionais agora</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Apenas 2 eletricistas disponíveis em {displayCity} esta semana</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Última resposta: 12 min atrás</span>
+            </>
+          )}
+        </div>
+      )}
 
       {/* ── 1. Banner ── */}
       {isFlashTime() ? (
@@ -207,116 +258,235 @@ export default function LandingPage() {
         <section style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: '#0f172a', borderTop: '2px solid #10b981' }}>
           <div className="container-app" style={{ position: 'relative' }}>
 
-            {/* Eyebrow */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 14px', display: isCliente ? 'none' : 'inline-block' }}>🔧 Para profissionais</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 20, padding: '4px 14px', display: isProfissional ? 'none' : 'inline-block' }}>🏠 Para clientes</span>
-            </div>
+            {(isProfissional || isCliente) ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center', maxWidth: 960, margin: '0 auto' }}>
+                {/* Coluna esquerda */}
+                <div>
+                  <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                    {!isCliente && <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 14px' }}>🔧 Para profissionais de {displayCity}</span>}
+                    {!isProfissional && <span style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 20, padding: '4px 14px' }}>🏠 Para clientes em {displayCity}</span>}
+                  </div>
 
-            {/* Headline */}
-            <h1 style={{ textAlign: 'center', fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: 14, color: '#f0f6ff' }}>
-              {isProfissional ? (
-                <>
-                  Receba clientes prontos para contratar em{' '}
-                  <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                    {displayCity}
+                  {isProfissional ? (
+                    <>
+                      <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 900, lineHeight: 1.15, marginBottom: 14, color: '#f0f6ff' }}>
+                        Pare de perder{' '}
+                        <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>R$1.800/mês</span>
+                        {' '}esperando indicação
+                      </h1>
+                      <p style={{ fontSize: 15, color: '#94b8d8', marginBottom: 16, lineHeight: 1.7 }}>
+                        Profissionais que dependem só de indicação deixam essa renda na mesa todo mês. O MeloCalé conecta você a clientes prontos para fechar — sem depender de ninguém.
+                      </p>
+                      <div style={{ background: '#1a0a0a', border: '1px solid rgba(239,68,68,.3)', borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
+                        <div style={{ fontSize: 12, color: '#fca5a5', marginBottom: 4 }}>Sem o MeloCalé, você perde em média:</div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: '#ef4444' }}>R$1.800/mês em serviços que poderiam ser seus</div>
+                      </div>
+                      <div style={{ background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.25)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 12, color: '#6ee7b7' }}>Menos que 1 café por dia —</span>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: '#10b981' }}>R$1,23/dia resolve isso</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 20 }}>
+                        {[
+                          'Leads de clientes prontos para fechar hoje',
+                          'Badge verificado — apareça primeiro nas buscas',
+                          'Primeiros leads chegam no mesmo dia do cadastro',
+                          'Cancele quando quiser — sem fidelidade',
+                          'Comece grátis — sem cartão de crédito',
+                        ].map(f => (
+                          <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ color: '#10b981', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
+                            <span style={{ fontSize: 13, color: '#94c4a8' }}>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
+                        Quero receber meus primeiros leads →
+                      </Link>
+                      <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
+                        Ver leads disponíveis em {displayCity}
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 900, lineHeight: 1.15, marginBottom: 14, color: '#f0f6ff' }}>
+                        Encontre o profissional certo em{' '}
+                        <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{displayCity}</span>
+                        {' '}— sem sair de casa
+                      </h1>
+                      <p style={{ fontSize: 15, color: '#94b8d8', marginBottom: 16, lineHeight: 1.7 }}>
+                        Sem ligar para desconhecidos. Sem depender de indicação de vizinho. Receba até 5 orçamentos de profissionais verificados e escolha o melhor preço.
+                      </p>
+                      <div style={{ background: '#0a1628', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
+                        <div style={{ fontSize: 12, color: '#60a5fa', fontWeight: 700, marginBottom: 4 }}>Urgência real em {displayCity}:</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Apenas 2 eletricistas disponíveis esta semana</div>
+                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>Profissionais verificados · agenda se esgota rapidamente</div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 20 }}>
+                        {[
+                          'Profissionais com identidade confirmada',
+                          'Até 5 orçamentos grátis — compare e economize até 23%',
+                          'Resposta em 47 minutos — não dias',
+                          'Garantia de 7 dias — dinheiro de volta',
+                          '100% gratuito para clientes — sem cartão',
+                        ].map(f => (
+                          <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ color: '#38bdf8', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
+                            <span style={{ fontSize: 13, color: '#94b8d4' }}>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
+                        Ver profissionais disponíveis agora →
+                      </Link>
+                      <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
+                        Descrever meu serviço
+                      </Link>
+                    </>
+                  )}
+                  <p style={{ fontSize: 11, color: '#4a6a80', marginTop: 12 }}>
+                    {isProfissional
+                      ? `Beta fechado · 7 profissionais ativos em ${displayCity} · Grátis para começar`
+                      : `Profissionais verificados em ${displayCity} · 47 min de resposta · Grátis`}
+                  </p>
+                </div>
+
+                {/* Coluna direita — card de resultados */}
+                <div style={{ background: '#1e2d45', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.35)' : 'rgba(56,189,248,.35)'}`, borderRadius: 20, padding: '28px 24px', borderTop: `3px solid ${isProfissional ? '#10b981' : '#38bdf8'}` }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: isProfissional ? '#10b981' : '#38bdf8', background: isProfissional ? 'rgba(16,185,129,.14)' : 'rgba(56,189,248,.12)', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.35)' : 'rgba(56,189,248,.35)'}`, borderRadius: 6, padding: '3px 10px', display: 'inline-block', marginBottom: 16 }}>
+                    {isProfissional ? 'Resultado real dos profissionais' : 'Resultado real dos clientes'}
                   </span>
-                </>
-              ) : isCliente ? (
-                <>
-                  Encontre o profissional certo em{' '}
-                  <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                    {displayCity}
-                  </span>
-                  {' '}em minutos
-                </>
-              ) : (
-                <>
+                  {isProfissional ? (
+                    <>
+                      {[
+                        { lbl: 'Renda extra por mês', val: '+R$1.800' },
+                        { lbl: 'Primeiro lead chega em', val: '1º dia' },
+                        { lbl: 'Mais serviços vs. só indicação', val: '3–5x' },
+                      ].map(s => (
+                        <div key={s.lbl} style={{ background: 'rgba(16,185,129,.1)', border: '1px solid rgba(16,185,129,.25)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>{s.lbl}</span>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: '#10b981' }}>{s.val}</span>
+                        </div>
+                      ))}
+                      <div style={{ background: '#0a1628', border: '1px solid rgba(16,185,129,.2)', borderRadius: 10, padding: '12px 14px', marginTop: 8 }}>
+                        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>Comparação: GetNinjas vs MeloCalé</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
+                          <span style={{ color: '#94a3b8' }}>GetNinjas por lead</span>
+                          <span style={{ color: '#ef4444', fontWeight: 700 }}>R$15–R$80 por contato</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                          <span style={{ color: '#94a3b8' }}>MeloCalé PRO</span>
+                          <span style={{ color: '#10b981', fontWeight: 700 }}>R$67/mês ilimitado</span>
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 11, color: '#6ee7b7', textAlign: 'center', marginTop: 10 }}>Com 2 leads fechados, já pagou o mês inteiro</p>
+                    </>
+                  ) : (
+                    <>
+                      {[
+                        { lbl: 'Tempo médio de resposta', val: '47 min' },
+                        { lbl: 'Orçamentos por pedido', val: 'até 5' },
+                        { lbl: 'Economia média no preço', val: '23%' },
+                      ].map(s => (
+                        <div key={s.lbl} style={{ background: 'rgba(56,189,248,.1)', border: '1px solid rgba(56,189,248,.25)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>{s.lbl}</span>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: '#38bdf8' }}>{s.val}</span>
+                        </div>
+                      ))}
+                      <div style={{ background: '#0a1628', border: '1px solid rgba(56,189,248,.2)', borderRadius: 10, padding: '12px 14px', marginTop: 8 }}>
+                        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>Como clientes de {displayCity} contratam hoje:</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
+                          <span style={{ color: '#94a3b8' }}>Pedir indicação no grupo</span>
+                          <span style={{ color: '#ef4444', fontWeight: 700 }}>2–7 dias</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                          <span style={{ color: '#94a3b8' }}>MeloCalé</span>
+                          <span style={{ color: '#38bdf8', fontWeight: 700 }}>47 minutos</span>
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 11, color: '#93c5fd', textAlign: 'center', marginTop: 10 }}>Grátis, sem compromisso, com garantia de 7 dias</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Eyebrow */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 14px' }}>🔧 Para profissionais</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 20, padding: '4px 14px' }}>🏠 Para clientes</span>
+                </div>
+
+                {/* Headline dual */}
+                <h1 style={{ textAlign: 'center', fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: 14, color: '#f0f6ff' }}>
                   <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Ganhe mais</span>
                   {' '}ou{' '}
                   <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>contrate melhor</span>
                   {' '}em Salvador
-                </>
-              )}
-            </h1>
+                </h1>
 
-            {/* Subheadline */}
-            {isProfissional ? (
-              <p style={{ textAlign: 'center', fontSize: 17, color: '#94b8d8', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.7 }}>
-                Receba leads de clientes prontos para contratar em {displayCity}. Sem depender de indicação, sem pagar por lead sem retorno.
-              </p>
-            ) : isCliente ? (
-              <p style={{ textAlign: 'center', fontSize: 17, color: '#94b8d8', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.7 }}>
-                Encontre profissionais verificados em {displayCity} em minutos. Grátis, sem compromisso, com garantia de 7 dias.
-              </p>
-            ) : (
-              <p style={{ textAlign: 'center', fontSize: 17, color: '#94b8d8', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.7 }}>
-                A plataforma que conecta profissionais qualificados a clientes que precisam de serviços — com segurança, agilidade e resultado.
-              </p>
+                <p style={{ textAlign: 'center', fontSize: 17, color: '#94b8d8', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.7 }}>
+                  A plataforma que conecta profissionais qualificados a clientes que precisam de serviços — com segurança, agilidade e resultado.
+                </p>
+
+                {/* Two cards dual */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 860, margin: '0 auto', alignItems: 'stretch' }}>
+                  {/* Green — Profissional */}
+                  <div
+                    style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
+                    onMouseEnter={hoverGreen.enter} onMouseLeave={hoverGreen.leave}
+                  >
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
+                    <h3 style={{ fontSize: 21, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Aumente sua renda com leads qualificados</h3>
+                    <p style={{ fontSize: 14, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Receba clientes prontos para contratar na sua cidade. Sem depender de indicação.</p>
+                    <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 10, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                      <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>resultado médio</span>
+                      <span style={{ fontSize: 18, fontWeight: 900, color: '#10b981', letterSpacing: '.01em' }}>+R$1.800/mês extra</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                      {['Leads prontos para contratar', 'Badge verificado no perfil', 'Planos a partir de R$37/mês', 'Comece grátis — sem cartão'].map(f => (
+                        <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ color: '#10b981', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
+                          <span style={{ fontSize: 12, color: '#94c4a8' }}>{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
+                      Quero receber clientes agora →
+                    </Link>
+                  </div>
+
+                  {/* Blue — Cliente */}
+                  <div
+                    style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 20, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
+                    onMouseEnter={hoverBlue.enter} onMouseLeave={hoverBlue.leave}
+                  >
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
+                    <h3 style={{ fontSize: 21, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Encontre o profissional certo em minutos</h3>
+                    <p style={{ fontSize: 14, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Receba até 5 orçamentos de profissionais verificados. Grátis, sem compromisso.</p>
+                    <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                      <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>tempo médio de resposta</span>
+                      <span style={{ fontSize: 18, fontWeight: 900, color: '#38bdf8', letterSpacing: '.01em' }}>47 minutos</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                      {['Profissionais verificados e avaliados', 'Até 5 orçamentos grátis', 'Compare preços e escolha o melhor', 'Garantia de 7 dias'].map(f => (
+                        <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ color: '#38bdf8', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
+                          <span style={{ fontSize: 12, color: '#94b8d4' }}>{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
+                      Encontrar profissional agora →
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Proof row dual */}
+                <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#7a9ab8' }}>
+                  Primeiros profissionais em Salvador · 47 min resposta · 🔒 Grátis para começar
+                </p>
+              </>
             )}
-
-            {/* Two cards */}
-            <div className={isProfissional || isCliente ? '' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'} style={{ maxWidth: isProfissional || isCliente ? 500 : 860, margin: '0 auto', alignItems: 'stretch' }}>
-
-              {/* Green — Profissional */}
-              <div
-                style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 20, padding: '32px 28px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
-                onMouseEnter={hoverGreen.enter} onMouseLeave={hoverGreen.leave}
-              >
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
-                <h3 style={{ fontSize: 21, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Aumente sua renda com leads qualificados</h3>
-                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Receba clientes prontos para contratar na sua cidade. Sem depender de indicação.</p>
-                <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 10, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                  <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>resultado médio</span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: '#10b981', letterSpacing: '.01em' }}>+R$1.800/mês extra</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                  {['Leads prontos para contratar', 'Badge verificado no perfil', 'Planos a partir de R$37/mês', 'Comece grátis — sem cartão'].map(f => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ color: '#10b981', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
-                      <span style={{ fontSize: 12, color: '#94c4a8' }}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
-                  Quero receber clientes agora →
-                </Link>
-              </div>
-
-              {/* Blue — Cliente */}
-              <div
-                style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 20, padding: '32px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 18, transition: 'all .2s', alignSelf: 'stretch' }}
-                onMouseEnter={hoverBlue.enter} onMouseLeave={hoverBlue.leave}
-              >
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', display: 'inline-block', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
-                <h3 style={{ fontSize: 21, fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.3 }}>Encontre o profissional certo em minutos</h3>
-                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Receba até 5 orçamentos de profissionais verificados. Grátis, sem compromisso.</p>
-                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                  <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.06em' }}>tempo médio de resposta</span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: '#38bdf8', letterSpacing: '.01em' }}>47 minutos</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                  {['Profissionais verificados e avaliados', 'Até 5 orçamentos grátis', 'Compare preços e escolha o melhor', 'Garantia de 7 dias'].map(f => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ color: '#38bdf8', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>✓</span>
-                      <span style={{ fontSize: 12, color: '#94b8d4' }}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
-                  Encontrar profissional agora →
-                </Link>
-              </div>
-            </div>
-
-            {/* Proof row */}
-            <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#7a9ab8' }}>
-              {isProfissional
-                ? `Primeiros profissionais verificados em ${displayCity} · Beta fechado · 🔒 Grátis para começar`
-                : isCliente
-                ? `Profissionais verificados em ${displayCity} · 47 min de resposta · 🔒 100% grátis para clientes`
-                : 'Primeiros profissionais em Salvador · 47 min resposta · 🔒 Grátis para começar'}
-            </p>
           </div>
         </section>
 
@@ -342,58 +512,92 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {(isProfissional || isCliente) && (
+          <section style={{ background: isProfissional ? 'rgba(16,185,129,.08)' : 'rgba(56,189,248,.06)', borderTop: `1px solid ${isProfissional ? 'rgba(16,185,129,.2)' : 'rgba(56,189,248,.2)'}`, borderBottom: `1px solid ${isProfissional ? 'rgba(16,185,129,.2)' : 'rgba(56,189,248,.2)'}`, padding: '20px 0' }}>
+            <div className="container-app">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+                {isProfissional ? (
+                  <>
+                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>R$1,23</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>por dia — plano Starter</div><div style={{ fontSize: 11, color: '#64748b' }}>menos que 1 café</div></div>
+                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>R$0</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>para começar</div><div style={{ fontSize: 11, color: '#64748b' }}>sem cartão de crédito</div></div>
+                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>7 dias</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>de garantia</div><div style={{ fontSize: 11, color: '#64748b' }}>dinheiro de volta</div></div>
+                  </>
+                ) : (
+                  <>
+                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#38bdf8' }}>R$0</div><div style={{ fontSize: 12, color: '#93c5fd' }}>para clientes</div><div style={{ fontSize: 11, color: '#64748b' }}>sem cartão</div></div>
+                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#38bdf8' }}>47 min</div><div style={{ fontSize: 12, color: '#93c5fd' }}>até o 1º orçamento</div><div style={{ fontSize: 11, color: '#64748b' }}>não horas nem dias</div></div>
+                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#38bdf8' }}>23%</div><div style={{ fontSize: 12, color: '#93c5fd' }}>economia média</div><div style={{ fontSize: 11, color: '#64748b' }}>comparando orçamentos</div></div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* ── 5. Como funciona dual ── */}
         <section id="como-funciona" style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
           <div className="container-app">
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.5rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Como funciona?</h2>
             <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>Três passos simples para cada lado da plataforma</p>
 
-            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 md:grid-cols-2 gap-5'} style={{ maxWidth: 860, margin: '0 auto' }}>
-
-              {/* Painel Verde — Profissional */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #10b981', display: isCliente ? 'none' : 'flex', flexDirection: 'column', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>🔧 Profissional</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {[
-                    { n: '01', title: 'Crie seu perfil', sub: '2 minutos', color: '#10b981' },
-                    { n: '02', title: 'Receba leads', sub: 'Diariamente', color: '#6ee7b7' },
-                    { n: '03', title: 'Feche negócios', sub: '+R$1.800/mês', color: '#10b981' },
-                  ].map((s, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
-                      <div>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>{s.title}</p>
-                        <p style={{ fontSize: 11, color: s.color, margin: 0, fontWeight: 700 }}>{s.sub}</p>
+            {(isProfissional || isCliente) ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 860, margin: '0 auto 32px' }}>
+                {stepsData.map((s, i) => (
+                  <div key={i} style={{ background: '#1e2d45', border: `1px solid ${s.border}`, borderRadius: 16, padding: '20px 16px', borderTop: `2px solid ${s.color}` }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: s.bg, border: `1px solid ${s.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: s.color, marginBottom: 12 }}>{s.n}</div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px' }}>{s.title}</p>
+                    <p style={{ fontSize: 12, color: s.color, fontWeight: 700, margin: '0 0 8px' }}>{s.sub}</p>
+                    <p style={{ fontSize: 12, color: '#6a9ab8', lineHeight: 1.5, margin: 0 }}>{s.desc}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
+                {/* Painel Verde — Profissional */}
+                <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #10b981', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>🔧 Profissional</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {[
+                      { n: '01', title: 'Crie seu perfil', sub: '2 minutos', color: '#10b981' },
+                      { n: '02', title: 'Receba leads', sub: 'Diariamente', color: '#6ee7b7' },
+                      { n: '03', title: 'Feche negócios', sub: '+R$1.800/mês', color: '#10b981' },
+                    ].map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
+                        <div>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>{s.title}</p>
+                          <p style={{ fontSize: 11, color: s.color, margin: 0, fontWeight: 700 }}>{s.sub}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </div>
+
+                {/* Painel Azul — Cliente */}
+                <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #38bdf8', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>🏠 Cliente</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {[
+                      { n: '01', title: 'Descreva o serviço', sub: '30 segundos', color: '#38bdf8' },
+                      { n: '02', title: 'Receba propostas', sub: '47 minutos', color: '#7dd3fc' },
+                      { n: '03', title: 'Contrate com segurança', sub: 'Garantia 7 dias', color: '#38bdf8' },
+                    ].map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
+                        <div>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>{s.title}</p>
+                          <p style={{ fontSize: 11, color: s.color, margin: 0, fontWeight: 700 }}>{s.sub}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-
-              {/* Painel Azul — Cliente */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #38bdf8', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>🏠 Cliente</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {[
-                    { n: '01', title: 'Descreva o serviço', sub: '30 segundos', color: '#38bdf8' },
-                    { n: '02', title: 'Receba propostas', sub: '47 minutos', color: '#7dd3fc' },
-                    { n: '03', title: 'Contrate com segurança', sub: 'Garantia 7 dias', color: '#38bdf8' },
-                  ].map((s, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
-                      <div>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>{s.title}</p>
-                        <p style={{ fontSize: 11, color: s.color, margin: 0, fontWeight: 700 }}>{s.sub}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            )}
 
             <div style={{ textAlign: 'center', marginTop: 32 }}>
               <Link to="/login?mode=signup" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 14, borderRadius: 12, textDecoration: 'none', padding: '0 28px', gap: 8 }}>
@@ -409,42 +613,53 @@ export default function LandingPage() {
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Por que confiar no MeloCalé?</h2>
             <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 440, margin: '0 auto 40px' }}>Respondemos os principais medos de cada lado</p>
 
-            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 md:grid-cols-2 gap-5'} style={{ maxWidth: 860, margin: '0 auto' }}>
-
-              {/* Painel Verde */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #10b981', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
-                {[
-                  { emoji: '😰', q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o PRO por 7 meses. Média: +R$1.800/mês extra.' },
-                  { emoji: '🤔', q: 'Os leads são de qualidade?', a: 'Clientes preenchem pedido detalhado antes de chegar até você. Já estão prontos para contratar.' },
-                  { emoji: '⏳', q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia.' },
-                ].map(item => (
-                  <div key={item.q}>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>{item.emoji}</span> {item.q}
-                    </p>
-                    <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
+            {(isProfissional || isCliente) ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 860, margin: '0 auto' }}>
+                {trustData.map((item, i) => (
+                  <div key={i} style={{ background: '#1e2d45', border: `1px solid ${item.border}`, borderRadius: 16, padding: '20px 16px', borderTop: `2px solid ${item.color}` }}>
+                    <div style={{ fontSize: 24, marginBottom: 10 }}>{item.icon}</div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 6px' }}>{item.q}</p>
+                    <p style={{ fontSize: 12, color: '#6a9ab8', lineHeight: 1.6, margin: 0 }}>{item.a}</p>
                   </div>
                 ))}
               </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
+                {/* Painel Verde */}
+                <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #10b981' }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
+                  {[
+                    { emoji: '😰', q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o PRO por 7 meses. Média: +R$1.800/mês extra.' },
+                    { emoji: '🤔', q: 'Os leads são de qualidade?', a: 'Clientes preenchem pedido detalhado antes de chegar até você. Já estão prontos para contratar.' },
+                    { emoji: '⏳', q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia.' },
+                  ].map(item => (
+                    <div key={item.q}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>{item.emoji}</span> {item.q}
+                      </p>
+                      <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
+                    </div>
+                  ))}
+                </div>
 
-              {/* Painel Azul */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #38bdf8', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
-                {[
-                  { emoji: '😰', q: 'E se for golpe?', a: 'Todo profissional passa por validação de identidade. Garantia de 7 dias com dinheiro de volta.' },
-                  { emoji: '💸', q: 'Vou pagar caro?', a: 'Você recebe até 5 orçamentos e escolhe o melhor preço. Nenhum compromisso antes de decidir.' },
-                  { emoji: '⏳', q: 'Tem profissional perto?', a: '371 profissionais em 4 cidades. Resposta em 47 minutos — não horas, não dias.' },
-                ].map(item => (
-                  <div key={item.q}>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>{item.emoji}</span> {item.q}
-                    </p>
-                    <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
-                  </div>
-                ))}
+                {/* Painel Azul */}
+                <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #38bdf8' }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
+                  {[
+                    { emoji: '😰', q: 'E se for golpe?', a: 'Todo profissional passa por validação de identidade. Garantia de 7 dias com dinheiro de volta.' },
+                    { emoji: '💸', q: 'Vou pagar caro?', a: 'Você recebe até 5 orçamentos e escolhe o melhor preço. Nenhum compromisso antes de decidir.' },
+                    { emoji: '⏳', q: 'Tem profissional perto?', a: '371 profissionais em 4 cidades. Resposta em 47 minutos — não horas, não dias.' },
+                  ].map(item => (
+                    <div key={item.q}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>{item.emoji}</span> {item.q}
+                      </p>
+                      <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </section>
 
@@ -500,39 +715,51 @@ export default function LandingPage() {
         <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
           <div className="container-app">
 
-            {/* Stats dual */}
-            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 md:grid-cols-2 gap-4'} style={{ marginBottom: 48 }}>
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: isCliente ? 'none' : 'block', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
-                <p style={{ fontSize: 10, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🔧 Resultados dos profissionais</p>
-                <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
-                  {[
-                    { val: '371+', label: 'Profissionais' },
-                    { val: '+R$1.800', label: 'Renda/mês extra' },
-                    { val: '1º dia', label: '1º lead' },
-                  ].map(s => (
-                    <div key={s.label}>
-                      <p style={{ fontSize: 'clamp(1.1rem,3vw,1.6rem)', fontWeight: 900, color: '#10b981', margin: 0 }}>{s.val}</p>
-                      <p style={{ fontSize: 10, color: '#6a9ab8', margin: '4px 0 0' }}>{s.label}</p>
-                    </div>
-                  ))}
+            {/* Stats */}
+            {(isProfissional || isCliente) ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 860, margin: '0 auto 48px' }}>
+                {statsData.map((s, i) => (
+                  <div key={i} style={{ background: '#1e2d45', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.35)' : 'rgba(56,189,248,.35)'}`, borderRadius: 16, padding: '20px', textAlign: 'center', borderBottom: `2px solid ${s.color}` }}>
+                    <p style={{ fontSize: 'clamp(1.4rem,3vw,2rem)', fontWeight: 900, color: s.color, margin: '0 0 4px' }}>{s.val}</p>
+                    <p style={{ fontSize: 12, color: '#f0f6ff', fontWeight: 700, margin: '0 0 4px' }}>{s.lbl}</p>
+                    <p style={{ fontSize: 11, color: '#64748b', margin: 0 }}>{s.sub}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginBottom: 48 }}>
+                <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', width: '100%' }}>
+                  <p style={{ fontSize: 10, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🔧 Resultados dos profissionais</p>
+                  <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
+                    {[
+                      { val: '371+', label: 'Profissionais' },
+                      { val: '+R$1.800', label: 'Renda/mês extra' },
+                      { val: '1º dia', label: '1º lead' },
+                    ].map(s => (
+                      <div key={s.label}>
+                        <p style={{ fontSize: 'clamp(1.1rem,3vw,1.6rem)', fontWeight: 900, color: '#10b981', margin: 0 }}>{s.val}</p>
+                        <p style={{ fontSize: 10, color: '#6a9ab8', margin: '4px 0 0' }}>{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', width: '100%' }}>
+                  <p style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🏠 Resultados dos clientes</p>
+                  <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
+                    {[
+                      { val: '1.200+', label: 'Serviços' },
+                      { val: '47 min', label: 'Resp. média' },
+                      { val: '98%', label: 'Satisfação' },
+                    ].map(s => (
+                      <div key={s.label}>
+                        <p style={{ fontSize: 'clamp(1.1rem,3vw,1.6rem)', fontWeight: 900, color: '#38bdf8', margin: 0 }}>{s.val}</p>
+                        <p style={{ fontSize: 10, color: '#6a9ab8', margin: '4px 0 0' }}>{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: isProfissional ? 'none' : 'block', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
-                <p style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🏠 Resultados dos clientes</p>
-                <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
-                  {[
-                    { val: '1.200+', label: 'Serviços' },
-                    { val: '47 min', label: 'Resp. média' },
-                    { val: '98%', label: 'Satisfação' },
-                  ].map(s => (
-                    <div key={s.label}>
-                      <p style={{ fontSize: 'clamp(1.1rem,3vw,1.6rem)', fontWeight: 900, color: '#38bdf8', margin: 0 }}>{s.val}</p>
-                      <p style={{ fontSize: 10, color: '#6a9ab8', margin: '4px 0 0' }}>{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Depoimentos */}
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 32 }}>
@@ -807,6 +1034,24 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {isCliente && (
+          <section style={{ background: '#0a1628', borderTop: '2px solid #38bdf8', padding: '48px 0' }}>
+            <div className="container-app">
+              <div style={{ background: '#162032', border: '2px solid rgba(56,189,248,.4)', borderRadius: 20, padding: '32px 28px', maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>🎉</div>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', marginBottom: 10 }}>100% gratuito — sem cartão, sem taxa</h3>
+                <p style={{ fontSize: 14, color: '#6a9ab8', lineHeight: 1.7, marginBottom: 20 }}>
+                  Você não paga absolutamente nada. Receba orçamentos, compare preços, escolha o melhor profissional.<br/>
+                  <strong style={{ color: '#38bdf8' }}>O MeloCalé é financiado pelos profissionais, não por você.</strong>
+                </p>
+                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
+                  Quero encontrar um profissional →
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* ── 14. FAQ ── */}
         <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
           <div className="container-app">
@@ -849,11 +1094,11 @@ export default function LandingPage() {
             <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'} style={{ maxWidth: 760, margin: '0 auto 28px' }}>
 
               {/* Verde */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '36px 28px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 420 : undefined, width: '100%' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '36px 28px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
                 <span style={{ fontSize: 40 }}>🔧</span>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>Para profissionais</span>
-                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Comece a receber clientes hoje</h3>
-                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0 }}>Profissionais em {userCity} já estão recebendo leads qualificados.</p>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Pare de depender de indicação.<br/>Comece a receber clientes hoje.</h3>
+                <p style={{ fontSize: 13, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Cada dia sem o MeloCalé é mais R$60 que você deixa na mesa. Profissionais em {displayCity} já estão faturando R$1.800/mês a mais.</p>
                 <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(16,185,129,.4)' }}>
                   Quero receber clientes →
                 </Link>
@@ -861,11 +1106,11 @@ export default function LandingPage() {
               </div>
 
               {/* Azul */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 420 : undefined, width: '100%' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
                 <span style={{ fontSize: 40 }}>🏠</span>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
-                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Encontre o profissional em 47 min</h3>
-                <p style={{ fontSize: 14, color: '#94b8d4', margin: 0 }}>Profissionais verificados disponíveis em {userCity} agora.</p>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Pare de esperar indicação.<br/>Encontre seu profissional em 47 min.</h3>
+                <p style={{ fontSize: 13, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Profissionais verificados disponíveis em {displayCity} agora. Grátis, rápido, seguro — e com garantia de 7 dias.</p>
                 <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(56,189,248,.4)' }}>
                   Encontrar profissional →
                 </Link>
