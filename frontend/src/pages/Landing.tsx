@@ -87,7 +87,7 @@ export default function LandingPage() {
 
   const urlParams = new URLSearchParams(window.location.search);
   const cidadeParam = urlParams.get('cidade');
-  const displayCity = (isProfissional || isCliente) ? (cidadeParam || 'Salvador') : userCity;
+  const displayCity = cidadeParam || userCity;
 
   const [timer, setTimer] = useState({ h: 23, m: 59, s: 59 });
   const [vagas] = useState(() => ({
@@ -348,10 +348,10 @@ export default function LandingPage() {
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.5rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Como funciona?</h2>
             <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>Três passos simples para cada lado da plataforma</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
+            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 md:grid-cols-2 gap-5'} style={{ maxWidth: 860, margin: '0 auto' }}>
 
               {/* Painel Verde — Profissional */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #10b981', display: isCliente ? 'none' : 'flex', flexDirection: 'column' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #10b981', display: isCliente ? 'none' : 'flex', flexDirection: 'column', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
                   <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>🔧 Profissional</span>
                 </div>
@@ -373,7 +373,7 @@ export default function LandingPage() {
               </div>
 
               {/* Painel Azul — Cliente */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #38bdf8', display: isProfissional ? 'none' : 'flex', flexDirection: 'column' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', borderTop: '3px solid #38bdf8', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
                   <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>🏠 Cliente</span>
                 </div>
@@ -409,10 +409,10 @@ export default function LandingPage() {
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 8 }}>Por que confiar no MeloCalé?</h2>
             <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 440, margin: '0 auto 40px' }}>Respondemos os principais medos de cada lado</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: 860, margin: '0 auto' }}>
+            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 md:grid-cols-2 gap-5'} style={{ maxWidth: 860, margin: '0 auto' }}>
 
               {/* Painel Verde */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #10b981' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #10b981', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🔧 Para profissionais</span>
                 {[
                   { emoji: '😰', q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o PRO por 7 meses. Média: +R$1.800/mês extra.' },
@@ -429,7 +429,7 @@ export default function LandingPage() {
               </div>
 
               {/* Painel Azul */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #38bdf8' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #38bdf8', maxWidth: isProfissional || isCliente ? 560 : undefined }}>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
                 {[
                   { emoji: '😰', q: 'E se for golpe?', a: 'Todo profissional passa por validação de identidade. Garantia de 7 dias com dinheiro de volta.' },
@@ -501,8 +501,8 @@ export default function LandingPage() {
           <div className="container-app">
 
             {/* Stats dual */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginBottom: 48 }}>
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: isCliente ? 'none' : 'block' }}>
+            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 md:grid-cols-2 gap-4'} style={{ marginBottom: 48 }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '24px 20px', display: isCliente ? 'none' : 'block', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
                 <p style={{ fontSize: 10, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🔧 Resultados dos profissionais</p>
                 <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
                   {[
@@ -517,7 +517,7 @@ export default function LandingPage() {
                   ))}
                 </div>
               </div>
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: isProfissional ? 'none' : 'block' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: isProfissional ? 'none' : 'block', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
                 <p style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>🏠 Resultados dos clientes</p>
                 <div className="grid grid-cols-3 gap-3" style={{ textAlign: 'center' }}>
                   {[
@@ -824,10 +824,10 @@ export default function LandingPage() {
             </div>
 
             {/* Two cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 760, margin: '0 auto 28px' }}>
+            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'} style={{ maxWidth: 760, margin: '0 auto 28px' }}>
 
               {/* Verde */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '36px 28px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '36px 28px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 420 : undefined, width: '100%' }}>
                 <span style={{ fontSize: 40 }}>🔧</span>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>Para profissionais</span>
                 <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Comece a receber clientes hoje</h3>
@@ -839,7 +839,7 @@ export default function LandingPage() {
               </div>
 
               {/* Azul */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 420 : undefined, width: '100%' }}>
                 <span style={{ fontSize: 40 }}>🏠</span>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
                 <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Encontre o profissional em 47 min</h3>
