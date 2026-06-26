@@ -494,7 +494,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 10. CategoryGrid ── */}
-        <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={userCity} /></Suspense></div>
+        <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={displayCity} /></Suspense></div>
 
         {/* ── 11. Stats + Depoimentos ── */}
         <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
