@@ -81,7 +81,7 @@ export default function LandingPage() {
   const { isAuthenticated, user } = useAuthStore();
   const role = user?.role;
   const dashboardLink = role === 'admin' ? '/admin/dashboard' : role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
-  const { isProfissional } = useUtmParams();
+  const { isProfissional, isCliente } = useUtmParams();
 
   const [userCity, setUserCity] = useState('sua cidade');
   const [timer, setTimer] = useState({ h: 23, m: 59, s: 59 });
@@ -121,13 +121,31 @@ export default function LandingPage() {
 
   const pad = (n: number) => String(n).padStart(2, '0');
 
-  const FAQ_ITEMS = [
+  const FAQ_PROF = [
+    { q: 'Quantos leads vou receber por mês?', a: 'Depende da sua categoria. Em Salvador, profissionais ativos recebem em média 8–15 leads por mês no plano PRO.' },
+    { q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o plano PRO por 7 meses. A média dos profissionais é +R$1.800/mês extra.' },
+    { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa e sem fidelidade.' },
+    { q: 'Tem cliente na minha área em Salvador?', a: 'Sim. Estamos ativos em Salvador e expandindo bairro a bairro. Você vê os leads disponíveis antes de contratar.' },
+    { q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia.' },
+  ];
+
+  const FAQ_CLIENTE = [
+    { q: 'Isso é seguro? Não é golpe?', a: 'Todo profissional passa por validação de identidade antes de aparecer na plataforma. Garantia de 7 dias com dinheiro de volta.' },
+    { q: 'Clientes pagam para usar?', a: 'Não. Você busca, recebe orçamentos e escolhe o melhor — tudo grátis, sem cartão.' },
+    { q: 'E se o profissional não aparecer?', a: 'Reembolso completo. Garantia de 7 dias — sem questionamentos.' },
+    { q: 'Tem profissional no meu bairro em Salvador?', a: 'Estamos ativos em vários bairros de Salvador. Após descrever o serviço você vê quem está disponível perto de você.' },
+    { q: 'E se o serviço ficar mal feito?', a: 'Nossa garantia de 7 dias cobre isso. Abrindo uma disputa, devolvemos seu dinheiro sem burocracia.' },
+  ];
+
+  const FAQ_DUAL = [
     { q: 'Clientes pagam para usar?', a: 'Não. Clientes buscam e recebem orçamentos completamente grátis. Apenas profissionais pagam para acessar contatos.' },
     { q: 'E se o profissional não aparecer?', a: 'Reembolso completo. Garantia de 7 dias em todos os planos — sem questionamentos.' },
     { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa e sem fidelidade.' },
     { q: 'Os profissionais são verificados?', a: 'Todos passam por validação de identidade antes de aparecer na plataforma.' },
-    { q: 'Funciona em qual cidade?', a: 'Jacobina, Feira de Santana, Irecê e Senhor do Bonfim — expandindo em breve.' },
+    { q: 'Funciona em qual cidade?', a: 'Salvador — expandindo para outras cidades da Bahia em breve.' },
   ];
+
+  const FAQ_ITEMS = isProfissional ? FAQ_PROF : isCliente ? FAQ_CLIENTE : FAQ_DUAL;
 
   // shared hover helpers
   const hoverGreen = {
@@ -180,8 +198,6 @@ export default function LandingPage() {
       <Navbar topOffset={BANNER_H} />
 
       <main>
-        {isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
-
         {/* ── 3. Hero 50/50 ── */}
         <section style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: '#0f172a', borderTop: '2px solid #10b981' }}>
           <div className="container-app" style={{ position: 'relative' }}>
@@ -194,10 +210,29 @@ export default function LandingPage() {
 
             {/* Headline */}
             <h1 style={{ textAlign: 'center', fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: 14, color: '#f0f6ff' }}>
-              <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Ganhe mais</span>
-              {' '}ou{' '}
-              <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>contrate melhor</span>
-              {' '}no interior da Bahia
+              {isProfissional ? (
+                <>
+                  Receba clientes prontos para contratar em{' '}
+                  <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                    {userCity}
+                  </span>
+                </>
+              ) : isCliente ? (
+                <>
+                  Encontre o profissional certo em{' '}
+                  <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                    {userCity}
+                  </span>
+                  {' '}em minutos
+                </>
+              ) : (
+                <>
+                  <span style={{ background: 'linear-gradient(135deg,#10b981,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Ganhe mais</span>
+                  {' '}ou{' '}
+                  <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7dd3fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>contrate melhor</span>
+                  {' '}em Salvador
+                </>
+              )}
             </h1>
 
             {/* Subheadline */}
@@ -261,7 +296,11 @@ export default function LandingPage() {
 
             {/* Proof row */}
             <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#7a9ab8' }}>
-              371+ profissionais &nbsp;·&nbsp; 1.200+ serviços &nbsp;·&nbsp; 98% satisfação &nbsp;·&nbsp; 🔒 Grátis para começar
+              {isProfissional
+                ? 'Primeiros profissionais verificados em Salvador · Beta fechado · 🔒 Grátis para começar'
+                : isCliente
+                ? 'Profissionais verificados em Salvador · 47 min de resposta · 🔒 100% grátis para clientes'
+                : 'Primeiros profissionais em Salvador · 47 min resposta · 🔒 Grátis para começar'}
             </p>
           </div>
         </section>
@@ -486,7 +525,7 @@ export default function LandingPage() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5" style={{ marginBottom: 40 }}>
-              {/* Depoimento 1 — Carlos */}
+              {/* Depoimento 1 — Carlos Augusto */}
               <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
                 <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -500,15 +539,15 @@ export default function LandingPage() {
                   "Em 2 semanas já tinha 3 clientes novos. O MeloCalé mudou meu mês — faturei R$1.800 a mais só com os leads da plataforma."
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>C</div>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>CA</div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Carlos Silva</p>
-                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Eletricista · Feira de Santana, BA</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Carlos Augusto</p>
+                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Pintor · Salvador, BA</p>
                   </div>
                 </div>
               </div>
 
-              {/* Depoimento 2 — Ana */}
+              {/* Depoimento 2 — Ana Rodrigues */}
               <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
                 <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -522,15 +561,15 @@ export default function LandingPage() {
                   "Precisava de um encanador urgente. Em menos de 1 hora já tinha 2 orçamentos. Contratei na hora e o serviço foi excelente!"
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>A</div>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>AR</div>
                   <div>
                     <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Ana Rodrigues</p>
-                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Jacobina, BA</p>
+                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Salvador, BA</p>
                   </div>
                 </div>
               </div>
 
-              {/* Depoimento 3 — Marcos */}
+              {/* Depoimento 3 — Simone Marques */}
               <div style={{ background: '#1a2d45', border: '1px solid rgba(245,158,11,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
                 <div style={{ background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.30)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -544,10 +583,10 @@ export default function LandingPage() {
                   "Tinha medo de não conseguir clientes pela internet. Hoje o MeloCalé é minha principal fonte de trabalho. Vale cada centavo."
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#c2410c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>M</div>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#c2410c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>SM</div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Marcos Oliveira</p>
-                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Pintor · Irecê, BA</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Simone Marques</p>
+                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Limpeza residencial · Salvador, BA</p>
                   </div>
                 </div>
               </div>
@@ -565,8 +604,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── 12. EarningsCalculator (!isProfissional) ── */}
-        {!isProfissional && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
+        {/* ── 12. EarningsCalculator ── */}
+        <Suspense fallback={null}><EarningsCalculator /></Suspense>
 
         {/* ── 13. Planos ── */}
         <section id="planos" className="py-28" style={{ background: '#182035', borderTop: '2px solid #f59e0b' }}>
