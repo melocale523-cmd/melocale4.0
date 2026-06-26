@@ -1,8 +1,12 @@
 export function useUtmParams() {
   const params = new URLSearchParams(window.location.search);
+
+  const tipo = params.get('tipo') || '';
+
   return {
     utmContent: params.get('utm_content') || '',
-    isProfissional: params.get('utm_content') === 'profissional',
-    isCliente: params.get('utm_content') === 'cliente',
+    tipo,
+    isProfissional: tipo === 'profissional',
+    isCliente: tipo === 'cliente',
   };
 }
