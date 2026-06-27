@@ -30,11 +30,16 @@ export default function Footer() {
                 onMouseLeave={e => (e.currentTarget.style.color = '#6a9ab8')}
               >{l}</a>
             ))}
-            <a href="#" style={{ display: 'block', fontSize: 15, color: '#6a9ab8', textDecoration: 'none', marginBottom: 10, transition: 'color .15s' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#10b981')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#6a9ab8')}
-            >Cidades atendidas</a>
-            <span onClick={() => setShowCitiesModal(true)} style={{ fontSize: 13, color: '#10b981', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', marginTop: 12, display: 'inline-block' }}>Ver todas as cidades da Bahia →</span>
+          </div>
+
+          <div style={{ maxWidth: 230 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#f0f6ff', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>Cidades atendidas</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+              {activeCities.map(city => (
+                <span key={city} style={{ fontSize: 13, color: '#94b8d4', background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 6, padding: '5px 10px' }}>{city}</span>
+              ))}
+            </div>
+            <span onClick={() => setShowCitiesModal(true)} style={{ fontSize: 13, color: '#10b981', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>Ver todas as cidades da Bahia →</span>
           </div>
 
           <div style={{ display: 'flex', gap: 56 }}>
