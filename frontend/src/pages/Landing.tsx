@@ -1042,7 +1042,7 @@ export default function LandingPage() {
                 <p style={{ fontSize: 14, color: '#94A3B8', margin: '0 0 12px' }}>
                   Ou seja: o 2º cliente que você fechar no mês já é lucro puro no seu bolso.
                 </p>
-                <div className="landing-pense-selos" style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between', gap: 6 }}>
+                <div className="landing-pense-selos" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'normal', overflow: 'hidden' }}>
                     <span style={{ fontSize: 18, flexShrink: 0 }}>🧮</span>
                     <div style={{ textAlign: 'left' }}>

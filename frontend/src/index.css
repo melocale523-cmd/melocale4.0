@@ -329,6 +329,7 @@ input[type='range'].earnings-slider::-moz-range-thumb {
     gap: 8px !important;
   }
   .landing-pense-selos > div {
+    flex: 1 1 calc(50% - 8px) !important;
     min-width: 0 !important;
   }
 
