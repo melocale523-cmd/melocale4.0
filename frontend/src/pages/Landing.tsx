@@ -197,24 +197,6 @@ export default function LandingPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ── 0. Live Ticker ── */}
-      {(isProfissional || isCliente) && (
-        <div style={{ background: isProfissional ? '#064e3b' : '#1e3a5f', padding: '2px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap', zIndex: 61, position: 'relative' }}>
-          {isProfissional ? (
-            <>
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>34 profissionais online agora</span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>12 leads enviados hoje em {displayCity}</span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>Pintor de {displayCity} fechou 2 contratos hoje</span>
-            </>
-          ) : (
-            <>
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>34 clientes buscando profissionais agora</span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Apenas 2 eletricistas disponíveis em {displayCity} esta semana</span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Última resposta: 12 min atrás</span>
-            </>
-          )}
-        </div>
-      )}
 
       {/* ── 1. Banner ── */}
       {isFlashTime() ? (
@@ -255,7 +237,7 @@ export default function LandingPage() {
 
       <main>
         {/* ── 3. Hero 50/50 ── */}
-        <section className={`landing-hero-section${isProfissional ? ' landing-hero-with-ticker-prof' : isCliente ? ' landing-hero-with-ticker-client' : ''}`} style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: '#0f172a', borderTop: '2px solid #10b981' }}>
+        <section className="landing-hero-section" style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: '#0f172a', borderTop: '2px solid #10b981' }}>
           <div className="container-app" style={{ position: 'relative' }}>
 
             {(isProfissional || isCliente) ? (

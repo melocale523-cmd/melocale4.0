@@ -304,13 +304,6 @@ input[type='range'].earnings-slider::-moz-range-thumb {
   .landing-hero-section {
     padding-top: 120px !important;
   }
-  .landing-hero-with-ticker-prof {
-    padding-top: 44px !important;
-  }
-  .landing-hero-with-ticker-client {
-    padding-top: 8px !important;
-  }
-
   .landing-hero-grid {
     transform: none !important;
   }
