@@ -541,7 +541,7 @@ export default function LandingPage() {
             <p style={{ textAlign: 'center', fontSize: 14, color: '#6a9ab8', marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>Três passos simples para cada lado da plataforma</p>
 
             {(isProfissional || isCliente) ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 860, margin: '0 auto 32px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 1040, margin: '0 auto 32px' }}>
                 {stepsData.map((s, i) => (
                   <div key={i} style={{ background: '#1e2d45', border: `1px solid ${s.border}`, borderRadius: 16, padding: '20px 16px', borderTop: `2px solid ${s.color}` }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: s.bg, border: `1px solid ${s.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: s.color, marginBottom: 12 }}>{s.n}</div>
@@ -600,9 +600,15 @@ export default function LandingPage() {
             )}
 
             <div style={{ textAlign: 'center', marginTop: 32 }}>
-              <Link to="/login?mode=signup" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 14, borderRadius: 12, textDecoration: 'none', padding: '0 28px', gap: 8 }}>
+              <Link to="/login?mode=signup" style={{ display: 'inline-flex', alignItems: 'center', height: 56, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 17, borderRadius: 14, textDecoration: 'none', padding: '0 40px', gap: 8, animation: 'comecar-pulse 1.8s ease-in-out infinite' }}>
                 Começar agora — é grátis →
               </Link>
+              <style>{`
+                @keyframes comecar-pulse {
+                  0%, 100% { box-shadow: 0 0 8px rgba(16,185,129,.4), 0 0 20px rgba(16,185,129,.2); transform: scale(1); }
+                  50% { box-shadow: 0 0 18px rgba(16,185,129,.7), 0 0 36px rgba(16,185,129,.4); transform: scale(1.05); }
+                }
+              `}</style>
             </div>
           </div>
         </section>
