@@ -1134,14 +1134,43 @@ export default function LandingPage() {
             </div>
 
             {/* Two cards */}
-            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'} style={{ maxWidth: 760, margin: '0 auto 28px' }}>
+            <div className={isProfissional || isCliente ? 'flex justify-center' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'} style={{ maxWidth: 800, margin: '0 auto 28px' }}>
 
               {/* Verde */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '36px 28px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(16,185,129,.22)', borderRadius: 18, padding: '36px 28px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 700 : undefined, width: '100%' }}>
                 <span style={{ fontSize: 40 }}>🔧</span>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>Para profissionais</span>
                 <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Pare de depender de indicação.<br/>Comece a receber clientes hoje.</h3>
                 <p style={{ fontSize: 13, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Cada dia sem o MeloCalé é mais R$60 que você deixa na mesa. Profissionais em {displayCity} já estão faturando R$1.800/mês a mais.</p>
+                <div style={{ background: 'rgba(16,185,129,.08)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 12, padding: '12px 16px', textAlign: 'left', width: '100%' }}>
+                  <div style={{ color: '#fbbf24', fontSize: 12, marginBottom: 4 }}>★★★★★</div>
+                  <p style={{ fontSize: 13, color: '#e2e8f0', margin: '0 0 4px', lineHeight: 1.5 }}>"Em 2 semanas já tinha 3 clientes novos. Faturei R$1.800 a mais só com os leads."</p>
+                  <p style={{ fontSize: 11, color: '#6a9ab8', margin: 0 }}>— Carlos Augusto, Pintor · Salvador</p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 8, width: '100%' }}>
+                  <div style={{ background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '8px 14px', flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#10b981' }}>R$1,23</div>
+                    <div style={{ fontSize: 10, color: '#94b8d4' }}>por dia</div>
+                  </div>
+                  <div style={{ background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '8px 14px', flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#10b981' }}>R$0</div>
+                    <div style={{ fontSize: 10, color: '#94b8d4' }}>pra começar</div>
+                  </div>
+                  <div style={{ background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '8px 14px', flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#10b981' }}>7 dias</div>
+                    <div style={{ fontSize: 10, color: '#94b8d4' }}>garantia</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: '#10b981', fontWeight: 900, fontSize: 13 }}>✓</span>
+                    <span style={{ fontSize: 12, color: '#94c4a8' }}>Garantia de 7 dias — dinheiro de volta sem perguntas</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: '#10b981', fontWeight: 900, fontSize: 13 }}>✓</span>
+                    <span style={{ fontSize: 12, color: '#94c4a8' }}>Cancele quando quiser — sem multa, sem fidelidade</span>
+                  </div>
+                </div>
                 <Link to="/login?mode=signup&role=professional" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(16,185,129,.4)' }}>
                   Quero receber clientes →
                 </Link>
@@ -1149,11 +1178,40 @@ export default function LandingPage() {
               </div>
 
               {/* Azul */}
-              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 560 : undefined, width: '100%' }}>
+              <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 700 : undefined, width: '100%' }}>
                 <span style={{ fontSize: 40 }}>🏠</span>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
                 <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Pare de esperar indicação.<br/>Encontre seu profissional em 47 min.</h3>
                 <p style={{ fontSize: 13, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Profissionais verificados disponíveis em {displayCity} agora. Grátis, rápido, seguro — e com garantia de 7 dias.</p>
+                <div style={{ background: 'rgba(56,189,248,.08)', border: '1px solid rgba(56,189,248,.2)', borderRadius: 12, padding: '12px 16px', textAlign: 'left', width: '100%' }}>
+                  <div style={{ color: '#fbbf24', fontSize: 12, marginBottom: 4 }}>★★★★★</div>
+                  <p style={{ fontSize: 13, color: '#e2e8f0', margin: '0 0 4px', lineHeight: 1.5 }}>"Precisava de um encanador urgente. Em menos de 1 hora já tinha 2 orçamentos."</p>
+                  <p style={{ fontSize: 11, color: '#6a9ab8', margin: 0 }}>— Ana Rodrigues, Cliente · Salvador</p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 8, width: '100%' }}>
+                  <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.3)', borderRadius: 10, padding: '8px 14px', flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#38bdf8' }}>R$0</div>
+                    <div style={{ fontSize: 10, color: '#94b8d4' }}>pra clientes</div>
+                  </div>
+                  <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.3)', borderRadius: 10, padding: '8px 14px', flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#38bdf8' }}>47 min</div>
+                    <div style={{ fontSize: 10, color: '#94b8d4' }}>resposta</div>
+                  </div>
+                  <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.3)', borderRadius: 10, padding: '8px 14px', flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#38bdf8' }}>23%</div>
+                    <div style={{ fontSize: 10, color: '#94b8d4' }}>economia</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: '#38bdf8', fontWeight: 900, fontSize: 13 }}>✓</span>
+                    <span style={{ fontSize: 12, color: '#94b8d4' }}>Você só paga depois que o profissional confirmar o serviço</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: '#38bdf8', fontWeight: 900, fontSize: 13 }}>✓</span>
+                    <span style={{ fontSize: 12, color: '#94b8d4' }}>Reembolso garantido em 7 dias, sem burocracia</span>
+                  </div>
+                </div>
                 <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(56,189,248,.4)' }}>
                   Encontrar profissional →
                 </Link>
