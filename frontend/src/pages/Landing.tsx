@@ -1043,28 +1043,28 @@ export default function LandingPage() {
                   Ou seja: o 2º cliente que você fechar no mês já é lucro puro no seu bolso.
                 </p>
                 <div className="landing-pense-selos" style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between', gap: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'normal', overflow: 'hidden' }}>
                     <span style={{ fontSize: 18, flexShrink: 0 }}>🧮</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 10, color: '#94A3B8' }}>matemática real</div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>R$67 × 7 ≈ R$469</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'normal', overflow: 'hidden' }}>
                     <span style={{ fontSize: 18, flexShrink: 0 }}>🎁</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 10, color: '#94A3B8' }}>desconto em moedas</div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>40% off</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'normal', overflow: 'hidden' }}>
                     <span style={{ fontSize: 18, flexShrink: 0 }}>⚡</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 10, color: '#94A3B8' }}>retorno rápido</div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>2 leads cobrem o mês</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 10, padding: '6px 14px', flex: 1, minWidth: 0, whiteSpace: 'normal', overflow: 'hidden' }}>
                     <span style={{ fontSize: 18, flexShrink: 0 }}>📈</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 10, color: '#94A3B8' }}>ganho médio extra</div>
