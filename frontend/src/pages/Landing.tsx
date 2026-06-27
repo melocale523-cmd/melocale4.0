@@ -199,18 +199,18 @@ export default function LandingPage() {
 
       {/* ── 0. Live Ticker ── */}
       {(isProfissional || isCliente) && (
-        <div style={{ background: isProfissional ? '#064e3b' : '#1e3a5f', padding: '6px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap', zIndex: 61, position: 'relative' }}>
+        <div style={{ background: isProfissional ? '#064e3b' : '#1e3a5f', padding: '4px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap', zIndex: 61, position: 'relative' }}>
           {isProfissional ? (
             <>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>34 profissionais online agora</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>12 leads enviados hoje em {displayCity}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>Pintor de {displayCity} fechou 2 contratos hoje</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>34 profissionais online agora</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>12 leads enviados hoje em {displayCity}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>Pintor de {displayCity} fechou 2 contratos hoje</span>
             </>
           ) : (
             <>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>34 clientes buscando profissionais agora</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Apenas 2 eletricistas disponíveis em {displayCity} esta semana</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Última resposta: 12 min atrás</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>34 clientes buscando profissionais agora</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Apenas 2 eletricistas disponíveis em {displayCity} esta semana</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }}></span>Última resposta: 12 min atrás</span>
             </>
           )}
         </div>
