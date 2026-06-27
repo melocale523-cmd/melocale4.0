@@ -29,7 +29,7 @@ export default function CategoryGrid({ userCity }: Props) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '2rem', maxWidth: '65rem', margin: '0 auto 2rem', transform: 'translateX(2rem)' }}>
+        <div className="landing-category-grid grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '2rem', maxWidth: '65rem', margin: '0 auto 2rem', transform: 'translateX(2rem)' }}>
           {categories.map(cat => (
             <Link
               key={cat.slug}
