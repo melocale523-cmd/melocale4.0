@@ -1030,7 +1030,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="max-w-6xl mx-auto bg-[#1e2d45] border border-[#1C3050] rounded-2xl p-6 text-center" style={{ marginBottom: '1rem', marginLeft: 'auto', marginRight: 'auto', transform: isProfissional ? 'translateX(10rem)' : 'none' }}>
+            <div className="max-w-6xl mx-auto bg-[#1e2d45] border border-[#1C3050] rounded-2xl p-6 text-center" style={{ marginBottom: '1rem', transform: isProfissional ? 'translateX(10rem)' : 'none' }}>
               <p className="text-[#94A3B8] text-sm mb-4">💡 Pense assim:</p>
               <p className="text-white text-xl font-bold mb-4">
                 1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
