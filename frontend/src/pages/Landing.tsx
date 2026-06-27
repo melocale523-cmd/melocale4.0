@@ -259,7 +259,7 @@ export default function LandingPage() {
           <div className="container-app" style={{ position: 'relative' }}>
 
             {(isProfissional || isCliente) ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center', maxWidth: 960, margin: '0 auto' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center', maxWidth: '60rem', margin: '0 auto' }}>
                 {/* Coluna esquerda */}
                 <div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
@@ -687,7 +687,7 @@ export default function LandingPage() {
                 A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> —<br className="hidden lg:block" /> rápido, seguro e perto de você
               </h2>
             </div>
-            <div className="flex flex-col lg:flex-row gap-4 items-start" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <div className="flex flex-col lg:flex-row gap-4 items-start" style={{ maxWidth: '62.5rem', margin: '0 auto' }}>
               <div className="hidden lg:flex flex-col gap-2 w-[85px] shrink-0 relative">
                 {[
                   { icon: <ShieldCheck size={14} className="text-purple-400" />, bg: 'bg-purple-500/10', title: 'Profissionais Verificados' },
@@ -922,7 +922,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-4 sm:px-0" style={{ marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-6xl mx-auto mb-12 px-4" style={{ marginBottom: '2rem' }}>
               {/* GRATUITO */}
               <div className="bg-[#1a2840] rounded-2xl border border-slate-800 flex flex-col opacity-80 hover:opacity-100 transition-opacity duration-200" style={{ padding: '1.75rem 1.5rem', borderTop: '3px solid rgba(148,163,184,.3)' }}>
                 <div className="mb-4">
