@@ -904,7 +904,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="max-w-6xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-5 px-4" style={{ marginBottom: '1.5rem', marginLeft: 'auto', marginRight: 'auto', maxWidth: '72rem', transform: isProfissional ? 'translateX(10rem)' : 'none' }}>
+            <div className="max-w-6xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-5 px-4" style={{ marginBottom: '1.5rem', marginLeft: 'auto', marginRight: 'auto', maxWidth: '72rem', transform: isProfissional ? 'translateX(5rem)' : 'none' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-3xl">☕</span>
                 <div>
