@@ -493,14 +493,14 @@ export default function LandingPage() {
         {/* ── 4. Trust bar ── */}
         <section style={{ background: '#182035', borderTop: '2px solid #f59e0b', padding: '28px 0' }}>
           <div className="container-app">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            <div className="flex overflow-x-auto md:grid md:grid-cols-4 md:overflow-visible" style={{ gap: 16, paddingBottom: 4 }}>
               {[
                 { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(56,189,248,.35)', bg: 'rgba(56,189,248,.08)', accent: '#38bdf8' },
                 { icon: '⚡', label: 'Resposta em 47 min', sub: 'Média real verificada', border: 'rgba(245,158,11,.35)', bg: 'rgba(245,158,11,.08)', accent: '#f59e0b' },
                 { icon: '✅', label: 'Profissionais verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.08)', accent: '#10b981' },
                 { icon: '🛡️', label: 'Garantia de 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)', accent: '#10b981' },
               ].map(item => (
-                <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, minWidth: 160 }}>
                   <span style={{ fontSize: 28, flexShrink: 0 }}>{item.icon}</span>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1.2 }}>{item.label}</p>
