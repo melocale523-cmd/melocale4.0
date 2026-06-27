@@ -29,14 +29,14 @@ export default function CategoryGrid({ userCity }: Props) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: '2rem', maxWidth: '50rem', margin: '0 auto 2rem' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '2rem', maxWidth: '65rem', margin: '0 auto 2rem' }}>
           {categories.map(cat => (
             <Link
               key={cat.slug}
               to={`/login?mode=signup&servico=${cat.slug}`}
-              className="group flex flex-col items-center gap-3 bg-[#1e2d45] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-3 transition-all duration-200"
+              className="group flex flex-col items-center gap-3 bg-[#1e2d45] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-4 transition-all duration-200"
             >
-              <span className="text-2xl group-hover:scale-110 transition-transform duration-200">
+              <span className="text-3xl group-hover:scale-110 transition-transform duration-200">
                 {cat.emoji}
               </span>
               <span className="text-white font-bold text-sm text-center group-hover:text-emerald-400 transition-colors">
