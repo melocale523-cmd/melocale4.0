@@ -255,7 +255,7 @@ export default function LandingPage() {
 
       <main>
         {/* ── 3. Hero 50/50 ── */}
-        <section className={`landing-hero-section${(isProfissional || isCliente) ? ' landing-hero-with-ticker' : ''}`} style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: '#0f172a', borderTop: '2px solid #10b981' }}>
+        <section className={`landing-hero-section${isProfissional ? ' landing-hero-with-ticker-prof' : isCliente ? ' landing-hero-with-ticker-client' : ''}`} style={{ position: 'relative', paddingTop: 120, paddingBottom: 64, overflow: 'hidden', background: '#0f172a', borderTop: '2px solid #10b981' }}>
           <div className="container-app" style={{ position: 'relative' }}>
 
             {(isProfissional || isCliente) ? (
