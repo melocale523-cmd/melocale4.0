@@ -493,7 +493,7 @@ export default function LandingPage() {
         {/* ── 4. Trust bar ── */}
         <section style={{ background: '#182035', borderTop: '2px solid #f59e0b', padding: '28px 0' }}>
           <div className="container-app">
-            <div className="flex overflow-x-auto md:grid md:grid-cols-4 md:overflow-visible" style={{ gap: 16, paddingBottom: 4 }}>
+            <div className="flex overflow-x-auto md:grid md:grid-cols-4 md:overflow-visible" style={{ gap: 16, paddingBottom: 4, ...(isProfissional || isCliente ? { marginLeft: '2rem', width: 'calc(100% - 2rem)' } : {}) }}>
               {[
                 { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(56,189,248,.35)', bg: 'rgba(56,189,248,.08)', accent: '#38bdf8' },
                 { icon: '⚡', label: 'Resposta em 47 min', sub: 'Média real verificada', border: 'rgba(245,158,11,.35)', bg: 'rgba(245,158,11,.08)', accent: '#f59e0b' },
@@ -515,7 +515,7 @@ export default function LandingPage() {
         {(isProfissional || isCliente) && (
           <section style={{ background: isProfissional ? 'rgba(16,185,129,.08)' : 'rgba(56,189,248,.06)', borderTop: `1px solid ${isProfissional ? 'rgba(16,185,129,.2)' : 'rgba(56,189,248,.2)'}`, borderBottom: `1px solid ${isProfissional ? 'rgba(16,185,129,.2)' : 'rgba(56,189,248,.2)'}`, padding: '20px 0' }}>
             <div className="container-app">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, textAlign: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, textAlign: 'center', marginLeft: '2rem', width: 'calc(100% - 2rem)' }}>
                 {isProfissional ? (
                   <>
                     <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>R$1,23</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>por dia — plano Starter</div><div style={{ fontSize: 11, color: '#64748b' }}>menos que 1 café</div></div>
