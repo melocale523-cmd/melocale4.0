@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, BellRing, X, Check } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePushNotifications } from '../hooks/usePushNotifications';
@@ -271,18 +271,17 @@ export default function NotificationBell() {
           </div>
 
           {/* ── Footer ───────────────────────────────────────────────────── */}
-          <div style={{
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            padding: '10px 16px',
-            textAlign: 'center',
-          }}>
-            <span
-              onClick={() => { setOpen(false); navigate('/notificacoes'); }}
-              style={{ fontSize: 12, color: '#10b981', cursor: 'pointer', fontWeight: 500 }}
-            >
-              Ver todas as notificações
-            </span>
-          </div>
+          <Link
+            to="/notificacoes"
+            onClick={() => setOpen(false)}
+            style={{
+              display: 'block', textAlign: 'center', fontSize: 12,
+              color: '#38bdf8', padding: '10px',
+              borderTop: '1px solid #1a2d45', textDecoration: 'none',
+            }}
+          >
+            Ver todas as notificações →
+          </Link>
         </div>,
         document.body
       )}
