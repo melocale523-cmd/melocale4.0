@@ -1038,22 +1038,22 @@ export default function LandingPage() {
               <p style={{ fontSize: 22, fontWeight: 700, color: '#f0f6ff', margin: '0 0 18px', lineHeight: 1.35 }}>
                 1 cliente de <span style={{ color: '#10b981' }}>R$ 500</span> já paga o plano PRO por <span style={{ color: '#10b981' }}>7 meses</span>
               </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150, flex: 1 }}>
                   <span style={{ fontSize: 18 }}>🧮</span>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ fontSize: 11, color: '#94A3B8' }}>matemática real</div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>R$67 × 7 ≈ R$469</div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150, flex: 1 }}>
                   <span style={{ fontSize: 18 }}>🎁</span>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ fontSize: 11, color: '#94A3B8' }}>desconto em moedas</div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>40% off</div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150, flex: 1 }}>
                   <span style={{ fontSize: 18 }}>⚡</span>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ fontSize: 11, color: '#94A3B8' }}>retorno rápido</div>
