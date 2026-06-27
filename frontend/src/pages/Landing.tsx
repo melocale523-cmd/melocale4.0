@@ -1099,7 +1099,7 @@ export default function LandingPage() {
         <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
           <div className="container-app">
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.4rem,4vw,2rem)', fontWeight: 800, color: '#f0f6ff', marginBottom: 32 }}>Perguntas frequentes</h2>
-            <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={(isProfissional || isCliente) ? { maxWidth: 760, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, alignItems: 'start' } : { maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
               {FAQ_ITEMS.map((item, i) => (
                 <div key={i} style={{ background: '#1a2840', border: `1px solid ${openFaq === i ? 'rgba(16,185,129,.5)' : 'rgba(56,189,248,.15)'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s' }}>
                   <button
