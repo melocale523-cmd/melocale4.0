@@ -24,17 +24,14 @@
 @layer utilities {
   .container-app {
     width: 100%;
-    max-width: 1440px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 12rem;
-    padding-right: 10rem;
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
   }
 
   @media screen and (max-width: 768px) {
     .container-app {
-      padding-left: 1rem !important;
-      padding-right: 1rem !important;
+      padding: 0 1rem;
     }
   }
 
@@ -254,6 +251,15 @@ input[type='range'].earnings-slider::-moz-range-thumb {
 }
 .fomo-in  { animation: fomo-in  0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 .fomo-out { animation: fomo-out 0.32s ease-in forwards; }
+
+/* ── Universal CTA pulse (any solid-bg button) ── */
+.cta-pulse {
+  animation: cta-pulse 1.8s ease-in-out infinite;
+}
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,255,255,.25), 0 0 20px rgba(255,255,255,.1); transform: scale(1); }
+  50% { box-shadow: 0 0 22px rgba(255,255,255,.5), 0 0 40px rgba(255,255,255,.25); transform: scale(1.05); }
+}
 
 /* ── Sticky CTA pulse ── */
 @keyframes sticky-cta-pulse {

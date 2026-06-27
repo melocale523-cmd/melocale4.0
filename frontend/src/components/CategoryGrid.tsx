@@ -29,14 +29,14 @@ export default function CategoryGrid({ userCity }: Props) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '2rem' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ marginBottom: '2rem', maxWidth: '65rem', margin: '0 auto 2rem', transform: 'translateX(2rem)' }}>
           {categories.map(cat => (
             <Link
               key={cat.slug}
               to={`/login?mode=signup&servico=${cat.slug}`}
-              className="group flex flex-col items-center gap-3 bg-[#1e2d45] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-5 transition-all duration-200"
+              className="group flex flex-col items-center gap-3 bg-[#1e2d45] hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-4 transition-all duration-200"
             >
-              <span className="text-4xl group-hover:scale-110 transition-transform duration-200">
+              <span className="text-3xl group-hover:scale-110 transition-transform duration-200">
                 {cat.emoji}
               </span>
               <span className="text-white font-bold text-sm text-center group-hover:text-emerald-400 transition-colors">
@@ -52,7 +52,7 @@ export default function CategoryGrid({ userCity }: Props) {
           </p>
           <Link
             to="/login?mode=signup"
-            className="inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base font-bold shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide"
+            className="cta-pulse inline-flex items-center gap-2 h-16 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 rounded-xl text-base font-bold shadow-lg shadow-emerald-500/20 transition-all uppercase tracking-wide"
           >
             Ver todos os serviços →
           </Link>
