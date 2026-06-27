@@ -299,7 +299,7 @@ export default function LandingPage() {
                           </div>
                         ))}
                       </div>
-                      <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
+                      <Link to="/login?mode=signup&role=professional" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
                         Quero receber meus primeiros leads →
                       </Link>
                       <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
@@ -335,7 +335,7 @@ export default function LandingPage() {
                           </div>
                         ))}
                       </div>
-                      <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
+                      <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
                         Ver profissionais disponíveis agora →
                       </Link>
                       <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
@@ -450,7 +450,7 @@ export default function LandingPage() {
                         </div>
                       ))}
                     </div>
-                    <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
+                    <Link to="/login?mode=signup&role=professional" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
                       Quero receber clientes agora →
                     </Link>
                   </div>
@@ -475,7 +475,7 @@ export default function LandingPage() {
                         </div>
                       ))}
                     </div>
-                    <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
+                    <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginTop: 'auto', padding: '0 32px', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
                       Encontrar profissional agora →
                     </Link>
                   </div>
@@ -864,7 +864,7 @@ export default function LandingPage() {
 
             {/* CTA dual pós-depoimentos */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <Link to="/login?mode=signup&role=client" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px' }}>
+              <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px' }}>
                 Ver profissionais disponíveis agora →
               </Link>
               <Link to="/login?mode=signup&role=professional" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'transparent', color: '#38bdf8', fontWeight: 700, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px', border: '1px solid rgba(56,189,248,.3)' }}>
@@ -936,7 +936,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 0<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-sm text-[#4A6580]">Para conhecer a plataforma</p>
                 </div>
-                <Link to="/login" className="inline-flex items-center justify-center w-full h-11 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-3 text-sm font-bold transition-all mt-4 mb-4 whitespace-nowrap" style={{ marginTop: '1.75rem', marginBottom: '1.75rem' }}>
+                <Link to="/login" className="cta-pulse inline-flex items-center justify-center w-full h-11 bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-3 text-sm font-bold transition-all mt-4 mb-4 whitespace-nowrap" style={{ marginTop: '1.75rem', marginBottom: '1.75rem' }}>
                   Explorar Grátis →
                 </Link>
                 <ul className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
@@ -955,7 +955,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 37<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">25% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-3 text-sm font-bold transition-all mt-3 mb-3 shadow-lg shadow-blue-500/20 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+                <Link to="/login?mode=signup&role=professional" className="cta-pulse inline-flex items-center justify-center w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-3 text-sm font-bold transition-all mt-3 mb-3 shadow-lg shadow-blue-500/20 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Quero Receber Leads →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
@@ -983,7 +983,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 67<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-emerald-400 text-xs font-bold">40% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-3 text-sm font-black transition-all mt-3 mb-3 shadow-xl shadow-emerald-500/30 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+                <Link to="/login?mode=signup&role=professional" className="cta-pulse inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl px-3 text-sm font-black transition-all mt-3 mb-3 shadow-xl shadow-emerald-500/30 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Receber Meu Primeiro Lead →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
@@ -1010,7 +1010,7 @@ export default function LandingPage() {
                   <div className="text-3xl font-extrabold text-white mb-2">R$ 127<span className="text-sm font-normal text-[#4A6580]">/mês</span></div>
                   <p className="text-yellow-400 text-xs font-bold">55% off em todas as moedas</p>
                 </div>
-                <Link to="/login?mode=signup&role=professional" className="inline-flex items-center justify-center w-full h-11 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-3 text-sm font-black transition-all mt-3 mb-3 shadow-lg shadow-yellow-500/20 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+                <Link to="/login?mode=signup&role=professional" className="cta-pulse inline-flex items-center justify-center w-full h-11 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl px-3 text-sm font-black transition-all mt-3 mb-3 shadow-lg shadow-yellow-500/20 whitespace-nowrap" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                   Dominar {userCity} Agora →
                 </Link>
                 <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
@@ -1050,7 +1050,7 @@ export default function LandingPage() {
                   Você não paga absolutamente nada. Receba orçamentos, compare preços, escolha o melhor profissional.<br/>
                   <strong style={{ color: '#38bdf8' }}>O MeloCalé é financiado pelos profissionais, não por você.</strong>
                 </p>
-                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
+                <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
                   Quero encontrar um profissional →
                 </Link>
               </div>
@@ -1105,7 +1105,7 @@ export default function LandingPage() {
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 6, padding: '3px 10px' }}>Para profissionais</span>
                 <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Pare de depender de indicação.<br/>Comece a receber clientes hoje.</h3>
                 <p style={{ fontSize: 13, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Cada dia sem o MeloCalé é mais R$60 que você deixa na mesa. Profissionais em {displayCity} já estão faturando R$1.800/mês a mais.</p>
-                <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(16,185,129,.4)' }}>
+                <Link to="/login?mode=signup&role=professional" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(16,185,129,.4)' }}>
                   Quero receber clientes →
                 </Link>
                 <p style={{ fontSize: 10, color: '#4a6a80', margin: 0 }}>Grátis para começar · planos a partir de R$37/mês</p>
@@ -1117,7 +1117,7 @@ export default function LandingPage() {
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
                 <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Pare de esperar indicação.<br/>Encontre seu profissional em 47 min.</h3>
                 <p style={{ fontSize: 13, color: '#94b8d4', margin: 0, lineHeight: 1.6 }}>Profissionais verificados disponíveis em {displayCity} agora. Grátis, rápido, seguro — e com garantia de 7 dias.</p>
-                <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(56,189,248,.4)' }}>
+                <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%', background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 900, fontSize: 16, borderRadius: 13, textDecoration: 'none', boxShadow: '0 4px 28px rgba(56,189,248,.4)' }}>
                   Encontrar profissional →
                 </Link>
                 <p style={{ fontSize: 10, color: '#4a6a80', margin: 0 }}>Grátis · sem cartão · garantia de 7 dias</p>
