@@ -1042,29 +1042,29 @@ export default function LandingPage() {
                 <p style={{ fontSize: 14, color: '#94A3B8', margin: '0 0 20px' }}>
                   Ou seja: o 2º cliente que você fechar no mês já é lucro puro no seu bolso.
                 </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '12px 18px', flex: 1, minWidth: 160 }}>
+                <div style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 200, whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: 22 }}>🧮</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 12, color: '#94A3B8' }}>matemática real</div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f6ff' }}>R$67 × 7 ≈ R$469</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '12px 18px', flex: 1, minWidth: 160 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 200, whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: 22 }}>🎁</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 12, color: '#94A3B8' }}>desconto em moedas</div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f6ff' }}>40% off</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '12px 18px', flex: 1, minWidth: 160 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 200, whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: 22 }}>⚡</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 12, color: '#94A3B8' }}>retorno rápido</div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f6ff' }}>2 leads cobrem o mês</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '12px 18px', flex: 1, minWidth: 160 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 200, whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: 22 }}>📈</span>
                     <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: 12, color: '#94A3B8' }}>ganho médio extra</div>
