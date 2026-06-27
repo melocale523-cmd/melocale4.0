@@ -199,7 +199,7 @@ export default function LandingPage() {
 
       {/* ── 0. Live Ticker ── */}
       {(isProfissional || isCliente) && (
-        <div style={{ background: isProfissional ? '#064e3b' : '#1e3a5f', padding: '4px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap', zIndex: 61, position: 'relative' }}>
+        <div style={{ background: isProfissional ? '#064e3b' : '#1e3a5f', padding: '2px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap', zIndex: 61, position: 'relative' }}>
           {isProfissional ? (
             <>
               <span style={{ fontSize: 10, fontWeight: 600, color: '#34d399', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }}></span>34 profissionais online agora</span>
