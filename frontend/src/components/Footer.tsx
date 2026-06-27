@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <footer style={{ background: '#0a1020', borderTop: '2px solid #10b981', paddingTop: 48, paddingBottom: 32, color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
-      <div className="container-app">
+      <div style={{ width: '100%', padding: '0 1.5rem', boxSizing: 'border-box' }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" style={{ marginBottom: 40 }}>
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#10b981', marginBottom: 8 }}>MeloCalé</div>
