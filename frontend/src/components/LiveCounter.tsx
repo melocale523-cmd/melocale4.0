@@ -55,7 +55,7 @@ export default function LiveCounter({ userCity }: Props) {
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-8">
         <span
-          className="text-xs text-slate-400 transition-colors duration-300"
+          className="text-sm text-slate-400 transition-colors duration-300"
           style={visFlash ? { color: '#34d399' } : undefined}
         >
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 align-middle animate-pulse" />
@@ -71,7 +71,7 @@ export default function LiveCounter({ userCity }: Props) {
         <span className="hidden sm:block text-slate-700">|</span>
 
         <span
-          className="text-xs text-slate-400 transition-colors duration-300"
+          className="text-sm text-slate-400 transition-colors duration-300"
           style={budFlash ? { color: '#34d399' } : undefined}
         >
           📋{' '}

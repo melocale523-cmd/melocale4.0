@@ -672,7 +672,7 @@ export default function LandingPage() {
         {/* ── 7. Garantia ── */}
         <section style={{ background: '#0f172a', borderTop: '2px solid #f59e0b', padding: '48px 0' }}>
           <div className="container-app">
-            <div style={{ maxWidth: 580, margin: '0 auto', background: 'linear-gradient(135deg,rgba(16,185,129,.14),rgba(16,185,129,.03))', border: '2px solid rgba(16,185,129,.28)', borderRadius: 20, padding: '32px 28px', textAlign: 'center' }}>
+            <div style={{ maxWidth: 760, margin: '0 auto', background: 'linear-gradient(135deg,rgba(16,185,129,.14),rgba(16,185,129,.03))', border: '2px solid rgba(16,185,129,.28)', borderRadius: 20, padding: '32px 28px', textAlign: 'center' }}>
               <div style={{ fontSize: 42, marginBottom: 12 }}>🛡️</div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', marginBottom: 12 }}>Garantia incondicional de 7 dias</h3>
               <p style={{ fontSize: 14, color: '#6a9ab8', lineHeight: 1.7, margin: 0 }}>
