@@ -1030,12 +1030,37 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="max-w-6xl mx-auto bg-[#1e2d45] border border-[#1C3050] rounded-2xl p-6 text-center" style={{ marginBottom: '1rem', transform: isProfissional ? 'translateX(10rem)' : 'none' }}>
-              <p className="text-[#94A3B8] text-sm mb-4">💡 Pense assim:</p>
-              <p className="text-white text-xl font-bold mb-4">
-                1 cliente de <span className="text-emerald-400">R$ 500</span> já paga o plano PRO por <span className="text-emerald-400">7 meses</span>
+            <div className="max-w-6xl mx-auto bg-[#1e2d45] border border-[#1C3050] rounded-2xl" style={{ padding: '1.75rem 2rem', marginBottom: '1rem', transform: isProfissional ? 'translateX(10rem)' : 'none', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 10 }}>
+                <span style={{ fontSize: 16 }}>💡</span>
+                <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>Pense assim:</span>
+              </div>
+              <p style={{ fontSize: 22, fontWeight: 700, color: '#f0f6ff', margin: '0 0 18px', lineHeight: 1.35 }}>
+                1 cliente de <span style={{ color: '#10b981' }}>R$ 500</span> já paga o plano PRO por <span style={{ color: '#10b981' }}>7 meses</span>
               </p>
-              <p className="text-[#4A6580] text-sm">E com 40% de desconto em moedas, você acessa muito mais clientes pelo mesmo preço.</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150 }}>
+                  <span style={{ fontSize: 18 }}>🧮</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: 11, color: '#94A3B8' }}>matemática real</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>R$67 × 7 ≈ R$469</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150 }}>
+                  <span style={{ fontSize: 18 }}>🎁</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: 11, color: '#94A3B8' }}>desconto em moedas</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>40% off</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 12, padding: '10px 16px', minWidth: 150 }}>
+                  <span style={{ fontSize: 18 }}>⚡</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: 11, color: '#94A3B8' }}>retorno rápido</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff' }}>2 leads cobrem o mês</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
