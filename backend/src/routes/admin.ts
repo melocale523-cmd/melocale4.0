@@ -184,7 +184,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
 
     const E2E_PREFIX = "[E2E-TEST]";
     const startedAt = new Date().toISOString();
-    console.log(`[e2e] run-tests iniciado: ${startedAt}`);
+    if (process.env.NODE_ENV !== 'production') console.log(`[e2e] run-tests iniciado: ${startedAt}`);
 
     let clientUserId: string | null = null;
     let profUserId: string | null = null;
@@ -316,7 +316,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
         await supabaseAdmin.from("leads").delete().eq("id", createdLeadId);
       }
       await supabaseAdmin.from("leads").delete().like("title", `${E2E_PREFIX}%`);
-      console.log("[e2e] cleanup concluído");
+      if (process.env.NODE_ENV !== 'production') console.log("[e2e] cleanup concluído");
     } catch (cleanupErr) {
       console.error("[e2e] cleanup parcial:", cleanupErr instanceof Error ? cleanupErr.message : String(cleanupErr));
     }
@@ -324,7 +324,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
     const passed = results.filter((r) => r.status === "pass").length;
     const failed = results.filter((r) => r.status === "fail").length;
     const finishedAt = new Date().toISOString();
-    console.log(`[e2e] run-tests finalizado: ${finishedAt} — passed=${passed} failed=${failed}`);
+    if (process.env.NODE_ENV !== 'production') console.log(`[e2e] run-tests finalizado: ${finishedAt} — passed=${passed} failed=${failed}`);
 
     return res.json({
       summary: { total: results.length, passed, failed },

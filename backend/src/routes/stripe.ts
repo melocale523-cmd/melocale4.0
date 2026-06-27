@@ -572,8 +572,6 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
 
     if (subErr || !sub) return res.status(200).json({ status: "none", plan: null });
 
-    console.log("[subscription-status] user_id:", userId, "stripe_subscription_id:", sub.stripe_subscription_id ?? "null");
-
     if (!sub.stripe_subscription_id) {
       return res.json({
         status: sub.status,
@@ -595,8 +593,6 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
       ?? stripeSub.items?.data?.[0]?.current_period_end
       ?? null;
     const cancelAtPeriodEnd: boolean = stripeSub.cancel_at_period_end ?? false;
-
-    console.log("[subscription-status] resolved current_period_end:", currentPeriodEnd, "cancel_at_period_end:", cancelAtPeriodEnd);
 
     return res.json({
       status: stripeSub.status,
