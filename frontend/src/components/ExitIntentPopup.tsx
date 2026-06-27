@@ -115,7 +115,7 @@ export default function ExitIntentPopup() {
           <Link
             to="/login?mode=signup"
             onClick={close}
-            className="block w-full h-10 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg transition-all shadow-lg shadow-emerald-500/30"
+            className="cta-pulse block w-full h-10 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg transition-all shadow-lg shadow-emerald-500/30"
           >
             Quero minha oferta →
           </Link>

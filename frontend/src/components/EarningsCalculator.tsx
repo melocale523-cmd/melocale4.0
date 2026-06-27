@@ -113,7 +113,7 @@ export default function EarningsCalculator() {
           {/* CTA */}
           <Link
             to="/login?mode=signup&role=professional"
-            className="inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="cta-pulse inline-flex items-center justify-center w-full h-12 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
             style={{ marginBottom: '1rem' }}
           >
             Quero ganhar R${fmt(extra)}/mês →
