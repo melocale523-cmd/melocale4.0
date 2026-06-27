@@ -1,4 +1,10 @@
+import { useState } from 'react';
+
 export default function Footer() {
+  const [showCitiesModal, setShowCitiesModal] = useState(false);
+  const activeCities = ['Salvador', 'Feira de Santana', 'Jacobina', 'Irecê', 'Senhor do Bonfim'];
+  const comingSoonCities = ['Vitória da Conquista', 'Ilhéus', 'Itabuna', 'Camaçari', 'Juazeiro', 'Barreiras'];
+
   return (
     <footer style={{ background: '#0a1020', borderTop: '2px solid #10b981', paddingTop: 48, paddingBottom: 32, color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
       <div style={{ width: '100%', padding: '0 1.5rem', boxSizing: 'border-box' }}>
@@ -18,12 +24,17 @@ export default function Footer() {
 
           <div>
             <div style={{ fontSize: 14, fontWeight: 800, color: '#f0f6ff', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 16 }}>Plataforma</div>
-            {['Como funciona', 'Para profissionais', 'Para clientes', 'Planos e preços', 'Cidades atendidas'].map(l => (
+            {['Como funciona', 'Para profissionais', 'Para clientes', 'Planos e preços'].map(l => (
               <a key={l} href="#" style={{ display: 'block', fontSize: 15, color: '#6a9ab8', textDecoration: 'none', marginBottom: 10, transition: 'color .15s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#10b981')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#6a9ab8')}
               >{l}</a>
             ))}
+            <a href="#" style={{ display: 'block', fontSize: 15, color: '#6a9ab8', textDecoration: 'none', marginBottom: 10, transition: 'color .15s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#10b981')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#6a9ab8')}
+            >Cidades atendidas</a>
+            <span onClick={() => setShowCitiesModal(true)} style={{ fontSize: 13, color: '#10b981', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', marginTop: 12, display: 'inline-block' }}>Ver todas as cidades da Bahia →</span>
           </div>
 
           <div style={{ display: 'flex', gap: 56 }}>
@@ -57,6 +68,35 @@ export default function Footer() {
           <p style={{ fontSize: 14, color: '#4a6a80', margin: 0 }}>© 2026 MeloCalé · Todos os direitos reservados</p>
         </div>
       </div>
+
+      {showCitiesModal && (
+        <div onClick={() => setShowCitiesModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#0f172a', border: '1px solid rgba(16,185,129,.3)', borderRadius: 16, padding: '28px 32px', maxWidth: 480, width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Cidades atendidas</h3>
+              <span onClick={() => setShowCitiesModal(false)} style={{ fontSize: 18, color: '#6a9ab8', cursor: 'pointer' }}>✕</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {activeCities.map(city => (
+                <div key={city} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(16,185,129,.08)', borderRadius: 8 }}>
+                  <span style={{ fontSize: 14, color: '#e2e8f0' }}>{city}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,.15)', borderRadius: 6, padding: '3px 10px' }}>Atende</span>
+                </div>
+              ))}
+              <div style={{ height: 1, background: 'rgba(255,255,255,.08)', margin: '6px 0' }} />
+              {comingSoonCities.map(city => (
+                <div key={city} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px' }}>
+                  <span style={{ fontSize: 14, color: '#94b8d4' }}>{city}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,.12)', borderRadius: 6, padding: '3px 10px' }}>Em breve</span>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: '#6a9ab8', margin: '14px 0 0', textAlign: 'center' }}>
+              Não achou sua cidade? <span style={{ color: '#10b981', textDecoration: 'underline', cursor: 'pointer' }}>Avise quando chegar</span>
+            </p>
+          </div>
+        </div>
+      )}
     </footer>
   );
 }
