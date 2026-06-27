@@ -259,7 +259,7 @@ export default function LandingPage() {
           <div className="container-app" style={{ position: 'relative' }}>
 
             {(isProfissional || isCliente) ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center', maxWidth: '60rem', margin: '0 auto' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center', maxWidth: '60rem', margin: '0 auto', transform: 'translateX(2rem)' }}>
                 {/* Coluna esquerda */}
                 <div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
