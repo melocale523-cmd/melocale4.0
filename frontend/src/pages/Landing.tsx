@@ -1031,7 +1031,7 @@ export default function LandingPage() {
             </div>
 
             <div className="max-w-6xl mx-auto px-4" style={{ marginBottom: '1rem', transform: isProfissional ? 'translateX(10rem)' : 'none' }}>
-              <div style={{ width: '75%', margin: '0 auto', background: '#1e2d45', border: '1px solid #1C3050', borderRadius: 16, padding: '1.5rem 2rem', textAlign: 'center', boxSizing: 'border-box' }}>
+              <div style={{ width: '82%', margin: '0 auto', background: '#1e2d45', border: '1px solid #1C3050', borderRadius: 16, padding: '1.5rem 2rem', textAlign: 'center', boxSizing: 'border-box' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 10 }}>
                   <span style={{ fontSize: 18 }}>💡</span>
                   <span style={{ fontSize: 14, color: '#94A3B8', fontWeight: 600 }}>Pense assim:</span>
