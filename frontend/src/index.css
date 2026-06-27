@@ -301,6 +301,13 @@ input[type='range'].earnings-slider::-moz-range-thumb {
 
 /* ── Mobile responsiveness (viewport ≤ 768px) ── */
 @media (max-width: 768px) {
+  .landing-hero-section {
+    padding-top: 120px !important;
+  }
+  .landing-hero-with-ticker {
+    padding-top: 72px !important;
+  }
+
   .landing-hero-grid {
     transform: none !important;
   }
