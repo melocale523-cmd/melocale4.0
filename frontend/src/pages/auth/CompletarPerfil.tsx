@@ -7,6 +7,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
 import confetti from 'canvas-confetti';
 import { apiFetch } from '../../lib/api';
+import { resolveSignupOrigin } from '../../hooks/useUtmCapture';
 
 export default function CompletarPerfil() {
   const { user, isAuthenticated, isLoading } = useAuthStore();
@@ -95,6 +96,7 @@ export default function CompletarPerfil() {
         address_neighborhood: address.neighborhood || null,
         address_city: address.city || null,
         address_state: address.state || null,
+        origin: resolveSignupOrigin(),
       };
 
       if (import.meta.env.DEV) console.log('[CompletarPerfil] update payload for', user.id, payload);
