@@ -128,7 +128,7 @@ export default function LandingPage() {
 
   const stepsData = isProfissional ? [
     { n: '01', title: 'Crie seu perfil', sub: '2 minutos', desc: `Adicione seu serviço, foto e área de atuação. Seu perfil fica visível para clientes de ${displayCity} imediatamente.`, color: '#10b981', bg: 'rgba(16,185,129,.14)', border: 'rgba(16,185,129,.35)' },
-    { n: '02', title: 'Receba leads no celular', sub: 'Todo dia', desc: 'Clientes preenchem pedido detalhado — você recebe o contato direto. Só chegam quem já quer contratar.', color: '#10b981', bg: 'rgba(16,185,129,.14)', border: 'rgba(16,185,129,.35)' },
+    { n: '02', title: 'Receba leads no celular', sub: '8–15 leads/mês em média', desc: 'Clientes preenchem pedido detalhado — você recebe o contato direto. Só chegam quem já quer contratar.', color: '#10b981', bg: 'rgba(16,185,129,.14)', border: 'rgba(16,185,129,.35)' },
     { n: '03', title: 'Feche e fature', sub: '+R$1.800/mês extra', desc: 'Entre em contato, faça o orçamento, feche o serviço. Profissionais ativos fecham 3–5 serviços por semana.', color: '#10b981', bg: 'rgba(16,185,129,.14)', border: 'rgba(16,185,129,.35)' },
   ] : [
     { n: '01', title: 'Descreva o serviço', sub: '30 segundos', desc: 'Conte o que precisa — eletricista, pintor, encanador. Quanto mais detalhe, melhor o orçamento.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
@@ -199,7 +199,13 @@ export default function LandingPage() {
 
 
       {/* ── 1. Banner ── */}
-      {isFlashTime() ? (
+      {(isProfissional || isCliente) ? (
+        <div style={{ background: isProfissional ? '#064e3b' : '#0c2a4a', padding: '8px 16px', textAlign: 'center', fontSize: 13, fontWeight: 700, color: isProfissional ? '#34d399' : '#38bdf8', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60, height: BANNER_H, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {isProfissional
+            ? '⚡ Cadastre agora — primeiros leads chegam hoje'
+            : '⚡ 100% gratuito para clientes — sem cartão, sem taxa'}
+        </div>
+      ) : isFlashTime() ? (
         <div
           className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 md:gap-4 text-white font-black px-4"
           style={{ height: BANNER_H, background: 'linear-gradient(90deg, #92400e 0%, #b45309 50%, #92400e 100%)' }}
@@ -296,7 +302,7 @@ export default function LandingPage() {
                         {' '}— sem sair de casa
                       </h1>
                       <p style={{ fontSize: 15, color: '#94b8d8', marginBottom: 16, lineHeight: 1.7 }}>
-                        Sem ligar para desconhecidos. Sem depender de indicação de vizinho. Receba até 5 orçamentos de profissionais verificados e escolha o melhor preço.
+                        Descreva o problema em 30 segundos. Em menos de 1 hora você já tem orçamentos de profissionais verificados em {displayCity} — grátis, sem cartão.
                       </p>
                       <div style={{ background: '#0a1628', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
                         <div style={{ fontSize: 12, color: '#60a5fa', fontWeight: 700, marginBottom: 4 }}>Urgência real em {displayCity}:</div>
@@ -658,7 +664,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 10. CategoryGrid ── */}
-        <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={displayCity} /></Suspense></div>
+        {!isProfissional && <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={displayCity} /></Suspense></div>}
 
         {/* ── 11. Stats + Depoimentos ── */}
         <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
@@ -818,7 +824,11 @@ export default function LandingPage() {
         </section>
 
         {/* ── 12. EarningsCalculator ── */}
-        {!isCliente && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
+        {!isCliente && (
+          <div style={{ display: isCliente ? 'none' : 'block' }}>
+            <Suspense fallback={null}><EarningsCalculator /></Suspense>
+          </div>
+        )}
 
         {/* ── 13. Planos ── */}
         <section id="planos" className="py-28" style={{ background: '#182035', borderTop: '2px solid #f59e0b', display: isCliente ? 'none' : 'block' }}>
