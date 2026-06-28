@@ -96,7 +96,7 @@ export default function LandingPage() {
     elite:   3 + Math.floor(Math.random() * 5),
   }));
   const [showConversionWidgets, setShowConversionWidgets] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(isCliente ? 1 : 0);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,7 +133,7 @@ export default function LandingPage() {
   ] : [
     { n: '01', title: 'Descreva o serviço', sub: '30 segundos', desc: 'Conte o que precisa — eletricista, pintor, encanador. Quanto mais detalhe, melhor o orçamento.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
     { n: '02', title: 'Receba propostas', sub: 'Até 5 em 47 min', desc: `Profissionais verificados de ${displayCity} entram em contato. Compare preços sem sair de casa.`, color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
-    { n: '03', title: 'Contrate com segurança', sub: 'Garantia 7 dias', desc: 'Escolha o melhor, pague com segurança. Insatisfeito em 7 dias? Devolvemos tudo.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
+    { n: '03', title: 'Contrate com segurança', sub: 'Pague só após confirmar', desc: 'Você só paga depois que o profissional confirmar o serviço. Insatisfeito em 7 dias? Devolvemos tudo.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
   ];
 
   const trustData = isProfissional ? [
@@ -203,7 +203,7 @@ export default function LandingPage() {
         <div style={{ background: isProfissional ? '#064e3b' : '#0c2a4a', padding: '8px 16px', textAlign: 'center', fontSize: 13, fontWeight: 700, color: isProfissional ? '#34d399' : '#38bdf8', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60, height: BANNER_H, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {isProfissional
             ? `⚡ Apenas ${vagas.pro} vagas restantes em ${displayCity} — primeiros leads chegam hoje`
-            : '⚡ 100% gratuito para clientes — sem cartão, sem taxa'}
+            : `⚡ ${displayCity}: 28 clientes buscando profissionais agora — é 100% grátis`}
         </div>
       ) : isFlashTime() ? (
         <div
@@ -527,7 +527,7 @@ export default function LandingPage() {
                     {[
                       { n: '01', title: 'Descreva o serviço', sub: '30 segundos', color: '#38bdf8' },
                       { n: '02', title: 'Receba propostas', sub: '47 minutos', color: '#7dd3fc' },
-                      { n: '03', title: 'Contrate com segurança', sub: 'Garantia 7 dias', color: '#38bdf8' },
+                      { n: '03', title: 'Contrate com segurança', sub: 'Pague só após confirmar', color: '#38bdf8' },
                     ].map((s, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                         <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: s.color, flexShrink: 0 }}>{s.n}</div>
@@ -567,7 +567,7 @@ export default function LandingPage() {
                 {trustData.map((item, i) => (
                   <div key={i} style={{ background: '#1e2d45', border: `1px solid ${item.border}`, borderRadius: 16, padding: '20px 16px', borderTop: `2px solid ${item.color}` }}>
                     <div style={{ fontSize: 24, marginBottom: 10 }}>{item.icon}</div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 6px' }}>{item.q}</p>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: '#f0f6ff', margin: '0 0 6px' }}>{item.q}</p>
                     <p style={{ fontSize: 14, color: '#6a9ab8', lineHeight: 1.6, margin: 0 }}>{item.a}</p>
                   </div>
                 ))}
@@ -633,7 +633,9 @@ export default function LandingPage() {
           <div className="container-app">
             <div className="text-center" style={{ marginBottom: '4rem' }}>
               <h2 className="text-2xl md:text-3xl font-bold text-white">
-                A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> —<br className="hidden lg:block" /> rápido, seguro e perto de você
+                {isCliente
+                  ? <>A forma mais segura e barata de contratar serviços em <span className="text-emerald-400">{displayCity}</span></>
+                  : <>A plataforma que conecta você ao <span className="text-emerald-400">profissional certo</span> —<br className="hidden lg:block" /> rápido, seguro e perto de você</>}
               </h2>
             </div>
             <div className="flex flex-col lg:flex-row gap-4 items-start" style={{ maxWidth: '62.5rem', margin: '0 auto' }}>
@@ -809,7 +811,7 @@ export default function LandingPage() {
             <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
               {!isProfissional && (
                 <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px' }}>
-                  Ver profissionais disponíveis agora →
+                  Encontrar profissional agora →
                 </Link>
               )}
               {!isCliente && (
@@ -1127,7 +1129,7 @@ export default function LandingPage() {
               </div>
 
               {/* Azul */}
-              <div className="landing-cta-final-card" style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 700 : undefined, width: '100%' }}>
+              <div className="landing-cta-final-card" style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.22)', borderRadius: 18, padding: '36px 28px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 14, textAlign: 'center', alignItems: 'center', maxWidth: isProfissional || isCliente ? 700 : undefined, width: '100%', boxShadow: '0 0 40px -5px rgba(56,189,248,.35), 0 0 80px -20px rgba(56,189,248,.15)' }}>
                 <span style={{ fontSize: 40 }}>🏠</span>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px' }}>Para clientes</span>
                 <h3 style={{ fontSize: 20, fontWeight: 900, color: '#f0f6ff', margin: 0 }}>Pare de esperar indicação.<br/>Encontre seu profissional em 47 min.</h3>
