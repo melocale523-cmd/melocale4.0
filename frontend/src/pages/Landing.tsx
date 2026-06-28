@@ -284,9 +284,6 @@ export default function LandingPage() {
                       <Link to="/login?mode=signup&role=professional" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
                         Quero receber meus primeiros leads →
                       </Link>
-                      <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
-                        Ver leads disponíveis em {displayCity}
-                      </Link>
                     </>
                   ) : (
                     <>
@@ -296,7 +293,7 @@ export default function LandingPage() {
                         {' '}— sem sair de casa
                       </h1>
                       <p style={{ fontSize: 15, color: '#94b8d8', marginBottom: 16, lineHeight: 1.7 }}>
-                        Sem ligar para desconhecidos. Sem depender de indicação de vizinho. Receba até 5 orçamentos de profissionais verificados e escolha o melhor preço.
+                        Descreva o problema em 30 segundos. Em menos de 1 hora você já tem orçamentos de profissionais verificados em {displayCity} — grátis, sem cartão.
                       </p>
                       <div style={{ background: '#0a1628', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
                         <div style={{ fontSize: 12, color: '#60a5fa', fontWeight: 700, marginBottom: 4 }}>Urgência real em {displayCity}:</div>
@@ -319,9 +316,6 @@ export default function LandingPage() {
                       </div>
                       <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
                         Ver profissionais disponíveis agora →
-                      </Link>
-                      <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
-                        Descrever meu serviço
                       </Link>
                     </>
                   )}
@@ -658,7 +652,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 10. CategoryGrid ── */}
-        <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={displayCity} /></Suspense></div>
+        {!isProfissional && <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={displayCity} /></Suspense></div>}
 
         {/* ── 11. Stats + Depoimentos ── */}
         <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
