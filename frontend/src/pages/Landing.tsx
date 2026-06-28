@@ -302,7 +302,7 @@ export default function LandingPage() {
                         {' '}— sem sair de casa
                       </h1>
                       <p style={{ fontSize: 15, color: '#94b8d8', marginBottom: 16, lineHeight: 1.7 }}>
-                        Sem ligar para desconhecidos. Sem depender de indicação de vizinho. Receba até 5 orçamentos de profissionais verificados e escolha o melhor preço.
+                        Descreva o problema em 30 segundos. Em menos de 1 hora você já tem orçamentos de profissionais verificados em {displayCity} — grátis, sem cartão.
                       </p>
                       <div style={{ background: '#0a1628', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
                         <div style={{ fontSize: 12, color: '#60a5fa', fontWeight: 700, marginBottom: 4 }}>Urgência real em {displayCity}:</div>
@@ -664,7 +664,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 10. CategoryGrid ── */}
-        <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={displayCity} /></Suspense></div>
+        {!isProfissional && <div className="-mt-16"><Suspense fallback={null}><CategoryGrid userCity={displayCity} /></Suspense></div>}
 
         {/* ── 11. Stats + Depoimentos ── */}
         <section style={{ background: '#0f172a', borderTop: '2px solid #38bdf8', padding: '64px 0' }}>
