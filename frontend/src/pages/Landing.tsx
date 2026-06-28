@@ -813,7 +813,7 @@ export default function LandingPage() {
                 </Link>
               )}
               {!isCliente && (
-                <Link to="/login?mode=signup&role=professional" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: isProfissional ? 'linear-gradient(135deg,#047857,#10b981)' : 'transparent', color: isProfissional ? '#fff' : '#38bdf8', fontWeight: isProfissional ? 800 : 700, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px', border: isProfissional ? 'none' : '1px solid rgba(56,189,248,.3)' }} className={isProfissional ? 'cta-pulse' : ''}>
+                <Link to="/login?mode=signup&role=professional" style={{ display: 'inline-flex', alignItems: 'center', height: 56, padding: '0 36px', fontSize: 15, fontWeight: 800, background: isProfissional ? 'linear-gradient(135deg,#047857,#10b981)' : 'transparent', color: isProfissional ? '#fff' : '#38bdf8', borderRadius: 14, textDecoration: 'none', border: isProfissional ? 'none' : '1px solid rgba(56,189,248,.3)' }} className={isProfissional ? 'cta-pulse' : ''}>
                   Quero receber clientes →
                 </Link>
               )}
