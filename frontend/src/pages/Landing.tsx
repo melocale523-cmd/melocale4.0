@@ -810,7 +810,7 @@ export default function LandingPage() {
             {/* CTA dual pós-depoimentos */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
               {!isProfissional && (
-                <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px' }}>
+                <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'inline-flex', alignItems: 'center', height: 56, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 14, textDecoration: 'none', padding: '0 36px', boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
                   Encontrar profissional agora →
                 </Link>
               )}

@@ -318,6 +318,14 @@ input[type='range'].earnings-slider::-moz-range-thumb {
     grid-template-columns: 1fr !important;
     max-width: 100% !important;
   }
+  .landing-hero-2col > div:last-child {
+    order: -1 !important;
+    min-height: 220px !important;
+  }
+  .landing-hero-2col > div:last-child img {
+    max-height: 220px !important;
+    object-position: center 20% !important;
+  }
 
   .landing-competitor-wrapper {
     overflow-x: auto;
