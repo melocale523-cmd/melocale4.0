@@ -162,7 +162,7 @@ export default function LandingPage() {
     { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa, sem fidelidade, sem ligação de retenção. Zero burocracia.' },
     { q: `Tem cliente na minha área em ${displayCity}?`, a: `Estamos ativos em ${displayCity} e região. Você vê os leads disponíveis na sua categoria antes de assinar qualquer plano.` },
     { q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia. Em uma semana você já tem retorno sobre o investimento.' },
-    { q: 'Preciso de cartão de crédito para começar?', a: 'Não. O cadastro e criação do perfil são totalmente gratuitos. Você só paga quando escolher um plano pago — e mesmo assim pode cancelar quando quiser.' },
+    { q: 'Preciso de cartão de crédito para começar?', a: '✓ Não — o cadastro e criação do perfil são totalmente gratuitos. Você só paga quando escolher um plano pago — e mesmo assim pode cancelar quando quiser.' },
   ];
 
   const FAQ_CLIENTE = [
@@ -202,7 +202,7 @@ export default function LandingPage() {
       {(isProfissional || isCliente) ? (
         <div style={{ background: isProfissional ? '#064e3b' : '#0c2a4a', padding: '8px 16px', textAlign: 'center', fontSize: 13, fontWeight: 700, color: isProfissional ? '#34d399' : '#38bdf8', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60, height: BANNER_H, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {isProfissional
-            ? '⚡ Cadastre agora — primeiros leads chegam hoje'
+            ? `⚡ Apenas ${vagas.pro} vagas restantes em ${displayCity} — primeiros leads chegam hoje`
             : '⚡ 100% gratuito para clientes — sem cartão, sem taxa'}
         </div>
       ) : isFlashTime() ? (
@@ -267,7 +267,7 @@ export default function LandingPage() {
                       </p>
                       <div style={{ background: '#1a0a0a', border: '1px solid rgba(239,68,68,.3)', borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
                         <div style={{ fontSize: 12, color: '#fca5a5', marginBottom: 4 }}>Sem o MeloCalé, você perde em média:</div>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: '#ef4444' }}>R$1.800/mês em serviços que poderiam ser seus</div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: '#ef4444' }}>R$1.800/mês em serviços que poderiam ser seus</div>
                       </div>
                       <div style={{ background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.25)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 12, color: '#6ee7b7' }}>Menos que 1 café por dia —</span>
@@ -568,7 +568,7 @@ export default function LandingPage() {
                   <div key={i} style={{ background: '#1e2d45', border: `1px solid ${item.border}`, borderRadius: 16, padding: '20px 16px', borderTop: `2px solid ${item.color}` }}>
                     <div style={{ fontSize: 24, marginBottom: 10 }}>{item.icon}</div>
                     <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 6px' }}>{item.q}</p>
-                    <p style={{ fontSize: 12, color: '#6a9ab8', lineHeight: 1.6, margin: 0 }}>{item.a}</p>
+                    <p style={{ fontSize: 14, color: '#6a9ab8', lineHeight: 1.6, margin: 0 }}>{item.a}</p>
                   </div>
                 ))}
               </div>
@@ -586,7 +586,7 @@ export default function LandingPage() {
                       <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span>{item.emoji}</span> {item.q}
                       </p>
-                      <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
+                      <p style={{ fontSize: 14, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
                     </div>
                   ))}
                 </div>
@@ -603,7 +603,7 @@ export default function LandingPage() {
                       <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span>{item.emoji}</span> {item.q}
                       </p>
-                      <p style={{ fontSize: 12, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
+                      <p style={{ fontSize: 14, color: '#6a9ab8', margin: 0, lineHeight: 1.6, paddingLeft: 20 }}>{item.a}</p>
                     </div>
                   ))}
                 </div>
@@ -894,8 +894,6 @@ export default function LandingPage() {
                   <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Cadastro na plataforma</li>
                   <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-[#4A6580] shrink-0 mt-0.5" size={16}/> Ver leads disponíveis</li>
                   <li className="flex items-start gap-3 text-[#94A3B8] text-sm" style={{ marginBottom: '0.25rem' }}><CheckIcon className="text-emerald-500 shrink-0 mt-0.5" size={16}/> 10 moedas de boas-vindas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '0.25rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Desconto em moedas</li>
-                  <li className="hidden sm:flex items-start gap-3 text-[#4A6580] text-sm line-through" style={{ marginBottom: '0.25rem' }}><XIcon className="text-slate-700 shrink-0 mt-0.5" size={16}/> Badge verificado</li>
                 </ul>
               </div>
 
