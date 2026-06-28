@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../store/authStore';
+import { useUtmParams } from '../hooks/useUtmParams';
 import { supabase } from '../lib/supabase';
 import ThemeToggle from './ThemeToggle';
 
@@ -14,6 +15,8 @@ interface NavbarProps {
 export default function Navbar({ topOffset = 0 }: NavbarProps) {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuthStore();
+  const { isProfissional, isCliente } = useUtmParams();
+  const isLandingCampaign = isProfissional || isCliente;
   const [isScrolled, setIsScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -69,17 +72,19 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-medium transition-all text-[#94A3B8] hover:text-emerald-400 hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
+          {!isLandingCampaign && (
+            <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
+              {navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-sm font-medium transition-all text-[#94A3B8] hover:text-emerald-400 hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
+          )}
 
           {/* Right side — always visible */}
           <div className="flex items-center gap-2 shrink-0">
@@ -156,7 +161,7 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
               exit={{ opacity: 0, y: -20 }}
               className="absolute top-full left-0 right-0 bg-[#1C3454] shadow-2xl px-4 py-4 md:hidden flex flex-col gap-3 border-t border-[#1C3050]"
             >
-              {navLinks.map((link) => (
+              {!isLandingCampaign && navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}

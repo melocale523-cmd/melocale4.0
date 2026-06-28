@@ -332,62 +332,23 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                {/* Coluna direita — card de resultados */}
-                <div style={{ background: '#1e2d45', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.35)' : 'rgba(56,189,248,.35)'}`, borderRadius: 20, padding: '28px 24px', borderTop: `3px solid ${isProfissional ? '#10b981' : '#38bdf8'}` }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: isProfissional ? '#10b981' : '#38bdf8', background: isProfissional ? 'rgba(16,185,129,.14)' : 'rgba(56,189,248,.12)', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.35)' : 'rgba(56,189,248,.35)'}`, borderRadius: 6, padding: '3px 10px', display: 'inline-block', marginBottom: 16 }}>
-                    {isProfissional ? 'Resultado real dos profissionais' : 'Resultado real dos clientes'}
-                  </span>
-                  {isProfissional ? (
-                    <>
-                      {[
-                        { lbl: 'Renda extra por mês', val: '+R$1.800' },
-                        { lbl: 'Primeiro lead chega em', val: '1º dia' },
-                        { lbl: 'Mais serviços vs. só indicação', val: '3–5x' },
-                      ].map(s => (
-                        <div key={s.lbl} style={{ background: 'rgba(16,185,129,.1)', border: '1px solid rgba(16,185,129,.25)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                          <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>{s.lbl}</span>
-                          <span style={{ fontSize: 16, fontWeight: 900, color: '#10b981' }}>{s.val}</span>
-                        </div>
-                      ))}
-                      <div style={{ background: '#0a1628', border: '1px solid rgba(16,185,129,.2)', borderRadius: 10, padding: '12px 14px', marginTop: 8 }}>
-                        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>Comparação: GetNinjas vs MeloCalé</div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
-                          <span style={{ color: '#94a3b8' }}>GetNinjas por lead</span>
-                          <span style={{ color: '#ef4444', fontWeight: 700 }}>R$15–R$80 por contato</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-                          <span style={{ color: '#94a3b8' }}>MeloCalé PRO</span>
-                          <span style={{ color: '#10b981', fontWeight: 700 }}>R$67/mês ilimitado</span>
-                        </div>
-                      </div>
-                      <p style={{ fontSize: 11, color: '#6ee7b7', textAlign: 'center', marginTop: 10 }}>Com 2 leads fechados, já pagou o mês inteiro</p>
-                    </>
-                  ) : (
-                    <>
-                      {[
-                        { lbl: 'Tempo médio de resposta', val: '47 min' },
-                        { lbl: 'Orçamentos por pedido', val: 'até 5' },
-                        { lbl: 'Economia média no preço', val: '23%' },
-                      ].map(s => (
-                        <div key={s.lbl} style={{ background: 'rgba(56,189,248,.1)', border: '1px solid rgba(56,189,248,.25)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                          <span style={{ fontSize: 11, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>{s.lbl}</span>
-                          <span style={{ fontSize: 16, fontWeight: 900, color: '#38bdf8' }}>{s.val}</span>
-                        </div>
-                      ))}
-                      <div style={{ background: '#0a1628', border: '1px solid rgba(56,189,248,.2)', borderRadius: 10, padding: '12px 14px', marginTop: 8 }}>
-                        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>Como clientes de {displayCity} contratam hoje:</div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
-                          <span style={{ color: '#94a3b8' }}>Pedir indicação no grupo</span>
-                          <span style={{ color: '#ef4444', fontWeight: 700 }}>2–7 dias</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-                          <span style={{ color: '#94a3b8' }}>MeloCalé</span>
-                          <span style={{ color: '#38bdf8', fontWeight: 700 }}>47 minutos</span>
-                        </div>
-                      </div>
-                      <p style={{ fontSize: 11, color: '#93c5fd', textAlign: 'center', marginTop: 10 }}>Grátis, sem compromisso, com garantia de 7 dias</p>
-                    </>
-                  )}
+                {/* Coluna direita — foto hero */}
+                <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', height: '100%', minHeight: 340 }}>
+                  <img
+                    src={isProfissional ? '/hero-profissional.jpg' : '/hero-cliente.jpg'}
+                    alt={isProfissional ? 'Profissional verificado MeloCalé' : 'Cliente satisfeita com profissional MeloCalé'}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                    loading="eager"
+                  />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(15,23,42,0.15) 0%, transparent 40%)' }} />
+                  <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', borderRadius: 12, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', flexShrink: 0, boxShadow: '0 0 6px #10b981' }} />
+                    <span style={{ fontSize: 12, color: '#e2e8f0', fontWeight: 500 }}>
+                      {isProfissional
+                        ? '371+ profissionais ativos em Jacobina agora'
+                        : '28 clientes buscando profissionais agora em Jacobina'}
+                    </span>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -857,7 +818,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── 12. EarningsCalculator ── */}
-        <Suspense fallback={null}><EarningsCalculator /></Suspense>
+        {!isCliente && <Suspense fallback={null}><EarningsCalculator /></Suspense>}
 
         {/* ── 13. Planos ── */}
         <section id="planos" className="py-28" style={{ background: '#182035', borderTop: '2px solid #f59e0b', display: isCliente ? 'none' : 'block' }}>
