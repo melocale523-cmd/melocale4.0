@@ -290,9 +290,6 @@ export default function LandingPage() {
                       <Link to="/login?mode=signup&role=professional" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#047857,#059669,#10b981)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(16,185,129,.35)' }}>
                         Quero receber meus primeiros leads →
                       </Link>
-                      <Link to="/login?mode=signup&role=professional" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
-                        Ver leads disponíveis em {displayCity}
-                      </Link>
                     </>
                   ) : (
                     <>
@@ -325,9 +322,6 @@ export default function LandingPage() {
                       </div>
                       <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52, background: 'linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, borderRadius: 13, textDecoration: 'none', marginBottom: 10, boxShadow: '0 4px 24px rgba(56,189,248,.35)' }}>
                         Ver profissionais disponíveis agora →
-                      </Link>
-                      <Link to="/login?mode=signup&role=client" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 40, background: 'transparent', color: '#6a9ab8', fontWeight: 600, fontSize: 13, borderRadius: 10, textDecoration: 'none', border: '1px solid rgba(56,189,248,.2)' }}>
-                        Descrever meu serviço
                       </Link>
                     </>
                   )}
