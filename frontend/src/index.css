@@ -344,6 +344,10 @@ input[type='range'].earnings-slider::-moz-range-thumb {
     min-width: 0 !important;
   }
 
+  .landing-dep-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   .landing-planos-grid {
     grid-template-columns: 1fr !important;
     max-width: 360px !important;
