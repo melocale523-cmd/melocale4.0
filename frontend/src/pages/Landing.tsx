@@ -327,7 +327,7 @@ export default function LandingPage() {
                   )}
                   <p style={{ fontSize: 11, color: '#4a6a80', marginTop: 12 }}>
                     {isProfissional
-                      ? `Beta fechado · 7 profissionais ativos em ${displayCity} · Grátis para começar`
+                      ? `371+ profissionais ativos · Grátis para começar · Cancele quando quiser`
                       : `Profissionais verificados em ${displayCity} · 47 min de resposta · Grátis`}
                   </p>
                 </div>
@@ -807,12 +807,16 @@ export default function LandingPage() {
 
             {/* CTA dual pós-depoimentos */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px' }}>
-                Ver profissionais disponíveis agora →
-              </Link>
-              <Link to="/login?mode=signup&role=professional" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'transparent', color: '#38bdf8', fontWeight: 700, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px', border: '1px solid rgba(56,189,248,.3)' }}>
-                Quero receber clientes →
-              </Link>
+              {!isProfissional && (
+                <Link to="/login?mode=signup&role=client" className="cta-pulse" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px' }}>
+                  Ver profissionais disponíveis agora →
+                </Link>
+              )}
+              {!isCliente && (
+                <Link to="/login?mode=signup&role=professional" style={{ display: 'inline-flex', alignItems: 'center', height: 44, background: isProfissional ? 'linear-gradient(135deg,#047857,#10b981)' : 'transparent', color: isProfissional ? '#fff' : '#38bdf8', fontWeight: isProfissional ? 800 : 700, fontSize: 13, borderRadius: 12, textDecoration: 'none', padding: '0 22px', border: isProfissional ? 'none' : '1px solid rgba(56,189,248,.3)' }} className={isProfissional ? 'cta-pulse' : ''}>
+                  Quero receber clientes →
+                </Link>
+              )}
             </div>
           </div>
         </section>
