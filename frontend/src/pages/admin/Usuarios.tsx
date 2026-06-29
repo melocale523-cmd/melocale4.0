@@ -63,7 +63,7 @@ function ActionBtn({ onClick, children, variant = 'default' }: { onClick: () => 
   return (
     <button
       onClick={onClick}
-      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 8px', borderRadius: 7, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.color, fontSize: 10, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 8px', borderRadius: 7, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.color, fontSize: 10, fontWeight: 600, cursor: 'pointer', whiteSpace: 'normal', textAlign: 'left' }}
     >
       {children}
     </button>
@@ -386,7 +386,7 @@ export default function AdminUsuarios() {
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1100 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1130 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
                   <th style={{ padding: '0.5rem 0.5rem 0.5rem 0.625rem', width: 32 }}>
@@ -403,7 +403,7 @@ export default function AdminUsuarios() {
                   <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left', width: 160 }}>Plano / Atividade</th>
                   <SortHeader field="created_at" label="Cadastro" width={110} />
                   <SortHeader field="last_sign_in_at" label="Último login" width={110} />
-                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left', width: 120 }}>Ações</th>
+                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left', width: 150 }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
