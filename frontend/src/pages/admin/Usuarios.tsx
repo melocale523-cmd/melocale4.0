@@ -465,7 +465,13 @@ export default function AdminUsuarios() {
                       <td style={{ padding: '0.5rem 0.625rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, display: 'inline-block' }}>{rb.label}</span>
-                          {u.category && <Pill color="#4a6580">{highlight(u.category, searchQuery)}</Pill>}
+                          {u.category && (
+                          <Pill color="#4a6580">
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120, display: 'block' }}>
+                              {highlight(u.category, searchQuery)}
+                            </span>
+                          </Pill>
+                        )}
                           <span style={{ fontSize: 10, color: '#60a5fa' }}>
                             {u.origin === 'meta_ads' ? '📣 Meta Ads' : u.origin === 'referral' ? '👥 Indicação' : u.origin === 'organic' ? '🌐 Orgânico' : '❔ Desconhecido'}
                           </span>
