@@ -436,7 +436,7 @@ export default function AdminUsuarios() {
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                              <p style={{ fontSize: 13, fontWeight: 600, color: u.full_name ? 'white' : '#4a6580', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: u.full_name ? 'white' : '#4a6580', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
                                 {highlight(u.full_name || 'sem nome', searchQuery)}
                               </p>
                               {inconsistent && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(245,158,11,.12)', color: '#fbbf24', border: '1px solid rgba(245,158,11,.2)', flexShrink: 0 }}>⚠</span>}
@@ -587,7 +587,7 @@ export default function AdminUsuarios() {
                     }
                   </div>
                   <div>
-                    <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 5px' }}>{profileModal.full_name ?? 'Sem nome'}</p>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 5px', wordBreak: 'break-word' }}>{profileModal.full_name ?? 'Sem nome'}</p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: ROLE_BADGE[profileModal.role]?.bg, color: ROLE_BADGE[profileModal.role]?.color, border: `1px solid ${ROLE_BADGE[profileModal.role]?.border}` }}>
                         {ROLE_BADGE[profileModal.role]?.label ?? profileModal.role}
