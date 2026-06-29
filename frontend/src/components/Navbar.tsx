@@ -97,14 +97,14 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
               <>
                 {/* Entrar — always visible, compact on mobile */}
                 <Link
-                  to="/login?mode=login"
+                  to={isProfissional ? '/login?mode=login&role=professional' : isCliente ? '/login?mode=login&role=client' : '/login?mode=login'}
                   className="px-4 py-2 md:px-5 md:py-2.5 border border-emerald-500/60 text-emerald-400 rounded-xl text-sm md:text-sm font-black transition-all hover:bg-emerald-500/10 whitespace-nowrap"
                 >
                   Entrar
                 </Link>
                 {/* Cadastrar — sticky CTA aparece após scroll do hero */}
                 <Link
-                  to="/login?mode=signup"
+                  to={isProfissional ? '/login?mode=signup&role=professional' : isCliente ? '/login?mode=signup&role=client' : '/login?mode=signup'}
                   className={cn(
                     'px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-sm md:text-sm font-black transition-all whitespace-nowrap',
                     pastHero
