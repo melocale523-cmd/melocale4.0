@@ -486,7 +486,7 @@ export default function LandingPage() {
               <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 900, color: '#f0f6ff', marginBottom: 32 }}>
                 {isProfissional ? 'Como o MeloCalé funciona para profissionais' : 'Do problema ao profissional em menos de 1 hora'}
               </h2>
-              <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.3)' : 'rgba(56,189,248,.3)'}`, background: '#0a1628', minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.3)' : 'rgba(56,189,248,.3)'}`, background: '#0a1628', maxWidth: 360, margin: '0 auto' }}>
                 <video
                   autoPlay
                   muted
@@ -496,7 +496,7 @@ export default function LandingPage() {
                     ? 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/profissional_thepgk.mp4'
                     : 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/cliente_vnazgk.mp4'}
                   poster={isProfissional ? '/hero-profissional.jpg' : '/hero-cliente.jpg'}
-                  style={{ width: '100%', display: 'block', borderRadius: 16 }}
+                  style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 16, aspectRatio: '9/16' }}
                   onError={(e) => { (e.target as HTMLVideoElement).style.display = 'none'; }}
                 />
                 {/* Placeholder enquanto vídeo não existe */}
