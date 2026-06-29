@@ -249,10 +249,10 @@ export default function AdminUsuarios() {
   const pendenciasCount = usuarios.filter(u => !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u)).length;
   const churnRiskCount = usuarios.filter(isChurnRisk).length;
 
-  const SortHeader = ({ field, label }: { field: string; label: string }) => (
+  const SortHeader = ({ field, label, width }: { field: string; label: string; width?: number }) => (
     <th
       onClick={() => handleSort(field)}
-      style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: sortField === field ? '#34d399' : '#4a6580', textAlign: 'left', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+      style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: sortField === field ? '#34d399' : '#4a6580', textAlign: 'left', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap', ...(width ? { width } : {}) }}
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
         {label}
@@ -386,10 +386,10 @@ export default function AdminUsuarios() {
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 860 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1100 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
-                  <th style={{ padding: '0.5rem 0.5rem 0.5rem 0.625rem', width: 36 }}>
+                  <th style={{ padding: '0.5rem 0.5rem 0.5rem 0.625rem', width: 32 }}>
                     <input
                       type="checkbox"
                       checked={sortedFiltered.length > 0 && selected.size === sortedFiltered.length}
@@ -397,13 +397,13 @@ export default function AdminUsuarios() {
                       style={{ cursor: 'pointer', accentColor: '#10b981' }}
                     />
                   </th>
-                  <SortHeader field="full_name" label="Usuário" />
-                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Contato</th>
-                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Tipo</th>
-                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Plano / Atividade</th>
-                  <SortHeader field="created_at" label="Cadastro" />
-                  <SortHeader field="last_sign_in_at" label="Último login" />
-                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left' }}>Ações</th>
+                  <SortHeader field="full_name" label="Usuário" width={200} />
+                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left', width: 180 }}>Contato</th>
+                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left', width: 140 }}>Tipo</th>
+                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left', width: 160 }}>Plano / Atividade</th>
+                  <SortHeader field="created_at" label="Cadastro" width={110} />
+                  <SortHeader field="last_sign_in_at" label="Último login" width={110} />
+                  <th style={{ padding: '0.5rem 0.625rem', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.07em', color: '#4a6580', textAlign: 'left', width: 120 }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
