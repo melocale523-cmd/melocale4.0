@@ -5,6 +5,7 @@ import { adminService, type EnrichedUser } from '../../services/statsService';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 type RoleFilter = 'all' | 'client' | 'professional' | 'admin';
 
@@ -72,6 +73,7 @@ function ActionBtn({ onClick, children, variant = 'default' }: { onClick: () => 
 
 export default function AdminUsuarios() {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'client' | 'professional' | 'admin' | 'pendencias' | 'churn'>('all');
   const [profileModal, setProfileModal] = useState<EnrichedUser | null>(null);
@@ -292,7 +294,7 @@ export default function AdminUsuarios() {
       </div>
 
       {/* KPI cards — 6 cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: '0.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3,1fr)' : 'repeat(6,1fr)', gap: '0.5rem' }}>
         {[
           { label: 'Total usuários',     value: String(usuarios.length),    color: 'white' },
           { label: 'Profissionais',      value: String(counts.professional), color: '#34d399' },
@@ -384,7 +386,69 @@ export default function AdminUsuarios() {
           <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
             <Loader2 size={28} className="animate-spin" style={{ color: '#10b981' }} />
           </div>
-        ) : (
+        ) : isMobile ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {sortedFiltered.map(u => {
+                const av = ROLE_AVATAR[u.role] ?? { bg: 'rgba(255,255,255,.06)', color: '#94a3b8' };
+                const rb = ROLE_BADGE[u.role] ?? { bg: 'rgba(255,255,255,.06)', color: '#94a3b8', border: 'rgba(255,255,255,.1)', label: u.role };
+                const plan = u.package_id ? PLAN_META[u.package_id] : null;
+                const initials = (u.full_name ?? u.email ?? '?').charAt(0).toUpperCase();
+                const score = getProfileScore(u);
+                const churnUser = isChurnRisk(u);
+                return (
+                  <div key={u.id} style={{ background: '#132236', borderRadius: 12, border: '1px solid rgba(255,255,255,.06)', padding: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: av.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: av.color, flexShrink: 0, overflow: 'hidden' }}>
+                        {u.avatar_url ? <img src={u.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }} /> : initials}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: u.full_name ? 'white' : '#4a6580', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name || 'sem nome'}</p>
+                        <p style={{ fontSize: 11, color: '#4a6580', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</p>
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, flexShrink: 0 }}>{rb.label}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <span style={{ fontSize: 10, color: getScoreColor(score) }}>{score}%</span>
+                      <div style={{ flex: 1, height: 3, background: 'rgba(255,255,255,.08)', borderRadius: 2 }}>
+                        <div style={{ width: `${score}%`, height: '100%', background: getScoreColor(score), borderRadius: 2 }} />
+                      </div>
+                      {churnUser && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(239,68,68,.12)', color: '#f87171', border: '1px solid rgba(239,68,68,.2)' }}>churn</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                      {u.city && <span style={{ fontSize: 10, color: '#4a6580' }}>📍 {u.city}</span>}
+                      {u.phone && <span style={{ fontSize: 10, color: '#4a6580' }}>📱 {u.phone}</span>}
+                      {plan && <span style={{ fontSize: 10, fontWeight: 700, color: plan.color }}>{plan.label}</span>}
+                      {!plan && u.role === 'professional' && <span style={{ fontSize: 10, color: '#4a6580' }}>Sem plano</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <ActionBtn onClick={() => setProfileModal(u)}><User size={11} /> Ver perfil</ActionBtn>
+                      {u.phone && (
+                        <ActionBtn onClick={() => window.open(`https://wa.me/55${u.phone!.replace(/\D/g, '')}`, '_blank')}>
+                          <MessageSquare size={11} /> WhatsApp
+                        </ActionBtn>
+                      )}
+                      {u.role === 'professional' && u.is_active === true && (
+                        <ActionBtn onClick={() => { if (window.confirm('Confirma desativar?')) updateStatusMutation.mutate({ id: u.id, status: 'inactive' }); }} variant="danger">
+                          <XCircle size={11} /> Desativar
+                        </ActionBtn>
+                      )}
+                      {u.role === 'professional' && u.is_active === false && (
+                        <ActionBtn onClick={() => updateStatusMutation.mutate({ id: u.id, status: 'active' })} variant="success">
+                          <CheckCircle size={11} /> Ativar
+                        </ActionBtn>
+                      )}
+                      <ActionBtn onClick={() => { navigator.clipboard.writeText(u.id); toast.success('ID copiado!'); }}>
+                        <Copy size={11} /> Copiar ID
+                      </ActionBtn>
+                    </div>
+                  </div>
+                );
+              })}
+              {sortedFiltered.length === 0 && (
+                <p style={{ textAlign: 'center', color: '#4a6580', fontSize: 13, padding: '2rem' }}>Nenhum usuário encontrado.</p>
+              )}
+            </div>
+          ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1130 }}>
               <thead>
@@ -630,7 +694,7 @@ export default function AdminUsuarios() {
               {profileModal.role === 'professional' && (
                 <div style={{ background: 'rgba(16,185,129,.05)', border: '1px solid rgba(16,185,129,.15)', borderRadius: 10, padding: '1rem' }}>
                   <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#10b981', margin: '0 0 0.75rem' }}>Dados profissionais</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.5rem', marginBottom: '0.75rem' }}>
                     {[
                       { label: 'Categoria',   value: profileModal.category ?? '—',  color: 'white' },
                       { label: 'Status',      value: profileModal.is_active ? 'Ativo' : 'Inativo', color: profileModal.is_active ? '#34d399' : '#f87171' },
@@ -661,7 +725,7 @@ export default function AdminUsuarios() {
               {profileModal.role === 'client' && (
                 <div style={{ background: 'rgba(59,130,246,.05)', border: '1px solid rgba(59,130,246,.15)', borderRadius: 10, padding: '1rem' }}>
                   <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#60a5fa', margin: '0 0 0.75rem' }}>Dados do cliente</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.5rem' }}>
                     {[
                       { label: 'Pedidos',      value: String(profileModal.total_leads),       color: 'white' },
                       { label: 'Agendamentos', value: String(profileModal.total_appointments), color: 'white' },
