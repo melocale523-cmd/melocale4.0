@@ -63,6 +63,22 @@ export default function ClientDashboard() {
     },
   });
 
+  const clientCity = profile?.address_city || profile?.city || '';
+  const { data: profsNearby } = useQuery({
+    queryKey: ['profsNearby', clientCity],
+    queryFn: async () => {
+      if (!clientCity) return 0;
+      const { count } = await supabase
+        .from('professionals')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_active', true)
+        .ilike('city', `%${clientCity}%`);
+      return count ?? 0;
+    },
+    enabled: !!clientCity,
+    staleTime: 300_000,
+  });
+
   const { data: nextAppointment, isLoading: apptLoading } = useQuery({
     queryKey: ['clientNextAppointment'],
     queryFn: async () => {
@@ -136,11 +152,19 @@ export default function ClientDashboard() {
     );
   }
 
+  const totalPedidos = (summary?.waiting ?? 0) + (summary?.in_progress ?? 0) + (summary?.orcando ?? 0) + (summary?.finalizado ?? 0);
+  const hasProposal = (summary?.orcando ?? 0) > 0;
+  const showOnboarding = !hasProposal;
+  const step2Done = totalPedidos > 0;
+  const step3Done = hasProposal;
+
   const dynamicSubtitle = summaryLoading || profileLoading
     ? ''
-    : (summary?.waiting ?? 0) > 0
-      ? `Você tem ${summary!.waiting} pedido${summary!.waiting > 1 ? 's' : ''} aberto${summary!.waiting > 1 ? 's' : ''} aguardando propostas.`
-      : 'Bem-vindo(a)! Crie seu primeiro pedido e receba orçamentos.';
+    : totalPedidos === 0
+      ? 'Complete o guia abaixo e receba seu primeiro orçamento hoje.'
+      : hasProposal
+        ? 'Você tem propostas recebidas! Acesse seus pedidos.'
+        : 'Profissionais estão respondendo ao seu pedido.';
 
   const statCards = [
     { label: 'Aguardando', value: summary?.waiting ?? 0, activeColor: 'text-emerald-400' },
@@ -208,6 +232,46 @@ export default function ClientDashboard() {
           </div>
         ))}
       </div>
+
+      {/* ONBOARDING GUIDE */}
+      {showOnboarding && !summaryLoading && (
+        <div style={{ background: 'rgba(16,185,129,.06)', border: '1.5px solid rgba(16,185,129,.25)', borderRadius: 16, padding: '20px 24px' }}>
+          <p style={{ fontSize: 12, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Zap size={14} /> Comece agora — leva menos de 2 minutos
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+            {/* Passo 1 — sempre done */}
+            <div style={{ background: '#132236', borderRadius: 12, padding: '16px 14px', border: '1px solid #10b981', textAlign: 'center' }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#10b981', color: '#000', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>✓</div>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#f1f5f9', margin: '0 0 4px' }}>Conta criada</p>
+              <p style={{ fontSize: 11, color: '#4a6580', lineHeight: 1.4, margin: 0 }}>Você já está na plataforma.</p>
+            </div>
+            {/* Passo 2 */}
+            <div style={{ background: step2Done ? '#132236' : 'rgba(16,185,129,.08)', borderRadius: 12, padding: '16px 14px', border: `1px solid ${step2Done ? '#10b981' : 'rgba(16,185,129,.4)'}`, textAlign: 'center' }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: step2Done ? '#10b981' : 'rgba(16,185,129,.2)', color: step2Done ? '#000' : '#10b981', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>{step2Done ? '✓' : '2'}</div>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#f1f5f9', margin: '0 0 4px' }}>Descreva o serviço</p>
+              <p style={{ fontSize: 11, color: '#4a6580', lineHeight: 1.4, margin: '0 0 10px' }}>Diga o que precisa e onde. 30 segundos.</p>
+              {!step2Done && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="cta-pulse"
+                  style={{ width: '100%', height: 32, background: '#10b981', color: '#000', fontSize: 11, fontWeight: 800, border: 'none', borderRadius: 8, cursor: 'pointer' }}
+                >
+                  Criar pedido →
+                </button>
+              )}
+            </div>
+            {/* Passo 3 */}
+            <div style={{ background: '#132236', borderRadius: 12, padding: '16px 14px', border: `1px solid ${step3Done ? '#10b981' : 'rgba(255,255,255,.06)'}`, textAlign: 'center' }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: step3Done ? '#10b981' : '#1e3a5f', color: step3Done ? '#000' : '#4a6580', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>{step3Done ? '✓' : '3'}</div>
+              <p style={{ fontSize: 12, fontWeight: 700, color: step2Done ? '#f1f5f9' : '#4a6580', margin: '0 0 4px' }}>Receba propostas</p>
+              <p style={{ fontSize: 11, color: '#4a6580', lineHeight: 1.4, margin: 0 }}>
+                {step2Done ? 'Profissionais da sua cidade estão respondendo...' : 'Profissionais respondem em até 47 min.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CONTENT GRID */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
@@ -286,19 +350,29 @@ export default function ClientDashboard() {
               })}
             </div>
           ) : (
-            <div className="bg-[#132236] rounded-xl border border-white/5 text-center flex flex-col items-center" style={{ padding:'2.5rem 1.5rem', gap:'1.25rem' }}>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                <Hammer size={24} />
+            <div style={{ background: '#132236', borderRadius: 12, border: '0.5px solid rgba(255,255,255,.06)', padding: '2.5rem 1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(16,185,129,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Hammer size={24} color="#10b981" />
               </div>
+              {(profsNearby ?? 0) > 0 && (
+                <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(16,185,129,.15)', color: '#10b981', borderRadius: 6, padding: '3px 10px' }}>
+                  {profsNearby} profissionais disponíveis em {clientCity}
+                </span>
+              )}
               <div>
-                <p className="text-white font-bold mb-1">Nenhum pedido ainda</p>
-                <p className="text-[#4a6580] text-sm">Crie seu primeiro pedido e receba orçamentos de profissionais.</p>
+                <p style={{ color: '#f1f5f9', fontWeight: 700, margin: '0 0 6px' }}>
+                  {(profsNearby ?? 0) > 0 ? 'Profissionais esperando — cada hora sem pedido é hora perdida' : 'Seu primeiro pedido está a 1 clique'}
+                </p>
+                <p style={{ color: '#4a6580', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+                  Descreva o serviço e receba orçamentos de profissionais verificados em até 47 minutos.
+                </p>
               </div>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-4 h-10 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all active:scale-95"
+                className="cta-pulse"
+                style={{ height: 40, background: '#10b981', color: '#000', fontSize: 13, fontWeight: 800, border: 'none', borderRadius: 10, padding: '0 24px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
               >
-                <Plus size={16} /> Criar pedido
+                <Plus size={15} /> Criar meu primeiro pedido
               </button>
             </div>
           )}
