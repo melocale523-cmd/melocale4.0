@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { sendMetaEvent } from "../lib/metaPixel.js";
 import { sensitiveLimiter } from "../config.js";
+import { sendNewUserAlert } from "../jobs/newUserAlert.js";
 
 const router = Router();
 
@@ -12,6 +13,7 @@ const registrationSchema = z.object({
   name: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
+  origin: z.string().optional(),
   fbp: z.string().optional(),
   fbc: z.string().optional(),
 });
@@ -22,7 +24,7 @@ router.post("/track/registration", sensitiveLimiter, async (req: Request, res: R
   const parsed = registrationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "dados inválidos." });
 
-  const { role, email, phone, name, city, state, fbp, fbc } = parsed.data;
+  const { role, email, phone, name, city, state, origin, fbp, fbc } = parsed.data;
   const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
     ?? req.socket.remoteAddress
     ?? undefined;
@@ -41,6 +43,15 @@ router.post("/track/registration", sensitiveLimiter, async (req: Request, res: R
     clientIp,
     clientUserAgent,
     customData: { content_name: role },
+  });
+
+  void sendNewUserAlert({
+    full_name: name,
+    email,
+    role,
+    city,
+    origin,
+    phone,
   });
 
   return res.json({ ok: true });
