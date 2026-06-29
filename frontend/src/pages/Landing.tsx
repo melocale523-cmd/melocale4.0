@@ -492,6 +492,7 @@ export default function LandingPage() {
                   muted
                   loop
                   playsInline
+                  controls
                   src={isProfissional
                     ? 'https://res.cloudinary.com/dk1lktguj/video/upload/profissional_thepgk.mp4'
                     : 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/cliente_vnazgk.mp4'}
