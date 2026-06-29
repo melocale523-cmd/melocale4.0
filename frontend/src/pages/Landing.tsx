@@ -7,7 +7,7 @@ import StickyCtaMobile from '../components/StickyCtaMobile';
 import LiveCounter from '../components/LiveCounter';
 import { useUtmParams } from '../hooks/useUtmParams';
 import { supabase } from '../lib/supabase';
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 
 const EarningsCalculator = lazy(() => import('../components/EarningsCalculator'));
 const CompetitorTable    = lazy(() => import('../components/CompetitorTable'));
@@ -99,6 +99,26 @@ export default function LandingPage() {
   const [showConversionWidgets, setShowConversionWidgets] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(isCliente ? 1 : 0);
   const [profCount, setProfCount] = useState<number | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.muted = false;
+          video.play().catch(() => { video.muted = true; video.play(); });
+        } else {
+          video.pause();
+          video.muted = true;
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -488,6 +508,7 @@ export default function LandingPage() {
               </h2>
               <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.3)' : 'rgba(56,189,248,.3)'}`, background: '#0a1628', maxWidth: 360, margin: '0 auto' }}>
                 <video
+                  ref={videoRef}
                   autoPlay
                   muted
                   loop
