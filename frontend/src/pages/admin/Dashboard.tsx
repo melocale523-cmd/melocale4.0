@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2, AlertTriangle, Ticket, Coins, RefreshCw, ChevronRight, Phone } from 'lucide-react';
 import { adminService, EnrichedUser } from '../../services/statsService';
@@ -36,6 +37,7 @@ const EVT_ICON = { payment: '💰', lead: '📬', signup: '👤' } as const;
 export default function AdminDashboard() {
   const [simCount, setSimCount] = useState(10);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const isMobile = useIsMobile();
 
   const { data: summary, isLoading, refetch } = useQuery({
     queryKey: ['adminDashboardSummary'],
@@ -218,7 +220,7 @@ export default function AdminDashboard() {
   void daysSince;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '0.75rem' : '1.25rem', maxWidth: 1200, margin: '0 auto' }}>
 
       {/* Overlay loading */}
       {isRefreshing && (
@@ -251,7 +253,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ROW 1: MRR, Faturamento, LTV, CAC */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.625rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '0.625rem' }}>
         {([
           { label: 'MRR', value: `R$${s.mrr}`, sub: s.mrr === 0 ? '0 assinaturas ativas' : `${subEntries.length} planos ativos`, color: '#10b981', border: 'rgba(16,185,129,.3)', bg: 'linear-gradient(135deg,#0b2818,#0f3020)', warn: s.mrr === 0, accent: 'linear-gradient(90deg,#10b981,#059669)' },
           { label: 'Faturamento total', value: `R$${Math.round(s.totalRevenue).toLocaleString('pt-BR')}`, sub: `${totalPayments} pagamentos`, color: 'white', border: 'rgba(255,255,255,.06)', bg: '#132540', warn: false, accent: '#3b82f6' },
@@ -268,7 +270,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ROW 2: Pedidos, Ciclo, Ativos 24h, Próxima auditoria */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.625rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '0.625rem' }}>
         {([
           { label: 'Pedidos abertos', value: String(s.activeLeads), sub: 'leads aguardando pro', color: s.activeLeads > 0 ? '#60a5fa' : '#4a6580', accent: '#3b82f6' },
           { label: 'Ciclo médio', value: s.avgResponseTime, sub: 'tempo de resposta', color: 'white', accent: '#8b5cf6' },
@@ -285,7 +287,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ROW 3: Simulador MRR + Faturamento mensal */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Simulador MRR */}
         <div style={{ background: 'linear-gradient(135deg,#0b2818,#0f3020)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 12, padding: '1.25rem' }}>
@@ -296,7 +298,7 @@ export default function AdminDashboard() {
             onChange={e => setSimCount(Number(e.target.value))}
             style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer', margin: '0 0 1rem' }}
           />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '0.5rem' }}>
             {[
               { label: 'Assinantes', value: simCount, color: 'white' },
               { label: 'MRR projetado', value: `R$${simMRR.toLocaleString('pt-BR')}`, color: '#34d399' },
@@ -348,7 +350,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ROW 4: Score de saúde + Timeline 24h */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Score de saúde */}
         <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
@@ -433,7 +435,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ROW 5: Mapa de calor + Funil de conversão */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Mapa de calor */}
         <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
@@ -506,7 +508,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ROW 6: Assinaturas + Moedas avulsas */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Assinaturas */}
         <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
@@ -567,7 +569,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ROW 7: Oferta vs Demanda + Alertas + Últimos profissionais */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Oferta vs Demanda */}
         <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
