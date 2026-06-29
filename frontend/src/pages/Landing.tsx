@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import StickyCtaMobile from '../components/StickyCtaMobile';
 import LiveCounter from '../components/LiveCounter';
 import { useUtmParams } from '../hooks/useUtmParams';
+import { supabase } from '../lib/supabase';
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 
 const EarningsCalculator = lazy(() => import('../components/EarningsCalculator'));
@@ -97,6 +98,7 @@ export default function LandingPage() {
   }));
   const [showConversionWidgets, setShowConversionWidgets] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(isCliente ? 1 : 0);
+  const [profCount, setProfCount] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +112,19 @@ export default function LandingPage() {
     const t = setTimeout(() => setShowConversionWidgets(true), 3000);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    if (!isCliente) return;
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from('professionals')
+        .select('id', { count: 'exact', head: true })
+        .eq('city', displayCity)
+        .eq('is_active', true);
+      setProfCount(count ?? 0);
+    };
+    fetchCount();
+  }, [displayCity, isCliente]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -301,11 +316,17 @@ export default function LandingPage() {
                       <p style={{ fontSize: 15, color: '#94b8d8', marginBottom: 16, lineHeight: 1.7 }}>
                         Descreva o problema em 30 segundos. Em menos de 1 hora você já tem orçamentos de profissionais verificados em {displayCity} — grátis, sem cartão.
                       </p>
-                      <div style={{ background: '#0a1628', border: '1px solid rgba(56,189,248,.35)', borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
-                        <div style={{ fontSize: 12, color: '#60a5fa', fontWeight: 700, marginBottom: 4 }}>Urgência real em {displayCity}:</div>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Apenas 2 eletricistas disponíveis esta semana</div>
-                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>Profissionais verificados · agenda se esgota rapidamente</div>
-                      </div>
+                      {(() => {
+                        const urgColor = profCount === null ? '#38bdf8' : profCount >= 5 ? '#10b981' : profCount >= 2 ? '#f59e0b' : '#ef4444';
+                        const urgText = profCount === null ? 'Carregando...' : profCount >= 5 ? `${profCount} profissionais disponíveis esta semana` : profCount >= 2 ? `Apenas ${profCount} profissionais disponíveis` : 'Alta demanda — poucos disponíveis';
+                        return (
+                          <div style={{ background: '#0a1628', border: `1px solid rgba(56,189,248,.35)`, borderRadius: 10, padding: '12px 16px', marginBottom: 14 }}>
+                            <div style={{ fontSize: 12, color: '#60a5fa', fontWeight: 700, marginBottom: 4 }}>Urgência real em {displayCity}:</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: urgColor }}>{urgText}</div>
+                            <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>Profissionais verificados · agenda se esgota rapidamente</div>
+                          </div>
+                        );
+                      })()}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 20 }}>
                         {[
                           'Profissionais com identidade confirmada',
@@ -454,6 +475,41 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* ── Seção Vídeo ── */}
+        {(isProfissional || isCliente) && (
+          <section style={{ background: '#080f1e', padding: '48px 0' }}>
+            <div className="container-app" style={{ maxWidth: '52rem', margin: '0 auto', textAlign: 'center' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: isProfissional ? '#10b981' : '#38bdf8', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 10 }}>
+                {isProfissional ? '30 segundos que mudam sua renda' : 'Veja como é simples contratar'}
+              </p>
+              <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 900, color: '#f0f6ff', marginBottom: 32 }}>
+                {isProfissional ? 'Como o MeloCalé funciona para profissionais' : 'Do problema ao profissional em menos de 1 hora'}
+              </h2>
+              <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: `1px solid ${isProfissional ? 'rgba(16,185,129,.3)' : 'rgba(56,189,248,.3)'}`, background: '#0a1628', minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  src={isProfissional
+                    ? 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/profissional_thepgk.mp4'
+                    : 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/cliente_vnazgk.mp4'}
+                  poster={isProfissional ? '/hero-profissional.jpg' : '/hero-cliente.jpg'}
+                  style={{ width: '100%', display: 'block', borderRadius: 16 }}
+                  onError={(e) => { (e.target as HTMLVideoElement).style.display = 'none'; }}
+                />
+                {/* Placeholder enquanto vídeo não existe */}
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, pointerEvents: 'none' }}>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: isProfissional ? 'rgba(16,185,129,.15)' : 'rgba(56,189,248,.15)', border: `1.5px solid ${isProfissional ? 'rgba(16,185,129,.4)' : 'rgba(56,189,248,.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 0, height: 0, borderTop: '10px solid transparent', borderBottom: '10px solid transparent', borderLeft: `18px solid ${isProfissional ? '#10b981' : '#38bdf8'}`, marginLeft: 4 }} />
+                  </div>
+                  <span style={{ fontSize: 13, color: isProfissional ? '#10b981' : '#38bdf8', fontWeight: 600 }}>Vídeo em breve</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {(isProfissional || isCliente) && (
           <section style={{ background: isProfissional ? 'rgba(16,185,129,.08)' : 'rgba(56,189,248,.06)', borderTop: `1px solid ${isProfissional ? 'rgba(16,185,129,.2)' : 'rgba(56,189,248,.2)'}`, borderBottom: `1px solid ${isProfissional ? 'rgba(16,185,129,.2)' : 'rgba(56,189,248,.2)'}`, padding: '20px 0' }}>
@@ -717,94 +773,196 @@ export default function LandingPage() {
               Quem usa, <span style={{ color: '#10b981' }}>recomenda</span>
             </h2>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 760, margin: '0 auto 40px' }}>
-              {/* Depoimento 1 — Carlos Augusto */}
-              <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
-                <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>+R$1.800/mês</span>
-                </div>
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
-                </div>
-                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
-                  "Em 2 semanas já tinha 3 clientes novos. O MeloCalé mudou meu mês — faturei R$1.800 a mais só com os leads da plataforma."
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>CA</div>
-                  <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Carlos Augusto</p>
-                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Pintor · Salvador, BA</p>
+            <div className="landing-dep-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, maxWidth: 960, margin: '0 auto 40px' }}>
+              {/* ── Profissionais (5 cards) ── */}
+              {!isCliente && (
+                <>
+                  {/* 1 — Thiago Mendes */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                    <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>+R$2.100/mês</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Recebi 4 clientes na primeira semana. Nunca imaginei conseguir tanto trabalho tão rápido pelo celular."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>TM</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Thiago Mendes</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Eletricista · Jacobina, BA</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Depoimento 2 — Ana Rodrigues */}
-              <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
-                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>2 propostas em 47 min</span>
-                </div>
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
-                </div>
-                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
-                  "Precisava de um encanador urgente. Em menos de 1 hora já tinha 2 orçamentos. Contratei na hora e o serviço foi excelente!"
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>AR</div>
-                  <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Ana Rodrigues</p>
-                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Salvador, BA</p>
+                  {/* 2 — Simone Batista */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(245,158,11,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                    <div style={{ background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.30)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#f59e0b' }}>+R$1.800/mês</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Dependia só de indicação. Hoje tenho agenda cheia. O MeloCalé virou minha maior fonte de renda."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#c2410c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>SB</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Simone Batista</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Diarista · Feira de Santana, BA</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Depoimento 3 — Simone Marques */}
-              <div style={{ background: '#1a2d45', border: '1px solid rgba(245,158,11,.35)', borderRadius: 18, padding: '20px', display: isCliente ? 'none' : 'flex', flexDirection: 'column', gap: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
-                <div style={{ background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.30)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#f59e0b' }}>Renda principal</span>
-                </div>
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
-                </div>
-                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
-                  "Tinha medo de não conseguir clientes pela internet. Hoje o MeloCalé é minha principal fonte de trabalho. Vale cada centavo."
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#c2410c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>SM</div>
-                  <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Simone Marques</p>
-                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Limpeza residencial · Salvador, BA</p>
+                  {/* 3 — Roberto Bonfim */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                    <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>3 clientes/semana</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Achei que não ia funcionar no interior. Erro meu. Em Irecê já tenho clientes todo mês."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>RB</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Roberto Bonfim</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Eletricista · Irecê, BA</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Depoimento 4 — Francisco Oliveira */}
-              <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: isProfissional ? 'none' : 'flex', flexDirection: 'column', gap: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
-                <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>Serviço excelente</span>
-                </div>
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}
-                </div>
-                <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>
-                  "Descrevi o problema, em 40 minutos tinha 3 orçamentos. Nunca pensei que fosse tão fácil de encontrar um profissional de confiança."
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>FO</div>
-                  <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Francisco Oliveira</p>
-                    <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Jacobina, BA</p>
+                  {/* 4 — Marcos Ferreira */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                    <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>+R$900/mês extra</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Trabalho meio período e já complemento bem a renda. Vale muito o plano PRO."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>MF</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Marcos Ferreira</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Encanador · Senhor do Bonfim, BA</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+
+                  {/* 5 — José Pereira */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🔧 Profissional</span>
+                    <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>Agenda cheia</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Sazonalidade me matava. Agora tenho trabalho o ano inteiro com o MeloCalé."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>JP</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>José Pereira</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Técnico de AC · Salvador, BA</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── Clientes (5 cards) ── */}
+              {!isProfissional && (
+                <>
+                  {/* 1 — Ana Cristina */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                    <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>47 min</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Encanador em 47 minutos em Jacobina. Não acreditei que fosse tão rápido."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>AC</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Ana Cristina</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Jacobina, BA</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2 — Fernando Oliveira */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                    <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>Economizou 23%</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Comparei 3 orçamentos. Paguei R$180 menos que o primeiro que me indicaram."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>FO</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Fernando Oliveira</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Feira de Santana, BA</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3 — Lucia Carneiro */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                    <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>3 orçamentos em 1h</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Pintei a casa toda. Recebi 3 orçamentos em 1 hora e escolhi o melhor. Serviço impecável."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>LC</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Lucia Carneiro</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Salvador, BA</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4 — Marina Santos */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(16,185,129,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                    <div style={{ background: 'rgba(16,185,129,.14)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>100% grátis</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Não paguei nada e encontrei um eletricista ótimo. Ainda não acredito que é gratuito."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#c2410c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>MS</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Marina Santos</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Irecê, BA</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 5 — Paula Souza */}
+                  <div style={{ background: '#1a2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start' }}>🏠 Cliente</span>
+                    <div style={{ background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, color: '#6a9ab8', textTransform: 'uppercase', letterSpacing: '.05em' }}>resultado</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#38bdf8' }}>Segurança total</span>
+                    </div>
+                    <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />)}</div>
+                    <p style={{ fontSize: 13, color: '#6a9ab8', lineHeight: 1.6, flex: 1 }}>"Sempre tive medo de contratar desconhecido. Com o badge verificado fiquei tranquila."</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, borderTop: '1px solid #0e2035' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>PS</div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: 0 }}>Paula Souza</p>
+                        <p style={{ fontSize: 11, color: '#4a6a80', margin: 0 }}>Cliente · Senhor do Bonfim, BA</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* CTA dual pós-depoimentos */}
@@ -1187,7 +1345,7 @@ export default function LandingPage() {
       {showConversionWidgets && (
         <>
           <Suspense fallback={null}><FomoNotification /></Suspense>
-          <Suspense fallback={null}><ExitIntentPopup /></Suspense>
+          <Suspense fallback={null}><ExitIntentPopup audience={isProfissional ? 'profissional' : isCliente ? 'cliente' : undefined} /></Suspense>
           <Suspense fallback={null}><ProactiveChat userCity={userCity} /></Suspense>
         </>
       )}
