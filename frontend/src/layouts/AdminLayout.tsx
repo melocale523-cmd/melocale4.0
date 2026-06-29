@@ -130,7 +130,7 @@ export default function AdminLayout() {
 
             <button
               onClick={() => navigate(-1)}
-              className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 transition-colors"
             >
               <ArrowLeft size={16} /> Voltar
             </button>
@@ -148,7 +148,7 @@ export default function AdminLayout() {
 
         {/* Page Content */}
         <div className="flex-1 overflow-auto">
-          <div className="px-4 py-3 md:px-32">
+          <div className="px-3 py-3 md:px-8 lg:px-12">
             <Outlet />
           </div>
         </div>
@@ -158,11 +158,11 @@ export default function AdminLayout() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 w-48 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] flex flex-col">
+          <aside className="fixed inset-y-0 left-0 w-64 bg-white/[0.15] backdrop-blur-xl dark:bg-[#132540] dark:backdrop-blur-none border-r border-white/20 dark:border-[#1C3050] flex flex-col">
             <div className="p-1 md:p-1.5">
               <span className="text-lg font-bold text-white">MeloCalé <span className="text-red-500 text-xs">ADMIN</span></span>
             </div>
-            <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+            <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto pb-4">
               {ADMIN_NAVIGATION.map((item) => {
                 const isSupporte = item.href === '/admin/suporte';
                 return (
