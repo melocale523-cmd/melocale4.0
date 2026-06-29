@@ -614,7 +614,7 @@ export default function LandingPage() {
             )}
 
             <div style={{ textAlign: 'center', marginTop: 32 }}>
-              <Link to="/login?mode=signup" style={{ display: 'inline-flex', alignItems: 'center', height: 56, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 17, borderRadius: 14, textDecoration: 'none', padding: '0 40px', gap: 8, animation: 'comecar-pulse 1.8s ease-in-out infinite' }}>
+              <Link to={isProfissional ? '/login?mode=signup&role=professional' : isCliente ? '/login?mode=signup&role=client' : '/login?mode=signup'} style={{ display: 'inline-flex', alignItems: 'center', height: 56, background: 'linear-gradient(135deg,#047857,#10b981)', color: '#fff', fontWeight: 800, fontSize: 17, borderRadius: 14, textDecoration: 'none', padding: '0 40px', gap: 8, animation: 'comecar-pulse 1.8s ease-in-out infinite' }}>
                 Começar agora — é grátis →
               </Link>
               <style>{`

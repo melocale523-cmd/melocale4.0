@@ -34,6 +34,7 @@ export default function Login() {
 
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLockedMode, setIsLockedMode] = useState(false);
+  const [lockedRole, setLockedRole] = useState<'client' | 'professional' | null>(null);
   const [authStep, setAuthStep] = useState<'basics' | 'details'>('basics');
   const [selectedRole, setSelectedRole] = useState<'client' | 'professional' | 'admin'>('client');
   const setMode = useAuthStore((state) => state.setMode);
@@ -150,6 +151,7 @@ export default function Login() {
 
     if (roleParam === 'professional' || roleParam === 'client') {
       setSelectedRole(roleParam as 'professional' | 'client');
+      setLockedRole(roleParam as 'professional' | 'client');
     }
 
     if (refCode) sessionStorage.setItem('melocale_ref', refCode);
@@ -342,6 +344,7 @@ export default function Login() {
               {/* Cards de signup */}
               <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '1.5rem' }}>
                 {/* CLIENTE */}
+                {(lockedRole === null || lockedRole === 'client') && (
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
@@ -363,8 +366,10 @@ export default function Login() {
                     Cadastrar como Cliente
                   </div>
                 </button>
+                )}
 
                 {/* PROFISSIONAL */}
+                {(lockedRole === null || lockedRole === 'professional') && (
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
@@ -386,12 +391,26 @@ export default function Login() {
                     Cadastrar como Profissional
                   </div>
                 </button>
+                )}
               </div>
+              {lockedRole === 'professional' && (
+                <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+                  Sou cliente, não profissional →{' '}
+                  <a href="/login?mode=signup&role=client" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como cliente</a>
+                </p>
+              )}
+              {lockedRole === 'client' && (
+                <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+                  Sou profissional, não cliente →{' '}
+                  <a href="/login?mode=signup&role=professional" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como profissional</a>
+                </p>
+              )}
             </>
           ) : (
             <>
               {/* Botões de login */}
               <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '2rem' }}>
+                {(lockedRole === null || lockedRole === 'client') && (
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
@@ -406,6 +425,8 @@ export default function Login() {
                   </svg>
                   Cliente (Google)
                 </button>
+                )}
+                {(lockedRole === null || lockedRole === 'professional') && (
                 <button
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
@@ -420,6 +441,7 @@ export default function Login() {
                   </svg>
                   Profissional (Google)
                 </button>
+                )}
               </div>
             </>
           )}
@@ -459,6 +481,7 @@ export default function Login() {
             {isSignUp ? 'Como deseja se cadastrar?' : 'Como deseja acessar?'}
           </p>
           <div className="grid grid-cols-2 gap-3">
+            {(lockedRole === null || lockedRole === 'client') && (
             <button
               onClick={() => setSelectedRole('client')}
               className={cn("flex flex-col items-center gap-2.5 py-4 px-3 rounded-2xl border transition-all", selectedRole === 'client' ? "border-blue-500/50 bg-blue-500/10 text-blue-400" : "border-[#1C3050] text-[#7A9EBF] bg-white/[0.02] hover:bg-white/[0.05]")}
@@ -466,6 +489,8 @@ export default function Login() {
               <UserIcon size={22} />
               <span className="text-[10px] font-black uppercase tracking-widest">Sou Cliente</span>
             </button>
+            )}
+            {(lockedRole === null || lockedRole === 'professional') && (
             <button
               onClick={() => setSelectedRole('professional')}
               className={cn("flex flex-col items-center gap-2.5 py-4 px-3 rounded-2xl border transition-all", selectedRole === 'professional' ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400" : "border-[#1C3050] text-[#7A9EBF] bg-white/[0.02] hover:bg-white/[0.05]")}
@@ -473,7 +498,20 @@ export default function Login() {
               <Briefcase size={22} />
               <span className="text-[10px] font-black uppercase tracking-widest">Sou Profissional</span>
             </button>
+            )}
           </div>
+          {lockedRole === 'professional' && (
+            <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+              Sou cliente, não profissional →{' '}
+              <a href="/login?mode=signup&role=client" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como cliente</a>
+            </p>
+          )}
+          {lockedRole === 'client' && (
+            <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+              Sou profissional, não cliente →{' '}
+              <a href="/login?mode=signup&role=professional" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como profissional</a>
+            </p>
+          )}
         </div>
       )}
 
