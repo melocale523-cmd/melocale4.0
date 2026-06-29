@@ -349,7 +349,7 @@ export default function Login() {
                   type="button"
                   onClick={() => handleGoogleLogin('client')}
                   className="flex flex-col items-center gap-4 py-5 px-4 rounded-2xl border-2 border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/60 transition-all text-center group"
-                  style={{ flex: 1 }}
+                  style={{ flex: lockedRole ? '0 0 auto' : 1, width: lockedRole ? 280 : undefined }}
                 >
                   <span className="text-4xl">🏠</span>
                   <div className="space-y-1">
@@ -374,7 +374,7 @@ export default function Login() {
                   type="button"
                   onClick={() => handleGoogleLogin('professional')}
                   className="flex flex-col items-center gap-4 py-5 px-4 rounded-2xl border-2 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all text-center group"
-                  style={{ flex: 1 }}
+                  style={{ flex: lockedRole ? '0 0 auto' : 1, width: lockedRole ? 280 : undefined }}
                 >
                   <span className="text-4xl">🔧</span>
                   <div className="space-y-1">
