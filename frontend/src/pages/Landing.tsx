@@ -492,6 +492,7 @@ export default function LandingPage() {
                   muted
                   loop
                   playsInline
+                  preload="auto"
                   src={isProfissional
                     ? 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/profissional_thepgk.mp4'
                     : 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/cliente_vnazgk.mp4'}
@@ -499,13 +500,7 @@ export default function LandingPage() {
                   style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 16, aspectRatio: '9/16' }}
                   onError={(e) => { (e.target as HTMLVideoElement).style.display = 'none'; }}
                 />
-                {/* Placeholder enquanto vídeo não existe */}
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, pointerEvents: 'none' }}>
-                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: isProfissional ? 'rgba(16,185,129,.15)' : 'rgba(56,189,248,.15)', border: `1.5px solid ${isProfissional ? 'rgba(16,185,129,.4)' : 'rgba(56,189,248,.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ width: 0, height: 0, borderTop: '10px solid transparent', borderBottom: '10px solid transparent', borderLeft: `18px solid ${isProfissional ? '#10b981' : '#38bdf8'}`, marginLeft: 4 }} />
-                  </div>
-                  <span style={{ fontSize: 13, color: isProfissional ? '#10b981' : '#38bdf8', fontWeight: 600 }}>Vídeo em breve</span>
-                </div>
+                {/* Placeholder só aparece se vídeo não carregar */}
               </div>
             </div>
           </section>
