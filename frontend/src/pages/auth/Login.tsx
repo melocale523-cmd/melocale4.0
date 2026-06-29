@@ -342,7 +342,7 @@ export default function Login() {
           {isSignUp ? (
             <>
               {/* Cards de signup */}
-              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'row', marginBottom: '1.5rem', justifyContent: lockedRole ? 'center' : undefined }}>
                 {/* CLIENTE */}
                 {(lockedRole === null || lockedRole === 'client') && (
                 <button
@@ -394,15 +394,15 @@ export default function Login() {
                 )}
               </div>
               {lockedRole === 'professional' && (
-                <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+                <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>
                   Sou cliente, não profissional →{' '}
-                  <a href="/login?mode=signup&role=client" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como cliente</a>
+                  <a href="/login?mode=signup&role=client" style={{ color: '#10b981', textDecoration: 'underline', fontWeight: 600 }}>entrar como cliente</a>
                 </p>
               )}
               {lockedRole === 'client' && (
-                <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+                <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>
                   Sou profissional, não cliente →{' '}
-                  <a href="/login?mode=signup&role=professional" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como profissional</a>
+                  <a href="/login?mode=signup&role=professional" style={{ color: '#10b981', textDecoration: 'underline', fontWeight: 600 }}>entrar como profissional</a>
                 </p>
               )}
             </>
@@ -501,15 +501,15 @@ export default function Login() {
             )}
           </div>
           {lockedRole === 'professional' && (
-            <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+            <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>
               Sou cliente, não profissional →{' '}
-              <a href="/login?mode=signup&role=client" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como cliente</a>
+              <a href="/login?mode=signup&role=client" style={{ color: '#10b981', textDecoration: 'underline', fontWeight: 600 }}>entrar como cliente</a>
             </p>
           )}
           {lockedRole === 'client' && (
-            <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 12 }}>
+            <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>
               Sou profissional, não cliente →{' '}
-              <a href="/login?mode=signup&role=professional" style={{ color: '#475569', textDecoration: 'underline' }}>entrar como profissional</a>
+              <a href="/login?mode=signup&role=professional" style={{ color: '#10b981', textDecoration: 'underline', fontWeight: 600 }}>entrar como profissional</a>
             </p>
           )}
         </div>
