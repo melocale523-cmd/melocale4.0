@@ -493,8 +493,8 @@ export default function LandingPage() {
                   loop
                   playsInline
                   src={isProfissional
-                    ? 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/profissional_thepgk.mp4'
-                    : 'https://res.cloudinary.com/dk1lktguj/video/upload/v1782691379/cliente_vnazgk.mp4'}
+                    ? 'https://res.cloudinary.com/dk1lktguj/video/upload/sp_auto/profissional_thepgk.mp4'
+                    : 'https://res.cloudinary.com/dk1lktguj/video/upload/sp_auto/cliente_vnazgk.mp4'}
                   style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 16, aspectRatio: '9/16' }}
                   onError={(e) => { (e.target as HTMLVideoElement).style.display = 'none'; }}
                 />
