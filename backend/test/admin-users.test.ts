@@ -70,14 +70,23 @@ describe('GET /api/admin/active-users', () => {
     expect(res.body.error).toBeDefined();
   });
 
-  it('returns 200 with count of users active in the last 24h', async () => {
+  it('returns 200 with count of professionals active in the last 24h', async () => {
     mockAuthGetUser.mockResolvedValue({ data: { user: { id: 'admin-1' } }, error: null });
 
     const profileChain: any = {};
     profileChain.select = vi.fn(() => profileChain);
     profileChain.eq = vi.fn(() => profileChain);
     profileChain.single = vi.fn().mockResolvedValue({ data: { role: 'admin' }, error: null });
-    mockFrom.mockReturnValue(profileChain);
+
+    const professionalsChain: any = {};
+    professionalsChain.select = vi.fn().mockResolvedValue({
+      data: [{ user_id: 'u1' }, { user_id: 'u2' }, { user_id: 'u3' }],
+      error: null,
+    });
+
+    mockFrom.mockImplementation((table: string) =>
+      table === 'professionals' ? professionalsChain : profileChain
+    );
 
     const recentAt = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
     const oldAt = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
@@ -85,10 +94,11 @@ describe('GET /api/admin/active-users', () => {
     mockAdminListUsers.mockResolvedValue({
       data: {
         users: [
-          { id: 'u1', last_sign_in_at: recentAt },
-          { id: 'u2', last_sign_in_at: recentAt },
-          { id: 'u3', last_sign_in_at: oldAt },
-          { id: 'u4', last_sign_in_at: null },
+          { id: 'u1', last_sign_in_at: recentAt }, // professional, active -> counted
+          { id: 'u2', last_sign_in_at: recentAt }, // professional, active -> counted
+          { id: 'u3', last_sign_in_at: oldAt }, // professional, but not recently active
+          { id: 'u4', last_sign_in_at: null }, // not a professional
+          { id: 'u5', last_sign_in_at: recentAt }, // active, but not a professional -> excluded
         ],
       },
       error: null,
