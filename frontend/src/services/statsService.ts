@@ -121,6 +121,14 @@ export const adminService = {
       const activeSubs = (subscriptionsRes.data ?? []).filter((s: { status: string }) => s.status === 'active');
       const mrr = activeSubs.reduce((acc: number, s: { package_id: string }) => acc + (PLAN_PRICES[s.package_id] ?? 0), 0);
 
+      // Ranking de planos — MRR por plano (assinaturas ativas)
+      const revenueByPlan: Record<string, { count: number; mrr: number }> = {};
+      activeSubs.forEach((s: { package_id: string }) => {
+        if (!revenueByPlan[s.package_id]) revenueByPlan[s.package_id] = { count: 0, mrr: 0 };
+        revenueByPlan[s.package_id].count += 1;
+        revenueByPlan[s.package_id].mrr += PLAN_PRICES[s.package_id] ?? 0;
+      });
+
       // Breakdown de pagamentos por package
       const packageBreakdown: Record<string, { qtd: number; total: number }> = {};
       payments.forEach(p => {
@@ -143,6 +151,7 @@ export const adminService = {
         revenueCoinPacks,
         monthlyRevenue,
         mrr,
+        revenueByPlan,
         totalProfessionals: professionaisRes.count ?? 0,
         churnCount: churnRes.count ?? 0,
         newUsersThisMonth: newUsersMonthRes.count ?? 0,
@@ -156,7 +165,7 @@ export const adminService = {
       return {
         totalUsers: 0, activeLeads: 0, pendingDisputes: 0, openTickets: 0,
         totalRevenue: 0, revenueSubscriptions: 0, revenueCoinPacks: 0,
-        monthlyRevenue: {}, mrr: 0, totalProfessionals: 0, churnCount: 0,
+        monthlyRevenue: {}, mrr: 0, revenueByPlan: {}, totalProfessionals: 0, churnCount: 0,
         newUsersThisMonth: 0, totalCoinsCirculation: 0, packageBreakdown: {},
         pendingVerifications: 0, avgResponseTime: '—', estimatedRevenue: 0,
       };
