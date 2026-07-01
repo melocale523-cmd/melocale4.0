@@ -95,17 +95,48 @@ export default function ProfessionalPerfil() {
     }));
   }, [profile, categorias]);
 
+  // ─── Address section ─────────────────────────────────────────────────────────
+  const [addrValue, setAddrValue] = useState<AddressValue>(emptyAddress);
+
+  useEffect(() => {
+    if (!profile) return;
+    setAddrValue({
+      cep: profile.address_zipcode || '',
+      street: profile.address_street || '',
+      number: profile.address_number || '',
+      block: profile.address_block || '',
+      complement: profile.address_complement || '',
+      neighborhood: profile.address_neighborhood || '',
+      city: profile.address_city || '',
+      state: profile.address_state || '',
+    });
+  }, [profile]);
+
   const saveMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const finalCategory = formData.category === 'Outro'
         ? formData.customCategory
         : formData.category;
-      return profileService.saveProfile(user!.id, {
+      await profileService.saveProfile(user!.id, {
         name: formData.name,
         phone: formData.phone,
         bio: formData.bio,
         category: finalCategory,
         serviceRadius: formData.radius,
+      });
+      await professionalAddressService.saveAddress(user!.id, {
+        cep: addrValue.cep || undefined,
+        address_zipcode: addrValue.cep || undefined,
+        address_street: addrValue.street.trim() || undefined,
+        address_number: addrValue.number.trim() || undefined,
+        address_block: addrValue.block.trim() || undefined,
+        address_complement: addrValue.complement.trim() || undefined,
+        address_neighborhood: addrValue.neighborhood.trim() || undefined,
+        address_city: addrValue.city.trim() || undefined,
+        address_state: addrValue.state.trim() || undefined,
+        city: addrValue.city && addrValue.state
+          ? `${addrValue.city} - ${addrValue.state}`
+          : undefined,
       });
     },
     onSuccess: () => {
@@ -116,6 +147,7 @@ export default function ProfessionalPerfil() {
         toast.warning('Categoria salva! Falta completar seu endereço para aparecer nos pedidos da sua região.');
       }
     },
+    onError: (err: Error) => toast.error(err.message),
   });
 
   // Auto-clear mutation error after 5 seconds
@@ -141,6 +173,10 @@ export default function ProfessionalPerfil() {
     const phoneDigits = formData.phone.replace(/\D/g, '');
     if (!phoneDigits || phoneDigits.length < 10 || phoneDigits.length > 11)
       return 'Telefone inválido. Use o formato (11) 90000-0000.';
+    if (!addrValue.city.trim())
+      return 'Preencha a cidade no endereço para receber pedidos da sua região.';
+    if (!addrValue.state.trim())
+      return 'Preencha o estado no endereço.';
     return null;
   };
 
@@ -154,47 +190,6 @@ export default function ProfessionalPerfil() {
     setValidationError(null);
     saveMutation.mutate();
   };
-
-  // ─── Address section ─────────────────────────────────────────────────────────
-  const [addrValue, setAddrValue] = useState<AddressValue>(emptyAddress);
-  const [addrSuccessMsg, setAddrSuccessMsg] = useState(false);
-
-  useEffect(() => {
-    if (!profile) return;
-    setAddrValue({
-      cep: profile.address_zipcode || '',
-      street: profile.address_street || '',
-      number: profile.address_number || '',
-      block: profile.address_block || '',
-      complement: profile.address_complement || '',
-      neighborhood: profile.address_neighborhood || '',
-      city: profile.address_city || '',
-      state: profile.address_state || '',
-    });
-  }, [profile]);
-
-  const savAddressMutation = useMutation({
-    mutationFn: () => professionalAddressService.saveAddress(user!.id, {
-      cep: addrValue.cep || undefined,
-      address_zipcode: addrValue.cep || undefined,
-      address_street: addrValue.street.trim() || undefined,
-      address_number: addrValue.number.trim() || undefined,
-      address_block: addrValue.block.trim() || undefined,
-      address_complement: addrValue.complement.trim() || undefined,
-      address_neighborhood: addrValue.neighborhood.trim() || undefined,
-      address_city: addrValue.city.trim() || undefined,
-      address_state: addrValue.state.trim() || undefined,
-      city: addrValue.city && addrValue.state
-        ? `${addrValue.city} - ${addrValue.state}`
-        : undefined,
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      setAddrSuccessMsg(true);
-      setTimeout(() => setAddrSuccessMsg(false), 3000);
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
 
   const { data: reviewsData } = useQuery({
     queryKey: ['reviews', 'professional', profile?.professionalId],
@@ -392,6 +387,13 @@ export default function ProfessionalPerfil() {
                 </div>
               </div>
 
+              <div style={{ borderTop:'1px solid #1C3050', paddingTop:'0.875rem', marginBottom:'0.875rem' }}>
+                <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'0.875rem' }}>
+                  <MapPin size={15} style={{ color:'#fbbf24' }} />Endereço · Localização para agendamentos
+                </p>
+                <AddressForm value={addrValue} onChange={setAddrValue} />
+              </div>
+
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
                 <button type="submit" disabled={saveMutation.isPending} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 12px rgba(16,185,129,.2)', opacity: saveMutation.isPending ? .6 : 1 }}>
                   {saveMutation.isPending ? <><Loader2 size={13} className="animate-spin" /> Salvando...</> : 'Salvar Alterações'}
@@ -411,29 +413,7 @@ export default function ProfessionalPerfil() {
         </div>
       </div>
 
-      {/* Grid Endereço + Pagamentos */}
-      <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:'1rem' }}>
-
-      {/* Endereço */}
-      <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#fbbf24,#f59e0b)' }} />
-        <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'0.875rem' }}>
-          <MapPin size={15} style={{ color:'#fbbf24' }} />Endereço · Localização para agendamentos
-        </p>
-        {addrSuccessMsg && (
-          <div style={{ background:'rgba(16,185,129,.08)', border:'1px solid rgba(16,185,129,.2)', color:'#34d399', padding:'8px 12px', borderRadius:'0.625rem', display:'flex', alignItems:'center', gap:8, fontSize:'0.75rem', marginBottom:'0.75rem' }}>
-            <CheckCircle2 size={13} /> Endereço salvo com sucesso!
-          </div>
-        )}
-        <AddressForm value={addrValue} onChange={setAddrValue} />
-        <div style={{ display:'flex', justifyContent:'flex-end', marginTop:'0.75rem' }}>
-          <button type="button" onClick={() => savAddressMutation.mutate()} disabled={savAddressMutation.isPending} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 12px rgba(16,185,129,.2)', opacity: savAddressMutation.isPending ? .6 : 1 }}>
-            {savAddressMutation.isPending ? <><Loader2 size={13} className="animate-spin" /> Salvando...</> : 'Salvar Endereço'}
-          </button>
-        </div>
-      </div>
-
-      {/* Stripe Connect */}
+      {/* Pagamentos */}
       <div style={{ background:'#132236', border:'1px solid #1C3050', borderRadius:'1rem', padding:'1.25rem', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:'0.125rem', background:'linear-gradient(90deg,#34d399,#10b981)' }} />
         <p style={{ fontSize:'0.8125rem', fontWeight:700, color:'white', display:'flex', alignItems:'center', gap:8, marginBottom:'0.875rem' }}>
@@ -478,9 +458,7 @@ export default function ProfessionalPerfil() {
           )}
         </div>
         <p style={{ fontSize:'0.6875rem', color:'#4A6580', lineHeight:1.5 }}>Complete o cadastro no Stripe para começar a receber pagamentos diretamente na sua conta bancária.</p>
-      </div>
-
-      </div>{/* fim grid Endereço + Pagamentos */}
+      </div>{/* fim Pagamentos */}
 
       {/* Avaliações */}
       {reviewsData && (
