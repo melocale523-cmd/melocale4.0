@@ -9,6 +9,7 @@ import NotificationBell from '../components/NotificationBell';
 import ThemeToggle from '../components/ThemeToggle';
 import ClientPushModal from '../components/ClientPushModal';
 import PushFloatingBanner from '../components/PushFloatingBanner';
+import IOSInstallBanner from '../components/IOSInstallBanner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function ClientLayout() {
@@ -287,6 +288,7 @@ export default function ClientLayout() {
       </main>
 
       <ClientPushModal onDismiss={() => {}} />
+      <IOSInstallBanner />
     </div>
   );
 }
