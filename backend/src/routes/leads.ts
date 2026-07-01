@@ -78,6 +78,32 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
       console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
     }
 
+    const { data: matchingPros } = await withTimeout(
+      supabaseAdmin
+        .from("professionals")
+        .select("user_id")
+        .eq("is_active", true)
+        .ilike("category", category)
+        .not("city", "is", null)
+        .ilike("city", `%${location.split(" - ")[0].trim()}%`)
+    );
+
+    if (matchingPros?.length) {
+      await Promise.all(matchingPros.map(async (p: { user_id: string }) => {
+        void supabaseAdmin.from("notifications").insert({
+          user_id: p.user_id,
+          title: `Novo pedido — ${category}`,
+          body: `${title} em ${location}. Toque para ver e enviar proposta.`,
+          data: { lead_id: data.id, type: "new_lead" },
+        });
+        void sendPushToUser(p.user_id, {
+          title: `Novo pedido — ${category}`,
+          body: `${title} em ${location}`,
+          data: { lead_id: data.id, type: "new_lead" },
+        });
+      }));
+    }
+
     void sendMetaEvent({
       eventName: "Lead",
       eventSourceUrl: "https://www.melocale.com.br/dashboard",
