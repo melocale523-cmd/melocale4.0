@@ -77,6 +77,10 @@ export default function CompletarPerfil() {
       setError('WhatsApp é obrigatório.');
       return;
     }
+    if (!address.city.trim() || !address.state.trim()) {
+      setError('Preencha cidade e estado no endereço para continuar.');
+      return;
+    }
     setIsSubmitting(true);
     setError(null);
     try {
