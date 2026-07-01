@@ -8,6 +8,12 @@ const router = Router();
 
 router.get("/active-users", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
+    const { data: prosData, error: prosError } = await supabaseAdmin
+      .from("professionals")
+      .select("user_id");
+    if (prosError) throw prosError;
+    const professionalIds = new Set((prosData ?? []).map((p) => p.user_id));
+
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     let count = 0;
     let page = 1;
@@ -17,7 +23,10 @@ router.get("/active-users", requireAuth, requireAdmin, async (req: AuthRequest, 
       );
       if (error || !data?.users?.length) break;
       count += data.users.filter(
-        (u) => u.last_sign_in_at && u.last_sign_in_at > cutoff
+        (u) =>
+          professionalIds.has(u.id) &&
+          u.last_sign_in_at &&
+          u.last_sign_in_at > cutoff
       ).length;
       if (data.users.length < 1000) break;
       page++;
