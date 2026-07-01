@@ -96,6 +96,12 @@ export default function AdminDashboard() {
     staleTime: 300_000,
   });
 
+  const { data: wizardFunnel = {} } = useQuery({
+    queryKey: ['adminWizardFunnel'],
+    queryFn: adminService.getWizardFunnel,
+    staleTime: 300_000,
+  });
+
   const { data: recentEvents = [] } = useQuery({
     queryKey: ['adminRecentEvents'],
     queryFn: async () => {
@@ -815,6 +821,43 @@ export default function AdminDashboard() {
               <div style={{ marginTop: 4, padding: '8px', background: 'rgba(239,68,68,.06)', border: '1px solid rgba(239,68,68,.15)', borderRadius: 8 }}>
                 <p style={{ fontSize: 11, color: '#f87171', margin: 0, fontWeight: 600 }}>⚠ Foco em reativar assinatura cancelando</p>
               </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ROW 5B: Funil do pedido (wizard) */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Funil do pedido</p>
+            <span style={{ fontSize: 11, color: '#4a6580' }}>últimos 30 dias</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {(() => {
+              const step1 = wizardFunnel[1] ?? 0;
+              return [1, 2, 3, 4, 5].map(step => {
+                const value = wizardFunnel[step] ?? 0;
+                const pct = step1 > 0 ? Math.round((value / step1) * 100) : 0;
+                const label = step === 5 ? 'Publicou pedido' : `Etapa ${step}`;
+                return (
+                  <div key={step}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      <span style={{ fontSize: 11, color: '#94a3b8' }}>{label}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: 'white' }}>
+                        {value}
+                        {step > 1 && <span style={{ color: '#4a6580', fontWeight: 400 }}> ({pct}%)</span>}
+                      </span>
+                    </div>
+                    <div style={{ height: 5, background: 'rgba(255,255,255,.06)', borderRadius: 4 }}>
+                      <div style={{ width: `${Math.min(pct, 100)}%`, height: '100%', background: '#f59e0b', borderRadius: 4 }} />
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+            {(wizardFunnel[1] ?? 0) === 0 && (
+              <p style={{ fontSize: 12, color: '#4a6580', textAlign: 'center', padding: '0.5rem 0 0' }}>Ainda sem dados do wizard nos últimos 30 dias</p>
             )}
           </div>
         </div>

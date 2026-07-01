@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { X, Loader2, ImagePlus, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
@@ -254,6 +255,15 @@ export default function RequestWizard({
     });
   }, [initialData?.location]);
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) void supabase.from('wizard_funnel_events').insert({
+        client_id: user.id, step, category: data.category || null,
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
   const setField = <K extends keyof InternalData>(key: K, value: InternalData[K]) => {
     setData(prev => ({ ...prev, [key]: value }));
   };
@@ -307,6 +317,11 @@ export default function RequestWizard({
 
   const handleSubmit = () => {
     if (!data.urgency || !data.work_size || !data.availability || !data.local_condition || !data.purchase_decision) return;
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) void supabase.from('wizard_funnel_events').insert({
+        client_id: user.id, step: 5, category: data.category || null,
+      });
+    });
     onSubmit(data as WizardData);
   };
 
@@ -318,8 +333,35 @@ export default function RequestWizard({
     + (data.description.length > 20 ? 30 : 0)
     + (data.images.length > 0 ? 20 : 0)
     + (Number(data.budget_min) > 0 || Number(data.budget_max) < 5000 ? 10 : 0);
-  const profCount = score < 50 ? '4' : score < 80 ? '8' : '12';
   const scoreColor = score >= 80 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+
+  const { data: matchCount } = useQuery({
+    queryKey: ['wizardMatchCount', data.category, data.location],
+    queryFn: async () => {
+      if (!data.category || !data.location) return null;
+      const cityPart = data.location.split(' - ')[0].trim();
+      const { count } = await supabase
+        .from('professionals')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_active', true)
+        .ilike('category', data.category)
+        .ilike('city', `%${cityPart}%`);
+      return count ?? 0;
+    },
+    enabled: step === 4 && !!data.category && !!data.location,
+  });
+
+  const { data: totalActivePros } = useQuery({
+    queryKey: ['totalActivePros'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('professionals')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_active', true);
+      return count ?? 0;
+    },
+    staleTime: 300_000,
+  });
 
   const filteredCategories = (dbCategories.length > 0
     ? dbCategories.map(c => ({ label: c.name, icon: getCategoryIcon(c.slug) }))
@@ -348,8 +390,14 @@ export default function RequestWizard({
     setStep(s => s - 1);
   };
 
+  const publishLabel = matchCount == null
+    ? '🚀 Publicar pedido'
+    : matchCount === 0
+      ? '🚀 Publicar pedido — avisaremos assim que houver profissional disponível'
+      : `🚀 Publicar para ${matchCount} profissional${matchCount > 1 ? 'is' : ''}`;
+
   const nextLabel = step === 4
-    ? (isPending ? 'Publicando…' : `🚀 Publicar para ${profCount} profissionais`)
+    ? (isPending ? 'Publicando…' : publishLabel)
     : step === 3 ? 'Revisar pedido →' : 'Próximo →';
 
   // shared card style
@@ -467,7 +515,7 @@ export default function RequestWizard({
                 }}>{init}</div>
               ))}
             </div>
-            <span style={{ fontSize: 11, color: '#4a6a80' }}>12 profissionais disponíveis agora</span>
+            <span style={{ fontSize: 11, color: '#4a6a80' }}>{totalActivePros ?? '—'} profissionais disponíveis agora</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span className="rw-blink" style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />

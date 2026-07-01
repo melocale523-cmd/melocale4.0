@@ -112,6 +112,9 @@ export default function ProfessionalPerfil() {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 3000);
+      if (!profile?.address_city) {
+        toast.warning('Categoria salva! Falta completar seu endereço para aparecer nos pedidos da sua região.');
+      }
     },
   });
 

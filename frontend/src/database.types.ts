@@ -1389,6 +1389,27 @@ export type Database = {
           },
         ]
       }
+      stripe_audit_runs: {
+        Row: {
+          id: number
+          orphans_found: number
+          payments_checked: number
+          ran_at: string
+        }
+        Insert: {
+          id?: never
+          orphans_found: number
+          payments_checked: number
+          ran_at?: string
+        }
+        Update: {
+          id?: never
+          orphans_found?: number
+          payments_checked?: number
+          ran_at?: string
+        }
+        Relationships: []
+      }
       stripe_events: {
         Row: {
           attempts: number
@@ -1479,6 +1500,42 @@ export type Database = {
           status_history?: Json | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      system_health_checks: {
+        Row: {
+          backend_status: string
+          checked_at: string
+          db_latency_ms: number | null
+          db_size_mb: number | null
+          db_status: string
+          event_loop_lag_ms: number | null
+          id: number
+          stripe_latency_ms: number | null
+          stripe_status: string
+        }
+        Insert: {
+          backend_status: string
+          checked_at?: string
+          db_latency_ms?: number | null
+          db_size_mb?: number | null
+          db_status: string
+          event_loop_lag_ms?: number | null
+          id?: never
+          stripe_latency_ms?: number | null
+          stripe_status: string
+        }
+        Update: {
+          backend_status?: string
+          checked_at?: string
+          db_latency_ms?: number | null
+          db_size_mb?: number | null
+          db_status?: string
+          event_loop_lag_ms?: number | null
+          id?: never
+          stripe_latency_ms?: number | null
+          stripe_status?: string
         }
         Relationships: []
       }
@@ -1778,6 +1835,38 @@ export type Database = {
           {
             foreignKeyName: "withdrawal_requests_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wizard_funnel_events: {
+        Row: {
+          category: string | null
+          client_id: string
+          created_at: string | null
+          id: string
+          step: number
+        }
+        Insert: {
+          category?: string | null
+          client_id: string
+          created_at?: string | null
+          id?: string
+          step: number
+        }
+        Update: {
+          category?: string | null
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          step?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wizard_funnel_events_client_id_fkey"
+            columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2539,6 +2628,7 @@ export type Database = {
         Returns: number
       }
       get_avg_response_time_hours_global: { Args: never; Returns: number }
+      get_database_size_mb: { Args: never; Returns: number }
       get_my_leads: {
         Args: never
         Returns: {
