@@ -378,8 +378,9 @@ export default function LandingPage() {
                   <img
                     src={isProfissional ? '/hero-profissional.jpg' : '/hero-cliente.jpg'}
                     alt={isProfissional ? 'Profissional verificado MeloCalé' : 'Cliente satisfeita com profissional MeloCalé'}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                    fetchPriority="high"
                     loading="eager"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
                   />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(15,23,42,0.15) 0%, transparent 40%)' }} />
                   <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', borderRadius: 12, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
