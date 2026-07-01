@@ -409,6 +409,27 @@ export const adminService = {
     };
   },
 
+  async getWizardFunnel(): Promise<Record<number, number>> {
+    const since = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data } = await supabase
+      .from('wizard_funnel_events')
+      .select('step, client_id')
+      .gte('created_at', since);
+
+    const rows = (data ?? []) as Array<{ step: number; client_id: string }>;
+    const clientsByStep: Record<number, Set<string>> = {};
+    rows.forEach(r => {
+      if (!clientsByStep[r.step]) clientsByStep[r.step] = new Set();
+      clientsByStep[r.step].add(r.client_id);
+    });
+
+    const funnel: Record<number, number> = {};
+    Object.entries(clientsByStep).forEach(([step, clients]) => {
+      funnel[Number(step)] = clients.size;
+    });
+    return funnel;
+  },
+
   async getRankingProfissionais(): Promise<RankedProfessional[]> {
     const [profsRes, coinsRes, paymentsRes, subsRes] = await Promise.all([
       supabase.from('professionals').select('id, user_id, category, city, created_at, is_active'),
