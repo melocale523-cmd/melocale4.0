@@ -54,7 +54,7 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
         // Fetch role AND phone so we can detect incomplete profiles
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role, phone')
+          .select('role, phone, full_name')
           .eq('id', userId)
           .maybeSingle();
 
@@ -115,6 +115,17 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
           if (!signupRole && loginRole && loginRole !== (profile.role as Role)) {
             const roleName = profile.role === 'professional' ? 'Profissional' : 'Cliente';
             toast.info(`Você tem uma conta de ${roleName}. Redirecionando...`, { duration: 4000 });
+          }
+
+          // Fix full_name vazio para usuários OAuth
+          const currentName = profile?.full_name;
+          if (!currentName) {
+            const metaName = session.user.user_metadata?.full_name
+              || session.user.user_metadata?.name
+              || '';
+            if (metaName) {
+              await supabase.from('profiles').update({ full_name: metaName }).eq('id', userId);
+            }
           }
 
           // If the profile has no phone the user never finished onboarding —
