@@ -37,6 +37,15 @@ const EVT_ICON = { payment: '💰', lead: '📬', signup: '👤' } as const;
 export default function AdminDashboard() {
   const [simCount, setSimCount] = useState(10);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [revPeriod, setRevPeriod] = useState<'today'|'yesterday'|'7d'|'30d'|'90d'|'180d'|'1y'|'all'>('30d');
+  const [metaValue, setMetaValue] = useState<number>(() => {
+    const saved = localStorage.getItem('melocale_meta_faturamento');
+    return saved ? parseInt(saved) : 2000;
+  });
+  const [metaInput, setMetaInput] = useState<string>(() => {
+    const saved = localStorage.getItem('melocale_meta_faturamento');
+    return saved ?? '2000';
+  });
   const isMobile = useIsMobile();
 
   const { data: summary, isLoading, refetch } = useQuery({
@@ -143,6 +152,30 @@ export default function AdminDashboard() {
     staleTime: 60_000,
   });
 
+  const { data: revData } = useQuery({
+    queryKey: ['adminRevenue', revPeriod],
+    queryFn: async () => {
+      const now = new Date();
+      let since: Date;
+      if (revPeriod === 'today') { since = new Date(now); since.setHours(0,0,0,0); }
+      else if (revPeriod === 'yesterday') { since = new Date(now); since.setDate(since.getDate()-1); since.setHours(0,0,0,0); }
+      else if (revPeriod === '7d') { since = new Date(now); since.setDate(since.getDate()-7); }
+      else if (revPeriod === '30d') { since = new Date(now); since.setDate(since.getDate()-30); }
+      else if (revPeriod === '90d') { since = new Date(now); since.setDate(since.getDate()-90); }
+      else if (revPeriod === '180d') { since = new Date(now); since.setDate(since.getDate()-180); }
+      else if (revPeriod === '1y') { since = new Date(now); since.setFullYear(since.getFullYear()-1); }
+      else { since = new Date('2020-01-01'); }
+      const { data } = await supabase
+        .from('payments')
+        .select('amount, paid_at, type')
+        .eq('status', 'paid')
+        .gte('paid_at', since.toISOString())
+        .order('paid_at', { ascending: true });
+      return data ?? [];
+    },
+    staleTime: 60_000,
+  });
+
   const { data: heatmap } = useQuery({
     queryKey: ['adminHeatmap'],
     queryFn: async () => {
@@ -218,6 +251,64 @@ export default function AdminDashboard() {
 
   // suppress unused warning
   void daysSince;
+
+  const byDay = ['today','yesterday','7d'].includes(revPeriod);
+  const revGrouped = (() => {
+    if (!revData?.length) return [];
+    const map: Record<string, { total: number; subs: number; moedas: number; count: number }> = {};
+    revData.forEach((p: { paid_at: string | null; amount: number | null; type: string | null }) => {
+      const d = new Date(p.paid_at ?? '');
+      const key = byDay
+        ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+        : d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+      if (!map[key]) map[key] = { total: 0, subs: 0, moedas: 0, count: 0 };
+      const amt = p.amount ?? 0;
+      map[key].total += amt;
+      if (p.type === 'subscription') map[key].subs += amt;
+      else map[key].moedas += amt;
+      map[key].count += 1;
+    });
+    return Object.entries(map).slice(-8);
+  })();
+
+  const revTotal = revGrouped.reduce((a, [,v]) => a + v.total, 0);
+  const revSubs = revGrouped.reduce((a, [,v]) => a + v.subs, 0);
+  const revMoedas = revGrouped.reduce((a, [,v]) => a + v.moedas, 0);
+  const revCount = revGrouped.reduce((a, [,v]) => a + v.count, 0);
+  const maxRevBar = Math.max(...revGrouped.map(([,v]) => v.total), 1);
+
+  const prevTotal = (() => {
+    const keys = Object.keys(s.monthlyRevenue ?? {}).sort();
+    if (keys.length < 2) return 0;
+    return s.monthlyRevenue[keys[keys.length - 2]] ?? 0;
+  })();
+
+  const revDiff = prevTotal > 0 ? Math.round(((revTotal - prevTotal) / prevTotal) * 100) : null;
+  const ticketMedio = revCount > 0 ? revTotal / revCount : 0;
+
+  const hoje = new Date();
+  const diasNoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+  const diaAtual = hoje.getDate();
+  const faturadoMesAtual = revData?.filter((p: { paid_at: string | null }) => {
+    const d = new Date(p.paid_at ?? '');
+    return d.getMonth() === hoje.getMonth() && d.getFullYear() === hoje.getFullYear();
+  }).reduce((a: number, p: { amount: number | null }) => a + (p.amount ?? 0), 0) ?? 0;
+  const projecaoMes = diaAtual > 0 ? Math.round((faturadoMesAtual / diaAtual) * diasNoMes) : 0;
+  const metaPct = Math.min(Math.round((revTotal / Math.max(metaValue, 1)) * 100), 100);
+  const metaProgBarColor = metaPct >= 70 ? '#10b981' : metaPct >= 40 ? '#f59e0b' : '#ef4444';
+
+  const velocidade = revDiff !== null && revDiff > 100 ? `${Math.round(revDiff/100)}x mais rápido` : null;
+
+  const mesesParaMeta = revTotal > 0 && metaValue > revTotal
+    ? Math.ceil((metaValue - revTotal) / (revTotal / Math.max(revGrouped.length, 1)))
+    : 0;
+  const dataMeta = new Date();
+  dataMeta.setMonth(dataMeta.getMonth() + mesesParaMeta);
+  const previsaoMeta = dataMeta.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+  const ultimoMes = revGrouped[revGrouped.length - 1];
+  const penultimoMes = revGrouped[revGrouped.length - 2];
+  const alertaQueda = ultimoMes && penultimoMes && ultimoMes[1].total < penultimoMes[1].total * 0.5;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '0.75rem' : '1.25rem', maxWidth: 1200, margin: '0 auto' }}>
@@ -316,35 +407,220 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Faturamento mensal */}
+        {/* Faturamento */}
         <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Faturamento mensal</p>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Faturamento</p>
             <div style={{ display: 'flex', gap: 8, fontSize: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 3, color: '#4a6580' }}><span style={{ width: 8, height: 3, background: '#10b981', borderRadius: 2, display: 'inline-block' }} />Assinaturas</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 3, color: '#4a6580' }}><span style={{ width: 8, height: 3, background: '#f59e0b', borderRadius: 2, display: 'inline-block' }} />Moedas</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', height: 90, marginBottom: '0.5rem' }}>
-            {monthKeys.map(k => {
-              const h = Math.round(((s.monthlyRevenue[k] ?? 0) / maxMonthRevenue) * 80);
-              return (
-                <div key={k} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                  <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>R${Math.round(s.monthlyRevenue[k] ?? 0)}</span>
-                  <div style={{ width: '100%', background: '#10b981', borderRadius: '4px 4px 0 0', height: h || 4 }} />
-                  <span style={{ fontSize: 10, color: '#4a6580' }}>{fmtMonth(k)}</span>
-                </div>
-              );
-            })}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span style={{ fontSize: 10, color: '#4a6580' }}>—</span>
-              <div style={{ width: '100%', background: 'rgba(255,255,255,.04)', border: '1px dashed rgba(255,255,255,.08)', borderRadius: 4, height: 10 }} />
-              <span style={{ fontSize: 10, color: '#4a6580' }}>Jun</span>
+
+          {/* Filtros */}
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            {([
+              { key: 'today', label: 'Hoje' },
+              { key: 'yesterday', label: 'Ontem' },
+              { key: '7d', label: '7d' },
+              { key: '30d', label: '30d' },
+              { key: '90d', label: '3m' },
+              { key: '180d', label: '6m' },
+              { key: '1y', label: '1a' },
+              { key: 'all', label: 'Máx' },
+            ] as const).map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setRevPeriod(opt.key)}
+                style={{
+                  fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 6,
+                  border: 'none', cursor: 'pointer',
+                  background: revPeriod === opt.key ? '#10b981' : 'rgba(255,255,255,.06)',
+                  color: revPeriod === opt.key ? '#000' : '#4a6580',
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {/* KPIs */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: '0.75rem' }}>
+            {[
+              {
+                label: 'Faturamento total',
+                value: `R$${Math.round(revTotal).toLocaleString('pt-BR')}`,
+                color: '#10b981',
+                accent: '#10b981',
+                badge: revDiff !== null ? `${revDiff >= 0 ? '+' : ''}${revDiff}% vs anterior` : null,
+                badgeColor: revDiff !== null && revDiff >= 0 ? '#10b981' : '#ef4444',
+                extra: velocidade,
+              },
+              {
+                label: 'Pagamentos',
+                value: revCount.toString(),
+                color: 'white',
+                accent: '#a78bfa',
+                badge: null,
+                badgeColor: '#10b981',
+                extra: null,
+              },
+              {
+                label: 'Ticket médio',
+                value: `R$${Math.round(ticketMedio).toLocaleString('pt-BR')}`,
+                color: 'white',
+                accent: '#f59e0b',
+                badge: null,
+                badgeColor: '#10b981',
+                extra: null,
+              },
+            ].map(k => (
+              <div key={k.label} style={{ background: 'rgba(0,0,0,.2)', borderRadius: 8, padding: '0.625rem', borderTop: `2px solid ${k.accent}` }}>
+                <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#4a6580', margin: '0 0 4px' }}>{k.label}</p>
+                <p style={{ fontSize: 16, fontWeight: 700, color: k.color, margin: 0 }}>{k.value}</p>
+                {k.badge && (
+                  <span style={{ fontSize: 9, fontWeight: 700, color: k.badgeColor, background: k.badgeColor + '20', borderRadius: 4, padding: '1px 4px', marginTop: 3, display: 'inline-block' }}>
+                    {k.badge}
+                  </span>
+                )}
+                {k.extra && (
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#a78bfa', background: 'rgba(167,139,250,.1)', borderRadius: 4, padding: '1px 4px', marginTop: 3, display: 'inline-block', marginLeft: 3 }}>
+                    {k.extra}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Campo de meta */}
+          <div style={{ background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 8, padding: '0.625rem 0.875rem', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#4a6580', textTransform: 'uppercase', letterSpacing: '.06em' }}>Meta do período</span>
+              <span style={{ fontSize: 10, color: '#10b981' }}>Salvo automaticamente</span>
+            </div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#4a6580' }}>R$</span>
+              <input
+                type="number"
+                value={metaInput}
+                onChange={e => setMetaInput(e.target.value)}
+                onBlur={() => {
+                  const v = parseInt(metaInput) || 2000;
+                  setMetaValue(v);
+                  setMetaInput(String(v));
+                  localStorage.setItem('melocale_meta_faturamento', String(v));
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    const v = parseInt(metaInput) || 2000;
+                    setMetaValue(v);
+                    setMetaInput(String(v));
+                    localStorage.setItem('melocale_meta_faturamento', String(v));
+                  }
+                }}
+                style={{ flex: 1, fontSize: 16, fontWeight: 700, background: 'transparent', border: 'none', color: 'white', outline: 'none' }}
+              />
+              <button
+                onClick={() => {
+                  const v = parseInt(metaInput) || 2000;
+                  setMetaValue(v);
+                  setMetaInput(String(v));
+                  localStorage.setItem('melocale_meta_faturamento', String(v));
+                }}
+                style={{ fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 6, border: 'none', background: '#10b981', color: '#000', cursor: 'pointer' }}
+              >
+                Aplicar
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,.05)' }}>
-            <span style={{ fontSize: 11, color: '#4a6580' }}>Ticket médio</span>
-            <span style={{ fontSize: 11, color: 'white', fontWeight: 600 }}>R${fmtBRL(s.totalRevenue / Math.max(totalPayments, 1))}</span>
+
+          {/* Alerta de queda */}
+          {alertaQueda && ultimoMes && penultimoMes && (
+            <div style={{ background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.25)', borderRadius: 8, padding: '0.625rem 0.875rem', marginBottom: '0.75rem', display: 'flex', gap: 8 }}>
+              <AlertTriangle size={14} color="#f97316" style={{ flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 11, color: '#f97316', lineHeight: 1.5 }}>
+                {ultimoMes[0]} está {Math.round((1 - ultimoMes[1].total / penultimoMes[1].total) * 100)}% abaixo de {penultimoMes[0]} — verifique retenção e churn.
+              </span>
+            </div>
+          )}
+
+          {/* Projeção inteligente */}
+          <div style={{ background: 'rgba(16,185,129,.06)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 8, padding: '0.625rem 0.875rem', marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: '.06em', margin: '0 0 4px' }}>Projeção do mês atual</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>R${projecaoMes.toLocaleString('pt-BR')} projetado</p>
+                <p style={{ fontSize: 11, color: '#4a6580', margin: '2px 0 0' }}>
+                  {metaValue > projecaoMes
+                    ? `Faltam R$${(metaValue - projecaoMes).toLocaleString('pt-BR')} para a meta`
+                    : 'Meta atingida!'}
+                </p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: 11, color: '#4a6580', margin: 0 }}>Progresso</p>
+                <p style={{ fontSize: 18, fontWeight: 700, color: metaProgBarColor, margin: 0 }}>{metaPct}%</p>
+              </div>
+            </div>
+            <div style={{ height: 6, background: 'rgba(255,255,255,.06)', borderRadius: 3, marginTop: 6, overflow: 'hidden' }}>
+              <div style={{ width: `${metaPct}%`, height: '100%', background: metaProgBarColor, borderRadius: 3, transition: 'width .5s' }} />
+            </div>
+          </div>
+
+          {/* Previsão */}
+          {mesesParaMeta > 0 && (
+            <div style={{ background: 'rgba(167,139,250,.06)', border: '1px solid rgba(167,139,250,.2)', borderRadius: 8, padding: '0.625rem 0.875rem', marginBottom: '0.75rem', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <Ticket size={14} color="#a78bfa" style={{ flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.5 }}>
+                No ritmo atual, você atinge a meta de <strong style={{ color: '#a78bfa' }}>R${metaValue.toLocaleString('pt-BR')}</strong> em <strong style={{ color: '#a78bfa' }}>{previsaoMeta}</strong>.
+              </span>
+            </div>
+          )}
+
+          {/* Gráfico */}
+          <div style={{ position: 'relative' }}>
+            {revGrouped.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                width: '100%',
+                borderTop: '1.5px dashed rgba(255,255,255,.2)',
+                bottom: `${Math.min(Math.round((metaValue / maxRevBar) * 80), 90)}px`,
+                pointerEvents: 'none',
+                zIndex: 1,
+              }}>
+                <span style={{ position: 'absolute', right: 0, top: -9, fontSize: 9, color: '#4a6580', background: '#132540', padding: '1px 4px', borderRadius: 3, whiteSpace: 'nowrap' }}>
+                  Meta R${metaValue.toLocaleString('pt-BR')}
+                </span>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', height: 90, marginBottom: '0.5rem' }}>
+              {revGrouped.map(([key, val]) => {
+                const h = Math.max(Math.round((val.total / maxRevBar) * 80), 4);
+                const subsH = val.total > 0 ? Math.round((val.subs / val.total) * h) : 0;
+                const moedaH = h - subsH;
+                return (
+                  <div key={key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                    <span style={{ fontSize: 9, color: '#94a3b8', fontWeight: 600 }}>R${Math.round(val.total)}</span>
+                    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', borderRadius: '3px 3px 0 0', overflow: 'hidden', height: h }}>
+                      {moedaH > 0 && <div style={{ height: moedaH, background: '#f59e0b' }} />}
+                      {subsH > 0 && <div style={{ height: subsH, background: '#10b981' }} />}
+                    </div>
+                    <span style={{ fontSize: 9, color: '#4a6580' }}>{key}</span>
+                  </div>
+                );
+              })}
+              {revGrouped.length === 0 && (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a6580', fontSize: 12 }}>
+                  Sem dados nesse período
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Rodapé */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,.05)', fontSize: 11, color: '#4a6580' }}>
+            <span>Assinaturas: <strong style={{ color: '#10b981' }}>R${Math.round(revSubs).toLocaleString('pt-BR')}</strong></span>
+            <span>Moedas: <strong style={{ color: '#f59e0b' }}>R${Math.round(revMoedas).toLocaleString('pt-BR')}</strong></span>
           </div>
         </div>
       </div>
