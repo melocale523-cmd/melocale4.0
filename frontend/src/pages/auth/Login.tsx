@@ -173,6 +173,10 @@ export default function Login() {
     if (isSignUp) {
       const pwErr = validatePassword(formData.password);
       if (pwErr) { setError(pwErr); return; }
+      if (!address.city.trim() || !address.state.trim()) {
+        setError('Preencha cidade e estado no endereço para continuar.');
+        return;
+      }
       if (formData.category === 'Outro' && !formData.customCategory.trim()) {
         setError('Por favor, descreva sua profissão.');
         return;
