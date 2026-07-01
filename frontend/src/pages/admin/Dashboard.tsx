@@ -230,6 +230,10 @@ export default function AdminDashboard() {
     .filter(([k]) => !k.startsWith('plan_'))
     .sort((a, b) => b[1].total - a[1].total);
 
+  const planRanking = Object.entries(s.revenueByPlan)
+    .map(([pkg, data]) => ({ pkg, ...data, pct: s.mrr > 0 ? Math.round((data.mrr / s.mrr) * 100) : 0 }))
+    .sort((a, b) => b.mrr - a.mrr);
+
   const totalPayments = Object.values(s.packageBreakdown).reduce((a, b) => a + b.qtd, 0);
   const ltv = s.totalProfessionals > 0 ? Math.round(s.totalRevenue / s.totalProfessionals) : 0;
   const cac =
@@ -380,30 +384,63 @@ export default function AdminDashboard() {
       {/* ROW 3: Simulador MRR + Faturamento mensal */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
-        {/* Simulador MRR */}
-        <div style={{ background: 'linear-gradient(135deg,#0b2818,#0f3020)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 12, padding: '1.25rem' }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Simulador MRR</p>
-          <p style={{ fontSize: 11, color: '#4a6580', margin: '0 0 1rem' }}>Arraste para simular receita com mais assinantes</p>
-          <input
-            type="range" min={1} max={200} value={simCount}
-            onChange={e => setSimCount(Number(e.target.value))}
-            style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer', margin: '0 0 1rem' }}
-          />
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '0.5rem' }}>
-            {[
-              { label: 'Assinantes', value: simCount, color: 'white' },
-              { label: 'MRR projetado', value: `R$${simMRR.toLocaleString('pt-BR')}`, color: '#34d399' },
-              { label: 'ARR projetado', value: `R$${simARR.toLocaleString('pt-BR')}`, color: '#a78bfa' },
-            ].map(m => (
-              <div key={m.label} style={{ background: 'rgba(0,0,0,.3)', borderRadius: 8, padding: '0.625rem', textAlign: 'center' }}>
-                <p style={{ fontSize: 15, fontWeight: 700, color: m.color, margin: 0 }}>{m.value}</p>
-                <p style={{ fontSize: 10, color: '#4a6580', margin: '3px 0 0' }}>{m.label}</p>
-              </div>
-            ))}
+        {/* Simulador MRR + Ranking de planos */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ background: 'linear-gradient(135deg,#0b2818,#0f3020)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 12, padding: '1.25rem' }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Simulador MRR</p>
+            <p style={{ fontSize: 11, color: '#4a6580', margin: '0 0 1rem' }}>Arraste para simular receita com mais assinantes</p>
+            <input
+              type="range" min={1} max={200} value={simCount}
+              onChange={e => setSimCount(Number(e.target.value))}
+              style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer', margin: '0 0 1rem' }}
+            />
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '0.5rem' }}>
+              {[
+                { label: 'Assinantes', value: simCount, color: 'white' },
+                { label: 'MRR projetado', value: `R$${simMRR.toLocaleString('pt-BR')}`, color: '#34d399' },
+                { label: 'ARR projetado', value: `R$${simARR.toLocaleString('pt-BR')}`, color: '#a78bfa' },
+              ].map(m => (
+                <div key={m.label} style={{ background: 'rgba(0,0,0,.3)', borderRadius: 8, padding: '0.625rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: m.color, margin: 0 }}>{m.value}</p>
+                  <p style={{ fontSize: 10, color: '#4a6580', margin: '3px 0 0' }}>{m.label}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: '0.75rem', padding: '0.625rem', background: 'rgba(16,185,129,.06)', border: '1px solid rgba(16,185,129,.15)', borderRadius: 8 }}>
+              <p style={{ fontSize: 11, color: '#4a6580', margin: '0 0 2px' }}>ROI estimado (3× MRR)</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: '#34d399', margin: 0 }}>R${(simMRR * 3).toLocaleString('pt-BR')}</p>
+            </div>
           </div>
-          <div style={{ marginTop: '0.75rem', padding: '0.625rem', background: 'rgba(16,185,129,.06)', border: '1px solid rgba(16,185,129,.15)', borderRadius: 8 }}>
-            <p style={{ fontSize: 11, color: '#4a6580', margin: '0 0 2px' }}>ROI estimado (3× MRR)</p>
-            <p style={{ fontSize: 16, fontWeight: 700, color: '#34d399', margin: 0 }}>R${(simMRR * 3).toLocaleString('pt-BR')}</p>
+
+          {/* Ranking de planos */}
+          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Ranking de planos</p>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981' }}>R${s.mrr} MRR</span>
+            </div>
+            {planRanking.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {planRanking.map(p => (
+                  <div key={p.pkg} style={{ background: 'rgba(0,0,0,.2)', borderRadius: 8, padding: '0.625rem 0.875rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+                      <div>
+                        <p style={{ fontSize: 12, color: 'white', fontWeight: 600, margin: 0 }}>{p.pkg}</p>
+                        <p style={{ fontSize: 10, color: '#4a6580', margin: 0 }}>{p.count} assinante{p.count === 1 ? '' : 's'}</p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#10b981', margin: 0 }}>R${p.mrr}</p>
+                        <p style={{ fontSize: 10, color: '#4a6580', margin: 0 }}>{p.pct}%</p>
+                      </div>
+                    </div>
+                    <div style={{ height: 4, background: 'rgba(255,255,255,.06)', borderRadius: 4 }}>
+                      <div style={{ width: `${p.pct}%`, height: '100%', background: '#10b981', borderRadius: 4 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: 12, color: '#4a6580', textAlign: 'center', padding: '1rem 0' }}>Nenhuma assinatura ativa ainda</p>
+            )}
           </div>
         </div>
 
