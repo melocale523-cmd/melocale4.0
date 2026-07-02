@@ -236,63 +236,110 @@ export default function ProfessionalDashboard() {
       </div>
 
       {purchaseCount === 0 ? (
-        <>
-          {/* HERO — estado zero */}
-          <div style={{ background: '#132236', border: '1px solid rgba(16,185,129,.35)', borderRadius: 16, padding: '36px 24px', textAlign: 'center' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(16,185,129,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <Rocket size={24} color="#10b981" />
-            </div>
-            <p style={{ fontSize: 19, fontWeight: 700, color: '#f1f5f9', margin: '0 0 8px', lineHeight: 1.3 }}>
-              Transforme seu ofício em renda hoje
-            </p>
-            <p style={{ fontSize: 14, color: '#7a9ebf', margin: '0 0 20px', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
-              {cityFirstName
-                ? `${cityFirstName} tem clientes esperando por um ${profile?.category || 'profissional'} como você.`
-                : 'Sua cidade tem clientes esperando por você.'} Cada cliente custa entre 10 e 80 moedas — você escolhe quem contatar.
-            </p>
-
-            {percentileData?.percentile != null && percentileData.percentile > 0 && (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 24, background: 'rgba(16,185,129,.08)', borderRadius: 100, padding: '10px 20px' }}>
-                <TrendingUp size={16} color="#10b981" />
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#10b981' }}>
-                  Você já está à frente de {percentileData.percentile}% dos profissionais assim que carregar moedas
-                </span>
+        balanceCoins > 0 ? (
+          <>
+            {/* HERO — tem moeda, nunca comprou cliente */}
+            <div style={{ background: '#132236', border: '1px solid rgba(16,185,129,.35)', borderRadius: 16, padding: '36px 24px', textAlign: 'center' }}>
+              <div style={{ width: 52, height: 52, borderRadius: 15, background: 'rgba(16,185,129,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+                <Briefcase size={26} color="#10b981" />
               </div>
-            )}
-
-            <div>
+              <p style={{ fontSize: 22, fontWeight: 700, color: '#f1f5f9', margin: '0 0 10px', lineHeight: 1.3 }}>
+                Suas {balanceCoins} moedas estão paradas
+              </p>
+              <p style={{ fontSize: 14, color: '#a8c2d9', margin: '0 0 22px', maxWidth: 400, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
+                Você já tem saldo suficiente pra comprar clientes. Não precisa carregar mais nada
+                {cityFirstName ? ` — só escolher quem contatar em ${cityFirstName}.` : ' — só escolher quem contatar.'}
+              </p>
               <button
-                onClick={() => navigate('/profissional/carteira')}
+                onClick={() => navigate('/profissional/leads')}
                 className="cta-pulse"
-                style={{ height: 42, padding: '0 26px', background: '#10b981', color: '#000', fontSize: 14, fontWeight: 800, border: 'none', borderRadius: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                style={{ height: 46, padding: '0 30px', background: '#10b981', color: '#000', fontSize: 15, fontWeight: 800, border: 'none', borderRadius: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
               >
-                <Wallet size={16} /> Quero meu primeiro cliente
+                <Zap size={18} /> Ver clientes disponíveis
               </button>
             </div>
-          </div>
 
-          {pendingBanner}
+            {pendingBanner}
 
-          {/* Stats mínimas */}
-          <div className="grid grid-cols-2 gap-4 w-full">
-            <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs uppercase tracking-wide text-slate-400">Avaliação</h3>
-                <Star size={14} className="text-purple-400 fill-purple-400/30" />
+            {/* Stats mínimas */}
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs uppercase tracking-wide text-slate-400">Avaliação</h3>
+                  <Star size={14} className="text-purple-400 fill-purple-400/30" />
+                </div>
+                <p className="text-white text-sm font-medium">
+                  {avgRating > 0 ? avgRating.toFixed(1) : 'Ainda sem avaliações — seu primeiro cliente pode mudar isso.'}
+                </p>
               </div>
-              <p className="text-white text-sm font-medium">
-                {avgRating > 0 ? avgRating.toFixed(1) : 'Ainda sem avaliações — seu primeiro cliente pode mudar isso.'}
+              <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
+                  <Briefcase size={14} className="text-pink-400" />
+                </div>
+                <p className="text-white text-sm font-medium break-words">{profile?.category || 'Não definida'}</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* HERO — estado zero */}
+            <div style={{ background: '#132236', border: '1px solid rgba(16,185,129,.35)', borderRadius: 16, padding: '36px 24px', textAlign: 'center' }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(16,185,129,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Rocket size={24} color="#10b981" />
+              </div>
+              <p style={{ fontSize: 19, fontWeight: 700, color: '#f1f5f9', margin: '0 0 8px', lineHeight: 1.3 }}>
+                Transforme seu ofício em renda hoje
               </p>
-            </div>
-            <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
-                <Briefcase size={14} className="text-pink-400" />
+              <p style={{ fontSize: 14, color: '#7a9ebf', margin: '0 0 20px', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
+                {cityFirstName
+                  ? `${cityFirstName} tem clientes esperando por um ${profile?.category || 'profissional'} como você.`
+                  : 'Sua cidade tem clientes esperando por você.'} Cada cliente custa entre 10 e 80 moedas — você escolhe quem contatar.
+              </p>
+
+              {percentileData?.percentile != null && percentileData.percentile > 0 && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 24, background: 'rgba(16,185,129,.08)', borderRadius: 100, padding: '10px 20px' }}>
+                  <TrendingUp size={16} color="#10b981" />
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#10b981' }}>
+                    Você já está à frente de {percentileData.percentile}% dos profissionais assim que carregar moedas
+                  </span>
+                </div>
+              )}
+
+              <div>
+                <button
+                  onClick={() => navigate('/profissional/carteira')}
+                  className="cta-pulse"
+                  style={{ height: 42, padding: '0 26px', background: '#10b981', color: '#000', fontSize: 14, fontWeight: 800, border: 'none', borderRadius: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Wallet size={16} /> Quero meu primeiro cliente
+                </button>
               </div>
-              <p className="text-white text-sm font-medium break-words">{profile?.category || 'Não definida'}</p>
             </div>
-          </div>
-        </>
+
+            {pendingBanner}
+
+            {/* Stats mínimas */}
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs uppercase tracking-wide text-slate-400">Avaliação</h3>
+                  <Star size={14} className="text-purple-400 fill-purple-400/30" />
+                </div>
+                <p className="text-white text-sm font-medium">
+                  {avgRating > 0 ? avgRating.toFixed(1) : 'Ainda sem avaliações — seu primeiro cliente pode mudar isso.'}
+                </p>
+              </div>
+              <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs uppercase tracking-wide text-slate-400">Categoria</h3>
+                  <Briefcase size={14} className="text-pink-400" />
+                </div>
+                <p className="text-white text-sm font-medium break-words">{profile?.category || 'Não definida'}</p>
+              </div>
+            </div>
+          </>
+        )
       ) : (
         <>
           {/* Moedas + Ranking percentual */}
