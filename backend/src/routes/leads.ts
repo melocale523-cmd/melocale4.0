@@ -117,17 +117,24 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
         : `${title} em ${location}. Toque para ver e enviar proposta.`;
 
       await Promise.all(notifyPros.map(async (p: { user_id: string }) => {
-        void supabaseAdmin.from("notifications").insert({
+        const { error: notifError } = await supabaseAdmin.from("notifications").insert({
           user_id: p.user_id,
           title: title_notif,
           body: body_notif,
           data: { lead_id: data.id, type: "new_lead", fallback: isFallback },
         });
-        void sendPushToUser(p.user_id, {
-          title: title_notif,
-          body: body_notif,
-          data: { lead_id: data.id, type: "new_lead", fallback: isFallback },
-        });
+        if (notifError) {
+          console.error(`[leads] falha ao criar notificação para ${p.user_id}:`, notifError.message);
+        }
+        try {
+          await sendPushToUser(p.user_id, {
+            title: title_notif,
+            body: body_notif,
+            data: { lead_id: data.id, type: "new_lead", fallback: isFallback },
+          });
+        } catch (pushError) {
+          console.error(`[leads] falha ao enviar push para ${p.user_id}:`, pushError instanceof Error ? pushError.message : String(pushError));
+        }
       }));
     }
 
