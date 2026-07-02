@@ -206,7 +206,7 @@ export default function ProfessionalDashboard() {
   );
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6" style={{ padding: '0 1.5rem' }}>
+    <div className="w-full max-w-5xl mx-auto space-y-8" style={{ padding: '0 1.5rem' }}>
 
       {/* HEADER — sempre visível */}
       <div className="flex flex-col sm:flex-row items-baseline justify-between gap-2">
@@ -239,7 +239,7 @@ export default function ProfessionalDashboard() {
         balanceCoins > 0 ? (
           <>
             {/* HERO — tem moeda, nunca comprou cliente */}
-            <div style={{ background: '#132236', border: '1px solid rgba(16,185,129,.35)', borderRadius: 16, padding: '36px 24px', textAlign: 'center' }}>
+            <div style={{ background: '#132236', border: '1px solid rgba(16,185,129,.35)', borderRadius: 16, padding: '2.5rem 1.5rem', textAlign: 'center' }}>
               <div style={{ width: 52, height: 52, borderRadius: 15, background: 'rgba(16,185,129,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
                 <Briefcase size={26} color="#10b981" />
               </div>
@@ -284,7 +284,7 @@ export default function ProfessionalDashboard() {
         ) : (
           <>
             {/* HERO — estado zero */}
-            <div style={{ background: '#132236', border: '1px solid rgba(16,185,129,.35)', borderRadius: 16, padding: '36px 24px', textAlign: 'center' }}>
+            <div style={{ background: '#132236', border: '1px solid rgba(16,185,129,.35)', borderRadius: 16, padding: '2.5rem 1.5rem', textAlign: 'center' }}>
               <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(16,185,129,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <Rocket size={24} color="#10b981" />
               </div>
