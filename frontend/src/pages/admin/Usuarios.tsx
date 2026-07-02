@@ -84,6 +84,7 @@ export default function AdminUsuarios() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editingUser, setEditingUser] = useState<{ id: string; field: 'name' | 'category'; value: string } | null>(null);
+  const [newCategoryMode, setNewCategoryMode] = useState(false);
 
   const { data: usuarios = [], isLoading, refetch } = useQuery({
     queryKey: ['adminUsersEnriched'],
@@ -99,6 +100,15 @@ export default function AdminUsuarios() {
       }));
     },
     staleTime: 60_000,
+  });
+
+  const { data: realCategories = [] } = useQuery({
+    queryKey: ['adminCategoriesList'],
+    queryFn: async () => {
+      const { data } = await supabase.from('categories').select('name').eq('is_active', true).order('name');
+      return (data ?? []).map(c => c.name);
+    },
+    staleTime: 300_000,
   });
 
   useEffect(() => {
@@ -131,10 +141,13 @@ export default function AdminUsuarios() {
 
   const saveEditMutation = useMutation({
     mutationFn: async ({ id, field, value }: { id: string; field: 'name' | 'category'; value: string }) => {
-      const { error } = await supabase.from('profiles').update(
-        field === 'name' ? { full_name: value } : { category: value }
-      ).eq('id', id);
-      if (error) throw error;
+      if (field === 'name') {
+        const { error } = await supabase.from('profiles').update({ full_name: value }).eq('id', id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('professionals').update({ category: value }).eq('user_id', id);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success('Salvo com sucesso!');
@@ -145,6 +158,9 @@ export default function AdminUsuarios() {
   });
 
   const hasInconsistency = (u: EnrichedUser) => u.role !== 'professional' && !!u.professional_id && !!u.category;
+
+  const hasUnknownCategory = (u: EnrichedUser) =>
+    u.role === 'professional' && !!u.category && !realCategories.includes(u.category);
 
   const getProfileScore = (u: EnrichedUser): number => {
     let score = 0;
@@ -199,7 +215,7 @@ export default function AdminUsuarios() {
     if (activeFilter === 'client') matchFilter = u.role === 'client';
     else if (activeFilter === 'professional') matchFilter = u.role === 'professional';
     else if (activeFilter === 'admin') matchFilter = u.role === 'admin';
-    else if (activeFilter === 'pendencias') matchFilter = !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u);
+    else if (activeFilter === 'pendencias') matchFilter = !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u) || hasUnknownCategory(u);
     else if (activeFilter === 'churn') matchFilter = isChurnRisk(u);
     return matchSearch && matchFilter;
   });
@@ -248,7 +264,7 @@ export default function AdminUsuarios() {
   };
 
   const semPlano = usuarios.filter(u => u.role === 'professional' && !u.package_id).length;
-  const pendenciasCount = usuarios.filter(u => !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u)).length;
+  const pendenciasCount = usuarios.filter(u => !u.full_name?.trim() || (u.role === 'professional' && !u.category) || hasInconsistency(u) || hasUnknownCategory(u)).length;
   const churnRiskCount = usuarios.filter(isChurnRisk).length;
 
   const SortHeader = ({ field, label, width }: { field: string; label: string; width?: number }) => (
@@ -369,14 +385,41 @@ export default function AdminUsuarios() {
           <span style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>
             {editingUser.field === 'name' ? 'Definir nome' : 'Definir categoria'}
           </span>
-          <input
-            value={editingUser.value}
-            onChange={e => setEditingUser(prev => prev ? { ...prev, value: e.target.value } : null)}
-            style={{ flex: 1, background: '#0E1C32', border: '1px solid rgba(255,255,255,.1)', borderRadius: 8, padding: '6px 10px', color: 'white', fontSize: 12 }}
-            autoFocus
-          />
-          <ActionBtn onClick={() => saveEditMutation.mutate(editingUser)} variant="success">Salvar</ActionBtn>
-          <ActionBtn onClick={() => setEditingUser(null)}>Cancelar</ActionBtn>
+          {editingUser.field === 'category' && !newCategoryMode ? (
+            <select
+              value={editingUser.value}
+              onChange={e => {
+                if (e.target.value === '__new__') { setNewCategoryMode(true); setEditingUser(prev => prev ? { ...prev, value: '' } : null); }
+                else setEditingUser(prev => prev ? { ...prev, value: e.target.value } : null);
+              }}
+              style={{ flex: 1, background: '#0E1C32', border: '1px solid rgba(255,255,255,.1)', borderRadius: 8, padding: '6px 10px', color: 'white', fontSize: 12 }}
+              autoFocus
+            >
+              <option value="" disabled>Selecione a categoria real</option>
+              {realCategories.map(c => <option key={c} value={c}>{c}</option>)}
+              <option value="__new__">➕ Criar nova categoria...</option>
+            </select>
+          ) : (
+            <input
+              value={editingUser.value}
+              onChange={e => setEditingUser(prev => prev ? { ...prev, value: e.target.value } : null)}
+              placeholder="Nome da nova categoria"
+              style={{ flex: 1, background: '#0E1C32', border: '1px solid rgba(255,255,255,.1)', borderRadius: 8, padding: '6px 10px', color: 'white', fontSize: 12 }}
+              autoFocus
+            />
+          )}
+          <ActionBtn onClick={async () => {
+            if (newCategoryMode && editingUser.value.trim()) {
+              const slug = editingUser.value.trim().toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+              await supabase.from('categories').insert({ name: editingUser.value.trim(), slug, is_active: true });
+              queryClient.invalidateQueries({ queryKey: ['adminCategoriesList'] });
+            }
+            saveEditMutation.mutate(editingUser);
+            setNewCategoryMode(false);
+          }} variant="success">Salvar</ActionBtn>
+          <ActionBtn onClick={() => { setEditingUser(null); setNewCategoryMode(false); }}>Cancelar</ActionBtn>
         </div>
       )}
 
@@ -530,7 +573,8 @@ export default function AdminUsuarios() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, display: 'inline-block' }}>{rb.label}</span>
                           {u.role === 'professional' && u.category && (
-                          <Pill color="#4a6580">
+                          <Pill color={hasUnknownCategory(u) ? '#f59e0b' : '#4a6580'}>
+                            {hasUnknownCategory(u) && <AlertTriangle size={10} />}
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120, display: 'block' }}>
                               {highlight(u.category, searchQuery)}
                             </span>
@@ -615,6 +659,11 @@ export default function AdminUsuarios() {
                           {u.role === 'professional' && !u.category && (
                             <ActionBtn onClick={() => setEditingUser({ id: u.id, field: 'category', value: '' })}>
                               Definir categoria
+                            </ActionBtn>
+                          )}
+                          {u.role === 'professional' && hasUnknownCategory(u) && (
+                            <ActionBtn onClick={() => setEditingUser({ id: u.id, field: 'category', value: u.category ?? '' })} variant="danger">
+                              <AlertTriangle size={11} /> Reclassificar
                             </ActionBtn>
                           )}
                           {inconsistent && (
