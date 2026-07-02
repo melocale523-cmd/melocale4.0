@@ -4,6 +4,7 @@ import { usePushNotifications } from '../hooks/usePushNotifications';
 
 export const ASKED_KEY = 'push_permission_asked';
 export const MODAL_DISMISSED_KEY = 'push_modal_dismissed';
+const REASK_DAYS = 7;
 
 interface Props {
   onDismiss: () => void;
@@ -17,11 +18,14 @@ export default function ClientPushModal({ onDismiss }: Props) {
     if (!isSupported) return;
     if (isSubscribed) return;
     if (typeof Notification !== 'undefined' && Notification.permission !== 'default') return;
-    if (localStorage.getItem(ASKED_KEY)) return;
+
+    const lastAsked = localStorage.getItem(ASKED_KEY);
+    const daysSince = lastAsked ? (Date.now() - Number(lastAsked)) / 86400000 : Infinity;
+    if (daysSince < REASK_DAYS) return;
 
     const timer = setTimeout(() => {
       if (typeof Notification !== 'undefined' && Notification.permission !== 'default') return;
-      localStorage.setItem(ASKED_KEY, '1');
+      localStorage.setItem(ASKED_KEY, String(Date.now()));
       setVisible(true);
     }, 3000);
 

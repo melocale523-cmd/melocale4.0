@@ -11,6 +11,7 @@ import NotificationBell from '../components/NotificationBell';
 import ThemeToggle from '../components/ThemeToggle';
 import ProfessionalPushModal from '../components/ProfessionalPushModal';
 import PushFloatingBanner from '../components/PushFloatingBanner';
+import IOSInstallBanner from '../components/IOSInstallBanner';
 
 export default function ProfessionalLayout() {
   const location = useLocation();
@@ -298,6 +299,7 @@ export default function ProfessionalLayout() {
       </main>
 
       <ProfessionalPushModal onDismiss={() => {}} />
+      <IOSInstallBanner />
     </div>
   );
 }
