@@ -308,7 +308,7 @@ export default function ProfessionalDashboard() {
 
               <div>
                 <button
-                  onClick={() => navigate('/profissional/carteira')}
+                  onClick={() => navigate('/profissional/assinatura')}
                   className="cta-pulse"
                   style={{ height: 42, padding: '0 26px', background: '#10b981', color: '#000', fontSize: 14, fontWeight: 800, border: 'none', borderRadius: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
                 >
