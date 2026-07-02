@@ -1,6 +1,6 @@
 import { useClientProfile } from '../../hooks/useClientProfile';
 import { isClientProfileComplete } from '../../lib/profileHelpers';
-import { AlertCircle, ArrowRight, Plus, Hammer, RefreshCw, CalendarCheck, MapPin, Tag, Zap, Droplets, Coins } from 'lucide-react';
+import { AlertCircle, ArrowRight, Plus, Hammer, RefreshCw, CalendarCheck, MapPin, Tag, Zap, Droplets, Coins, Home, MessageCircle, Smile, ShieldCheck, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../../services/dbServices';
@@ -63,19 +63,15 @@ export default function ClientDashboard() {
     },
   });
 
-  const clientCity = profile?.address_city || profile?.city || '';
-  const { data: profsNearby } = useQuery({
-    queryKey: ['profsNearby', clientCity],
+  const { data: platformProfessionalsCount } = useQuery({
+    queryKey: ['platformProfessionalsCount'],
     queryFn: async () => {
-      if (!clientCity) return 0;
       const { count } = await supabase
         .from('professionals')
         .select('id', { count: 'exact', head: true })
-        .eq('is_active', true)
-        .ilike('city', `%${clientCity}%`);
+        .eq('is_active', true);
       return count ?? 0;
     },
-    enabled: !!clientCity,
     staleTime: 300_000,
   });
 
@@ -161,7 +157,7 @@ export default function ClientDashboard() {
   const dynamicSubtitle = summaryLoading || profileLoading
     ? ''
     : totalPedidos === 0
-      ? 'Complete o guia abaixo e receba seu primeiro orçamento hoje.'
+      ? 'Vamos resolver aquele problema em casa.'
       : hasProposal
         ? 'Você tem propostas recebidas! Acesse seus pedidos.'
         : 'Profissionais estão respondendo ao seu pedido.';
@@ -218,6 +214,54 @@ export default function ClientDashboard() {
         </div>
       )}
 
+      {summaryLoading || profileLoading ? (
+        <div className="bg-[#132236] rounded-2xl border border-white/5 h-64 animate-pulse" />
+      ) : totalPedidos === 0 ? (
+        <div style={{ background: '#132236', borderRadius: 14, border: '0.5px solid rgba(255,255,255,.06)', padding: '2rem 1.5rem', textAlign: 'center', maxWidth: 560, margin: '0 auto', width: '100%' }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(16,185,129,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <Home size={24} color="#10b981" />
+          </div>
+          <p style={{ fontSize: 19, fontWeight: 700, color: '#f1f5f9', margin: '0 0 8px', lineHeight: 1.3 }}>
+            Chega de conviver com aquele problema em casa
+          </p>
+          <p style={{ fontSize: 14, color: '#7a9ebf', margin: '0 0 20px', maxWidth: 380, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
+            Descreva o que precisa e veja resolvido em poucos dias — sem custo pra pedir, sem obrigação de fechar negócio.
+          </p>
+
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 24, background: 'rgba(16,185,129,.08)', borderRadius: 100, padding: '8px 16px' }}>
+            <ShieldCheck size={14} color="#10b981" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#10b981' }}>
+              {platformProfessionalsCount ?? 0} profissionais verificados na plataforma
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginBottom: 24, flexWrap: 'wrap' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#7a9ebf' }}>
+              <FileText size={15} color="#10b981" /> Descreva o problema
+            </span>
+            <ArrowRight size={13} color="#4a6580" />
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#7a9ebf' }}>
+              <MessageCircle size={15} color="#10b981" /> Receba orçamentos
+            </span>
+            <ArrowRight size={13} color="#4a6580" />
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#7a9ebf' }}>
+              <Smile size={15} color="#10b981" /> Escolha se quiser
+            </span>
+          </div>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="cta-pulse"
+            style={{ height: 42, padding: '0 26px', background: '#10b981', color: '#000', fontSize: 14, fontWeight: 800, border: 'none', borderRadius: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 10 }}
+          >
+            <Plus size={16} /> Pedir orçamento grátis
+          </button>
+          <p style={{ fontSize: 11, color: '#4a6580', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, margin: 0 }}>
+            <ShieldCheck size={13} /> Sem custo. Sem obrigação de fechar negócio.
+          </p>
+        </div>
+      ) : (
+      <>
       {/* STATS ROW */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '1rem' }}>
         {statCards.map((card) => (
@@ -250,16 +294,7 @@ export default function ClientDashboard() {
             <div style={{ background: step2Done ? '#132236' : 'rgba(16,185,129,.08)', borderRadius: 12, padding: '16px 14px', border: `1px solid ${step2Done ? '#10b981' : 'rgba(16,185,129,.4)'}`, textAlign: 'center' }}>
               <div style={{ width: 28, height: 28, borderRadius: '50%', background: step2Done ? '#10b981' : 'rgba(16,185,129,.2)', color: step2Done ? '#000' : '#10b981', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>{step2Done ? '✓' : '2'}</div>
               <p style={{ fontSize: 12, fontWeight: 700, color: '#f1f5f9', margin: '0 0 4px' }}>Descreva o serviço</p>
-              <p style={{ fontSize: 11, color: '#4a6580', lineHeight: 1.4, margin: '0 0 10px' }}>Diga o que precisa e onde. 30 segundos.</p>
-              {!step2Done && (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="cta-pulse"
-                  style={{ width: '100%', height: 32, background: '#10b981', color: '#000', fontSize: 11, fontWeight: 800, border: 'none', borderRadius: 8, cursor: 'pointer' }}
-                >
-                  Criar pedido →
-                </button>
-              )}
+              <p style={{ fontSize: 11, color: '#4a6580', lineHeight: 1.4, margin: 0 }}>Diga o que precisa e onde. 30 segundos.</p>
             </div>
             {/* Passo 3 */}
             <div style={{ background: '#132236', borderRadius: 12, padding: '16px 14px', border: `1px solid ${step3Done ? '#10b981' : 'rgba(255,255,255,.06)'}`, textAlign: 'center' }}>
@@ -354,14 +389,9 @@ export default function ClientDashboard() {
               <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(16,185,129,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Hammer size={24} color="#10b981" />
               </div>
-              {(profsNearby ?? 0) > 0 && (
-                <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(16,185,129,.15)', color: '#10b981', borderRadius: 6, padding: '3px 10px' }}>
-                  {profsNearby} profissionais disponíveis em {clientCity}
-                </span>
-              )}
               <div>
                 <p style={{ color: '#f1f5f9', fontWeight: 700, margin: '0 0 6px' }}>
-                  {(profsNearby ?? 0) > 0 ? 'Profissionais esperando — cada hora sem pedido é hora perdida' : 'Seu primeiro pedido está a 1 clique'}
+                  Seu primeiro pedido está a 1 clique
                 </p>
                 <p style={{ color: '#4a6580', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
                   Descreva o serviço e receba orçamentos de profissionais verificados em até 47 minutos.
@@ -380,27 +410,6 @@ export default function ClientDashboard() {
 
         {/* COLUNA DIREITA */}
         <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
-          {/* CTA card */}
-          <div className="bg-[#132236] rounded-2xl border border-white/5 relative overflow-hidden" style={{ padding:'1.75rem' }}>
-            <div className="relative z-10">
-              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mb-3">
-                <Hammer size={20} />
-              </div>
-              <h3 className="text-white font-black text-base mb-2">Encontre o profissional certo</h3>
-              <p className="text-[#7a9ebf] text-sm mb-4 leading-relaxed">
-                Descreva o serviço, anexe fotos e receba propostas em minutos.
-              </p>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                disabled={!profileComplete}
-                className="w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 flex items-center justify-center gap-2"
-              >
-                Solicitar orçamento <ArrowRight size={15} />
-              </button>
-            </div>
-            <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-[60px] pointer-events-none" />
-          </div>
-
           {/* Moedas */}
           <div style={{ background: '#0b2818', border: '1px solid #10b981', borderRadius: '1rem', padding: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -441,6 +450,8 @@ export default function ClientDashboard() {
           </div>
         </div>
       </div>
+      </>
+      )}
 
       {isModalOpen && (
         <RequestWizard
