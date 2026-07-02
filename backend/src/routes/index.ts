@@ -11,6 +11,7 @@ import referralsRouter from "./referrals.js";
 import clientCoinsRouter from "./clientCoins.js";
 import walletRouter from "./wallet.js";
 import trackRouter from "./track.js";
+import professionalsRouter from "./professionals.js";
 import { PLANS } from "../config.js";
 
 export function registerRoutes(app: Application) {
@@ -58,4 +59,5 @@ export function registerRoutes(app: Application) {
   app.use("/api/client-coins", clientCoinsRouter);
   app.use("/api/wallet", walletRouter);
   app.use("/api", trackRouter);
+  app.use("/api", professionalsRouter);
 }
