@@ -47,70 +47,27 @@ const STEP_SUBTITLES = [
 const STEP_LABELS = ['Categoria', 'Urgência', 'Contexto', 'Detalhes'];
 
 const FALLBACK_CATEGORIES = [
-  { label: 'Pintura', icon: '🎨' },
-  { label: 'Elétrica', icon: '⚡' },
-  { label: 'Hidráulica', icon: '🔧' },
-  { label: 'Reformas', icon: '🏗️' },
-  { label: 'Jardinagem', icon: '🌿' },
-  { label: 'Limpeza', icon: '🧹' },
-  { label: 'Gesso', icon: '✨' },
-  { label: 'Marcenaria', icon: '🪚' },
-  { label: 'Outro', icon: '➕' },
+  { label: 'Pintura', icon: '🎨', color: '#f59e0b' },
+  { label: 'Elétrica', icon: '⚡', color: '#f59e0b' },
+  { label: 'Hidráulica', icon: '🔧', color: '#f59e0b' },
+  { label: 'Reformas', icon: '🏗️', color: '#f59e0b' },
+  { label: 'Jardinagem', icon: '🌿', color: '#f59e0b' },
+  { label: 'Limpeza', icon: '🧹', color: '#f59e0b' },
+  { label: 'Gesso', icon: '✨', color: '#f59e0b' },
+  { label: 'Marcenaria', icon: '🪚', color: '#f59e0b' },
+  { label: 'Outro', icon: '➕', color: '#f59e0b' },
 ];
 
-function getCategoryIcon(slug: string): string {
-  const icons: Record<string, string> = {
-    'eletricista': '⚡',
-    'encanador': '🔧',
-    'pintor': '🎨',
-    'pedreiro-construcao': '🏗️',
-    'marceneiro-carpinteiro': '🪚',
-    'serralheiro': '🔩',
-    'vidraceiro': '🪟',
-    'gesseiro-drywall': '✨',
-    'impermeabilizacao': '💧',
-    'ar-condicionado': '❄️',
-    'dedetizacao': '🐛',
-    'limpeza-residencial': '🧹',
-    'jardinagem-paisagismo': '🌿',
-    'mudanca-carreto': '🚛',
-    'instalacao-moveis': '🛋️',
-    'chaveiro': '🔑',
-    'desentupimento': '🚿',
-    'reforma-geral': '🏠',
-    'telhado-telhadista': '🏘️',
-    'piscina-manutencao': '🏊',
-  };
-  return icons[slug] ?? '🔨';
-}
-
 interface CatStyle { bg: string; border: string; textColor: string }
-function getCategoryStyle(icon: string): CatStyle {
-  const map: Record<string, CatStyle> = {
-    '⚡': { bg: 'rgba(251,191,36,.1)', border: 'rgba(251,191,36,.2)', textColor: '#f59e0b' },
-    '🔧': { bg: 'rgba(96,165,250,.1)', border: 'rgba(96,165,250,.2)', textColor: '#60a5fa' },
-    '🎨': { bg: 'rgba(244,114,182,.1)', border: 'rgba(244,114,182,.2)', textColor: '#f472b6' },
-    '❄️': { bg: 'rgba(103,232,249,.1)', border: 'rgba(103,232,249,.2)', textColor: '#67e8f9' },
-    '🧹': { bg: 'rgba(52,211,153,.1)', border: 'rgba(52,211,153,.2)', textColor: '#34d399' },
-    '🔑': { bg: 'rgba(167,139,250,.1)', border: 'rgba(167,139,250,.2)', textColor: '#a78bfa' },
-    '🪚': { bg: 'rgba(251,146,60,.1)', border: 'rgba(251,146,60,.2)', textColor: '#fb923c' },
-    '✨': { bg: 'rgba(226,232,240,.08)', border: 'rgba(226,232,240,.15)', textColor: '#e2e8f0' },
-    '🏗️': { bg: 'rgba(251,146,60,.1)', border: 'rgba(251,146,60,.2)', textColor: '#fb923c' },
-    '🌿': { bg: 'rgba(52,211,153,.1)', border: 'rgba(52,211,153,.2)', textColor: '#34d399' },
-    '🔩': { bg: 'rgba(156,163,175,.1)', border: 'rgba(156,163,175,.2)', textColor: '#9ca3af' },
-    '🪟': { bg: 'rgba(125,211,252,.1)', border: 'rgba(125,211,252,.2)', textColor: '#7dd3fc' },
-    '💧': { bg: 'rgba(56,189,248,.1)', border: 'rgba(56,189,248,.2)', textColor: '#38bdf8' },
-    '🐛': { bg: 'rgba(134,239,172,.1)', border: 'rgba(134,239,172,.2)', textColor: '#86efac' },
-    '🚛': { bg: 'rgba(251,146,60,.1)', border: 'rgba(251,146,60,.2)', textColor: '#fb923c' },
-    '🛋️': { bg: 'rgba(252,211,77,.1)', border: 'rgba(252,211,77,.2)', textColor: '#fcd34d' },
-    '🚿': { bg: 'rgba(125,211,252,.1)', border: 'rgba(125,211,252,.2)', textColor: '#7dd3fc' },
-    '🏠': { bg: 'rgba(251,191,36,.1)', border: 'rgba(251,191,36,.2)', textColor: '#fbbf24' },
-    '🏘️': { bg: 'rgba(180,83,9,.1)', border: 'rgba(180,83,9,.2)', textColor: '#b45309' },
-    '🏊': { bg: 'rgba(56,189,248,.1)', border: 'rgba(56,189,248,.2)', textColor: '#38bdf8' },
-    '➕': { bg: 'rgba(245,158,11,.08)', border: 'rgba(245,158,11,.15)', textColor: '#f59e0b' },
-    '🔨': { bg: 'rgba(245,158,11,.08)', border: 'rgba(245,158,11,.15)', textColor: '#f59e0b' },
+function styleFromColor(hex: string): CatStyle {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return {
+    bg: `rgba(${r},${g},${b},.1)`,
+    border: `rgba(${r},${g},${b},.2)`,
+    textColor: hex,
   };
-  return map[icon] ?? { bg: 'rgba(245,158,11,.08)', border: 'rgba(245,158,11,.15)', textColor: '#f59e0b' };
 }
 
 function getPriceHint(category: string): string | null {
@@ -192,7 +149,7 @@ export default function RequestWizard({
   const [step, setStep] = useState(1);
   const [slideDir, setSlideDir] = useState<'forward' | 'backward'>('forward');
   const [localUploading, setLocalUploading] = useState(false);
-  const [dbCategories, setDbCategories] = useState<{ name: string; slug: string }[]>([]);
+  const [dbCategories, setDbCategories] = useState<{ name: string; slug: string; icon: string; color: string }[]>([]);
   const [categorySearch, setCategorySearch] = useState('');
   const [data, setData] = useState<InternalData>({
     title: initialData?.title ?? '',
@@ -232,7 +189,7 @@ export default function RequestWizard({
   useEffect(() => {
     supabase
       .from('categories')
-      .select('name, slug')
+      .select('name, slug, icon, color')
       .eq('is_active', true)
       .order('name')
       .then(({ data: cats, error }) => {
@@ -364,7 +321,7 @@ export default function RequestWizard({
   });
 
   const filteredCategories = (dbCategories.length > 0
-    ? dbCategories.map(c => ({ label: c.name, icon: getCategoryIcon(c.slug) }))
+    ? dbCategories.map(c => ({ label: c.name, icon: c.icon, color: c.color }))
     : FALLBACK_CATEGORIES
   ).filter(c => !categorySearch || c.label.toLowerCase().includes(categorySearch.toLowerCase()));
 
@@ -570,7 +527,7 @@ export default function RequestWizard({
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 7 }}>
                     {filteredCategories.map(cat => {
                       const sel = data.category === cat.label;
-                      const cs = getCategoryStyle(cat.icon);
+                      const cs = styleFromColor(cat.color);
                       return (
                         <button
                           key={cat.label}

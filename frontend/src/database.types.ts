@@ -142,6 +142,7 @@ export type Database = {
       }
       categories: {
         Row: {
+          color: string
           created_at: string
           description: string | null
           icon: string | null
@@ -151,6 +152,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          color?: string
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -160,6 +162,7 @@ export type Database = {
           slug: string
         }
         Update: {
+          color?: string
           created_at?: string
           description?: string | null
           icon?: string | null
