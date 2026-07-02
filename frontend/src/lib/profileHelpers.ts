@@ -131,7 +131,7 @@ export function calculateSteps(params: {
     },
     {
       id: 'lead',
-      label: 'Comprar primeiro lead',
+      label: 'Comprar primeiro cliente',
       done: params.purchaseCount > 0,
       path: '/profissional/leads',
     },
