@@ -78,28 +78,55 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
       console.log(`[leads] criado: id=${data.id} price_coins=${price_coins} budget_max=${budget_max} urgency=${urgency}`);
     }
 
-    const { data: matchingPros } = await withTimeout(
+    const cityFilter = location.split(" - ")[0].trim();
+
+    const { data: categoryMatchPros } = await withTimeout(
       supabaseAdmin
         .from("professionals")
         .select("user_id")
         .eq("is_active", true)
         .ilike("category", category)
         .not("city", "is", null)
-        .ilike("city", `%${location.split(" - ")[0].trim()}%`)
+        .ilike("city", `%${cityFilter}%`)
     );
 
-    if (matchingPros?.length) {
-      await Promise.all(matchingPros.map(async (p: { user_id: string }) => {
+    // Fallback: se ninguém da categoria exata está na cidade, notifica
+    // todos os profissionais ativos da cidade — eles podem saber fazer o
+    // serviço mesmo sem essa ser a categoria principal cadastrada.
+    let notifyPros = categoryMatchPros ?? [];
+    let isFallback = false;
+    if (!notifyPros.length) {
+      const { data: cityMatchPros } = await withTimeout(
+        supabaseAdmin
+          .from("professionals")
+          .select("user_id")
+          .eq("is_active", true)
+          .not("city", "is", null)
+          .ilike("city", `%${cityFilter}%`)
+      );
+      notifyPros = cityMatchPros ?? [];
+      isFallback = true;
+    }
+
+    if (notifyPros.length) {
+      const title_notif = isFallback
+        ? `Pedido fora da sua categoria — ${category}`
+        : `Novo pedido — ${category}`;
+      const body_notif = isFallback
+        ? `${title} (${category}) em ${location}. Você atende esse tipo de serviço?`
+        : `${title} em ${location}. Toque para ver e enviar proposta.`;
+
+      await Promise.all(notifyPros.map(async (p: { user_id: string }) => {
         void supabaseAdmin.from("notifications").insert({
           user_id: p.user_id,
-          title: `Novo pedido — ${category}`,
-          body: `${title} em ${location}. Toque para ver e enviar proposta.`,
-          data: { lead_id: data.id, type: "new_lead" },
+          title: title_notif,
+          body: body_notif,
+          data: { lead_id: data.id, type: "new_lead", fallback: isFallback },
         });
         void sendPushToUser(p.user_id, {
-          title: `Novo pedido — ${category}`,
-          body: `${title} em ${location}`,
-          data: { lead_id: data.id, type: "new_lead" },
+          title: title_notif,
+          body: body_notif,
+          data: { lead_id: data.id, type: "new_lead", fallback: isFallback },
         });
       }));
     }
