@@ -157,7 +157,7 @@ export default function ClientDashboard() {
   const dynamicSubtitle = summaryLoading || profileLoading
     ? ''
     : totalPedidos === 0
-      ? 'Complete o guia abaixo e receba seu primeiro orçamento hoje.'
+      ? 'Vamos resolver aquele problema em casa.'
       : hasProposal
         ? 'Você tem propostas recebidas! Acesse seus pedidos.'
         : 'Profissionais estão respondendo ao seu pedido.';
