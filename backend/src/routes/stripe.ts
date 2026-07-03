@@ -154,14 +154,16 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
               })
             }
             // Creditar 200 moedas client_coins ao referrer quando indicado faz primeiro pedido
+            // O query builder é um thenable preguiçoso: sem await a RPC nunca era executada.
             if (referral.referrer_role === 'client') {
-              void supabaseAdmin.rpc('credit_client_coins', {
+              const { error: orderCoinsErr } = await supabaseAdmin.rpc('credit_client_coins', {
                 p_user_id: referral.referrer_id,
                 p_amount: REFERRAL_CLIENT_ORDER_COINS,
                 p_kind: 'referral_order',
                 p_reference: `referral_order_${referral.id}`,
                 p_metadata: { referred_id: userId, referral_id: referral.id },
               })
+              if (orderCoinsErr) console.error('[webhook] credit_client_coins referral_order error:', orderCoinsErr.message)
             }
           }
         } catch {
