@@ -354,7 +354,11 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
         data:     { type: "new_lead_conversation", conversation_id: conversationId },
         is_read:  false,
       })
-    );
+    ).catch((err: unknown) => {
+      // Sem .catch(), uma rejeição do timeout viraria unhandledRejection e
+      // derrubaria o processo (ver handler em server.ts).
+      console.error("[leads] notification insert error:", err instanceof Error ? err.message : String(err));
+    });
 
     // Avg response time (best-effort, non-blocking)
     let avg_response_hours: number | null = null;

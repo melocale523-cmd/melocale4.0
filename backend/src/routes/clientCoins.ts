@@ -62,6 +62,8 @@ router.post('/profile-complete', requireAuth, async (req: Request, res: Response
       title: '🎉 Perfil completo!',
       body: 'Você ganhou 50 moedas por completar seu perfil!',
       data: { type: 'profile_complete_bonus', coins: 50 },
+    }).then(({ error: notifErr }) => {
+      if (notifErr) console.error('[client-coins] notification insert error:', notifErr.message)
     })
     return res.json({ ok: true, coins: 50 })
   } catch (err) {
@@ -102,6 +104,8 @@ router.post('/review-bonus', requireAuth, async (req: Request, res: Response) =>
       title: '⭐ Avaliação enviada!',
       body: 'Você ganhou 30 moedas por avaliar o profissional!',
       data: { type: 'review_bonus', coins: 30 },
+    }).then(({ error: notifErr }) => {
+      if (notifErr) console.error('[client-coins] notification insert error:', notifErr.message)
     })
     return res.json({ ok: true, coins: 30 })
   } catch (err) {
@@ -140,6 +144,8 @@ router.post('/first-order', requireAuth, async (req: Request, res: Response) => 
       title: '🎉 Primeiro pedido!',
       body: 'Você ganhou 100 moedas por criar seu primeiro pedido!',
       data: { type: 'first_order_bonus', coins: 100 },
+    }).then(({ error: notifErr }) => {
+      if (notifErr) console.error('[client-coins] notification insert error:', notifErr.message)
     })
     return res.json({ ok: true, coins: 100 })
   } catch (err) {
