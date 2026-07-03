@@ -1,6 +1,5 @@
-import { MapPin, Zap, ShieldCheck, HeartHandshake, Star, Briefcase, User } from 'lucide-react';
+import { MapPin, Zap, ShieldCheck, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import StickyCtaMobile from '../components/StickyCtaMobile';
@@ -79,9 +78,6 @@ async function detectCity(): Promise<string> {
 }
 
 export default function LandingPage() {
-  const { isAuthenticated, user } = useAuthStore();
-  const role = user?.role;
-  const dashboardLink = role === 'admin' ? '/admin/dashboard' : role === 'professional' ? '/profissional/dashboard' : '/cliente/dashboard';
   const { isProfissional, isCliente } = useUtmParams();
 
   const [userCity, setUserCity] = useState('sua cidade');
@@ -1379,8 +1375,3 @@ function CheckIcon({ size = 24, ...props }: IconProps) {
   );
 }
 
-function XIcon({ size = 24, ...props }: IconProps) {
-  return (
-    <svg {...props} width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  );
-}

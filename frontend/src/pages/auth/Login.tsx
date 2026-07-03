@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
-import { Loader2, AlertCircle, ArrowLeft, ChevronRight, Briefcase, User as UserIcon, Eye, EyeOff, X } from 'lucide-react';
+import { Loader2, AlertCircle, ChevronRight, Briefcase, User as UserIcon, Eye, EyeOff, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -27,7 +26,6 @@ function getPasswordStrength(password: string): 0 | 1 | 2 | 3 {
 }
 
 export default function Login() {
-  const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const role = useAuthStore((state) => state.user?.role);
   const loading = useAuthStore((state) => state.isLoading);

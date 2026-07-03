@@ -1,8 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { useIsMobile } from '../../hooks/useIsMobile';
 import {
   Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2,
   RefreshCw, Star, Search,
@@ -44,7 +42,6 @@ const BAR_COLOR: Record<AppStatus, string> = {
 const AVATAR_COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
 
 export default function ClientAgenda() {
-  const isMobile = useIsMobile();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 

@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
 import { AlertCircle, Loader2, MapPin } from 'lucide-react';
-import { logService } from '../lib/logService';
 
 export interface AddressValue {
   cep: string;
@@ -26,8 +25,6 @@ interface AddressFormProps {
 }
 
 export function AddressForm({ value, onChange, variant = 'profile', cityError, initialGeoTrigger }: AddressFormProps) {
-  const [loading, setLoading] = useState(false);
-  const [cepError, setCepError] = useState<string | null>(null);
   const [viacepFilled, setViacepFilled] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
@@ -56,7 +53,6 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
             address?: { postcode?: string; road?: string; suburb?: string; neighbourhood?: string; city?: string; town?: string; village?: string; state?: string; }
           };
           const addr = data.address ?? {};
-          const cepDigits = (addr.postcode ?? '').replace(/\D/g, '').slice(0, 8);
           const city = addr.city || addr.town || addr.village || '';
           const neighborhood = addr.suburb || addr.neighbourhood || '';
           const newAddress = {
@@ -114,53 +110,8 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
     ? <span className="normal-case font-normal tracking-normal text-slate-500"> (opcional)</span>
     : <span className="text-slate-600 font-normal"> (opcional)</span>;
 
-  const autoFillHint = !isSignup && (
-    <span className="text-slate-600 font-normal ml-1 text-xs">(preenche automaticamente)</span>
-  );
-
   const fieldInput = (autoFilled: boolean) =>
     viacepFilled && autoFilled ? filledInput : baseInput;
-
-  const formatCep = (digits: string) =>
-    digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
-
-  const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
-    setCepError(null);
-    setViacepFilled(false);
-    onChange({ ...latestValue.current, cep: digits });
-    if (digits.length !== 8) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
-      const data = await res.json() as {
-        erro?: boolean;
-        logradouro?: string;
-        bairro?: string;
-        localidade?: string;
-        uf?: string;
-      };
-      if (data.erro) {
-        setCepError('CEP não encontrado. Verifique o número e preencha os campos manualmente.');
-      } else {
-        onChange({
-          ...latestValue.current,
-          cep: digits,
-          street: data.logradouro || latestValue.current.street,
-          neighborhood: data.bairro || latestValue.current.neighborhood,
-          city: data.localidade || latestValue.current.city,
-          state: data.uf || latestValue.current.state,
-        });
-        setViacepFilled(true);
-      }
-    } catch (err) {
-      logService.warn('AddressForm', 'ViaCEP lookup failed', err);
-      setCepError('Erro ao consultar o CEP. Preencha os campos manualmente.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="space-y-0">

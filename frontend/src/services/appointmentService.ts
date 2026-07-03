@@ -146,11 +146,6 @@ export const appointmentService = {
     }
 
     if (opts?.notifyUserId) {
-      const labels: Record<string, string> = {
-        confirmed: 'Agendamento confirmado ✅',
-        cancelled: 'Agendamento cancelado',
-        completed: 'Atendimento concluído ✅',
-      };
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -223,9 +218,6 @@ export const appointmentService = {
     if (error) throw error;
 
     if (notifyUserId) {
-      const dt = new Date(current.proposed_at);
-      const dateStr = dt.toLocaleDateString('pt-BR');
-      const timeStr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
       void apiFetch('/api/notifications/send-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

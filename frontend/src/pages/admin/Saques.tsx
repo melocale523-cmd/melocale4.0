@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, RefreshCw, Banknote, User, Phone, Calendar, Coins, CheckCircle, XCircle, CreditCard } from 'lucide-react';
+import { Search, RefreshCw, Banknote, Phone, Coins, CheckCircle, XCircle, CreditCard } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
@@ -159,7 +159,6 @@ export default function AdminSaques() {
   function renderCard(r: WithdrawalRequest) {
     const meta = STATUS_META[r.status] ?? STATUS_META.pending;
     const isPending = r.status === 'pending';
-    const isApproved = r.status === 'approved';
     const isDone = r.status === 'paid' || r.status === 'rejected';
     const noteVal = notes[r.id] ?? '';
 

@@ -1,5 +1,4 @@
 import { Router, Request, Response } from "express";
-import express from "express";
 import Stripe from "stripe";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { z } from "zod";
@@ -172,17 +171,13 @@ export async function stripeWebhookHandler(req: Request, res: Response): Promise
     }
 
     let coinsAmount = 0;
-    let coinLabel = "avulso";
     if (sessionType === "subscription" && packageId) {
       coinsAmount = PLANS[packageId]?.welcomeCoins ?? 0;
-      coinLabel = `boas-vindas:${packageId}`;
     } else if (packageId && coinPackagesCache[packageId]) {
       coinsAmount = coinPackagesCache[packageId].coins;
-      coinLabel = coinPackagesCache[packageId].name;
     } else {
       coinsAmount = parseInt(session.metadata?.coins || session.metadata?.coinsAmount || "0", 10);
     }
-    void coinLabel;
 
     if (userId && coinsAmount > 0) {
       const { error: rpcErr } = await supabaseAdmin.rpc("credit_professional_coins", {

@@ -4,7 +4,6 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { chatService } from '../services/dbServices';
-import { supabase } from '../lib/supabase';
 import { compressImage } from '../lib/compressImage';
 import type { Message } from '../types/chat';
 

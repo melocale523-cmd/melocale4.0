@@ -1,7 +1,7 @@
 import {
   ShieldCheck, ShieldAlert, ShieldX, Activity, RefreshCw, AlertTriangle,
   ExternalLink, CheckCircle2, XCircle, Loader2, Database, Zap, CreditCard,
-  Server, Clock, MemoryStick, GitBranch, Package,
+  Server, Clock, GitBranch, Package,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';

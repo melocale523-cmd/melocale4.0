@@ -1,4 +1,3 @@
-import { Loader2 } from 'lucide-react';
 import { SUBSCRIPTION_PLANS } from './constants';
 
 interface Props {

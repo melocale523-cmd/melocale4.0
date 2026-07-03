@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { toast } from 'sonner'
-import { Copy, Gift, Users, TrendingUp, CheckCircle, Clock, Award, QrCode, Trophy, Zap, Target, Share2 } from 'lucide-react'
+import { Copy, Gift, Users, TrendingUp, CheckCircle, Clock, QrCode, Trophy, Target, Share2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuthStore } from '../store/authStore'
 import { apiFetch } from '../lib/api'
@@ -74,7 +74,7 @@ export default function Indicacao() {
   const [showQr, setShowQr] = useState(false)
   const [generatingStories, setGeneratingStories] = useState(false)
 
-  const { data: referralData, isLoading: loadingCode } = useQuery<ReferralCode>({
+  const { data: referralData } = useQuery<ReferralCode>({
     queryKey: ['referral-code', user?.id],
     queryFn: async () => {
       const res = await apiFetch('/api/referrals/my-code')

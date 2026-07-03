@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, BellRing, X, Check } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePushNotifications } from '../hooks/usePushNotifications';
@@ -15,7 +15,6 @@ import {
 export default function NotificationBell() {
   const user          = useAuthStore(s => s.user);
   const queryClient   = useQueryClient();
-  const navigate      = useNavigate();
   const [open, setOpen]     = useState(false);
   const [filter, setFilter] = useState<FilterId>('all');
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
