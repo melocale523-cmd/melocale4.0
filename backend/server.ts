@@ -63,9 +63,12 @@ export function createApp() {
   const corsOptions: Parameters<typeof cors>[0] = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin) return callback(null, true); // same-origin or curl
+      // Wildcard *.vercel.app permitia que QUALQUER deploy do Vercel (de
+      // qualquer pessoa) fizesse requests credenciadas. Restringe a previews
+      // deste projeto; outros previews podem ser liberados via FRONTEND_URL.
       const isAllowed =
         ALLOWED_ORIGINS.has(origin) ||
-        /^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin);
+        /^https:\/\/melocale4-0[a-zA-Z0-9-]*\.vercel\.app$/.test(origin);
       callback(isAllowed ? null : new Error("Not allowed by CORS"), isAllowed);
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
