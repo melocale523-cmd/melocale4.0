@@ -137,6 +137,39 @@ export const adminService = {
         packageBreakdown[p.package_id].total += p.amount / 100;
       });
 
+      // Faturamento histórico total por plano (não é MRR — é soma de pagamentos
+      // confirmados já recebidos, independente de a assinatura seguir ativa hoje).
+      // IDs e nomes reais dos planos: backend/src/config.ts (PLANS) e
+      // frontend/src/pages/professional/assinatura/constants.ts (PLAN_NAMES) —
+      // não confundir com o array PLANS de frontend/src/pages/professional/Dashboard.tsx,
+      // que é só texto de exibição num modal e não corresponde a nenhum plano real cobrado.
+      const REAL_SUBSCRIPTION_PLANS: Record<string, { name: string; price: number }> = {
+        plan_basic: { name: 'Starter', price: 37 },
+        plan_pro: { name: 'PRO', price: 67 },
+        plan_business: { name: 'Elite', price: 127 },
+      };
+      const activeCountByPlan: Record<string, number> = {};
+      activeSubs.forEach((s: { package_id: string }) => {
+        activeCountByPlan[s.package_id] = (activeCountByPlan[s.package_id] ?? 0) + 1;
+      });
+      const revenueByPlanHistorical: Record<string, {
+        planName: string;
+        totalPaid: number;
+        paymentCount: number;
+        activeSubscriptions: number;
+      }> = Object.fromEntries(
+        Object.entries(REAL_SUBSCRIPTION_PLANS).map(([planId, plan]) => [
+          planId,
+          {
+            planName: plan.name,
+            totalPaid: packageBreakdown[planId]?.total ?? 0,
+            paymentCount: packageBreakdown[planId]?.qtd ?? 0,
+            activeSubscriptions: activeCountByPlan[planId] ?? 0,
+          },
+        ]),
+      );
+      const totalActiveSubscriptions = activeSubs.length;
+
       // Moedas em circulação
       const totalCoins = ((coinCirculationRes.data ?? []) as { balance: number }[])
         .reduce((acc, w) => acc + (w.balance ?? 0), 0);
@@ -152,6 +185,8 @@ export const adminService = {
         monthlyRevenue,
         mrr,
         revenueByPlan,
+        revenueByPlanHistorical,
+        totalActiveSubscriptions,
         totalProfessionals: professionaisRes.count ?? 0,
         churnCount: churnRes.count ?? 0,
         newUsersThisMonth: newUsersMonthRes.count ?? 0,
@@ -165,7 +200,14 @@ export const adminService = {
       return {
         totalUsers: 0, activeLeads: 0, pendingDisputes: 0, openTickets: 0,
         totalRevenue: 0, revenueSubscriptions: 0, revenueCoinPacks: 0,
-        monthlyRevenue: {}, mrr: 0, revenueByPlan: {}, totalProfessionals: 0, churnCount: 0,
+        monthlyRevenue: {}, mrr: 0, revenueByPlan: {},
+        revenueByPlanHistorical: {
+          plan_basic: { planName: 'Starter', totalPaid: 0, paymentCount: 0, activeSubscriptions: 0 },
+          plan_pro: { planName: 'PRO', totalPaid: 0, paymentCount: 0, activeSubscriptions: 0 },
+          plan_business: { planName: 'Elite', totalPaid: 0, paymentCount: 0, activeSubscriptions: 0 },
+        },
+        totalActiveSubscriptions: 0,
+        totalProfessionals: 0, churnCount: 0,
         newUsersThisMonth: 0, totalCoinsCirculation: 0, packageBreakdown: {},
         pendingVerifications: 0, avgResponseTime: '—', estimatedRevenue: 0,
       };

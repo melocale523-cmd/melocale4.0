@@ -448,6 +448,36 @@ export default function AdminDashboard() {
               <p style={{ fontSize: 12, color: '#4a6580', textAlign: 'center', padding: '1rem 0' }}>Nenhuma assinatura ativa ainda</p>
             )}
           </div>
+
+          {/* Faturamento histórico por plano — total já recebido (payments confirmados),
+              não confundir com MRR do ranking acima: uma assinatura pode ter gerado
+              receita no passado e estar cancelada hoje. */}
+          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Faturamento histórico por plano</p>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#4a6580' }}>{s.totalActiveSubscriptions} ativa{s.totalActiveSubscriptions === 1 ? '' : 's'} hoje</span>
+            </div>
+            {s.totalActiveSubscriptions === 0 && (
+              <p style={{ fontSize: 11, color: '#fbbf24', background: 'rgba(251,191,36,.08)', border: '1px solid rgba(251,191,36,.2)', borderRadius: 8, padding: '0.5rem 0.75rem', margin: '0 0 0.75rem' }}>
+                Nenhuma assinatura ativa hoje. Os valores abaixo são faturamento histórico total já recebido — não receita recorrente atual.
+              </p>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {Object.entries(s.revenueByPlanHistorical).map(([planId, plan]) => (
+                <div key={planId} style={{ background: 'rgba(0,0,0,.2)', borderRadius: 8, padding: '0.625rem 0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <p style={{ fontSize: 12, color: 'white', fontWeight: 600, margin: 0 }}>{plan.planName}</p>
+                    <p style={{ fontSize: 10, color: '#4a6580', margin: 0 }}>
+                      {plan.paymentCount} pagamento{plan.paymentCount === 1 ? '' : 's'} · {plan.activeSubscriptions} ativa{plan.activeSubscriptions === 1 ? '' : 's'} hoje
+                    </p>
+                  </div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: plan.totalPaid > 0 ? '#10b981' : '#4a6580', margin: 0 }}>
+                    R${plan.totalPaid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Faturamento */}
