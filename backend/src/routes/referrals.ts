@@ -244,9 +244,11 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
       if (notifErr) console.error('[referrals] notification insert error:', notifErr.message)
     })
 
-    // Level-2 cascade: credit 20 coins to the person who originally referred newUserId's referrer
-    // O query builder é um thenable preguiçoso: sem await a RPC nunca era executada.
-    const { error: cascadeErr } = await supabaseAdmin.rpc('credit_cascade_referral', { p_level1_user_id: newUserId })
+    // Level-2 cascade: credit 20 coins to the person who originally referred newUserId's referrer.
+    // A RPC busca o referred_by_code de quem for passado — o nível 1 é o referrer direto
+    // (referrerProfile), não o usuário novo; passar newUserId premiaria o próprio referrer
+    // direto de novo, e não o avô da cascata.
+    const { error: cascadeErr } = await supabaseAdmin.rpc('credit_cascade_referral', { p_level1_user_id: referrerProfile.id })
     if (cascadeErr) console.error('[referrals] credit_cascade_referral error:', cascadeErr.message)
 
     // Creditar 20 moedas ao novo usuário por se cadastrar via indicação
