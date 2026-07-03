@@ -13,30 +13,19 @@ import { useTheme } from '../../hooks/useTheme';
 import { apiFetch } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
+import { SUBSCRIPTION_PLANS } from './assinatura/constants';
 
-const PLANS = [
-  {
-    id: 'basico',
-    name: 'Básico',
-    price: 29,
-    highlight: false,
-    features: ['10 leads por mês', 'Suporte por e-mail', 'Perfil verificado'],
-  },
-  {
-    id: 'pro',
-    name: 'PRO',
-    price: 59,
-    highlight: true,
-    features: ['30 leads por mês', 'Suporte prioritário', 'Selo PRO no perfil', 'Destaque nas buscas'],
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: 99,
-    highlight: false,
-    features: ['Leads ilimitados', 'Suporte via WhatsApp', 'Selo Premium', 'Destaque permanente'],
-  },
-];
+// Mesma fonte de verdade da página real de assinatura (assinatura/constants.ts,
+// que reflete backend/src/config.ts) — evita repetir os preços/nomes fictícios
+// que este modal tinha antes (básico/pro/premium a R$29/59/99, sem nenhuma
+// assinatura real correspondente).
+const PLANS = SUBSCRIPTION_PLANS.map((p) => ({
+  id: p.id,
+  name: p.name,
+  price: p.price,
+  highlight: p.popular,
+  features: p.features,
+}));
 
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
