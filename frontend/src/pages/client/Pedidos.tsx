@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Plus, Search, Inbox, FileText } from 'lucide-react';
+import { Plus, Search, Inbox } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { type WizardData } from '../../components/RequestWizard';
 import ReviewModal from '../../components/ReviewModal';
-import { cn } from '../../lib/utils';
 import { usePedidosData, type PedidoItem } from '../../hooks/usePedidosData';
 import { useLeadReviewable, type ReviewableInfo } from '../../hooks/useLeadReviewable';
 import { PedidoCard } from './pedidos/PedidoCard';

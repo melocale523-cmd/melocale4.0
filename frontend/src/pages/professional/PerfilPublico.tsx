@@ -54,13 +54,26 @@ export default function PerfilPublico() {
   const { data: reviewsData } = useQuery<{ reviews: Review[]; average: number; total: number }>({
     queryKey: ['publicReviews', prof?.id],
     queryFn: async () => {
+      // A tabela reviews não tem coluna client_name; buscar client_id e
+      // resolver o nome via profiles (mesmo padrão do PerfilProfissionalModal).
       const { data } = await supabase
         .from('reviews')
-        .select('id, rating, comment, created_at, client_name')
+        .select('id, rating, comment, created_at, client_id')
         .eq('professional_id', prof!.id)
         .order('created_at', { ascending: false })
         .limit(10);
-      const reviews = (data || []) as Review[];
+      const rows = (data ?? []) as unknown as Array<Omit<Review, 'client_name'> & { client_id: string }>;
+      const clientIds = [...new Set(rows.map(r => r.client_id))];
+      const { data: profileRows } = clientIds.length
+        ? await supabase.from('profiles').select('id, full_name').in('id', clientIds)
+        : { data: [] as Array<{ id: string; full_name: string | null }> };
+      const nameById: Record<string, string | null> = Object.fromEntries(
+        (profileRows ?? []).map(p => [p.id, p.full_name])
+      );
+      const reviews: Review[] = rows.map(r => ({
+        id: r.id, rating: r.rating, comment: r.comment, created_at: r.created_at,
+        client_name: nameById[r.client_id] ?? null,
+      }));
       const total = reviews.length;
       const average = total > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / total : 0;
       return { reviews, average, total };

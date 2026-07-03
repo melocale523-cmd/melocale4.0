@@ -1,32 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { apiFetch } from '../lib/api';
 
-interface LeadStatusRow { status: string }
-
-interface ProfileRow {
-  id: string;
-  status?: string | null;
-  role?: string | null;
-  full_name?: string | null;
-  name?: string | null;
-  email?: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-  category?: string | null;
-  [key: string]: unknown;
-}
-
-async function calcAvgResponseTime(professionalId: string): Promise<string> {
-  const { data, error } = await supabase.rpc('get_avg_response_time_hours', {
-    p_professional_id: professionalId,
-  });
-  if (error || data === null) return '—';
-  const hours = Number(data);
-  if (hours < 1) return 'menos de 1h';
-  if (hours === 1) return '1 hora';
-  return `${hours} horas`;
-}
-
 async function calcAvgResponseTimeGlobal(): Promise<string> {
   const { data, error } = await supabase.rpc('get_avg_response_time_hours_global');
   if (error || data === null) return '—';

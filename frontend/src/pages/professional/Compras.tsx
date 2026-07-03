@@ -95,8 +95,6 @@ export default function ProfessionalCompras() {
     return p.status === activeTab;
   });
 
-  const canContact = (_status: string) => true;
-
   const formatPhone = (raw: unknown): string => {
     if (typeof raw !== 'string') return '';
     const d = raw.replace(/\D/g, '');

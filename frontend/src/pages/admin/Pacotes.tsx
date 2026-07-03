@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit2, XCircle, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Edit2, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../services/dbServices';
 import { toast } from 'sonner';
@@ -45,11 +45,6 @@ export default function AdminPacotes() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-11">
            {pacotes?.map(pacote => (
              <div key={pacote.id} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col relative overflow-hidden group">
-               {pacote.is_popular && (
-                 <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-widest px-8 py-6 rounded-bl-xl z-10">
-                   Popular
-                 </div>
-               )}
                <div className="flex justify-between items-start mb-11 z-10 relative">
                   <div>
                     <h3 className="text-xl font-bold text-white">{pacote.name}</h3>

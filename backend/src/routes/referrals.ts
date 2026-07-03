@@ -3,7 +3,7 @@ import { Router, Request, Response } from 'express'
 import { requireAuth, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 import { sendPushToUser } from '../lib/push.js'
-import { REFERRAL_COINS_PROFESSIONAL, REFERRAL_BASE_COINS_CLIENT, REFERRAL_BONUS_MONTHLY } from '../config/referralConstants.js'
+import { REFERRAL_COINS_PROFESSIONAL, REFERRAL_BONUS_MONTHLY } from '../config/referralConstants.js'
 
 const router = Router()
 
@@ -240,6 +240,8 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
       title: '🎉 Nova indicação!',
       body: `${firstName} se cadastrou com seu link! Você ganhará ${rewardHint} quando ele ativar a conta.`,
       data: { type: 'new_referral', referral_id: referral.id },
+    }).then(({ error: notifErr }) => {
+      if (notifErr) console.error('[referrals] notification insert error:', notifErr.message)
     })
 
     // Level-2 cascade: credit 20 coins to the person who originally referred newUserId's referrer

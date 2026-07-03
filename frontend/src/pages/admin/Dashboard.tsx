@@ -171,9 +171,11 @@ export default function AdminDashboard() {
       else if (revPeriod === '180d') { since = new Date(now); since.setDate(since.getDate()-180); }
       else if (revPeriod === '1y') { since = new Date(now); since.setFullYear(since.getFullYear()-1); }
       else { since = new Date('2020-01-01'); }
+      // A tabela payments não tem coluna `type`; assinaturas são
+      // identificadas pelo package_id com prefixo `plan_`.
       const { data } = await supabase
         .from('payments')
-        .select('amount, paid_at, type')
+        .select('amount, paid_at, package_id')
         .eq('status', 'paid')
         .gte('paid_at', since.toISOString())
         .order('paid_at', { ascending: true });
@@ -217,14 +219,6 @@ export default function AdminDashboard() {
     );
 
   const s = summary!;
-  const monthKeys = Object.keys(s.monthlyRevenue).sort().slice(-3);
-  const maxMonthRevenue = Math.max(...monthKeys.map(k => s.monthlyRevenue[k] ?? 0), 1);
-
-  const MONTH_NAMES: Record<string, string> = {
-    '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr', '05': 'Mai', '06': 'Jun',
-    '07': 'Jul', '08': 'Ago', '09': 'Set', '10': 'Out', '11': 'Nov', '12': 'Dez',
-  };
-  const fmtMonth = (key: string) => MONTH_NAMES[key.split('-')[1]] ?? key;
   const fmtBRL = (v: number) =>
     v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -266,7 +260,7 @@ export default function AdminDashboard() {
   const revGrouped = (() => {
     if (!revData?.length) return [];
     const map: Record<string, { total: number; subs: number; moedas: number; count: number }> = {};
-    revData.forEach((p: { paid_at: string | null; amount: number | null; type: string | null }) => {
+    revData.forEach((p: { paid_at: string | null; amount: number | null; package_id: string | null }) => {
       const d = new Date(p.paid_at ?? '');
       const key = byDay
         ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
@@ -274,7 +268,7 @@ export default function AdminDashboard() {
       if (!map[key]) map[key] = { total: 0, subs: 0, moedas: 0, count: 0 };
       const amt = p.amount ?? 0;
       map[key].total += amt;
-      if (p.type === 'subscription') map[key].subs += amt;
+      if (p.package_id?.startsWith('plan_')) map[key].subs += amt;
       else map[key].moedas += amt;
       map[key].count += 1;
     });

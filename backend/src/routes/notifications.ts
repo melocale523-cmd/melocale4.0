@@ -169,6 +169,8 @@ router.post("/notifications/send-event", sensitiveLimiter, requireAuth, async (r
         body,
         data,
         is_read: false,
+      }).then(({ error: notifErr }) => {
+        if (notifErr) console.error("[send-event] notification insert error:", notifErr.message);
       });
       void sendPushToUser(targetUserId, { title, body, data });
     }

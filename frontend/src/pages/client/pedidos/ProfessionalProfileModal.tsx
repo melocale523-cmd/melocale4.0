@@ -40,13 +40,28 @@ export function ProfessionalProfileModal({ userId, name, avatar, onClose }: Prof
       .then(({ data: profData }) => {
         setProf(profData);
         if (profData?.id) {
+          // A tabela reviews não tem coluna client_name; buscar client_id e
+          // resolver o nome via profiles (mesmo padrão do PerfilProfissionalModal).
           supabase
             .from('reviews')
-            .select('id, rating, comment, created_at, client_name')
+            .select('id, rating, comment, created_at, client_id')
             .eq('professional_id', profData.id)
             .order('created_at', { ascending: false })
             .limit(5)
-            .then(({ data }) => setReviews(data || []));
+            .then(async ({ data }) => {
+              const rows = (data ?? []) as unknown as Array<Omit<ReviewData, 'client_name'> & { client_id: string }>;
+              const clientIds = [...new Set(rows.map(r => r.client_id))];
+              const { data: profileRows } = clientIds.length
+                ? await supabase.from('profiles').select('id, full_name').in('id', clientIds)
+                : { data: [] as Array<{ id: string; full_name: string | null }> };
+              const nameById: Record<string, string | null> = Object.fromEntries(
+                (profileRows ?? []).map(p => [p.id, p.full_name])
+              );
+              setReviews(rows.map(r => ({
+                id: r.id, rating: r.rating, comment: r.comment, created_at: r.created_at,
+                client_name: nameById[r.client_id] ?? null,
+              })));
+            });
         }
         setLoading(false);
       });

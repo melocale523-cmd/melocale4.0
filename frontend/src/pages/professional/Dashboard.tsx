@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useDashboardData } from '../../hooks/useDashboardData';
-import { leadService, reviewService, subscriptionService } from '../../services/dbServices';
+import { leadService, reviewService } from '../../services/dbServices';
 import { useTheme } from '../../hooks/useTheme';
 import { apiFetch } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
@@ -30,7 +30,6 @@ const PLANS = SUBSCRIPTION_PLANS.map((p) => ({
 export default function ProfessionalDashboard() {
   const navigate = useNavigate();
   const {
-    user,
     profile,
     isLoading,
     balanceCoins,
@@ -70,13 +69,6 @@ export default function ProfessionalDashboard() {
     },
     enabled: !!profile?.professionalId,
     staleTime: 60_000,
-  });
-
-  const { data: currentSubscription } = useQuery({
-    queryKey: ['currentSubscription'],
-    retry: false,
-    refetchOnWindowFocus: false,
-    queryFn: subscriptionService.getCurrentSubscription,
   });
 
   const { data: percentileData } = useQuery({
@@ -147,7 +139,6 @@ export default function ProfessionalDashboard() {
     : 0;
 
   const avgRating = reviewsData?.average ?? 0;
-  const hasSubscription = !!currentSubscription;
   const cityFirstName = profile?.city ? profile.city.split(' - ')[0] : '';
 
   if (isLoading) {

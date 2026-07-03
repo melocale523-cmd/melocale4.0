@@ -216,6 +216,8 @@ export default function RequestWizard({
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) void supabase.from('wizard_funnel_events').insert({
         client_id: user.id, step, category: data.category || null,
+      }).then(({ error }) => {
+        if (error && import.meta.env.DEV) console.error('[wizard] funnel event error:', error.message);
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -277,6 +279,8 @@ export default function RequestWizard({
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) void supabase.from('wizard_funnel_events').insert({
         client_id: user.id, step: 5, category: data.category || null,
+      }).then(({ error }) => {
+        if (error && import.meta.env.DEV) console.error('[wizard] funnel event error:', error.message);
       });
     });
     onSubmit(data as WizardData);
