@@ -2115,6 +2115,8 @@ export type Database = {
           last_message_at: string | null
           lead_id: string | null
           prof_avatar_url: string | null
+          prof_category: string | null
+          prof_city: string | null
           prof_full_name: string | null
           professional_id: string | null
           professional_user_id: string | null
