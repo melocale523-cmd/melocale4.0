@@ -29,11 +29,18 @@
     <link rel="dns-prefetch" href="//ipinfo.io" />
     <link rel="dns-prefetch" href="//get.geojs.io" />
     <style>
-      /* Critical CSS inline — evita FOUC no hero */
-      *, *::before, *::after { box-sizing: border-box; margin: 0; }
-      html { scroll-behavior: smooth; }
-      body { background-color: #0E1C32; color: #e2e8f0; font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-      #root { min-height: 100vh; }
+      /* Critical CSS inline — evita FOUC no hero.
+         Envolvido em @layer base pra entrar na mesma cascade layer do
+         Preflight do Tailwind: sem isso, por estar fora de qualquer layer,
+         essas regras sempre venciam TODAS as classes do Tailwind (inclusive
+         space-y-*, mt-*, mb-*), já que CSS fora de layer tem prioridade
+         sobre CSS dentro de layer independente de especificidade ou ordem. */
+      @layer base {
+        *, *::before, *::after { box-sizing: border-box; margin: 0; }
+        html { scroll-behavior: smooth; }
+        body { background-color: #0E1C32; color: #e2e8f0; font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+        #root { min-height: 100vh; }
+      }
     </style>
     <!-- Preload hero images -->
     <link rel="preload" as="image" href="/hero-profissional.jpg" fetchpriority="high" />
