@@ -1,9 +1,10 @@
 import TransactionHistory from './TransactionHistory';
 import { PLAN_NAMES } from './constants';
 
+// 'deposit' | 'purchase' espelha o que walletService.txType realmente produz.
 interface Transaction {
   id: string;
-  type: 'deposit' | 'withdrawal';
+  type: 'deposit' | 'purchase';
   description: string;
   amount: number;
   created_at: string;

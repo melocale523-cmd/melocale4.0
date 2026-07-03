@@ -1,8 +1,10 @@
 import { Loader2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
+// 'deposit' | 'purchase' espelha o que walletService.txType realmente produz;
+// 'purchase' cai no ramo visual de débito (vermelho, sinal negativo).
 interface Transaction {
   id: string;
-  type: 'deposit' | 'withdrawal';
+  type: 'deposit' | 'purchase';
   description: string;
   amount: number;
   created_at: string;

@@ -140,7 +140,7 @@ export function ProfessionalProfileModal({ userId, name, avatar, onClose }: Prof
                     {reviews.map(r => (
                       <div key={r.id} style={{ background: '#0d1929', border: '1px solid #1C3050', borderRadius: '10px', padding: '12px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0' }}>{(r as Record<string, unknown>).client_name as string ?? 'Cliente'}</span>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0' }}>{r.client_name ?? 'Cliente'}</span>
                           <span style={{ fontSize: '11px', color: '#475569' }}>{new Date(r.created_at).toLocaleDateString('pt-BR')}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '2px', marginBottom: '6px' }}>
