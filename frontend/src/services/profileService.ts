@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { logService } from '../lib/logService';
+import type { Database } from '../database.types';
 
 interface ProfileRow {
   id: string;
@@ -61,7 +62,7 @@ export const clientProfileService = {
   }) {
     // Use UPDATE (not upsert) — the profile row is always created by the auth trigger;
     // upsert requires both INSERT and UPDATE RLS policies, UPDATE only needs the latter.
-    const payload: Record<string, unknown> = { full_name: data.name, phone: data.phone, city: data.city };
+    const payload: Database['public']['Tables']['profiles']['Update'] = { full_name: data.name, phone: data.phone, city: data.city };
     const optionalFields = ['cep', 'address_zipcode', 'address_street', 'address_number', 'address_block', 'address_complement', 'address_neighborhood', 'address_city', 'address_state'] as const;
     for (const f of optionalFields) {
       if (data[f] !== undefined) payload[f] = data[f];
@@ -78,7 +79,7 @@ export const clientProfileService = {
 
     // Sync address fields to the clients table (used by professionals for appointment location).
     // clients.id === profiles.id (same auth UUID) — direct update, no-op if row doesn't exist.
-    const clientPayload: Record<string, unknown> = {};
+    const clientPayload: Database['public']['Tables']['clients']['Update'] = {};
     if (data.address_street !== undefined)       clientPayload.address_street = data.address_street;
     if (data.address_number !== undefined)       clientPayload.address_number = data.address_number;
     if (data.address_block !== undefined)        clientPayload.address_block = data.address_block;
@@ -115,7 +116,7 @@ export const professionalAddressService = {
     city?: string;
   }) {
     // Use UPDATE (not upsert) — profile row always exists; avoids INSERT RLS check.
-    const payload: Record<string, unknown> = {};
+    const payload: Database['public']['Tables']['profiles']['Update'] = {};
     const fields = ['cep', 'address_zipcode', 'address_street', 'address_number', 'address_block', 'address_complement', 'address_neighborhood', 'address_city', 'address_state', 'city'] as const;
     for (const f of fields) {
       if (data[f] !== undefined) payload[f] = data[f];
