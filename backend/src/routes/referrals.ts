@@ -246,13 +246,15 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
     void supabaseAdmin.rpc('credit_cascade_referral', { p_level1_user_id: newUserId })
 
     // Creditar 20 moedas ao novo usuário por se cadastrar via indicação
-    void supabaseAdmin.rpc('credit_client_coins', {
+    // O query builder é um thenable preguiçoso: sem await a RPC nunca era executada.
+    const { error: signupCoinsErr } = await supabaseAdmin.rpc('credit_client_coins', {
       p_user_id: newUserId,
       p_amount: 20,
       p_kind: 'referral_signup',
       p_reference: `referral_signup_${newUserId}`,
       p_metadata: { referrer_code: code },
     })
+    if (signupCoinsErr) console.error('[referrals] credit_client_coins signup error:', signupCoinsErr.message)
 
     return res.json({ success: true, referral_id: referral.id })
   } catch (err) {
