@@ -266,7 +266,9 @@ export default function AdminDashboard() {
         ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
         : d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
       if (!map[key]) map[key] = { total: 0, subs: 0, moedas: 0, count: 0 };
-      const amt = p.amount ?? 0;
+      // payments.amount é em centavos — converter aqui deixa todo o pipeline
+      // do widget (cards, barras, meta, projeção) em reais.
+      const amt = (p.amount ?? 0) / 100;
       map[key].total += amt;
       if (p.package_id?.startsWith('plan_')) map[key].subs += amt;
       else map[key].moedas += amt;
@@ -296,7 +298,7 @@ export default function AdminDashboard() {
   const faturadoMesAtual = revData?.filter((p: { paid_at: string | null }) => {
     const d = new Date(p.paid_at ?? '');
     return d.getMonth() === hoje.getMonth() && d.getFullYear() === hoje.getFullYear();
-  }).reduce((a: number, p: { amount: number | null }) => a + (p.amount ?? 0), 0) ?? 0;
+  }).reduce((a: number, p: { amount: number | null }) => a + (p.amount ?? 0) / 100, 0) ?? 0;
   const projecaoMes = diaAtual > 0 ? Math.round((faturadoMesAtual / diaAtual) * diasNoMes) : 0;
   const metaPct = Math.min(Math.round((revTotal / Math.max(metaValue, 1)) * 100), 100);
   const metaProgBarColor = metaPct >= 70 ? '#10b981' : metaPct >= 40 ? '#f59e0b' : '#ef4444';
