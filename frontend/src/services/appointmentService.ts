@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { apiFetch } from '../lib/api';
+import type { Database } from '../database.types';
 
 export interface AppointmentClient {
   id: string;
@@ -128,7 +129,7 @@ export const appointmentService = {
     status: 'confirmed' | 'cancelled' | 'completed',
     opts?: { cancelledReason?: string; notifyUserId?: string }
   ): Promise<Appointment> {
-    const updates: Record<string, unknown> = { status, updated_at: new Date().toISOString() };
+    const updates: Database['public']['Tables']['appointments']['Update'] = { status, updated_at: new Date().toISOString() };
     if (opts?.cancelledReason !== undefined) updates.cancelled_reason = opts.cancelledReason;
 
     const { data: appt, error } = await supabase

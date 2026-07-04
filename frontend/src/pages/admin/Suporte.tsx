@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
+import type { Database } from '../../database.types';
 import { Bot, User, Loader2, ChevronDown, ChevronUp, Save, LifeBuoy, Clock, MapPin, MessageSquare, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -84,7 +85,7 @@ export default function AdminSuporte() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, status, note }: { id: string; status?: TicketStatus; note?: string }) => {
-      const payload: Record<string, unknown> = {};
+      const payload: Database['public']['Tables']['support_tickets']['Update'] = {};
       if (status !== undefined) {
         payload.status = status;
         const { data: current } = await supabase
