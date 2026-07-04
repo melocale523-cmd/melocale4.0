@@ -255,16 +255,16 @@ export default function ChatLayout({ role }: ChatLayoutProps) {
                       {isOtherUserOnline ? 'Online' : 'Offline'}
                     </span>
                   </div>
-                  {role === 'client' && ((activeConversation as Record<string, unknown>).prof_category || (activeConversation as Record<string, unknown>).prof_city) && (
+                  {role === 'client' && (activeConversation.prof_category || activeConversation.prof_city) && (
                     <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
-                      {(activeConversation as Record<string, unknown>).prof_category && (
-                        <span style={{ fontSize: '10px', color: '#64748b' }}>{String((activeConversation as Record<string, unknown>).prof_category)}</span>
+                      {activeConversation.prof_category && (
+                        <span style={{ fontSize: '10px', color: '#64748b' }}>{activeConversation.prof_category}</span>
                       )}
-                      {(activeConversation as Record<string, unknown>).prof_category && (activeConversation as Record<string, unknown>).prof_city && (
+                      {activeConversation.prof_category && activeConversation.prof_city && (
                         <span style={{ fontSize: '10px', color: '#1C3050' }}>·</span>
                       )}
-                      {(activeConversation as Record<string, unknown>).prof_city && (
-                        <span style={{ fontSize: '10px', color: '#64748b' }}>{String((activeConversation as Record<string, unknown>).prof_city)}</span>
+                      {activeConversation.prof_city && (
+                        <span style={{ fontSize: '10px', color: '#64748b' }}>{activeConversation.prof_city}</span>
                       )}
                     </div>
                   )}

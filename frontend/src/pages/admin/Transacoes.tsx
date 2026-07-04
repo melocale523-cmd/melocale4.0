@@ -39,11 +39,15 @@ export default function AdminTransacoes() {
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: async () => {
+      // .returns: o typegen infere professionals() como array, mas a relação
+      // wallet_transactions → professionals é many-to-one e o PostgREST
+      // retorna objeto em runtime.
       const { data, error } = await supabase
         .from('wallet_transactions')
         .select('*, professionals(user_id, profiles(full_name))')
         .order('created_at', { ascending: false })
-        .limit(200);
+        .limit(200)
+        .returns<Transaction[]>();
       if (error) throw error;
       return data ?? [];
     },

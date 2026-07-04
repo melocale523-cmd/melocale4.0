@@ -82,7 +82,9 @@ export const leadService = {
       body: JSON.stringify({ event_type: 'lead_purchased', resource_id: leadId }),
     });
 
-    return data as PurchaseLeadResult;
+    // A RPC retorna Json genérico; o cast via unknown documenta que a forma
+    // é garantida pelo contrato da função purchase_lead, não pelo typegen.
+    return data as unknown as PurchaseLeadResult;
   },
 
   async getMyPurchases() {
@@ -381,8 +383,11 @@ export const proposalService = {
 
     if (error) throw error;
 
-    if (!data?.success) {
-      const code = data?.error as string | undefined;
+    // A RPC retorna Json genérico; a forma { success, error } é o contrato
+    // da função respond_proposal no banco.
+    const result = data as { success?: boolean; error?: string } | null;
+    if (!result?.success) {
+      const code = result?.error;
       const messages: Record<string, string> = {
         purchase_not_found: 'Proposta não encontrada.',
         invalid_status: 'Esta proposta não pode ser respondida no estado atual.',

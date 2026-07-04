@@ -393,8 +393,17 @@ export const adminService = {
     }
   },
 
-  async updateCoinPackage(id: string, updates: Record<string, unknown>) {
-    const { error } = await supabase.from('coin_packages').update(updates).eq('id', id);
+  async updateCoinPackage(id: string, updates: { name?: string; coins?: number; price?: number; bonus_coins?: number; display_order?: number; is_active?: boolean }) {
+    // .select() para detectar update de 0 linhas: sem isso, RLS bloqueando a
+    // escrita não gera erro e o toast de sucesso mentia.
+    const { data, error } = await supabase.from('coin_packages').update(updates).eq('id', id).select('id');
+    if (error) throw error;
+    if (!data || data.length === 0) throw new Error('Nenhum pacote foi atualizado — verifique a permissão de admin.');
+    return true;
+  },
+
+  async createCoinPackage(pkg: { id: string; name: string; coins: number; price: number; bonus_coins?: number; display_order?: number; is_active?: boolean }) {
+    const { error } = await supabase.from('coin_packages').insert(pkg);
     if (error) throw error;
     return true;
   },

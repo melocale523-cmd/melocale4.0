@@ -217,7 +217,7 @@ export default function ProfessionalLayout() {
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white/20 border border-white/40 dark:bg-yellow-500/10 dark:border-yellow-500/20 rounded-lg">
               <Wallet size={16} className="text-white dark:text-yellow-400" />
               <span className="text-lg font-mono font-bold text-white dark:text-yellow-400">
-                {isLoading ? '...' : (typeof balance === 'object' && balance !== null && 'balance_coins' in balance ? Math.floor(balance.balance_coins) : Math.floor(typeof balance === 'number' ? balance : 0))} moedas
+                {isLoading ? '...' : Math.floor(balance ?? 0)} moedas
               </span>
             </div>
             <ThemeToggle />

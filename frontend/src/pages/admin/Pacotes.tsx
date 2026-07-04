@@ -1,13 +1,27 @@
 import { useState } from 'react';
-import { Plus, Edit2, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Edit2, Loader2, ToggleLeft, ToggleRight, X } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../services/dbServices';
 import { toast } from 'sonner';
+
+interface PacoteForm {
+  id: string;
+  name: string;
+  price: string;
+  coins: string;
+  bonus_coins: string;
+  display_order: string;
+  is_active: boolean;
+}
+
+const EMPTY_FORM: PacoteForm = { id: '', name: '', price: '', coins: '', bonus_coins: '0', display_order: '0', is_active: true };
 
 export default function AdminPacotes() {
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<PacoteForm>(EMPTY_FORM);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const { data: pacotes, isLoading } = useQuery({
     queryKey: ['adminPacotes'],
@@ -24,6 +38,80 @@ export default function AdminPacotes() {
     onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'Erro ao atualizar pacote'),
   });
 
+  const saveMutation = useMutation({
+    mutationFn: (payload: { id: string; name: string; coins: number; price: number; bonus_coins: number; display_order: number; is_active: boolean }) =>
+      editingId
+        ? adminService.updateCoinPackage(editingId, {
+            name: payload.name, coins: payload.coins, price: payload.price,
+            bonus_coins: payload.bonus_coins, display_order: payload.display_order, is_active: payload.is_active,
+          })
+        : adminService.createCoinPackage(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminPacotes'] });
+      toast.success(editingId ? 'Pacote atualizado com sucesso' : 'Pacote criado com sucesso');
+      closeModal();
+    },
+    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'Erro ao salvar pacote'),
+  });
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setFormError(null);
+    setShowModal(true);
+  };
+
+  const openEdit = (pacote: { id: string; name: string; price: number; coins: number; bonus_coins: number | null; display_order: number | null; is_active: boolean | null }) => {
+    setEditingId(pacote.id);
+    setForm({
+      id: pacote.id,
+      name: pacote.name,
+      price: pacote.price != null ? String(pacote.price).replace('.', ',') : '',
+      coins: String(pacote.coins ?? ''),
+      bonus_coins: String(pacote.bonus_coins ?? 0),
+      display_order: String(pacote.display_order ?? 0),
+      is_active: pacote.is_active ?? true,
+    });
+    setFormError(null);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setFormError(null);
+  };
+
+  const handleSubmit = () => {
+    const id = form.id.trim();
+    const name = form.name.trim();
+    const price = Number(form.price.replace(',', '.'));
+    const coins = Number(form.coins);
+    const bonusCoins = Number(form.bonus_coins || 0);
+    const displayOrder = Number(form.display_order || 0);
+
+    if (!editingId && !id) return setFormError('Informe o ID do pacote (ex: pack_starter).');
+    if (!editingId && !/^[a-z0-9_-]+$/.test(id)) return setFormError('ID deve conter apenas letras minúsculas, números, hífen e underscore.');
+    if (!editingId && pacotes?.some(p => p.id === id)) return setFormError(`Já existe um pacote com o ID "${id}".`);
+    if (!name) return setFormError('Informe o nome do pacote.');
+    if (!Number.isFinite(price) || price <= 0) return setFormError('Preço deve ser um número maior que zero.');
+    if (!Number.isInteger(coins) || coins <= 0) return setFormError('Quantidade de moedas deve ser um inteiro maior que zero.');
+    if (!Number.isInteger(bonusCoins) || bonusCoins < 0) return setFormError('Bônus deve ser um inteiro maior ou igual a zero.');
+    if (!Number.isInteger(displayOrder) || displayOrder < 0) return setFormError('Ordem de exibição deve ser um inteiro maior ou igual a zero.');
+
+    setFormError(null);
+    saveMutation.mutate({ id, name, coins, price, bonus_coins: bonusCoins, display_order: displayOrder, is_active: form.is_active });
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', boxSizing: 'border-box',
+    background: '#132540', border: '1px solid rgba(255,255,255,.1)',
+    color: 'white', borderRadius: 8, padding: '8px 12px',
+    fontSize: 14, outline: 'none',
+  };
+  const labelStyle: React.CSSProperties = { fontSize: 12, color: '#4a6580', marginBottom: 6, fontWeight: 600, display: 'block' };
+
   return (
     <div className="space-y-11 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-9">
@@ -31,8 +119,8 @@ export default function AdminPacotes() {
           <h1 className="text-2xl font-bold text-slate-100">Gerenciamento de Pacotes de Moedas</h1>
           <p className="text-[#94A3B8] mt-6">Configure os pacotes avulsos disponíveis para os profissionais comprarem lideranças</p>
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
+        <button
+          onClick={openCreate}
           className="flex items-center gap-7 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-medium transition-colors"
         >
           <Plus size={18} /> Novo Pacote
@@ -74,7 +162,10 @@ export default function AdminPacotes() {
                 </div>
 
                <div className="flex items-center gap-8 mt-auto pt-6 border-t border-[#1C3050] z-10 relative">
-                  <button className="flex-1 flex items-center justify-center gap-7 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-colors text-sm font-medium">
+                  <button
+                    onClick={() => openEdit(pacote)}
+                    className="flex-1 flex items-center justify-center gap-7 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-colors text-sm font-medium"
+                  >
                     <Edit2 size={16} /> Editar
                   </button>
                   <button
@@ -88,6 +179,137 @@ export default function AdminPacotes() {
                </div>
              </div>
            ))}
+        </div>
+      )}
+
+      {showModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(6px)' }} onClick={closeModal} />
+          <div style={{ position: 'relative', width: '100%', maxWidth: 440, background: '#0E1C32', border: '1px solid rgba(255,255,255,.09)', borderRadius: 20, overflow: 'hidden', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#10b981,#059669)' }} />
+
+            <div style={{ background: '#132540', padding: '1.25rem', paddingTop: '1.5rem', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: 0 }}>
+                {editingId ? `Editar pacote — ${form.name || editingId}` : 'Novo pacote de moedas'}
+              </p>
+              <button onClick={closeModal} style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(0,0,0,.3)', border: 'none', color: '#4a6580', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={14} />
+              </button>
+            </div>
+
+            <div style={{ overflowY: 'auto', flex: 1, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+              {!editingId && (
+                <div>
+                  <label style={labelStyle}>ID do pacote *</label>
+                  <input
+                    type="text"
+                    placeholder="ex: pack_starter"
+                    value={form.id}
+                    onChange={e => setForm(f => ({ ...f, id: e.target.value }))}
+                    style={inputStyle}
+                  />
+                  <p style={{ fontSize: 10, color: '#4a6580', margin: '4px 0 0' }}>Identificador único usado no checkout — não pode ser alterado depois.</p>
+                </div>
+              )}
+
+              <div>
+                <label style={labelStyle}>Nome *</label>
+                <input
+                  type="text"
+                  placeholder="ex: Básico"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  style={inputStyle}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
+                <div>
+                  <label style={labelStyle}>Preço (R$) *</label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="24,90"
+                    value={form.price}
+                    onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Moedas *</label>
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="60"
+                    value={form.coins}
+                    onChange={e => setForm(f => ({ ...f, coins: e.target.value }))}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
+                <div>
+                  <label style={labelStyle}>Moedas bônus</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={form.bonus_coins}
+                    onChange={e => setForm(f => ({ ...f, bonus_coins: e.target.value }))}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Ordem de exibição</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={form.display_order}
+                    onChange={e => setForm(f => ({ ...f, display_order: e.target.value }))}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={() => setForm(f => ({ ...f, is_active: !f.is_active }))}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  background: form.is_active ? 'rgba(16,185,129,.08)' : 'rgba(0,0,0,.2)',
+                  border: `1px solid ${form.is_active ? 'rgba(16,185,129,.25)' : 'rgba(255,255,255,.08)'}`,
+                  borderRadius: 8, padding: '0.625rem 0.875rem', cursor: 'pointer', width: '100%',
+                }}
+              >
+                <span style={{ fontSize: 13, color: form.is_active ? '#34d399' : '#94a3b8', fontWeight: 600 }}>
+                  {form.is_active ? 'Pacote ativo — visível para compra' : 'Pacote inativo — oculto da loja'}
+                </span>
+                {form.is_active ? <ToggleRight size={20} color="#34d399" /> : <ToggleLeft size={20} color="#4a6580" />}
+              </button>
+
+              {formError && (
+                <p style={{ fontSize: 12, color: '#f87171', background: 'rgba(248,113,113,.08)', border: '1px solid rgba(248,113,113,.2)', borderRadius: 8, padding: '0.5rem 0.75rem', margin: 0 }}>
+                  {formError}
+                </p>
+              )}
+            </div>
+
+            <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid rgba(255,255,255,.06)', display: 'flex', gap: '0.75rem', flexShrink: 0 }}>
+              <button
+                onClick={closeModal}
+                style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.08)', color: '#94a3b8', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={saveMutation.isPending}
+                style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: 'linear-gradient(90deg,#10b981,#059669)', border: 'none', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: saveMutation.isPending ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              >
+                {saveMutation.isPending && <Loader2 size={14} className="animate-spin" />}
+                {editingId ? 'Salvar alterações' : 'Criar pacote'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
