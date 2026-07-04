@@ -62,6 +62,7 @@ const AdminSuporte = lazy(() => import('./pages/admin/Suporte'));
 const AdminTestes = lazy(() => import('./pages/admin/Testes'));
 const AdminRelatorios = lazy(() => import('./pages/admin/Relatorios'));
 const AdminSaques = lazy(() => import('./pages/admin/Saques'));
+const AdminPedidos = lazy(() => import('./pages/admin/Pedidos'));
 const AdminRanking = lazy(() => import('./pages/admin/Ranking'));
 const AdminLandingPreview = lazy(() => import('./pages/admin/LandingPreview'));
 
@@ -323,6 +324,7 @@ const router = createBrowserRouter([
           { path: 'pacotes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense></ErrorBoundary> },
           { path: 'categorias', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminCategorias /></Suspense></ErrorBoundary> },
           { path: 'transacoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminTransacoes /></Suspense></ErrorBoundary> },
+          { path: 'pedidos', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPedidos /></Suspense></ErrorBoundary> },
           { path: 'saques', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSaques /></Suspense></ErrorBoundary> },
           { path: 'ranking', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminRanking /></Suspense></ErrorBoundary> },
           { path: 'landing', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminLandingPreview /></Suspense></ErrorBoundary> },
