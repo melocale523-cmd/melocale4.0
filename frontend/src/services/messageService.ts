@@ -16,6 +16,8 @@ interface VConversationRow {
   prof_avatar_url?: string | null;
   client_full_name?: string | null;
   client_avatar_url?: string | null;
+  prof_category?: string | null;
+  prof_city?: string | null;
 }
 
 export const chatService = {
@@ -25,7 +27,7 @@ export const chatService = {
 
     const { data, error } = await supabase
       .from('v_conversations')
-      .select('id,client_id,professional_id,professional_user_id,lead_id,last_message_at,created_at,unread_for_prof,unread_for_client,last_message,prof_full_name,prof_avatar_url,client_full_name,client_avatar_url')
+      .select('id,client_id,professional_id,professional_user_id,lead_id,last_message_at,created_at,unread_for_prof,unread_for_client,last_message,prof_full_name,prof_avatar_url,client_full_name,client_avatar_url,prof_category,prof_city')
       .or(`client_id.eq.${user.id},professional_user_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
@@ -49,6 +51,8 @@ export const chatService = {
         full_name: conv.client_full_name ?? null,
         avatar_url: conv.client_avatar_url ?? null,
       },
+      prof_category: conv.prof_category ?? null,
+      prof_city: conv.prof_city ?? null,
       leadTitle: null as string | null,
     }));
 
