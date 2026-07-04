@@ -2502,6 +2502,32 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_get_leads_overview: {
+        Args: never
+        Returns: {
+          budget_max: number
+          budget_min: number
+          category: string
+          category_color: string
+          category_icon: string
+          city: string
+          client_id: string
+          client_name: string
+          created_at: string
+          description: string
+          first_notified_at: string
+          first_proposal_at: string
+          id: string
+          location: string
+          notified_count: number
+          purchases_count: number
+          state: string
+          status: string
+          title: string
+          updated_at: string
+          visualizacoes: number
+        }[]
+      }
       admin_get_pending_professionals: {
         Args: never
         Returns: {
