@@ -1,3 +1,7 @@
+# Os jobs "TypeScript" e "TypeScript (backend)" são required status checks
+# na proteção da branch main (decisão de 2026-07-04, pós-zeragem do tsc).
+# Não renomear/remover esses jobs sem atualizar a proteção de branch junto —
+# senão todo PR fica travado esperando um check que nunca vai rodar.
 name: CI
 
 on:

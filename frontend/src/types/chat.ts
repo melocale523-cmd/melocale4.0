@@ -32,9 +32,6 @@ export interface ConversationWithProfiles {
   prof_profile: ProfileData | null;
   client_profile: ProfileData | null;
   leadTitle?: string | null;
-  // Nunca preenchidos por chatService.getChats hoje (a v_conversations não expõe
-  // essas colunas) — o badge categoria · cidade do ChatLayout só renderiza se
-  // esses campos passarem a ser buscados.
   prof_category?: string | null;
   prof_city?: string | null;
 }
