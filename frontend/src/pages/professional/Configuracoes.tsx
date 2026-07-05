@@ -26,9 +26,12 @@ export default function ProfessionalConfiguracoes() {
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [savingPassword, setSavingPassword] = useState(false);
 
-  // Load persisted preferences on mount
+  // Load persisted preferences on mount + Realtime para refletir mudanças
+  // feitas em outra aba/dispositivo (ex.: webhook marca whatsapp_connected)
   useEffect(() => {
     let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
     async function loadPrefs() {
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
@@ -50,9 +53,40 @@ export default function ProfessionalConfiguracoes() {
         }));
         setWhatsappConnected(data.whatsapp_connected === true);
       }
+      if (cancelled) return;
+
+      // Badge "Conectado" aparece sem refresh: atualiza direto do payload
+      // do UPDATE, sem refetch (tabela está na publication supabase_realtime;
+      // RLS limita os eventos à própria linha do usuário)
+      channel = supabase
+        .channel(`user-notification-prefs-${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'user_notification_preferences',
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => {
+            const row = payload.new as {
+              whatsapp_connected?: boolean | null;
+              whatsapp_marketing_opt_in?: boolean | null;
+            };
+            setWhatsappConnected(row.whatsapp_connected === true);
+            if (typeof row.whatsapp_marketing_opt_in === 'boolean') {
+              setNotifications(prev => ({ ...prev, whatsappNewLead: row.whatsapp_marketing_opt_in as boolean }));
+            }
+          },
+        )
+        .subscribe();
     }
+
     loadPrefs();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      if (channel) supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleSaveNotifications = async () => {
