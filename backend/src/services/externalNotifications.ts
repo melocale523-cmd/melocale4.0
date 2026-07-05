@@ -28,7 +28,10 @@ async function getUserPhone(userId: string): Promise<string | null> {
 /**
  * Novo pedido na categoria/cidade → notifica profissionais por email e
  * WhatsApp (mesmo ponto da notificação in-app de lead).
- * Opt-out: coluna email_new_lead em user_notification_preferences.
+ * Email: opt-out via email_new_lead.
+ * WhatsApp: template Marketing — exige whatsapp_marketing_opt_in = true
+ * (consentimento no cadastro) E whatsapp_connected = true (confirmação
+ * técnica via webhook).
  */
 export async function notifyProfessionalsNewLead(
   userIds: string[],
@@ -38,18 +41,25 @@ export async function notifyProfessionalsNewLead(
   await Promise.all(userIds.map(async (userId) => {
     try {
       const email = await getOptedInEmail(userId, "email_new_lead");
-      if (!email) return;
+      if (email) await sendEmail(email, subject, html);
 
-      await sendEmail(email, subject, html);
+      const { data: pref } = await supabaseAdmin
+        .from("user_notification_preferences")
+        .select("whatsapp_marketing_opt_in, whatsapp_connected")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const row = pref as { whatsapp_marketing_opt_in?: boolean | null; whatsapp_connected?: boolean | null } | null;
+      const whatsappAllowed = row?.whatsapp_marketing_opt_in === true && row?.whatsapp_connected === true;
+      if (!whatsappAllowed) return;
 
-      // WhatsApp usa o mesmo opt-out por evento (email habilitado = envia)
       const phone = await getUserPhone(userId);
       if (phone) {
-        await sendWhatsAppTemplate(phone, WHATSAPP_TEMPLATES.NEW_LEAD, {
-          categoria: lead.category,
-          cidade: lead.location,
-          titulo: lead.leadTitle,
-        });
+        // {{1}}=categoria, {{2}}=cidade, {{3}}=descrição
+        await sendWhatsAppTemplate(phone, WHATSAPP_TEMPLATES.NEW_LEAD, [
+          lead.category,
+          lead.location,
+          lead.leadTitle,
+        ]);
       }
     } catch (err) {
       console.error(`[extern-notif] new_lead falhou para ${userId}:`, err instanceof Error ? err.message : String(err));
@@ -75,9 +85,8 @@ export async function notifyClientProposalReceived(
 
     const phone = await getUserPhone(clientId);
     if (phone) {
-      await sendWhatsAppTemplate(phone, WHATSAPP_TEMPLATES.PROPOSAL_RECEIVED, {
-        profissional: professionalName,
-      });
+      // {{1}}=nome do profissional
+      await sendWhatsAppTemplate(phone, WHATSAPP_TEMPLATES.PROPOSAL_RECEIVED, [professionalName]);
     }
   } catch (err) {
     console.error(`[extern-notif] proposal_received falhou para ${clientId}:`, err instanceof Error ? err.message : String(err));

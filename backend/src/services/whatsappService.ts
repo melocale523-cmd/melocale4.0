@@ -81,21 +81,21 @@ export async function sendWhatsAppText(to: string, body: string): Promise<WhatsA
 
 /**
  * Mensagem via template aprovado pela Meta (funciona fora da janela 24h).
- * `variables` são parâmetros nomeados na ordem/nome definidos no template.
+ * `variables` são os parâmetros POSICIONAIS do body ({{1}}, {{2}}, ...),
+ * na ordem definida no template submetido à Meta.
  * Early-return silencioso se as env vars não estão configuradas — nunca
  * quebra o fluxo principal.
  */
 export async function sendWhatsAppTemplate(
   to: string,
   templateName: string,
-  variables: Record<string, string>
+  variables: string[]
 ): Promise<WhatsAppSendResult> {
   if (!whatsappConfigured()) {
     return { ok: false, error: "WhatsApp não configurado (env vars ausentes)" };
   }
-  const parameters = Object.entries(variables).map(([name, text]) => ({
+  const parameters = variables.map((text) => ({
     type: "text" as const,
-    parameter_name: name,
     text,
   }));
   return postToGraphApi({

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Settings, Bell, Lock, Shield, Loader2, CheckCircle2 } from 'lucide-react';
+import { Settings, Bell, Lock, Shield, Loader2, CheckCircle2, MessageCircle } from 'lucide-react';
+import { getWhatsAppConnectLink } from '../../lib/whatsappConnect';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore';
@@ -15,7 +16,9 @@ export default function ProfessionalConfiguracoes() {
     appointmentCancelled: true,
     messages: true,
     promotions: false,
+    whatsappNewLead: true,
   });
+  const [whatsappConnected, setWhatsappConnected] = useState(false);
 
   const [savingNotifications, setSavingNotifications] = useState(false);
 
@@ -43,7 +46,9 @@ export default function ProfessionalConfiguracoes() {
           promotions: data.push_enabled,
           appointmentConfirmed: data.appointment_confirmed,
           appointmentCancelled: data.appointment_cancelled,
+          whatsappNewLead: data.whatsapp_marketing_opt_in ?? true,
         }));
+        setWhatsappConnected(data.whatsapp_connected === true);
       }
     }
     loadPrefs();
@@ -65,6 +70,7 @@ export default function ProfessionalConfiguracoes() {
           push_enabled: notifications.promotions,
           appointment_confirmed: notifications.appointmentConfirmed,
           appointment_cancelled: notifications.appointmentCancelled,
+          whatsapp_marketing_opt_in: notifications.whatsappNewLead,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
       if (error) throw error;
@@ -180,22 +186,44 @@ export default function ProfessionalConfiguracoes() {
         <div style={{ display:'flex', flexDirection:'column', gap:'0' }}>
           {[
             { key:'newLead', label:'Novo lead disponível', desc:'Quando um cliente solicitar um serviço na sua área' },
+            { key:'whatsappNewLead', label:'Novo pedido disponível — WhatsApp', desc:'Receba aviso de novos pedidos direto no seu WhatsApp' },
             { key:'appointmentConfirmed', label:'Agendamento confirmado', desc:'Quando um cliente confirmar um agendamento' },
             { key:'appointmentCancelled', label:'Agendamento cancelado', desc:'Quando um cliente cancelar um agendamento' },
             { key:'messages', label:'Mensagens', desc:'Quando receber uma nova mensagem' },
             { key:'promotions', label:'Promoções e novidades', desc:'Ofertas especiais e atualizações da plataforma' },
-          ].map(({ key, label, desc }, i, arr) => (
+          ].map(({ key, label, desc }, i, arr) => {
+            const isWhatsappRow = key === 'whatsappNewLead';
+            // Toggle "ligado" do WhatsApp reflete o estado real: só ligado quando conectado
+            const isOn = isWhatsappRow
+              ? notifications.whatsappNewLead && whatsappConnected
+              : notifications[key as keyof typeof notifications];
+            return (
             <div key={key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', padding:'0.875rem 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none' }}>
               <div>
-                <p style={{ fontSize:'0.8125rem', fontWeight:500, color: notifications[key as keyof typeof notifications] ? 'white' : '#94a3b8', marginBottom:'0.125rem' }}>{label}</p>
+                <p style={{ fontSize:'0.8125rem', fontWeight:500, color: isOn ? 'white' : '#94a3b8', marginBottom:'0.125rem', display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                  {label}
+                  {isWhatsappRow && whatsappConnected && (
+                    <span style={{ fontSize:'0.5625rem', fontWeight:700, padding:'2px 8px', borderRadius:'1rem', background:'rgba(16,185,129,.12)', color:'#34d399', border:'1px solid rgba(16,185,129,.25)', textTransform:'uppercase', letterSpacing:'.06em' }}>
+                      Conectado
+                    </span>
+                  )}
+                </p>
                 <p style={{ fontSize:'0.6875rem', color:'#4A6580' }}>{desc}</p>
+                {isWhatsappRow && notifications.whatsappNewLead && !whatsappConnected && (
+                  <a href={getWhatsAppConnectLink()} target="_blank" rel="noopener noreferrer"
+                    style={{ marginTop:'0.5rem', display:'inline-flex', alignItems:'center', gap:6, height:'1.875rem', padding:'0 0.75rem', background:'rgba(16,185,129,.12)', border:'1px solid rgba(16,185,129,.35)', borderRadius:'0.5rem', color:'#34d399', fontSize:'0.6875rem', fontWeight:700, textDecoration:'none' }}>
+                    <MessageCircle size={12} />
+                    Conectar WhatsApp
+                  </a>
+                )}
               </div>
-              <button role="switch" aria-checked={notifications[key as keyof typeof notifications]} onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key as keyof typeof notifications] }))}
-                style={{ position:'relative', flexShrink:0, width:'2.5rem', height:'1.5rem', borderRadius:'0.75rem', border:'none', cursor:'pointer', background: notifications[key as keyof typeof notifications] ? '#10b981' : '#1C3050', transition:'background .2s' }}>
-                <span style={{ position:'absolute', top:'0.25rem', width:'1rem', height:'1rem', borderRadius:'50%', background:'white', transition:'left .2s', left: notifications[key as keyof typeof notifications] ? '1.25rem' : '0.25rem' }} />
+              <button role="switch" aria-checked={isOn} onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key as keyof typeof notifications] }))}
+                style={{ position:'relative', flexShrink:0, width:'2.5rem', height:'1.5rem', borderRadius:'0.75rem', border:'none', cursor:'pointer', background: isOn ? '#10b981' : '#1C3050', transition:'background .2s' }}>
+                <span style={{ position:'absolute', top:'0.25rem', width:'1rem', height:'1rem', borderRadius:'50%', background:'white', transition:'left .2s', left: isOn ? '1.25rem' : '0.25rem' }} />
               </button>
             </div>
-          ))}
+            );
+          })}
         </div>
         <div style={{ marginTop:'1rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,.04)' }}>
           <button onClick={handleSaveNotifications} disabled={savingNotifications} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#10b981,#059669)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 12px rgba(16,185,129,.2)', opacity: savingNotifications ? .6 : 1 }}>

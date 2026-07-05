@@ -1551,6 +1551,8 @@ export type Database = {
           push_enabled: boolean | null
           updated_at: string | null
           user_id: string
+          whatsapp_connected: boolean | null
+          whatsapp_marketing_opt_in: boolean | null
         }
         Insert: {
           appointment_cancelled?: boolean
@@ -1560,6 +1562,8 @@ export type Database = {
           push_enabled?: boolean | null
           updated_at?: string | null
           user_id: string
+          whatsapp_connected?: boolean | null
+          whatsapp_marketing_opt_in?: boolean | null
         }
         Update: {
           appointment_cancelled?: boolean
@@ -1569,6 +1573,8 @@ export type Database = {
           push_enabled?: boolean | null
           updated_at?: string | null
           user_id?: string
+          whatsapp_connected?: boolean | null
+          whatsapp_marketing_opt_in?: boolean | null
         }
         Relationships: []
       }
