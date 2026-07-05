@@ -99,9 +99,16 @@ async function connectProfessionalByWaId(waId: string): Promise<boolean> {
 }
 
 export async function whatsappWebhookHandler(req: Request, res: Response) {
+  // Log incondicional de entrada — prova se o POST da Meta chega ao processo
+  console.log(`[wa-webhook] POST recebido ${new Date().toISOString()} ct=${req.header("content-type") ?? "?"} sig=${req.header("x-hub-signature-256") ? "presente" : "AUSENTE"} len=${req.header("content-length") ?? "?"}`);
+
   const rawBody = req.body as Buffer;
-  if (!Buffer.isBuffer(rawBody)) return res.sendStatus(400);
+  if (!Buffer.isBuffer(rawBody)) {
+    console.error("[wa-webhook] body não é Buffer (content-type inesperado?) — 400");
+    return res.sendStatus(400);
+  }
   if (!isValidSignature(rawBody, req.header("x-hub-signature-256"))) {
+    console.error("[wa-webhook] assinatura X-Hub-Signature-256 inválida — 401 (conferir WHATSAPP_APP_SECRET no Render × App Secret do app na Meta)");
     return res.sendStatus(401);
   }
 
