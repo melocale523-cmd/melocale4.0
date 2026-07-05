@@ -1,7 +1,7 @@
 // Número business do WhatsApp Cloud API (WHATSAPP_PHONE_NUMBER_ID=1257819924070892).
 // E.164 sem "+". Pode ser sobrescrito via env se o número mudar.
 export const WHATSAPP_BUSINESS_NUMBER =
-  (import.meta.env.VITE_WHATSAPP_BUSINESS_NUMBER as string | undefined) || '5574999969568';
+  (import.meta.env.VITE_WHATSAPP_BUSINESS_NUMBER as string | undefined) || '5574999669568';
 
 const CONNECT_MESSAGE = 'Quero receber notificações de novos pedidos';
 
