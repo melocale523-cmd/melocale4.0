@@ -197,6 +197,19 @@ export default function ProfessionalConfiguracoes() {
             const isOn = isWhatsappRow
               ? notifications.whatsappNewLead && whatsappConnected
               : notifications[key as keyof typeof notifications];
+            // Enquanto não conectado e com opt-in já dado, o toggle não alterna
+            // o consentimento: clicar nele abre o link de conexão — conectar é
+            // a única forma de avançar o estado. Com opt-in desligado, o clique
+            // religa o consentimento (e o botão "Conectar WhatsApp" reaparece).
+            // Só depois de conectado o toggle liga/desliga normalmente.
+            const isWhatsappLocked = isWhatsappRow && !whatsappConnected && notifications.whatsappNewLead;
+            const handleToggle = () => {
+              if (isWhatsappLocked) {
+                window.open(getWhatsAppConnectLink(), '_blank', 'noopener,noreferrer');
+                return;
+              }
+              setNotifications(prev => ({ ...prev, [key]: !prev[key as keyof typeof notifications] }));
+            };
             return (
             <div key={key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', padding:'0.875rem 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none' }}>
               <div>
@@ -217,8 +230,9 @@ export default function ProfessionalConfiguracoes() {
                   </a>
                 )}
               </div>
-              <button role="switch" aria-checked={isOn} onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key as keyof typeof notifications] }))}
-                style={{ position:'relative', flexShrink:0, width:'2.5rem', height:'1.5rem', borderRadius:'0.75rem', border:'none', cursor:'pointer', background: isOn ? '#10b981' : '#1C3050', transition:'background .2s' }}>
+              <button role="switch" aria-checked={isOn} aria-disabled={isWhatsappLocked} onClick={handleToggle}
+                title={isWhatsappLocked ? 'Conecte seu WhatsApp para ativar' : undefined}
+                style={{ position:'relative', flexShrink:0, width:'2.5rem', height:'1.5rem', borderRadius:'0.75rem', border:'none', cursor:'pointer', background: isOn ? '#10b981' : '#1C3050', transition:'background .2s', opacity: isWhatsappLocked ? .45 : 1 }}>
                 <span style={{ position:'absolute', top:'0.25rem', width:'1rem', height:'1rem', borderRadius:'50%', background:'white', transition:'left .2s', left: isOn ? '1.25rem' : '0.25rem' }} />
               </button>
             </div>
