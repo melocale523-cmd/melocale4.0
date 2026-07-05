@@ -1,6 +1,7 @@
 import {
   Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight,
   TrendingUp, Users, Activity, Star, Loader2, Zap, Crown, Check, CalendarPlus, X, Coins,
+  MessageCircle,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +15,7 @@ import { apiFetch } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
 import { SUBSCRIPTION_PLANS } from './assinatura/constants';
+import { getWhatsAppConnectLink, WHATSAPP_BANNER_DISMISSED_KEY } from '../../lib/whatsappConnect';
 
 // Mesma fonte de verdade da página real de assinatura (assinatura/constants.ts,
 // que reflete backend/src/config.ts) — evita repetir os preços/nomes fictícios
@@ -104,6 +106,35 @@ export default function ProfessionalDashboard() {
 
   const [featuredBusy, setFeaturedBusy] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
+
+  // Banner "conectar WhatsApp" — fechável, não reaparece (localStorage)
+  const [waBannerDismissed, setWaBannerDismissed] = useState(
+    () => localStorage.getItem(WHATSAPP_BANNER_DISMISSED_KEY) === '1'
+  );
+  const { data: waPrefs } = useQuery({
+    queryKey: ['whatsappPrefs'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const uid = session?.user?.id;
+      if (!uid) return null;
+      const { data } = await supabase
+        .from('user_notification_preferences')
+        .select('whatsapp_marketing_opt_in, whatsapp_connected')
+        .eq('user_id', uid)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !waBannerDismissed,
+    staleTime: 60_000,
+  });
+  const showWaBanner =
+    !waBannerDismissed &&
+    waPrefs?.whatsapp_marketing_opt_in === true &&
+    waPrefs?.whatsapp_connected !== true;
+  const dismissWaBanner = () => {
+    localStorage.setItem(WHATSAPP_BANNER_DISMISSED_KEY, '1');
+    setWaBannerDismissed(true);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -214,6 +245,33 @@ export default function ProfessionalDashboard() {
           <Zap size={16} /> Ver clientes disponíveis
         </button>
       </div>
+
+      {/* Banner conectar WhatsApp — some ao fechar (localStorage) ou conectar */}
+      {showWaBanner && (
+        <div className="bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
+            <MessageCircle size={15} className="text-emerald-400" />
+          </div>
+          <p className="flex-1 min-w-0 text-slate-300 text-xs sm:text-sm">
+            Você ainda não conectou seu WhatsApp — <span className="text-white font-semibold">ative para não perder pedidos</span>
+          </p>
+          <a
+            href={getWhatsAppConnectLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 h-8 px-3 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-lg transition-colors"
+          >
+            <MessageCircle size={12} /> Conectar
+          </a>
+          <button
+            onClick={dismissWaBanner}
+            aria-label="Fechar aviso"
+            className="shrink-0 w-7 h-7 flex items-center justify-center text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {purchaseCount === 0 ? (
         balanceCoins > 0 ? (

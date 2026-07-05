@@ -5,6 +5,7 @@ import { supabaseAdmin, sensitiveLimiter } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendPushToUser } from "../lib/push.js";
 import { sendMetaEvent } from "../lib/metaPixel.js";
+import { notifyProfessionalsNewLead } from "../services/externalNotifications.js";
 
 const router = Router();
 
@@ -136,6 +137,17 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
           console.error(`[leads] falha ao enviar push para ${p.user_id}:`, pushError instanceof Error ? pushError.message : String(pushError));
         }
       }));
+
+      // Email + WhatsApp só para match real de categoria — o fallback
+      // (fora da categoria) fica restrito a in-app/push para não spammar.
+      if (!isFallback) {
+        void notifyProfessionalsNewLead(
+          notifyPros.map((p: { user_id: string }) => p.user_id),
+          { leadTitle: title, category, location }
+        ).catch((err: unknown) => {
+          console.error("[leads] notifyProfessionalsNewLead error:", err instanceof Error ? err.message : String(err));
+        });
+      }
     }
 
     void sendMetaEvent({

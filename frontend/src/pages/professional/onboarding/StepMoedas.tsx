@@ -1,9 +1,11 @@
-import { Loader2, ArrowLeft, ShoppingCart } from 'lucide-react';
+import { Loader2, ArrowLeft, ShoppingCart, MessageCircle } from 'lucide-react';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { apiFetch } from '../../../lib/api';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../../store/authStore';
+import { supabase } from '../../../lib/supabase';
+import { getWhatsAppConnectLink } from '../../../lib/whatsappConnect';
 
 interface StepMoedasProps {
   completeMutation: UseMutationResult<void, Error, void>;
@@ -12,11 +14,24 @@ interface StepMoedasProps {
 
 export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
   const [buying, setBuying] = useState(false);
+  const [whatsappOptIn, setWhatsappOptIn] = useState(true);
   const { user } = useAuthStore();
+
+  // Salva o consentimento de WhatsApp ao concluir o cadastro (best-effort)
+  const saveWhatsappOptIn = async () => {
+    if (!user?.id) return;
+    await supabase
+      .from('user_notification_preferences')
+      .upsert(
+        { user_id: user.id, whatsapp_marketing_opt_in: whatsappOptIn, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id' },
+      );
+  };
 
   const handleBuy = async () => {
     setBuying(true);
     try {
+      await saveWhatsappOptIn();
       await completeMutation.mutateAsync();
       const res = await apiFetch('/api/create-checkout-session', {
         method: 'POST',
@@ -37,6 +52,7 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
   };
 
   const handleSkip = async () => {
+    await saveWhatsappOptIn();
     await completeMutation.mutateAsync();
   };
 
@@ -79,6 +95,37 @@ export function StepMoedas({ completeMutation, onBack }: StepMoedasProps) {
           <div style={{ fontSize: 12, color: '#f1f5f9', fontWeight: 700, marginBottom: 2 }}>Sugestão</div>
           <div style={{ fontSize: 11, color: '#64748b' }}>60 moedas por R$24,90 — acesse seu primeiro cliente hoje</div>
         </div>
+      </div>
+
+      {/* Opt-in WhatsApp (template Marketing exige consentimento explícito) */}
+      <div style={{ background: '#0a1928', border: '1px solid #1C3050', borderRadius: '.75rem', padding: '.875rem' }}>
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={whatsappOptIn}
+            onChange={e => setWhatsappOptIn(e.target.checked)}
+            style={{ marginTop: 2, width: 16, height: 16, accentColor: '#10b981', flexShrink: 0, cursor: 'pointer' }}
+          />
+          <div>
+            <div style={{ fontSize: 12.5, color: '#f1f5f9', fontWeight: 700, lineHeight: 1.4 }}>
+              Sim, quero saber na hora quando surgir um pedido pra mim — WhatsApp além de email e app.
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+              Marcado por padrão. Desmarque se preferir só email e notificação no app.
+            </div>
+          </div>
+        </label>
+        {whatsappOptIn && (
+          <a
+            href={getWhatsAppConnectLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 40, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: '.625rem', color: '#34d399', fontSize: 12.5, fontWeight: 800, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif' }}
+          >
+            <MessageCircle size={15} />
+            Conectar WhatsApp agora
+          </a>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 4 }}>

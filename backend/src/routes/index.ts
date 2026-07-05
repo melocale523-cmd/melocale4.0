@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import stripeRouter, { stripeWebhookHandler } from "./stripe.js";
+import { whatsappWebhookVerifyHandler, whatsappWebhookHandler } from "./whatsappWebhook.js";
 import notificationsRouter from "./notifications.js";
 import leadsRouter from "./leads.js";
 import appointmentsRouter from "./appointments.js";
@@ -18,6 +19,11 @@ export function registerRoutes(app: Application) {
   // Webhook precisa de raw body — registrar ANTES do express.json() e do rate limiter
   // (Stripe não tem IP fixo, então o limiter global não pode bloquear webhooks legítimos)
   app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
+
+  // Webhook do WhatsApp (Meta) — POST precisa de raw body para validar
+  // X-Hub-Signature-256; GET é a verificação inicial (hub.challenge)
+  app.get("/api/whatsapp-webhook", whatsappWebhookVerifyHandler);
+  app.post("/api/whatsapp-webhook", express.raw({ type: "application/json" }), whatsappWebhookHandler);
 
   app.use(express.json({ limit: '100kb' }));
 
