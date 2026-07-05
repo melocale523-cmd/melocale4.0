@@ -4,6 +4,7 @@ import { AuthRequest, requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin, sensitiveLimiter } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendPushToUser } from "../lib/push.js";
+import { notifyClientProposalReceived } from "../services/externalNotifications.js";
 
 const router = Router();
 
@@ -55,6 +56,22 @@ router.post("/notifications/send-event", sensitiveLimiter, requireAuth, async (r
       title = "Nova proposta recebida! 🎉";
       body = "Um profissional enviou um orçamento. Acesse Meus Pedidos para ver.";
       data = { type: "proposal_received", purchaseId: resource_id };
+
+      // Email + WhatsApp para o cliente (best-effort, não bloqueia a resposta)
+      if (targetUserId) {
+        const clientId = targetUserId;
+        void supabaseAdmin
+          .from("profiles")
+          .select("full_name")
+          .eq("id", callerId)
+          .maybeSingle()
+          .then(({ data: prof }) =>
+            notifyClientProposalReceived(clientId, prof?.full_name || "Um profissional")
+          )
+          .then(undefined, (err: unknown) => {
+            console.error("[send-event] notifyClientProposalReceived error:", err instanceof Error ? err.message : String(err));
+          });
+      }
 
     } else if (event_type === "proposal_accepted") {
       const { data: lp } = await supabaseAdmin

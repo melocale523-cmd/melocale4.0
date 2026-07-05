@@ -23,6 +23,12 @@ export const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
 export const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
 export const vapidEmail = process.env.VAPID_EMAIL;
 
+// --- Resend (email transacional) ---
+// Opcional: sem a key, emails são silenciosamente pulados (fluxo principal não quebra)
+export const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
+export const EMAIL_FROM = process.env.EMAIL_FROM ?? "MeloCale <notificacoes@melocale.com.br>";
+if (!RESEND_API_KEY) console.warn("[startup] RESEND_API_KEY ausente — envio de email desativado");
+
 // --- Anthropic ---
 if (!process.env.ANTHROPIC_API_KEY) throw new Error("❌ ERRO CRÍTICO: ANTHROPIC_API_KEY não definida — servidor não pode subir");
 export const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
