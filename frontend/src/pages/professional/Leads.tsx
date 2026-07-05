@@ -132,7 +132,10 @@ export default function ProfessionalLeads() {
   };
 
   return (
-    <div className="w-full space-y-3">
+    // space-y-4 = mesmo respiro validado no dashboard (#378); os marginTop
+    // inline que existiam entre as seções eram workaround da era do bug de
+    // cascade layers e brigavam com o space-y
+    <div className="w-full space-y-4">
 
       {/* Saldo Alert */}
       <div className="bg-[#1C3454] border border-[#1C3050] rounded-xl p-3">
@@ -168,7 +171,7 @@ export default function ProfessionalLeads() {
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="mb-2 flex gap-2 items-center" style={{ marginTop: '0.75rem' }}>
+      <div className="flex gap-2 items-center">
         <div className="relative flex-1">
           <input
             type="text"
@@ -373,7 +376,7 @@ export default function ProfessionalLeads() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-white flex items-center gap-2" style={{ marginTop: '0.75rem' }}>
+        <h1 className="text-lg font-bold text-white flex items-center gap-2">
           Clientes Disponíveis
           <span className="text-xs font-medium px-2 py-0.5 bg-white/5 border border-[#243F6A] rounded-md text-slate-500">
             {filteredLeads?.length || 0}
@@ -382,7 +385,7 @@ export default function ProfessionalLeads() {
       </div>
 
       {/* Lead Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl" style={{ marginTop: '0.5rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
         {leadsLoading ? (
           <div className="col-span-full py-16 flex justify-center">
             <LoadingSpinner size={28} label="Buscando novos clientes..." />
@@ -409,8 +412,9 @@ export default function ProfessionalLeads() {
                       </span>
                     ))}
                   </div>
-                  <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg px-3 py-1 text-sm font-bold shrink-0">
-                    {lead.price_coins || 1} 🪙
+                  <span className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 rounded-lg px-2.5 py-1 text-xs font-bold shrink-0 inline-flex items-center gap-1.5 whitespace-nowrap">
+                    <Coins size={13} className="shrink-0" />
+                    {lead.price_coins || 1} moedas
                   </span>
                 </div>
 
