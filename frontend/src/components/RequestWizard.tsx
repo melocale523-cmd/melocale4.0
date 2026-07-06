@@ -4,6 +4,7 @@ import { X, Loader2, ImagePlus, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { compressImage } from '../lib/compressImage';
+import { normalizeCityLabel } from '../utils/normalizeCity';
 
 export interface WizardData {
   title: string;
@@ -207,7 +208,9 @@ export default function RequestWizard({
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
       supabase.from('profiles').select('city').eq('id', user.id).single().then(({ data: profile }) => {
-        if (profile?.city) setData(prev => prev.location ? prev : { ...prev, location: profile.city });
+        // profiles.city histórico pode estar sujo — normaliza antes de propagar pra leads.location
+        const clean = normalizeCityLabel(profile?.city);
+        if (clean) setData(prev => prev.location ? prev : { ...prev, location: clean });
       });
     });
   }, [initialData?.location]);
