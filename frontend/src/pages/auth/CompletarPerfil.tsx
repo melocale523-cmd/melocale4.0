@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { normalizeCity } from '../../utils/normalizeCity';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
@@ -84,7 +85,8 @@ export default function CompletarPerfil() {
     setIsSubmitting(true);
     setError(null);
     try {
-      const derivedCity = [address.city, address.state].filter(Boolean).join(' - ');
+      const normAddr = normalizeCity(address.city, address.state);
+      const derivedCity = [normAddr.city, normAddr.state].filter(Boolean).join(' - ');
       const finalCategory = formData.category === 'Outro' ? formData.customCategory : formData.category;
 
       const payload = {
@@ -98,8 +100,8 @@ export default function CompletarPerfil() {
         address_block: address.block || null,
         address_complement: address.complement || null,
         address_neighborhood: address.neighborhood || null,
-        address_city: address.city || null,
-        address_state: address.state || null,
+        address_city: normAddr.city || null,
+        address_state: normAddr.state || null,
         origin: resolveSignupOrigin(),
       };
 

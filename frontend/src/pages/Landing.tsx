@@ -135,7 +135,7 @@ export default function LandingPage() {
       const { count } = await supabase
         .from('professionals')
         .select('id', { count: 'exact', head: true })
-        .eq('city', displayCity)
+        .ilike('city', `%${displayCity}%`)
         .eq('is_active', true);
       setProfCount(count ?? 0);
     };

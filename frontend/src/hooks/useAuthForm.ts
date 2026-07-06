@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { normalizeCity } from '../utils/normalizeCity';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -143,7 +144,8 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
           ? formData.customCategory
           : formData.category;
 
-        const derivedCity = [address.city, address.state].filter(Boolean).join(' - ');
+        const normAddr = normalizeCity(address.city, address.state);
+      const derivedCity = [normAddr.city, normAddr.state].filter(Boolean).join(' - ');
 
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
@@ -178,8 +180,8 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
           address_block: address.block || null,
           address_complement: address.complement || null,
           address_neighborhood: address.neighborhood || null,
-          address_city: address.city || null,
-          address_state: address.state || null,
+          address_city: normAddr.city || null,
+          address_state: normAddr.state || null,
         }, { onConflict: 'id' });
 
         if (selectedRole === 'professional' && signUpData.user) {

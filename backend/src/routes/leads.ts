@@ -6,6 +6,15 @@ import { withTimeout } from "../lib/timeout.js";
 import { sendPushToUser } from "../lib/push.js";
 import { sendMetaEvent } from "../lib/metaPixel.js";
 import { notifyProfessionalsNewLead } from "../services/externalNotifications.js";
+import { normalizeCity } from "../lib/normalizeCity.js";
+
+// leads.city guarda o nome canônico da cidade (mesmo formato de
+// professionals.city, sem UF) para o card "Oferta vs Demanda" do admin
+function leadCityFromLocation(location: string): string | null {
+  const [cityPart, statePart] = location.split(" - ");
+  const { city } = normalizeCity(cityPart, statePart);
+  return city || null;
+}
 
 const router = Router();
 
@@ -59,6 +68,7 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
           category_id:     categoryId,
           description,
           location,
+          city:            leadCityFromLocation(location),
           budget_min,
           budget_max,
           images,
@@ -259,6 +269,7 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
             category,
             description,
             location,
+            city:            leadCityFromLocation(location),
             budget_min:      budget_min ?? 0,
             budget_max:      budget_max ?? 0,
             images:          [],

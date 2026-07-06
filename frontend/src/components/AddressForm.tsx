@@ -1,5 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
 import { AlertCircle, Loader2, MapPin } from 'lucide-react';
+import { TARGET_CITIES, normalizeCity } from '../utils/normalizeCity';
+
+const OTHER_CITY = '__outra__';
 
 export interface AddressValue {
   cep: string;
@@ -29,6 +32,10 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
   const geoTriggeredRef = useRef(false);
+  // "Outra cidade" libera texto livre (que ainda passa por normalizeCity)
+  const [otherCityMode, setOtherCityMode] = useState(
+    () => !!value.city && !(TARGET_CITIES as readonly string[]).includes(value.city)
+  );
 
   // Keep a ref to avoid stale closure inside the async fetch
   const latestValue = useRef(value);
@@ -53,15 +60,18 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
             address?: { postcode?: string; road?: string; suburb?: string; neighbourhood?: string; city?: string; town?: string; village?: string; state?: string; }
           };
           const addr = data.address ?? {};
-          const city = addr.city || addr.town || addr.village || '';
+          const rawCity = addr.city || addr.town || addr.village || '';
+          const rawState = addr.state ? addr.state.slice(0, 2).toUpperCase() : latestValue.current.state;
+          const norm = normalizeCity(rawCity, rawState);
           const neighborhood = addr.suburb || addr.neighbourhood || '';
           const newAddress = {
             ...latestValue.current,
             street: addr.road || latestValue.current.street,
             neighborhood,
-            city,
-            state: addr.state ? addr.state.slice(0, 2).toUpperCase() : latestValue.current.state,
+            city: norm.city,
+            state: norm.state || rawState,
           };
+          setOtherCityMode(!!norm.city && !(TARGET_CITIES as readonly string[]).includes(norm.city));
           onChange(newAddress);
           setViacepFilled(true);
         } catch {
@@ -202,14 +212,46 @@ export function AddressForm({ value, onChange, variant = 'profile', cityError, i
       <div className="grid grid-cols-3 gap-8" style={{ marginBottom: '1.25rem' }}>
         <div className="col-span-2">
           <label className={labelClass} style={{ marginBottom: '0.5rem' }}>Cidade</label>
-          <input
-            type="text"
-            maxLength={100}
-            value={value.city}
-            onChange={e => onChange({ ...value, city: e.target.value })}
-            placeholder="Jacobina"
+          <select
+            value={otherCityMode ? OTHER_CITY : value.city}
+            onChange={e => {
+              const sel = e.target.value;
+              if (sel === OTHER_CITY) {
+                setOtherCityMode(true);
+                onChange({ ...value, city: '', state: value.state });
+              } else {
+                setOtherCityMode(false);
+                // Cidades-alvo são todas na Bahia: UF vai fixa junto
+                onChange({ ...value, city: sel, state: sel ? 'BA' : value.state });
+              }
+            }}
             className={cityError ? errorInput : fieldInput(!!value.city)}
-          />
+            style={{ cursor: 'pointer' }}
+          >
+            <option value="">Selecione a cidade</option>
+            {TARGET_CITIES.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+            <option value={OTHER_CITY}>Outra cidade</option>
+          </select>
+          {otherCityMode && (
+            <input
+              type="text"
+              maxLength={100}
+              value={value.city}
+              onChange={e => onChange({ ...value, city: e.target.value })}
+              onBlur={e => {
+                // Texto livre também passa pela normalização; se o fuzzy-match
+                // reconhecer uma das 6, volta pro modo select automaticamente
+                const norm = normalizeCity(e.target.value, value.state);
+                if ((TARGET_CITIES as readonly string[]).includes(norm.city)) setOtherCityMode(false);
+                onChange({ ...value, city: norm.city, state: norm.state || value.state });
+              }}
+              placeholder="Digite sua cidade"
+              className={cityError ? errorInput : fieldInput(!!value.city)}
+              style={{ marginTop: '0.5rem' }}
+            />
+          )}
           {cityError && (
             <p className="flex items-center gap-6 text-red-400 text-xs mt-6">
               <AlertCircle size={11} className="shrink-0" /> {cityError}
