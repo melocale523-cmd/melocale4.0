@@ -7,9 +7,9 @@ import { toast } from 'sonner';
 
 interface ApprovedUser {
   user_id: string;
-  full_name: string;
-  phone: string;
-  city: string;
+  full_name: string | null;
+  phone: string | null;
+  city: string | null;
   avatar_url: string | null;
   role: 'professional' | 'client' | 'admin';
   category: string | null;
@@ -32,11 +32,13 @@ type RoleFilter = 'all' | 'professional' | 'client' | 'admin';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-function initials(name: string): string {
-  return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+function initials(name: string | null): string {
+  if (!name?.trim()) return '?';
+  return name.trim().split(/\s+/).slice(0, 2).map(n => n[0]).join('').toUpperCase();
 }
 
-function formatPhone(phone: string): string {
+function formatPhone(phone: string | null): string {
+  if (!phone) return '—';
   const d = phone.replace(/\D/g, '');
   if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   return phone;
@@ -196,11 +198,11 @@ export default function AdminAprovados() {
     return list.filter(u => {
       const matchRole = filterRole === 'all' || u.role === filterRole;
       const matchSearch = !q ||
-        u.full_name.toLowerCase().includes(q) ||
+        (u.full_name ?? '').toLowerCase().includes(q) ||
         (u.email ?? '').toLowerCase().includes(q) ||
-        u.city.toLowerCase().includes(q) ||
+        (u.city ?? '').toLowerCase().includes(q) ||
         (u.category ?? '').toLowerCase().includes(q) ||
-        u.phone.includes(q);
+        (u.phone ?? '').includes(q);
       return matchRole && matchSearch;
     });
   }, [list, search, filterRole]);
@@ -249,12 +251,12 @@ export default function AdminAprovados() {
           {/* Row 1 — avatar + nome + aprovado em */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-              <Avatar name={u.full_name} url={u.avatar_url} />
+              <Avatar name={u.full_name ?? ''} url={u.avatar_url} />
               <div style={{ minWidth: 0 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name}</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name ?? 'Sem nome'}</p>
                 <div style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
                   <MapPin size={10} />
-                  <span>{u.city}</span>
+                  <span>{u.city ?? 'Cidade não informada'}</span>
                   {u.email && <><span style={{ opacity: .4 }}>·</span><span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>{u.email}</span></>}
                 </div>
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
