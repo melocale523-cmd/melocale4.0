@@ -152,54 +152,54 @@ export default function AdminPacotes() {
       {isLoading ? (
          <div className="flex justify-center p-12 bg-[#1C3454] rounded-2xl border border-slate-800"><Loader2 className="animate-spin text-emerald-500" size={32} /></div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-11">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-11">
            {sortedPacotes.map(pacote => (
-             <div key={pacote.id} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col relative overflow-hidden group" style={{ opacity: pacote.is_active ? 1 : 0.55 }}>
-               <div className="flex justify-between items-start mb-11 z-10 relative">
+             <div key={pacote.id} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 md:p-11 flex flex-col relative overflow-hidden group" style={{ opacity: pacote.is_active ? 1 : 0.55 }}>
+               <div className="flex justify-between items-start mb-4 md:mb-11 z-10 relative">
                   <div>
-                    <h3 className="text-xl font-bold text-white">{pacote.name}</h3>
+                    <h3 className="text-base md:text-xl font-bold text-white">{pacote.name}</h3>
                     <span className={`inline-block mt-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded border ${pacote.is_active ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                       {pacote.is_active ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-emerald-400">R$ {(pacote.price ?? 0).toFixed(2).replace('.', ',')}</div>
+                    <div className="text-lg md:text-2xl font-bold text-emerald-400">R$ {(pacote.price ?? 0).toFixed(2).replace('.', ',')}</div>
                   </div>
                </div>
 
-               <div className="space-y-9 mb-13 flex-1 z-10 relative">
-                  <div className="bg-[#0E1C32] border border-[#1C3050] p-9 rounded-xl flex items-center justify-between">
+               <div className="space-y-3 md:space-y-9 mb-4 md:mb-13 flex-1 z-10 relative">
+                  <div className="bg-[#0E1C32] border border-[#1C3050] p-3 md:p-9 rounded-xl flex items-center justify-between">
                      <span className="text-[#94A3B8] text-sm">Moedas</span>
-                     <div className="flex items-center gap-7 text-yellow-500 font-bold text-lg">
+                     <div className="flex items-center gap-2 md:gap-7 text-yellow-500 font-bold text-base md:text-lg">
                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                        {pacote.coins}
                      </div>
                   </div>
                   {/* Bloco sempre presente pra manter os cards com a mesma altura */}
                   {pacote.bonus_coins > 0 ? (
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 p-8 rounded-xl flex justify-between items-center text-sm text-emerald-400">
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 md:p-8 rounded-xl flex justify-between items-center text-xs md:text-sm text-emerald-400">
                       <span>Bônus</span>
                       <span className="font-bold">+{pacote.bonus_coins}</span>
                     </div>
                   ) : (
-                    <div className="bg-white/[0.02] border border-white/5 p-8 rounded-xl flex justify-between items-center text-sm text-slate-600">
+                    <div className="bg-white/[0.02] border border-white/5 p-3 md:p-8 rounded-xl flex justify-between items-center text-xs md:text-sm text-slate-600">
                       <span>Bônus</span>
                       <span>—</span>
                     </div>
                   )}
-                  <div className="bg-[#0E1C32] border border-[#1C3050] p-8 rounded-xl grid grid-cols-2 gap-8 text-sm">
+                  <div className="bg-[#0E1C32] border border-[#1C3050] p-3 md:p-8 rounded-xl grid grid-cols-2 gap-3 md:gap-8 text-xs md:text-sm">
                     <div>
-                      <p className="text-[#4A6580] text-xs uppercase tracking-wide mb-4">Vendas</p>
+                      <p className="text-[#4A6580] text-[10px] md:text-xs uppercase tracking-wide mb-1 md:mb-4">Vendas</p>
                       <p className="text-white font-bold">{salesStats[pacote.id]?.vendas ?? 0}</p>
                     </div>
                     <div>
-                      <p className="text-[#4A6580] text-xs uppercase tracking-wide mb-4">Receita</p>
+                      <p className="text-[#4A6580] text-[10px] md:text-xs uppercase tracking-wide mb-1 md:mb-4">Receita</p>
                       <p className="text-emerald-400 font-bold">R$ {(((salesStats[pacote.id]?.receita ?? 0)) / 100).toFixed(2).replace('.', ',')}</p>
                     </div>
                   </div>
                 </div>
 
-               <div className="flex items-center gap-8 mt-auto pt-6 border-t border-[#1C3050] z-10 relative">
+               <div className="flex items-center gap-3 md:gap-8 mt-auto pt-3 md:pt-6 border-t border-[#1C3050] z-10 relative">
                   <button
                     onClick={() => openEdit(pacote)}
                     className="flex-1 flex items-center justify-center gap-7 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition-colors text-sm font-medium"

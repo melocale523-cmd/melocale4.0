@@ -21,6 +21,15 @@ interface Transaction {
 
 type PeriodFilter = 'all' | '30d' | '90d';
 
+// Card elevado — padrão visual aprovado (borda sutil + sombra + brilho no topo)
+const ELEV: React.CSSProperties = {
+  background: '#122444',
+  border: '1px solid rgba(255,255,255,0.06)',
+  borderRadius: 14,
+  boxShadow: '0 6px 18px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.03)',
+};
+const STRIP = 'linear-gradient(90deg, #60a5fa, #a78bfa, #34d399)';
+
 function formatKind(kind: string, reference?: string | null) {
   if (reference?.startsWith('lead_purchase:') || kind === 'debit_lead') return 'Compra de Lead';
   if (kind === 'credit_purchase' || kind === 'purchase') return 'Compra de moedas';
@@ -62,9 +71,16 @@ function monthLabel(key: string): string {
 
 function OriginIcon({ t }: { t: Transaction }) {
   if (t.kind !== 'credit_purchase') return <span style={{ color: '#4a6580', fontSize: 12 }}>—</span>;
-  return isAdminCredit(t)
-    ? <span title="Crédito manual do admin" className="inline-flex items-center gap-4 text-purple-400 text-xs font-semibold"><Gift size={13} /> Admin</span>
-    : <span title="Compra real via Stripe" className="inline-flex items-center gap-4 text-blue-400 text-xs font-semibold"><CreditCard size={13} /> Stripe</span>;
+  const admin = isAdminCredit(t);
+  return (
+    <span
+      title={admin ? 'Crédito manual do admin' : 'Compra real via Stripe'}
+      className={`inline-flex items-center gap-4 text-xs font-semibold ${admin ? 'text-purple-400' : 'text-blue-400'}`}
+      style={{ padding: '2px 8px', borderRadius: 99, background: admin ? 'rgba(167,139,250,0.1)' : 'rgba(96,165,250,0.1)', border: `1px solid ${admin ? 'rgba(167,139,250,0.25)' : 'rgba(96,165,250,0.25)'}` }}
+    >
+      {admin ? <Gift size={12} /> : <CreditCard size={12} />} {admin ? 'Admin' : 'Stripe'}
+    </span>
+  );
 }
 
 export default function AdminTransacoes() {
@@ -225,20 +241,45 @@ export default function AdminTransacoes() {
         </button>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-9">
-        {kpiCards.map((stat, i) => (
-          <div key={i} className="bg-[#1C3454] border border-slate-800/80 rounded-xl p-11">
-            <h3 className="text-[#94A3B8] text-sm font-medium mb-7">{stat.label}</h3>
-            <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-            {stat.sub && <p className="text-[#4A6580] text-xs mt-4">{stat.sub}</p>}
-            {stat.badge && (
-              <span className={`inline-block mt-6 text-xs font-bold px-2 py-0.5 rounded border ${stat.badge.startsWith('+') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                {stat.badge}
-              </span>
-            )}
-          </div>
-        ))}
+      {/* Hero KPI — UM card elevado, células com divisor fino */}
+      <div style={{ ...ELEV, overflow: 'hidden' }}>
+        <div style={{ height: 3, background: STRIP }} />
+        <div className="grid grid-cols-2 md:grid-cols-4">
+          {kpiCards.map((stat, i) => (
+            <div
+              key={i}
+              className="p-4 md:p-8"
+              style={{
+                borderRight: (i % 2 === 0) ? '1px solid rgba(255,255,255,0.06)' : undefined,
+                borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.06)' : undefined,
+              }}
+            >
+              <h3 className="text-[#94A3B8] text-[10px] md:text-xs font-bold uppercase tracking-wide mb-2">{stat.label}</h3>
+              <p className={`text-lg md:text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              {stat.sub && <p className="text-[#4A6580] text-[10px] md:text-xs mt-1">{stat.sub}</p>}
+              {stat.badge && (
+                <span className={`inline-block mt-2 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded border ${stat.badge.startsWith('+') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                  {stat.badge}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+        {/* Proporção Stripe vs Admin (dados reais dos KPIs acima) */}
+        {realTotal + adminTotal > 0 && (() => {
+          const realPct = Math.round((realTotal / (realTotal + adminTotal)) * 100);
+          return (
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0.625rem 1rem 0.75rem' }}>
+              <div style={{ display: 'flex', height: 6, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.05)' }}>
+                <div style={{ width: `${realPct}%`, background: '#60a5fa' }} />
+                <div style={{ width: `${100 - realPct}%`, background: '#a78bfa' }} />
+              </div>
+              <p style={{ fontSize: 10, color: '#64748b', margin: '6px 0 0' }}>
+                <span style={{ color: '#60a5fa', fontWeight: 700 }}>{realPct}%</span> receita real · <span style={{ color: '#a78bfa', fontWeight: 700 }}>{100 - realPct}%</span> cortesia administrativa
+              </p>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Filtros */}
@@ -270,8 +311,9 @@ export default function AdminTransacoes() {
       </div>
 
       {/* ── Desktop: tabela agrupada por mês ──────────────────────────── */}
-      <div className="hidden md:block bg-[#1C3454] border border-slate-800/80 rounded-xl overflow-hidden">
-        <div className="p-9 border-b border-[#1C3050] flex justify-between items-center bg-[#181A20]">
+      <div className="hidden md:block" style={{ ...ELEV, overflow: 'hidden' }}>
+        <div style={{ height: 3, background: STRIP }} />
+        <div className="p-9 border-b border-[#1C3050] flex justify-between items-center">
           <h2 className="text-lg font-bold text-white">Transações ({filtered.length})</h2>
           {isLoading && <Loader2 size={18} className="animate-spin text-emerald-500" />}
         </div>
@@ -303,32 +345,39 @@ export default function AdminTransacoes() {
         </div>
       </div>
 
-      {/* ── Mobile: cards agrupados por mês ───────────────────────────── */}
-      <div className="md:hidden space-y-9">
+      {/* ── Mobile: UM card elevado, linhas com divisor fino ──────────── */}
+      <div className="md:hidden" style={{ ...ELEV, overflow: 'hidden' }}>
+        <div style={{ height: 3, background: STRIP }} />
         {isLoading && <div className="flex justify-center p-8"><Loader2 size={22} className="animate-spin text-emerald-500" /></div>}
         {grouped.map(([mKey, txs]) => (
-          <div key={mKey} className="space-y-8">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] px-2">
+          <div key={mKey}>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8] px-4 py-2" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', margin: 0 }}>
               {monthLabel(mKey)} · {txs.length} transaç{txs.length === 1 ? 'ão' : 'ões'}
             </p>
             {txs.map(t => (
               <button
                 key={t.id}
                 onClick={() => setSelectedTx(t)}
-                className="w-full text-left bg-[#1C3454] border border-slate-800/80 rounded-xl p-9 space-y-7"
+                className="w-full text-left p-4 space-y-2"
+                style={{ background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
               >
-                <div className="flex items-start justify-between gap-8">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-white text-sm font-semibold truncate">{txName(t) ?? '—'}</p>
-                    <p className="text-[#4A6580] text-xs">
+                    <p className="text-white text-[13px] font-semibold truncate">{txName(t) ?? '—'}</p>
+                    <p className="text-[#4A6580] text-[11px]">
                       {new Date(t.created_at).toLocaleDateString('pt-BR')} {new Date(t.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <span className={`font-bold text-base shrink-0 ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
-                    {t.kind === 'debit_lead' ? '-' : '+'}{t.amount}
+                  <span className="shrink-0 text-right">
+                    <span className={`font-bold text-sm ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
+                      {t.kind === 'debit_lead' ? '-' : '+'}{t.amount}
+                    </span>
+                    {t.balance_after !== null && (
+                      <span style={{ display: 'block', fontSize: 10, color: '#64748b' }}>saldo: {t.balance_after}</span>
+                    )}
                   </span>
                 </div>
-                <div className="flex items-center gap-7 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className={`border px-2 py-0.5 rounded text-xs font-bold uppercase ${kindColor(t.kind)}`}>
                     {formatKind(t.kind, t.reference)}
                   </span>
@@ -400,8 +449,13 @@ function MonthGroup({ mKey, txs, packageOf, onSelect }: {
           </td>
           <td className="p-9"><OriginIcon t={t} /></td>
           <td className="p-9 text-[#94A3B8]">{packageOf(t) ?? '—'}</td>
-          <td className={`p-4 font-bold ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
-            {t.kind === 'debit_lead' ? '-' : '+'}{t.amount}
+          <td className="p-4">
+            <span className={`font-bold ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
+              {t.kind === 'debit_lead' ? '-' : '+'}{t.amount}
+            </span>
+            {t.balance_after !== null && (
+              <span style={{ display: 'block', fontSize: 10, color: '#64748b' }}>saldo: {t.balance_after}</span>
+            )}
           </td>
           <td className="p-9">
             <a

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Search, RefreshCw, MapPin, Phone, Coins, ShoppingBag, Calendar, User, MessageSquare, PowerOff, Power } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { supabase } from '../../lib/supabase';
 import { adminService } from '../../services/statsService';
 import { toast } from 'sonner';
@@ -147,6 +148,7 @@ function SkeletonCard() {
 
 export default function AdminAprovados() {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState<RoleFilter>('all');
 
@@ -314,7 +316,7 @@ export default function AdminAprovados() {
               { label: 'Telefone', icon: <span style={{ fontSize: 11, color: 'white', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} style={{ color: '#64748b' }} />{formatPhone(u.phone)}</span> },
             ];
             return (
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'grid', gridTemplateColumns: `repeat(${statsCols.length}, 1fr)`, gap: 0 }}>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : `repeat(${statsCols.length}, 1fr)`, gap: 0 }}>
                 {statsCols.map((stat, i) => (
                   <div key={i} style={{ padding: '0.625rem 0.75rem', background: '#0f1f35', borderRight: i < statsCols.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                     <p style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 4px' }}>{stat.label}</p>
@@ -398,7 +400,7 @@ export default function AdminAprovados() {
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '0.625rem' }}>
         {kpis.map((k, i) => (
           <div key={k.label} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', overflow: 'hidden', position: 'relative' }}>
             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: kpiColors[i] }} />
@@ -412,12 +414,12 @@ export default function AdminAprovados() {
 
       {/* Toolbar */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: 5 }}>
+        <div style={{ display: 'flex', gap: 5, overflowX: 'auto', maxWidth: '100%', paddingBottom: 2 }}>
           {(['all', 'professional', 'client', 'admin'] as RoleFilter[]).map(r => (
             <button
               key={r}
               onClick={() => setFilterRole(r)}
-              style={{ height: 34, padding: '0 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: filterRole === r ? '1px solid rgba(29,158,117,0.3)' : '1px solid rgba(255,255,255,0.08)', background: filterRole === r ? 'rgba(29,158,117,0.12)' : 'transparent', color: filterRole === r ? '#34d399' : '#64748b' }}
+              style={{ height: 34, padding: '0 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, border: filterRole === r ? '1px solid rgba(29,158,117,0.3)' : '1px solid rgba(255,255,255,0.08)', background: filterRole === r ? 'rgba(29,158,117,0.12)' : 'transparent', color: filterRole === r ? '#34d399' : '#64748b' }}
             >
               {roleLabels[r]} <span style={{ opacity: .6 }}>({roleCounts[r]})</span>
             </button>
