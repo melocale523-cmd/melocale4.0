@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Search, Loader2, MapPin, MessageSquare, ChevronLeft, ChevronRight, ChevronDown, Coins } from 'lucide-react';
+import { Search, Loader2, MapPin, MessageSquare, ChevronLeft, ChevronRight, ChevronDown, Coins, Users, UserX, Megaphone } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminService, type EnrichedUser } from '../../services/dbServices';
@@ -8,10 +8,24 @@ import { supabase } from '../../lib/supabase';
 type ChipFilter = 'all' | 'never' | 'recurring';
 
 const PAGE_SIZE = 20;
+const PRIORITY_DAYS = 14;
+
+// Card elevado — padrão visual aprovado (borda sutil + sombra + brilho no topo)
+const ELEV: React.CSSProperties = {
+  background: '#122444',
+  border: '1px solid rgba(255,255,255,0.06)',
+  borderRadius: 14,
+  boxShadow: '0 6px 18px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.03)',
+};
+const STRIP = 'linear-gradient(90deg, #34d399, #60a5fa, #a78bfa)';
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('pt-BR');
+}
+
+function daysSince(iso: string): number {
+  return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000));
 }
 
 function initials(name: string | null): string {
@@ -49,16 +63,65 @@ function CoinsBadge({ balance }: { balance: number }) {
   );
 }
 
-// Mesmo padrão do Hint de Aprovados.tsx, adaptado pro contexto de cliente,
-// com segunda linha da categoria mais pedida quando há pedidos
-function ClientInsight({ totalLeads, topCategory }: { totalLeads: number; topCategory: string | null }) {
-  if (totalLeads === 0)
-    return <span style={{ fontSize: 11, color: '#f59e0b' }}>⚠ Nunca criou pedido</span>;
+function Avatar({ c, size = 34 }: { c: EnrichedUser; size?: number }) {
+  if (c.avatar_url) {
+    return <img src={c.avatar_url} alt={c.full_name ?? ''} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, boxShadow: '0 2px 8px rgba(96,165,250,0.25)' }} />;
+  }
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(96,165,250,0.3), rgba(96,165,250,0.08))', border: '1px solid rgba(96,165,250,0.3)', boxShadow: '0 2px 8px rgba(96,165,250,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.32, fontWeight: 700, color: '#60a5fa', flexShrink: 0 }}>
+      {initials(c.full_name)}
+    </div>
+  );
+}
+
+// Insight com "dias sem pedido" real (leads.max(created_at) ou created_at do cadastro)
+function ClientInsight({ totalLeads, topCategory, days }: { totalLeads: number; topCategory: string | null; days: number | null }) {
+  if (totalLeads === 0) {
+    return (
+      <span style={{ fontSize: 11, color: '#f59e0b' }}>
+        {days !== null ? `⚠ Há ${days} dia${days === 1 ? '' : 's'} sem pedido` : '⚠ Nunca criou pedido'}
+      </span>
+    );
+  }
   return (
     <span style={{ display: 'inline-flex', flexDirection: 'column', gap: 2 }}>
-      <span style={{ fontSize: 11, color: '#34d399' }}>✓ Criou {totalLeads} pedido{totalLeads === 1 ? '' : 's'}</span>
-      {topCategory && <span style={{ fontSize: 10, color: '#64748b' }}>Mais pede: {topCategory}</span>}
+      <span style={{ fontSize: 11, color: '#34d399' }}>
+        {days !== null
+          ? `✓ Pediu ${topCategory ?? 'serviço'} há ${days} dia${days === 1 ? '' : 's'}`
+          : `✓ Criou ${totalLeads} pedido${totalLeads === 1 ? '' : 's'}`}
+      </span>
+      {days !== null && <span style={{ fontSize: 10, color: '#64748b' }}>{totalLeads} pedido{totalLeads === 1 ? '' : 's'} no total</span>}
     </span>
+  );
+}
+
+// Ícone circular de contato (mockup aprovado) — 30x30, verde translúcido
+function WaButton({ phone }: { phone: string | null }) {
+  if (!phone) return <span style={{ fontSize: 11, color: '#4a6580' }}>—</span>;
+  return (
+    <a
+      href={waLink(phone)}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={e => e.stopPropagation()}
+      title="Contatar no WhatsApp"
+      style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(29,158,117,0.15)', border: '1px solid rgba(29,158,117,0.35)', boxShadow: '0 2px 8px rgba(29,158,117,0.2)', color: '#34d399', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}
+    >
+      <MessageSquare size={13} />
+    </a>
+  );
+}
+
+// Sparkline real: novos clientes por semana (últimas 4 semanas)
+function Sparkline({ points }: { points: number[] }) {
+  const w = 64, h = 22, pad = 2;
+  const max = Math.max(...points, 1);
+  const step = (w - pad * 2) / (points.length - 1 || 1);
+  const coords = points.map((v, i) => `${pad + i * step},${h - pad - (v / max) * (h - pad * 2)}`).join(' ');
+  return (
+    <svg width={w} height={h} style={{ display: 'block' }}>
+      <polyline points={coords} fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -87,8 +150,7 @@ export default function AdminClientes() {
   });
 
   // Saldo de moedas do cliente: client_coins tem RLS "só a própria linha",
-  // então o dado vem da RPC admin_get_approved_users (SECURITY DEFINER,
-  // mesma queryKey da tela Aprovados — cache compartilhado)
+  // então o dado vem da RPC admin_get_approved_users (SECURITY DEFINER)
   const { data: coinsMap = {} } = useQuery({
     queryKey: ['adminAprovadosCoinsMap'],
     queryFn: async () => {
@@ -103,57 +165,73 @@ export default function AdminClientes() {
     staleTime: 60_000,
   });
 
-  // Categoria mais pedida por cliente (moda de leads.category por client_id)
-  const { data: topCategoryMap = {} } = useQuery({
-    queryKey: ['adminClientTopCategory'],
+  // Categoria mais pedida + data do último pedido por cliente (uma query só)
+  const { data: leadsInfo = { topCategory: {}, lastLeadAt: {} } } = useQuery({
+    queryKey: ['adminClientLeadsInfo'],
     queryFn: async () => {
-      const { data } = await supabase.from('leads').select('client_id, category');
+      const { data } = await supabase.from('leads').select('client_id, category, created_at');
       const counts: Record<string, Record<string, number>> = {};
-      (data ?? []).forEach((l: { client_id: string | null; category: string | null }) => {
-        if (!l.client_id || !l.category) return;
+      const lastLeadAt: Record<string, string> = {};
+      (data ?? []).forEach((l: { client_id: string | null; category: string | null; created_at: string }) => {
+        if (!l.client_id) return;
+        if (!lastLeadAt[l.client_id] || l.created_at > lastLeadAt[l.client_id]) lastLeadAt[l.client_id] = l.created_at;
+        if (!l.category) return;
         if (!counts[l.client_id]) counts[l.client_id] = {};
         counts[l.client_id][l.category] = (counts[l.client_id][l.category] ?? 0) + 1;
       });
-      const map: Record<string, string> = {};
+      const topCategory: Record<string, string> = {};
       Object.entries(counts).forEach(([clientId, cats]) => {
-        map[clientId] = Object.entries(cats).sort((a, b) => b[1] - a[1])[0][0];
+        topCategory[clientId] = Object.entries(cats).sort((a, b) => b[1] - a[1])[0][0];
       });
-      return map;
+      return { topCategory, lastLeadAt };
     },
     staleTime: 60_000,
   });
 
   const clientes = useMemo(() => usuarios.filter(u => u.role === 'client'), [usuarios]);
 
+  // Dias sem pedido: desde o último lead, ou desde o cadastro se nunca pediu
+  const daysNoOrder = (c: EnrichedUser): number | null => {
+    if (c.total_leads === 0) return c.created_at ? daysSince(c.created_at) : null;
+    const last = leadsInfo.lastLeadAt[c.id];
+    return last ? daysSince(last) : null;
+  };
+
   const totalCoins = useMemo(
     () => clientes.reduce((acc, c) => acc + (coinsMap[c.id] ?? 0), 0),
     [clientes, coinsMap]
   );
 
-  const kpis = useMemo(() => {
+  // Sparkline: novos clientes por semana, últimas 4 semanas (created_at real)
+  const weeklySignups = useMemo(() => {
+    const buckets = [0, 0, 0, 0];
+    const now = Date.now();
+    clientes.forEach(c => {
+      const age = now - new Date(c.created_at).getTime();
+      const week = Math.floor(age / (7 * 86_400_000));
+      if (week >= 0 && week < 4) buckets[3 - week] += 1;
+    });
+    return buckets;
+  }, [clientes]);
+
+  const heroStats = useMemo(() => {
     const total = clientes.length;
     const never = clientes.filter(c => c.total_leads === 0).length;
-    const recurring = clientes.filter(c => c.total_leads > 1).length;
     const metaAds = clientes.filter(c => c.origin === 'meta_ads').length;
     const metaPct = total > 0 ? Math.round((metaAds / total) * 100) : 0;
-    return [
-      { label: 'Total clientes', value: String(total), color: 'white' },
-      { label: 'Nunca pediram', value: String(never), color: '#f59e0b' },
-      { label: 'Recorrentes', value: String(recurring), color: '#34d399' },
-      { label: 'Via Meta Ads', value: `${metaAds} (${metaPct}%)`, color: '#a78bfa' },
-      { label: 'Moedas em carteira', value: String(totalCoins), color: '#fbbf24' },
-    ];
-  }, [clientes, totalCoins]);
+    const recurring = clientes.filter(c => c.total_leads > 1).length;
+    return { total, never, metaAds, metaPct, recurring };
+  }, [clientes]);
 
   const chipCounts: Record<ChipFilter, number> = useMemo(() => ({
     all: clientes.length,
-    never: clientes.filter(c => c.total_leads === 0).length,
-    recurring: clientes.filter(c => c.total_leads > 1).length,
-  }), [clientes]);
+    never: heroStats.never,
+    recurring: heroStats.recurring,
+  }), [clientes, heroStats]);
 
   const filtered = useMemo(() => {
     const q = searchTerm.toLowerCase();
-    return clientes.filter(c => {
+    const list = clientes.filter(c => {
       const matchChip =
         chip === 'all' ||
         (chip === 'never' && c.total_leads === 0) ||
@@ -164,7 +242,14 @@ export default function AdminClientes() {
         (c.city ?? '').toLowerCase().includes(q);
       return matchChip && matchSearch;
     });
-  }, [clientes, chip, searchTerm]);
+    // "Nunca pediram" ordena por dias sem pedido DESC — quem espera há mais
+    // tempo aparece primeiro (é assim que o Samuel decide quem contatar)
+    if (chip === 'never') {
+      list.sort((a, b) => (daysNoOrder(b) ?? -1) - (daysNoOrder(a) ?? -1));
+    }
+    return list;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientes, chip, searchTerm, leadsInfo]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -198,11 +283,12 @@ export default function AdminClientes() {
   };
 
   const exportCSV = (rows: EnrichedUser[]) => {
-    const headers = ['Nome', 'Email', 'Telefone', 'Cidade', 'Origem', 'Moedas', 'Pedidos criados', 'Agendamentos', 'Categoria mais pedida', 'Último acesso', 'Cadastro'];
+    const headers = ['Nome', 'Email', 'Telefone', 'Cidade', 'Origem', 'Moedas', 'Pedidos criados', 'Agendamentos', 'Categoria mais pedida', 'Dias sem pedido', 'Último acesso', 'Cadastro'];
     const body = rows.map(c => [
       c.full_name ?? '', c.email ?? '', c.phone ?? '', c.city ?? '',
       c.origin ?? '', String(coinsMap[c.id] ?? 0), String(c.total_leads), String(c.total_appointments),
-      topCategoryMap[c.id] ?? '', c.last_sign_in_at ?? '', c.created_at,
+      leadsInfo.topCategory[c.id] ?? '', String(daysNoOrder(c) ?? ''),
+      c.last_sign_in_at ?? '', c.created_at,
     ]);
     const csv = [headers, ...body].map(r => r.map(x => `"${x}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -212,22 +298,20 @@ export default function AdminClientes() {
   };
 
   const chipLabels: Record<ChipFilter, string> = { all: 'Todos', never: 'Nunca pediram', recurring: 'Recorrentes' };
-  const kpiColors = ['white', '#f59e0b', '#34d399', '#a78bfa', '#fbbf24'];
 
-  const actionButton = (c: EnrichedUser, fullWidth = false) =>
-    c.phone ? (
-      <a
-        href={waLink(c.phone)}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={e => e.stopPropagation()}
-        style={{ height: 32, padding: '0 12px', borderRadius: 8, background: fullWidth ? 'rgba(29,158,117,0.12)' : 'transparent', border: '1px solid rgba(29,158,117,0.35)', color: '#34d399', fontSize: 11, fontWeight: 700, display: fullWidth ? 'flex' : 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 5, textDecoration: 'none', width: fullWidth ? '100%' : undefined }}
-      >
-        <MessageSquare size={11} /> Contatar
-      </a>
-    ) : (
-      <span style={{ fontSize: 11, color: '#4a6580' }}>Sem telefone</span>
-    );
+  const heroCells = [
+    {
+      icon: <Users size={13} style={{ color: '#34d399' }} />, label: 'Total clientes', color: 'white',
+      value: (
+        <span style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}>
+          <span>{heroStats.total}</span>
+          <Sparkline points={weeklySignups} />
+        </span>
+      ),
+    },
+    { icon: <UserX size={13} style={{ color: '#f59e0b' }} />, label: 'Sem pedido', color: '#f59e0b', value: String(heroStats.never) },
+    { icon: <Megaphone size={13} style={{ color: '#a78bfa' }} />, label: 'Via Meta Ads', color: '#a78bfa', value: `${heroStats.metaAds} (${heroStats.metaPct}%)` },
+  ];
 
   return (
     <div className="space-y-11 animate-in fade-in duration-500">
@@ -245,27 +329,34 @@ export default function AdminClientes() {
         </button>
       </div>
 
-      {/* KPIs — mesmo estilo dos cards de Aprovados */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.625rem' }}>
-        {kpis.map((k, i) => (
-          <div key={k.label} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '.875rem 1rem', display: 'flex', alignItems: 'stretch', overflow: 'hidden', position: 'relative' }}>
-            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: kpiColors[i] }} />
-            <div style={{ paddingLeft: 12 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#64748b', margin: '0 0 5px' }}>{k.label}</p>
-              <p style={{ fontSize: 20, fontWeight: 700, color: kpiColors[i], margin: 0, lineHeight: 1 }}>{k.value}</p>
+      {/* Hero KPI — UM card elevado, células com divisor fino */}
+      <div style={{ ...ELEV, overflow: 'hidden' }}>
+        <div style={{ height: 3, background: STRIP }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          {heroCells.map((cell, i) => (
+            <div key={cell.label} style={{ padding: '0.875rem 1rem', borderRight: i < heroCells.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#64748b', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                {cell.icon} {cell.label}
+              </p>
+              <div style={{ fontSize: 20, fontWeight: 700, color: cell.color, lineHeight: 1 }}>{cell.value}</div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        {/* Métricas secundárias movidas da Hero (decisão: manter visíveis num rodapé fino) */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0.5rem 1rem', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 11, color: '#64748b' }}>Recorrentes: <strong style={{ color: '#34d399' }}>{heroStats.recurring}</strong></span>
+          <span style={{ fontSize: 11, color: '#64748b' }}>Moedas em carteira: <strong style={{ color: '#fbbf24' }}>{totalCoins}</strong></span>
+        </div>
       </div>
 
       {/* Toolbar: chips + busca */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 5, overflowX: 'auto', maxWidth: '100%', paddingBottom: 2 }}>
           {(['all', 'never', 'recurring'] as ChipFilter[]).map(c => (
             <button
               key={c}
               onClick={() => { setChip(c); setPage(0); }}
-              style={{ height: 34, padding: '0 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: chip === c ? '1px solid rgba(29,158,117,0.3)' : '1px solid rgba(255,255,255,0.08)', background: chip === c ? 'rgba(29,158,117,0.12)' : 'transparent', color: chip === c ? '#34d399' : '#64748b' }}
+              style={{ height: 34, padding: '0 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, border: chip === c ? '1px solid rgba(29,158,117,0.3)' : '1px solid rgba(255,255,255,0.08)', background: chip === c ? 'rgba(29,158,117,0.12)' : 'transparent', color: chip === c ? '#34d399' : '#64748b' }}
             >
               {chipLabels[c]} <span style={{ opacity: .6 }}>({chipCounts[c]})</span>
             </button>
@@ -308,12 +399,13 @@ export default function AdminClientes() {
       )}
 
       {isLoading && (
-        <div className="flex justify-center p-12 bg-[#1C3454] rounded-2xl border border-slate-800"><Loader2 className="animate-spin text-emerald-500" size={32} /></div>
+        <div style={{ ...ELEV, display: 'flex', justifyContent: 'center', padding: '3rem' }}><Loader2 className="animate-spin text-emerald-500" size={32} /></div>
       )}
 
-      {/* ── Desktop: tabela (md+) ─────────────────────────────────────── */}
+      {/* ── Desktop: tabela em card elevado (md+) ─────────────────────── */}
       {!isLoading && (
-      <div className="hidden md:block bg-[#1C3454] border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="hidden md:block" style={{ ...ELEV, overflow: 'hidden' }}>
+           <div style={{ height: 3, background: STRIP }} />
            <div className="overflow-x-auto">
            <table className="w-full text-left">
              <thead>
@@ -346,12 +438,12 @@ export default function AdminClientes() {
                    key={c.id}
                    c={c}
                    coins={coinsMap[c.id] ?? 0}
-                   topCategory={topCategoryMap[c.id] ?? null}
+                   topCategory={leadsInfo.topCategory[c.id] ?? null}
+                   days={daysNoOrder(c)}
                    checked={selected.has(c.id)}
                    onToggleCheck={() => toggleSelect(c.id)}
                    expanded={expanded === c.id}
                    onToggleExpand={() => setExpanded(prev => prev === c.id ? null : c.id)}
-                   action={actionButton(c)}
                  />
                ))}
                {pageItems.length === 0 && (
@@ -366,65 +458,44 @@ export default function AdminClientes() {
       </div>
       )}
 
-      {/* ── Mobile: cards (padrão Aprovados) ──────────────────────────── */}
+      {/* ── Mobile: UM card elevado, linhas com divisor fino ───────────── */}
       {!isLoading && (
-      <div className="md:hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-        {pageItems.map(c => (
-          <div key={c.id} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
-            <div style={{ height: 3, background: '#185FA5' }} />
-            <div style={{ padding: '1rem 1.125rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <input
-                  type="checkbox"
-                  checked={selected.has(c.id)}
-                  onChange={() => toggleSelect(c.id)}
-                  style={{ accentColor: '#1D9E75', cursor: 'pointer', marginTop: 4 }}
-                />
-                {c.avatar_url ? (
-                  <img src={c.avatar_url} alt={c.full_name ?? ''} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                ) : (
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#60a5fa', flexShrink: 0 }}>
-                    {initials(c.full_name)}
-                  </div>
-                )}
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.full_name ?? 'Sem nome'}</p>
-                  <p style={{ fontSize: 11, color: '#64748b', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <MapPin size={9} /> {c.city ?? 'Cidade não informada'}
-                  </p>
+      <div className="md:hidden" style={{ ...ELEV, overflow: 'hidden' }}>
+        <div style={{ height: 3, background: STRIP }} />
+        {pageItems.map((c, idx) => {
+          const days = daysNoOrder(c);
+          const priority = (days ?? 0) > PRIORITY_DAYS && c.total_leads === 0;
+          return (
+          <div key={c.id} style={{ position: 'relative', padding: '0.875rem 1rem', borderBottom: idx < pageItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+            {priority && <div style={{ position: 'absolute', left: 0, top: 10, bottom: 10, width: 3, borderRadius: 2, background: '#f59e0b' }} />}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <input
+                type="checkbox"
+                checked={selected.has(c.id)}
+                onChange={() => toggleSelect(c.id)}
+                style={{ accentColor: '#1D9E75', cursor: 'pointer', marginTop: 8 }}
+              />
+              <Avatar c={c} size={36} />
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.full_name ?? 'Sem nome'}</p>
+                <p style={{ fontSize: 10, color: '#64748b', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <MapPin size={9} /> {c.city ?? 'Cidade não informada'}
+                </p>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 6 }}>
+                  <OriginBadge origin={c.origin} />
+                  <CoinsBadge balance={coinsMap[c.id] ?? 0} />
                 </div>
+                <ClientInsight totalLeads={c.total_leads} topCategory={leadsInfo.topCategory[c.id] ?? null} days={days} />
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                <OriginBadge origin={c.origin} />
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: 'rgba(251,191,36,0.08)', color: coinsMap[c.id] ? '#fbbf24' : '#64748b', border: '0.5px solid rgba(251,191,36,0.2)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <Coins size={10} /> {coinsMap[c.id] ?? 0} moedas
-                </span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                {[
-                  { label: 'Pedidos', value: String(c.total_leads) },
-                  { label: 'Agendamentos', value: String(c.total_appointments) },
-                  { label: 'Último acesso', value: formatDate(c.last_sign_in_at) },
-                ].map((st, i) => (
-                  <div key={st.label} style={{ padding: '0.5rem 0.625rem', background: '#0f1f35', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                    <p style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em', margin: '0 0 3px' }}>{st.label}</p>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: 'white', margin: 0 }}>{st.value}</p>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                <ClientInsight totalLeads={c.total_leads} topCategory={topCategoryMap[c.id] ?? null} />
-              </div>
-              {actionButton(c, true)}
+              <WaButton phone={c.phone} />
             </div>
           </div>
-        ))}
+          );
+        })}
         {pageItems.length === 0 && (
           <p style={{ textAlign: 'center', color: '#4A6580', fontSize: 13, padding: '2rem 0' }}>Nenhum cliente encontrado.</p>
         )}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-          {paginationBar()}
-        </div>
+        {paginationBar()}
       </div>
       )}
     </div>
@@ -458,31 +529,27 @@ export default function AdminClientes() {
   }
 }
 
-function ClientRow({ c, coins, topCategory, checked, onToggleCheck, expanded, onToggleExpand, action }: {
+function ClientRow({ c, coins, topCategory, days, checked, onToggleCheck, expanded, onToggleExpand }: {
   c: EnrichedUser;
   coins: number;
   topCategory: string | null;
+  days: number | null;
   checked: boolean;
   onToggleCheck: () => void;
   expanded: boolean;
   onToggleExpand: () => void;
-  action: React.ReactNode;
 }) {
+  const priority = (days ?? 0) > PRIORITY_DAYS && c.total_leads === 0;
   return (
     <>
       <tr onClick={onToggleExpand} className="border-b border-[#1C3050] hover:bg-slate-800/20 transition-colors cursor-pointer">
-        <td className="p-9 pl-6" onClick={e => e.stopPropagation()}>
+        <td className="p-9 pl-6" style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+          {priority && <div style={{ position: 'absolute', left: 0, top: 8, bottom: 8, width: 3, borderRadius: 2, background: '#f59e0b' }} />}
           <input type="checkbox" checked={checked} onChange={onToggleCheck} style={{ accentColor: '#1D9E75', cursor: 'pointer' }} />
         </td>
         <td className="p-9">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {c.avatar_url ? (
-              <img src={c.avatar_url} alt={c.full_name ?? ''} style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-            ) : (
-              <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#60a5fa', flexShrink: 0 }}>
-                {initials(c.full_name)}
-              </div>
-            )}
+            <Avatar c={c} />
             <div style={{ minWidth: 0 }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: 'white', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.full_name ?? 'Sem nome'}</p>
               <p style={{ fontSize: 11, color: '#64748b', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -494,8 +561,8 @@ function ClientRow({ c, coins, topCategory, checked, onToggleCheck, expanded, on
         </td>
         <td className="p-9"><OriginBadge origin={c.origin} /></td>
         <td className="p-9"><CoinsBadge balance={coins} /></td>
-        <td className="p-9"><ClientInsight totalLeads={c.total_leads} topCategory={topCategory} /></td>
-        <td className="p-9" onClick={e => e.stopPropagation()}>{action}</td>
+        <td className="p-9"><ClientInsight totalLeads={c.total_leads} topCategory={topCategory} days={days} /></td>
+        <td className="p-9" onClick={e => e.stopPropagation()}><WaButton phone={c.phone} /></td>
         <td className="p-9 pr-6">
           <ChevronDown size={14} style={{ color: '#4a6580', transition: 'transform .15s', transform: expanded ? 'rotate(180deg)' : 'none' }} />
         </td>
@@ -507,8 +574,8 @@ function ClientRow({ c, coins, topCategory, checked, onToggleCheck, expanded, on
               {[
                 { label: 'Pedidos criados', value: String(c.total_leads) },
                 { label: 'Agendamentos', value: String(c.total_appointments) },
-                { label: 'Último acesso', value: formatDateStatic(c.last_sign_in_at) },
-                { label: 'Cadastro', value: formatDateStatic(c.created_at) },
+                { label: 'Último acesso', value: formatDate(c.last_sign_in_at) },
+                { label: 'Cadastro', value: formatDate(c.created_at) },
                 { label: 'Telefone', value: c.phone ?? '—' },
               ].map(st => (
                 <div key={st.label}>
@@ -522,9 +589,4 @@ function ClientRow({ c, coins, topCategory, checked, onToggleCheck, expanded, on
       )}
     </>
   );
-}
-
-function formatDateStatic(iso: string | null | undefined): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('pt-BR');
 }
