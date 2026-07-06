@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit2, Loader2, ToggleLeft, ToggleRight, X } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../services/dbServices';
+import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
 interface PacoteForm {
@@ -27,6 +28,27 @@ export default function AdminPacotes() {
     queryKey: ['adminPacotes'],
     queryFn: () => adminService.getCoinPackages()
   });
+
+  // Vendas e receita reais por pacote (payments pagos com package_id = id do pacote)
+  const { data: salesStats = {} } = useQuery({
+    queryKey: ['adminPacotesVendas'],
+    queryFn: async () => {
+      const { data } = await supabase.from('payments').select('package_id, amount, status');
+      const map: Record<string, { vendas: number; receita: number }> = {};
+      (data ?? []).forEach((p: { package_id: string | null; amount: number | null; status: string | null }) => {
+        if (p.status !== 'paid' || !p.package_id) return;
+        if (!map[p.package_id]) map[p.package_id] = { vendas: 0, receita: 0 };
+        map[p.package_id].vendas += 1;
+        map[p.package_id].receita += p.amount ?? 0;
+      });
+      return map;
+    },
+    staleTime: 60_000,
+  });
+
+  // Ordena por preço (não pela ordem crua do banco); inclui TODOS os
+  // pacotes — inativos ficam esmaecidos com badge, não somem da lista
+  const sortedPacotes = [...(pacotes ?? [])].sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
 
   const toggleStatusMutation = useMutation({
     mutationFn: ({ id, currentActive }: { id: string; currentActive: boolean }) =>
@@ -131,8 +153,8 @@ export default function AdminPacotes() {
          <div className="flex justify-center p-12 bg-[#1C3454] rounded-2xl border border-slate-800"><Loader2 className="animate-spin text-emerald-500" size={32} /></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-11">
-           {pacotes?.map(pacote => (
-             <div key={pacote.id} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col relative overflow-hidden group">
+           {sortedPacotes.map(pacote => (
+             <div key={pacote.id} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-11 flex flex-col relative overflow-hidden group" style={{ opacity: pacote.is_active ? 1 : 0.55 }}>
                <div className="flex justify-between items-start mb-11 z-10 relative">
                   <div>
                     <h3 className="text-xl font-bold text-white">{pacote.name}</h3>
@@ -153,12 +175,28 @@ export default function AdminPacotes() {
                        {pacote.coins}
                      </div>
                   </div>
-                  {pacote.bonus_coins > 0 && (
+                  {/* Bloco sempre presente pra manter os cards com a mesma altura */}
+                  {pacote.bonus_coins > 0 ? (
                     <div className="bg-emerald-500/10 border border-emerald-500/20 p-8 rounded-xl flex justify-between items-center text-sm text-emerald-400">
                       <span>Bônus</span>
                       <span className="font-bold">+{pacote.bonus_coins}</span>
                     </div>
+                  ) : (
+                    <div className="bg-white/[0.02] border border-white/5 p-8 rounded-xl flex justify-between items-center text-sm text-slate-600">
+                      <span>Bônus</span>
+                      <span>—</span>
+                    </div>
                   )}
+                  <div className="bg-[#0E1C32] border border-[#1C3050] p-8 rounded-xl grid grid-cols-2 gap-8 text-sm">
+                    <div>
+                      <p className="text-[#4A6580] text-xs uppercase tracking-wide mb-4">Vendas</p>
+                      <p className="text-white font-bold">{salesStats[pacote.id]?.vendas ?? 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-[#4A6580] text-xs uppercase tracking-wide mb-4">Receita</p>
+                      <p className="text-emerald-400 font-bold">R$ {(((salesStats[pacote.id]?.receita ?? 0)) / 100).toFixed(2).replace('.', ',')}</p>
+                    </div>
+                  </div>
                 </div>
 
                <div className="flex items-center gap-8 mt-auto pt-6 border-t border-[#1C3050] z-10 relative">

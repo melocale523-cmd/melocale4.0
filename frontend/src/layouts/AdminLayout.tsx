@@ -147,9 +147,10 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        {/* Page Content */}
+        {/* Page Content — max-width centralizado: sem isso o conteúdo estica
+            full-width em monitores grandes; todas as páginas do admin herdam */}
         <div className="flex-1 overflow-auto">
-          <div className="px-3 py-3 md:px-8 lg:px-12">
+          <div className="mx-auto w-full max-w-[1150px] px-3 py-3 sm:px-4 md:px-6 lg:px-8">
             <Outlet />
           </div>
         </div>
