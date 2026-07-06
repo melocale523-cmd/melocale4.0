@@ -10,9 +10,11 @@ interface Transaction {
   balance_after: number | null;
   reference: string | null;
   created_at: string;
-  professionals?: {
-    user_id?: string | null;
-    profiles?: { full_name?: string | null } | null;
+  wallets?: {
+    professionals?: {
+      user_id?: string | null;
+      profiles?: { full_name?: string | null } | null;
+    } | null;
   } | null;
 }
 
@@ -39,12 +41,15 @@ export default function AdminTransacoes() {
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: async () => {
-      // .returns: o typegen infere professionals() como array, mas a relação
-      // wallet_transactions → professionals é many-to-one e o PostgREST
-      // retorna objeto em runtime.
+      // wallet_transactions NÃO tem FK para professionals (só para wallets e
+      // payments) — o embed direto professionals(...) fazia o PostgREST
+      // falhar com "relationship not found" e a tela zerar. O caminho com FK
+      // real é wallet_id → wallets.professional_id → professionals.user_id →
+      // profiles. (.returns: o typegen infere embeds como array, mas as
+      // relações são many-to-one e o PostgREST retorna objeto em runtime.)
       const { data, error } = await supabase
         .from('wallet_transactions')
-        .select('*, professionals(user_id, profiles(full_name))')
+        .select('*, wallets(professionals(user_id, profiles(full_name)))')
         .order('created_at', { ascending: false })
         .limit(200)
         .returns<Transaction[]>();
@@ -56,7 +61,7 @@ export default function AdminTransacoes() {
   const filtered = transacoes.filter((t: Transaction) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
-    const name = t.professionals?.profiles?.full_name?.toLowerCase() ?? '';
+    const name = t.wallets?.professionals?.profiles?.full_name?.toLowerCase() ?? '';
     return name.includes(q) || t.kind?.toLowerCase().includes(q) || t.reference?.toLowerCase().includes(q);
   });
 
@@ -118,7 +123,7 @@ export default function AdminTransacoes() {
                     {new Date(t.created_at).toLocaleDateString('pt-BR')} {new Date(t.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                   </td>
                   <td className="p-9 text-white font-medium">
-                    {t.professionals?.profiles?.full_name ?? '—'}
+                    {t.wallets?.professionals?.profiles?.full_name ?? '—'}
                   </td>
                   <td className="p-9">
                     <span className={`border px-2 py-0.5 rounded text-xs font-bold uppercase ${kindColor(t.kind)}`}>
@@ -149,7 +154,7 @@ export default function AdminTransacoes() {
               <button onClick={() => setSelectedTx(null)} className="text-[#94A3B8] hover:text-white"><X size={20} /></button>
             </div>
             <div className="space-y-9 text-sm">
-              <div className="flex justify-between"><span className="text-[#4A6580]">Profissional:</span><span className="text-white">{selectedTx.professionals?.profiles?.full_name ?? '—'}</span></div>
+              <div className="flex justify-between"><span className="text-[#4A6580]">Profissional:</span><span className="text-white">{selectedTx.wallets?.professionals?.profiles?.full_name ?? '—'}</span></div>
               <div className="flex justify-between"><span className="text-[#4A6580]">Tipo:</span><span className="text-white">{formatKind(selectedTx.kind, selectedTx.reference)}</span></div>
               <div className="flex justify-between"><span className="text-[#4A6580]">Valor:</span><span className="text-white font-bold">{selectedTx.amount} moedas</span></div>
               <div className="flex justify-between"><span className="text-[#4A6580]">Saldo após:</span><span className="text-white">{selectedTx.balance_after ?? '—'}</span></div>
