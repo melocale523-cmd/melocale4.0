@@ -226,14 +226,14 @@ export default function AdminTransacoes() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-9">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-9">
         {kpiCards.map((stat, i) => (
-          <div key={i} className="bg-[#1C3454] border border-slate-800/80 rounded-xl p-11">
-            <h3 className="text-[#94A3B8] text-sm font-medium mb-7">{stat.label}</h3>
-            <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-            {stat.sub && <p className="text-[#4A6580] text-xs mt-4">{stat.sub}</p>}
+          <div key={i} className="bg-[#1C3454] border border-slate-800/80 rounded-xl p-4 md:p-11">
+            <h3 className="text-[#94A3B8] text-[10px] md:text-sm font-medium mb-2 md:mb-7">{stat.label}</h3>
+            <p className={`text-lg md:text-3xl font-bold ${stat.color}`}>{stat.value}</p>
+            {stat.sub && <p className="text-[#4A6580] text-[10px] md:text-xs mt-1 md:mt-4">{stat.sub}</p>}
             {stat.badge && (
-              <span className={`inline-block mt-6 text-xs font-bold px-2 py-0.5 rounded border ${stat.badge.startsWith('+') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+              <span className={`inline-block mt-2 md:mt-6 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded border ${stat.badge.startsWith('+') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                 {stat.badge}
               </span>
             )}
@@ -304,10 +304,10 @@ export default function AdminTransacoes() {
       </div>
 
       {/* ── Mobile: cards agrupados por mês ───────────────────────────── */}
-      <div className="md:hidden space-y-9">
+      <div className="md:hidden space-y-4">
         {isLoading && <div className="flex justify-center p-8"><Loader2 size={22} className="animate-spin text-emerald-500" /></div>}
         {grouped.map(([mKey, txs]) => (
-          <div key={mKey} className="space-y-8">
+          <div key={mKey} className="space-y-3">
             <p className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] px-2">
               {monthLabel(mKey)} · {txs.length} transaç{txs.length === 1 ? 'ão' : 'ões'}
             </p>
@@ -315,20 +315,20 @@ export default function AdminTransacoes() {
               <button
                 key={t.id}
                 onClick={() => setSelectedTx(t)}
-                className="w-full text-left bg-[#1C3454] border border-slate-800/80 rounded-xl p-9 space-y-7"
+                className="w-full text-left bg-[#1C3454] border border-slate-800/80 rounded-xl p-4 space-y-3"
               >
-                <div className="flex items-start justify-between gap-8">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-white text-sm font-semibold truncate">{txName(t) ?? '—'}</p>
-                    <p className="text-[#4A6580] text-xs">
+                    <p className="text-white text-[13px] font-semibold truncate">{txName(t) ?? '—'}</p>
+                    <p className="text-[#4A6580] text-[11px]">
                       {new Date(t.created_at).toLocaleDateString('pt-BR')} {new Date(t.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <span className={`font-bold text-base shrink-0 ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
+                  <span className={`font-bold text-sm shrink-0 ${t.kind === 'debit_lead' ? 'text-red-400' : 'text-emerald-400'}`}>
                     {t.kind === 'debit_lead' ? '-' : '+'}{t.amount}
                   </span>
                 </div>
-                <div className="flex items-center gap-7 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className={`border px-2 py-0.5 rounded text-xs font-bold uppercase ${kindColor(t.kind)}`}>
                     {formatKind(t.kind, t.reference)}
                   </span>
