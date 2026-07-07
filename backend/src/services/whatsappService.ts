@@ -115,10 +115,17 @@ export async function sendWhatsAppTemplate(
 export const WHATSAPP_TEMPLATES = {
   NEW_LEAD: "novo_pedido_disponivel",
   PROPOSAL_RECEIVED: "proposta_recebida",
-  // Reengajamento (ver backend/src/jobs/whatsappReengagement.ts) — textos já
-  // escritos, mas NINGUÉM criou/submeteu estes templates no WhatsApp Manager
-  // da Meta ainda. O job verifica WHATSAPP_TEMPLATE_*_APPROVED antes de
-  // disparar, então isto é seguro de mesclar antes da aprovação.
-  PROFISSIONAL_SEM_PEDIDO: "profissional_sem_pedido",
+  // Reengajamento (ver backend/src/jobs/whatsappReengagement.ts). O job
+  // verifica WHATSAPP_TEMPLATE_*_APPROVED antes de disparar.
+  // Categoria Marketing, tipo Padrão, sem cabeçalho/rodapé, com botão de
+  // resposta rápida ("Sim, quero saber" / "Sim, me ajuda" — ver
+  // whatsappWebhook.ts pro tratamento do clique via payload `interactive`).
+  //
+  // `profissional_sem_pedido` (sem sufixo) teve conflito de exclusão no
+  // WhatsApp Manager e precisou ser recriado como `profissional_sem_pedido_v2`
+  // — o nome do template na Meta mudou, mas o valor da campanha/cooldown em
+  // whatsapp_conversations.campaign usa esta mesma constante, então não há
+  // nada mais pra atualizar manualmente.
+  PROFISSIONAL_SEM_PEDIDO: "profissional_sem_pedido_v2",
   CLIENTE_SEM_PEDIDO_OU_PROPOSTA: "cliente_sem_pedido_ou_proposta",
 } as const;

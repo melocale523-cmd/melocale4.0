@@ -386,8 +386,8 @@ export async function runWhatsappReengagement(): Promise<void> {
     );
 
     console.log(
-      `[wa-reengage] concluído — profissional_sem_pedido: ${proResult.sent} enviado(s), ${proResult.skippedCooldown} pulado(s) (conversa ativa/cooldown), ${proResult.skippedDryRun} pulado(s) (dry-run) de ${proCandidates.length} elegível(is) por opt-in. ` +
-      `cliente_sem_pedido_ou_proposta: ${clientResult.sent} enviado(s), ${clientResult.skippedCooldown} pulado(s) (conversa ativa/cooldown), ${clientResult.skippedDryRun} pulado(s) (dry-run) de ${clientCandidates.length} elegível(is) por opt-in. ` +
+      `[wa-reengage] concluído — ${WHATSAPP_TEMPLATES.PROFISSIONAL_SEM_PEDIDO}: ${proResult.sent} enviado(s), ${proResult.skippedCooldown} pulado(s) (conversa ativa/cooldown), ${proResult.skippedDryRun} pulado(s) (dry-run) de ${proCandidates.length} elegível(is) por opt-in. ` +
+      `${WHATSAPP_TEMPLATES.CLIENTE_SEM_PEDIDO_OU_PROPOSTA}: ${clientResult.sent} enviado(s), ${clientResult.skippedCooldown} pulado(s) (conversa ativa/cooldown), ${clientResult.skippedDryRun} pulado(s) (dry-run) de ${clientCandidates.length} elegível(is) por opt-in. ` +
       `Teto diário: ${DAILY_LIMIT}.`
     );
   } catch (err) {
