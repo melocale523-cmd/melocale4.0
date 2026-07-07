@@ -43,9 +43,30 @@ function isValidSignature(rawBody: Buffer, signatureHeader: string | undefined):
   return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(received, "hex"));
 }
 
-type WebhookMessage = { from?: string; id?: string; type?: string; text?: { body?: string } };
+type WebhookMessage = {
+  from?: string;
+  id?: string;
+  type?: string;
+  text?: { body?: string };
+  // Clique em botão de resposta rápida de template (categoria Marketing) —
+  // a Meta manda type="interactive" em vez de type="text".
+  interactive?: { type?: string; button_reply?: { id?: string; title?: string } };
+};
 type WebhookChange = { field?: string; value?: { messages?: WebhookMessage[] } };
 type WebhookBody = { object?: string; entry?: { changes?: WebhookChange[] }[] };
+
+/**
+ * Extrai o texto "equivalente" de uma mensagem inbound: corpo de texto normal,
+ * ou o título do botão clicado (resposta rápida de template). Tratado como
+ * mensagem de texto comum dali pra frente — mesmo pipeline do bot.
+ */
+function extractMessageText(msg: WebhookMessage): string | null {
+  if (msg.type === "text" && msg.text?.body) return msg.text.body;
+  if (msg.type === "interactive" && msg.interactive?.type === "button_reply" && msg.interactive.button_reply?.title) {
+    return msg.interactive.button_reply.title;
+  }
+  return null;
+}
 
 async function connectProfessionalByWaId(waId: string): Promise<boolean> {
   const digits = waId.replace(/\D/g, "");
@@ -125,13 +146,14 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
   try {
     if (body.object !== "whatsapp_business_account") return;
     const senders = new Set<string>();
-    const textMessages: WebhookMessage[] = [];
+    const inboundTexts: { from: string; text: string }[] = [];
     for (const entry of body.entry ?? []) {
       for (const change of entry.changes ?? []) {
         if (change.field !== "messages") continue;
         for (const msg of change.value?.messages ?? []) {
           if (msg.from) senders.add(msg.from);
-          if (msg.type === "text" && msg.text?.body) textMessages.push(msg);
+          const text = extractMessageText(msg);
+          if (text && msg.from) inboundTexts.push({ from: msg.from, text });
         }
       }
     }
@@ -142,8 +164,8 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
         if (!result.ok) console.error(`[wa-webhook] falha ao confirmar para ${waId}:`, result.error);
       }
     }
-    for (const msg of textMessages) {
-      await processInboundConversationMessage(msg.from as string, msg.text!.body as string);
+    for (const { from, text } of inboundTexts) {
+      await processInboundConversationMessage(from, text);
     }
   } catch (err) {
     console.error("[wa-webhook] erro ao processar evento:", err instanceof Error ? err.message : String(err));
