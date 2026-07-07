@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import crypto from "node:crypto";
 import { supabaseAdmin } from "../config.js";
 import { sendWhatsAppText } from "../services/whatsappService.js";
-import { ensureConversation, insertMessage, processBotTurn, touchConversation } from "../services/whatsappConversationService.js";
+import { ensureConversation, getConversationByPhone, insertMessage, processBotTurn, touchConversation } from "../services/whatsappConversationService.js";
 
 // Webhook da Meta (WhatsApp Cloud API).
 // GET  → verificação inicial (hub.challenge) com WHATSAPP_WEBHOOK_VERIFY_TOKEN
@@ -12,6 +12,54 @@ import { ensureConversation, insertMessage, processBotTurn, touchConversation } 
 
 const CONFIRMATION_TEXT =
   "WhatsApp conectado! Você vai receber avisos de novos pedidos por aqui. ✅";
+
+function envInt(name: string, fallback: number): number {
+  const raw = process.env[name];
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+// Janela de debounce por conversa (telefone) antes de chamar o bot — evita
+// que duas mensagens chegando quase juntas (ex.: "Como funciona" + "?" a
+// poucos segundos de distância) disparem duas chamadas ao Haiku em paralelo,
+// cada uma sem saber que a outra já respondeu.
+//
+// ⚠️ Isto usa um Map em memória do processo — só funciona corretamente com
+// UMA única instância do backend rodando (Render Web Service sem scale
+// horizontal, que é o setup atual). Se o serviço passar a rodar em múltiplas
+// instâncias, cada instância teria seu próprio Map e o debounce deixaria de
+// funcionar entre requests que caem em instâncias diferentes (voltaria a
+// acontecer a resposta duplicada, só que com probabilidade menor). Resolver
+// isso exigiria um lock distribuído (ex.: Redis) — não implementado agora
+// por ser over-engineering para o estágio atual do produto.
+const BOT_DEBOUNCE_MS = envInt("WHATSAPP_BOT_DEBOUNCE_MS", 3500);
+const pendingBotTimers = new Map<string, NodeJS.Timeout>();
+
+function scheduleBotTurn(phone: string, lastMessageBody: string): void {
+  const existing = pendingBotTimers.get(phone);
+  if (existing) clearTimeout(existing);
+
+  const timer = setTimeout(() => {
+    pendingBotTimers.delete(phone);
+    void runDebouncedBotTurn(phone, lastMessageBody);
+  }, BOT_DEBOUNCE_MS);
+  // Não impede o processo de encerrar (ex.: shutdown gracioso) por causa de
+  // um timer de debounce pendente.
+  if (typeof timer.unref === "function") timer.unref();
+  pendingBotTimers.set(phone, timer);
+}
+
+async function runDebouncedBotTurn(phone: string, lastMessageBody: string): Promise<void> {
+  try {
+    // Rebusca a conversa — o status pode ter mudado durante a janela de
+    // espera (ex.: admin assumiu a conversa nesse meio-tempo).
+    const conv = await getConversationByPhone(phone);
+    if (!conv || conv.status !== "bot_active") return;
+    await processBotTurn(conv, lastMessageBody);
+  } catch (err) {
+    console.error(`[wa-webhook] erro ao processar bot (debounce) de ${phone}:`, err instanceof Error ? err.message : String(err));
+  }
+}
 
 export function whatsappWebhookVerifyHandler(req: Request, res: Response) {
   const verifyToken = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
@@ -188,7 +236,9 @@ async function processInboundConversationMessage(waId: string, text: string): Pr
       return;
     }
     if (conv.status === "bot_active") {
-      await processBotTurn(conv, text);
+      // Não chama o bot imediatamente — agenda com debounce, pra agrupar
+      // mensagens que cheguem em sequência rápida numa única resposta.
+      scheduleBotTurn(conv.phone, text);
     }
     // needs_human / resolved: nada a fazer, aguarda ação do admin.
   } catch (err) {
