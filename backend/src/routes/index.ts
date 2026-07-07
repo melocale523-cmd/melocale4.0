@@ -13,6 +13,7 @@ import clientCoinsRouter from "./clientCoins.js";
 import walletRouter from "./wallet.js";
 import trackRouter from "./track.js";
 import professionalsRouter from "./professionals.js";
+import whatsappConversationsRouter from "./whatsappConversations.js";
 import { PLANS } from "../config.js";
 
 export function registerRoutes(app: Application) {
@@ -61,6 +62,7 @@ export function registerRoutes(app: Application) {
   app.use("/api", chatRouter);
   app.use("/api", supportRouter);
   app.use("/api/admin", adminRouter);
+  app.use("/api/admin/whatsapp", whatsappConversationsRouter);
   app.use("/api/referrals", referralsRouter);
   app.use("/api/client-coins", clientCoinsRouter);
   app.use("/api/wallet", walletRouter);

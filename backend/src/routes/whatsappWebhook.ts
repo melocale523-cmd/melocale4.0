@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import crypto from "node:crypto";
 import { supabaseAdmin } from "../config.js";
 import { sendWhatsAppText } from "../services/whatsappService.js";
+import { ensureConversation, insertMessage, processBotTurn, touchConversation } from "../services/whatsappConversationService.js";
 
 // Webhook da Meta (WhatsApp Cloud API).
 // GET  → verificação inicial (hub.challenge) com WHATSAPP_WEBHOOK_VERIFY_TOKEN
@@ -42,9 +43,30 @@ function isValidSignature(rawBody: Buffer, signatureHeader: string | undefined):
   return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(received, "hex"));
 }
 
-type WebhookMessage = { from?: string; id?: string; type?: string };
+type WebhookMessage = {
+  from?: string;
+  id?: string;
+  type?: string;
+  text?: { body?: string };
+  // Clique em botão de resposta rápida de template (categoria Marketing) —
+  // a Meta manda type="interactive" em vez de type="text".
+  interactive?: { type?: string; button_reply?: { id?: string; title?: string } };
+};
 type WebhookChange = { field?: string; value?: { messages?: WebhookMessage[] } };
 type WebhookBody = { object?: string; entry?: { changes?: WebhookChange[] }[] };
+
+/**
+ * Extrai o texto "equivalente" de uma mensagem inbound: corpo de texto normal,
+ * ou o título do botão clicado (resposta rápida de template). Tratado como
+ * mensagem de texto comum dali pra frente — mesmo pipeline do bot.
+ */
+function extractMessageText(msg: WebhookMessage): string | null {
+  if (msg.type === "text" && msg.text?.body) return msg.text.body;
+  if (msg.type === "interactive" && msg.interactive?.type === "button_reply" && msg.interactive.button_reply?.title) {
+    return msg.interactive.button_reply.title;
+  }
+  return null;
+}
 
 async function connectProfessionalByWaId(waId: string): Promise<boolean> {
   const digits = waId.replace(/\D/g, "");
@@ -124,11 +146,14 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
   try {
     if (body.object !== "whatsapp_business_account") return;
     const senders = new Set<string>();
+    const inboundTexts: { from: string; text: string }[] = [];
     for (const entry of body.entry ?? []) {
       for (const change of entry.changes ?? []) {
         if (change.field !== "messages") continue;
         for (const msg of change.value?.messages ?? []) {
           if (msg.from) senders.add(msg.from);
+          const text = extractMessageText(msg);
+          if (text && msg.from) inboundTexts.push({ from: msg.from, text });
         }
       }
     }
@@ -139,7 +164,34 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
         if (!result.ok) console.error(`[wa-webhook] falha ao confirmar para ${waId}:`, result.error);
       }
     }
+    for (const { from, text } of inboundTexts) {
+      await processInboundConversationMessage(from, text);
+    }
   } catch (err) {
     console.error("[wa-webhook] erro ao processar evento:", err instanceof Error ? err.message : String(err));
+  }
+}
+
+async function processInboundConversationMessage(waId: string, text: string): Promise<void> {
+  try {
+    const conv = await ensureConversation(waId);
+    await insertMessage({
+      conversation_id: conv.id,
+      direction: "inbound",
+      sender: "user",
+      body: text,
+    });
+    await touchConversation(conv.id);
+
+    if (conv.status === "human_active") {
+      // Humano no controle — bot se cala, só registra a mensagem.
+      return;
+    }
+    if (conv.status === "bot_active") {
+      await processBotTurn(conv, text);
+    }
+    // needs_human / resolved: nada a fazer, aguarda ação do admin.
+  } catch (err) {
+    console.error(`[wa-webhook] erro ao processar conversa de ${waId}:`, err instanceof Error ? err.message : String(err));
   }
 }
