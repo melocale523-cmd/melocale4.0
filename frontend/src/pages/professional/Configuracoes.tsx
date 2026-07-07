@@ -5,6 +5,8 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
+import { useTurnstileToken } from '../../hooks/useTurnstileToken';
+import TurnstileWidget from '../../components/auth/TurnstileWidget';
 
 export default function ProfessionalConfiguracoes() {
   const { user } = useAuthStore();
@@ -25,6 +27,7 @@ export default function ProfessionalConfiguracoes() {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [savingPassword, setSavingPassword] = useState(false);
+  const turnstile = useTurnstileToken();
 
   // Load persisted preferences on mount + Realtime para refletir mudanças
   // feitas em outra aba/dispositivo (ex.: webhook marca whatsapp_connected)
@@ -118,6 +121,7 @@ export default function ProfessionalConfiguracoes() {
 
   return (
     <div className="w-full" style={{ fontFamily:"'DM Sans',sans-serif", display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+      <TurnstileWidget ref={turnstile.widgetRef} onVerify={turnstile.onVerify} onError={turnstile.onError} />
 
       {/* Header */}
       <div>
@@ -190,8 +194,9 @@ export default function ProfessionalConfiguracoes() {
                   const { data: { session } } = await supabase.auth.getSession();
                   const email = session?.user?.email;
                   if (!email) throw new Error('Sessão expirada. Faça login novamente.');
-                  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: current });
-                  if (signInError) throw new Error('Senha atual incorreta.');
+                  const captchaToken = await turnstile.getToken();
+                  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: current, options: { captchaToken } });
+                  if (signInError) throw new Error(signInError.message.toLowerCase().includes('captcha') ? 'Verificação de segurança expirou, tente novamente.' : 'Senha atual incorreta.');
                   const { error } = await supabase.auth.updateUser({ password: newPass });
                   if (error) throw error;
                   toast.success('Senha alterada com sucesso!');
@@ -200,6 +205,7 @@ export default function ProfessionalConfiguracoes() {
                 } catch (err) {
                   toast.error(err instanceof Error ? err.message : 'Erro ao alterar senha.');
                 } finally {
+                  turnstile.reset();
                   setSavingPassword(false);
                 }
               }} style={{ height:'2.375rem', padding:'0 1.25rem', background:'linear-gradient(135deg,#60a5fa,#378ADD)', border:'none', borderRadius:'0.625rem', color:'white', fontSize:'0.8125rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, opacity: savingPassword ? .6 : 1 }}>
