@@ -115,4 +115,9 @@ export async function sendWhatsAppTemplate(
 export const WHATSAPP_TEMPLATES = {
   NEW_LEAD: "novo_pedido_disponivel",
   PROPOSAL_RECEIVED: "proposta_recebida",
+  // Reengajamento (Camada 2/3) — disparo automatizado ainda não implementado,
+  // ver backend/src/jobs/ (nenhum job dispara estes hoje). Ao implementar o
+  // cron, usar `campaign` abaixo como valor de whatsapp_conversations.campaign.
+  PROFISSIONAL_SEM_PEDIDO: "profissional_sem_pedido",
+  CLIENTE_SEM_PEDIDO_OU_PROPOSTA: "cliente_sem_pedido_ou_proposta",
 } as const;
