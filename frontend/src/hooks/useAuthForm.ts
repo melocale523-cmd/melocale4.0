@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { type AddressValue, emptyAddress } from '../components/AddressForm';
 import { apiFetch } from '../lib/api';
 import { resolveSignupOrigin } from './useUtmCapture';
+import { useTurnstileToken } from './useTurnstileToken';
 
 export function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -57,6 +58,7 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [categorias, setCategorias] = useState<string[]>([]);
+  const turnstile = useTurnstileToken();
 
   useEffect(() => {
     supabase
@@ -87,14 +89,18 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
     }
     setIsSubmitting(true);
     try {
+      const captchaToken = await turnstile.getToken();
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(formData.email, {
         redirectTo: `${window.location.origin}/login`,
+        captchaToken,
       });
       if (resetError) throw resetError;
       toast.success('E-mail de recuperação enviado! Verifique sua caixa de entrada.');
-    } catch {
-      toast.error('Não encontramos uma conta com este e-mail.');
+    } catch (err) {
+      const msg = (err instanceof Error ? err.message : '').toLowerCase();
+      toast.error(msg.includes('captcha') ? 'Verificação de segurança expirou, tente novamente.' : 'Não encontramos uma conta com este e-mail.');
     } finally {
+      turnstile.reset();
       setIsSubmitting(false);
     }
   };
@@ -139,6 +145,8 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
     setIsSubmitting(true);
 
     try {
+      const captchaToken = await turnstile.getToken();
+
       if (mode === 'signup') {
         const finalCategory = formData.category === 'Outro'
           ? formData.customCategory
@@ -151,6 +159,7 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
           email: formData.email,
           password: formData.password,
           options: {
+            captchaToken,
             data: {
               name: formData.name,
               role: selectedRole,
@@ -212,6 +221,7 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
+          options: { captchaToken },
         });
 
         if (signInError) throw signInError;
@@ -222,7 +232,9 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
       }
     } catch (err: unknown) {
       const msg = (err instanceof Error ? err.message : '').toLowerCase();
-      if (msg.includes('email not confirmed')) {
+      if (msg.includes('captcha')) {
+        setError('Verificação de segurança expirou, tente novamente.');
+      } else if (msg.includes('email not confirmed')) {
         setError('Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e clique no link que enviamos.');
       } else if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
         setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.');
@@ -232,6 +244,7 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
         setError(err instanceof Error ? err.message : 'Erro inesperado.');
       }
     } finally {
+      turnstile.reset();
       setIsSubmitting(false);
     }
   };
@@ -247,6 +260,9 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
     showPassword,
     setShowPassword,
     categorias,
+    turnstileWidgetRef: turnstile.widgetRef,
+    onTurnstileVerify: turnstile.onVerify,
+    onTurnstileError: turnstile.onError,
     handleForgotPassword,
     handleGoogleLogin,
     handleSubmit,

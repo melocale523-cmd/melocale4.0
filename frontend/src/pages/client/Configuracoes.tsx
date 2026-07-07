@@ -3,6 +3,8 @@ import { Lock, Shield, AlertTriangle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
+import { useTurnstileToken } from '../../hooks/useTurnstileToken';
+import TurnstileWidget from '../../components/auth/TurnstileWidget';
 
 const CARD = 'bg-[#0E1C32] border border-[#243F6A] rounded-2xl overflow-hidden';
 const CARD_HEADER = 'px-5 py-4 border-b border-[#243F6A] flex items-center gap-3';
@@ -18,9 +20,11 @@ export default function ClientConfiguracoes() {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [savingPassword, setSavingPassword] = useState(false);
+  const turnstile = useTurnstileToken();
 
   return (
     <div className="flex justify-center px-4 py-6"><div className="w-full max-w-2xl space-y-4">
+      <TurnstileWidget ref={turnstile.widgetRef} onVerify={turnstile.onVerify} onError={turnstile.onError} />
       {/* Page header */}
       <div className="mb-2">
         <h1 className="text-2xl font-bold text-white">Configurações</h1>
@@ -131,8 +135,9 @@ export default function ClientConfiguracoes() {
                   const { data: { session } } = await supabase.auth.getSession();
                   const email = session?.user?.email;
                   if (!email) throw new Error('Sessão expirada. Faça login novamente.');
-                  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: current });
-                  if (signInError) throw new Error('Senha atual incorreta.');
+                  const captchaToken = await turnstile.getToken();
+                  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: current, options: { captchaToken } });
+                  if (signInError) throw new Error(signInError.message.toLowerCase().includes('captcha') ? 'Verificação de segurança expirou, tente novamente.' : 'Senha atual incorreta.');
                   const { error } = await supabase.auth.updateUser({ password: newPass });
                   if (error) throw error;
                   toast.success('Senha alterada com sucesso!');
@@ -141,6 +146,7 @@ export default function ClientConfiguracoes() {
                 } catch (err) {
                   toast.error(err instanceof Error ? err.message : 'Erro ao alterar senha.');
                 } finally {
+                  turnstile.reset();
                   setSavingPassword(false);
                 }
               }}

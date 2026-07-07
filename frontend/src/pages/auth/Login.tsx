@@ -10,6 +10,8 @@ import { API_URL, apiFetch } from '../../lib/api';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
 import { setOAuthSignupFlag, clearOAuthSignupFlag } from '../../lib/oauthSignupFlag';
 import { resolveSignupOrigin } from '../../hooks/useUtmCapture';
+import { useTurnstileToken } from '../../hooks/useTurnstileToken';
+import TurnstileWidget from '../../components/auth/TurnstileWidget';
 
 function validatePassword(password: string): string | null {
   if (password.length < 8) return 'Senha deve ter pelo menos 8 caracteres.';
@@ -52,6 +54,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [legalModal, setLegalModal] = useState<'termos' | 'privacidade' | null>(null);
   const [categorias, setCategorias] = useState<string[]>([]);
+  const turnstile = useTurnstileToken();
 
   useEffect(() => {
     supabase
@@ -121,14 +124,18 @@ export default function Login() {
 
     setIsSubmitting(true);
     try {
+      const captchaToken = await turnstile.getToken();
       const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
         redirectTo: `${window.location.origin}/login`,
+        captchaToken,
       });
       if (error) throw error;
       toast.success("E-mail de recuperação enviado! Verifique sua caixa de entrada.");
-    } catch {
-      toast.error("Não encontramos uma conta com este e-mail.");
+    } catch (err) {
+      const msg = (err instanceof Error ? err.message : '').toLowerCase();
+      toast.error(msg.includes('captcha') ? 'Verificação de segurança expirou, tente novamente.' : 'Não encontramos uma conta com este e-mail.');
     } finally {
+      turnstile.reset();
       setIsSubmitting(false);
     }
   };
@@ -185,6 +192,8 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
+      const captchaToken = await turnstile.getToken();
+
       if (isSignUp) {
         const finalCategory = formData.category === 'Outro'
           ? formData.customCategory
@@ -197,6 +206,7 @@ export default function Login() {
           email: formData.email,
           password: formData.password,
           options: {
+            captchaToken,
             data: {
               name: formData.name,
               role: selectedRole,
@@ -251,10 +261,13 @@ export default function Login() {
           body: JSON.stringify({ role: selectedRole, email: signUpData.user?.email, phone: formData.phone || undefined, name: formData.name || undefined, city: address.city || undefined, state: address.state || undefined, origin: resolveSignupOrigin(), fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
         }).catch(() => {});
 
-        // Login automático após cadastro
+        // Login automático após cadastro — precisa de um captchaToken novo,
+        // o de cima já foi consumido pelo signUp (token é de uso único).
+        const autoLoginCaptchaToken = await turnstile.getToken();
         await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
+          options: { captchaToken: autoLoginCaptchaToken },
         });
 
         const pendingRef = sessionStorage.getItem('melocale_ref');
@@ -275,6 +288,7 @@ export default function Login() {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
+          options: { captchaToken },
         });
 
         if (signInError) throw signInError;
@@ -284,7 +298,9 @@ export default function Login() {
       }
     } catch (err: unknown) {
       const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
-      if (msg.includes('email not confirmed')) {
+      if (msg.includes('captcha')) {
+        setError('Verificação de segurança expirou, tente novamente.');
+      } else if (msg.includes('email not confirmed')) {
         setError('Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e clique no link que enviamos.');
       } else if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
         setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.');
@@ -294,6 +310,7 @@ export default function Login() {
         setError(err instanceof Error ? err.message : String(err));
       }
     } finally {
+      turnstile.reset();
       setIsSubmitting(false);
     }
   };
@@ -311,6 +328,8 @@ export default function Login() {
 
   return (
     <div className="w-full">
+      <TurnstileWidget ref={turnstile.widgetRef} onVerify={turnstile.onVerify} onError={turnstile.onError} />
+
       {/* CABEÇALHO */}
       <div className="text-center mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 tracking-tight" style={{ marginBottom: '0.5rem' }}>
