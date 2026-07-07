@@ -25,17 +25,20 @@ export function useTurnstileToken() {
   // (widgetRef.current fica null) — resolve sem token em vez de travar o
   // submit pra sempre.
   //
-  // Timeout de 10s: se o desafio nunca resolver (ex.: script do Cloudflare
+  // Timeout de 4s: se o desafio nunca resolver (ex.: script do Cloudflare
   // não carregou, rede bloqueando challenges.cloudflare.com, ou qualquer
   // outra falha silenciosa) o submit não pode ficar girando pra sempre —
   // rejeita com um erro claro em vez de travar o spinner indefinidamente.
+  // Reduzido de 10s pra 4s a pedido do Samuel (2026-07-07) — risco aceito
+  // de mais falsos-positivos em rede ruim (interior da Bahia), já que o
+  // desafio managed as vezes escala pra interativo e pode passar de 4s.
   const getToken = useCallback((): Promise<string | undefined> => {
     if (!widgetRef.current) return Promise.resolve(undefined);
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         pendingRef.current = null;
         reject(new Error('Não foi possível verificar segurança, recarregue a página e tente novamente.'));
-      }, 10_000);
+      }, 4_000);
       pendingRef.current = {
         resolve: (token) => { clearTimeout(timeoutId); resolve(token); },
         reject: (err) => { clearTimeout(timeoutId); reject(err); },

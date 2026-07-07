@@ -212,21 +212,33 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
     }
 
     await runTest("t1", "Login cliente", async () => {
-      const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+      const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+        type: "magiclink",
         email: TEST_CLIENT_EMAIL,
-        password: TEST_CLIENT_PASSWORD,
       });
-      if (error || !data.session) throw new Error(error?.message ?? "Sem sessão");
+      if (linkErr) throw new Error(linkErr.message);
+
+      const { data, error } = await supabaseAdmin.auth.verifyOtp({
+        token_hash: linkData.properties.hashed_token,
+        type: "magiclink",
+      });
+      if (error || !data.session || !data.user) throw new Error(error?.message ?? "Sem sessão");
       clientUserId = data.user.id;
       return `OK — user_id: ${clientUserId}`;
     });
 
     await runTest("t2", "Login profissional", async () => {
-      const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+      const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+        type: "magiclink",
         email: TEST_PROF_EMAIL,
-        password: TEST_PROF_PASSWORD,
       });
-      if (error || !data.session) throw new Error(error?.message ?? "Sem sessão");
+      if (linkErr) throw new Error(linkErr.message);
+
+      const { data, error } = await supabaseAdmin.auth.verifyOtp({
+        token_hash: linkData.properties.hashed_token,
+        type: "magiclink",
+      });
+      if (error || !data.session || !data.user) throw new Error(error?.message ?? "Sem sessão");
       profUserId = data.user.id;
       return `OK — user_id: ${profUserId}`;
     });

@@ -131,7 +131,45 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-8">9. Alterações nesta política</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">9. Proteção contra bots (Cloudflare Turnstile)</h2>
+            <p>
+              Este site utiliza o Cloudflare Turnstile para proteger os formulários de cadastro,
+              login e recuperação de senha contra acesso automatizado, fraude e ataques de força
+              bruta. O Turnstile analisa sinais técnicos do navegador (como endereço IP,
+              cabeçalhos HTTP, user-agent e características do ambiente) para diferenciar usuários
+              humanos de bots, sem exibir desafios visuais na maioria dos casos.
+            </p>
+            <p className="mt-7">
+              Essa verificação é executada com base no legítimo interesse do MeloCalé em manter a
+              segurança da plataforma (art. 7º, IX da LGPD). O processamento desses dados é feito
+              pela Cloudflare, Inc., que atua como operadora nos termos do{' '}
+              <a
+                href="https://www.cloudflare.com/turnstilePrivacyPolicy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 hover:underline"
+              >
+                Turnstile Privacy Addendum
+              </a>{' '}
+              e da{' '}
+              <a
+                href="https://www.cloudflare.com/privacypolicy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 hover:underline"
+              >
+                Política de Privacidade da Cloudflare
+              </a>
+              .
+            </p>
+            <p className="mt-7">
+              O Turnstile não utiliza cookies de rastreamento publicitário nem constrói perfil
+              comportamental do usuário.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-white mb-8">10. Alterações nesta política</h2>
 
             <p>
               Podemos atualizar esta política periodicamente. Notificaremos usuários sobre
@@ -140,7 +178,7 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-8">10. Transferência Internacional de Dados</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">11. Transferência Internacional de Dados</h2>
             <p>
               Para operar a plataforma, seus dados podem ser transferidos e processados fora do
               Brasil, com base nos Art. 33–36 da LGPD, pelos seguintes prestadores:
@@ -157,7 +195,7 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mb-8">11. Contato</h2>
+            <h2 className="text-lg font-semibold text-white mb-8">12. Contato</h2>
             <p>
               Dúvidas sobre privacidade:{' '}
               <a href="mailto:privacidade@melocale.com.br" className="text-emerald-400 hover:underline">
