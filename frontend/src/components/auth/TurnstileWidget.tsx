@@ -11,12 +11,19 @@ interface TurnstileWidgetProps {
   onError: () => void;
 }
 
-// Widget invisível do Cloudflare Turnstile — não renderiza nada visível pro
-// usuário. `execution: 'execute'` faz com que o desafio só rode quando
-// chamamos ref.current.execute() manualmente (no submit do form), em vez de
-// automaticamente ao montar o componente — assim cada tentativa de
-// login/cadastro gera um token novo, do jeito que o Supabase exige (token é
-// de uso único e expira em 5min).
+// Widget invisível do Cloudflare Turnstile. `execution: 'execute'` faz com
+// que o desafio só rode quando chamamos ref.current.execute() manualmente
+// (no submit do form), em vez de automaticamente ao montar o componente —
+// assim cada tentativa de login/cadastro gera um token novo, do jeito que o
+// Supabase exige (token é de uso único e expira em 5min).
+//
+// NÃO aplicar `display: none`/`visibility: hidden` neste componente — isso
+// causou loop infinito em produção (spinner do login nunca resolvia). O
+// modo "invisible" já não mostra UI nenhuma no caso normal (não-interativo);
+// mas quando o Cloudflare decide exigir um desafio interativo (score de
+// risco alto, navegador suspeito, etc.), ele precisa renderizar um iframe
+// visível pro usuário resolver — com display:none esse iframe nunca aparece
+// e o onSuccess/onVerify nunca dispara, travando o submit pra sempre.
 const TurnstileWidget = forwardRef<TurnstileInstance, TurnstileWidgetProps>(
   function TurnstileWidget({ onVerify, onError }, ref) {
     if (!SITE_KEY) {
@@ -31,7 +38,6 @@ const TurnstileWidget = forwardRef<TurnstileInstance, TurnstileWidgetProps>(
         onSuccess={onVerify}
         onError={onError}
         onExpire={onError}
-        style={{ display: 'none' }}
       />
     );
   }
