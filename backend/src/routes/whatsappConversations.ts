@@ -1,4 +1,5 @@
 import { Router, Response } from "express";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { AuthRequest, requireAuth, requireAdmin } from "../middleware/auth.js";
 import { supabaseAdmin, anthropic } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
@@ -6,6 +7,18 @@ import { sendWhatsAppText } from "../services/whatsappService.js";
 import { insertMessage, touchConversation, type ConversationRow } from "../services/whatsappConversationService.js";
 
 const router = Router();
+
+// Segunda linha de defesa contra custo de API — /suggest-reply já exige admin,
+// mas isso limita o estrago caso uma conta admin seja comprometida (Sonnet
+// tem custo real por chamada). Por usuário autenticado, não por IP.
+const suggestReplyRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  keyGenerator: (req) => (req as AuthRequest).authUser?.id ?? ipKeyGenerator(req.ip ?? "unknown"),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Muitas sugestões de resposta geradas. Aguarde 1 hora e tente novamente." },
+});
 
 type ProfileRow = { id: string; full_name: string | null; avatar_url: string | null };
 
@@ -144,7 +157,7 @@ router.post("/conversations/:id/reply", requireAuth, requireAdmin, async (req: A
   }
 });
 
-router.post("/conversations/:id/suggest-reply", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+router.post("/conversations/:id/suggest-reply", requireAuth, requireAdmin, suggestReplyRateLimit, async (req: AuthRequest, res: Response) => {
   try {
     const { data: conv, error: convErr } = await withTimeout(
       supabaseAdmin.from("whatsapp_conversations").select("*").eq("id", req.params.id).maybeSingle()

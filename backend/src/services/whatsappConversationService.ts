@@ -22,6 +22,42 @@ export type ConversationRow = {
 const HANDOFF_MESSAGE =
   "Vou te passar pra alguém mais especializado nessa área que vai te ajudar melhor!";
 
+function envInt(name: string, fallback: number): number {
+  const raw = process.env[name];
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+// Limite de chamadas ao Haiku por telefone por hora — protege o orçamento de
+// API contra alguém mandando dezenas de mensagens de propósito (o debounce em
+// whatsappWebhook.ts evita respostas duplicadas, mas não evita esse abuso).
+// Ao estourar, faz handoff pra humano em vez de simplesmente ignorar a
+// mensagem, pra não deixar um usuário legítimo sem resposta nenhuma.
+//
+// ⚠️ Map em memória do processo — mesma limitação de instância única já
+// documentada em pendingBotTimers (whatsappWebhook.ts): só funciona
+// corretamente com UMA instância do backend rodando (setup atual no Render).
+const BOT_MAX_CALLS_PER_HOUR = envInt("WHATSAPP_BOT_MAX_CALLS_PER_HOUR", 40);
+const BOT_CALL_WINDOW_MS = 60 * 60 * 1000;
+const botCallTimestamps = new Map<string, number[]>();
+
+const BOT_ABUSE_HANDOFF_REASON =
+  "Limite de mensagens automáticas atingido — possível abuso ou conversa muito longa, necessita atenção humana";
+
+/**
+ * Registra uma chamada ao Haiku para este telefone e diz se o limite por
+ * hora foi estourado. Efeito colateral: descarta timestamps fora da janela.
+ */
+function registerBotCallAndCheckLimit(phone: string): boolean {
+  const now = Date.now();
+  const timestamps = (botCallTimestamps.get(phone) ?? []).filter(
+    (t) => now - t < BOT_CALL_WINDOW_MS
+  );
+  timestamps.push(now);
+  botCallTimestamps.set(phone, timestamps);
+  return timestamps.length > BOT_MAX_CALLS_PER_HOUR;
+}
+
 /**
  * Resolve o contato (profiles) pelo sufixo do telefone. wa_id pode vir com
  * ou sem o 9 extra do celular BR / com DDI 55; profiles.phone é DDD+numero.
@@ -283,11 +319,18 @@ async function callHaikuForDecision(context: string, history: { sender: string; 
  * decide entre responder ou fazer handoff, envia e persiste tudo.
  */
 export async function processBotTurn(conv: ConversationRow, lastMessageBody: string): Promise<void> {
+  let decision: BotDecision;
+  if (registerBotCallAndCheckLimit(conv.phone)) {
+    console.warn(`[wa-conv] limite de ${BOT_MAX_CALLS_PER_HOUR} chamadas/hora ao bot estourado para ${conv.phone} — handoff pra humano`);
+    decision = { reply: null, handoff: true, mood: "neutral", handoff_reason: BOT_ABUSE_HANDOFF_REASON };
+    await finalizeBotDecision(conv, decision);
+    return;
+  }
+
   const { name, details } = await buildContactContext(conv.contact_id, conv.contact_type);
   const context = `Nome: ${name}. Campanha: ${conv.campaign ?? "nenhuma"}. ${details}`;
   const history = await getRecentMessages(conv.id, 10);
 
-  let decision: BotDecision;
   try {
     decision = await callHaikuForDecision(context, history, lastMessageBody);
   } catch (err) {
@@ -295,6 +338,10 @@ export async function processBotTurn(conv: ConversationRow, lastMessageBody: str
     decision = { reply: null, handoff: true, mood: "neutral", handoff_reason: "Erro ao consultar IA." };
   }
 
+  await finalizeBotDecision(conv, decision);
+}
+
+async function finalizeBotDecision(conv: ConversationRow, decision: BotDecision): Promise<void> {
   if (decision.handoff || !decision.reply) {
     await touchConversation(conv.id, {
       status: "needs_human",
