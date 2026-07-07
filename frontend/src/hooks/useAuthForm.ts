@@ -98,7 +98,13 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
       toast.success('E-mail de recuperação enviado! Verifique sua caixa de entrada.');
     } catch (err) {
       const msg = (err instanceof Error ? err.message : '').toLowerCase();
-      toast.error(msg.includes('captcha') ? 'Verificação de segurança expirou, tente novamente.' : 'Não encontramos uma conta com este e-mail.');
+      if (msg.includes('captcha')) {
+        toast.error('Verificação de segurança expirou, tente novamente.');
+      } else if (msg.includes('verificar segurança')) {
+        toast.error(err instanceof Error ? err.message : 'Erro inesperado.');
+      } else {
+        toast.error('Não encontramos uma conta com este e-mail.');
+      }
     } finally {
       turnstile.reset();
       setIsSubmitting(false);
