@@ -119,7 +119,11 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:pl-48 flex flex-col min-h-screen">
+      {/* min-w-0: sem isso, um flex item sem largura definida assume min-width:auto —
+          conteúdo não-quebrável de uma página filha (ex.: texto com white-space:nowrap
+          na lista de Conversas) força este <main> a crescer além do viewport, causando
+          scroll horizontal na página inteira mesmo com o conteúdo "parecendo" caber */}
+      <main className="flex-1 min-w-0 lg:pl-48 flex flex-col min-h-screen">
         {/* Topbar */}
         <header className="h-12 lg:h-14 bg-white/10 backdrop-blur-xl dark:bg-[#0E1C32]/80 dark:backdrop-blur-md border-b border-white/20 dark:border-[#1C3050] sticky top-0 z-40 px-3 sm:px-4 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
