@@ -37,7 +37,7 @@ function envInt(name: string, fallback: number): number {
 // ⚠️ Map em memória do processo — mesma limitação de instância única já
 // documentada em pendingBotTimers (whatsappWebhook.ts): só funciona
 // corretamente com UMA instância do backend rodando (setup atual no Render).
-const BOT_MAX_CALLS_PER_HOUR = envInt("WHATSAPP_BOT_MAX_CALLS_PER_HOUR", 15);
+const BOT_MAX_CALLS_PER_HOUR = envInt("WHATSAPP_BOT_MAX_CALLS_PER_HOUR", 40);
 const BOT_CALL_WINDOW_MS = 60 * 60 * 1000;
 const botCallTimestamps = new Map<string, number[]>();
 
