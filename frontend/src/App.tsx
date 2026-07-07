@@ -377,6 +377,32 @@ export default function App() {
     return () => navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
   }, []);
 
+  // Checagem ativa de atualização do Service Worker — sem isso, quem já tem
+  // o PWA instalado só pega uma versão nova quando o navegador decide fazer
+  // sua própria checagem periódica (throttled a cada ~24h), o que deixou
+  // usuários presos numa versão quebrada por muito tempo depois de um fix
+  // (ex.: o Turnstile do login). registration.update() força a checagem: se
+  // houver SW novo, ele instala e ativa sozinho (skipWaiting + clients.claim
+  // já configurados em sw.ts), disparando o 'controllerchange' acima — que já
+  // mostra o toast de "Nova versão disponível" sem interromper quem estiver
+  // no meio de preencher algo.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const checkForUpdate = () => {
+      navigator.serviceWorker.getRegistration().then((reg) => reg?.update()).catch(() => {});
+    };
+    checkForUpdate();
+    const intervalId = setInterval(checkForUpdate, 30 * 60 * 1000);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') checkForUpdate();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthInitializer>
