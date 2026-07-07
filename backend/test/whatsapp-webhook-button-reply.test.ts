@@ -5,6 +5,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
+// Debounce curto pra este teste não precisar esperar os 3.5s padrão —
+// precisa ser setado antes do módulo do webhook ser importado (vi.hoisted
+// roda antes dos imports estáticos).
+vi.hoisted(() => { process.env.WHATSAPP_BOT_DEBOUNCE_MS = '30'; });
+
 const mockConstructEvent = vi.hoisted(() => vi.fn());
 const mockFrom = vi.hoisted(() => vi.fn());
 const mockRpc = vi.hoisted(() => vi.fn());
@@ -53,6 +58,12 @@ const CREATED_CONV = {
   created_at: new Date().toISOString(),
 };
 
+// Estado compartilhado entre chains (cada .from() cria uma chain nova, mas
+// a existência da conversa precisa persistir entre chamadas — sem isso, a
+// segunda consulta a whatsapp_conversations, feita pelo runDebouncedBotTurn
+// depois do debounce, veria "não existe" de novo e abortaria).
+let conversationExists = false;
+
 function buildChain() {
   const chain: Record<string, unknown> = {};
   chain.select = vi.fn(() => chain);
@@ -62,10 +73,15 @@ function buildChain() {
   chain.update = vi.fn(() => chain);
   chain.order = vi.fn(() => chain);
   chain.limit = vi.fn(() => chain);
-  // Sem conversa existente pro telefone
-  chain.maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-  // Resultado da criação da conversa (ensureConversation)
-  chain.single = vi.fn().mockResolvedValue({ data: CREATED_CONV, error: null });
+  chain.maybeSingle = vi.fn().mockImplementation(() =>
+    Promise.resolve({ data: conversationExists ? CREATED_CONV : null, error: null })
+  );
+  // Resultado da criação da conversa (ensureConversation) — a partir daqui,
+  // a conversa "existe" pras próximas consultas.
+  chain.single = vi.fn().mockImplementation(() => {
+    conversationExists = true;
+    return Promise.resolve({ data: CREATED_CONV, error: null });
+  });
   // Resolução genérica pra chains sem terminal explícito (insert/update/select
   // usados diretamente como Promise, como o supabase-js real faz)
   chain.then = (resolve: (v: unknown) => void) => resolve({ data: [], error: null });
@@ -103,6 +119,7 @@ function buttonReplyPayload(buttonTitle: string) {
 describe('POST /api/whatsapp-webhook — clique em botão de resposta rápida', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    conversationExists = false;
     mockFrom.mockImplementation(() => buildChain());
     mockRpc.mockResolvedValue({ data: [], error: null }); // find_profiles_by_phone_suffix: sem match
     mockAnthropicCreate.mockResolvedValue({
@@ -124,7 +141,7 @@ describe('POST /api/whatsapp-webhook — clique em botão de resposta rápida', 
     expect(res.status).toBe(200);
 
     // Dá tempo pro processamento assíncrono (best-effort, pós-200) rodar
-    await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => setTimeout(r, 150));
 
     // ensureConversation: buscou conversa existente (maybeSingle) e criou uma nova
     expect(mockFrom).toHaveBeenCalledWith('whatsapp_conversations');
@@ -146,7 +163,7 @@ describe('POST /api/whatsapp-webhook — clique em botão de resposta rápida', 
       .send(JSON.stringify(payload));
 
     expect(res.status).toBe(200);
-    await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => setTimeout(r, 150));
     expect(mockAnthropicCreate).not.toHaveBeenCalled();
   });
 });
