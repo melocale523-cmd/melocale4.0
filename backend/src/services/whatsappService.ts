@@ -115,4 +115,10 @@ export async function sendWhatsAppTemplate(
 export const WHATSAPP_TEMPLATES = {
   NEW_LEAD: "novo_pedido_disponivel",
   PROPOSAL_RECEIVED: "proposta_recebida",
+  // Reengajamento (ver backend/src/jobs/whatsappReengagement.ts) — textos já
+  // escritos, mas NINGUÉM criou/submeteu estes templates no WhatsApp Manager
+  // da Meta ainda. O job verifica WHATSAPP_TEMPLATE_*_APPROVED antes de
+  // disparar, então isto é seguro de mesclar antes da aprovação.
+  PROFISSIONAL_SEM_PEDIDO: "profissional_sem_pedido",
+  CLIENTE_SEM_PEDIDO_OU_PROPOSTA: "cliente_sem_pedido_ou_proposta",
 } as const;
