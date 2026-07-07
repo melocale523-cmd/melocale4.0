@@ -222,30 +222,30 @@ export default function ClientDashboard() {
             <Home size={24} color="#10b981" />
           </div>
           <p style={{ fontSize: 19, fontWeight: 700, color: '#f1f5f9', margin: '0 0 8px', lineHeight: 1.3 }}>
-            Chega de conviver com aquele problema em casa
+            Aquele problema em casa que te incomoda todo dia? Chegou a hora de resolver.
           </p>
           <p style={{ fontSize: 14, color: '#7a9ebf', margin: '0 0 20px', maxWidth: 380, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
-            Descreva o que precisa e veja resolvido em poucos dias — sem custo pra pedir, sem obrigação de fechar negócio.
+            Você descreve o que precisa, em minutos os profissionais da sua região começam a te procurar com propostas — e você só fecha se quiser. Sem custo, sem compromisso, sem enrolação.
           </p>
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 24, background: 'rgba(16,185,129,.08)', borderRadius: 100, padding: '8px 16px' }}>
             <ShieldCheck size={14} color="#10b981" />
             <span style={{ fontSize: 12, fontWeight: 700, color: '#10b981' }}>
-              {platformProfessionalsCount ?? 0} profissionais verificados na plataforma
+              {platformProfessionalsCount ?? 0} profissionais da sua região prontos pra te atender agora
             </span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginBottom: 24, flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#7a9ebf' }}>
-              <FileText size={15} color="#10b981" /> Descreva o problema
+              <FileText size={15} color="#10b981" /> Você conta o que precisa
             </span>
             <ArrowRight size={13} color="#4a6580" />
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#7a9ebf' }}>
-              <MessageCircle size={15} color="#10b981" /> Receba orçamentos
+              <MessageCircle size={15} color="#10b981" /> As propostas chegam até você
             </span>
             <ArrowRight size={13} color="#4a6580" />
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#7a9ebf' }}>
-              <Smile size={15} color="#10b981" /> Escolha se quiser
+              <Smile size={15} color="#10b981" /> Você escolhe quem quiser
             </span>
           </div>
 
@@ -254,10 +254,10 @@ export default function ClientDashboard() {
             className="cta-pulse"
             style={{ height: 42, padding: '0 26px', background: '#10b981', color: '#000', fontSize: 14, fontWeight: 800, border: 'none', borderRadius: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 10 }}
           >
-            <Plus size={16} /> Pedir orçamento grátis
+            <Plus size={16} /> Resolver meu problema agora
           </button>
           <p style={{ fontSize: 11, color: '#4a6580', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, margin: 0 }}>
-            <ShieldCheck size={13} /> Sem custo. Sem obrigação de fechar negócio.
+            <ShieldCheck size={13} /> Grátis pra pedir. Zero obrigação de fechar. A decisão é sempre sua.
           </p>
         </div>
       ) : (
