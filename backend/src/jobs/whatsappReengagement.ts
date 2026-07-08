@@ -15,30 +15,16 @@ import { sendWhatsAppTemplate, normalizeBrazilianPhone, WHATSAPP_TEMPLATES } fro
 // (ver TEMPLATE_APPROVAL_ENV abaixo). Até lá, roda em modo dry-run: calcula
 // os alvos e loga, mas não chama a Graph API.
 //
-// ⚠️ CONSENTIMENTO — LEIA ANTES DE MEXER:
-// Para PROFISSIONAIS, este job reaproveita a MESMA regra já estabelecida
-// pro template `novo_pedido_disponivel` (Marketing): só dispara pra quem
-// tem user_notification_preferences.whatsapp_marketing_opt_in = true E
-// whatsapp_connected = true (confirmação técnica via wa.me, feita no
-// webhook). Nada novo aqui.
-//
-// Para CLIENTES, investigamos e NÃO existe nenhuma estrutura de
-// consentimento equivalente: nenhuma UI de opt-in, nenhum onboarding step,
-// e o webhook só conecta profissionais (`find_professionals_by_phone_suffix`
-// é específico da tabela `professionals` — não há fluxo que jamais marque
-// whatsapp_connected=true pra um cliente). A tabela
-// `user_notification_preferences` é genérica por user_id (não tem FK só pra
-// profissional), então TECNICAMENTE dá pra reaproveitar as mesmas colunas —
-// mas como isso nunca foi usado/revisado pra clientes, e tem implicação de
-// LGPD, NÃO decidimos isso sozinhos. O código abaixo:
-//   - aplica a MESMA checagem opt_in && connected pra clientes também (que,
-//     hoje, bloqueia 100% dos clientes na prática, já que nada liga
-//     whatsapp_connected=true pra eles — é o comportamento seguro por
-//     construção);
-//   - além disso, exige explicitamente WHATSAPP_CLIENT_CAMPAIGNS_ENABLED=true
-//     como um segundo interruptor manual, pra nunca depender só do acaso de
-//     ninguém ter mexido na tabela. Sem essa env var, o disparo pra clientes
-//     fica em modo dry-run mesmo que o template esteja aprovado.
+// ⚠️ CONSENTIMENTO — DECISÃO DE NEGÓCIO REGISTRADA (2026-07-08):
+// Até 2026-07-08, este job só disparava pra contatos com
+// whatsapp_connected = true (confirmação técnica via wa.me). Isso limitava
+// o alcance real a ~2 de 23 profissionais e 0 clientes (nenhum fluxo
+// jamais conectou cliente). O Samuel decidiu explicitamente remover essa
+// exigência pras duas campanhas, ciente do risco de reclamação/denúncia
+// impactar a quality rating do número WhatsApp Business na Meta (podendo
+// afetar até o novo_pedido_disponivel, que já funciona). A única barreira
+// que permanece é opt-out explícito (whatsapp_marketing_opt_in === false).
+// Não reverter essa mudança sem confirmar com o Samuel antes.
 export const WHATSAPP_CLIENT_CAMPAIGNS_ENV = "WHATSAPP_CLIENT_CAMPAIGNS_ENABLED";
 
 const TEMPLATE_APPROVAL_ENV: Record<string, string> = {
@@ -205,10 +191,9 @@ async function targetProfissionaisSemPedido(): Promise<Candidate[]> {
     const profile = profileMap.get(userId);
     if (!profile?.phone) continue;
     const pref = prefMap.get(userId);
-    // Sem linha de preferências = default do banco (opt-in true, connected false)
+    // Sem linha de preferências = default do banco (opt-in true)
     const optIn = pref?.whatsapp_marketing_opt_in !== false;
-    const connected = pref?.whatsapp_connected === true;
-    if (!optIn || !connected) continue;
+    if (!optIn) continue;
     const normalized = normalizeBrazilianPhone(profile.phone);
     if (!normalized) continue;
     candidates.push({ contactId: userId, contactType: "professional", phone: normalized, fullName: profile.full_name });
@@ -286,8 +271,7 @@ async function targetClientesSemPedidoOuProposta(): Promise<Candidate[]> {
     if (!eligibleClientIds.has(client.id) || !client.phone) continue;
     const pref = prefMap.get(client.id);
     const optIn = pref?.whatsapp_marketing_opt_in !== false;
-    const connected = pref?.whatsapp_connected === true; // hoje, nunca true pra cliente (nenhum fluxo conecta)
-    if (!optIn || !connected) continue;
+    if (!optIn) continue;
     const normalized = normalizeBrazilianPhone(client.phone);
     if (!normalized) continue;
     candidates.push({ contactId: client.id, contactType: "client", phone: normalized, fullName: client.full_name });
