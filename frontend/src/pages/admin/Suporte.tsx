@@ -156,6 +156,18 @@ export default function AdminSuporte() {
         </div>
       </div>
 
+      {/* Insights */}
+      <div className="grid grid-cols-2 gap-8" style={{ marginBottom: '1.25rem' }}>
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Tickets abertos</p>
+          <p className="text-2xl font-bold text-white">{openCount}</p>
+        </div>
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Aguardando resposta</p>
+          <p className="text-2xl font-bold text-emerald-500">{pendingCount}</p>
+        </div>
+      </div>
+
       {/* Filters */}
       <div style={{ display: 'flex', gap: 6, marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         {(['all', 'open', 'pending', 'resolved'] as const).map(f => (
@@ -196,7 +208,7 @@ export default function AdminSuporte() {
           const isResolved = status === 'resolved';
 
           return (
-            <div key={ticket.id} style={{ background: '#0d1e33', border: '1px solid #1e3a5f', borderRadius: '1rem', overflow: 'hidden', opacity: isResolved ? 0.6 : 1 }}>
+            <div key={ticket.id} style={{ background: '#0d1e33', border: '1px solid #1e3a5f', borderRadius: '1rem', overflow: 'hidden', opacity: isResolved ? 0.6 : 1, boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
               <div style={{ height: 3, background: cfg.color }} />
               <div style={{ padding: '1rem 1.25rem' }}>
 

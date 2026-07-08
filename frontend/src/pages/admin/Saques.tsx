@@ -163,7 +163,7 @@ export default function AdminSaques() {
     const noteVal = notes[r.id] ?? '';
 
     return (
-      <div key={r.id} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}>
+      <div key={r.id} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
         <div style={{ height: 3, background: meta.stripe }} />
         <div style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
 
@@ -274,6 +274,20 @@ export default function AdminSaques() {
         >
           <RefreshCw size={12} /> Atualizar
         </button>
+      </div>
+
+      {/* Insights */}
+      <div className="grid grid-cols-2 gap-8">
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Pendentes de aprovação</p>
+          <p className="text-2xl font-bold text-white">{list.filter(r => r.status === 'pending').length}</p>
+        </div>
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Total pendente em R$</p>
+          <p className="text-2xl font-bold text-emerald-500">
+            R${formatBRL(list.filter(r => r.status === 'pending').reduce((a, r) => a + r.brl_amount, 0))}
+          </p>
+        </div>
       </div>
 
       {/* KPIs */}

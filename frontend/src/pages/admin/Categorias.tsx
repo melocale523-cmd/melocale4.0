@@ -95,8 +95,23 @@ export default function AdminCategorias() {
         </div>
       </div>
 
+      {/* Insights */}
+      <div className="grid grid-cols-2 gap-8">
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Categorias ativas</p>
+          <p className="text-2xl font-bold text-white">
+            {(categories || []).filter(c => c.is_active).length}
+            <span className="text-[#4A6580] text-base font-normal"> / {(categories || []).length}</span>
+          </p>
+        </div>
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Total de categorias</p>
+          <p className="text-2xl font-bold text-emerald-500">{(categories || []).length}</p>
+        </div>
+      </div>
+
       {/* Add form */}
-      <form onSubmit={handleAdd} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col sm:flex-row gap-8">
+      <form onSubmit={handleAdd} className="bg-[#1C3454] border border-slate-800 rounded-2xl p-10 flex flex-col sm:flex-row gap-8 shadow-lg shadow-black/20">
         <div className="flex-1 space-y-6">
           <input
             type="text"
@@ -124,11 +139,11 @@ export default function AdminCategorias() {
 
       {/* List */}
       {isLoading ? (
-        <div className="flex justify-center p-12 bg-[#1C3454] rounded-2xl border border-slate-800">
+        <div className="flex justify-center p-12 bg-[#1C3454] rounded-2xl border border-slate-800 shadow-lg shadow-black/20">
           <Loader2 className="animate-spin text-emerald-500" size={32} />
         </div>
       ) : (
-        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[#1C3050] text-xs text-[#94A3B8] font-semibold uppercase tracking-widest">

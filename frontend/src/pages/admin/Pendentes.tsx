@@ -230,6 +230,18 @@ export default function AdminPendentes() {
         </button>
       </div>
 
+      {/* Insights */}
+      <div className="grid grid-cols-2 gap-8">
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Profissionais na fila</p>
+          <p className="text-2xl font-bold text-white">{list.length}</p>
+        </div>
+        <div className="bg-[#1C3454] border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/20">
+          <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest mb-2">Tempo médio de espera</p>
+          <p className="text-2xl font-bold text-emerald-500">{formatQueueTime(avgQueue)}</p>
+        </div>
+      </div>
+
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
         {kpis.map(k => (
@@ -285,7 +297,7 @@ export default function AdminPendentes() {
         return (
           <div
             key={p.user_id}
-            style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden' }}
+            style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}
           >
             {/* Stripe topo */}
             <div style={{ height: 3, background: sc }} />
