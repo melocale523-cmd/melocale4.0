@@ -279,7 +279,7 @@ export default function AdminObservabilidade() {
       </div>
 
       {/* ── Status card ── */}
-      <div style={{ background: '#1C3454', border: `1px solid ${overall.color}33`, borderRadius: 12, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ background: '#1C3454', border: `1px solid ${overall.color}33`, borderRadius: 12, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 8px 24px rgba(0,0,0,.35)' }}>
         {/* Overall label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {healthLoading ? (
@@ -303,7 +303,7 @@ export default function AdminObservabilidade() {
               { label: 'BANCO (SUPABASE)', icon: Database, status: health.db.status, latency: health.db.latency_ms, uptime: history?.uptime_24h.db ?? null },
               { label: 'STRIPE', icon: CreditCard, status: health.stripe.status, latency: health.stripe.latency_ms, uptime: history?.uptime_24h.stripe ?? null },
             ].map(({ label, icon: Icon, status, latency, uptime }) => (
-              <div key={label} style={{ background: 'rgba(0,0,0,.15)', borderRadius: 10, padding: '0.75rem 1rem' }}>
+              <div key={label} style={{ background: 'rgba(0,0,0,.15)', borderRadius: 10, padding: '0.75rem 1rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                   <Icon size={13} style={{ color: '#4a6580' }} />
                   <span style={{ fontSize: 10, color: '#4a6580', fontWeight: 700, letterSpacing: '0.05em' }}>{label}</span>
@@ -374,7 +374,7 @@ export default function AdminObservabilidade() {
       {!historyLoading && (history?.checks_count ?? 0) > 0 ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           {/* DB + Stripe latency */}
-          <div style={{ background: '#1C3454', borderRadius: 12, padding: '1.25rem', border: '1px solid rgba(255,255,255,.06)' }}>
+          <div style={{ background: '#1C3454', borderRadius: 12, padding: '1.25rem', border: '1px solid rgba(255,255,255,.06)', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
               <Zap size={13} style={{ color: '#60a5fa' }} />
               <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 700, margin: 0 }}>LATÊNCIA 24H (ms)</p>
@@ -392,7 +392,7 @@ export default function AdminObservabilidade() {
           </div>
 
           {/* Event loop lag */}
-          <div style={{ background: '#1C3454', borderRadius: 12, padding: '1.25rem', border: '1px solid rgba(255,255,255,.06)' }}>
+          <div style={{ background: '#1C3454', borderRadius: 12, padding: '1.25rem', border: '1px solid rgba(255,255,255,.06)', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
               <Activity size={13} style={{ color: '#34d399' }} />
               <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 700, margin: 0 }}>EVENT LOOP LAG 24H (ms)</p>
@@ -409,13 +409,13 @@ export default function AdminObservabilidade() {
           </div>
         </div>
       ) : !historyLoading && (
-        <div style={{ background: '#1C3454', borderRadius: 12, padding: '1.25rem', border: '1px solid rgba(255,255,255,.06)', textAlign: 'center', color: '#4a6580', fontSize: 13 }}>
+        <div style={{ background: '#1C3454', borderRadius: 12, padding: '1.25rem', border: '1px solid rgba(255,255,255,.06)', textAlign: 'center', color: '#4a6580', fontSize: 13, boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           Histórico de 24h ainda sem dados — os gráficos aparecem após o cron health check rodar pela primeira vez.
         </div>
       )}
 
       {/* ── Config checklist ── */}
-      <div style={{ background: '#1C3454', borderRadius: 12, border: '1px solid rgba(255,255,255,.06)' }}>
+      <div style={{ background: '#1C3454', borderRadius: 12, border: '1px solid rgba(255,255,255,.06)', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
         <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Package size={15} style={{ color: '#94a3b8' }} />
@@ -450,7 +450,7 @@ export default function AdminObservabilidade() {
       </div>
 
       {/* ── Scheduled Jobs ── */}
-      <div style={{ background: '#1C3454', borderRadius: 12, border: '1px solid rgba(255,255,255,.06)' }}>
+      <div style={{ background: '#1C3454', borderRadius: 12, border: '1px solid rgba(255,255,255,.06)', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
         <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={15} style={{ color: '#94a3b8' }} />
           <h2 style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: 0 }}>Jobs Agendados</h2>
@@ -495,7 +495,7 @@ export default function AdminObservabilidade() {
       </div>
 
       {/* ── Incident timeline ── */}
-      <div style={{ background: '#1C3454', borderRadius: 12, border: '1px solid rgba(255,255,255,.06)' }}>
+      <div style={{ background: '#1C3454', borderRadius: 12, border: '1px solid rgba(255,255,255,.06)', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
         <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: 0 }}>Timeline de Incidentes</h2>
           <p style={{ fontSize: 11, color: '#4a6580', margin: '3px 0 0' }}>
