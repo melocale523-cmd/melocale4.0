@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import * as Sentry from '@sentry/react';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 /**
@@ -37,13 +38,32 @@ export function useTurnstileToken() {
   const getToken = useCallback((): Promise<string | undefined> => {
     if (!widgetRef.current) return Promise.resolve(undefined);
     return new Promise((resolve, reject) => {
+      const startedAt = performance.now();
+
+      const report = (outcome: 'success' | 'timeout' | 'error', extra?: Record<string, unknown>) => {
+        Sentry.captureMessage('turnstile_challenge_timing', {
+          level: 'info',
+          tags: { outcome },
+          extra: { duration_ms: Math.round(performance.now() - startedAt), ...extra },
+        });
+      };
+
       const timeoutId = setTimeout(() => {
         pendingRef.current = null;
+        report('timeout');
         reject(new Error('Não foi possível verificar segurança, recarregue a página e tente novamente.'));
       }, 10_000);
       pendingRef.current = {
-        resolve: (token) => { clearTimeout(timeoutId); resolve(token); },
-        reject: (err) => { clearTimeout(timeoutId); reject(err); },
+        resolve: (token) => {
+          clearTimeout(timeoutId);
+          report('success');
+          resolve(token);
+        },
+        reject: (err) => {
+          clearTimeout(timeoutId);
+          report('error', { message: err.message });
+          reject(err);
+        },
       };
       widgetRef.current?.execute();
     });
