@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Search, X, Loader2, User, CreditCard, Gift } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
+import { rowsToCsv, downloadCsv } from '../../utils/csvExport';
 
 interface Transaction {
   id: string;
@@ -206,11 +207,8 @@ export default function AdminTransacoes() {
       String(t.amount ?? ''), String(t.balance_after ?? ''),
       t.reference ?? '', t.id,
     ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'transacoes.csv'; a.click();
-    URL.revokeObjectURL(url);
+    const csv = rowsToCsv(headers, rows);
+    downloadCsv('transacoes.csv', csv);
   };
 
   const selectClass = 'bg-[#1C3454] border border-slate-800 rounded-lg px-3 py-8 text-sm text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer';

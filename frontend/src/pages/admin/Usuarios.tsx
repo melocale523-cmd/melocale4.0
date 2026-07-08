@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 import { useIsMobile } from '../../hooks/useIsMobile';
+import { rowsToCsv, downloadCsv } from '../../utils/csvExport';
 
 type RoleFilter = 'all' | 'client' | 'professional' | 'admin';
 
@@ -250,11 +251,8 @@ export default function AdminUsuarios() {
       u.city ?? '', u.category ?? '', u.package_id ?? '',
       String(u.balance_coins ?? 0), u.created_at, u.last_sign_in_at ?? '',
     ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'usuarios.csv'; a.click();
-    URL.revokeObjectURL(url);
+    const csv = rowsToCsv(headers, rows);
+    downloadCsv('usuarios.csv', csv);
   };
 
   const counts = {

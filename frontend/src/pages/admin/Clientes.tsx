@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminService, type EnrichedUser } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
+import { rowsToCsv, downloadCsv } from '../../utils/csvExport';
 
 type ChipFilter = 'all' | 'never' | 'recurring';
 
@@ -290,11 +291,8 @@ export default function AdminClientes() {
       leadsInfo.topCategory[c.id] ?? '', String(daysNoOrder(c) ?? ''),
       c.last_sign_in_at ?? '', c.created_at,
     ]);
-    const csv = [headers, ...body].map(r => r.map(x => `"${x}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'clientes.csv'; a.click();
-    URL.revokeObjectURL(url);
+    const csv = rowsToCsv(headers, body);
+    downloadCsv('clientes.csv', csv);
   };
 
   const chipLabels: Record<ChipFilter, string> = { all: 'Todos', never: 'Nunca pediram', recurring: 'Recorrentes' };
