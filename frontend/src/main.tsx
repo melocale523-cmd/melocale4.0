@@ -5,6 +5,27 @@ import * as Sentry from '@sentry/react';
 import App from './App.tsx';
 import './index.css';
 
+const ALLOWED_FETCH_HOSTS = [
+  'melocale.com.br',
+  'onrender.com',
+  'supabase.co',
+  'stripe.com',
+  'challenges.cloudflare.com',
+  'ipapi.co',
+  'ip-api.com',
+  'ipinfo.io',
+  'geojs.io',
+];
+
+function isAllowedHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname;
+    return ALLOWED_FETCH_HOSTS.some(h => host === h || host.endsWith(`.${h}`));
+  } catch {
+    return true; // URL relativa ou malformada — não filtra, deixa passar
+  }
+}
+
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
@@ -35,6 +56,16 @@ Sentry.init({
       delete event.request.headers.Authorization;
     }
     return event;
+  },
+  beforeBreadcrumb(breadcrumb) {
+    if (
+      (breadcrumb.category === 'fetch' || breadcrumb.category === 'xhr') &&
+      breadcrumb.data?.url &&
+      !isAllowedHost(breadcrumb.data.url as string)
+    ) {
+      return null; // descarta o breadcrumb — não é chamada do MeloCalé
+    }
+    return breadcrumb;
   },
 });
 
