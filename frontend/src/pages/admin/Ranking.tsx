@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RefreshCw, Trophy } from 'lucide-react';
 import { adminService, type RankedProfessional } from '../../services/statsService';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 // ── palette ───────────────────────────────────────────────────────────────────
 const C = {
@@ -310,12 +311,13 @@ function PremiarModal({ professional, onClose }: PremiarModalProps) {
 
 // ── Podium card (top 3) ───────────────────────────────────────────────────────
 function PodiumCard({
-  p, rank, maxCoins, onPremiar,
+  p, rank, maxCoins, onPremiar, isMobile = false,
 }: {
   p: RankedProfessional;
   rank: number;
   maxCoins: number;
   onPremiar: (p: RankedProfessional) => void;
+  isMobile?: boolean;
 }) {
   const { grad, medal } = RANK[rank];
   const isFirst = rank === 0;
@@ -325,7 +327,7 @@ function PodiumCard({
     <div style={{
       background: C.card, borderRadius: 16, overflow: 'hidden',
       display: 'flex', flexDirection: 'column',
-      transform: isFirst ? 'scale(1.03)' : 'none',
+      transform: isFirst && !isMobile ? 'scale(1.03)' : 'none',
       boxShadow: isFirst ? '0 8px 32px rgba(0,0,0,0.4)' : '0 4px 16px rgba(0,0,0,0.2)',
       border: `1px solid ${C.border}`,
     }}>
@@ -400,6 +402,7 @@ function PodiumCard({
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Ranking() {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<TabId>('score');
   const [premiarTarget, setPremiarTarget] = useState<RankedProfessional | null>(null);
 
@@ -539,7 +542,7 @@ export default function Ranking() {
           <div style={{ fontSize: 13, fontWeight: 700, color: C.textSec, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Pódio
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', alignItems: 'end' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '1rem', alignItems: isMobile ? 'stretch' : 'end' }}>
             {podium.map((p, i) => (
               <PodiumCard
                 key={p.user_id}
@@ -547,6 +550,7 @@ export default function Ranking() {
                 rank={podiumRanks[i]}
                 maxCoins={maxCoins}
                 onPremiar={openPremiar}
+                isMobile={isMobile}
               />
             ))}
           </div>
@@ -566,8 +570,89 @@ export default function Ranking() {
           }}>
             Nenhum profissional cadastrado ainda.
           </div>
+        ) : isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {sorted.map((p, idx) => {
+              const badges = getBadges(p, maxCoins);
+              return (
+                <div key={p.user_id} style={{
+                  background: C.card, borderRadius: 12, border: `1px solid ${C.border}`,
+                  padding: '0.875rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem',
+                }}>
+                  {/* header: posição + avatar + nome + categoria/cidade */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: idx < 3 ? C.gold2 : C.textTert, width: 20, flexShrink: 0, textAlign: 'center' }}>
+                      {idx < 3 ? RANK[idx].medal : idx + 1}
+                    </div>
+                    <Avatar p={p} size={36} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {p.full_name}
+                      </div>
+                      <div style={{ fontSize: 11, color: C.textTert, display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        {p.category && <span>{p.category}</span>}
+                        {p.city && <span>· {p.city}</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {badges.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                      {badges.map(b => (
+                        <span key={b.label} style={{
+                          fontSize: 10, padding: '1px 6px', borderRadius: 20,
+                          background: b.bg, color: b.color, fontWeight: 600,
+                        }}>{b.label}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* corpo: score, moedas, pagamentos, plano */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: C.textTert, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Score</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{p.score}</span>
+                      <MiniBar value={p.score} max={maxScore} color={C.emerald} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: C.textTert, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Moedas</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{p.coins.toLocaleString('pt-BR')}</span>
+                      <MiniBar value={p.coins} max={maxCoins} color={C.amber} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: C.textTert, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pagamentos</span>
+                      <span style={{ fontSize: 13, color: C.text }}>{p.payment_count}</span>
+                      <MiniBar value={p.payment_count} max={maxPayments} color={C.blue} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span style={{ fontSize: 10, color: C.textTert, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Plano</span>
+                      {p.plan ? (
+                        <span style={{
+                          fontSize: 11, padding: '2px 8px', borderRadius: 20, fontWeight: 600, alignSelf: 'flex-start',
+                          background: `${C.green}20`, color: C.green, border: `1px solid ${C.green}40`,
+                        }}>{PLAN_NAMES[p.plan] ?? p.plan}</span>
+                      ) : (
+                        <span style={{ fontSize: 11, color: C.textTert }}>—</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ação */}
+                  <button
+                    onClick={() => openPremiar(p)}
+                    style={{
+                      fontSize: 12, padding: '6px 10px', borderRadius: 6, cursor: 'pointer',
+                      background: `${C.gold1}20`, color: C.gold2,
+                      border: `1px solid ${C.gold1}40`, fontWeight: 600, width: '100%',
+                    }}>Premiar</button>
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <div style={{ background: C.card, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+            <div style={{ minWidth: 640 }}>
             {/* thead */}
             <div style={{
               display: 'grid',
@@ -660,6 +745,8 @@ export default function Ranking() {
                 </div>
               );
             })}
+            </div>
+            </div>
           </div>
         )}
       </div>
