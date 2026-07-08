@@ -2,29 +2,7 @@ import { useState } from 'react';
 import { Download, Users, FileText, DollarSign, Loader2 } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
 import { toast } from 'sonner';
-
-function jsonToCsv(data: Record<string, unknown>[]): string {
-  if (!data.length) return '';
-  const headers = Object.keys(data[0]);
-  const rows = data.map(row =>
-    headers.map(h => {
-      const val = row[h] ?? '';
-      const str = String(val).replace(/"/g, '""');
-      return str.includes(',') || str.includes('\n') ? `"${str}"` : str;
-    }).join(',')
-  );
-  return [headers.join(','), ...rows].join('\n');
-}
-
-function downloadCsv(filename: string, csv: string) {
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+import { jsonToCsv, downloadCsv } from '../../utils/csvExport';
 
 const REPORTS = [
   {
