@@ -358,7 +358,7 @@ export default function AdminPedidos() {
 
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: 12 }}>
         {kpis.map(k => (
-          <div key={k.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
+          <div key={k.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <p style={{ color: C.textSec, fontSize: 12, fontWeight: 600, margin: '0 0 6px' }}>{k.label}</p>
             <p style={{ fontSize: 26, fontWeight: 800, color: k.color, margin: 0 }}>{k.value}</p>
             {k.sub && <p style={{ fontSize: 10, color: C.red, fontWeight: 700, margin: '4px 0 0' }}>⚠ {k.sub}</p>}
@@ -405,7 +405,7 @@ export default function AdminPedidos() {
         </div>
       </div>
 
-      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
         <div style={{ padding: '14px 16px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: C.cardAlt }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: C.text, margin: 0 }}>Pedidos ({sorted.length})</h2>
           {isLoading && <Loader2 size={16} className="animate-spin" style={{ color: C.green }} />}

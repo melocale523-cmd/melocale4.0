@@ -357,7 +357,7 @@ export default function AdminDashboard() {
           { label: 'LTV médio', value: `R$${ltv.toLocaleString('pt-BR')}`, sub: 'por profissional', color: '#a78bfa', border: 'rgba(167,139,250,.2)', bg: '#132540', warn: false, accent: '#8b5cf6' },
           { label: 'CAC estimado', value: `R$${cac.toLocaleString('pt-BR')}`, sub: '~15% da receita', color: '#fbbf24', border: 'rgba(251,191,36,.15)', bg: '#132540', warn: false, accent: '#f59e0b' },
         ] as const).map(k => (
-          <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.border}`, borderRadius: 12, padding: '1rem', position: 'relative', overflow: 'hidden' }}>
+          <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.border}`, borderRadius: 12, padding: '1rem', position: 'relative', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: k.accent }} />
             <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: k.color === 'white' ? '#4a6580' : k.color, margin: '0 0 6px' }}>{k.label}</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
           { label: 'Ativos 24h', value: String(activeUsers ?? '—'), sub: 'profissionais online', color: activeUsers ? '#34d399' : '#4a6580', accent: '#10b981' },
           { label: 'Próxima auditoria', value: auditLabel, sub: 'próxima segunda-feira', color: '#fbbf24', accent: '#f59e0b' },
         ] as const).map(k => (
-          <div key={k.label} style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1rem', position: 'relative', overflow: 'hidden' }}>
+          <div key={k.label} style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1rem', position: 'relative', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: k.accent }} />
             <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#4a6580', margin: '0 0 6px' }}>{k.label}</p>
             <p style={{ fontSize: 20, fontWeight: 700, color: k.color, margin: 0, lineHeight: 1.1 }}>{k.value}</p>
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
 
         {/* Simulador MRR + Ranking de planos */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div style={{ background: 'linear-gradient(135deg,#0b2818,#0f3020)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 12, padding: '1.25rem' }}>
+          <div style={{ background: 'linear-gradient(135deg,#0b2818,#0f3020)', border: '1px solid rgba(16,185,129,.2)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Simulador MRR</p>
             <p style={{ fontSize: 11, color: '#4a6580', margin: '0 0 1rem' }}>Arraste para simular receita com mais assinantes</p>
             <input
@@ -415,7 +415,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Ranking de planos */}
-          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Ranking de planos</p>
               <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981' }}>R${s.mrr} MRR</span>
@@ -448,7 +448,7 @@ export default function AdminDashboard() {
           {/* Faturamento histórico por plano — total já recebido (payments confirmados),
               não confundir com MRR do ranking acima: uma assinatura pode ter gerado
               receita no passado e estar cancelada hoje. */}
-          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
               <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Faturamento histórico por plano</p>
               <span style={{ fontSize: 11, fontWeight: 700, color: '#4a6580' }}>{s.totalActiveSubscriptions} ativa{s.totalActiveSubscriptions === 1 ? '' : 's'} hoje</span>
@@ -477,7 +477,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Faturamento */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Faturamento</p>
@@ -698,7 +698,7 @@ export default function AdminDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Score de saúde */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Score de saúde</p>
             <span style={{ fontSize: 11, color: '#4a6580' }}>Top 5 críticos</span>
@@ -747,7 +747,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Timeline 24h */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 1rem' }}>Timeline 24h</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', maxHeight: 220, overflowY: 'auto' }}>
             {recentEvents.length === 0 ? (
@@ -783,7 +783,7 @@ export default function AdminDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Mapa de calor */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 1rem' }}>Mapa de calor · atividade</p>
           {heatmap && heatmap.total === 0 ? (
             <p style={{ fontSize: 11, color: '#4a6580', textAlign: 'center', padding: '1.5rem 0' }}>
@@ -821,7 +821,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Funil de conversão */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 1rem' }}>Funil de conversão</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {[
@@ -854,7 +854,7 @@ export default function AdminDashboard() {
 
       {/* ROW 5B: Funil do pedido (wizard) */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Funil do pedido</p>
             <span style={{ fontSize: 11, color: '#4a6580' }}>últimos 30 dias</span>
@@ -893,7 +893,7 @@ export default function AdminDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Assinaturas */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Assinaturas</p>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#34d399' }}>R${fmtBRL(s.revenueSubscriptions)} total</span>
@@ -922,7 +922,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Moedas avulsas */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Moedas avulsas</p>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24' }}>R${fmtBRL(s.revenueCoinPacks)} total</span>
@@ -954,7 +954,7 @@ export default function AdminDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
 
         {/* Oferta vs Demanda */}
-        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+        <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 1rem' }}>Oferta vs Demanda por cidade</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {(cityData ?? [
@@ -981,7 +981,7 @@ export default function AdminDashboard() {
 
         {/* Alertas + Últimos profissionais */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', flex: 1 }}>
+          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', flex: 1, boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 0.875rem' }}>Alertas operacionais</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
@@ -1000,7 +1000,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem' }}>
+          <div style={{ background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
               <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0 }}>Últimos profissionais</p>
               <Link to="/admin/usuarios" style={{ fontSize: 11, color: '#34d399', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}>Ver todos <ChevronRight size={11} /></Link>
