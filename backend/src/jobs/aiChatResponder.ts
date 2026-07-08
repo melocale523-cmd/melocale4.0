@@ -91,7 +91,7 @@ export async function runAiChatResponder() {
       try {
         const aiRes = await withTimeout(
           anthropic.messages.create({
-            model: "claude-sonnet-4-20250514",
+            model: "claude-sonnet-5",
             max_tokens: 150,
             system: SYSTEM_PROMPT,
             messages: [
