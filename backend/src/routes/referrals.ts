@@ -4,19 +4,12 @@ import { requireAuth, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 import { sendPushToUser } from '../lib/push.js'
 import { REFERRAL_COINS_PROFESSIONAL, REFERRAL_BONUS_MONTHLY } from '../config/referralConstants.js'
+import { getOrCreateReferralCode, referralLink } from '../lib/referralCode.js'
 
 const router = Router()
 
 let _configCache: { data: unknown; ts: number } | null = null
 const CONFIG_CACHE_TTL = 60_000 // 60 segundos
-
-function generateCode(userId: string): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  const prefix = userId.slice(0, 4).toUpperCase().replace(/-/g, 'X')
-  let suffix = ''
-  for (let i = 0; i < 5; i++) suffix += chars[Math.floor(Math.random() * chars.length)]
-  return `${prefix}${suffix}`
-}
 
 async function getConfig(): Promise<{ multiplier: number; expires_at: string | null; label: string | null }> {
   try {
@@ -146,24 +139,17 @@ router.get('/my-code', requireAuth, async (req: Request, res: Response) => {
         code: profile.referral_code, role: profile.role, full_name: profile.full_name,
         avatar_url: profile.avatar_url ?? null,
         stats: counts,
-        link: `${process.env.FRONTEND_URL ?? 'https://melocale.com.br'}/convite/${profile.referral_code}`,
+        link: referralLink(profile.referral_code),
       })
     }
 
-    let code = generateCode(userId)
-    for (let i = 0; i < 10; i++) {
-      const { data: existing } = await supabaseAdmin
-        .from('profiles').select('id').eq('referral_code', code).single()
-      if (!existing) break
-      code = generateCode(userId)
-    }
-    await supabaseAdmin.from('profiles').update({ referral_code: code }).eq('id', userId)
+    const code = await getOrCreateReferralCode(userId)
 
     return res.json({
       code, role: profile?.role ?? 'client', full_name: profile?.full_name ?? '',
       avatar_url: profile?.avatar_url ?? null,
       stats: { total: 0, registered: 0, converted: 0, credited: 0 },
-      link: `${process.env.FRONTEND_URL ?? 'https://melocale.com.br'}/convite/${code}`,
+      link: referralLink(code),
     })
   } catch (err) {
     console.error('[referrals] my-code error:', err)
