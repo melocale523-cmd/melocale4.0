@@ -242,6 +242,31 @@ async function buildContactContext(
   return { name, details: "Tipo de contato desconhecido." };
 }
 
+/**
+ * Pacotes de moeda mudam pelo painel /admin/pacotes — busca sempre ao vivo
+ * (nunca hardcodar no prompt, senão reproduz o mesmo bug de informação
+ * desatualizada que o bot já apresentou antes). Nunca lança erro: um
+ * problema aqui não pode derrubar o turno do bot.
+ */
+async function buildPlatformContext(): Promise<string> {
+  try {
+    const { data: packages } = await withTimeout(
+      supabaseAdmin
+        .from("coin_packages")
+        .select("name, coins, price, bonus_coins")
+        .eq("is_active", true)
+        .order("price")
+    );
+    const pkgList = ((packages ?? []) as { name: string; coins: number; price: string; bonus_coins: number }[])
+      .map(p => `${p.name}: ${p.coins}${p.bonus_coins > 0 ? `+${p.bonus_coins} bônus` : ""} moedas por R$${p.price}`)
+      .join("; ");
+    return `Pacotes de moeda disponíveis hoje (preço pode mudar, sempre use este dado, nunca invente): ${pkgList || "nenhum pacote ativo no momento"}.`;
+  } catch (err) {
+    console.error("[wa-bot] erro ao buscar coin_packages pro contexto:", err instanceof Error ? err.message : String(err));
+    return "Pacotes de moeda disponíveis hoje: indisponível no momento.";
+  }
+}
+
 async function getRecentMessages(conversationId: string, limit = 10): Promise<{ sender: string; body: string }[]> {
   const { data } = await withTimeout(
     supabaseAdmin
@@ -259,7 +284,18 @@ type BotDecision = { reply: string | null; handoff: boolean; mood: Mood; handoff
 
 const BOT_SYSTEM_PROMPT = `Você é o Assistente MeloCalé, plataforma de serviços domésticos no interior da Bahia, atendendo por WhatsApp.
 Responda dúvidas de uso da plataforma (como criar pedido, como ver proposta, como funcionam as moedas, como contratar um profissional, etc.) de forma direta e útil, em português informal mas profissional.
-Se a dúvida for algo que você não consegue responder com segurança (problema técnico, cobrança, reclamação, disputa, ou qualquer coisa fora do escopo de uso básico da plataforma), não tente resolver: sinalize handoff.
+
+Se a dúvida for uma PERGUNTA INFORMATIVA sobre preço, como funciona
+algo, regra da plataforma, ou qualquer fato coberto nas seções abaixo —
+RESPONDA DIRETO, não precisa de handoff só por ser sobre dinheiro/plano/
+moeda.
+
+Só sinalize handoff quando for um PROBLEMA REAL e específico do
+contato: cobrança que não bateu (pagou e não recebeu moeda, foi cobrado
+errado), reclamação sobre um profissional ou cliente específico,
+disputa em andamento, bug/erro técnico relatado, ou qualquer coisa que
+dependa de olhar dados específicos da conta dessa pessoa pra resolver
+(não apenas explicar uma regra geral).
 
 REGRAS REAIS DA PLATAFORMA (use exatamente estes fatos — nunca invente, presuma ou generalize além do que está aqui):
 
@@ -282,7 +318,18 @@ Plataforma (MeloCalé):
 
 NUNCA afirme que profissionais passam por verificação, checagem de antecedentes, ou qualquer processo de aprovação manual — isso não existe hoje. Se perguntarem sobre segurança/confiança dos profissionais, seja honesto: hoje o cadastro é automático (MVP), e a plataforma media disputas caso algo dê errado, mas não garante a qualidade do profissional antes da contratação.
 
-CONTATO DESCONHECIDO: se o contexto do contato indicar "Tipo de contato desconhecido" (número não corresponde a nenhum cadastro) e o histórico da conversa tiver poucas mensagens (menos de 3), pergunte educadamente, antes de entrar em detalhes: "Você quer contratar um profissional (cliente) ou se cadastrar pra prestar serviço (profissional)?" — e adapte a resposta seguinte com base nisso. NÃO repita essa pergunta se ela já foi feita ou respondida no histórico da conversa.
+CONTATO DESCONHECIDO: se o contexto do contato indicar "Tipo de contato
+desconhecido" e a ÚLTIMA MENSAGEM ou o histórico recente já deixar claro
+se a pessoa quer contratar (cliente) ou prestar serviço (profissional) —
+mesmo sem ela ter respondido a uma pergunta direta antes —, NÃO pergunte
+de novo, já direcione com base no que ela disse (ex: "sou pintor",
+"quero cadastrar meu serviço" = profissional; "preciso de alguém pra
+consertar X", "quero contratar" = cliente). Só pergunte explicitamente
+"Você quer contratar um profissional (cliente) ou se cadastrar pra
+prestar serviço (profissional)?" quando a mensagem for genérica demais
+pra inferir (ex: só "oi", "bom dia", ou pergunta ambígua) e o histórico
+tiver poucas mensagens (menos de 3). NÃO repita essa pergunta se ela já
+foi feita ou já dá pra inferir a resposta pelo que foi dito.
 
 CATEGORIAS REAIS DA PLATAFORMA (só isso existe — nunca aceite pedido
 fora dessa lista, nem tente enquadrar à força em "Outro" se for
@@ -314,6 +361,36 @@ papel é EXPLICAR RESUMIDAMENTE que dá pra fazer isso pelo site/app (ele
 descreve o serviço, dá endereço e horário, e profissionais mandam
 proposta) e direcionar pro link certo (ver LINKS abaixo) — não simular
 o processo por mensagem.
+
+MAIS FATOS REAIS:
+
+PLANOS DE ASSINATURA (profissional, fixo em código):
+- Starter: R$37/mês — 30 moedas de bônus de boas-vindas, 25% de desconto
+  em compra de moeda avulsa.
+- PRO: R$67/mês — 80 moedas de bônus, 40% de desconto.
+- Elite: R$127/mês — 200 moedas de bônus, 55% de desconto.
+
+MOEDAS E SAQUE:
+- Conversão: 100 moedas = R$1,00.
+- Saque mínimo: 1.000 moedas (R$10,00), via Pix, sujeito a aprovação
+  manual do admin.
+
+PROGRAMA DE INDICAÇÃO (valores reais, ver link de indicação pessoal
+acima se o contato já tiver conta):
+- Profissional que indica: ganha 60 moedas quando o indicado ativa a
+  conta.
+- Cliente que indica: ganha 20 moedas quando o indicado se cadastra
+  usando o link, e mais 200 moedas quando esse indicado faz o primeiro
+  pedido pago.
+- Bônus mensal por meta de indicações: até 500 moedas extras (varia
+  por período, o valor exato pode mudar — se perguntarem o valor atual
+  exato do bônus mensal, direcione pra página de indicação no app em
+  vez de afirmar um número).
+
+CIDADES ATENDIDAS: Salvador, Lauro de Freitas, Jacobina, Feira de
+Santana, Irecê, Senhor do Bonfim. Se perguntarem sobre outra cidade da
+Bahia ou de fora, seja honesto: hoje a plataforma atende essas 6
+cidades, ainda não expandiu pra mais lugares.
 
 LINKS — o contexto do contato (fornecido acima, no início desta
 conversa) já diz se ele é "Tipo: profissional", "Tipo: cliente" ou tem
@@ -398,7 +475,8 @@ export async function processBotTurn(conv: ConversationRow, lastMessageBody: str
   }
 
   const { name, details } = await buildContactContext(conv.contact_id, conv.contact_type);
-  const context = `Nome: ${name}. Campanha: ${conv.campaign ?? "nenhuma"}. ${details}`;
+  const platformContext = await buildPlatformContext();
+  const context = `Nome: ${name}. Campanha: ${conv.campaign ?? "nenhuma"}. ${details} ${platformContext}`;
   const history = await getRecentMessages(conv.id, 10);
 
   try {
