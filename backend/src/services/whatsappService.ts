@@ -122,10 +122,12 @@ export const WHATSAPP_TEMPLATES = {
   // whatsappWebhook.ts pro tratamento do clique via payload `interactive`).
   //
   // `profissional_sem_pedido` (sem sufixo) teve conflito de exclusão no
-  // WhatsApp Manager e precisou ser recriado como `profissional_sem_pedido_v2`
+  // WhatsApp Manager e precisou ser recriado como `profissional_sem_pedido_v2_`
+  // (com underscore final — confirmado no WhatsApp Manager; sem ele a Meta
+  // rejeita com #132001 "Template name does not exist in the translation")
   // — o nome do template na Meta mudou, mas o valor da campanha/cooldown em
   // whatsapp_conversations.campaign usa esta mesma constante, então não há
   // nada mais pra atualizar manualmente.
-  PROFISSIONAL_SEM_PEDIDO: "profissional_sem_pedido_v2",
+  PROFISSIONAL_SEM_PEDIDO: "profissional_sem_pedido_v2_",
   CLIENTE_SEM_PEDIDO_OU_PROPOSTA: "cliente_sem_pedido_ou_proposta",
 } as const;
