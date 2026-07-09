@@ -196,6 +196,7 @@ async function targetProfissionaisSemPedido(): Promise<Candidate[]> {
     if (!optIn) continue;
     const normalized = normalizeBrazilianPhone(profile.phone);
     if (!normalized) continue;
+    if (!firstName(profile.full_name)) continue; // nome vazio — template exige {{1}} preenchido
     candidates.push({ contactId: userId, contactType: "professional", phone: normalized, fullName: profile.full_name });
   }
   return candidates;
@@ -274,6 +275,7 @@ async function targetClientesSemPedidoOuProposta(): Promise<Candidate[]> {
     if (!optIn) continue;
     const normalized = normalizeBrazilianPhone(client.phone);
     if (!normalized) continue;
+    if (!firstName(client.full_name)) continue; // nome vazio — template exige {{1}} preenchido
     candidates.push({ contactId: client.id, contactType: "client", phone: normalized, fullName: client.full_name });
   }
   return candidates;
