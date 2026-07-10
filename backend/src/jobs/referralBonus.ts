@@ -20,11 +20,19 @@ export async function runReferralBonusJob() {
         .select('referrer_id')
         .gte('credited_at', new Date(Date.now() - 5 * 60 * 1000).toISOString()) // last 5 min
 
+      const referrerIds = (recentBonuses ?? []).map(r => r.referrer_id)
+      // Sem FK entre referral_monthly_bonuses e profiles — join feito em
+      // aplicação (join de PostgREST via embedded resource não funciona sem FK).
+      const { data: profiles } = referrerIds.length
+        ? await supabaseAdmin.from('profiles').select('id, role').in('id', referrerIds)
+        : { data: [] as { id: string; role: string }[] }
+      const roleById = new Map((profiles ?? []).map(p => [p.id, p.role]))
+
       for (const row of recentBonuses ?? []) {
         void sendPushToUser(row.referrer_id, {
           title: '🏆 Meta mensal atingida!',
           body: 'Você indicou 5+ pessoas este mês e ganhou 500 moedas bônus!',
-          data: { type: 'monthly_referral_bonus', coins: 500 },
+          data: { type: 'monthly_referral_bonus', coins: 500, role: roleById.get(row.referrer_id) },
         })
       }
     }

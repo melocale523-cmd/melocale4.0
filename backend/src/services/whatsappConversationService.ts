@@ -2,6 +2,7 @@ import { supabaseAdmin, anthropic } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendWhatsAppText } from "./whatsappService.js";
 import { getOrCreateReferralCode, referralLink } from "../lib/referralCode.js";
+import { sendPushToUser } from "../lib/push.js";
 
 export type ContactType = "professional" | "client" | "unknown";
 export type ConversationStatus = "bot_active" | "needs_human" | "human_active" | "resolved";
@@ -542,6 +543,27 @@ async function finalizeBotDecision(conv: ConversationRow, decision: BotDecision)
         sender: "system",
         body: HANDOFF_MESSAGE,
       });
+
+      try {
+        const { data: contact } = await supabaseAdmin
+          .from("profiles").select("full_name").eq("id", conv.contact_id).maybeSingle();
+        const contactName = (contact as { full_name?: string } | null)?.full_name || conv.phone;
+
+        const { data: admins } = await supabaseAdmin
+          .from("profiles").select("id").eq("role", "admin");
+
+        await Promise.all(
+          ((admins ?? []) as { id: string }[]).map(admin =>
+            sendPushToUser(admin.id, {
+              title: "Conversa precisa de você",
+              body: `${contactName}: ${decision.handoff_reason ?? "Fora do escopo do bot."}`,
+              data: { type: "wa_handoff", url: `/admin/conversas?id=${conv.id}` },
+            })
+          )
+        );
+      } catch (err) {
+        console.error("[wa-conv] falha ao notificar admin do handoff:", err instanceof Error ? err.message : String(err));
+      }
     }
     return;
   }

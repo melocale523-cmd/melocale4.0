@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   MessageCircle, Smile, Meh, Frown, Loader2, Bot, User, Info, X,
   UserCheck, Undo2, Send, Sparkles, MapPin, Coins, Calendar, Clock,
@@ -71,8 +71,9 @@ function matchesFilter(status: ConversationStatus, filter: ListFilter): boolean 
 export default function AdminConversas() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile(900);
+  const [searchParams] = useSearchParams();
   const [filter, setFilter] = useState<ListFilter>('all');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(() => searchParams.get('id'));
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [draft, setDraft] = useState('');
   const [suggestion, setSuggestion] = useState<string | null>(null);
