@@ -434,4 +434,108 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
   }
 });
 
+// ── Garantia de primeira compra (profissional) ──────────────────────────────
+// Se o primeiro (e único) lead comprado já tiver sido fechado por outro
+// profissional antes dele conseguir resposta, ele pode pedir de volta as
+// moedas gastas. Critérios verificados sempre no backend, nunca só no
+// frontend — ver TAREFA de garantias.
+
+type GuaranteeEligibility =
+  | { eligible: true; lead_purchase_id: string; coins_amount: number }
+  | { eligible: false; reason: string };
+
+async function checkGuaranteeEligibility(userId: string): Promise<GuaranteeEligibility> {
+  const { data: purchases, error: purchasesErr } = await supabaseAdmin
+    .from("lead_purchases")
+    .select("id, lead_id, price_coins, created_at")
+    .eq("user_id", userId);
+  if (purchasesErr) throw purchasesErr;
+
+  if (!purchases || purchases.length !== 1) {
+    return { eligible: false, reason: "not_first_purchase" };
+  }
+  const purchase = purchases[0] as { id: string; lead_id: string; price_coins: number; created_at: string };
+
+  const daysSincePurchase = (Date.now() - new Date(purchase.created_at).getTime()) / 86_400_000;
+  if (daysSincePurchase > 7) {
+    return { eligible: false, reason: "expired" };
+  }
+
+  const { count: ownAppointmentCount } = await supabaseAdmin
+    .from("appointments")
+    .select("*", { count: "exact", head: true })
+    .eq("lead_purchase_id", purchase.id);
+  if ((ownAppointmentCount ?? 0) > 0) {
+    return { eligible: false, reason: "already_scheduled" };
+  }
+
+  const { data: otherPurchases } = await supabaseAdmin
+    .from("lead_purchases")
+    .select("id")
+    .eq("lead_id", purchase.lead_id)
+    .neq("id", purchase.id);
+  const otherPurchaseIds = ((otherPurchases ?? []) as { id: string }[]).map(p => p.id);
+
+  let closedByOtherProfessional = false;
+  if (otherPurchaseIds.length) {
+    const { count } = await supabaseAdmin
+      .from("appointments")
+      .select("*", { count: "exact", head: true })
+      .in("lead_purchase_id", otherPurchaseIds);
+    closedByOtherProfessional = (count ?? 0) > 0;
+  }
+  if (!closedByOtherProfessional) {
+    return { eligible: false, reason: "not_closed_by_other" };
+  }
+
+  const { data: existingRequest } = await supabaseAdmin
+    .from("professional_guarantee_requests")
+    .select("id")
+    .eq("professional_id", userId)
+    .maybeSingle();
+  if (existingRequest) {
+    return { eligible: false, reason: "already_requested" };
+  }
+
+  return { eligible: true, lead_purchase_id: purchase.id, coins_amount: purchase.price_coins };
+}
+
+router.get("/leads/guarantee-eligibility", requireAuth, async (req: AuthRequest, res: Response) => {
+  const userId = req.authUser!.id;
+  try {
+    const result = await checkGuaranteeEligibility(userId);
+    return res.json(result);
+  } catch (err) {
+    console.error("[leads] guarantee-eligibility error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "internal_error" });
+  }
+});
+
+router.post("/leads/guarantee-request", sensitiveLimiter, requireAuth, async (req: AuthRequest, res: Response) => {
+  const userId = req.authUser!.id;
+  try {
+    const result = await checkGuaranteeEligibility(userId);
+    if (!result.eligible) {
+      return res.status(400).json({ error: result.reason });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("professional_guarantee_requests")
+      .insert({
+        professional_id: userId,
+        lead_purchase_id: result.lead_purchase_id,
+        coins_amount: result.coins_amount,
+        status: "pending",
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    return res.status(201).json({ success: true, request: data });
+  } catch (err) {
+    console.error("[leads] guarantee-request error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "internal_error" });
+  }
+});
+
 export default router;
