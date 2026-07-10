@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
   Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, X, Loader2,
@@ -44,6 +44,7 @@ const AVATAR_COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
 export default function ClientAgenda() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
@@ -51,6 +52,7 @@ export default function ClientAgenda() {
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
   const [reviewingAppt, setReviewingAppt] = useState<Appointment | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['client_appointments', user?.id] });
 
@@ -59,6 +61,18 @@ export default function ClientAgenda() {
     queryFn: () => appointmentService.getClientAppointments(user!.id),
     enabled: !!user?.id,
   });
+
+  // Deep link vindo de notificação push (?appointmentId=) — rola até o
+  // compromisso e destaca ele temporariamente.
+  useEffect(() => {
+    const appointmentId = searchParams.get('appointmentId');
+    if (!appointmentId || !appointments.some(a => a.id === appointmentId)) return;
+    const el = document.getElementById(`appt-${appointmentId}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlightedId(appointmentId);
+    const timeout = setTimeout(() => setHighlightedId(null), 4000);
+    return () => clearTimeout(timeout);
+  }, [appointments, searchParams]);
 
   const completedIds = useMemo(
     () => appointments.filter(a => a.status === 'completed').map(a => a.id),
@@ -218,7 +232,11 @@ export default function ClientAgenda() {
     return (
       <div
         key={appt.id}
-        className="bg-[#132236] rounded-xl border border-white/5 mb-3 overflow-hidden"
+        id={`appt-${appt.id}`}
+        className={cn(
+          'bg-[#132236] rounded-xl border mb-3 overflow-hidden transition-shadow',
+          highlightedId === appt.id ? 'border-emerald-500 ring-2 ring-emerald-500/50' : 'border-white/5',
+        )}
         style={{ opacity: appt.status === 'cancelled' ? 0.65 : 1 }}
       >
         {/* Top section */}

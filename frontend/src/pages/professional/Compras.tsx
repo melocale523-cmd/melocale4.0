@@ -4,8 +4,8 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap, Camera } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { toast } from 'sonner';
 
@@ -47,6 +47,7 @@ interface ProposalInput {
 
 export default function ProfessionalCompras() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
@@ -67,6 +68,23 @@ export default function ProfessionalCompras() {
     refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,
   });
+
+  // Deep link vindo de notificação push (?purchaseId=) — abre o chat da
+  // compra correspondente, uma única vez, se ela ainda existir na lista.
+  const deepLinkHandledRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandledRef.current) return;
+    const purchaseId = searchParams.get('purchaseId');
+    if (!purchaseId || !purchases) return;
+    deepLinkHandledRef.current = true;
+    const target = purchases.find(p => p.id === purchaseId);
+    if (!target) return;
+    void (async () => {
+      let chatId = target.chat_id ?? null;
+      if (!chatId) chatId = await proposalService.ensureChatForPurchase(target.id);
+      if (chatId) navigate(`/profissional/mensagens?chatId=${chatId}`);
+    })();
+  }, [purchases, searchParams, navigate]);
 
   const sendProposalMutation = useMutation({
     mutationFn: ({ purchaseId, data }: { purchaseId: string, data: ProposalInput }) =>
