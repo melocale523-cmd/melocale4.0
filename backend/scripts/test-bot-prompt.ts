@@ -25,7 +25,7 @@ import { BOT_SYSTEM_PROMPT } from "../src/services/whatsappConversationService.j
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-type BotDecision = { reply: string | null; handoff: boolean; mood: string; handoff_reason?: string };
+type BotDecision = { reply: string | null; handoff: boolean; mood: string; handoff_reason?: string; urgency?: string };
 
 interface Case {
   name: string;
@@ -33,6 +33,9 @@ interface Case {
   context: string;
   history: { sender: string; body: string }[];
   lastMessage: string;
+  mustInclude?: string[];
+  mustNotInclude?: string[];
+  expectHandoff?: boolean;
 }
 
 // Contexto de plataforma "padrão" reutilizado na maioria dos casos — mesmo
@@ -45,15 +48,18 @@ const DEFAULT_PLATFORM_CONTEXT =
 const DESCONHECIDO = 'Tipo de contato desconhecido — número não corresponde a nenhum cadastro.';
 
 const CLIENTE_CONHECIDO =
-  'Tipo: cliente. Cidade: Salvador. Pedidos criados: 2. Agendamentos: 1. ' +
+  'Tipo: cliente. Cidade: Salvador. Pedidos criados: 2. Agendamentos: 1. Saldo de moedas: 0. ' +
+  'Pedidos com proposta aguardando resposta: 1. ' +
   'Link de indicação pessoal deste contato: https://melocale.com.br/convite/MARI123X.';
 
 const CLIENTE_CONHECIDO_COM_LINK_TESTE =
-  'Tipo: cliente. Cidade: Salvador. Pedidos criados: 1. Agendamentos: 0. ' +
+  'Tipo: cliente. Cidade: Salvador. Pedidos criados: 1. Agendamentos: 0. Saldo de moedas: 0. ' +
+  'Pedidos com proposta aguardando resposta: 0. ' +
   'Link de indicação pessoal deste contato: https://melocale.com.br/convite/TESTE123.';
 
 const PROFISSIONAL_CONHECIDO =
   'Tipo: profissional. Categoria: Eletricista. Cidade: Feira de Santana. Leads comprados: 0. ' +
+  'Saldo de moedas: 12. ' +
   'Link de indicação pessoal deste contato: https://melocale.com.br/convite/JOAO456Y.';
 
 const CASES: Case[] = [
@@ -81,6 +87,8 @@ const CASES: Case[] = [
       { sender: 'user', body: 'Rua das Flores, 123, pode ser amanhã de manhã' },
     ],
     lastMessage: 'já criou meu pedido?',
+    mustNotInclude: ['pedido criado', 'saiu no ar', 'já criei'],
+    mustInclude: ['cliente/pedidos'],
   },
   {
     name: 'Caso 4: Desconhecido com sinal claro (profissional)',
@@ -116,6 +124,7 @@ const CASES: Case[] = [
     context: `Nome: Maria Silva. Campanha: nenhuma. ${CLIENTE_CONHECIDO_COM_LINK_TESTE} ${DEFAULT_PLATFORM_CONTEXT}`,
     history: [],
     lastMessage: 'como eu indico meus amigos?',
+    mustInclude: ['convite/TESTE123'],
   },
   {
     name: 'Caso 9: Desconhecido pergunta sobre indicação',
@@ -130,6 +139,7 @@ const CASES: Case[] = [
     context: `Nome: Desconhecido. Campanha: nenhuma. ${DESCONHECIDO} ${DEFAULT_PLATFORM_CONTEXT}`,
     history: [],
     lastMessage: 'quanto custa o plano PRO pra profissional?',
+    expectHandoff: false,
   },
   {
     name: 'Caso 11: Reclamação real',
@@ -137,6 +147,7 @@ const CASES: Case[] = [
     context: `Nome: João Eletricista. Campanha: nenhuma. ${PROFISSIONAL_CONHECIDO} ${DEFAULT_PLATFORM_CONTEXT}`,
     history: [],
     lastMessage: 'paguei por moeda no cartão e não recebeu, cadê meu saldo?',
+    expectHandoff: true,
   },
   {
     name: 'Caso 12: Preço de pacote de moeda (dado dinâmico)',
@@ -147,6 +158,8 @@ const CASES: Case[] = [
       'Pacotes de moeda disponíveis hoje: Teste: 999 moedas por R$9,99.',
     history: [],
     lastMessage: 'quanto custa o pacote de moeda mais barato?',
+    mustInclude: ['9,99'],
+    mustNotInclude: ['R$0,99', 'grátis'],
   },
   {
     name: 'Caso 13: Saque',
@@ -154,6 +167,8 @@ const CASES: Case[] = [
     context: `Nome: João Eletricista. Campanha: nenhuma. ${PROFISSIONAL_CONHECIDO} ${DEFAULT_PLATFORM_CONTEXT}`,
     history: [],
     lastMessage: 'qual o valor mínimo pra eu sacar minhas moedas?',
+    mustNotInclude: ['CPF'],
+    expectHandoff: false,
   },
   {
     name: 'Caso 14: Categoria adjacente real',
@@ -161,6 +176,7 @@ const CASES: Case[] = [
     context: `Nome: Desconhecido. Campanha: nenhuma. ${DESCONHECIDO} ${DEFAULT_PLATFORM_CONTEXT}`,
     history: [{ sender: 'user', body: 'quero contratar alguém' }],
     lastMessage: 'minha parede rachou, quem eu chamo?',
+    mustNotInclude: ['CPF'],
   },
   {
     name: 'Caso 15: Fora de escopo, tentativa de insistência',
@@ -194,6 +210,7 @@ async function callBot(c: Case): Promise<BotDecision> {
       handoff: Boolean(parsed.handoff),
       mood: parsed.mood === 'positive' || parsed.mood === 'negative' ? parsed.mood : 'neutral',
       handoff_reason: parsed.handoff_reason,
+      urgency: parsed.urgency,
     };
   } catch (err) {
     console.error('  ⚠️ falha ao parsear resposta:', err instanceof Error ? err.message : String(err));
@@ -208,13 +225,32 @@ async function main() {
     process.exit(1);
   }
 
+  let failures = 0;
+
   for (const c of CASES) {
     console.log(`=== ${c.name} ===`);
     console.log(`Esperado: ${c.expected}`);
     const decision = await callBot(c);
     console.log('Resposta do bot:', JSON.stringify(decision));
+
+    if (c.mustInclude) {
+      for (const s of c.mustInclude) {
+        if (!decision.reply?.includes(s)) { console.log(`  ❌ esperado conter "${s}"`); failures++; }
+      }
+    }
+    if (c.mustNotInclude) {
+      for (const s of c.mustNotInclude) {
+        if (decision.reply?.includes(s)) { console.log(`  ❌ NÃO deveria conter "${s}"`); failures++; }
+      }
+    }
+    if (c.expectHandoff !== undefined && decision.handoff !== c.expectHandoff) {
+      console.log(`  ❌ esperado handoff=${c.expectHandoff}, veio ${decision.handoff}`); failures++;
+    }
+
     console.log('---\n');
   }
+
+  console.log(`\n${failures === 0 ? '✅' : '❌'} ${failures} falha(s) objetiva(s) de ${CASES.length} casos.`);
 }
 
 main();

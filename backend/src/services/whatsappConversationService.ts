@@ -217,9 +217,20 @@ async function buildContactContext(
     }
     const ctx: ProContext = { category: proRow?.category ?? null, city: proRow?.city ?? city, leads_purchased: leadsPurchased };
     const myReferralLink = referralLink(await getOrCreateReferralCode(contact_id));
+
+    let coinsBalance = 0;
+    try {
+      const { data: walletData } = await withTimeout(
+        supabaseAdmin.from("v_wallet_balance").select("balance_coins").eq("user_id", contact_id).maybeSingle()
+      );
+      coinsBalance = (walletData as { balance_coins?: number } | null)?.balance_coins ?? 0;
+    } catch (err) {
+      console.error("[wa-conv] erro ao buscar saldo do profissional pro contexto:", err instanceof Error ? err.message : String(err));
+    }
+
     return {
       name,
-      details: `Tipo: profissional. Categoria: ${ctx.category ?? "não informada"}. Cidade: ${ctx.city ?? "não informada"}. Leads comprados: ${ctx.leads_purchased}. Link de indicação pessoal deste contato: ${myReferralLink}.`,
+      details: `Tipo: profissional. Categoria: ${ctx.category ?? "não informada"}. Cidade: ${ctx.city ?? "não informada"}. Leads comprados: ${ctx.leads_purchased}. Saldo de moedas: ${coinsBalance}. Link de indicação pessoal deste contato: ${myReferralLink}.`,
     };
   }
 
@@ -234,9 +245,27 @@ async function buildContactContext(
     ]);
     const ctx: ClientContext = { city, total_leads: totalLeads ?? 0, total_appointments: totalAppointments ?? 0 };
     const myReferralLink = referralLink(await getOrCreateReferralCode(contact_id));
+
+    let coinsBalance = 0;
+    let propostasAguardando = 0;
+    try {
+      const { data: clientCoins } = await withTimeout(
+        supabaseAdmin.from("client_coins").select("balance").eq("user_id", contact_id).maybeSingle()
+      );
+      coinsBalance = (clientCoins as { balance?: number } | null)?.balance ?? 0;
+
+      const { data: leadsData } = await withTimeout(
+        supabaseAdmin.from("leads").select("id, purchases_count").eq("client_id", contact_id)
+      );
+      propostasAguardando = ((leadsData ?? []) as { purchases_count: number }[])
+        .filter(l => l.purchases_count > 0).length;
+    } catch (err) {
+      console.error("[wa-conv] erro ao buscar saldo/propostas do cliente pro contexto:", err instanceof Error ? err.message : String(err));
+    }
+
     return {
       name,
-      details: `Tipo: cliente. Cidade: ${ctx.city ?? "não informada"}. Pedidos criados: ${ctx.total_leads}. Agendamentos: ${ctx.total_appointments}. Link de indicação pessoal deste contato: ${myReferralLink}.`,
+      details: `Tipo: cliente. Cidade: ${ctx.city ?? "não informada"}. Pedidos criados: ${ctx.total_leads}. Agendamentos: ${ctx.total_appointments}. Saldo de moedas: ${coinsBalance}. Pedidos com proposta aguardando resposta: ${propostasAguardando}. Link de indicação pessoal deste contato: ${myReferralLink}.`,
     };
   }
 
@@ -281,7 +310,7 @@ async function getRecentMessages(conversationId: string, limit = 10): Promise<{ 
   return rows.reverse();
 }
 
-type BotDecision = { reply: string | null; handoff: boolean; mood: Mood; handoff_reason?: string };
+type BotDecision = { reply: string | null; handoff: boolean; mood: Mood; handoff_reason?: string; urgency?: "baixa" | "media" | "alta" };
 
 export const BOT_SYSTEM_PROMPT = `Você é o Assistente MeloCalé, plataforma de serviços domésticos no interior da Bahia, atendendo por WhatsApp.
 Responda dúvidas de uso da plataforma (como criar pedido, como ver proposta, como funcionam as moedas, como contratar um profissional, etc.) de forma direta e útil, em português informal mas profissional.
@@ -320,10 +349,12 @@ Plataforma (MeloCalé):
 NUNCA afirme que profissionais passam por verificação, checagem de antecedentes, ou qualquer processo de aprovação manual — isso não existe hoje. Se perguntarem sobre segurança/confiança dos profissionais, seja honesto: hoje o cadastro é automático (MVP), e a plataforma media disputas caso algo dê errado, mas não garante a qualidade do profissional antes da contratação.
 
 NUNCA afirme um fato específico sobre cadastro, documentos exigidos,
-saldo de moedas, ou qualquer dado da conta do contato que não esteja
-EXPLICITAMENTE no contexto fornecido acima ou nas regras deste prompt.
-Se não souber um detalhe específico (ex: quais documentos o cadastro
-pede, quanto de saldo a pessoa tem), não invente — fale de forma geral
+ou qualquer dado da conta do contato que não esteja EXPLICITAMENTE no
+contexto fornecido acima ou nas regras deste prompt. Saldo de moedas e
+pedidos com proposta pendente, quando disponíveis no contexto, PODEM e
+DEVEM ser usados pra responder com precisão — não são mais dados
+desconhecidos. Fora isso, se não souber um detalhe específico (ex:
+quais documentos o cadastro pede), não invente — fale de forma geral
 ("é rápido, leva poucos minutos") ou direcione pro link onde ela mesma
 vê ("você confere isso direto no cadastro/na sua carteira").
 
@@ -474,8 +505,16 @@ decidindo sozinha o que fazer depois. Prefira "aqui está o link:
 continuar" sem dizer qual link. Isso vale tanto pra conversão de cadastro
 quanto pra engajamento de quem já tem conta.
 
+Se handoff=true, inclua também "urgency": "baixa" | "media" | "alta" —
+"alta" pra reclamação de cobrança/dinheiro, algo que já deu errado de
+verdade, ou contato visivelmente frustrado/irritado; "media" pra dúvida
+que precisa de humano mas não é urgente (ex: pergunta específica sobre
+um pedido); "baixa" pra handoff só porque o assunto foge do escopo
+básico, sem problema real envolvido. Se handoff=false, não precisa
+incluir "urgency".
+
 Responda SOMENTE em JSON válido, sem texto fora do JSON, no formato:
-{"reply": string ou null, "handoff": boolean, "mood": "positive"|"neutral"|"negative", "handoff_reason": string opcional (só se handoff=true, resumo breve do motivo)}
+{"reply": string ou null, "handoff": boolean, "mood": "positive"|"neutral"|"negative", "handoff_reason": string opcional (só se handoff=true, resumo breve do motivo), "urgency": "baixa"|"media"|"alta" opcional (só se handoff=true)}
 Se handoff=true, "reply" deve ser null (a mensagem de handoff é enviada separadamente, não gere você).`;
 
 async function callHaikuForDecision(context: string, history: { sender: string; body: string }[], lastMessage: string): Promise<BotDecision> {
@@ -500,6 +539,7 @@ async function callHaikuForDecision(context: string, history: { sender: string; 
       handoff: Boolean(parsed.handoff),
       mood: parsed.mood === "positive" || parsed.mood === "negative" ? parsed.mood : "neutral",
       handoff_reason: parsed.handoff_reason,
+      urgency: parsed.urgency === "baixa" || parsed.urgency === "media" || parsed.urgency === "alta" ? parsed.urgency : undefined,
     };
   } catch (err) {
     console.error("[wa-conv] falha ao parsear resposta do Haiku:", err instanceof Error ? err.message : String(err), text);
@@ -560,10 +600,13 @@ async function finalizeBotDecision(conv: ConversationRow, decision: BotDecision)
         const { data: admins } = await supabaseAdmin
           .from("profiles").select("id").eq("role", "admin");
 
+        const urgencyPrefix = decision.urgency === "alta" ? "🔴 URGENTE — "
+          : decision.urgency === "media" ? "🟡 " : "";
+
         await Promise.all(
           ((admins ?? []) as { id: string }[]).map(admin =>
             sendPushToUser(admin.id, {
-              title: "Conversa precisa de você",
+              title: `${urgencyPrefix}Conversa precisa de você`,
               body: `${contactName}: ${decision.handoff_reason ?? "Fora do escopo do bot."}`,
               data: { type: "wa_handoff", url: `/admin/conversas?id=${conv.id}` },
             })
