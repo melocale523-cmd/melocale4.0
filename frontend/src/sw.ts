@@ -100,30 +100,45 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
   const proposedBy = data?.proposed_by as string | undefined
 
   const dataUrl = data?.url as string | undefined
+  const leadId = data?.lead_id as string | undefined
+  const purchaseId = data?.purchaseId as string | undefined
+  const conversationId = data?.conversationId as string | undefined
+  const appointmentId = data?.appointment_id as string | undefined
+  const role = data?.role as string | undefined
 
   let url = '/'
-  if (type === 'new_interest' || type === 'proposal_accepted') {
-    url = '/profissional/leads'
+  if (type === 'new_interest' || type === 'new_lead') {
+    url = leadId ? `/profissional/leads?leadId=${leadId}` : '/profissional/leads'
+  } else if (type === 'proposal_accepted') {
+    url = purchaseId ? `/profissional/meus-leads?purchaseId=${purchaseId}` : '/profissional/meus-leads'
   } else if (type === 'proposal_received') {
-    url = '/cliente/pedidos'
+    url = purchaseId ? `/cliente/pedidos?purchaseId=${purchaseId}` : '/cliente/pedidos'
   } else if (type === 'appointment_created' || type === 'appointment') {
-    url = '/cliente/agenda'
+    url = appointmentId ? `/cliente/agenda?appointmentId=${appointmentId}` : '/cliente/agenda'
   } else if (type === 'appointment_updated' || type === 'appointment_cancelled') {
     // url included in payload tells us which side the recipient is
-    url = dataUrl ?? '/cliente/agenda'
+    url = dataUrl ?? (appointmentId ? `/cliente/agenda?appointmentId=${appointmentId}` : '/cliente/agenda')
   } else if (type === 'reschedule_proposed') {
     // proposed_by tells us who sent the proposal; the recipient is the other party
-    url = proposedBy === 'professional' ? '/cliente/agenda' : '/profissional/agenda'
+    url = proposedBy === 'professional'
+      ? (appointmentId ? `/cliente/agenda?appointmentId=${appointmentId}` : '/cliente/agenda')
+      : (appointmentId ? `/profissional/agenda?appointmentId=${appointmentId}` : '/profissional/agenda')
   } else if (type === 'reschedule_accepted' || type === 'reschedule_declined') {
-    url = '/profissional/agenda'
+    url = appointmentId ? `/profissional/agenda?appointmentId=${appointmentId}` : '/profissional/agenda'
   } else if (type === 'reminder_24h') {
-    url = '/cliente/agenda'
+    url = appointmentId ? `/cliente/agenda?appointmentId=${appointmentId}` : '/cliente/agenda'
   } else if (type === 'reminder_24h_prof') {
-    url = '/profissional/agenda'
+    url = appointmentId ? `/profissional/agenda?appointmentId=${appointmentId}` : '/profissional/agenda'
   } else if (type === 'message_client') {
-    url = '/cliente/mensagens'
+    url = conversationId ? `/cliente/mensagens?chatId=${conversationId}` : '/cliente/mensagens'
   } else if (type === 'message') {
-    url = '/profissional/mensagens'
+    url = conversationId ? `/profissional/mensagens?chatId=${conversationId}` : '/profissional/mensagens'
+  } else if (type === 'presence_confirmed') {
+    url = appointmentId ? `/profissional/agenda?appointmentId=${appointmentId}` : '/profissional/agenda'
+  } else if (type === 'new_referral' || type === 'monthly_referral_bonus') {
+    url = role === 'professional' ? '/profissional/indicacao' : '/cliente/indicacao'
+  } else if (type === 'wa_handoff') {
+    url = dataUrl ?? '/admin/conversas'
   } else if (dataUrl) {
     try {
       const parsed = new URL(dataUrl, self.location.origin)

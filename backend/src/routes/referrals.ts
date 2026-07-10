@@ -219,7 +219,7 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
     void sendPushToUser(referrerProfile.id, {
       title: '🎉 Nova indicação!',
       body: `${firstName} se cadastrou com seu link! +${rewardHint} quando ele ativar.`,
-      data: { type: 'new_referral', referral_id: referral.id },
+      data: { type: 'new_referral', referral_id: referral.id, role: referrerProfile.role },
     })
     void supabaseAdmin.from('notifications').insert({
       user_id: referrerProfile.id,
