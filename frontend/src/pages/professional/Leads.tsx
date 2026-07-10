@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, walletService } from '../../services/dbServices';
 import { MapPin, Loader2, ShoppingCart, SlidersHorizontal, Ghost, CheckCircle2, ArrowRight, Navigation, Coins, Search, X, DollarSign, Plus, Trash2, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { cn } from '../../lib/utils';
@@ -10,6 +10,7 @@ import { cn } from '../../lib/utils';
 export default function ProfessionalLeads() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -97,6 +98,19 @@ export default function ProfessionalLeads() {
     }
     setPendingPurchase({ id: lead.id, price_coins: leadPrice, title: lead.title, idempotencyKey: crypto.randomUUID() });
   };
+
+  // Deep link vindo de notificação push (?leadId=) — abre o mesmo modal de
+  // compra do card, uma única vez, se o lead ainda estiver disponível.
+  const deepLinkHandledRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandledRef.current) return;
+    const leadId = searchParams.get('leadId');
+    if (!leadId || !leads) return;
+    deepLinkHandledRef.current = true;
+    const target = leads.find(l => l.id === leadId);
+    if (target) handlePurchase(target);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leads, searchParams]);
 
   const confirmPurchase = () => {
     if (!pendingPurchase) return;

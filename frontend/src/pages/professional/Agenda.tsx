@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { format, addMonths, subMonths, isSameDay, addDays, subDays, isToday } from 'date-fns';
 import { Plus, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -17,6 +18,7 @@ import { CreateAppointmentModal } from './agenda/CreateAppointmentModal';
 
 export default function ProfessionalAgenda() {
   const { user } = useAuthStore();
+  const [searchParams] = useSearchParams();
 
   const {
     professional,
@@ -77,6 +79,19 @@ export default function ProfessionalAgenda() {
     setInitialModalDate(format(date, 'yyyy-MM-dd'));
     setIsModalOpen(true);
   };
+
+  // Deep link vindo de notificação push (?appointmentId=) — abre o modal de
+  // detalhes do compromisso, uma única vez, se ele ainda existir na lista.
+  const deepLinkHandledRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandledRef.current) return;
+    const appointmentId = searchParams.get('appointmentId');
+    if (!appointmentId || !appointments.length) return;
+    deepLinkHandledRef.current = true;
+    const target = appointments.find(a => a.id === appointmentId);
+    if (target) openDetails(target);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointments, searchParams]);
 
   return (
     <div className="w-full space-y-4">

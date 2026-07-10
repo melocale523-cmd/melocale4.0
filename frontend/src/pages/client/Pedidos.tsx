@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Inbox } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { supabase } from '../../lib/supabase';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { type WizardData } from '../../components/RequestWizard';
 import ReviewModal from '../../components/ReviewModal';
@@ -23,6 +25,7 @@ type ReviewModalState = Pick<ReviewableInfo, 'appointmentId' | 'professionalId' 
 
 export default function Pedidos() {
   const { user } = useAuthStore();
+  const [searchParams] = useSearchParams();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<PedidoItem | null>(null);
@@ -100,6 +103,26 @@ export default function Pedidos() {
     setSelectedPedido(pedido);
     setIsProposalsModalOpen(true);
   };
+
+  // Deep link vindo de notificação push (?purchaseId=) — resolve o pedido
+  // (lead) dono dessa proposta e abre o modal de propostas automaticamente,
+  // uma única vez. purchaseId é o id de lead_purchases, não de pedidos, por
+  // isso precisa de uma consulta pra achar o lead_id correspondente.
+  const deepLinkHandledRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandledRef.current) return;
+    const purchaseId = searchParams.get('purchaseId');
+    if (!purchaseId || !pedidos.length) return;
+    deepLinkHandledRef.current = true;
+    void (async () => {
+      const { data } = await supabase
+        .from('lead_purchases').select('lead_id').eq('id', purchaseId).maybeSingle();
+      const leadId = (data as { lead_id?: string } | null)?.lead_id;
+      const pedido = leadId ? pedidos.find(p => p.id === leadId) : undefined;
+      if (pedido) openProposals(pedido);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pedidos, searchParams]);
 
   const handleWizardSubmit = (wizardData: WizardData) => {
     const metadata: Record<string, string> = {
