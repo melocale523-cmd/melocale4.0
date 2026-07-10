@@ -111,6 +111,23 @@ export async function sendWhatsAppTemplate(
   });
 }
 
+/**
+ * Marca a mensagem inbound como lida (✓✓ azul) e mostra o indicador de
+ * "digitando..." por até 25s (ou até a resposta ser enviada, o que vier
+ * primeiro) — ajuda a mascarar a latência real do fluxo (debounce + Haiku).
+ * Não tem contrapartida de "online"/"visto por último": a Cloud API de
+ * Business não expõe presença, isso é exclusivo de contas pessoais.
+ */
+export async function markReadWithTyping(messageId: string): Promise<WhatsAppSendResult> {
+  const result = await postToGraphApi({
+    messaging_product: "whatsapp",
+    status: "read",
+    message_id: messageId,
+    typing_indicator: { type: "text" },
+  });
+  return result.ok ? { ...result, messageId } : result;
+}
+
 // --- Nomes dos templates (submissão na Meta, categoria Utility, pt_BR) ---
 export const WHATSAPP_TEMPLATES = {
   NEW_LEAD: "novo_pedido_disponivel",

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import crypto from "node:crypto";
 import { supabaseAdmin } from "../config.js";
-import { sendWhatsAppText } from "../services/whatsappService.js";
+import { markReadWithTyping, sendWhatsAppText } from "../services/whatsappService.js";
 import { ensureConversation, getConversationByPhone, insertMessage, processBotTurn, touchConversation } from "../services/whatsappConversationService.js";
 
 // Webhook da Meta (WhatsApp Cloud API).
@@ -194,14 +194,14 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
   try {
     if (body.object !== "whatsapp_business_account") return;
     const senders = new Set<string>();
-    const inboundTexts: { from: string; text: string }[] = [];
+    const inboundTexts: { from: string; text: string; messageId?: string }[] = [];
     for (const entry of body.entry ?? []) {
       for (const change of entry.changes ?? []) {
         if (change.field !== "messages") continue;
         for (const msg of change.value?.messages ?? []) {
           if (msg.from) senders.add(msg.from);
           const text = extractMessageText(msg);
-          if (text && msg.from) inboundTexts.push({ from: msg.from, text });
+          if (text && msg.from) inboundTexts.push({ from: msg.from, text, messageId: msg.id });
         }
       }
     }
@@ -212,16 +212,21 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
         if (!result.ok) console.error(`[wa-webhook] falha ao confirmar para ${waId}:`, result.error);
       }
     }
-    for (const { from, text } of inboundTexts) {
-      await processInboundConversationMessage(from, text);
+    for (const { from, text, messageId } of inboundTexts) {
+      await processInboundConversationMessage(from, text, messageId);
     }
   } catch (err) {
     console.error("[wa-webhook] erro ao processar evento:", err instanceof Error ? err.message : String(err));
   }
 }
 
-async function processInboundConversationMessage(waId: string, text: string): Promise<void> {
+async function processInboundConversationMessage(waId: string, text: string, messageId?: string): Promise<void> {
   try {
+    if (messageId) {
+      void markReadWithTyping(messageId).then(result => {
+        if (!result.ok) console.error(`[wa-webhook] falha ao marcar como lida/digitando pra ${waId}:`, result.error);
+      });
+    }
     const conv = await ensureConversation(waId);
     await insertMessage({
       conversation_id: conv.id,
