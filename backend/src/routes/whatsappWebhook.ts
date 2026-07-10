@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import crypto from "node:crypto";
 import { supabaseAdmin } from "../config.js";
 import { markReadWithTyping, sendWhatsAppText } from "../services/whatsappService.js";
+import { transcribeWhatsAppAudio } from "../services/audioTranscriptionService.js";
 import { ensureConversation, getConversationByPhone, insertMessage, processBotTurn, touchConversation } from "../services/whatsappConversationService.js";
 
 // Webhook da Meta (WhatsApp Cloud API).
@@ -12,6 +13,9 @@ import { ensureConversation, getConversationByPhone, insertMessage, processBotTu
 
 const CONFIRMATION_TEXT =
   "WhatsApp conectado! Você vai receber avisos de novos pedidos por aqui. ✅";
+
+const UNSUPPORTED_MEDIA_MESSAGE =
+  "Recebi sua mensagem, mas ainda não consigo processar esse tipo de conteúdo por aqui — pode escrever em texto? 😊";
 
 function envInt(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -99,6 +103,7 @@ type WebhookMessage = {
   // Clique em botão de resposta rápida de template (categoria Marketing) —
   // a Meta manda type="interactive" em vez de type="text".
   interactive?: { type?: string; button_reply?: { id?: string; title?: string } };
+  audio?: { id?: string };
 };
 type WebhookChange = { field?: string; value?: { messages?: WebhookMessage[] } };
 type WebhookBody = { object?: string; entry?: { changes?: WebhookChange[] }[] };
@@ -195,13 +200,33 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
     if (body.object !== "whatsapp_business_account") return;
     const senders = new Set<string>();
     const inboundTexts: { from: string; text: string; messageId?: string }[] = [];
+    const unsupportedMediaSenders: string[] = [];
     for (const entry of body.entry ?? []) {
       for (const change of entry.changes ?? []) {
         if (change.field !== "messages") continue;
         for (const msg of change.value?.messages ?? []) {
           if (msg.from) senders.add(msg.from);
-          const text = extractMessageText(msg);
-          if (text && msg.from) inboundTexts.push({ from: msg.from, text, messageId: msg.id });
+          if (!msg.from) continue;
+
+          if (msg.type === "text" || msg.type === "interactive") {
+            const text = extractMessageText(msg);
+            if (text) inboundTexts.push({ from: msg.from, text, messageId: msg.id });
+            continue;
+          }
+
+          if (msg.type === "audio" && msg.audio?.id) {
+            const result = await transcribeWhatsAppAudio(msg.audio.id);
+            if (result.ok) {
+              inboundTexts.push({ from: msg.from, text: `(áudio) ${result.text}`, messageId: msg.id });
+            } else {
+              console.error(`[wa-webhook] falha ao transcrever áudio de ${msg.from}:`, result.error);
+              unsupportedMediaSenders.push(msg.from);
+            }
+            continue;
+          }
+
+          // image, video, document, etc. — sem suporte ainda.
+          unsupportedMediaSenders.push(msg.from);
         }
       }
     }
@@ -214,6 +239,21 @@ export async function whatsappWebhookHandler(req: Request, res: Response) {
     }
     for (const { from, text, messageId } of inboundTexts) {
       await processInboundConversationMessage(from, text, messageId);
+    }
+    for (const waId of unsupportedMediaSenders) {
+      const result = await sendWhatsAppText(waId, UNSUPPORTED_MEDIA_MESSAGE);
+      if (!result.ok) console.error(`[wa-webhook] falha ao avisar mídia não suportada pra ${waId}:`, result.error);
+      try {
+        const conv = await ensureConversation(waId);
+        await insertMessage({
+          conversation_id: conv.id,
+          direction: "outbound",
+          sender: "bot",
+          body: UNSUPPORTED_MEDIA_MESSAGE,
+        });
+      } catch (err) {
+        console.error(`[wa-webhook] falha ao registrar aviso de mídia não suportada pra ${waId}:`, err instanceof Error ? err.message : String(err));
+      }
     }
   } catch (err) {
     console.error("[wa-webhook] erro ao processar evento:", err instanceof Error ? err.message : String(err));
