@@ -220,10 +220,14 @@ async function buildContactContext(
 
     let coinsBalance = 0;
     try {
+      // v_wallet_balance tem WHERE professional_id = auth.uid() hardcoded na
+      // definição — funciona só na sessão autenticada do próprio usuário,
+      // nunca via service_role (auth.uid() é NULL aqui). Consulta a tabela
+      // base direto em vez da view.
       const { data: walletData } = await withTimeout(
-        supabaseAdmin.from("v_wallet_balance").select("balance_coins").eq("user_id", contact_id).maybeSingle()
+        supabaseAdmin.from("professional_coins").select("balance").eq("professional_id", contact_id).maybeSingle()
       );
-      coinsBalance = (walletData as { balance_coins?: number } | null)?.balance_coins ?? 0;
+      coinsBalance = (walletData as { balance?: number } | null)?.balance ?? 0;
     } catch (err) {
       console.error("[wa-conv] erro ao buscar saldo do profissional pro contexto:", err instanceof Error ? err.message : String(err));
     }
@@ -452,6 +456,14 @@ Santana, Irecê, Senhor do Bonfim. Se perguntarem sobre outra cidade da
 Bahia ou de fora, seja honesto: hoje a plataforma atende essas 6
 cidades, ainda não expandiu pra mais lugares.
 
+CADASTRO: não exige nenhum documento formal (sem CPF, sem RG) — só
+telefone, categoria de serviço e uma bio curta pra profissional; só
+telefone e cidade pra cliente. Se um contato JÁ cadastrado perguntar
+sobre documentos, responda primeiro que a conta dele já está ativa e
+não precisa de mais nada — e só depois, se ele insistir em saber o que
+o cadastro pede (por curiosidade ou pra indicar alguém), explique que
+não tem documento formal exigido, é só isso.
+
 LINKS — o contexto do contato (fornecido acima, no início desta
 conversa) já diz se ele é "Tipo: profissional", "Tipo: cliente" ou tem
 "Tipo de contato desconhecido". Use isso pra escolher o link certo,
@@ -605,11 +617,19 @@ async function finalizeBotDecision(conv: ConversationRow, decision: BotDecision)
 
         await Promise.all(
           ((admins ?? []) as { id: string }[]).map(admin =>
-            sendPushToUser(admin.id, {
-              title: `${urgencyPrefix}Conversa precisa de você`,
-              body: `${contactName}: ${decision.handoff_reason ?? "Fora do escopo do bot."}`,
-              data: { type: "wa_handoff", url: `/admin/conversas?id=${conv.id}` },
-            })
+            Promise.all([
+              sendPushToUser(admin.id, {
+                title: `${urgencyPrefix}Conversa precisa de você`,
+                body: `${contactName}: ${decision.handoff_reason ?? "Fora do escopo do bot."}`,
+                data: { type: "wa_handoff", url: `/admin/conversas?id=${conv.id}` },
+              }),
+              supabaseAdmin.from("notifications").insert({
+                user_id: admin.id,
+                title: `${urgencyPrefix}Conversa precisa de você`,
+                body: `${contactName}: ${decision.handoff_reason ?? "Fora do escopo do bot."}`,
+                data: { type: "wa_handoff", url: `/admin/conversas?id=${conv.id}` },
+              }),
+            ])
           )
         );
       } catch (err) {
