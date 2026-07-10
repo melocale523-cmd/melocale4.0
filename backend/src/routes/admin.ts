@@ -540,6 +540,70 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
   }
 });
 
+// ── Garantia de primeira compra do profissional ─────────────────────────────
+// Aprovar credita as moedas via credit_professional_guarantee (RPC própria,
+// separada de credit_professional_coins que é específico de compra Stripe).
+router.post("/guarantee-requests/:id/approve", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const { note } = req.body as { note?: string };
+  try {
+    const { data: request, error: fetchErr } = await supabaseAdmin
+      .from("professional_guarantee_requests")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (fetchErr || !request) return res.status(404).json({ error: "Solicitação não encontrada." });
+    if (request.status !== "pending") return res.status(400).json({ error: "Solicitação não está pendente." });
+
+    const { data: rpcResult, error: rpcError } = await supabaseAdmin.rpc("credit_professional_guarantee", {
+      p_user_id: request.professional_id,
+      p_amount: request.coins_amount,
+      p_reference: `guarantee_request:${id}`,
+    });
+    if (rpcError) {
+      console.error("[admin/guarantee-requests] approve RPC error:", rpcError.message);
+      return res.status(500).json({ error: "Falha ao creditar moedas." });
+    }
+    if (rpcResult && (rpcResult as { success?: boolean }).success === false) {
+      return res.status(409).json({ error: (rpcResult as { error?: string }).error ?? "Já creditado anteriormente." });
+    }
+
+    await supabaseAdmin
+      .from("professional_guarantee_requests")
+      .update({ status: "approved", admin_note: note ?? null, processed_at: new Date().toISOString() })
+      .eq("id", id);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("[admin/guarantee-requests] approve error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro interno." });
+  }
+});
+
+router.post("/guarantee-requests/:id/reject", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const { note } = req.body as { note?: string };
+  try {
+    const { data: request, error: fetchErr } = await supabaseAdmin
+      .from("professional_guarantee_requests")
+      .select("id, status")
+      .eq("id", id)
+      .single();
+    if (fetchErr || !request) return res.status(404).json({ error: "Solicitação não encontrada." });
+    if (request.status !== "pending") return res.status(400).json({ error: "Solicitação não está pendente." });
+
+    await supabaseAdmin
+      .from("professional_guarantee_requests")
+      .update({ status: "rejected", admin_note: note ?? null, processed_at: new Date().toISOString() })
+      .eq("id", id);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("[admin/guarantee-requests] reject error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro interno." });
+  }
+});
+
 // Health check real pra página de Observabilidade — diferente de /api/health (público,
 // trivial, usado por monitores externos). Mede latência real de Supabase e Stripe, uptime
 // do processo, memória, event loop lag, tamanho do banco, info de deploy (env vars
