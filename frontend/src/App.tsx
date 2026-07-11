@@ -367,6 +367,11 @@ export default function App() {
       toast('Nova versão disponível', {
         description: 'Atualize para garantir que está usando a versão mais recente.',
         duration: Infinity,
+        // top-right (posição padrão do Toaster global) fica em cima do link
+        // "Entrar" da navbar — como esse toast nunca fecha sozinho
+        // (duration: Infinity), ele intercepta cliques ali indefinidamente.
+        // bottom-right já tem o widget de chat e o botão de instalar PWA.
+        position: 'bottom-center',
         action: {
           label: 'Atualizar agora',
           onClick: () => window.location.reload(),
