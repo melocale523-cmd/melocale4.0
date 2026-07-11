@@ -80,6 +80,22 @@ export default function AdminSuporte() {
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastBody, setBroadcastBody] = useState('');
   const [broadcastUrl, setBroadcastUrl] = useState('');
+  const [broadcastRole, setBroadcastRole] = useState<'client' | 'professional' | undefined>(undefined);
+
+  const BROADCAST_ROLE_META: Record<'all' | 'client' | 'professional', { label: string; audience: string; suggestedUrl?: string }> = {
+    all: { label: 'Todos', audience: 'TODOS os usuários inscritos' },
+    client: { label: 'Só clientes', audience: 'todos os CLIENTES inscritos', suggestedUrl: '/cliente/indicacao' },
+    professional: { label: 'Só profissionais', audience: 'todos os PROFISSIONAIS inscritos', suggestedUrl: '/profissional/indicacao' },
+  };
+
+  const handleBroadcastRoleChange = (next: 'all' | 'client' | 'professional') => {
+    const nextRole = next === 'all' ? undefined : next;
+    setBroadcastRole(nextRole);
+    const suggestedUrl = nextRole ? BROADCAST_ROLE_META[next].suggestedUrl : undefined;
+    if (suggestedUrl && !broadcastUrl.trim()) {
+      setBroadcastUrl(suggestedUrl);
+    }
+  };
 
   const broadcastMutation = useMutation({
     mutationFn: async () => {
@@ -90,6 +106,7 @@ export default function AdminSuporte() {
           title: broadcastTitle,
           body: broadcastBody,
           url: broadcastUrl.trim() || undefined,
+          role: broadcastRole,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -101,6 +118,7 @@ export default function AdminSuporte() {
       setBroadcastTitle('');
       setBroadcastBody('');
       setBroadcastUrl('');
+      setBroadcastRole(undefined);
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -111,8 +129,9 @@ export default function AdminSuporte() {
       toast.error('Preencha título e mensagem.');
       return;
     }
+    const audience = BROADCAST_ROLE_META[broadcastRole ?? 'all'].audience;
     const confirmed = window.confirm(
-      `Isso vai enviar essa notificação push pra TODOS os usuários inscritos, agora, de forma irreversível. Confirma?\n\nTítulo: ${broadcastTitle}\nMensagem: ${broadcastBody}`
+      `Isso vai enviar essa notificação push pra ${audience}, agora, de forma irreversível. Confirma?\n\nTítulo: ${broadcastTitle}\nMensagem: ${broadcastBody}`
     );
     if (!confirmed) return;
     broadcastMutation.mutate();
@@ -179,6 +198,29 @@ export default function AdminSuporte() {
           </div>
         </div>
         <form onSubmit={handleBroadcastSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {(['all', 'client', 'professional'] as const).map(r => {
+              const isActive = (broadcastRole ?? 'all') === r;
+              return (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => handleBroadcastRoleChange(r)}
+                  style={{
+                    background: isActive ? '#10b981' : '#0a1928',
+                    border: isActive ? 'none' : '1px solid #1C3050',
+                    borderRadius: '.5rem',
+                    color: isActive ? '#fff' : '#64748b',
+                    fontSize: 12, fontWeight: 700,
+                    padding: '6px 14px', cursor: 'pointer',
+                    fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  {BROADCAST_ROLE_META[r].label}
+                </button>
+              );
+            })}
+          </div>
           <input
             type="text"
             value={broadcastTitle}
