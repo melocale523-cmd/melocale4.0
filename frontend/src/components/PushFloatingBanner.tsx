@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { BellRing, X } from 'lucide-react';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 
-const MODAL_DISMISSED_KEY = 'push_modal_dismissed';
-const BANNER_DISMISSED_KEY = 'push_banner_dismissed';
-const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+const BANNER_DISMISSED_SESSION_KEY = 'push_banner_dismissed_session';
 
 export default function PushFloatingBanner() {
   const { isSupported, isSubscribed, subscribe } = usePushNotifications();
@@ -12,19 +10,10 @@ export default function PushFloatingBanner() {
 
   useEffect(() => {
     if (!isSupported || isSubscribed) return;
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') return;
-    if (!localStorage.getItem(MODAL_DISMISSED_KEY)) return;
+    if (typeof Notification !== 'undefined' && Notification.permission !== 'default') return;
+    if (sessionStorage.getItem(BANNER_DISMISSED_SESSION_KEY)) return;
 
-    const bannerDismissed = localStorage.getItem(BANNER_DISMISSED_KEY);
-
-    if (!bannerDismissed) {
-      const timer = setTimeout(() => setVisible(true), 2000);
-      return () => clearTimeout(timer);
-    }
-
-    const elapsed = Date.now() - Number(bannerDismissed);
-    const delay = elapsed >= THREE_DAYS_MS ? 2000 : THREE_DAYS_MS - elapsed + 2000;
-    const timer = setTimeout(() => setVisible(true), delay);
+    const timer = setTimeout(() => setVisible(true), 2000);
     return () => clearTimeout(timer);
   }, [isSupported, isSubscribed]);
 
@@ -37,7 +26,7 @@ export default function PushFloatingBanner() {
 
   const handleDismiss = () => {
     setVisible(false);
-    localStorage.setItem(BANNER_DISMISSED_KEY, String(Date.now()));
+    sessionStorage.setItem(BANNER_DISMISSED_SESSION_KEY, '1');
   };
 
   return (
