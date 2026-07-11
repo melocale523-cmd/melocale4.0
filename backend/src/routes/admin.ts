@@ -3,6 +3,7 @@ import { AuthRequest, requireAuth, requireAdmin } from "../middleware/auth.js";
 import { supabaseAdmin, coinPackagesCache, loadCoinPackages } from "../config.js";
 import { runHealthCheck, estimateSystemLoadPct } from "../lib/systemHealthCheck.js";
 import { withTimeout } from "../lib/timeout.js";
+import { sendPushToUser } from "../lib/push.js";
 
 const router = Router();
 
@@ -601,6 +602,38 @@ router.post("/guarantee-requests/:id/reject", requireAuth, requireAdmin, async (
   } catch (err) {
     console.error("[admin/guarantee-requests] reject error:", err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro interno." });
+  }
+});
+
+// Push em massa — ferramenta reutilizável pra avisos gerais (não só o anúncio
+// de indicação), por isso fica genérica (title/body/url) em vez de hardcoded.
+// Um envio por usuário único, não por subscription/dispositivo.
+router.post("/broadcast-push", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { title, body, url } = req.body as { title?: string; body?: string; url?: string };
+  if (!title || !body) return res.status(400).json({ error: "title e body são obrigatórios" });
+
+  try {
+    const { data: subsData, error } = await supabaseAdmin
+      .from("push_subscriptions")
+      .select("user_id");
+    if (error) throw error;
+
+    const userIds = [...new Set((subsData ?? []).map((s) => s.user_id as string))];
+
+    let sent = 0;
+    for (const userId of userIds) {
+      const ok = await sendPushToUser(userId, {
+        title,
+        body,
+        data: url ? { type: "broadcast", url } : { type: "broadcast" },
+      });
+      if (ok) sent++;
+    }
+
+    return res.json({ success: true, total_subscribers: userIds.length, sent });
+  } catch (err) {
+    console.error("[admin/broadcast-push] error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao enviar broadcast." });
   }
 });
 
