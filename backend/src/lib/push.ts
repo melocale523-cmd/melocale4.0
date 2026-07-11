@@ -11,23 +11,24 @@ if (vapidPublicKey && vapidPrivateKey && vapidEmail) {
 export async function sendPushToUser(
   userId: string,
   payload: { title: string; body: string; data?: Record<string, unknown> }
-) {
-  if (!vapidPublicKey || !vapidPrivateKey || !vapidEmail) return;
+): Promise<boolean> {
+  if (!vapidPublicKey || !vapidPrivateKey || !vapidEmail) return false;
   try {
     const { data: subs } = await supabaseAdmin
       .from("push_subscriptions")
       .select("endpoint, p256dh, auth")
       .eq("user_id", userId);
-    if (!subs?.length) return;
+    if (!subs?.length) return false;
 
     const payloadStr = JSON.stringify(payload);
-    await Promise.all(
+    const results = await Promise.all(
       subs.map(async (sub: { endpoint: string; p256dh: string; auth: string }) => {
         try {
           await webpush.sendNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
             payloadStr
           );
+          return true;
         } catch (err: unknown) {
           const status = (err as { statusCode?: number }).statusCode;
           if (status === 410 || status === 404) {
@@ -39,10 +40,13 @@ export async function sendPushToUser(
           } else {
             console.error("[push] sendNotification error:", err instanceof Error ? err.message : String(err));
           }
+          return false;
         }
       })
     );
+    return results.some(Boolean);
   } catch (err) {
     console.error("[push] sendPushToUser error:", err instanceof Error ? err.message : String(err));
+    return false;
   }
 }

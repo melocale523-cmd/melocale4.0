@@ -9,6 +9,7 @@ import NotificationBell from '../components/NotificationBell';
 import ThemeToggle from '../components/ThemeToggle';
 import ClientPushModal from '../components/ClientPushModal';
 import PushFloatingBanner from '../components/PushFloatingBanner';
+import ReferralAnnouncementBanner from '../components/ReferralAnnouncementBanner';
 import IOSInstallBanner from '../components/IOSInstallBanner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -141,6 +142,7 @@ export default function ClientLayout() {
         </nav>
 
         <PushFloatingBanner />
+        <ReferralAnnouncementBanner role="client" />
         <div className="p-1 border-t border-white/20 dark:border-slate-800/50">
           <button
             onClick={handleLogout}

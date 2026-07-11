@@ -11,6 +11,7 @@ import NotificationBell from '../components/NotificationBell';
 import ThemeToggle from '../components/ThemeToggle';
 import ProfessionalPushModal from '../components/ProfessionalPushModal';
 import PushFloatingBanner from '../components/PushFloatingBanner';
+import ReferralAnnouncementBanner from '../components/ReferralAnnouncementBanner';
 import IOSInstallBanner from '../components/IOSInstallBanner';
 
 export default function ProfessionalLayout() {
@@ -132,6 +133,7 @@ export default function ProfessionalLayout() {
         </nav>
 
         <PushFloatingBanner />
+        <ReferralAnnouncementBanner role="professional" />
         <div className="p-1 border-t border-white/20 dark:border-slate-800/50">
           <button
             onClick={handleLogout}

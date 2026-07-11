@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../database.types';
-import { Bot, User, Loader2, ChevronDown, ChevronUp, Save, LifeBuoy, Clock, MapPin, MessageSquare, FileText } from 'lucide-react';
+import { Bot, User, Loader2, ChevronDown, ChevronUp, Save, LifeBuoy, Clock, MapPin, MessageSquare, FileText, Megaphone, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiFetch } from '../../lib/api';
 
 type TicketStatus = 'open' | 'pending' | 'resolved';
 
@@ -76,6 +77,46 @@ export default function AdminSuporte() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<'all' | TicketStatus>('all');
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastBody, setBroadcastBody] = useState('');
+  const [broadcastUrl, setBroadcastUrl] = useState('');
+
+  const broadcastMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiFetch('/api/admin/broadcast-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: broadcastTitle,
+          body: broadcastBody,
+          url: broadcastUrl.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { error?: string }).error ?? 'Erro ao enviar broadcast.');
+      return data as { total_subscribers: number; sent: number };
+    },
+    onSuccess: (data) => {
+      toast.success(`Enviado para ${data.sent} de ${data.total_subscribers} inscritos.`);
+      setBroadcastTitle('');
+      setBroadcastBody('');
+      setBroadcastUrl('');
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const handleBroadcastSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastTitle.trim() || !broadcastBody.trim()) {
+      toast.error('Preencha título e mensagem.');
+      return;
+    }
+    const confirmed = window.confirm(
+      `Isso vai enviar essa notificação push pra TODOS os usuários inscritos, agora, de forma irreversível. Confirma?\n\nTítulo: ${broadcastTitle}\nMensagem: ${broadcastBody}`
+    );
+    if (!confirmed) return;
+    broadcastMutation.mutate();
+  };
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ['support_tickets'],
@@ -125,6 +166,52 @@ export default function AdminSuporte() {
 
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', fontFamily: 'DM Sans, sans-serif' }}>
+
+      {/* Broadcast push — ferramenta reutilizável pra avisos gerais */}
+      <div style={{ background: '#0d1e33', border: '1px solid #1e3a5f', borderRadius: '1rem', padding: '1.25rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
+          <div style={{ width: 40, height: 40, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Megaphone size={20} color="#10b981" />
+          </div>
+          <div>
+            <h2 style={{ color: '#f1f5f9', fontSize: 16, fontWeight: 900, margin: '0 0 2px' }}>Aviso em massa (push)</h2>
+            <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>Envia notificação push pra todos os usuários inscritos — ação irreversível.</p>
+          </div>
+        </div>
+        <form onSubmit={handleBroadcastSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <input
+            type="text"
+            value={broadcastTitle}
+            onChange={(e) => setBroadcastTitle(e.target.value)}
+            placeholder="Título da notificação"
+            maxLength={100}
+            style={{ background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '.5rem', color: '#f1f5f9', fontSize: 13, padding: '10px 12px', fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
+          />
+          <textarea
+            value={broadcastBody}
+            onChange={(e) => setBroadcastBody(e.target.value)}
+            placeholder="Mensagem"
+            maxLength={300}
+            rows={3}
+            style={{ background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '.5rem', color: '#f1f5f9', fontSize: 13, padding: '10px 12px', fontFamily: 'DM Sans, sans-serif', outline: 'none', resize: 'vertical' }}
+          />
+          <input
+            type="text"
+            value={broadcastUrl}
+            onChange={(e) => setBroadcastUrl(e.target.value)}
+            placeholder="Link opcional (ex: /cliente/indicacao)"
+            style={{ background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '.5rem', color: '#f1f5f9', fontSize: 13, padding: '10px 12px', fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
+          />
+          <button
+            type="submit"
+            disabled={broadcastMutation.isPending}
+            style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: 8, background: '#10b981', border: 'none', borderRadius: '.5rem', color: '#fff', fontSize: 13, fontWeight: 700, padding: '10px 18px', cursor: 'pointer', opacity: broadcastMutation.isPending ? 0.6 : 1 }}
+          >
+            {broadcastMutation.isPending ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
+            Enviar pra todos
+          </button>
+        </form>
+      </div>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: '1.5rem' }}>
