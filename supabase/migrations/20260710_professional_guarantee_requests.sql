@@ -83,7 +83,7 @@ BEGIN
 
   IF v_wallet_id IS NOT NULL THEN
     INSERT INTO wallet_transactions (wallet_id, kind, amount, balance_after, reference, professional_id, user_id, created_at)
-    VALUES (v_wallet_id, 'guarantee_refund', p_amount, v_new_balance, p_reference, v_professional_id, p_user_id, now());
+    VALUES (v_wallet_id, 'refund', p_amount, v_new_balance, p_reference, v_professional_id, p_user_id, now());
   END IF;
 
   RETURN jsonb_build_object('success', true, 'balance_after', v_new_balance);
