@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService, proposalService } from '../../services/dbServices';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
-import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap, Camera } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
+import { Loader2, Calendar, Phone, Mail, MapPin, Inbox, Send, DollarSign, Clock, FileText, X, CheckCircle2, Eye, CheckCircle, MessageCircle, Zap, Camera, ShieldCheck } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -67,6 +68,38 @@ export default function ProfessionalCompras() {
     retry: false,
     refetchOnWindowFocus: false,
     queryFn: leadService.getMyPurchases,
+  });
+
+  type GuaranteeEligibility =
+    | { eligible: true; lead_purchase_id: string; coins_amount: number }
+    | { eligible: false; reason: string };
+
+  const { data: guarantee, refetch: refetchGuarantee } = useQuery<GuaranteeEligibility>({
+    queryKey: ['guaranteeEligibility', user?.id],
+    retry: false,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const res = await apiFetch('/api/leads/guarantee-eligibility');
+      if (!res.ok) throw new Error('Erro ao verificar garantia');
+      return res.json() as Promise<GuaranteeEligibility>;
+    },
+    enabled: !!user?.id,
+  });
+
+  const guaranteeRequestMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiFetch('/api/leads/guarantee-request', { method: 'POST' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error ?? 'Erro ao solicitar garantia');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success('Solicitação enviada! O admin vai revisar em breve.');
+      void refetchGuarantee();
+    },
+    onError: (error: Error) => toast.error(error.message),
   });
 
   // Deep link vindo de notificação push (?purchaseId=) — abre o chat da
@@ -298,6 +331,29 @@ export default function ProfessionalCompras() {
           {purchases?.length || 0} adquiridos
         </div>
       </div>
+
+      {guarantee?.eligible && (
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-9 flex flex-col sm:flex-row items-start sm:items-center gap-8 justify-between">
+          <div className="flex items-start gap-7">
+            <div className="w-10 h-10 shrink-0 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <p className="text-white font-bold text-sm">Garantia de primeira compra disponível</p>
+              <p className="text-[#94A3B8] text-sm mt-1">
+                Esse lead já foi fechado com outro profissional — como é sua primeira compra, você pode pedir a garantia.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => guaranteeRequestMutation.mutate()}
+            disabled={guaranteeRequestMutation.isPending}
+            className="shrink-0 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white font-bold text-sm px-8 py-6 rounded-xl transition-colors flex items-center gap-3"
+          >
+            {guaranteeRequestMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : 'Solicitar reembolso em moedas'}
+          </button>
+        </div>
+      )}
 
       <div className="flex gap-2 flex-wrap" style={{ marginTop: '0.75rem' }}>
         {STATUS_TABS.map(tab => (

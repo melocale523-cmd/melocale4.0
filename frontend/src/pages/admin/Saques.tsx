@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Search, RefreshCw, Banknote, Phone, Coins, CheckCircle, XCircle, CreditCard } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Search, RefreshCw, Banknote, Phone, Coins, CheckCircle, XCircle, CreditCard, ShieldCheck } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
+import { apiFetch } from '../../lib/api';
 import { toast } from 'sonner';
 
 interface WithdrawalRequest {
@@ -21,6 +22,24 @@ interface WithdrawalRequest {
 }
 
 type StatusFilter = 'all' | 'pending' | 'approved' | 'paid' | 'rejected';
+
+interface GuaranteeRequest {
+  id: string;
+  professional_id: string;
+  lead_purchase_id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  coins_amount: number;
+  admin_note: string | null;
+  requested_at: string;
+  processed_at: string | null;
+  professional_name: string;
+}
+
+const GUARANTEE_STATUS_META: Record<string, { label: string; stripe: string; badge: { bg: string; color: string; border: string } }> = {
+  pending:  { label: 'Pendente',  stripe: '#f59e0b', badge: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: 'rgba(245,158,11,0.3)' } },
+  approved: { label: 'Aprovado',  stripe: '#34d399', badge: { bg: 'rgba(52,211,153,0.1)',  color: '#34d399', border: 'rgba(52,211,153,0.3)' } },
+  rejected: { label: 'Rejeitado', stripe: '#f87171', badge: { bg: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'rgba(248,113,113,0.3)' } },
+};
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -79,6 +98,9 @@ export default function AdminSaques() {
   const [filterStatus, setFilterStatus] = useState<StatusFilter>('all');
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [processing, setProcessing] = useState<string | null>(null);
+  const [guaranteeNotes, setGuaranteeNotes] = useState<Record<string, string>>({});
+  const [guaranteeProcessing, setGuaranteeProcessing] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: list = [], isLoading, refetch } = useQuery<WithdrawalRequest[]>({
     queryKey: ['adminSaques'],
@@ -114,6 +136,118 @@ export default function AdminSaques() {
     setNotes(prev => { const n = { ...prev }; delete n[id]; return n; });
     refetch();
   };
+
+  const { data: guaranteeRequests = [], isLoading: guaranteeLoading, refetch: refetchGuarantees } = useQuery<GuaranteeRequest[]>({
+    queryKey: ['adminGuaranteeRequests'],
+    queryFn: async () => {
+      const { data: requests, error } = await supabase
+        .from('professional_guarantee_requests')
+        .select('*')
+        .order('requested_at', { ascending: false });
+      if (error) throw error;
+      const rows = (requests ?? []) as Omit<GuaranteeRequest, 'professional_name'>[];
+      if (rows.length === 0) return [];
+
+      const ids = [...new Set(rows.map(r => r.professional_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', ids);
+      const nameById = new Map((profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name]));
+
+      return rows.map(r => ({ ...r, professional_name: nameById.get(r.professional_id) ?? 'Profissional' }));
+    },
+    staleTime: 30_000,
+  });
+
+  const processGuaranteeRequest = async (id: string, action: 'approve' | 'reject') => {
+    setGuaranteeProcessing(id + action);
+    const note = guaranteeNotes[id] ?? '';
+    try {
+      const res = await apiFetch(`/api/admin/guarantee-requests/${id}/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: note || undefined }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error((body as { error?: string }).error ?? 'Erro desconhecido');
+        return;
+      }
+      toast.success(action === 'approve' ? 'Garantia aprovada — moedas creditadas!' : 'Solicitação rejeitada.');
+      setGuaranteeNotes(prev => { const n = { ...prev }; delete n[id]; return n; });
+      refetchGuarantees();
+      queryClient.invalidateQueries({ queryKey: ['adminGuaranteeRequests'] });
+    } finally {
+      setGuaranteeProcessing(null);
+    }
+  };
+
+  function renderGuaranteeCard(r: GuaranteeRequest) {
+    const meta = GUARANTEE_STATUS_META[r.status] ?? GUARANTEE_STATUS_META.pending;
+    const isPending = r.status === 'pending';
+    const noteVal = guaranteeNotes[r.id] ?? '';
+
+    return (
+      <div key={r.id} style={{ background: '#132540', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: '1rem', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+        <div style={{ height: 3, background: meta.stripe }} />
+        <div style={{ padding: '1.125rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Avatar name={r.professional_name} />
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 3px' }}>{r.professional_name}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99, background: meta.badge.bg, color: meta.badge.color, border: `0.5px solid ${meta.badge.border}` }}>
+                    {meta.label}
+                  </span>
+                  <span style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Coins size={10} />{r.coins_amount.toLocaleString('pt-BR')} moedas
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <p style={{ fontSize: 10, color: '#64748b', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '.05em' }}>Solicitado</p>
+              <p style={{ fontSize: 12, color: 'white', fontWeight: 600, margin: 0 }}>{formatDate(r.requested_at)}</p>
+              {r.processed_at && <p style={{ fontSize: 11, color: '#64748b', margin: '2px 0 0' }}>Processado: {formatDate(r.processed_at)}</p>}
+            </div>
+          </div>
+
+          {r.admin_note && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '.5rem', padding: '0.5rem 0.75rem', fontSize: 12, color: '#94a3b8' }}>
+              📝 {r.admin_note}
+            </div>
+          )}
+
+          {isPending && (
+            <>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <NoteInput value={noteVal} onChange={v => setGuaranteeNotes(prev => ({ ...prev, [r.id]: v }))} />
+                <div style={{ display: 'flex', gap: 7, flexShrink: 0 }}>
+                  <button
+                    onClick={() => processGuaranteeRequest(r.id, 'reject')}
+                    disabled={guaranteeProcessing !== null}
+                    style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: guaranteeProcessing ? .6 : 1 }}
+                  >
+                    <XCircle size={12} /> Rejeitar
+                  </button>
+                  <button
+                    onClick={() => processGuaranteeRequest(r.id, 'approve')}
+                    disabled={guaranteeProcessing !== null}
+                    style={{ height: 32, padding: '0 12px', borderRadius: '.5rem', background: '#1D9E75', border: 'none', color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: guaranteeProcessing ? .6 : 1 }}
+                  >
+                    <CheckCircle size={12} /> Aprovar
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -349,6 +483,33 @@ export default function AdminSaques() {
           {filtered.map(renderCard)}
         </div>
       )}
+
+      {/* Garantia de primeira compra do profissional */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ShieldCheck size={18} style={{ color: '#34d399' }} />
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: 0 }}>Garantia de primeira compra (profissional)</h2>
+        </div>
+        <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+          Solicitações de devolução de moedas quando o primeiro lead comprado já foi fechado por outro profissional.
+        </p>
+
+        {guaranteeLoading && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+            <ShieldCheck size={28} style={{ color: '#34d399', opacity: .5 }} />
+          </div>
+        )}
+
+        {!guaranteeLoading && guaranteeRequests.length === 0 && (
+          <p style={{ fontSize: 13, color: '#64748b', padding: '1.5rem 0', textAlign: 'center' }}>Nenhuma solicitação de garantia ainda.</p>
+        )}
+
+        {!guaranteeLoading && guaranteeRequests.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+            {guaranteeRequests.map(renderGuaranteeCard)}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
