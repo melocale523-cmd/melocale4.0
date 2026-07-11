@@ -609,7 +609,7 @@ router.post("/guarantee-requests/:id/reject", requireAuth, requireAdmin, async (
 // de indicação), por isso fica genérica (title/body/url) em vez de hardcoded.
 // Um envio por usuário único, não por subscription/dispositivo.
 router.post("/broadcast-push", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
-  const { title, body, url } = req.body as { title?: string; body?: string; url?: string };
+  const { title, body, url, role } = req.body as { title?: string; body?: string; url?: string; role?: 'client' | 'professional' };
   if (!title || !body) return res.status(400).json({ error: "title e body são obrigatórios" });
 
   try {
@@ -618,7 +618,17 @@ router.post("/broadcast-push", requireAuth, requireAdmin, async (req: AuthReques
       .select("user_id");
     if (error) throw error;
 
-    const userIds = [...new Set((subsData ?? []).map((s) => s.user_id as string))];
+    let userIds = [...new Set((subsData ?? []).map((s) => s.user_id as string))];
+
+    if (role) {
+      const { data: profilesData } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("role", role)
+        .in("id", userIds);
+      const allowedIds = new Set((profilesData ?? []).map((p) => p.id as string));
+      userIds = userIds.filter((id) => allowedIds.has(id));
+    }
 
     let sent = 0;
     for (const userId of userIds) {
