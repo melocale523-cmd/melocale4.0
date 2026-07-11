@@ -1013,6 +1013,61 @@ export type Database = {
           },
         ]
       }
+      professional_guarantee_requests: {
+        Row: {
+          admin_note: string | null
+          coins_amount: number
+          id: string
+          lead_purchase_id: string
+          processed_at: string | null
+          professional_id: string
+          requested_at: string
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          coins_amount: number
+          id?: string
+          lead_purchase_id: string
+          processed_at?: string | null
+          professional_id: string
+          requested_at?: string
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          coins_amount?: number
+          id?: string
+          lead_purchase_id?: string
+          processed_at?: string | null
+          professional_id?: string
+          requested_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_guarantee_requests_lead_purchase_id_fkey"
+            columns: ["lead_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "lead_purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_guarantee_requests_lead_purchase_id_fkey"
+            columns: ["lead_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "v_my_purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_guarantee_requests_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
           approved_at: string | null
@@ -1792,6 +1847,94 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      whatsapp_conversations: {
+        Row: {
+          campaign: string | null
+          contact_id: string | null
+          contact_type: string | null
+          created_at: string | null
+          handoff_reason: string | null
+          id: string
+          last_message_at: string | null
+          mood: string | null
+          phone: string
+          status: string
+        }
+        Insert: {
+          campaign?: string | null
+          contact_id?: string | null
+          contact_type?: string | null
+          created_at?: string | null
+          handoff_reason?: string | null
+          id?: string
+          last_message_at?: string | null
+          mood?: string | null
+          phone: string
+          status?: string
+        }
+        Update: {
+          campaign?: string | null
+          contact_id?: string | null
+          contact_type?: string | null
+          created_at?: string | null
+          handoff_reason?: string | null
+          id?: string
+          last_message_at?: string | null
+          mood?: string | null
+          phone?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_conversations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string | null
+          direction: string
+          id: string
+          is_template: boolean | null
+          sender: string
+          template_name: string | null
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string | null
+          direction: string
+          id?: string
+          is_template?: boolean | null
+          sender: string
+          template_name?: string | null
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string | null
+          direction?: string
+          id?: string
+          is_template?: boolean | null
+          sender?: string
+          template_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       withdrawal_requests: {
         Row: {
@@ -2608,6 +2751,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      credit_professional_guarantee: {
+        Args: { p_amount: number; p_reference: string; p_user_id: string }
+        Returns: Json
+      }
       credit_referral_reward: {
         Args: { p_referral_id: string; p_reward_coins: number }
         Returns: Json
@@ -2641,6 +2788,21 @@ export type Database = {
         Returns: undefined
       }
       finalize_lead: { Args: { p_appointment_id: string }; Returns: Json }
+      find_professionals_by_phone_suffix: {
+        Args: { p_suffix: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
+      find_profiles_by_phone_suffix: {
+        Args: { p_suffix: string }
+        Returns: {
+          city: string
+          full_name: string
+          id: string
+          role: string
+        }[]
+      }
       get_available_leads: {
         Args: {
           p_category?: string
@@ -2744,6 +2906,7 @@ export type Database = {
         Args: { p_event_id: string; p_payload: Json; p_type: string }
         Returns: string
       }
+      normalize_city_name: { Args: { raw: string }; Returns: string }
       purchase_lead: {
         Args: { p_idempotency_key: string; p_lead_id: string }
         Returns: Json
@@ -2789,7 +2952,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      unaccent: { Args: { "": string }; Returns: string }
       upsert_payment: {
         Args: {
           p_amount: number

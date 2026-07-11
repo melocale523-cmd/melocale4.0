@@ -164,7 +164,7 @@ export default function LandingPage() {
   ] : [
     { n: '01', title: 'Descreva o serviço', sub: '30 segundos', desc: 'Conte o que precisa — eletricista, pintor, encanador. Quanto mais detalhe, melhor o orçamento.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
     { n: '02', title: 'Receba propostas', sub: 'Até 5 em 47 min', desc: `Profissionais verificados de ${displayCity} entram em contato. Compare preços sem sair de casa.`, color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
-    { n: '03', title: 'Contrate com segurança', sub: 'Pague só após confirmar', desc: 'Você só paga depois que o profissional confirmar o serviço. Insatisfeito em 7 dias? Devolvemos tudo.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
+    { n: '03', title: 'Contrate com segurança', sub: 'Pague só após confirmar', desc: 'Você só paga depois que o profissional confirmar o serviço. Insatisfeito em 7 dias? Creditamos o valor de volta em moeda, sacável via Pix quando quiser.', color: '#38bdf8', bg: 'rgba(56,189,248,.12)', border: 'rgba(56,189,248,.35)' },
   ];
 
   const trustData = isProfissional ? [
@@ -172,7 +172,7 @@ export default function LandingPage() {
     { icon: '🎯', q: 'Os leads são sérios?', a: 'Clientes preenchem pedido detalhado antes de chegar até você. Zero lead "só pra saber o preço" — chegam prontos para fechar.', color: '#10b981', border: 'rgba(16,185,129,.35)' },
     { icon: '⚡', q: 'Quanto tempo leva?', a: 'Perfil em 2 minutos. Primeiros leads no mesmo dia. Em uma semana você já tem retorno sobre o investimento.', color: '#10b981', border: 'rgba(16,185,129,.35)' },
   ] : [
-    { icon: '🛡️', q: 'É seguro de verdade?', a: 'Todo profissional passa por validação de identidade. Mais seguro que pedir indicação no grupo do WhatsApp — onde você não sabe nada do prestador.', color: '#38bdf8', border: 'rgba(56,189,248,.35)' },
+    { icon: '🛡️', q: 'É seguro de verdade?', a: 'Toda contratação tem garantia de 7 dias e mediação de disputas. Mais seguro que pedir indicação no grupo do WhatsApp — onde você não tem garantia nenhuma.', color: '#38bdf8', border: 'rgba(56,189,248,.35)' },
     { icon: '💸', q: 'Vou economizar?', a: 'Com 5 orçamentos para comparar, clientes economizam em média 23% no preço final. Você escolhe com calma — sem pressão.', color: '#38bdf8', border: 'rgba(56,189,248,.35)' },
     { icon: '📍', q: 'Tem perto de mim?', a: `Profissionais ativos em ${displayCity} e região. Resposta em 47 minutos — não dias esperando alguém indicar.`, color: '#38bdf8', border: 'rgba(56,189,248,.35)' },
   ];
@@ -197,19 +197,19 @@ export default function LandingPage() {
   ];
 
   const FAQ_CLIENTE = [
-    { q: 'Isso é seguro? Não é golpe?', a: 'Todo profissional passa por validação de identidade antes de aparecer na plataforma. É mais seguro do que contratar pelo boca a boca do grupo do WhatsApp, onde você não sabe nada sobre quem vai entrar na sua casa.' },
+    { q: 'Isso é seguro? Não é golpe?', a: 'Toda contratação tem garantia de 7 dias e mediação de disputas pelo app. É mais seguro do que contratar pelo boca a boca do grupo do WhatsApp, onde você não tem nenhuma garantia.' },
     { q: 'Clientes realmente não pagam nada?', a: 'Zero. O MeloCalé é financiado pelos profissionais que pagam mensalidade para receber leads. Para você, cliente, é 100% grátis — sem cartão, sem taxa oculta, sem nada.' },
-    { q: 'E se o profissional não aparecer?', a: 'Reembolso completo. Garantia de 7 dias em todos os casos — sem questionamentos, sem burocracia.' },
+    { q: 'E se o profissional não aparecer?', a: 'Garantia de 7 dias em todos os casos: creditamos o valor em moeda MeloCalé, que você saca via Pix quando quiser — sem questionamentos, sem burocracia.' },
     { q: `Tem profissional no meu bairro em ${displayCity}?`, a: `Estamos ativos em ${displayCity} e região. Após descrever o serviço você vê quem está disponível perto de você com tempo de resposta estimado.` },
-    { q: 'E se o serviço ficar mal feito?', a: 'Nossa garantia de 7 dias cobre isso. Basta abrir uma disputa pelo app — devolvemos seu dinheiro sem burocracia.' },
+    { q: 'E se o serviço ficar mal feito?', a: 'Nossa garantia de 7 dias cobre isso. Basta abrir uma disputa pelo app — creditamos o valor em moeda MeloCalé, sacável via Pix, sem burocracia.' },
     { q: 'Como funciona o pagamento ao profissional?', a: 'Você paga pelo app com segurança via Stripe. O profissional só recebe após a confirmação do serviço concluído. Seu dinheiro fica protegido em todas as etapas.' },
   ];
 
   const FAQ_DUAL = [
     { q: 'Clientes pagam para usar?', a: 'Não. Clientes buscam e recebem orçamentos completamente grátis. Apenas profissionais pagam para acessar contatos.' },
-    { q: 'E se o profissional não aparecer?', a: 'Reembolso completo. Garantia de 7 dias em todos os planos — sem questionamentos.' },
+    { q: 'E se o profissional não aparecer?', a: 'Garantia de 7 dias em todos os planos: creditamos o valor em moeda MeloCalé, sacável via Pix — sem questionamentos.' },
     { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa e sem fidelidade.' },
-    { q: 'Os profissionais são verificados?', a: 'Todos passam por validação de identidade antes de aparecer na plataforma.' },
+    { q: 'Os profissionais são verificados?', a: 'Ainda não fazemos verificação formal de identidade. Por isso toda contratação tem garantia de 7 dias e mediação de disputas — e o profissional também tem garantia na primeira compra de lead.' },
     { q: 'Funciona em qual cidade?', a: 'Salvador — expandindo para outras cidades da Bahia em breve.' },
   ];
 
@@ -345,10 +345,10 @@ export default function LandingPage() {
                       })()}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 20 }}>
                         {[
-                          'Profissionais com identidade confirmada',
+                          'Profissionais avaliados por quem já contratou',
                           'Até 5 orçamentos grátis — compare e economize até 23%',
                           'Resposta em 47 minutos — não dias',
-                          'Garantia de 7 dias — dinheiro de volta',
+                          'Garantia de 7 dias — moedas de volta via Pix',
                           '100% gratuito para clientes — sem cartão',
                         ].map(f => (
                           <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -478,8 +478,8 @@ export default function LandingPage() {
               {[
                 { icon: '🔒', label: 'Pagamento seguro', sub: 'Stripe · SSL', border: 'rgba(56,189,248,.35)', bg: 'rgba(56,189,248,.08)', accent: '#38bdf8' },
                 { icon: '⚡', label: 'Resposta em 47 min', sub: 'Média real verificada', border: 'rgba(245,158,11,.35)', bg: 'rgba(245,158,11,.08)', accent: '#f59e0b' },
-                { icon: '✅', label: 'Profissionais verificados', sub: 'Identidade confirmada', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.08)', accent: '#10b981' },
-                { icon: '🛡️', label: 'Garantia de 7 dias', sub: 'Dinheiro de volta', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)', accent: '#10b981' },
+                { icon: '✅', label: 'Profissionais avaliados', sub: 'Nota de quem já contratou', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.08)', accent: '#10b981' },
+                { icon: '🛡️', label: 'Garantia de 7 dias', sub: 'Moedas de volta via Pix', border: 'rgba(16,185,129,.35)', bg: 'rgba(16,185,129,.10)', accent: '#10b981' },
               ].map(item => (
                 <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, minWidth: 160 }}>
                   <span style={{ fontSize: 28, flexShrink: 0 }}>{item.icon}</span>
@@ -531,7 +531,7 @@ export default function LandingPage() {
                   <>
                     <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>R$1,23</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>por dia — plano Starter</div><div style={{ fontSize: 11, color: '#64748b' }}>menos que 1 café</div></div>
                     <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>R$0</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>para começar</div><div style={{ fontSize: 11, color: '#64748b' }}>sem cartão de crédito</div></div>
-                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>7 dias</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>de garantia</div><div style={{ fontSize: 11, color: '#64748b' }}>dinheiro de volta</div></div>
+                    <div><div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>7 dias</div><div style={{ fontSize: 12, color: '#6ee7b7' }}>de garantia</div><div style={{ fontSize: 11, color: '#64748b' }}>moedas de volta na 1ª compra</div></div>
                   </>
                 ) : (
                   <>
@@ -649,6 +649,7 @@ export default function LandingPage() {
                     { emoji: '😰', q: 'Vale o investimento?', a: '1 cliente de R$500 já paga o PRO por 7 meses. Média: +R$1.800/mês extra.' },
                     { emoji: '🤔', q: 'Os leads são de qualidade?', a: 'Clientes preenchem pedido detalhado antes de chegar até você. Já estão prontos para contratar.' },
                     { emoji: '⏳', q: 'Demora para funcionar?', a: 'Perfil criado em 2 minutos. Primeiros leads chegam no mesmo dia.' },
+                    { emoji: '🔰', q: 'E se o lead já tiver sido fechado?', a: 'Garantia de primeira compra: se o seu primeiro lead já tiver sido fechado por outro profissional antes de você responder, devolvemos suas moedas. Válido só na primeira compra, até 7 dias.' },
                   ].map(item => (
                     <div key={item.q}>
                       <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f6ff', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -663,7 +664,7 @@ export default function LandingPage() {
                 <div style={{ background: '#1e2d45', border: '1px solid rgba(56,189,248,.35)', borderRadius: 18, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 18, borderTop: '3px solid #38bdf8' }}>
                   <span style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.35)', borderRadius: 6, padding: '3px 10px', alignSelf: 'flex-start' }}>🏠 Para clientes</span>
                   {[
-                    { emoji: '😰', q: 'E se for golpe?', a: 'Todo profissional passa por validação de identidade. Garantia de 7 dias com dinheiro de volta.' },
+                    { emoji: '😰', q: 'E se for golpe?', a: 'Garantia de 7 dias: se algo der errado, mediamos a disputa e creditamos o valor em moeda MeloCalé, que você saca via Pix quando quiser.' },
                     { emoji: '💸', q: 'Vou pagar caro?', a: 'Você recebe até 5 orçamentos e escolhe o melhor preço. Nenhum compromisso antes de decidir.' },
                     { emoji: '⏳', q: 'Tem profissional perto?', a: '371 profissionais em 4 cidades. Resposta em 47 minutos — não horas, não dias.' },
                   ].map(item => (
@@ -685,9 +686,12 @@ export default function LandingPage() {
           <div className="container-app">
             <div style={{ maxWidth: 760, margin: '0 auto', background: 'linear-gradient(135deg,rgba(16,185,129,.14),rgba(16,185,129,.03))', border: '2px solid rgba(16,185,129,.28)', borderRadius: 20, padding: '32px 28px', textAlign: 'center' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>🛡️</div>
-              <h3 style={{ fontSize: 26, fontWeight: 900, color: '#f0f6ff', marginBottom: 14 }}>Garantia incondicional de 7 dias</h3>
+              <h3 style={{ fontSize: 26, fontWeight: 900, color: '#f0f6ff', marginBottom: 14 }}>Garantia de 7 dias</h3>
               <p style={{ fontSize: 16, color: '#6a9ab8', lineHeight: 1.7, margin: 0 }}>
-                Se você não ficar satisfeito nos primeiros 7 dias, devolvemos cada centavo — sem questionamentos, sem burocracia, sem fidelidade. <strong style={{ color: '#10b981' }}>Zero risco para você.</strong>
+                Se você não ficar satisfeito nos primeiros 7 dias, creditamos o valor de volta em moeda MeloCalé — que você pode sacar via Pix quando quiser, sem questionamentos, sem burocracia. <strong style={{ color: '#10b981' }}>Zero risco para você.</strong>
+              </p>
+              <p style={{ fontSize: 13, color: '#6ee7b7', lineHeight: 1.6, marginTop: 14 }}>
+                🔰 <strong>Profissional:</strong> na sua primeira compra, se o lead já tiver sido fechado por outro profissional antes de você responder, devolvemos suas moedas. Válido só na 1ª compra, até 7 dias.
               </p>
             </div>
           </div>
@@ -1023,7 +1027,7 @@ export default function LandingPage() {
             <div className="flex justify-center mb-10" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
               <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-4">
                 <span className="text-emerald-400 text-xl">🛡️</span>
-                <span className="text-emerald-400 font-bold text-base">Garantia de 7 dias — dinheiro de volta sem perguntas</span>
+                <span className="text-emerald-400 font-bold text-base">Garantia de 1ª compra — moedas de volta se o lead já tiver sido fechado</span>
               </div>
             </div>
 
@@ -1285,7 +1289,7 @@ export default function LandingPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left', width: '100%' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ color: '#10b981', fontWeight: 900, fontSize: 13 }}>✓</span>
-                    <span style={{ fontSize: 12, color: '#94c4a8' }}>Garantia de 7 dias — dinheiro de volta sem perguntas</span>
+                    <span style={{ fontSize: 12, color: '#94c4a8' }}>Garantia de 1ª compra — moedas de volta se o lead já tiver sido fechado</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ color: '#10b981', fontWeight: 900, fontSize: 13 }}>✓</span>
