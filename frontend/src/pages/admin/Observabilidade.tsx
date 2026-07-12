@@ -1,7 +1,7 @@
 import {
   ShieldCheck, ShieldAlert, ShieldX, Activity, RefreshCw, AlertTriangle,
   ExternalLink, CheckCircle2, XCircle, Loader2, Database, Zap, CreditCard,
-  Server, Clock, GitBranch, Package,
+  Server, Clock, GitBranch, Package, Bot, AudioLines,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
@@ -21,6 +21,8 @@ interface SystemHealth {
   };
   db: { status: 'up' | 'down'; latency_ms: number; size_mb: number | null };
   stripe: { status: 'up' | 'down'; latency_ms: number };
+  anthropic: { status: 'up' | 'down'; latency_ms: number };
+  openai: { status: 'up' | 'down'; latency_ms: number };
   load_pct: number;
   last_payment_at: string | null;
   checked_at: string;
@@ -37,8 +39,8 @@ interface HealthHistory {
   checks_count: number;
   series: HealthHistorySeries[];
   db_size_mb: number | null;
-  uptime_24h: { backend: number | null; db: number | null; stripe: number | null };
-  incidents: Array<{ target: 'backend' | 'db' | 'stripe'; started_at: string }>;
+  uptime_24h: { backend: number | null; db: number | null; stripe: number | null; anthropic: number | null; openai: number | null };
+  incidents: Array<{ target: 'backend' | 'db' | 'stripe' | 'anthropic' | 'openai'; started_at: string }>;
   last_stripe_audit: { payments_checked: number; orphans_found: number; ran_at: string } | null;
 }
 
@@ -144,7 +146,7 @@ const SENTRY_LEVEL_COLOR: Record<string, string> = {
   fatal: '#f87171', error: '#f87171', warning: '#fbbf24', info: '#60a5fa',
 };
 
-const TARGET_LABEL: Record<string, string> = { backend: 'Backend', db: 'Banco', stripe: 'Stripe' };
+const TARGET_LABEL: Record<string, string> = { backend: 'Backend', db: 'Banco', stripe: 'Stripe', anthropic: 'Anthropic', openai: 'OpenAI' };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -229,9 +231,11 @@ export default function AdminObservabilidade() {
   const backendDown = !health || health.backend.status === 'down';
   const dbDown = health?.db.status === 'down';
   const stripeDown = health?.stripe.status === 'down';
+  const anthropicDown = health?.anthropic.status === 'down';
+  const openaiDown = health?.openai.status === 'down';
   const anySlow = (health?.db.latency_ms ?? 0) > SLOW_DB_MS || (health?.stripe.latency_ms ?? 0) > SLOW_STRIPE_MS;
 
-  const overall = backendDown || dbDown || stripeDown
+  const overall = backendDown || dbDown || stripeDown || anthropicDown || openaiDown
     ? { label: 'FORA DO AR', color: '#f87171', Icon: ShieldX }
     : anySlow
     ? { label: 'DEGRADADO', color: '#fbbf24', Icon: ShieldAlert }
@@ -297,11 +301,13 @@ export default function AdminObservabilidade() {
 
         {/* 3-service grid */}
         {!healthLoading && health && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.625rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '0.625rem' }}>
             {[
               { label: 'BACKEND (API)', icon: Server, status: health.backend.status, latency: null, uptime: history?.uptime_24h.backend ?? null },
               { label: 'BANCO (SUPABASE)', icon: Database, status: health.db.status, latency: health.db.latency_ms, uptime: history?.uptime_24h.db ?? null },
               { label: 'STRIPE', icon: CreditCard, status: health.stripe.status, latency: health.stripe.latency_ms, uptime: history?.uptime_24h.stripe ?? null },
+              { label: 'ANTHROPIC (BOT)', icon: Bot, status: health.anthropic.status, latency: health.anthropic.latency_ms, uptime: history?.uptime_24h.anthropic ?? null },
+              { label: 'OPENAI (ÁUDIO)', icon: AudioLines, status: health.openai.status, latency: health.openai.latency_ms, uptime: history?.uptime_24h.openai ?? null },
             ].map(({ label, icon: Icon, status, latency, uptime }) => (
               <div key={label} style={{ background: 'rgba(0,0,0,.15)', borderRadius: 10, padding: '0.75rem 1rem', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
