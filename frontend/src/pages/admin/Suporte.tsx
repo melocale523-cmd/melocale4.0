@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../database.types';
-import { Bot, User, Loader2, ChevronDown, ChevronUp, Save, LifeBuoy, Clock, MapPin, MessageSquare, FileText, Megaphone, Send } from 'lucide-react';
+import { Bot, User, Loader2, ChevronDown, ChevronUp, Save, LifeBuoy, Clock, MapPin, MessageSquare, FileText, Megaphone, Send, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
 
@@ -137,6 +137,54 @@ export default function AdminSuporte() {
     broadcastMutation.mutate();
   };
 
+  const [waTemplateKey, setWaTemplateKey] = useState('');
+  const [waRole, setWaRole] = useState<'client' | 'professional' | undefined>(undefined);
+
+  const { data: waTemplatesData, isLoading: waTemplatesLoading } = useQuery({
+    queryKey: ['adminWhatsappBroadcastTemplates'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/admin/whatsapp-broadcast/templates');
+      if (!res.ok) throw new Error('Erro ao buscar templates.');
+      return res.json() as Promise<{ templates: { key: string; label: string }[] }>;
+    },
+    staleTime: 60_000,
+  });
+  const waTemplates = waTemplatesData?.templates ?? [];
+
+  const waBroadcastMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiFetch('/api/admin/whatsapp-broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateKey: waTemplateKey, role: waRole }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { error?: string }).error ?? 'Erro ao enviar broadcast do WhatsApp.');
+      return data as { total_recipients: number; sent: number; failed: number };
+    },
+    onSuccess: (data) => {
+      toast.success(`Enviado para ${data.sent} de ${data.total_recipients} destinatários (${data.failed} falha${data.failed === 1 ? '' : 's'}).`);
+      setWaTemplateKey('');
+      setWaRole(undefined);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const handleWaBroadcastSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waTemplateKey) {
+      toast.error('Escolha um template.');
+      return;
+    }
+    const audience = BROADCAST_ROLE_META[waRole ?? 'all'].audience;
+    const templateLabel = waTemplates.find(t => t.key === waTemplateKey)?.label ?? waTemplateKey;
+    const confirmed = window.confirm(
+      `Isso vai enviar o template "${templateLabel}" via WhatsApp pra ${audience}, agora. Confirma?`
+    );
+    if (!confirmed) return;
+    waBroadcastMutation.mutate();
+  };
+
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ['support_tickets'],
     queryFn: fetchTickets,
@@ -253,6 +301,71 @@ export default function AdminSuporte() {
             Enviar pra todos
           </button>
         </form>
+      </div>
+
+      {/* Broadcast WhatsApp — mesmo espírito do push, mas via template aprovado */}
+      <div style={{ background: '#0d1e33', border: '1px solid #1e3a5f', borderRadius: '1rem', padding: '1.25rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
+          <div style={{ width: 40, height: 40, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <MessageCircle size={20} color="#10b981" />
+          </div>
+          <div>
+            <h2 style={{ color: '#f1f5f9', fontSize: 16, fontWeight: 900, margin: '0 0 2px' }}>Aviso em massa (WhatsApp)</h2>
+            <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>Dispara template aprovado pela Meta — respeita opt-out de marketing.</p>
+          </div>
+        </div>
+
+        {waTemplatesLoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
+            <Loader2 size={20} className="animate-spin" style={{ color: '#4a6580' }} />
+          </div>
+        ) : waTemplates.length === 0 ? (
+          <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Nenhum template aprovado ainda.</p>
+        ) : (
+          <form onSubmit={handleWaBroadcastSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {(['all', 'client', 'professional'] as const).map(r => {
+                const isActive = (waRole ?? 'all') === r;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setWaRole(r === 'all' ? undefined : r)}
+                    style={{
+                      background: isActive ? '#10b981' : '#0a1928',
+                      border: isActive ? 'none' : '1px solid #1C3050',
+                      borderRadius: '.5rem',
+                      color: isActive ? '#fff' : '#64748b',
+                      fontSize: 12, fontWeight: 700,
+                      padding: '6px 14px', cursor: 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                    }}
+                  >
+                    {BROADCAST_ROLE_META[r].label}
+                  </button>
+                );
+              })}
+            </div>
+            <select
+              value={waTemplateKey}
+              onChange={(e) => setWaTemplateKey(e.target.value)}
+              style={{ background: '#0a1928', border: '1px solid #1e3a5f', borderRadius: '.5rem', color: '#f1f5f9', fontSize: 13, padding: '10px 12px', fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
+            >
+              <option value="">Selecione um template...</option>
+              {waTemplates.map(t => (
+                <option key={t.key} value={t.key}>{t.label}</option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              disabled={waBroadcastMutation.isPending}
+              style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: 8, background: '#10b981', border: 'none', borderRadius: '.5rem', color: '#fff', fontSize: 13, fontWeight: 700, padding: '10px 18px', cursor: 'pointer', opacity: waBroadcastMutation.isPending ? 0.6 : 1 }}
+            >
+              {waBroadcastMutation.isPending ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
+              Enviar
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Header */}

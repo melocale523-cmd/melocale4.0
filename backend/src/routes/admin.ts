@@ -5,6 +5,8 @@ import { runHealthCheck, estimateSystemLoadPct } from "../lib/systemHealthCheck.
 import { withTimeout } from "../lib/timeout.js";
 import { sendPushToUser } from "../lib/push.js";
 import { HANDOFF_MESSAGE } from "../services/whatsappConversationService.js";
+import { sendWhatsAppTemplate, normalizeBrazilianPhone, BROADCASTABLE_TEMPLATES } from "../services/whatsappService.js";
+import { filterOptedIn } from "../lib/whatsappOptIn.js";
 
 const router = Router();
 
@@ -915,6 +917,59 @@ router.get("/bot-stats", requireAuth, requireAdmin, async (req: AuthRequest, res
   } catch (err) {
     console.error("/api/admin/bot-stats error:", err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro ao buscar estatísticas do bot." });
+  }
+});
+
+// Só expõe templates cuja env var de aprovação já está "true" — a UI nunca
+// mostra uma opção que sabidamente vai falhar (template não aprovado pela Meta).
+router.get("/whatsapp-broadcast/templates", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const templates = Object.entries(BROADCASTABLE_TEMPLATES)
+    .filter(([, t]) => process.env[t.envGate] === "true")
+    .map(([key, t]) => ({ key, label: t.label }));
+  return res.json({ templates });
+});
+
+// Disparo em massa de template aprovado — mesmo espírito do /broadcast-push,
+// mas via WhatsApp. Envio SEQUENCIAL (não Promise.all) de propósito: volume
+// atual da base (~40 pessoas) não justifica risco de rate limit da Graph API
+// disparando tudo em paralelo.
+router.post("/whatsapp-broadcast", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { templateKey, role } = req.body as { templateKey?: string; role?: "client" | "professional" };
+  const template = templateKey ? BROADCASTABLE_TEMPLATES[templateKey] : undefined;
+  if (!template) return res.status(400).json({ error: "Template inválido." });
+  if (process.env[template.envGate] !== "true") {
+    return res.status(400).json({ error: "Este template ainda não foi aprovado pela Meta." });
+  }
+
+  try {
+    let query = supabaseAdmin.from("profiles").select("id, full_name, phone").not("phone", "is", null);
+    query = role ? query.eq("role", role) : query.in("role", ["client", "professional"]);
+    const { data: profiles, error } = await query;
+    if (error) throw error;
+
+    const rows = (profiles ?? []) as { id: string; full_name: string | null; phone: string | null }[];
+    const optedIn = await filterOptedIn(rows.map((p) => p.id));
+
+    const recipients = rows
+      .filter((p) => optedIn.has(p.id))
+      .map((p) => ({ id: p.id, phone: normalizeBrazilianPhone(p.phone), firstName: p.full_name?.trim().split(/\s+/)[0] || "você" }))
+      .filter((p): p is { id: string; phone: string; firstName: string } => !!p.phone);
+
+    let sent = 0;
+    let failed = 0;
+    for (const recipient of recipients) {
+      const result = await sendWhatsAppTemplate(recipient.phone, template.templateName, [recipient.firstName]);
+      if (result.ok) sent++;
+      else {
+        failed++;
+        console.error(`[admin/whatsapp-broadcast] falha ao enviar pra ${recipient.phone}:`, result.error);
+      }
+    }
+
+    return res.json({ success: true, total_recipients: recipients.length, sent, failed });
+  } catch (err) {
+    console.error("[admin/whatsapp-broadcast] error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao enviar broadcast do WhatsApp." });
   }
 });
 
