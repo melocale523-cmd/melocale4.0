@@ -12,6 +12,7 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
 import { apiFetch } from '../../lib/api';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 function categoryIcon(category: string) {
   const c = category?.toLowerCase() ?? '';
@@ -172,6 +173,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in duration-700" style={{ display:'flex', flexDirection:'column', gap:'2rem' }}>
+      <LoadingOverlay active={summaryFetching && !summaryLoading} label="Atualizando dashboard..." />
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
