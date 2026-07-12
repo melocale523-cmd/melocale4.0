@@ -1,22 +1,6 @@
 import cron from "node-cron";
 import { stripe, supabaseAdmin } from "../config.js";
-
-async function sendTelegram(text: string): Promise<void> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) {
-    console.warn("[stripeAudit] TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID ausentes — alerta ignorado");
-    return;
-  }
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text }),
-  });
-  if (!res.ok) {
-    console.error("[stripeAudit] Telegram API error:", res.status, await res.text());
-  }
-}
+import { sendTelegram } from "../lib/telegram.js";
 
 function formatBRL(amountCents: number): string {
   return (amountCents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

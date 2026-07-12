@@ -687,6 +687,8 @@ router.get("/system-health", requireAuth, requireAdmin, async (req: AuthRequest,
     },
     db: { status: result.dbStatus, latency_ms: result.dbLatencyMs, size_mb: result.dbSizeMb },
     stripe: { status: result.stripeStatus, latency_ms: result.stripeLatencyMs },
+    anthropic: { status: result.anthropicStatus, latency_ms: result.anthropicLatencyMs },
+    openai: { status: result.openaiStatus, latency_ms: result.openaiLatencyMs },
     load_pct: loadPct,
     last_payment_at: lastPayment?.paid_at ?? null,
     checked_at: new Date().toISOString(),
@@ -724,7 +726,7 @@ router.get("/health-history", requireAuth, requireAdmin, async (req: AuthRequest
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data, error } = await supabaseAdmin
       .from("system_health_checks")
-      .select("backend_status, db_status, db_latency_ms, stripe_status, stripe_latency_ms, event_loop_lag_ms, db_size_mb, checked_at")
+      .select("backend_status, db_status, db_latency_ms, stripe_status, stripe_latency_ms, anthropic_status, anthropic_latency_ms, openai_status, openai_latency_ms, event_loop_lag_ms, db_size_mb, checked_at")
       .gte("checked_at", since)
       .order("checked_at", { ascending: true });
 
@@ -732,17 +734,19 @@ router.get("/health-history", requireAuth, requireAdmin, async (req: AuthRequest
 
     const rows = data ?? [];
 
-    const uptimePct = (field: "backend_status" | "db_status" | "stripe_status"): number | null => {
+    const uptimePct = (field: "backend_status" | "db_status" | "stripe_status" | "anthropic_status" | "openai_status"): number | null => {
       if (rows.length === 0) return null;
       const upCount = rows.filter((r) => r[field] === "up").length;
       return Math.round((upCount / rows.length) * 1000) / 10;
     };
 
-    type Target = "backend" | "db" | "stripe";
-    const fieldsByTarget: Array<{ target: Target; field: "backend_status" | "db_status" | "stripe_status" }> = [
+    type Target = "backend" | "db" | "stripe" | "anthropic" | "openai";
+    const fieldsByTarget: Array<{ target: Target; field: "backend_status" | "db_status" | "stripe_status" | "anthropic_status" | "openai_status" }> = [
       { target: "backend", field: "backend_status" },
       { target: "db", field: "db_status" },
       { target: "stripe", field: "stripe_status" },
+      { target: "anthropic", field: "anthropic_status" },
+      { target: "openai", field: "openai_status" },
     ];
 
     const incidents: Array<{ target: Target; started_at: string }> = [];
@@ -775,6 +779,8 @@ router.get("/health-history", requireAuth, requireAdmin, async (req: AuthRequest
         backend: uptimePct("backend_status"),
         db: uptimePct("db_status"),
         stripe: uptimePct("stripe_status"),
+        anthropic: uptimePct("anthropic_status"),
+        openai: uptimePct("openai_status"),
       },
       incidents: incidents.slice(0, 10),
       last_stripe_audit: lastAudit ?? null,

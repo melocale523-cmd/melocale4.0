@@ -1,4 +1,4 @@
-import { supabaseAdmin, stripe } from "../config.js";
+import { supabaseAdmin, stripe, anthropic } from "../config.js";
 import { withTimeout } from "./timeout.js";
 
 export interface HealthCheckResult {
@@ -6,6 +6,10 @@ export interface HealthCheckResult {
   dbLatencyMs: number;
   stripeStatus: "up" | "down";
   stripeLatencyMs: number;
+  anthropicStatus: "up" | "down";
+  anthropicLatencyMs: number;
+  openaiStatus: "up" | "down";
+  openaiLatencyMs: number;
   eventLoopLagMs: number;
   dbSizeMb: number | null;
 }
@@ -50,6 +54,41 @@ export async function runHealthCheck(): Promise<HealthCheckResult> {
   }
   const stripeLatencyMs = Date.now() - stripeStart;
 
+  // Bot do WhatsApp roda em cima do Haiku (respostas) e do Whisper via OpenAI
+  // (transcrição de áudio) — se qualquer um cai, o bot degrada silenciosamente
+  // pro fallback genérico sem ninguém perceber. Daí checar os dois aqui também.
+  const anthropicStart = Date.now();
+  let anthropicStatus: "up" | "down" = "up";
+  try {
+    await withTimeout(
+      anthropic.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1,
+        messages: [{ role: "user", content: "oi" }],
+      }),
+      5000
+    );
+  } catch {
+    anthropicStatus = "down";
+  }
+  const anthropicLatencyMs = Date.now() - anthropicStart;
+
+  const openaiStart = Date.now();
+  let openaiStatus: "up" | "down" = "up";
+  try {
+    await withTimeout(
+      fetch("https://api.openai.com/v1/models", {
+        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+      }).then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+      }),
+      5000
+    );
+  } catch {
+    openaiStatus = "down";
+  }
+  const openaiLatencyMs = Date.now() - openaiStart;
+
   const eventLoopLagMs = await measureEventLoopLag();
 
   let dbSizeMb: number | null = null;
@@ -60,7 +99,13 @@ export async function runHealthCheck(): Promise<HealthCheckResult> {
     dbSizeMb = null;
   }
 
-  return { dbStatus, dbLatencyMs, stripeStatus, stripeLatencyMs, eventLoopLagMs, dbSizeMb };
+  return {
+    dbStatus, dbLatencyMs,
+    stripeStatus, stripeLatencyMs,
+    anthropicStatus, anthropicLatencyMs,
+    openaiStatus, openaiLatencyMs,
+    eventLoopLagMs, dbSizeMb,
+  };
 }
 
 // Carga estimada do sistema (0-100%) — heurística combinando memória, lag do event loop
