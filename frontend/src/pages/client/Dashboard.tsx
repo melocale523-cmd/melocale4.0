@@ -11,6 +11,7 @@ import { cn } from '../../lib/utils';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import RequestWizard, { WizardData } from '../../components/RequestWizard';
 import { apiFetch } from '../../lib/api';
+import LoadingLogo from '../../components/LoadingLogo';
 
 function categoryIcon(category: string) {
   const c = category?.toLowerCase() ?? '';
@@ -44,7 +45,7 @@ export default function ClientDashboard() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: summary, isLoading: summaryLoading } = useQuery({
+  const { data: summary, isLoading: summaryLoading, isFetching: summaryFetching, refetch: refetchSummary } = useQuery({
     queryKey: ['clientSummary'],
     queryFn: leadService.getClientSummary,
   });
@@ -187,13 +188,22 @@ export default function ClientDashboard() {
             </>
           )}
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-5 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
-        >
-          <Plus size={20} />
-          Novo Pedido
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => refetchSummary()}
+            className="flex items-center gap-2 px-4 h-12 bg-[#132540] hover:bg-[#1a3050] text-[#94A3B8] font-bold rounded-2xl transition-all border border-white/5"
+          >
+            {summaryFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={16} />}
+            Atualizar
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-5 h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+          >
+            <Plus size={20} />
+            Novo Pedido
+          </button>
+        </div>
       </div>
 
       {/* BANNER PERFIL INCOMPLETO */}

@@ -1,7 +1,7 @@
 import {
   Target, Wallet, ArrowRight, Briefcase, Rocket, CheckCircle2, ChevronRight,
   TrendingUp, Users, Activity, Star, Loader2, Zap, Crown, Check, CalendarPlus, X, Coins,
-  MessageCircle,
+  MessageCircle, RefreshCw,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
 import { SUBSCRIPTION_PLANS } from './assinatura/constants';
 import { getWhatsAppConnectLink, WHATSAPP_BANNER_DISMISSED_KEY } from '../../lib/whatsappConnect';
+import LoadingLogo from '../../components/LoadingLogo';
 
 // Mesma fonte de verdade da página real de assinatura (assinatura/constants.ts,
 // que reflete backend/src/config.ts) — evita repetir os preços/nomes fictícios
@@ -42,7 +43,7 @@ export default function ProfessionalDashboard() {
     checklistPct,
   } = useDashboardData();
 
-  const { data: stats } = useQuery({
+  const { data: stats, isFetching: statsFetching, refetch: refetchStats } = useQuery({
     queryKey: ['professionalStats', '30d'],
     queryFn: () => leadService.getProfessionalStats('30d'),
     staleTime: 1000 * 60 * 5,
@@ -238,12 +239,21 @@ export default function ProfessionalDashboard() {
               : `Você é ${profile?.category || 'profissional'}. ${cityFirstName || 'Sua cidade'} precisa de gente como você.`}
           </p>
         </div>
-        <button
-          onClick={() => navigate('/profissional/leads')}
-          className="h-10 px-6 text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20"
-        >
-          <Zap size={16} /> Ver clientes disponíveis
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => refetchStats()}
+            className="h-10 px-4 text-sm font-bold bg-[#132540] hover:bg-[#1a3050] text-slate-400 rounded-lg transition-colors flex items-center gap-2 border border-white/5"
+          >
+            {statsFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={16} />}
+            Atualizar
+          </button>
+          <button
+            onClick={() => navigate('/profissional/leads')}
+            className="h-10 px-6 text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+          >
+            <Zap size={16} /> Ver clientes disponíveis
+          </button>
+        </div>
       </div>
 
       {/* Banner conectar WhatsApp — some ao fechar (localStorage) ou conectar */}

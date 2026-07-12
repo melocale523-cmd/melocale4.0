@@ -7,6 +7,7 @@ import { apiFetch } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { rowsToCsv, downloadCsv } from '../../utils/csvExport';
+import LoadingLogo from '../../components/LoadingLogo';
 
 type RoleFilter = 'all' | 'client' | 'professional' | 'admin';
 
@@ -302,7 +303,7 @@ export default function AdminUsuarios() {
             Exportar CSV
           </button>
           <button onClick={async () => { setIsRefreshing(true); await refetch(); setIsRefreshing(false); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, color: '#4a6580', fontSize: 12, cursor: 'pointer' }}>
-            <RefreshCw size={12} /> Atualizar
+            {isRefreshing ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={12} />} Atualizar
           </button>
         </div>
       </div>

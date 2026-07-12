@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RefreshCw, Trophy } from 'lucide-react';
 import { adminService, type RankedProfessional } from '../../services/statsService';
 import { useIsMobile } from '../../hooks/useIsMobile';
+import LoadingLogo from '../../components/LoadingLogo';
 
 // ── palette ───────────────────────────────────────────────────────────────────
 const C = {
@@ -406,7 +407,7 @@ export default function Ranking() {
   const [activeTab, setActiveTab] = useState<TabId>('score');
   const [premiarTarget, setPremiarTarget] = useState<RankedProfessional | null>(null);
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ['adminRanking'],
     queryFn: adminService.getRankingProfissionais,
     staleTime: 60_000,
@@ -494,7 +495,7 @@ export default function Ranking() {
             padding: '6px 12px', borderRadius: 8, cursor: 'pointer',
             background: C.card, color: C.textSec, border: `1px solid ${C.border}`, fontSize: 12,
           }}>
-            <RefreshCw size={13} /> Atualizar
+            {isFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={13} />} Atualizar
           </button>
         </div>
       </div>

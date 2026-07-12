@@ -5,6 +5,7 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 import { supabase } from '../../lib/supabase';
 import { adminService } from '../../services/statsService';
 import { toast } from 'sonner';
+import LoadingLogo from '../../components/LoadingLogo';
 
 interface ApprovedUser {
   user_id: string;
@@ -152,7 +153,7 @@ export default function AdminAprovados() {
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState<RoleFilter>('all');
 
-  const { data: list = [], isLoading, refetch } = useQuery<ApprovedUser[]>({
+  const { data: list = [], isLoading, isFetching, refetch } = useQuery<ApprovedUser[]>({
     queryKey: ['adminAprovados'],
     queryFn: async () => {
       const [rpcRes, authData] = await Promise.all([
@@ -395,7 +396,7 @@ export default function AdminAprovados() {
           onClick={() => refetch()}
           style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0d1e33', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
         >
-          <RefreshCw size={12} /> Atualizar
+          {isFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={12} />} Atualizar
         </button>
       </div>
 
