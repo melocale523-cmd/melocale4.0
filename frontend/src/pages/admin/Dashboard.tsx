@@ -7,6 +7,7 @@ import { apiFetch } from '../../lib/api';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 const daysSince = (d: string | null) =>
   d ? Math.floor((Date.now() - new Date(d).getTime()) / 86400000) : 999;
@@ -321,12 +322,7 @@ export default function AdminDashboard() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '0.75rem' : '1.25rem', maxWidth: 1200, margin: '0 auto' }}>
 
       {/* Overlay loading */}
-      {isRefreshing && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(14,28,50,.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-          <Loader2 size={40} className="animate-spin" style={{ color: '#10b981' }} />
-          <p style={{ fontSize: 13, color: '#94a3b8', margin: 0 }}>Atualizando painel...</p>
-        </div>
-      )}
+      <LoadingOverlay active={isRefreshing} label="Atualizando painel..." />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>

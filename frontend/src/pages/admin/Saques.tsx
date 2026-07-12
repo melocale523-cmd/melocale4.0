@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { apiFetch } from '../../lib/api';
 import { toast } from 'sonner';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 interface WithdrawalRequest {
   id: string;
@@ -396,6 +397,7 @@ export default function AdminSaques() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1100, margin: '0 auto' }}>
+      <LoadingOverlay active={isFetching && !isLoading} label="Atualizando saques..." />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>

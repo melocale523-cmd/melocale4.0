@@ -4,6 +4,7 @@ import { RefreshCw, Trophy } from 'lucide-react';
 import { adminService, type RankedProfessional } from '../../services/statsService';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 // ── palette ───────────────────────────────────────────────────────────────────
 const C = {
@@ -464,6 +465,7 @@ export default function Ranking() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>
+      <LoadingOverlay active={isFetching && !isLoading} label="Atualizando ranking..." />
 
       {/* ── Topbar ──────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>

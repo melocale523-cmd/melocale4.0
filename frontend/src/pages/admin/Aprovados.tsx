@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { adminService } from '../../services/statsService';
 import { toast } from 'sonner';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 interface ApprovedUser {
   user_id: string;
@@ -385,6 +386,7 @@ export default function AdminAprovados() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1100, margin: '0 auto' }}>
+      <LoadingOverlay active={isFetching && !isLoading} label="Atualizando usuários aprovados..." />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
