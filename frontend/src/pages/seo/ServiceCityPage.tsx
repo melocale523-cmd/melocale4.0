@@ -103,7 +103,7 @@ export default function ServiceCityPage() {
           </h2>
           <ul className="space-y-8">
             {[
-              'Profissionais verificados e avaliados por clientes reais',
+              'Garantia de 7 dias — reembolso em moeda se não ficar satisfeito',
               'Orçamento gratuito sem compromisso',
               'Atendimento rápido na sua cidade',
               'Plataforma 100% gratuita para quem contrata',
@@ -124,7 +124,9 @@ export default function ServiceCityPage() {
             Precisa de {page.categoriaDisplay.toLowerCase()} em {page.cidadeDisplay}?
           </h2>
           <p className="text-[#94A3B8] mb-11 max-w-md mx-auto">
-            Crie seu pedido gratuitamente em menos de 2 minutos e receba propostas de profissionais da sua região.
+            Deixe seu pedido grátis em menos de 2 minutos — a plataforma avisa
+            na hora os profissionais da região, e você recebe as propostas
+            direto no seu WhatsApp ou no app.
           </p>
           <a
             href={CTA_URL}
