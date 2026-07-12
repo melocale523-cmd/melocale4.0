@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { supabaseAdmin } from "../config.js";
 import { sendTelegram } from "../lib/telegram.js";
 import { sendPushToUser } from "../lib/push.js";
-import { sendWhatsAppText } from "../services/whatsappService.js";
+import { sendWhatsAppTemplate, WHATSAPP_TEMPLATES } from "../services/whatsappService.js";
 
 const ESCALATION_HOURS = 2;
 const AUTO_REVERT_HOURS = 24;
@@ -10,8 +10,19 @@ const AUTO_REVERT_HOURS = 24;
 interface StaleConversation {
   id: string;
   phone: string;
+  contact_id: string | null;
   handoff_reason: string | null;
   last_message_at: string;
+}
+
+// Mesmo padrão de firstName() em whatsappReengagement.ts — o template exige
+// {{1}} preenchido, então "você" é o fallback pra contato sem nome salvo
+// (ainda não conhecido) em vez de deixar vazio (a Meta rejeitaria).
+async function getContactFirstName(contactId: string | null): Promise<string> {
+  if (!contactId) return "você";
+  const { data } = await supabaseAdmin.from("profiles").select("full_name").eq("id", contactId).maybeSingle();
+  const fullName = (data as { full_name?: string | null } | null)?.full_name;
+  return fullName?.trim().split(/\s+/)[0] || "você";
 }
 
 async function checkStaleHandoffs(): Promise<void> {
@@ -56,19 +67,20 @@ async function checkStaleHandoffs(): Promise<void> {
     // Estágio 2 (24h): volta pro bot. Nota: last_message_at marca a última
     // mensagem do CONTATO (é o que dispara o handoff) — a esta altura já
     // se passaram 24h dela, ou seja, a janela de atendimento de 24h do
-    // WhatsApp provavelmente já fechou. sendWhatsAppText só funciona DENTRO
-    // dessa janela, então este aviso é best-effort: se falhar (esperado,
-    // não é bug), a reversão de status já aconteceu de qualquer forma —
-    // só não dá pra avisar o contato por enquanto (precisaria de template
-    // aprovado pela Meta pra alcançar fora da janela, como em
-    // whatsappReengagement.ts).
+    // WhatsApp provavelmente já fechou. Texto livre (sendWhatsAppText) só
+    // funciona DENTRO dessa janela, por isso o aviso ao contato só é
+    // tentado via template aprovado (funciona fora da janela) — e só se
+    // WHATSAPP_TEMPLATE_RETOMADA_ATENDIMENTO_APPROVED === "true". Enquanto
+    // não estiver aprovado, a reversão de status acontece normalmente
+    // (sempre funciona), só não tenta mandar mensagem nenhuma — mais
+    // seguro que tentar texto livre que sabidamente falha fora da janela.
     const { data: toRevert } = await supabaseAdmin
       .from("whatsapp_conversations")
-      .select("id, phone")
+      .select("id, phone, contact_id")
       .eq("status", "needs_human")
       .lt("last_message_at", revertCutoff);
 
-    for (const conv of (toRevert ?? []) as Pick<StaleConversation, "id" | "phone">[]) {
+    for (const conv of (toRevert ?? []) as Pick<StaleConversation, "id" | "phone" | "contact_id">[]) {
       const { error } = await supabaseAdmin
         .from("whatsapp_conversations")
         .update({ status: "bot_active", handoff_reason: null, handoff_escalated_at: null })
@@ -78,12 +90,14 @@ async function checkStaleHandoffs(): Promise<void> {
         continue;
       }
 
-      const result = await sendWhatsAppText(
-        conv.phone,
-        "Oi! Peço desculpa pela demora — nosso time pode estar sem conseguir responder agora. Enquanto isso, posso ajudar com dúvidas sobre a plataforma, preços, ou como funciona. É só perguntar! 😊"
-      );
-      if (!result.ok) {
-        console.warn(`[handoffTimeout] aviso de reversão não entregue (esperado se fora da janela de 24h): ${conv.phone} — ${result.error}`);
+      if (process.env.WHATSAPP_TEMPLATE_RETOMADA_ATENDIMENTO_APPROVED === "true") {
+        const firstName = await getContactFirstName(conv.contact_id);
+        const result = await sendWhatsAppTemplate(conv.phone, WHATSAPP_TEMPLATES.RETOMADA_ATENDIMENTO, [firstName]);
+        if (!result.ok) {
+          console.error(`[handoffTimeout] falha ao enviar template retomada_atendimento_bot pra ${conv.phone}:`, result.error);
+        }
+      } else {
+        console.warn(`[handoffTimeout] template retomada_atendimento_bot ainda não aprovado — revertendo status sem notificar ${conv.phone}`);
       }
     }
   } catch (err) {

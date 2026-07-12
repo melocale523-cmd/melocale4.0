@@ -147,4 +147,12 @@ export const WHATSAPP_TEMPLATES = {
   // nada mais pra atualizar manualmente.
   PROFISSIONAL_SEM_PEDIDO: "profissional_sem_pedido_v2_",
   CLIENTE_SEM_PEDIDO_OU_PROPOSTA: "cliente_sem_pedido_ou_proposta",
+  // Reversão automática de handoff travado (ver handoffTimeout.ts) — avisa o
+  // contato fora da janela de 24h que o time pode estar sem responder, mas
+  // o bot pode ajudar nesse meio tempo. Gated por
+  // WHATSAPP_TEMPLATE_RETOMADA_ATENDIMENTO_APPROVED — mesma cautela já
+  // registrada acima sobre PROFISSIONAL_SEM_PEDIDO: confirmar o nome exato
+  // aprovado no WhatsApp Manager antes de ativar, pode sair diferente do
+  // que foi submetido.
+  RETOMADA_ATENDIMENTO: "retomada_atendimento_bot",
 } as const;
