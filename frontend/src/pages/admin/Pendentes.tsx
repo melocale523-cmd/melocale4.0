@@ -3,6 +3,7 @@ import { Search, CheckCircle, XCircle, Loader2, Clock, MapPin, Phone, Briefcase,
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
+import LoadingLogo from '../../components/LoadingLogo';
 
 interface PendingProfessional {
   user_id: string;
@@ -130,7 +131,7 @@ export default function AdminPendentes() {
   const [rejectTarget, setRejectTarget] = useState<PendingProfessional | null>(null);
   const [localList, setLocalList] = useState<PendingProfessional[] | null>(null);
 
-  const { data: fetched = [], isLoading, refetch } = useQuery<PendingProfessional[]>({
+  const { data: fetched = [], isLoading, isFetching, refetch } = useQuery<PendingProfessional[]>({
     queryKey: ['adminPendentes'],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('admin_get_pending_professionals');
@@ -226,7 +227,7 @@ export default function AdminPendentes() {
           onClick={() => { setLocalList(null); refetch(); }}
           style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0d1e33', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
         >
-          <RefreshCw size={12} /> Atualizar
+          {isFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={12} />} Atualizar
         </button>
       </div>
 

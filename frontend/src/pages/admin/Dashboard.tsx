@@ -6,6 +6,7 @@ import { adminService, EnrichedUser } from '../../services/statsService';
 import { apiFetch } from '../../lib/api';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import LoadingLogo from '../../components/LoadingLogo';
 
 const daysSince = (d: string | null) =>
   d ? Math.floor((Date.now() - new Date(d).getTime()) / 86400000) : 999;
@@ -344,7 +345,7 @@ export default function AdminDashboard() {
             onClick={async () => { setIsRefreshing(true); await refetch(); setIsRefreshing(false); }}
             style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#132540', border: '1px solid rgba(255,255,255,.06)', borderRadius: 8, padding: '5px 12px', color: '#4a6580', cursor: 'pointer', fontSize: 12 }}
           >
-            <RefreshCw size={12} /> Atualizar
+            {isRefreshing ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={12} />} Atualizar
           </button>
         </div>
       </div>

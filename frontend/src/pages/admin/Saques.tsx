@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { apiFetch } from '../../lib/api';
 import { toast } from 'sonner';
+import LoadingLogo from '../../components/LoadingLogo';
 
 interface WithdrawalRequest {
   id: string;
@@ -102,7 +103,7 @@ export default function AdminSaques() {
   const [guaranteeProcessing, setGuaranteeProcessing] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: list = [], isLoading, refetch } = useQuery<WithdrawalRequest[]>({
+  const { data: list = [], isLoading, isFetching, refetch } = useQuery<WithdrawalRequest[]>({
     queryKey: ['adminSaques'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -406,7 +407,7 @@ export default function AdminSaques() {
           onClick={() => refetch()}
           style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#0d1e33', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#64748b', fontSize: 12, cursor: 'pointer' }}
         >
-          <RefreshCw size={12} /> Atualizar
+          {isFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={12} />} Atualizar
         </button>
       </div>
 

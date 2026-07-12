@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
+import LoadingLogo from '../../components/LoadingLogo';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
@@ -275,7 +276,7 @@ export default function AdminObservabilidade() {
             disabled={healthFetching}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 9, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', color: '#94a3b8', fontSize: 12, fontWeight: 700, cursor: healthFetching ? 'default' : 'pointer' }}
           >
-            <RefreshCw size={13} className={healthFetching ? 'animate-spin' : ''} />
+            {healthFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={13} />}
             Atualizar
           </button>
         </div>

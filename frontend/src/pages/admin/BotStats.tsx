@@ -5,6 +5,7 @@ import { apiFetch } from '../../lib/api';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
+import LoadingLogo from '../../components/LoadingLogo';
 
 interface BotStats {
   period_days: number;
@@ -77,7 +78,7 @@ export default function AdminBotStats() {
             disabled={isFetching}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 9, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', color: '#94a3b8', fontSize: 12, fontWeight: 700, cursor: isFetching ? 'default' : 'pointer' }}
           >
-            <RefreshCw size={13} className={isFetching ? 'animate-spin' : ''} />
+            {isFetching ? <LoadingLogo size={16} showLabel={false} /> : <RefreshCw size={13} />}
             Atualizar
           </button>
         </div>
