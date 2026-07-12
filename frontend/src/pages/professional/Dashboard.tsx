@@ -17,6 +17,7 @@ import { cn } from '../../lib/utils';
 import { SUBSCRIPTION_PLANS } from './assinatura/constants';
 import { getWhatsAppConnectLink, WHATSAPP_BANNER_DISMISSED_KEY } from '../../lib/whatsappConnect';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 // Mesma fonte de verdade da página real de assinatura (assinatura/constants.ts,
 // que reflete backend/src/config.ts) — evita repetir os preços/nomes fictícios
@@ -219,6 +220,7 @@ export default function ProfessionalDashboard() {
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-4" style={{ padding: '0 1.5rem' }}>
+      <LoadingOverlay active={statsFetching && stats !== undefined} label="Atualizando estatísticas..." />
 
       {/* HEADER — sempre visível */}
       <div className="flex flex-col sm:flex-row items-baseline justify-between gap-2">
