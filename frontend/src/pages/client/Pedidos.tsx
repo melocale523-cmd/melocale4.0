@@ -6,6 +6,8 @@ import { supabase } from '../../lib/supabase';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RequestWizard, { type WizardData } from '../../components/RequestWizard';
 import ReviewModal from '../../components/ReviewModal';
+import OrderCreatedPushPrompt from '../../components/OrderCreatedPushPrompt';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { usePedidosData, type PedidoItem } from '../../hooks/usePedidosData';
 import { useLeadReviewable, type ReviewableInfo } from '../../hooks/useLeadReviewable';
 import { PedidoCard } from './pedidos/PedidoCard';
@@ -37,6 +39,9 @@ export default function Pedidos() {
   const [deleteConfirm, setDeleteConfirm] = useState<PedidoItem | null>(null);
   const [profileModal, setProfileModal] = useState<ProfileModalState | null>(null);
   const [reviewModal, setReviewModal] = useState<ReviewModalState | null>(null);
+  const [showOrderCreatedPushPrompt, setShowOrderCreatedPushPrompt] = useState(false);
+
+  const { isSupported: isPushSupported, isSubscribed: isPushSubscribed } = usePushNotifications();
 
   const {
     pedidos,
@@ -162,7 +167,24 @@ export default function Pedidos() {
           images: wizardData.images,
           metadata,
         },
-        { onSuccess: closeModal },
+        {
+          onSuccess: () => {
+            closeModal();
+            // Pergunta no momento que faz mais sentido: logo após criar o
+            // pedido, quando o motivo ("saber quando um profissional
+            // responder") é óbvio. Só se a pessoa ainda não decidiu sobre
+            // notificação — ClientPushModal/PushFloatingBanner já fazem a
+            // mesma checagem antes de aparecer, então não competem entre si.
+            if (
+              isPushSupported &&
+              !isPushSubscribed &&
+              typeof Notification !== 'undefined' &&
+              Notification.permission === 'default'
+            ) {
+              setShowOrderCreatedPushPrompt(true);
+            }
+          },
+        },
       );
     }
   };
@@ -322,6 +344,10 @@ export default function Pedidos() {
           professionalName={reviewModal.professionalName}
           onClose={() => setReviewModal(null)}
         />
+      )}
+
+      {showOrderCreatedPushPrompt && (
+        <OrderCreatedPushPrompt onDismiss={() => setShowOrderCreatedPushPrompt(false)} />
       )}
     </div>
   );
