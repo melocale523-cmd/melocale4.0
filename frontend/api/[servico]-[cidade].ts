@@ -91,7 +91,12 @@ function renderHTML(
     : `Encontre ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome} pelo MeloCalé. Profissionais verificados, orçamento grátis.`
 
   const canonical = `https://melocale.com.br/${safeCategoriaSlug}-${safeCidadeSlug}`
-  const appUrl = `https://melocale.com.br/busca?categoria=${encodeURIComponent(categoriaLabel)}&cidade=${encodeURIComponent(cidadeNome)}`
+  // /busca só existe autenticado (/cliente/busca, atrás de ProtectedRoute) — não é uma
+  // rota pública. Visitante anônimo vindo do Google caía em 404. /login?role=client é o
+  // mesmo destino usado por ServiceCityPage.tsx (as 44 páginas /servicos/categoria-em-cidade)
+  // pra exatamente esse cenário: tráfego de SEO sem sessão, com toda categoria/cidade coberta,
+  // sem precisar cruzar essa lista de 20 categorias com a lista separada de 44 páginas fixas.
+  const appUrl = 'https://melocale.com.br/login?role=client'
 
   const profListHTML = profissionais.map(p => {
     const safeName     = escapeHtml(p.name ?? '')
