@@ -6,6 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 interface BotStats {
   period_days: number;
@@ -66,6 +67,7 @@ export default function AdminBotStats() {
 
   return (
     <div className="space-y-8 fade-in">
+      <LoadingOverlay active={isFetching && !isLoading} label="Atualizando estatísticas do bot..." />
       {/* Header */}
       <div>
         <div className="flex items-center justify-between gap-8">

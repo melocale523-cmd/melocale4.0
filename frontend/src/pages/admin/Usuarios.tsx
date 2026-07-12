@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { rowsToCsv, downloadCsv } from '../../utils/csvExport';
 import LoadingLogo from '../../components/LoadingLogo';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 type RoleFilter = 'all' | 'client' | 'professional' | 'admin';
 
@@ -285,12 +286,7 @@ export default function AdminUsuarios() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 1100, margin: '0 auto' }}>
 
       {/* Overlay de loading ao atualizar */}
-      {isRefreshing && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(14,28,50,.75)', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-          <Loader2 size={40} className="animate-spin" style={{ color: '#10b981' }} />
-          <p style={{ fontSize: 13, color: '#94a3b8', margin: 0 }}>Atualizando usuários...</p>
-        </div>
-      )}
+      <LoadingOverlay active={isRefreshing} label="Atualizando usuários..." />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
