@@ -4,6 +4,7 @@ import { supabaseAdmin, coinPackagesCache, loadCoinPackages } from "../config.js
 import { runHealthCheck, estimateSystemLoadPct } from "../lib/systemHealthCheck.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendPushToUser } from "../lib/push.js";
+import { HANDOFF_MESSAGE } from "../services/whatsappConversationService.js";
 
 const router = Router();
 
@@ -839,6 +840,81 @@ router.get("/sentry-issues", requireAuth, requireAdmin, async (req: AuthRequest,
   } catch (err) {
     console.error("/api/admin/sentry-issues error:", err instanceof Error ? err.message : String(err));
     return res.status(500).json({ error: "Erro ao buscar issues do Sentry." });
+  }
+});
+
+// Estimativas de custo — NÃO é fatura real, é aproximação pra dar noção de
+// ordem de grandeza. Haiku: ~input 2.500 tok (system prompt grande + histórico
+// + contexto da plataforma) + ~200 tok de saída, no preço do Claude Haiku
+// (~$1/MTok input, ~$5/MTok output) ≈ R$0,015/chamada (câmbio ~R$5,50).
+// Whisper: mesma estimativa usada quando a transcrição foi implementada.
+const HAIKU_COST_BRL_PER_CALL = 0.015;
+const WHISPER_COST_BRL_PER_AUDIO = 0.02;
+
+// Visibilidade real de uso do bot do WhatsApp — hoje não existe nenhuma.
+// Handoffs contados via whatsapp_messages (sender='system', body=HANDOFF_MESSAGE)
+// em vez do snapshot atual de handoff_reason em whatsapp_conversations, porque
+// esse snapshot muda com o tempo (handoffTimeout.ts zera handoff_reason depois
+// de 24h) — a mensagem de handoff é um evento carimbado, não se perde.
+//
+// Breakdown de handoff por urgência FICOU DE FORA: urgency (decision.urgency
+// em whatsappConversationService.ts) é usado só pra montar o título do push
+// no momento do handoff e nunca é persistido em nenhuma coluna — não dá pra
+// reconstruir depois dos fatos sem adicionar uma coluna nova (fora do escopo
+// aqui). Top 5 perguntas/tópicos também ficou de fora — exigiria alguma
+// classificação, e uma categorização frágil aqui seria pior que nada.
+router.get("/bot-stats", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const days = Math.max(1, Math.min(90, parseInt(String(req.query.days ?? "7"), 10) || 7));
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: messages, error } = await supabaseAdmin
+      .from("whatsapp_messages")
+      .select("conversation_id, direction, sender, body, created_at")
+      .gte("created_at", since);
+    if (error) throw error;
+
+    const rows = messages ?? [];
+    const inbound = rows.filter((m) => m.direction === "inbound");
+    const audioTranscribed = inbound.filter((m) => (m.body ?? "").startsWith("(áudio)"));
+    const handoffs = rows.filter((m) => m.sender === "system" && m.body === HANDOFF_MESSAGE);
+    const activeConversationIds = new Set(rows.map((m) => m.conversation_id));
+
+    const totalInbound = inbound.length;
+    const totalConversations = activeConversationIds.size;
+    const totalHandoffs = handoffs.length;
+    const handoffRatePct = totalConversations > 0
+      ? Math.round((totalHandoffs / totalConversations) * 1000) / 10
+      : 0;
+
+    const estimatedCostBrl = Math.round(
+      (totalInbound * HAIKU_COST_BRL_PER_CALL + audioTranscribed.length * WHISPER_COST_BRL_PER_AUDIO) * 100
+    ) / 100;
+
+    // Mensagens recebidas por dia, pro gráfico simples do frontend.
+    const perDay = new Map<string, number>();
+    for (const m of inbound) {
+      const day = (m.created_at as string).slice(0, 10);
+      perDay.set(day, (perDay.get(day) ?? 0) + 1);
+    }
+    const messagesPerDay = [...perDay.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, count]) => ({ date, count }));
+
+    return res.json({
+      period_days: days,
+      total_inbound_messages: totalInbound,
+      total_conversations: totalConversations,
+      total_handoffs: totalHandoffs,
+      handoff_rate_pct: handoffRatePct,
+      audio_messages_transcribed: audioTranscribed.length,
+      estimated_cost_brl: estimatedCostBrl,
+      estimated_cost_note: "Estimativa aproximada, não é fatura real.",
+      messages_per_day: messagesPerDay,
+    });
+  } catch (err) {
+    console.error("/api/admin/bot-stats error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao buscar estatísticas do bot." });
   }
 });
 

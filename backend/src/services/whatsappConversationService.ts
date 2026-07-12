@@ -21,7 +21,11 @@ export type ConversationRow = {
   created_at: string;
 };
 
-const HANDOFF_MESSAGE =
+// Exportado pra /api/admin/bot-stats poder contar handoffs disparados no
+// período via whatsapp_messages (sender='system', body=HANDOFF_MESSAGE) —
+// mais preciso que olhar o snapshot atual de handoff_reason/status, que
+// muda com o tempo (handoffTimeout.ts zera handoff_reason após 24h).
+export const HANDOFF_MESSAGE =
   "Vou te passar pra alguém mais especializado nessa área que vai te ajudar melhor!";
 
 function envInt(name: string, fallback: number): number {
