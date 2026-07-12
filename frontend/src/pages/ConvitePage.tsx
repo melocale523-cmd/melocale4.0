@@ -75,7 +75,8 @@ export default function ConvitePage() {
 
       <div className="relative w-full max-w-sm">
         {/* Logo */}
-        <div className="text-center mb-13">
+        <div className="text-center mb-13 flex flex-col items-center gap-3">
+          <img src="/icon-192.png" alt="MeloCalé" className="w-14 h-14 rounded-2xl" />
           <span className="text-2xl font-black tracking-tight uppercase text-emerald-400">MeloCalé</span>
         </div>
 

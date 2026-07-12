@@ -94,8 +94,12 @@ const queryClient = new QueryClient({
 
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center text-emerald-500">
-      <Loader2 className="animate-spin mb-9" size={40} />
+    <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center">
+      <img
+        src="/icon-192.png"
+        alt="MeloCalé"
+        className="w-16 h-16 rounded-2xl animate-pulse mb-9"
+      />
       <p className="text-[#94A3B8] font-medium">Carregando...</p>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Home, Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -63,9 +63,11 @@ export default function Navbar({ topOffset = 0 }: NavbarProps) {
         <div className="flex items-center justify-between gap-2" style={{ width: '100%', paddingLeft: '0.75rem', paddingRight: '0.75rem' }}>
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group shrink-0" title="Ir para a página inicial">
-            <div className="w-9 h-9 md:w-10 md:h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black group-hover:scale-110 transition-transform">
-              <Home size={20} />
-            </div>
+            <img
+              src="/icon-192.png"
+              alt="MeloCalé"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-xl group-hover:scale-110 transition-transform"
+            />
             <span className="text-lg md:text-xl font-bold tracking-tight text-white uppercase">
               MeloCalé
             </span>
