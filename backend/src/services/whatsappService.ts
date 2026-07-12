@@ -155,4 +155,22 @@ export const WHATSAPP_TEMPLATES = {
   // aprovado no WhatsApp Manager antes de ativar, pode sair diferente do
   // que foi submetido.
   RETOMADA_ATENDIMENTO: "retomada_atendimento_bot",
+  // Divulgação do programa de indicação — disparado manualmente via
+  // /admin/suporte (ver BROADCASTABLE_TEMPLATES abaixo), não por job
+  // automatizado. Nome usado nas mensagens de teste desta sessão; ainda não
+  // submetido/confirmado no WhatsApp Manager — mesma cautela de sempre.
+  DIVULGACAO_INDICACAO: "divulgacao_indicacao_v1",
 } as const;
+
+// Templates habilitados pra disparo em massa via /admin (broadcast),
+// distinto dos templates de notificação individual/reengajamento acima.
+// Cada entrada só fica disponível na UI depois que a env var
+// correspondente estiver "true" — mesmo padrão de segurança já usado
+// pros templates de reengajamento e retomada de handoff.
+export const BROADCASTABLE_TEMPLATES: Record<string, { templateName: string; envGate: string; label: string }> = {
+  divulgacao_indicacao: {
+    templateName: WHATSAPP_TEMPLATES.DIVULGACAO_INDICACAO,
+    envGate: "WHATSAPP_TEMPLATE_DIVULGACAO_INDICACAO_APPROVED",
+    label: "Divulgação do programa de indicação",
+  },
+};

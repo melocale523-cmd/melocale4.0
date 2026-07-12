@@ -2,6 +2,7 @@ import cron from "node-cron";
 import { supabaseAdmin } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendWhatsAppTemplate, normalizeBrazilianPhone, WHATSAPP_TEMPLATES } from "../services/whatsappService.js";
+import { filterOptedIn } from "../lib/whatsappOptIn.js";
 
 // Reengajamento via WhatsApp — 2 campanhas:
 //   1. profissional_sem_pedido: profissional ativo, nunca comprou um lead
@@ -176,24 +177,18 @@ async function targetProfissionaisSemPedido(): Promise<Candidate[]> {
   if (!neverPurchased.length) return [];
 
   const userIds = neverPurchased.map(p => p.user_id);
-  const [{ data: profiles }, { data: prefs }] = await Promise.all([
+  const [{ data: profiles }, optedIn] = await Promise.all([
     withTimeout(supabaseAdmin.from("profiles").select("id, full_name, phone").in("id", userIds)),
-    withTimeout(supabaseAdmin.from("user_notification_preferences").select("user_id, whatsapp_marketing_opt_in, whatsapp_connected").in("user_id", userIds)),
+    filterOptedIn(userIds),
   ]);
 
   const profileMap = new Map(((profiles ?? []) as { id: string; full_name: string | null; phone: string | null }[]).map(p => [p.id, p]));
-  const prefMap = new Map(
-    ((prefs ?? []) as { user_id: string; whatsapp_marketing_opt_in: boolean | null; whatsapp_connected: boolean | null }[]).map(p => [p.user_id, p])
-  );
 
   const candidates: Candidate[] = [];
   for (const userId of userIds) {
     const profile = profileMap.get(userId);
     if (!profile?.phone) continue;
-    const pref = prefMap.get(userId);
-    // Sem linha de preferências = default do banco (opt-in true)
-    const optIn = pref?.whatsapp_marketing_opt_in !== false;
-    if (!optIn) continue;
+    if (!optedIn.has(userId)) continue;
     const normalized = normalizeBrazilianPhone(profile.phone);
     if (!normalized) continue;
     if (!firstName(profile.full_name)) continue; // nome vazio — template exige {{1}} preenchido
@@ -257,22 +252,12 @@ async function targetClientesSemPedidoOuProposta(): Promise<Candidate[]> {
   }
   if (!eligibleClientIds.size) return [];
 
-  const { data: prefs } = await withTimeout(
-    supabaseAdmin
-      .from("user_notification_preferences")
-      .select("user_id, whatsapp_marketing_opt_in, whatsapp_connected")
-      .in("user_id", Array.from(eligibleClientIds))
-  );
-  const prefMap = new Map(
-    ((prefs ?? []) as { user_id: string; whatsapp_marketing_opt_in: boolean | null; whatsapp_connected: boolean | null }[]).map(p => [p.user_id, p])
-  );
+  const optedIn = await filterOptedIn(Array.from(eligibleClientIds));
 
   const candidates: Candidate[] = [];
   for (const client of clients) {
     if (!eligibleClientIds.has(client.id) || !client.phone) continue;
-    const pref = prefMap.get(client.id);
-    const optIn = pref?.whatsapp_marketing_opt_in !== false;
-    if (!optIn) continue;
+    if (!optedIn.has(client.id)) continue;
     const normalized = normalizeBrazilianPhone(client.phone);
     if (!normalized) continue;
     if (!firstName(client.full_name)) continue; // nome vazio — template exige {{1}} preenchido
