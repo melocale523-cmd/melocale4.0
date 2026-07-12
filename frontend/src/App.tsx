@@ -18,6 +18,7 @@ import RealtimeNotificationHandler from './components/RealtimeNotificationHandle
 import AiChatWidget from './components/AiChat/AiChatWidget';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import AdminEmBreve from './components/AdminEmBreve';
+import LoadingLogo from './components/LoadingLogo';
 import { Toaster } from 'sonner';
 
 // Lazy-loaded pages — client
@@ -95,12 +96,7 @@ const queryClient = new QueryClient({
 function PageLoader() {
   return (
     <div className="min-h-screen bg-[#0E1C32] flex flex-col items-center justify-center">
-      <img
-        src="/icon-192.png"
-        alt="MeloCalé"
-        className="w-16 h-16 rounded-2xl animate-pulse mb-9"
-      />
-      <p className="text-[#94A3B8] font-medium">Carregando...</p>
+      <LoadingLogo size={140} />
     </div>
   );
 }

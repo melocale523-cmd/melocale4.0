@@ -299,6 +299,32 @@ input[type='range'].earnings-slider::-moz-range-thumb {
   animation: indicacoes-glow 2.5s ease-in-out infinite;
 }
 
+/* ── LoadingLogo (animated M/C fill) ── */
+.loading-logo-fill-m {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  transform: scaleY(0);
+  animation: loadingLogoFill 3s cubic-bezier(.4,0,.2,1) infinite;
+}
+.loading-logo-fill-c {
+  transform-box: fill-box;
+  transform-origin: top;
+  transform: scaleY(0);
+  animation: loadingLogoFill 3s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes loadingLogoFill {
+  0%   { transform: scaleY(0); }
+  45%  { transform: scaleY(1); }
+  100% { transform: scaleY(1); }
+}
+.loading-logo-pulse-text {
+  animation: loadingLogoPulseText 3s ease-in-out infinite;
+}
+@keyframes loadingLogoPulseText {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+
 /* ── Mobile responsiveness (viewport ≤ 768px) ── */
 @media (max-width: 768px) {
   .landing-hero-section {
