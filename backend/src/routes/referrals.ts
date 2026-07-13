@@ -1,5 +1,6 @@
 // backend/src/routes/referrals.ts
 import { Router, Request, Response } from 'express'
+import { z } from 'zod'
 import { requireAuth, requireAdmin, AuthRequest } from '../middleware/auth.js'
 import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 import { sendPushToUser } from '../lib/push.js'
@@ -10,6 +11,17 @@ const router = Router()
 
 let _configCache: { data: unknown; ts: number } | null = null
 const CONFIG_CACHE_TTL = 60_000 // 60 segundos
+
+const referralRegistrationSchema = z.object({
+  code: z.string().trim().min(1).max(100),
+  newUserId: z.string().uuid(),
+})
+
+const referralConfigSchema = z.object({
+  multiplier: z.number().finite().min(1).max(10),
+  expires_at: z.string().datetime().nullable().optional(),
+  label: z.string().trim().max(200).nullable().optional(),
+})
 
 async function getConfig(): Promise<{ multiplier: number; expires_at: string | null; label: string | null }> {
   try {
@@ -184,8 +196,9 @@ router.get('/list', requireAuth, async (req: Request, res: Response) => {
 
 // POST /api/referrals/register
 router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res: Response) => {
-  const { code, newUserId } = req.body as { code?: string; newUserId?: string }
-  if (!code || !newUserId) return res.status(400).json({ error: 'missing_params' })
+  const parsed = referralRegistrationSchema.safeParse(req.body)
+  if (!parsed.success) return res.status(400).json({ error: 'invalid_referral_registration' })
+  const { code, newUserId } = parsed.data
 
   const authUser = (req as AuthRequest).authUser!;
   if (newUserId !== authUser.id) {
@@ -257,9 +270,9 @@ router.post('/register', sensitiveLimiter, requireAuth, async (req: Request, res
 
 // PUT /api/referrals/config — admin only
 router.put('/config', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
-  const { multiplier, expires_at, label } = req.body as { multiplier?: number; expires_at?: string | null; label?: string | null }
-  if (!multiplier || multiplier < 1 || multiplier > 10)
-    return res.status(400).json({ error: 'invalid_multiplier' })
+  const parsed = referralConfigSchema.safeParse(req.body)
+  if (!parsed.success) return res.status(400).json({ error: 'invalid_referral_config' })
+  const { multiplier, expires_at, label } = parsed.data
   try {
     await supabaseAdmin.from('referral_config')
       .update({ multiplier, expires_at: expires_at ?? null, label: label ?? null, updated_at: new Date().toISOString() })

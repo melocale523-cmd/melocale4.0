@@ -20,6 +20,16 @@ import { REFERRAL_COINS_PROFESSIONAL, REFERRAL_BASE_COINS_CLIENT, REFERRAL_CLIEN
 
 const router = Router();
 
+const servicePaymentSchema = z.object({
+  amount: z.number().finite().int().min(100).max(1_000_000),
+  description: z.string().trim().min(1).max(200),
+  professional_id: z.string().uuid(),
+});
+
+const cancelSubscriptionSchema = z.object({
+  user_id: z.string().uuid(),
+});
+
 export async function stripeWebhookHandler(req: Request, res: Response): Promise<void> {
   const sig = req.headers["stripe-signature"] as string;
   let event: Stripe.Event;
@@ -482,24 +492,9 @@ router.post("/create-account-link", requireAuth, async (req: AuthRequest, res: R
 router.post("/create-service-payment", requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const authUser = req.authUser!;
-    const { amount, description, professional_id } = req.body || {};
-
-    if (typeof professional_id !== "string" || !/^[0-9a-f-]{36}$/i.test(professional_id)) {
-      return res.status(400).json({ error: "professional_id inválido." });
-    }
-
-    if (typeof amount !== "number" || !Number.isFinite(amount)) {
-      return res.status(400).json({ error: "amount deve ser um número." });
-    }
-    const amountInCents = Math.round(amount);
-    if (amountInCents < 100 || amountInCents > 10_000_00) {
-      return res.status(400).json({ error: "Valor inválido. Mínimo R$1,00, máximo R$10.000,00." });
-    }
-
-    if (typeof description !== "string" || description.trim().length < 1 || description.trim().length > 200) {
-      return res.status(400).json({ error: "Descrição inválida (entre 1 e 200 caracteres)." });
-    }
-    const safeDescription = description.trim();
+    const parsed = servicePaymentSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Pagamento inválido." });
+    const { amount: amountInCents, description: safeDescription, professional_id } = parsed.data;
 
     const { data: prof, error: profErr } = await supabaseAdmin
       .from("professionals")
@@ -612,8 +607,9 @@ router.get("/subscription-status", requireAuth, async (req: AuthRequest, res: Re
 router.post("/cancel-subscription", requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const authUser = req.authUser!;
-    const { user_id } = req.body || {};
-    if (!user_id) return res.status(400).json({ error: "user_id é obrigatório." });
+    const parsed = cancelSubscriptionSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "user_id inválido." });
+    const { user_id } = parsed.data;
 
     if (user_id !== authUser.id) {
       return res.status(403).json({ error: "Não autorizado." });
