@@ -126,9 +126,9 @@ export default function Indicacao() {
 
   const hasDoubleBonus = (bonusConfig?.multiplier ?? 1) > 1
   const isPro = referralData?.role === 'professional'
-  const baseReward = isPro ? 60 : 30
+  const baseReward = isPro ? 60 : 20
   const effectiveReward = baseReward * (bonusConfig?.multiplier ?? 1)
-  const rewardLabel = isPro ? `${effectiveReward} moedas` : `R$${(effectiveReward / 3).toFixed(0)}`
+  const rewardLabel = `${effectiveReward} moedas`
   const rewardDesc = isPro ? 'por indicado que assinar qualquer plano' : 'por indicado que fizer o primeiro pedido'
   const totalEarned = referrals
     .filter(r => r.status === 'credited')
@@ -368,7 +368,7 @@ export default function Indicacao() {
             </div>
             <p style={{ fontSize:24, fontWeight:900, color:'white', marginBottom:5 }}>Indique e Ganhe</p>
             <p style={{ fontSize:15, color:'#4A6580' }}>
-              <span style={{ color:'#34d399', fontWeight:600 }}>{rewardLabel}</span> por indicação que assinar · Bônus de até <span style={{ color:'#fbbf24', fontWeight:600 }}>+60 moedas extras</span> por mês
+              <span style={{ color:'#34d399', fontWeight:600 }}>{rewardLabel}</span> {rewardDesc} · Bônus de até <span style={{ color:'#fbbf24', fontWeight:600 }}>+60 moedas extras</span> por mês
             </p>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem', alignItems:'flex-end' }}>
