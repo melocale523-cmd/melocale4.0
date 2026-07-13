@@ -54,7 +54,7 @@ jobs:
         if: failure()
         with:
           name: playwright-report
-          path: frontend/playwright-report/
+          path: frontend/test-results/
           retention-days: 7
 
   typecheck:
