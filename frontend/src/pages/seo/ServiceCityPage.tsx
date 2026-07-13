@@ -4,7 +4,17 @@ import { ArrowLeft, CheckCircle2, MapPin, Star, Wrench } from 'lucide-react';
 import { seoPagesBySlug } from '../../data/seoPages';
 
 const BASE_URL = 'https://melocale.com.br';
-const CTA_URL = 'https://melocale.com.br/login?role=client';
+function trackedLoginUrl(role: 'client' | 'professional', slug: string) {
+  const params = new URLSearchParams({
+    role,
+    utm_source: 'organic',
+    utm_medium: 'seo',
+    utm_campaign: 'service_city',
+    utm_content: slug,
+  });
+  if (role === 'professional') params.set('mode', 'signup');
+  return `${BASE_URL}/login?${params.toString()}`;
+}
 
 export default function ServiceCityPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -13,6 +23,8 @@ export default function ServiceCityPage() {
   if (!page) return <Navigate to="/404" replace />;
 
   const canonicalUrl = `${BASE_URL}/servicos/${page.slug}`;
+  const clientCtaUrl = trackedLoginUrl('client', page.slug);
+  const professionalCtaUrl = trackedLoginUrl('professional', page.slug);
 
   const schema = {
     '@context': 'https://schema.org',
@@ -41,7 +53,7 @@ export default function ServiceCityPage() {
     offers: {
       '@type': 'Offer',
       availability: 'https://schema.org/InStock',
-      url: CTA_URL,
+      url: clientCtaUrl,
     },
   };
 
@@ -129,7 +141,7 @@ export default function ServiceCityPage() {
             direto no seu WhatsApp ou no app.
           </p>
           <a
-            href={CTA_URL}
+            href={clientCtaUrl}
             className="inline-block bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-8 py-8 rounded-lg transition-colors text-base"
           >
             Criar pedido grátis
@@ -139,6 +151,16 @@ export default function ServiceCityPage() {
           </p>
         </section>
 
+        <section className="border border-[#1C3050] rounded-xl p-8 mb-12 text-center">
+          <h2 className="text-xl font-semibold text-white mb-3">Você presta este serviço?</h2>
+          <p className="text-[#94A3B8] mb-6">Crie seu perfil profissional e receba pedidos de clientes em {page.cidadeDisplay}.</p>
+          <a
+            href={professionalCtaUrl}
+            className="inline-block border border-emerald-500 text-emerald-400 hover:bg-emerald-500 hover:text-white font-semibold px-7 py-3 rounded-lg transition-colors"
+          >
+            Cadastrar como profissional
+          </a>
+        </section>
         {/* How it works */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-white mb-11">Como funciona</h2>
