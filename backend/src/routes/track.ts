@@ -14,6 +14,11 @@ const registrationSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   origin: z.string().optional(),
+  utm_source: z.string().max(100).optional(),
+  utm_medium: z.string().max(100).optional(),
+  utm_campaign: z.string().max(200).optional(),
+  utm_content: z.string().max(200).optional(),
+  landing_path: z.string().max(500).optional(),
   fbp: z.string().optional(),
   fbc: z.string().optional(),
 });
@@ -24,7 +29,7 @@ router.post("/track/registration", sensitiveLimiter, async (req: Request, res: R
   const parsed = registrationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "dados inválidos." });
 
-  const { role, email, phone, name, city, state, origin, fbp, fbc } = parsed.data;
+  const { role, email, phone, name, city, state, origin, utm_source, utm_medium, utm_campaign, utm_content, landing_path, fbp, fbc } = parsed.data;
   const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
     ?? req.socket.remoteAddress
     ?? undefined;
@@ -42,7 +47,7 @@ router.post("/track/registration", sensitiveLimiter, async (req: Request, res: R
     fbc,
     clientIp,
     clientUserAgent,
-    customData: { content_name: role },
+    customData: { content_name: role, origin, utm_source, utm_medium, utm_campaign, utm_content, landing_path },
   });
 
   void sendNewUserAlert({

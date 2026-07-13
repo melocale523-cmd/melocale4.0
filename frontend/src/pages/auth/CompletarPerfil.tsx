@@ -8,7 +8,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
 import confetti from 'canvas-confetti';
 import { apiFetch } from '../../lib/api';
-import { resolveSignupOrigin } from '../../hooks/useUtmCapture';
+import { getSignupAttribution, resolveSignupOrigin } from '../../hooks/useUtmCapture';
 
 export default function CompletarPerfil() {
   const { user, isAuthenticated, isLoading } = useAuthStore();
