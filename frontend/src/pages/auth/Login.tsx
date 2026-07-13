@@ -9,7 +9,7 @@ import { cn } from '../../lib/utils';
 import { API_URL, apiFetch } from '../../lib/api';
 import { AddressForm, type AddressValue, emptyAddress } from '../../components/AddressForm';
 import { setOAuthSignupFlag, clearOAuthSignupFlag } from '../../lib/oauthSignupFlag';
-import { resolveSignupOrigin } from '../../hooks/useUtmCapture';
+import { getSignupAttribution, resolveSignupOrigin } from '../../hooks/useUtmCapture';
 import { useTurnstileToken } from '../../hooks/useTurnstileToken';
 import TurnstileWidget from '../../components/auth/TurnstileWidget';
 
@@ -264,7 +264,7 @@ export default function Login() {
         fetch(`${API_URL}/api/track/registration`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: selectedRole, email: signUpData.user?.email, phone: formData.phone || undefined, name: formData.name || undefined, city: address.city || undefined, state: address.state || undefined, origin: resolveSignupOrigin(), fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
+          body: JSON.stringify({ role: selectedRole, email: signUpData.user?.email, phone: formData.phone || undefined, name: formData.name || undefined, city: address.city || undefined, state: address.state || undefined, ...getSignupAttribution(), fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
         }).catch(() => {});
 
         // Login automático após cadastro — precisa de um captchaToken novo,

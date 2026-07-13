@@ -1,4 +1,5 @@
 import { MapPin, Zap, ShieldCheck, Star } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -214,6 +215,20 @@ export default function LandingPage() {
   ];
 
   const FAQ_ITEMS = isProfissional ? FAQ_PROF : isCliente ? FAQ_CLIENTE : FAQ_DUAL;
+  const landingSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Organization', name: 'MeloCalé', url: 'https://melocale.com.br', logo: 'https://melocale.com.br/logo.png' },
+      { '@type': 'WebSite', name: 'MeloCalé', url: 'https://melocale.com.br' },
+      {
+        '@type': 'FAQPage',
+        mainEntity: FAQ_ITEMS.map((item) => ({
+          '@type': 'Question', name: item.q,
+          acceptedAnswer: { '@type': 'Answer', text: item.a },
+        })),
+      },
+    ],
+  };
 
   // shared hover helpers
   const hoverGreen = {
@@ -226,7 +241,14 @@ export default function LandingPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
+    <>
+      <Helmet>
+        <title>MeloCalé — Encontre profissionais de confiança</title>
+        <meta name="description" content="Encontre profissionais para serviços em sua cidade ou receba clientes para o seu negócio no MeloCalé." />
+        <link rel="canonical" href="https://melocale.com.br/" />
+        <script type="application/ld+json">{JSON.stringify(landingSchema)}</script>
+      </Helmet>
+      <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
 
 
       {/* ── 1. Banner ── */}
@@ -1366,6 +1388,7 @@ export default function LandingPage() {
         </>
       )}
     </div>
+    </>
   );
 }
 

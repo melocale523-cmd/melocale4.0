@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { type AddressValue, emptyAddress } from '../components/AddressForm';
 import { apiFetch } from '../lib/api';
-import { resolveSignupOrigin } from './useUtmCapture';
+import { getSignupAttribution, resolveSignupOrigin } from './useUtmCapture';
 import { useTurnstileToken } from './useTurnstileToken';
 
 export function validatePassword(password: string): string | null {
