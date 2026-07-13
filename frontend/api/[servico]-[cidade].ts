@@ -215,7 +215,9 @@ function renderHTML(
 
 export default async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url)
-  const pathname = url.pathname.slice(1)
+  const pathname = url.pathname
+    .replace(/^\/servicos\//, '')
+    .replace(/^\//, '')
 
   const knownCategories = Object.keys(CATEGORY_LABELS)
 

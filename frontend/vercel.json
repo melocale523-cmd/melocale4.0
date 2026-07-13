@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/:categoria-:cidade((?:[a-z]+-?)+)",
+      "source": "/servicos/:categoria-:cidade((?:[a-z]+-?)+)",
       "destination": "/api/[servico]-[cidade]"
     },
     {
