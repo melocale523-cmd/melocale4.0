@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express'
+import { z } from 'zod'
 import { requireAuth, AuthRequest } from '../middleware/auth.js'
 import { supabaseAdmin, sensitiveLimiter } from '../config.js'
 
@@ -6,6 +7,11 @@ const router = Router()
 const ASAAS_BASE = 'https://api.asaas.com/v3'
 const ASAAS_KEY = process.env.ASAAS_API_KEY!
 const MIN_WITHDRAWAL = 1000 // 1000 moedas = R$10
+
+const withdrawalSchema = z.object({
+  pix_key: z.string().trim().min(1).max(255),
+  pix_key_type: z.enum(['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'EVP']),
+})
 
 async function asaasFetch(path: string, options: RequestInit = {}) {
   return fetch(`${ASAAS_BASE}${path}`, {
@@ -22,11 +28,9 @@ async function asaasFetch(path: string, options: RequestInit = {}) {
 // Body: { pix_key: string, pix_key_type: 'CPF'|'CNPJ'|'EMAIL'|'PHONE'|'EVP' }
 router.post('/withdraw', sensitiveLimiter, requireAuth, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).authUser!.id
-  const { pix_key, pix_key_type } = req.body as { pix_key?: string; pix_key_type?: string }
-
-  if (!pix_key || !pix_key_type) return res.status(400).json({ error: 'missing_params' })
-  const validTypes = ['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'EVP']
-  if (!validTypes.includes(pix_key_type)) return res.status(400).json({ error: 'invalid_pix_key_type' })
+  const parsed = withdrawalSchema.safeParse(req.body)
+  if (!parsed.success) return res.status(400).json({ error: 'invalid_withdrawal_request' })
+  const { pix_key, pix_key_type } = parsed.data
 
   try {
     // 1. Verificar saldo
