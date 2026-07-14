@@ -3,6 +3,9 @@
     {
       "source": "/servicos/:categoria-:cidade((?:[a-z]+-?)+)",
       "destination": "/api/[servico]-[cidade]"
+    },    {
+      "source": "/servicos-em-salvador",
+      "destination": "/api/servicos-em-salvador"
     },
     {
       "source": "/(.*)",

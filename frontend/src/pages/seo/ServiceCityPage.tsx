@@ -122,7 +122,30 @@ export default function ServiceCityPage() {
               {text}
             </p>
           ))}
+          {page.localContext && (
+            <p className="text-[#CBD5E1] leading-relaxed mb-9 text-base">
+              {page.localContext}
+            </p>
+          )}
         </section>
+
+        {page.neighborhoods?.length ? (
+          <section className="mb-15 rounded-xl border border-[#1C3050] bg-[#0B1A2E] p-8">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Regiões de Salvador onde você pode solicitar atendimento
+            </h2>
+            <p className="text-[#94A3B8] text-sm leading-relaxed mb-5">
+              O atendimento depende da disponibilidade de cada profissional. Se o seu bairro não estiver listado, informe a localização no pedido.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {page.neighborhoods.map((neighborhood) => (
+                <span key={neighborhood} className="rounded-full border border-[#1C3050] px-4 py-2 text-sm text-[#CBD5E1]">
+                  {neighborhood}
+                </span>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {/* Benefits */}
         <section className="bg-[#0B1A2E] border border-[#1C3050] rounded-xl p-11 mb-15">
