@@ -4,6 +4,8 @@ import { Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 
+const E2E_AUTH_BYPASS = import.meta.env.VITE_E2E_AUTH_BYPASS === 'true';
+
 interface OnboardingGuardProps {
   children: React.ReactNode;
 }
@@ -21,9 +23,11 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
         .maybeSingle();
       return data?.onboarding_completed ?? false;
     },
-    enabled: !!user?.id,
+    enabled: !E2E_AUTH_BYPASS && !!user?.id,
     staleTime: 1000 * 60 * 5,
   });
+
+  if (E2E_AUTH_BYPASS) return <>{children}</>;
 
   if (isLoading) {
     return (

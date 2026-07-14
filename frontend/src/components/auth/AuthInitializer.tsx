@@ -5,6 +5,8 @@ import { useAuthStore, Role } from '../../store/authStore';
 import { readOAuthSignupRole, clearOAuthSignupFlag } from '../../lib/oauthSignupFlag';
 import { toast } from 'sonner';
 
+const E2E_AUTH_BYPASS = import.meta.env.VITE_E2E_AUTH_BYPASS === 'true';
+
 export default function AuthInitializer({ children }: { children: React.ReactNode }) {
   const setAuth = useAuthStore((state) => state.setAuth);
   const setLoading = useAuthStore((state) => state.setLoading);
@@ -14,6 +16,31 @@ export default function AuthInitializer({ children }: { children: React.ReactNod
 
   useEffect(() => {
     let isMounted = true;
+
+    if (E2E_AUTH_BYPASS) {
+      const roleFromStorage = localStorage.getItem('melocale_e2e_role');
+      const role: Role | null =
+        roleFromStorage === 'professional' ? 'professional'
+        : roleFromStorage === 'admin' ? 'admin'
+        : roleFromStorage === 'client' ? 'client'
+        : null;
+
+      localStorage.removeItem('melocale_needs_completion');
+      if (role) {
+        setAuth({
+          id: `e2e-${role}`,
+          professionalId: role === 'professional' ? 'e2e-professional-id' : undefined,
+          email: `e2e-${role}@melocale.test`,
+          role,
+        });
+      } else {
+        setAuth(null);
+      }
+      setLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
 
     const processSession = async (session: Session | null) => {
       if (!session?.user) {
