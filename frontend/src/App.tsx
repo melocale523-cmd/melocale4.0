@@ -66,6 +66,7 @@ const AdminSaques = lazy(() => import('./pages/admin/Saques'));
 const AdminPedidos = lazy(() => import('./pages/admin/Pedidos'));
 const AdminRanking = lazy(() => import('./pages/admin/Ranking'));
 const AdminLandingPreview = lazy(() => import('./pages/admin/LandingPreview'));
+const AdminSeo = lazy(() => import('./pages/admin/Seo'));
 const AdminConversas = lazy(() => import('./pages/admin/Conversas'));
 const AdminBotStats = lazy(() => import('./pages/admin/BotStats'));
 
@@ -332,6 +333,7 @@ const router = createBrowserRouter([
           { path: 'saques', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSaques /></Suspense></ErrorBoundary> },
           { path: 'ranking', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminRanking /></Suspense></ErrorBoundary> },
           { path: 'landing', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminLandingPreview /></Suspense></ErrorBoundary> },
+          { path: 'seo', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminSeo /></Suspense></ErrorBoundary> },
           { path: 'financeiro-auditoria', element: <AdminEmBreve /> },
           { path: 'auditoria-logs', element: <AdminEmBreve /> },
           { path: 'equipe', element: <AdminEmBreve /> },

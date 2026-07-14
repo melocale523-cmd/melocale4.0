@@ -217,7 +217,7 @@ export function useAuthForm({ mode, selectedRole, onClose }: UseAuthFormParams) 
         apiFetch('/api/track/registration', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: selectedRole, email: formData.email, phone: formData.phone || undefined, name: formData.name || undefined, city: address.city || undefined, state: address.state || undefined, fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
+          body: JSON.stringify({ role: selectedRole, user_id: signUpData.user?.id, email: formData.email, phone: formData.phone || undefined, name: formData.name || undefined, city: address.city || undefined, state: address.state || undefined, ...getSignupAttribution(), fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
         }).catch(() => {});
 
         toast.success('Conta criada com sucesso! Verifique seu e-mail.');

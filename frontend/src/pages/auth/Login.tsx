@@ -264,7 +264,7 @@ export default function Login() {
         fetch(`${API_URL}/api/track/registration`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: selectedRole, email: signUpData.user?.email, phone: formData.phone || undefined, name: formData.name || undefined, city: address.city || undefined, state: address.state || undefined, ...getSignupAttribution(), fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
+          body: JSON.stringify({ role: selectedRole, user_id: signUpData.user?.id, email: signUpData.user?.email, phone: formData.phone || undefined, name: formData.name || undefined, city: address.city || undefined, state: address.state || undefined, ...getSignupAttribution(), fbp: getCookie('_fbp'), fbc: getCookie('_fbc') }),
         }).catch(() => {});
 
         // Login automático após cadastro — precisa de um captchaToken novo,
