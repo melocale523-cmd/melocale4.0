@@ -1,28 +1,51 @@
 {
-  "rewrites": [
-    {
-      "source": "/servicos/:categoria-:cidade((?:[a-z]+-?)+)",
-      "destination": "/api/[servico]-[cidade]"
-    },    {
-      "source": "/servicos-em-salvador",
-      "destination": "/api/servicos-em-salvador"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=*, geolocation=(self)" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://static.cloudflareinsights.com https://connect.facebook.net https://challenges.cloudflare.com; frame-src https://js.stripe.com https://challenges.cloudflare.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://melocale4-0.onrender.com https://*.sentry.io https://get.geojs.io https://cloudflareinsights.com https://viacep.com.br https://ipapi.co https://ip-api.com https://ipinfo.io https://connect.facebook.net https://www.facebook.com https://nominatim.openstreetmap.org https://brasilapi.com.br https://challenges.cloudflare.com; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' blob:; media-src 'self' https://*.supabase.co https://res.cloudinary.com blob:;" }
-      ]
-    }
-  ]
+    "rewrites":  [
+                     {
+                         "source":  "/servicos/:categoria-:cidade((?:[a-z]+-?)+)",
+                         "destination":  "/api/[servico]-[cidade]"
+                     },
+                     {
+                         "source":  "/servicos-em-salvador",
+                         "destination":  "/api/servicos-em-salvador"
+                     },
+                     {
+                         "source":  "/servicos-em-feira-de-santana",
+                         "destination":  "/api/servicos-em-feira-de-santana"
+                     },
+                     {
+                         "source":  "/(.*)",
+                         "destination":  "/index.html"
+                     }
+                 ],
+    "headers":  [
+                    {
+                        "source":  "/(.*)",
+                        "headers":  [
+                                        {
+                                            "key":  "X-Frame-Options",
+                                            "value":  "DENY"
+                                        },
+                                        {
+                                            "key":  "X-Content-Type-Options",
+                                            "value":  "nosniff"
+                                        },
+                                        {
+                                            "key":  "Referrer-Policy",
+                                            "value":  "strict-origin-when-cross-origin"
+                                        },
+                                        {
+                                            "key":  "Permissions-Policy",
+                                            "value":  "camera=(), microphone=*, geolocation=(self)"
+                                        },
+                                        {
+                                            "key":  "Strict-Transport-Security",
+                                            "value":  "max-age=63072000; includeSubDomains"
+                                        },
+                                        {
+                                            "key":  "Content-Security-Policy",
+                                            "value":  "default-src \u0027self\u0027; script-src \u0027self\u0027 \u0027unsafe-inline\u0027 \u0027unsafe-eval\u0027 https://js.stripe.com https://static.cloudflareinsights.com https://connect.facebook.net https://challenges.cloudflare.com; frame-src https://js.stripe.com https://challenges.cloudflare.com; connect-src \u0027self\u0027 https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://melocale4-0.onrender.com https://*.sentry.io https://get.geojs.io https://cloudflareinsights.com https://viacep.com.br https://ipapi.co https://ip-api.com https://ipinfo.io https://connect.facebook.net https://www.facebook.com https://nominatim.openstreetmap.org https://brasilapi.com.br https://challenges.cloudflare.com; img-src \u0027self\u0027 data: https: blob:; style-src \u0027self\u0027 \u0027unsafe-inline\u0027 https://fonts.googleapis.com; font-src \u0027self\u0027 https://fonts.gstatic.com; worker-src \u0027self\u0027 blob:; media-src \u0027self\u0027 https://*.supabase.co https://res.cloudinary.com blob:;"
+                                        }
+                                    ]
+                    }
+                ]
 }

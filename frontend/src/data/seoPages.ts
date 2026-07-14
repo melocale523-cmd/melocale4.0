@@ -149,7 +149,10 @@ const cityContent: Record<string, { context: string; neighborhoods: string[] }> 
     context: 'Atendemos clientes em Salvador e em diferentes regiões da capital, com profissionais para serviços residenciais, comerciais e pequenos reparos. Informe o bairro e o melhor horário no pedido para receber propostas mais compatíveis com a sua localização.',
     neighborhoods: ['Barra', 'Pituba', 'Brotas', 'Itapuã', 'Imbuí', 'Cabula', 'Paralela', 'Centro', 'Liberdade', 'São Cristóvão'],
   },
-};
+  'feira-de-santana': {
+    context: 'Atendemos clientes em Feira de Santana e em bairros de diferentes regiões da cidade, com profissionais para serviços residenciais, comerciais e pequenos reparos. Informe o bairro e o melhor horário no pedido para receber propostas mais compatíveis com a sua localização.',
+    neighborhoods: ['Centro', 'Santa Mônica', 'Muchila', 'Brasília', 'Mangabeira', 'Tomba', 'Caseb', 'Queimadinha', '35º BI', 'SIM'],
+  },};
 
 export const seoPages: SeoPageData[] = categorias.flatMap((cat) =>
   cidades.map((cidade) => {

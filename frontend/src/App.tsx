@@ -351,7 +351,7 @@ const router = createBrowserRouter([
         element: <AuthGuard><ErrorBoundary><Suspense fallback={<PageLoader />}><Notificacoes /></Suspense></ErrorBoundary></AuthGuard>
       },
       {
-        path: '/servicos-em-salvador',
+        path: '/servicos-em/:citySlug',
         element: <ErrorBoundary><Suspense fallback={<PageLoader />}><SeoCityLanding /></Suspense></ErrorBoundary>
       },
       {
