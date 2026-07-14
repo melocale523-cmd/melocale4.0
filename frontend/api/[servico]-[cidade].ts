@@ -256,7 +256,7 @@ function renderHTML(
     <p>${description}</p>
   </div>
   <div class="container">
-    <span class="badge">${profissionais.length} profissional${profissionais.length !== 1 ? 'is' : ''} encontrado${profissionais.length !== 1 ? 's' : ''}</span>
+    <span class="badge">${profissionais.length} ${profissionais.length === 1 ? 'profissional encontrado' : 'profissionais encontrados'}</span>
     <a href="${appUrl}" class="cta">Ver perfis completos e contratar →</a>
     ${profissionais.length > 0 ? profListHTML : emptyHTML}
     <a href="${appUrl}" class="cta" style="margin-top:24px">Contratar ${safeCategoriaLabel} em ${safeCidadeNome} →</a>
