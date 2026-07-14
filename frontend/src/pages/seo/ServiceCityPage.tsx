@@ -3,7 +3,7 @@ import { Link, useParams, Navigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, MapPin, Star, Wrench } from 'lucide-react';
 import { seoPagesBySlug } from '../../data/seoPages';
 
-const BASE_URL = 'https://melocale.com.br';
+const BASE_URL = 'https://www.melocale.com.br';
 function trackedLoginUrl(role: 'client' | 'professional', slug: string) {
   const params = new URLSearchParams({
     role,

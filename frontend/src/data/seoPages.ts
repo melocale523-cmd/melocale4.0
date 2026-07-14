@@ -102,6 +102,7 @@ const categorias: { slug: string; display: string; paragraphs: (cidade: string) 
 ];
 
 const cidades: { slug: string; display: string }[] = [
+  { slug: 'salvador', display: 'Salvador' },
   { slug: 'jacobina', display: 'Jacobina' },
   { slug: 'feira-de-santana', display: 'Feira de Santana' },
   { slug: 'irece', display: 'Irecê' },

@@ -3,254 +3,311 @@
 
   <!-- Página principal -->
   <url>
-    <loc>https://melocale.com.br/</loc>
+    <loc>https://www.melocale.com.br/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Páginas legais -->
   <url>
-    <loc>https://melocale.com.br/privacidade</loc>
+    <loc>https://www.melocale.com.br/privacidade</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/termos</loc>
+    <loc>https://www.melocale.com.br/termos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/seguranca</loc>
+    <loc>https://www.melocale.com.br/seguranca</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <!-- SEO local — Jacobina -->
   <url>
-    <loc>https://melocale.com.br/servicos/eletricista-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/eletricista-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/encanador-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/encanador-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pintor-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/pintor-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pedreiro-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/pedreiro-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/marceneiro-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/marceneiro-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/jardineiro-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/jardineiro-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/diarista-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/diarista-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/ar-condicionado-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/ar-condicionado-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/tecnico-de-informatica-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/tecnico-de-informatica-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/gesseiro-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/gesseiro-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/dedetizador-em-jacobina</loc>
+    <loc>https://www.melocale.com.br/servicos/dedetizador-em-jacobina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- SEO local — Feira de Santana -->
   <url>
-    <loc>https://melocale.com.br/servicos/eletricista-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/eletricista-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/encanador-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/encanador-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pintor-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/pintor-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pedreiro-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/pedreiro-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/marceneiro-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/marceneiro-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/jardineiro-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/jardineiro-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/diarista-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/diarista-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/ar-condicionado-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/ar-condicionado-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/tecnico-de-informatica-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/tecnico-de-informatica-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/gesseiro-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/gesseiro-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/dedetizador-em-feira-de-santana</loc>
+    <loc>https://www.melocale.com.br/servicos/dedetizador-em-feira-de-santana</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- SEO local — Irecê -->
   <url>
-    <loc>https://melocale.com.br/servicos/eletricista-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/eletricista-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/encanador-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/encanador-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pintor-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/pintor-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pedreiro-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/pedreiro-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/marceneiro-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/marceneiro-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/jardineiro-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/jardineiro-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/diarista-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/diarista-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/ar-condicionado-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/ar-condicionado-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/tecnico-de-informatica-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/tecnico-de-informatica-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/gesseiro-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/gesseiro-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/dedetizador-em-irece</loc>
+    <loc>https://www.melocale.com.br/servicos/dedetizador-em-irece</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- SEO local — Senhor do Bonfim -->
   <url>
-    <loc>https://melocale.com.br/servicos/eletricista-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/eletricista-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/encanador-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/encanador-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pintor-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/pintor-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/pedreiro-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/pedreiro-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/marceneiro-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/marceneiro-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/jardineiro-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/jardineiro-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/diarista-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/diarista-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/ar-condicionado-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/ar-condicionado-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/tecnico-de-informatica-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/tecnico-de-informatica-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/gesseiro-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/gesseiro-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://melocale.com.br/servicos/dedetizador-em-senhor-do-bonfim</loc>
+    <loc>https://www.melocale.com.br/servicos/dedetizador-em-senhor-do-bonfim</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
+
+  <!-- SEO local — Salvador -->
+  <url>
+    <loc>https://www.melocale.com.br/servicos/eletricista-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/encanador-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/pintor-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/pedreiro-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/marceneiro-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/jardineiro-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/diarista-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/ar-condicionado-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/tecnico-de-informatica-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/gesseiro-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/servicos/dedetizador-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>
