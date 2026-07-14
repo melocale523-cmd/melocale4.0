@@ -11,23 +11,25 @@ const CATEGORY_LABELS: Record<string, string> = {
   'eletricista':            'Eletricista',
   'encanador':              'Encanador',
   'pintor':                 'Pintor',
-  'pedreiro-construcao':    'Pedreiro',
-  'limpeza-residencial':    'Limpeza Residencial',
-  'marceneiro-carpinteiro': 'Marceneiro',
+  'pedreiro':               'Pedreiro',
+  'marceneiro':             'Marceneiro',
+  'jardineiro':             'Jardineiro',
+  'diarista':               'Diarista',
   'ar-condicionado':        'Técnico de Ar-condicionado',
-  'chaveiro':               'Chaveiro',
-  'dedetizacao':            'Dedetização',
-  'desentupimento':         'Desentupimento',
-  'gesseiro-drywall':       'Gesseiro',
-  'impermeabilizacao':      'Impermeabilização',
-  'instalacao-moveis':      'Montador de Móveis',
-  'jardinagem-paisagismo':  'Jardineiro',
-  'mudanca-carreto':        'Mudança e Carreto',
-  'reforma-geral':          'Reforma Geral',
-  'serralheiro':            'Serralheiro',
-  'telhado-telhadista':     'Telhadista',
-  'vidraceiro':             'Vidraceiro',
-  'piscina-manutencao':     'Manutenção de Piscina',
+  'tecnico-de-informatica': 'Técnico de Informática',
+  'gesseiro':               'Gesseiro',
+  'dedetizador':            'Dedetizador',
+}
+
+const CATEGORY_QUERIES: Record<string, string> = {
+  'pedreiro': 'Pedreiro / Construção',
+  'marceneiro': 'Marceneiro / Carpinteiro',
+  'jardineiro': 'Jardinagem / Paisagismo',
+  'diarista': 'Limpeza residencial',
+  'ar-condicionado': 'Ar-condicionado',
+  'tecnico-de-informatica': 'Técnico de Informática',
+  'gesseiro': 'Gesseiro / Drywall',
+  'dedetizador': 'Dedetização / Controle de pragas',
 }
 
 function escapeHtml(str: string): string {
@@ -90,13 +92,15 @@ function renderHTML(
     ? `${profissionais.length} ${safeCategoriaLabel.toLowerCase()}${profissionais.length > 1 ? 's' : ''} disponíve${profissionais.length > 1 ? 'is' : 'l'} em ${safeCidadeNome}. Contrate agora pelo MeloCalé — rápido, seguro e sem burocracia.`
     : `Encontre ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome} pelo MeloCalé. Profissionais verificados, orçamento grátis.`
 
-  const canonical = `https://melocale.com.br/${safeCategoriaSlug}-${safeCidadeSlug}`
+  const canonical = `https://www.melocale.com.br/servicos/${safeCategoriaSlug}-em-${safeCidadeSlug}`
   // /busca só existe autenticado (/cliente/busca, atrás de ProtectedRoute) — não é uma
   // rota pública. Visitante anônimo vindo do Google caía em 404. /login?role=client é o
-  // mesmo destino usado por ServiceCityPage.tsx (as 44 páginas /servicos/categoria-em-cidade)
+  // mesmo destino usado por ServiceCityPage.tsx (as 55 páginas /servicos/categoria-em-cidade)
   // pra exatamente esse cenário: tráfego de SEO sem sessão, com toda categoria/cidade coberta,
-  // sem precisar cruzar essa lista de 20 categorias com a lista separada de 44 páginas fixas.
-  const appUrl = 'https://melocale.com.br/login?role=client'
+  // sem precisar cruzar essa lista de categorias com a lista de páginas programáticas.
+  const campaignContent = encodeURIComponent(`${categoriaSlug}-em-${cidadeSlug}`)
+  const appUrl = `https://www.melocale.com.br/login?role=client&utm_source=organic&utm_medium=seo&utm_campaign=service_city&utm_content=${campaignContent}`
+  const professionalUrl = `https://www.melocale.com.br/login?role=professional&mode=signup&utm_source=organic&utm_medium=seo&utm_campaign=service_city_professional&utm_content=${campaignContent}`
 
   const profListHTML = profissionais.map(p => {
     const safeName     = escapeHtml(p.name ?? '')
@@ -123,35 +127,89 @@ function renderHTML(
       <p style="font-size:14px">Seja o primeiro! Cadastre-se gratuitamente.</p>
     </div>`
 
+  const relatedLinksHTML = Object.entries(CATEGORY_LABELS)
+    .filter(([slug]) => slug !== categoriaSlug)
+    .slice(0, 6)
+    .map(([slug, label]) =>
+      `<a href="https://www.melocale.com.br/servicos/${slug}-em-${safeCidadeSlug}">${escapeHtml(label)} em ${safeCidadeNome}</a>`
+    )
+    .join('')
+
   const jsonLD = {
     '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    'name': title,
-    'description': description,
-    'url': canonical,
-    'numberOfItems': profissionais.length,
-    'itemListElement': profissionais.map((p, i) => ({
-      '@type': 'ListItem',
-      'position': i + 1,
-      'item': {
-        '@type': 'LocalBusiness',
-        'name': p.name,
-        'description': p.bio || `${p.category} em ${p.city}`,
-        'address': {
-          '@type': 'PostalAddress',
-          'addressLocality': p.city,
-          'addressRegion': 'BA',
-          'addressCountry': 'BR',
+    '@graph': [
+      {
+        '@type': 'Service',
+        'name': title,
+        'description': description,
+        'url': canonical,
+        'serviceType': categoriaLabel,
+        'provider': {
+          '@type': 'Organization',
+          'name': 'MeloCalé',
+          'url': 'https://www.melocale.com.br',
         },
-        ...(p.rating_avg && p.review_count ? {
-          'aggregateRating': {
-            '@type': 'AggregateRating',
-            'ratingValue': p.rating_avg,
-            'reviewCount': p.review_count,
+        'areaServed': {
+          '@type': 'City',
+          'name': cidadeNome,
+          'containedInPlace': {
+            '@type': 'State',
+            'name': 'Bahia',
           },
-        } : {}),
+        },
+        'offers': {
+          '@type': 'Offer',
+          'url': appUrl,
+          'availability': 'https://schema.org/InStock',
+        },
       },
-    })),
+      {
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          {
+            '@type': 'ListItem',
+            'position': 1,
+            'name': 'Início',
+            'item': 'https://www.melocale.com.br/',
+          },
+          {
+            '@type': 'ListItem',
+            'position': 2,
+            'name': `${categoriaLabel} em ${cidadeNome}`,
+            'item': canonical,
+          },
+        ],
+      },
+      {
+        '@type': 'ItemList',
+        'name': title,
+        'description': description,
+        'url': canonical,
+        'numberOfItems': profissionais.length,
+        'itemListElement': profissionais.map((p, i) => ({
+          '@type': 'ListItem',
+          'position': i + 1,
+          'item': {
+            '@type': 'LocalBusiness',
+            'name': p.name,
+            'description': p.bio || `${p.category} em ${p.city}`,
+            'address': {
+              '@type': 'PostalAddress',
+              'addressLocality': p.city,
+              'addressRegion': 'BA',
+              'addressCountry': 'BR',
+            },
+            ...(p.rating_avg && p.review_count ? {
+              'aggregateRating': {
+                '@type': 'AggregateRating',
+                'ratingValue': p.rating_avg,
+                'reviewCount': p.review_count,
+              },
+            } : {}),
+          },
+        })),
+      },
+    ],
   }
 
   return `<!DOCTYPE html>
@@ -166,7 +224,7 @@ function renderHTML(
   <meta property="og:description" content="${description}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://melocale.com.br/icon-512.png">
+  <meta property="og:image" content="https://www.melocale.com.br/icon-512.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
@@ -184,6 +242,11 @@ function renderHTML(
     .cta:hover { background: #00c987; }
     .badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 12px;
              font-weight: 600; padding: 4px 10px; border-radius: 100px; margin-bottom: 20px; }
+    .secondary { display: block; margin: 12px 0 28px; color: #0E5C8A; font-weight: 700; text-align: center; }
+    .related { margin-top: 32px; padding: 24px; border-radius: 12px; background: #fff; border: 1px solid #e5e7eb; }
+    .related h2 { font-size: 18px; margin-bottom: 14px; }
+    .related-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .related-links a { color: #0369a1; background: #e0f2fe; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -197,18 +260,15 @@ function renderHTML(
     <a href="${appUrl}" class="cta">Ver perfis completos e contratar →</a>
     ${profissionais.length > 0 ? profListHTML : emptyHTML}
     <a href="${appUrl}" class="cta" style="margin-top:24px">Contratar ${safeCategoriaLabel} em ${safeCidadeNome} →</a>
+    <a href="${professionalUrl}" class="secondary">Sou profissional e quero receber pedidos em ${safeCidadeNome}</a>
+    <section class="related">
+      <h2>Outros serviços em ${safeCidadeNome}</h2>
+      <div class="related-links">${relatedLinksHTML}</div>
+    </section>
     <p style="text-align:center;font-size:12px;color:#9ca3af;margin-top:24px">
-      MeloCalé · Profissionais de serviços domésticos · <a href="https://melocale.com.br" style="color:#0E5C8A">melocale.com.br</a>
+      MeloCalé · Profissionais de serviços domésticos · <a href="https://www.melocale.com.br" style="color:#0E5C8A">melocale.com.br</a>
     </p>
   </div>
-  <script>
-    const ua = navigator.userAgent.toLowerCase();
-    const bots = ['googlebot','bingbot','slurp','duckduckbot','baiduspider','yandexbot'];
-    const isBot = bots.some(b => ua.includes(b));
-    if (!isBot) {
-      window.location.replace('${appUrl}');
-    }
-  </script>
 </body>
 </html>`
 }
@@ -225,24 +285,26 @@ export default async function handler(req: Request): Promise<Response> {
   let cidadeSlug = ''
 
   for (const cat of knownCategories) {
-    if (pathname.startsWith(cat + '-')) {
+    const prefix = `${cat}-em-`
+    if (pathname.startsWith(prefix)) {
       categoriaSlug = cat
-      cidadeSlug = pathname.slice(cat.length + 1)
+      cidadeSlug = pathname.slice(prefix.length)
       break
     }
   }
 
   if (!categoriaSlug || !cidadeSlug) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/' },
+    return new Response('Página de serviço não encontrada.', {
+      status: 404,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })
   }
 
   const categoriaLabel = CATEGORY_LABELS[categoriaSlug]
+  const categoriaQuery = CATEGORY_QUERIES[categoriaSlug] ?? categoriaLabel
   const cidadeNome = cidadeSlugParaNome(cidadeSlug)
 
-  const profissionais = await fetchProfessionals(categoriaLabel, cidadeNome)
+  const profissionais = await fetchProfessionals(categoriaQuery, cidadeNome)
   const html = renderHTML(categoriaLabel, cidadeNome, profissionais, categoriaSlug, cidadeSlug)
 
   return new Response(html, {

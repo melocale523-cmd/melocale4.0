@@ -8,4 +8,4 @@ Disallow: /cliente/
 Disallow: /admin/
 Disallow: /checkout/
 
-Sitemap: https://melocale.com.br/sitemap.xml
+Sitemap: https://www.melocale.com.br/sitemap.xml
