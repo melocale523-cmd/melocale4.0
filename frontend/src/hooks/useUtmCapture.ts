@@ -43,7 +43,7 @@ export function useUtmCapture() {
     }
 
     const attribution = getSeoAttribution();
-    if (!attribution.landing_path?.startsWith('/servicos/')) return;
+    if (!attribution.landing_path?.startsWith('/servicos')) return;
 
     const pageViewKey = `melocale_seo_page_view:${attribution.landing_path}:${attribution.utm_source ?? ''}:${attribution.utm_campaign ?? ''}`;
     if (sessionStorage.getItem(pageViewKey)) return;

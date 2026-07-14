@@ -10,6 +10,8 @@ export interface SeoPageData {
   paragraphs: string[];
   services: string[];
   faq: { question: string; answer: string }[];
+  localContext?: string;
+  neighborhoods?: string[];
 }
 const categoryServices: Record<string, string[]> = {
   eletricista: ['Troca de disjuntores', 'Instalação de tomadas', 'Reparo de curto-circuito', 'Instalação de luminárias'],
@@ -142,6 +144,13 @@ const cidades: { slug: string; display: string }[] = [
   { slug: 'senhor-do-bonfim', display: 'Senhor do Bonfim' },
 ];
 
+const cityContent: Record<string, { context: string; neighborhoods: string[] }> = {
+  salvador: {
+    context: 'Atendemos clientes em Salvador e em diferentes regiões da capital, com profissionais para serviços residenciais, comerciais e pequenos reparos. Informe o bairro e o melhor horário no pedido para receber propostas mais compatíveis com a sua localização.',
+    neighborhoods: ['Barra', 'Pituba', 'Brotas', 'Itapuã', 'Imbuí', 'Cabula', 'Paralela', 'Centro', 'Liberdade', 'São Cristóvão'],
+  },
+};
+
 export const seoPages: SeoPageData[] = categorias.flatMap((cat) =>
   cidades.map((cidade) => {
     const slug = `${cat.slug}-em-${cidade.slug}`;
@@ -158,6 +167,8 @@ export const seoPages: SeoPageData[] = categorias.flatMap((cat) =>
       paragraphs: cat.paragraphs(cidade.display),
       services: categoryServices[cat.slug] ?? [],
       faq: buildFaq(cat.display, cidade.display),
+      localContext: cityContent[cidade.slug]?.context,
+      neighborhoods: cityContent[cidade.slug]?.neighborhoods,
     };
   })
 );

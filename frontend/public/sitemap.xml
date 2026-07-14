@@ -254,6 +254,12 @@
   </url>
 
 
+  <!-- Hub comercial de Salvador -->
+  <url>
+    <loc>https://www.melocale.com.br/servicos-em-salvador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
   <!-- SEO local — Salvador -->
   <url>
     <loc>https://www.melocale.com.br/servicos/eletricista-em-salvador</loc>

@@ -82,6 +82,7 @@ const Termos = lazy(() => import('./pages/Termos'));
 const Privacidade = lazy(() => import('./pages/Privacidade'));
 const Seguranca = lazy(() => import('./pages/Seguranca'));
 const ServiceCityPage = lazy(() => import('./pages/seo/ServiceCityPage'));
+const SeoCityLanding = lazy(() => import('./pages/seo/SeoCityLanding'));
 const Notificacoes = lazy(() => import('./pages/Notificacoes'));
 
 const queryClient = new QueryClient({
@@ -348,6 +349,10 @@ const router = createBrowserRouter([
       {
         path: '/notificacoes',
         element: <AuthGuard><ErrorBoundary><Suspense fallback={<PageLoader />}><Notificacoes /></Suspense></ErrorBoundary></AuthGuard>
+      },
+      {
+        path: '/servicos-em-salvador',
+        element: <ErrorBoundary><Suspense fallback={<PageLoader />}><SeoCityLanding /></Suspense></ErrorBoundary>
       },
       {
         path: '/servicos/:slug',
