@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { apiFetch } from '../lib/api';
+import { getSeoAttribution, getSeoMetadata } from '../hooks/useUtmCapture';
 
 interface LeadStatusRow { status: string }
 
@@ -146,7 +147,7 @@ export const leadService = {
         budget_min:  request.budget_min,
         budget_max:  request.budget_max,
         images:      request.images ?? [],
-        metadata:    request.metadata ?? {},
+        metadata:    { ...getSeoMetadata(), ...(request.metadata ?? {}) },
       }),
     });
     if (!response.ok) {

@@ -7,6 +7,7 @@ import { sendPushToUser } from "../lib/push.js";
 import { sendMetaEvent } from "../lib/metaPixel.js";
 import { notifyProfessionalsNewLead } from "../services/externalNotifications.js";
 import { normalizeCity } from "../lib/normalizeCity.js";
+import { seoAttributionFromRecord, trackSeoConversionEvent } from "../lib/seoConversionTracking.js";
 
 // leads.city guarda o nome canônico da cidade (mesmo formato de
 // professionals.city, sem UF) para o card "Oferta vs Demanda" do admin
@@ -167,6 +168,22 @@ router.post("/leads", sensitiveLimiter, requireAuth, async (req: AuthRequest, re
       customData: { content_category: category ?? "geral" },
     });
 
+    const seoAttribution = seoAttributionFromRecord(metadata);
+    void trackSeoConversionEvent({
+      event_type: "lead_created",
+      user_id: userId,
+      role: "client",
+      lead_id: data.id,
+      service_category: category,
+      service_city: leadCityFromLocation(location),
+      ...seoAttribution,
+      metadata: {
+        source: "create_lead",
+        budget_max,
+        urgency,
+      },
+    });
+
     return res.status(201).json(data);
   } catch (err: unknown) {
     console.error('/api/leads POST error:', err instanceof Error ? err.message : String(err));
@@ -286,6 +303,15 @@ router.post("/leads/solicitar-orcamento", sensitiveLimiter, requireAuth, async (
       );
       if (leadErr || !newLead) throw leadErr ?? new Error("Falha ao criar pedido.");
       leadId = newLead.id as string;
+      void trackSeoConversionEvent({
+        event_type: "lead_created",
+        user_id: clientId,
+        role: "client",
+        lead_id: leadId,
+        service_category: category,
+        service_city: city || null,
+        metadata: { source: "solicitar_orcamento" },
+      });
     }
 
     // Check for existing conversation against the real partial unique index

@@ -7,7 +7,7 @@ import {
   Users, BarChart3,
   LogOut, ArrowLeft, Menu, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy, Monitor, ClipboardList, MessageCircle, Bot
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy, Monitor, Search, ClipboardList, MessageCircle, Bot
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -17,6 +17,7 @@ const ADMIN_NAVIGATION = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: BarChart3 },
   { name: 'Observabilidade', href: '/admin/observabilidade', icon: Activity },
   { name: 'Landing Preview', href: '/admin/landing', icon: Monitor },
+  { name: 'SEO', href: '/admin/seo', icon: Search },
   { name: 'Disputas', href: '/admin/disputas', icon: AlertOctagon },
   { name: 'Usuários', href: '/admin/usuarios', icon: Users },
   { name: 'Ranking', href: '/admin/ranking', icon: Trophy },
