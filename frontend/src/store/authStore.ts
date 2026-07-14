@@ -46,6 +46,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     localStorage.removeItem('auth_mode');
+    localStorage.removeItem('melocale_e2e_role');
     set({ user: null, isAuthenticated: false, isLoading: false, currentMode: null });
   },
 }));
