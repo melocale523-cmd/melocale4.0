@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, MapPin, Star, Wrench } from 'lucide-react';
-import { seoPagesBySlug } from '../../data/seoPages';
+import { seoPages, seoPagesBySlug } from '../../data/seoPages';
 
 const BASE_URL = 'https://www.melocale.com.br';
 function trackedLoginUrl(role: 'client' | 'professional', slug: string) {
@@ -25,6 +25,9 @@ export default function ServiceCityPage() {
   const canonicalUrl = `${BASE_URL}/servicos/${page.slug}`;
   const clientCtaUrl = trackedLoginUrl('client', page.slug);
   const professionalCtaUrl = trackedLoginUrl('professional', page.slug);
+  const relatedPages = seoPages
+    .filter((item) => item.cidadeSlug === page.cidadeSlug && item.slug !== page.slug)
+    .slice(0, 6);
 
   const schema = {
     '@context': 'https://schema.org',
@@ -57,6 +60,19 @@ export default function ServiceCityPage() {
     },
   };
 
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: page.faq.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-[#0E1C32] text-white">
       <Helmet>
@@ -68,6 +84,7 @@ export default function ServiceCityPage() {
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
       {/* Header */}
@@ -129,6 +146,24 @@ export default function ServiceCityPage() {
           </ul>
         </section>
 
+        <section className="mb-15">
+          <h2 className="text-xl font-semibold text-white mb-9">
+            Serviços mais procurados de {page.categoriaDisplay.toLowerCase()} em {page.cidadeDisplay}
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {page.services.map((service) => (
+              <a
+                key={service}
+                href={clientCtaUrl}
+                className="flex items-center gap-3 rounded-lg border border-[#1C3050] bg-[#0B1A2E] p-5 text-[#CBD5E1] hover:border-emerald-500/60 hover:text-white transition-colors"
+              >
+                <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+                <span>{service}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="bg-gradient-to-br from-emerald-900/40 to-[#0B1A2E] border border-emerald-800/40 rounded-xl p-8 text-center mb-12">
           <Wrench size={32} className="text-emerald-400 mx-auto mb-9" />
@@ -181,6 +216,32 @@ export default function ServiceCityPage() {
               </li>
             ))}
           </ol>
+        </section>
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold text-white mb-9">Perguntas frequentes</h2>
+          <div className="space-y-4">
+            {page.faq.map((item) => (
+              <details key={item.question} className="rounded-lg border border-[#1C3050] bg-[#0B1A2E] p-6">
+                <summary className="cursor-pointer font-semibold text-white">{item.question}</summary>
+                <p className="mt-4 text-sm leading-relaxed text-[#94A3B8]">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold text-white mb-7">Outros serviços em {page.cidadeDisplay}</h2>
+          <div className="flex flex-wrap gap-3">
+            {relatedPages.map((item) => (
+              <Link
+                key={item.slug}
+                to={`/servicos/${item.slug}`}
+                className="rounded-full border border-[#1C3050] px-4 py-2 text-sm text-[#CBD5E1] hover:border-emerald-500/60 hover:text-white transition-colors"
+              >
+                {item.categoriaDisplay} em {item.cidadeDisplay}
+              </Link>
+            ))}
+          </div>
         </section>
       </main>
 

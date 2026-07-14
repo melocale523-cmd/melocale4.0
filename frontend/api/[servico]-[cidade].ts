@@ -6,6 +6,7 @@ export const config = { runtime: 'edge' }
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL!
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 const CATEGORY_LABELS: Record<string, string> = {
   'eletricista':            'Eletricista',
@@ -30,6 +31,38 @@ const CATEGORY_QUERIES: Record<string, string> = {
   'tecnico-de-informatica': 'Técnico de Informática',
   'gesseiro': 'Gesseiro / Drywall',
   'dedetizador': 'Dedetização / Controle de pragas',
+}
+
+const CATEGORY_SERVICES: Record<string, string[]> = {
+  'eletricista': ['Troca de disjuntores', 'Instalação de tomadas', 'Reparo de curto-circuito', 'Instalação de luminárias'],
+  'encanador': ['Conserto de vazamentos', 'Desentupimento', 'Instalação de torneiras', 'Troca de chuveiro'],
+  'pintor': ['Pintura interna', 'Pintura externa', 'Massa corrida', 'Textura e grafiato'],
+  'pedreiro': ['Reforma residencial', 'Assentamento de piso', 'Reboco', 'Construção e reparos'],
+  'marceneiro': ['Móveis planejados', 'Montagem de móveis', 'Reparo em portas', 'Armários sob medida'],
+  'jardineiro': ['Corte de grama', 'Poda de árvores', 'Paisagismo', 'Manutenção de jardim'],
+  'diarista': ['Faxina completa', 'Limpeza pós-obra', 'Organização de ambientes', 'Limpeza pesada'],
+  'ar-condicionado': ['Instalação de split', 'Higienização', 'Recarga de gás', 'Manutenção preventiva'],
+  'tecnico-de-informatica': ['Formatação', 'Remoção de vírus', 'Configuração de Wi-Fi', 'Suporte para notebook'],
+  'gesseiro': ['Forro de gesso', 'Drywall', 'Sancas', 'Molduras e acabamentos'],
+  'dedetizador': ['Controle de baratas', 'Dedetização residencial', 'Controle de cupins', 'Desratização'],
+}
+
+function buildFaq(categoriaLabel: string, cidadeNome: string) {
+  const lowerCategoria = categoriaLabel.toLowerCase()
+  return [
+    {
+      question: `Como contratar ${lowerCategoria} em ${cidadeNome}?`,
+      answer: `Descreva o serviço no MeloCalé, informe sua localização em ${cidadeNome} e receba propostas de profissionais disponíveis para comparar antes de contratar.`,
+    },
+    {
+      question: `O orçamento de ${lowerCategoria} é gratuito?`,
+      answer: 'Sim. Clientes podem criar pedido e receber orçamentos gratuitamente, sem cadastrar cartão.',
+    },
+    {
+      question: `Também posso me cadastrar como ${lowerCategoria} em ${cidadeNome}?`,
+      answer: `Sim. Profissionais podem criar perfil no MeloCalé para receber pedidos de clientes em ${cidadeNome} e região.`,
+    },
+  ]
 }
 
 function escapeHtml(str: string): string {
@@ -62,12 +95,13 @@ interface Professional {
 
 async function fetchProfessionals(category: string, city: string): Promise<Professional[]> {
   const url = `${SUPABASE_URL}/rest/v1/rpc/get_seo_professionals`
+  const apiKey = SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'apikey': apiKey,
+      'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({ p_category: category, p_city: city }),
   })
@@ -127,6 +161,15 @@ function renderHTML(
       <p style="font-size:14px">Seja o primeiro! Cadastre-se gratuitamente.</p>
     </div>`
 
+  const services = CATEGORY_SERVICES[categoriaSlug] ?? []
+  const faqItems = buildFaq(categoriaLabel, cidadeNome)
+  const servicesHTML = services.map((service) =>
+    `<a href="${appUrl}" class="service-link">${escapeHtml(service)}</a>`
+  ).join('')
+  const faqHTML = faqItems.map((item) =>
+    `<details><summary>${escapeHtml(item.question)}</summary><p>${escapeHtml(item.answer)}</p></details>`
+  ).join('')
+
   const relatedLinksHTML = Object.entries(CATEGORY_LABELS)
     .filter(([slug]) => slug !== categoriaSlug)
     .slice(0, 6)
@@ -179,6 +222,17 @@ function renderHTML(
             'item': canonical,
           },
         ],
+      },
+      {
+        '@type': 'FAQPage',
+        'mainEntity': faqItems.map((item) => ({
+          '@type': 'Question',
+          'name': item.question,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': item.answer,
+          },
+        })),
       },
       {
         '@type': 'ItemList',
@@ -247,6 +301,14 @@ function renderHTML(
     .related h2 { font-size: 18px; margin-bottom: 14px; }
     .related-links { display: flex; flex-wrap: wrap; gap: 10px; }
     .related-links a { color: #0369a1; background: #e0f2fe; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 14px; }
+    .services, .faq { margin-top: 32px; padding: 24px; border-radius: 12px; background: #fff; border: 1px solid #e5e7eb; }
+    .services h2, .faq h2 { font-size: 18px; margin-bottom: 14px; }
+    .service-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .service-link { color: #0369a1; background: #e0f2fe; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 14px; }
+    .faq details { border-top: 1px solid #e5e7eb; padding: 14px 0; }
+    .faq details:first-of-type { border-top: 0; }
+    .faq summary { cursor: pointer; font-weight: 700; }
+    .faq p { color: #4b5563; font-size: 14px; line-height: 1.6; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -258,9 +320,17 @@ function renderHTML(
   <div class="container">
     <span class="badge">${profissionais.length} ${profissionais.length === 1 ? 'profissional encontrado' : 'profissionais encontrados'}</span>
     <a href="${appUrl}" class="cta">Ver perfis completos e contratar →</a>
+    <section class="services">
+      <h2>Serviços mais procurados de ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome}</h2>
+      <div class="service-links">${servicesHTML}</div>
+    </section>
     ${profissionais.length > 0 ? profListHTML : emptyHTML}
     <a href="${appUrl}" class="cta" style="margin-top:24px">Contratar ${safeCategoriaLabel} em ${safeCidadeNome} →</a>
     <a href="${professionalUrl}" class="secondary">Sou profissional e quero receber pedidos em ${safeCidadeNome}</a>
+    <section class="faq">
+      <h2>Perguntas frequentes</h2>
+      ${faqHTML}
+    </section>
     <section class="related">
       <h2>Outros serviços em ${safeCidadeNome}</h2>
       <div class="related-links">${relatedLinksHTML}</div>
