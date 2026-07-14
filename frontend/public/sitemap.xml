@@ -82,6 +82,12 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Hub comercial de Feira de Santana -->
+  <url>
+    <loc>https://www.melocale.com.br/servicos-em-feira-de-santana</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
   <!-- SEO local — Feira de Santana -->
   <url>
     <loc>https://www.melocale.com.br/servicos/eletricista-em-feira-de-santana</loc>
