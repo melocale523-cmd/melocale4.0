@@ -8,6 +8,39 @@ export interface SeoPageData {
   metaDescription: string;
   h1: string;
   paragraphs: string[];
+  services: string[];
+  faq: { question: string; answer: string }[];
+}
+const categoryServices: Record<string, string[]> = {
+  eletricista: ['Troca de disjuntores', 'Instalação de tomadas', 'Reparo de curto-circuito', 'Instalação de luminárias'],
+  encanador: ['Conserto de vazamentos', 'Desentupimento', 'Instalação de torneiras', 'Troca de chuveiro'],
+  pintor: ['Pintura interna', 'Pintura externa', 'Massa corrida', 'Textura e grafiato'],
+  pedreiro: ['Reforma residencial', 'Assentamento de piso', 'Reboco', 'Construção e reparos'],
+  marceneiro: ['Móveis planejados', 'Montagem de móveis', 'Reparo em portas', 'Armários sob medida'],
+  jardineiro: ['Corte de grama', 'Poda de árvores', 'Paisagismo', 'Manutenção de jardim'],
+  diarista: ['Faxina completa', 'Limpeza pós-obra', 'Organização de ambientes', 'Limpeza pesada'],
+  'ar-condicionado': ['Instalação de split', 'Higienização', 'Recarga de gás', 'Manutenção preventiva'],
+  'tecnico-de-informatica': ['Formatação', 'Remoção de vírus', 'Configuração de Wi-Fi', 'Suporte para notebook'],
+  gesseiro: ['Forro de gesso', 'Drywall', 'Sancas', 'Molduras e acabamentos'],
+  dedetizador: ['Controle de baratas', 'Dedetização residencial', 'Controle de cupins', 'Desratização'],
+};
+
+function buildFaq(categoria: string, cidade: string) {
+  const lowerCategoria = categoria.toLowerCase();
+  return [
+    {
+      question: `Como contratar ${lowerCategoria} em ${cidade}?`,
+      answer: `Descreva o serviço no MeloCalé, informe sua localização em ${cidade} e receba propostas de profissionais disponíveis para comparar antes de contratar.`,
+    },
+    {
+      question: `O orçamento de ${lowerCategoria} é gratuito?`,
+      answer: 'Sim. Clientes podem criar pedido e receber orçamentos gratuitamente, sem cadastrar cartão.',
+    },
+    {
+      question: `Também posso me cadastrar como ${lowerCategoria} em ${cidade}?`,
+      answer: `Sim. Profissionais podem criar perfil no MeloCalé para receber pedidos de clientes em ${cidade} e região.`,
+    },
+  ];
 }
 
 const categorias: { slug: string; display: string; paragraphs: (cidade: string) => string[] }[] = [
@@ -123,6 +156,8 @@ export const seoPages: SeoPageData[] = categorias.flatMap((cat) =>
       metaDescription: `Contrate ${cat.display.toLowerCase()} em ${cidade.display} com facilidade pelo MeloCalé. Profissionais avaliados, orçamento rápido e serviço de qualidade na sua cidade.`,
       h1,
       paragraphs: cat.paragraphs(cidade.display),
+      services: categoryServices[cat.slug] ?? [],
+      faq: buildFaq(cat.display, cidade.display),
     };
   })
 );
