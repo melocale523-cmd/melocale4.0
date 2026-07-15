@@ -142,6 +142,9 @@ const cidades: { slug: string; display: string }[] = [
   { slug: 'feira-de-santana', display: 'Feira de Santana' },
   { slug: 'irece', display: 'Irecê' },
   { slug: 'senhor-do-bonfim', display: 'Senhor do Bonfim' },
+  { slug: 'vitoria-da-conquista', display: 'Vitória da Conquista' },
+  { slug: 'barreiras', display: 'Barreiras' },
+  { slug: 'porto-seguro', display: 'Porto Seguro' },
 ];
 
 const cityContent: Record<string, { context: string; neighborhoods: string[] }> = {
@@ -149,6 +152,9 @@ const cityContent: Record<string, { context: string; neighborhoods: string[] }> 
     context: 'Atendemos clientes em Salvador e em diferentes regiões da capital, com profissionais para serviços residenciais, comerciais e pequenos reparos. Informe o bairro e o melhor horário no pedido para receber propostas mais compatíveis com a sua localização.',
     neighborhoods: ['Barra', 'Pituba', 'Brotas', 'Itapuã', 'Imbuí', 'Cabula', 'Paralela', 'Centro', 'Liberdade', 'São Cristóvão'],
   },
+  'vitoria-da-conquista': { context: 'Atendemos Vitória da Conquista e região com profissionais para manutenção, reformas e serviços residenciais.', neighborhoods: ['Centro', 'Candeias', 'Recreio', 'Brasil', 'Ibirapuera'] },
+  barreiras: { context: 'Encontre profissionais para sua casa ou comércio em Barreiras e região.', neighborhoods: ['Centro', 'Vila Rica', 'Morada da Lua', 'Sandra Regina', 'Boa Sorte'] },
+  'porto-seguro': { context: 'Solicite serviços residenciais e comerciais em Porto Seguro com profissionais da região.', neighborhoods: ['Centro', 'Taperapuã', 'Arraial d’Ajuda', 'Cambolo', 'Mundai'] },
   'feira-de-santana': {
     context: 'Atendemos clientes em Feira de Santana e em bairros de diferentes regiões da cidade, com profissionais para serviços residenciais, comerciais e pequenos reparos. Informe o bairro e o melhor horário no pedido para receber propostas mais compatíveis com a sua localização.',
     neighborhoods: ['Centro', 'Santa Mônica', 'Muchila', 'Brasília', 'Mangabeira', 'Tomba', 'Caseb', 'Queimadinha', '35º BI', 'SIM'],

@@ -28,6 +28,28 @@ router.get("/automation-jobs", requireAuth, requireAdmin, async (_req: AuthReque
   }
 });
 
+router.get("/automation-queue", requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const { data, error } = await supabaseAdmin.from("automation_job_queue").select("id, job_name, status, attempts, max_attempts, available_at, completed_at, last_error, created_at").order("created_at", { ascending: false }).limit(200);
+    if (error) return res.status(error.code === "42P01" ? 503 : 500).json({ error: error.code === "42P01" ? "Fila ainda não aplicada." : "Erro ao consultar fila." });
+    return res.json({ jobs: data ?? [] });
+  } catch { return res.status(500).json({ error: "Erro ao consultar fila." }); }
+});
+
+router.post("/automation-queue", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { job_name, payload, max_attempts } = req.body as { job_name?: string; payload?: Record<string, unknown>; max_attempts?: number };
+  const allowed = new Set(["appointment_reminders", "referral_bonus", "ai_chat_responder", "whatsapp_reengagement"]);
+  if (!job_name || !allowed.has(job_name)) return res.status(400).json({ error: "Job não permitido." });
+  const { data, error } = await supabaseAdmin.rpc("enqueue_automation_job", { p_job_name: job_name, p_payload: payload ?? {}, p_max_attempts: Math.min(5, Math.max(1, max_attempts ?? 3)), p_available_at: new Date().toISOString() });
+  if (error) return res.status(error.code === "42883" ? 503 : 500).json({ error: "Fila ainda não aplicada ou indisponível." });
+  return res.status(201).json({ id: data });
+});
+
+router.post("/automation-queue/:id/requeue", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { data, error } = await supabaseAdmin.rpc("requeue_automation_job", { p_id: req.params.id });
+  if (error) return res.status(500).json({ error: "Erro ao reprocessar job." });
+  return res.json({ job: data });
+});
 router.get("/active-users", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { data: prosData, error: prosError } = await supabaseAdmin

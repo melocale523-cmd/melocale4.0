@@ -9,6 +9,9 @@ export const TARGET_CITIES = [
   'Feira de Santana',
   'Irecê',
   'Senhor do Bonfim',
+  'Vitória da Conquista',
+  'Barreiras',
+  'Porto Seguro',
 ] as const;
 
 const VALID_UFS = new Set([
