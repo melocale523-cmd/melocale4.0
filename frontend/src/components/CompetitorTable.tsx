@@ -9,7 +9,7 @@ interface Feature {
 
 const features: Feature[] = [
   { label: 'Preço acessível',          melocale: true,  a: false, b: true  },
-  { label: 'Foco no interior da BA',   melocale: true,  a: false, b: false },
+  { label: 'Foco na Bahia',             melocale: true,  a: false, b: false },
   { label: 'Suporte humano',           melocale: true,  a: true,  b: false },
   { label: 'Moedas / cashback',        melocale: true,  a: false, b: false },
   { label: 'Profissionais verificados',melocale: true,  a: true,  b: false },

@@ -320,7 +320,7 @@ async function getRecentMessages(conversationId: string, limit = 10): Promise<{ 
 
 type BotDecision = { reply: string | null; handoff: boolean; mood: Mood; handoff_reason?: string; urgency?: "baixa" | "media" | "alta" };
 
-export const BOT_SYSTEM_PROMPT = `Você é o Assistente MeloCalé, plataforma de serviços domésticos no interior da Bahia, atendendo por WhatsApp.
+export const BOT_SYSTEM_PROMPT = `Você é o Assistente MeloCalé, plataforma de serviços domésticos na Bahia, atendendo por WhatsApp.
 Responda dúvidas de uso da plataforma (como criar pedido, como ver proposta, como funcionam as moedas, como contratar um profissional, etc.) de forma direta e útil, em português informal mas profissional.
 
 Você CONSEGUE receber mensagens de áudio — elas são transcritas
