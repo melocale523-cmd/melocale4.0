@@ -8,6 +8,9 @@ const PRIORITY = new Set(['eletricista', 'encanador', 'ar-condicionado', 'diaris
 const CITY_CONFIG: Record<string, { name: string; neighborhoods: string[] }> = {
   salvador: { name: 'Salvador', neighborhoods: ['Barra', 'Pituba', 'Brotas', 'Itapuã', 'Imbuí', 'Cabula', 'Paralela', 'Centro', 'Liberdade', 'São Cristóvão'] },
   'feira-de-santana': { name: 'Feira de Santana', neighborhoods: ['Centro', 'Santa Mônica', 'Muchila', 'Brasília', 'Mangabeira', 'Tomba', 'Caseb', 'Queimadinha', '35º BI', 'SIM'] },
+  'vitoria-da-conquista': { name: 'Vitória da Conquista', neighborhoods: ['Centro', 'Candeias', 'Recreio', 'Brasil', 'Ibirapuera'] },
+  barreiras: { name: 'Barreiras', neighborhoods: ['Centro', 'Vila Rica', 'Morada da Lua', 'Sandra Regina', 'Boa Sorte'] },
+  'porto-seguro': { name: 'Porto Seguro', neighborhoods: ['Centro', 'Taperapuã', 'Arraial d’Ajuda', 'Cambolo', 'Mundai'] },
 };
 
 function trackedLoginUrl(role: 'client' | 'professional', citySlug: string) {
