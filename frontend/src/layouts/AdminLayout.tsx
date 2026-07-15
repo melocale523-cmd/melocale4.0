@@ -7,7 +7,7 @@ import {
   Users, BarChart3,
   LogOut, ArrowLeft, Menu, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy, Monitor, Search, ClipboardList, MessageCircle, Bot, Workflow
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy, Monitor, Search, ClipboardList, MessageCircle, Bot, Workflow, ChevronDown
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -42,11 +42,28 @@ const ADMIN_NAVIGATION = [
   { name: 'Relatórios', href: '/admin/relatorios', icon: Download },
 ];
 
+const ADMIN_GROUPS = [
+  { name: 'Visão geral', hrefs: ['/admin/dashboard', '/admin/observabilidade', '/admin/seo', '/admin/landing'] },
+  { name: 'Operação', hrefs: ['/admin/usuarios', '/admin/pendentes', '/admin/aprovados', '/admin/clientes', '/admin/conversas', '/admin/suporte'] },
+  { name: 'Marketplace', hrefs: ['/admin/pedidos', '/admin/disputas', '/admin/ranking'] },
+  { name: 'Financeiro', hrefs: ['/admin/planos', '/admin/pacotes', '/admin/transacoes', '/admin/saques', '/admin/financeiro-auditoria'] },
+  { name: 'Automação', hrefs: ['/admin/automacoes', '/admin/bot-stats', '/admin/simulador'] },
+  { name: 'Sistema', hrefs: ['/admin/categorias', '/admin/auditoria-logs', '/admin/equipe', '/admin/testes', '/admin/relatorios'] },
+].map(group => ({
+  ...group,
+  items: group.hrefs.map(href => ADMIN_NAVIGATION.find(item => item.href === href)).filter((item): item is typeof ADMIN_NAVIGATION[number] => Boolean(item)),
+}));
 export default function AdminLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const activeGroup = ADMIN_GROUPS.find(group => group.items.some(item => location.pathname.startsWith(item.href)));
+    if (activeGroup) setOpenGroups(previous => ({ ...previous, [activeGroup.name]: true }));
+  }, [location.pathname]);
 
   useEffect(() => {
     if (user && user.role !== 'admin') navigate('/', { replace: true });
@@ -84,28 +101,29 @@ export default function AdminLayout() {
         </div>
 
         <nav className="flex-1 px-2 space-y-0 mt-2 overflow-y-auto">
-          {ADMIN_NAVIGATION.map((item) => {
-            const isActive = location.pathname.startsWith(item.href);
-            const isSupporte = item.href === '/admin/suporte';
+          {ADMIN_GROUPS.map((group) => {
+            const isOpen = Boolean(openGroups[group.name]);
+            const hasActiveItem = group.items.some(item => location.pathname.startsWith(item.href));
+            const GroupIcon = group.items[0].icon;
             return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none"
-                    : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-[#1C3454] border border-transparent"
-                )}
-              >
-                <item.icon size={18} className={cn(isActive ? "text-red-400" : "text-[#4A6580]")} />
-                <span className="flex-1">{item.name}</span>
-                {isSupporte && openTicketCount > 0 && (
-                  <span className="min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {openTicketCount}
-                  </span>
-                )}
-              </Link>
+              <div key={group.name} className="mb-1">
+                <button type="button" aria-expanded={isOpen} onClick={() => setOpenGroups(previous => ({ ...previous, [group.name]: !isOpen }))} className={cn("w-full flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wide transition-colors", hasActiveItem ? "text-white" : "text-[#7890AA] hover:text-white")}>
+                  <GroupIcon size={15} className={hasActiveItem ? "text-red-400" : "text-[#4A6580]"} />
+                  <span className="flex-1 text-left">{group.name}</span>
+                  <ChevronDown size={14} className={cn("transition-transform", isOpen && "rotate-180")} />
+                </button>
+                {isOpen && group.items.map((item) => {
+                  const isActive = location.pathname.startsWith(item.href);
+                  const isSupporte = item.href === '/admin/suporte';
+                  return (
+                    <Link key={item.name} to={item.href} className={cn("flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200", isActive ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none" : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-[#1C3454] border border-transparent")}>
+                      <item.icon size={17} className={cn(isActive ? "text-red-400" : "text-[#4A6580]")} />
+                      <span className="flex-1">{item.name}</span>
+                      {isSupporte && openTicketCount > 0 && <span className="min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{openTicketCount}</span>}
+                    </Link>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>
@@ -173,26 +191,27 @@ export default function AdminLayout() {
               <span className="text-lg font-bold text-white">MeloCalé <span className="text-red-500 text-xs">ADMIN</span></span>
             </div>
             <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto pb-4">
-              {ADMIN_NAVIGATION.map((item) => {
-                const isSupporte = item.href === '/admin/suporte';
+              {ADMIN_GROUPS.map((group) => {
+                const isOpen = Boolean(openGroups[group.name]);
+                const GroupIcon = group.items[0].icon;
                 return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium",
-                      location.pathname.startsWith(item.href) ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none" : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200"
-                    )}
-                  >
-                    <item.icon size={18} />
-                    <span className="flex-1">{item.name}</span>
-                    {isSupporte && openTicketCount > 0 && (
-                      <span className="min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                        {openTicketCount}
-                      </span>
-                    )}
-                  </Link>
+                  <div key={group.name} className="mb-1">
+                    <button type="button" aria-expanded={isOpen} onClick={() => setOpenGroups(previous => ({ ...previous, [group.name]: !isOpen }))} className="w-full flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+                      <GroupIcon size={16} />
+                      <span className="flex-1 text-left">{group.name}</span>
+                      <ChevronDown size={14} className={cn("transition-transform", isOpen && "rotate-180")} />
+                    </button>
+                    {isOpen && group.items.map((item) => {
+                      const isSupporte = item.href === '/admin/suporte';
+                      return (
+                        <Link key={item.name} to={item.href} onClick={() => setMobileMenuOpen(false)} className={cn("flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium", location.pathname.startsWith(item.href) ? "bg-[#2563eb15] text-[#2563EB] border-l-2 border-[#2563EB] rounded-none" : "text-white/70 dark:text-[#94A3B8] hover:text-white dark:hover:text-slate-200")}>
+                          <item.icon size={18} />
+                          <span className="flex-1">{item.name}</span>
+                          {isSupporte && openTicketCount > 0 && <span className="min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{openTicketCount}</span>}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 );
               })}
               <button onClick={handleLogout} className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/70 dark:text-[#94A3B8] hover:text-red-400 mt-2">
