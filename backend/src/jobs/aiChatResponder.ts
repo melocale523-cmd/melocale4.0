@@ -1,5 +1,6 @@
 import { supabaseAdmin, anthropic } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
+import { runTrackedJob } from "../lib/automationJobs.js";
 
 const NO_REPLY_THRESHOLD_MS = 60 * 60 * 1000; // 1 hora
 const MAX_CONV_AGE_MS = 24 * 60 * 60 * 1000;  // ignorar convs com mais de 24h paradas
@@ -144,7 +145,7 @@ export async function runAiChatResponder() {
 }
 
 export function startAiChatResponder() {
-  void runAiChatResponder();
-  setInterval(() => void runAiChatResponder(), 30 * 60 * 1000);
+  void runTrackedJob("ai_chat_responder", runAiChatResponder);
+  setInterval(() => void runTrackedJob("ai_chat_responder", runAiChatResponder), 30 * 60 * 1000);
   console.log("[aiChat] job iniciado (a cada 30min)");
 }

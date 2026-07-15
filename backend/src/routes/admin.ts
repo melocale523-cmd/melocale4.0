@@ -9,6 +9,24 @@ import { sendWhatsAppTemplate, normalizeBrazilianPhone, BROADCASTABLE_TEMPLATES 
 import { filterOptedIn } from "../lib/whatsappOptIn.js";
 
 const router = Router();
+router.get("/automation-jobs", requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const limit = Math.max(1, Math.min(200, Number(_req.query.limit ?? 100) || 100));
+    const { data, error } = await supabaseAdmin
+      .from("automation_job_runs")
+      .select("id, job_name, status, started_at, finished_at, lease_expires_at, duration_ms, processed_count, error_message, metadata")
+      .order("started_at", { ascending: false })
+      .limit(limit);
+    if (error) {
+      if (error.code === "42P01") return res.status(503).json({ error: "Migração de histórico ainda não aplicada." });
+      throw error;
+    }
+    return res.json({ runs: data ?? [] });
+  } catch (err) {
+    console.error("/api/admin/automation-jobs error:", err instanceof Error ? err.message : String(err));
+    return res.status(500).json({ error: "Erro ao buscar histórico das automações." });
+  }
+});
 
 router.get("/active-users", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {

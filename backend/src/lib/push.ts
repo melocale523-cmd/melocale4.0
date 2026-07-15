@@ -1,5 +1,6 @@
 import webpush from "web-push";
 import { supabaseAdmin, vapidPublicKey, vapidPrivateKey, vapidEmail } from "../config.js";
+import { withRetry, isRetryableProviderError } from "./retry.js";
 
 if (vapidPublicKey && vapidPrivateKey && vapidEmail) {
   webpush.setVapidDetails(`mailto:${vapidEmail}`, vapidPublicKey, vapidPrivateKey);
@@ -24,10 +25,10 @@ export async function sendPushToUser(
     const results = await Promise.all(
       subs.map(async (sub: { endpoint: string; p256dh: string; auth: string }) => {
         try {
-          await webpush.sendNotification(
+          await withRetry(() => webpush.sendNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
             payloadStr
-          );
+          ), { shouldRetry: (error) => isRetryableProviderError(error) });
           return true;
         } catch (err: unknown) {
           const status = (err as { statusCode?: number }).statusCode;

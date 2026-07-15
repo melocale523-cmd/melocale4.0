@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import { runTrackedJob } from "../lib/automationJobs.js";
 import { supabaseAdmin } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendWhatsAppTemplate, normalizeBrazilianPhone, WHATSAPP_TEMPLATES } from "../services/whatsappService.js";
@@ -369,7 +370,7 @@ export async function runWhatsappReengagement(): Promise<void> {
 export function startWhatsappReengagementJob(): void {
   // Roda todo dia às 10:00 horário de Brasília (= 13:00 UTC)
   cron.schedule("0 13 * * *", () => {
-    void runWhatsappReengagement();
+    void runTrackedJob("whatsapp_reengagement", runWhatsappReengagement);
   });
   console.log("[wa-reengage] job agendado (diário às 13:00 UTC / 10:00 BRT)");
 }

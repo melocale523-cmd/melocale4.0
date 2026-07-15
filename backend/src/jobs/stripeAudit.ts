@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import { runTrackedJob } from "../lib/automationJobs.js";
 import { stripe, supabaseAdmin } from "../config.js";
 import { sendTelegram } from "../lib/telegram.js";
 
@@ -70,7 +71,7 @@ async function runStripeAudit(): Promise<void> {
 export function startStripeAuditJob(): void {
   // Roda todo dia às 08:00 horário de Brasília (= 11:00 UTC)
   cron.schedule("0 11 * * *", () => {
-    void runStripeAudit();
+    void runTrackedJob("stripe_audit", runStripeAudit);
   });
   console.log("[stripeAudit] job agendado (diário às 11:00 UTC / 08:00 BRT)");
 }
