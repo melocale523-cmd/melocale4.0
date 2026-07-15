@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "../config.js";
 import { withTimeout } from "../lib/timeout.js";
 import { sendPushToUser } from "../lib/push.js";
+import { runTrackedJob } from "../lib/automationJobs.js";
 
 export async function jobLembrete24h() {
   try {
@@ -75,7 +76,7 @@ export async function jobLembrete24h() {
 }
 
 export function startJobs() {
-  setInterval(jobLembrete24h, 60 * 60 * 1000);
-  void jobLembrete24h();
+  setInterval(() => void runTrackedJob("appointment_reminders", jobLembrete24h), 60 * 60 * 1000);
+  void runTrackedJob("appointment_reminders", jobLembrete24h);
   console.log("[job] lembrete24h iniciado");
 }

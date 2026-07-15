@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import { runTrackedJob } from "../lib/automationJobs.js";
 import { supabaseAdmin } from "../config.js";
 import { runHealthCheck } from "../lib/systemHealthCheck.js";
 import { sendTelegram } from "../lib/telegram.js";
@@ -52,7 +53,7 @@ async function recordHealthCheck(): Promise<void> {
 
 export function startHealthCheckJob(): void {
   cron.schedule("*/5 * * * *", () => {
-    void recordHealthCheck();
+    void runTrackedJob("health_check", recordHealthCheck);
   });
   console.log("[healthCheck] job agendado (a cada 5 minutos)");
 }

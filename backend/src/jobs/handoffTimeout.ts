@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import { runTrackedJob } from "../lib/automationJobs.js";
 import { supabaseAdmin } from "../config.js";
 import { sendTelegram } from "../lib/telegram.js";
 import { sendPushToUser } from "../lib/push.js";
@@ -107,7 +108,7 @@ async function checkStaleHandoffs(): Promise<void> {
 
 export function startHandoffTimeoutJob(): void {
   cron.schedule("*/15 * * * *", () => {
-    void checkStaleHandoffs();
+    void runTrackedJob("handoff_timeout", checkStaleHandoffs);
   });
   console.log("[handoffTimeout] job agendado (a cada 15 minutos)");
 }

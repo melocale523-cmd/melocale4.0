@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../config.js'
 import { sendPushToUser } from '../lib/push.js'
+import { runTrackedJob } from '../lib/automationJobs.js'
 
 export async function runReferralBonusJob() {
   try {
@@ -43,6 +44,6 @@ export async function runReferralBonusJob() {
 
 export function startReferralBonusJob() {
   // Run once at startup, then every 6 hours
-  void runReferralBonusJob()
-  setInterval(runReferralBonusJob, 6 * 60 * 60 * 1000)
+  void runTrackedJob('referral_bonus', runReferralBonusJob)
+  setInterval(() => void runTrackedJob('referral_bonus', runReferralBonusJob), 6 * 60 * 60 * 1000)
 }

@@ -1,3 +1,5 @@
+import { withRetry, retryableHttpError, isRetryableProviderError } from "../lib/retry.js";
+
 // Env vars lidas em tempo de chamada (não no import) para que o serviço
 // funcione tanto no servidor quanto em scripts standalone (smoke-test),
 // sem depender do config.ts — que exige Stripe/Supabase/Anthropic no boot.
@@ -35,36 +37,33 @@ export function normalizeBrazilianPhone(raw: string | null | undefined): string 
 }
 
 async function postToGraphApi(payload: Record<string, unknown>): Promise<WhatsAppSendResult> {
-  if (!whatsappConfigured()) {
-    return { ok: false, error: "WhatsApp não configurado (env vars ausentes)" };
-  }
+  if (!whatsappConfigured()) return { ok: false, error: "WhatsApp não configurado (env vars ausentes)" };
   const { accessToken, phoneNumberId } = getCredentials();
   try {
-    const res = await fetch(`${GRAPH_API_BASE}/${phoneNumberId}/messages`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    const res = await withRetry(async () => {
+      const response = await fetch(`${GRAPH_API_BASE}/${phoneNumberId}/messages`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if ([408, 425, 429].includes(response.status) || response.status >= 500) {
+        throw retryableHttpError(response.status, await response.text());
+      }
+      return response;
+    }, { shouldRetry: (error) => isRetryableProviderError(error) });
     const body: unknown = await res.json().catch(() => null);
     if (!res.ok) {
       const graphError = (body as { error?: { message?: string } } | null)?.error?.message;
-      const error = graphError ?? `Graph API HTTP ${res.status}`;
-      console.error("[whatsapp] erro Graph API:", error);
-      return { ok: false, error, response: body };
+      return { ok: false, error: graphError ?? `Graph API HTTP ${res.status}`, response: body };
     }
-    const messageId =
-      (body as { messages?: { id?: string }[] } | null)?.messages?.[0]?.id ?? "";
+    const messageId = (body as { messages?: { id?: string }[] } | null)?.messages?.[0]?.id ?? "";
     return { ok: true, messageId, response: body };
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
-    console.error("[whatsapp] exceção ao chamar Graph API:", error);
+    console.error("[whatsapp] falha após retries:", error);
     return { ok: false, error };
   }
 }
-
 /**
  * Mensagem de texto simples — só funciona dentro da janela de 24h de
  * atendimento (usuário mandou mensagem antes). Usada para smoke-test.

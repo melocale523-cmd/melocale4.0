@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { supabaseAdmin, RESEND_API_KEY, EMAIL_FROM } from "../config.js";
+import { withRetry, isRetryableProviderError } from "../lib/retry.js";
 
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
@@ -10,7 +11,7 @@ const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
   if (!resend) return false;
   try {
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to, subject, html });
+    const { error } = await withRetry(() => resend.emails.send({ from: EMAIL_FROM, to, subject, html }), { shouldRetry: (err) => isRetryableProviderError(err) });
     if (error) {
       console.error(`[email] falha ao enviar para ${to}:`, error.message);
       return false;
