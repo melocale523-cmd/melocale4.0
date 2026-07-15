@@ -58,7 +58,7 @@ export const adminService = {
         supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'open'),
         supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('support_tickets').select('*', { count: 'exact', head: true }).neq('status', 'resolved'),
-        supabase.from('payments').select('amount, package_id, paid_at').eq('status', 'paid').not('paid_at', 'is', null),
+        supabase.from('payments').select('user_id, amount, package_id, paid_at').eq('status', 'paid').not('paid_at', 'is', null),
         supabase.from('user_subscriptions').select('package_id, status'),
         supabase.from('professionals').select('*', { count: 'exact', head: true }),
         supabase.from('user_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'canceling'),
@@ -66,7 +66,7 @@ export const adminService = {
         supabase.from('professional_coins').select('balance'),
       ]);
 
-      const payments = (paymentsRes.data ?? []) as { amount: number; package_id: string; paid_at: string }[];
+      const payments = (paymentsRes.data ?? []) as { user_id: string | null; amount: number; package_id: string; paid_at: string }[];
 
       // Faturamento total
       const totalRevenue = payments.reduce((acc, p) => acc + p.amount, 0) / 100;
@@ -89,7 +89,7 @@ export const adminService = {
       // MRR (assinaturas ativas)
       const PLAN_PRICES: Record<string, number> = {
         plan_basic: 37, plan_starter: 37,
-        plan_pro: 67, plan_business: 67,
+        plan_pro: 67, plan_business: 127,
         plan_elite: 127,
       };
       const activeSubs = (subscriptionsRes.data ?? []).filter((s: { status: string }) => s.status === 'active');
@@ -143,6 +143,7 @@ export const adminService = {
         ]),
       );
       const totalActiveSubscriptions = activeSubs.length;
+      const uniquePayers = new Set(payments.map(payment => payment.user_id).filter((id): id is string => Boolean(id))).size;
 
       // Moedas em circulação
       const totalCoins = ((coinCirculationRes.data ?? []) as { balance: number }[])
@@ -161,6 +162,7 @@ export const adminService = {
         revenueByPlan,
         revenueByPlanHistorical,
         totalActiveSubscriptions,
+        uniquePayers,
         totalProfessionals: professionaisRes.count ?? 0,
         churnCount: churnRes.count ?? 0,
         newUsersThisMonth: newUsersMonthRes.count ?? 0,
@@ -181,6 +183,7 @@ export const adminService = {
           plan_business: { planName: 'Elite', totalPaid: 0, paymentCount: 0, activeSubscriptions: 0 },
         },
         totalActiveSubscriptions: 0,
+        uniquePayers: 0,
         totalProfessionals: 0, churnCount: 0,
         newUsersThisMonth: 0, totalCoinsCirculation: 0, packageBreakdown: {},
         pendingVerifications: 0, avgResponseTime: '—', estimatedRevenue: 0,

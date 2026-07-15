@@ -349,7 +349,7 @@ export default function AdminDashboard() {
       {/* ROW 1: MRR, Faturamento, LTV, CAC */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '0.625rem' }}>
         {([
-          { label: 'MRR', value: `R$${s.mrr}`, sub: s.mrr === 0 ? '0 assinaturas ativas' : `${subEntries.length} planos ativos`, color: '#10b981', border: 'rgba(16,185,129,.3)', bg: 'linear-gradient(135deg,#0b2818,#0f3020)', warn: s.mrr === 0, accent: 'linear-gradient(90deg,#10b981,#059669)' },
+          { label: 'MRR', value: `R$${s.mrr}`, sub: `${s.totalActiveSubscriptions} assinatura${s.totalActiveSubscriptions === 1 ? '' : 's'} ativa${s.totalActiveSubscriptions === 1 ? '' : 's'}`, color: '#10b981', border: 'rgba(16,185,129,.3)', bg: 'linear-gradient(135deg,#0b2818,#0f3020)', warn: s.mrr === 0, accent: 'linear-gradient(90deg,#10b981,#059669)' },
           { label: 'Faturamento total', value: `R$${Math.round(s.totalRevenue).toLocaleString('pt-BR')}`, sub: `${totalPayments} pagamentos`, color: 'white', border: 'rgba(255,255,255,.06)', bg: '#132540', warn: false, accent: '#3b82f6' },
           { label: 'LTV médio', value: `R$${ltv.toLocaleString('pt-BR')}`, sub: 'por profissional', color: '#a78bfa', border: 'rgba(167,139,250,.2)', bg: '#132540', warn: false, accent: '#8b5cf6' },
           { label: 'CAC estimado', value: `R$${cac.toLocaleString('pt-BR')}`, sub: '~15% da receita', color: '#fbbf24', border: 'rgba(251,191,36,.15)', bg: '#132540', warn: false, accent: '#f59e0b' },
@@ -824,8 +824,8 @@ export default function AdminDashboard() {
             {[
               { label: 'Cadastros totais', value: s.totalUsers, pct: 100, color: '#3b82f6' },
               { label: 'Profissionais', value: s.totalProfessionals, pct: s.totalUsers ? Math.round((s.totalProfessionals / s.totalUsers) * 100) : 0, color: '#8b5cf6' },
-              { label: 'Pagaram', value: Object.keys(s.packageBreakdown).length > 0 ? 1 : 0, pct: s.totalProfessionals ? Math.round((1 / Math.max(s.totalProfessionals, 1)) * 100) : 0, color: '#10b981' },
-              { label: 'Ativos agora (MRR)', value: s.mrr > 0 ? 1 : 0, pct: 0, color: '#ef4444' },
+              { label: 'Pagadores', value: s.uniquePayers, pct: s.totalProfessionals ? Math.round((s.uniquePayers / s.totalProfessionals) * 100) : 0, color: '#10b981' },
+              { label: 'Assinaturas ativas', value: s.totalActiveSubscriptions, pct: s.totalProfessionals ? Math.round((s.totalActiveSubscriptions / s.totalProfessionals) * 100) : 0, color: '#ef4444' },
             ].map(f => (
               <div key={f.label}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>

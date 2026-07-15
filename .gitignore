@@ -10,3 +10,5 @@ coverage/
 firebase-applet-config.json
 test-results/
 playwright-report/
+
+supabase/.temp/
