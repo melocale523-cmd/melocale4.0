@@ -6,7 +6,7 @@ import cors from "cors";
 import { loadCoinPackages } from "./src/config.js";
 import { registerRoutes } from "./src/routes/index.js";
 import { startJobs } from "./src/jobs/reminders.js";
-import { startAppointmentReminderJob } from "./src/jobs/appointmentReminder.js";
+
 import { startReferralBonusJob } from "./src/jobs/referralBonus.js";
 import { startAiChatResponder } from "./src/jobs/aiChatResponder.js";
 import { startStripeAuditJob } from "./src/jobs/stripeAudit.js";
@@ -102,7 +102,7 @@ async function startServer() {
   setInterval(loadCoinPackages, 60 * 60 * 1000);
 
   startJobs();
-  startAppointmentReminderJob();
+
   startReferralBonusJob();
   startAiChatResponder();
   startStripeAuditJob();
