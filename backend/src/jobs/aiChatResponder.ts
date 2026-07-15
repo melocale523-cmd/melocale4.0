@@ -5,7 +5,7 @@ import { runTrackedJob } from "../lib/automationJobs.js";
 const NO_REPLY_THRESHOLD_MS = 60 * 60 * 1000; // 1 hora
 const MAX_CONV_AGE_MS = 24 * 60 * 60 * 1000;  // ignorar convs com mais de 24h paradas
 
-const SYSTEM_PROMPT = `Você é o Assistente MeloCalé, uma plataforma de serviços domésticos no interior da Bahia.
+const SYSTEM_PROMPT = `Você é o Assistente MeloCalé, uma plataforma de serviços domésticos na Bahia.
 O profissional ainda não respondeu e você está enviando uma mensagem automática em nome da plataforma para tranquilizar o cliente.
 Seja cordial, empático e breve (máximo 2 frases).
 Informe que o profissional foi notificado e responderá em breve.

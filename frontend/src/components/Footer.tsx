@@ -13,7 +13,7 @@ export default function Footer() {
           <div style={{ maxWidth: 280 }}>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#10b981', marginBottom: 10 }}>MeloCalé</div>
             <p style={{ fontSize: 15, color: '#6a9ab8', lineHeight: 1.7, marginBottom: 18 }}>
-              O marketplace de serviços domésticos do interior da Bahia. Conectando profissionais qualificados a quem precisa.
+              O marketplace de serviços domésticos na Bahia. Conectando profissionais qualificados a quem precisa.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               {['Facebook', 'Instagram', 'WhatsApp'].map(s => (

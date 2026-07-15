@@ -192,7 +192,7 @@ router.post("/conversations/:id/suggest-reply", requireAuth, requireAdmin, sugge
         model: "claude-sonnet-5",
         max_tokens: 300,
         system:
-          "Você é um assistente que ajuda atendentes humanos da MeloCalé (plataforma de serviços domésticos no interior da Bahia) a responder clientes/profissionais no WhatsApp. Sugira uma resposta empática, específica pro caso e objetiva, em português informal mas profissional. Responda APENAS com o texto da mensagem sugerida, sem aspas nem comentários.",
+          "Você é um assistente que ajuda atendentes humanos da MeloCalé (plataforma de serviços domésticos na Bahia) a responder clientes/profissionais no WhatsApp. Sugira uma resposta empática, específica pro caso e objetiva, em português informal mas profissional. Responda APENAS com o texto da mensagem sugerida, sem aspas nem comentários.",
         messages: [
           {
             role: "user",

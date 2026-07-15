@@ -211,7 +211,7 @@ export default function LandingPage() {
     { q: 'E se o profissional não aparecer?', a: 'Garantia de 7 dias em todos os planos: creditamos o valor em moeda MeloCalé, sacável via Pix — sem questionamentos.' },
     { q: 'Posso cancelar meu plano?', a: 'Sim, a qualquer momento pelo painel. Sem multa e sem fidelidade.' },
     { q: 'Os profissionais são verificados?', a: 'Ainda não fazemos verificação formal de identidade. Por isso toda contratação tem garantia de 7 dias e mediação de disputas — e o profissional também tem garantia na primeira compra de lead.' },
-    { q: 'Funciona em qual cidade?', a: 'Salvador — expandindo para outras cidades da Bahia em breve.' },
+    { q: 'Funciona em qual cidade?', a: 'Atendemos Salvador, Lauro de Freitas, Jacobina, Feira de Santana, Irecê e Senhor do Bonfim.' },
   ];
 
   const FAQ_ITEMS = isProfissional ? FAQ_PROF : isCliente ? FAQ_CLIENTE : FAQ_DUAL;
