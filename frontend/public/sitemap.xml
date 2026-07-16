@@ -322,4 +322,21 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- Guias de alta intenção -->
+  <url>
+    <loc>https://www.melocale.com.br/guias/preco-eletricista-em-salvador</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/guias/encanador-urgente-em-feira-de-santana</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.melocale.com.br/guias/como-pedir-orcamento-com-seguranca</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

@@ -171,7 +171,7 @@ export const seoPages: SeoPageData[] = categorias.flatMap((cat) =>
       categoriaDisplay: cat.display,
       cidadeDisplay: cidade.display,
       title: `${cat.display} em ${cidade.display} | MeloCalé`,
-      metaDescription: `Contrate ${cat.display.toLowerCase()} em ${cidade.display} com facilidade pelo MeloCalé. Profissionais avaliados, orçamento rápido e serviço de qualidade na sua cidade.`,
+      metaDescription: `Procure ${cat.display.toLowerCase()} em ${cidade.display} pelo MeloCalé. Descreva sua necessidade, compare propostas disponíveis e contrate com mais clareza.`,
       h1,
       paragraphs: cat.paragraphs(cidade.display),
       services: categoryServices[cat.slug] ?? [],
