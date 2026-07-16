@@ -218,8 +218,8 @@ export default function LandingPage() {
   const landingSchema = {
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Organization', name: 'MeloCalé', url: 'https://melocale.com.br', logo: 'https://melocale.com.br/logo.png' },
-      { '@type': 'WebSite', name: 'MeloCalé', url: 'https://melocale.com.br' },
+      { '@type': 'Organization', name: 'MeloCalé', url: 'https://www.melocale.com.br', logo: 'https://www.melocale.com.br/logo.png' },
+      { '@type': 'WebSite', name: 'MeloCalé', url: 'https://www.melocale.com.br' },
       {
         '@type': 'FAQPage',
         mainEntity: FAQ_ITEMS.map((item) => ({
@@ -245,7 +245,7 @@ export default function LandingPage() {
       <Helmet>
         <title>MeloCalé — Encontre profissionais de confiança</title>
         <meta name="description" content="Encontre profissionais para serviços em sua cidade ou receba clientes para o seu negócio no MeloCalé." />
-        <link rel="canonical" href="https://melocale.com.br/" />
+        <link rel="canonical" href="https://www.melocale.com.br/" />
         <script type="application/ld+json">{JSON.stringify(landingSchema)}</script>
       </Helmet>
       <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f0f6ff', fontFamily: "'DM Sans', sans-serif" }}>
@@ -1265,6 +1265,18 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+        <section style={{ background: '#0a1628', borderTop: '1px solid rgba(56,189,248,.2)', padding: '48px 0' }}>
+          <div className="container-app" style={{ maxWidth: 860 }}>
+            <h2 style={{ textAlign: 'center', fontSize: 'clamp(1.35rem,3vw,1.8rem)', fontWeight: 800, color: '#f0f6ff', margin: '0 0 10px' }}>Encontre serviços e orientações na Bahia</h2>
+            <p style={{ textAlign: 'center', color: '#94b8d4', margin: '0 auto 24px', maxWidth: 620, lineHeight: 1.6 }}>Explore as páginas locais e os guias práticos antes de criar seu pedido.</p>
+            <nav aria-label="Páginas locais e guias" style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <Link to="/servicos-em-salvador" style={{ color: '#7dd3fc', border: '1px solid rgba(56,189,248,.35)', borderRadius: 9, padding: '10px 14px', textDecoration: 'none', fontWeight: 700 }}>Serviços em Salvador</Link>
+              <Link to="/servicos-em-feira-de-santana" style={{ color: '#7dd3fc', border: '1px solid rgba(56,189,248,.35)', borderRadius: 9, padding: '10px 14px', textDecoration: 'none', fontWeight: 700 }}>Serviços em Feira de Santana</Link>
+              <a href="/guias/preco-eletricista-em-salvador" style={{ color: '#a7f3d0', border: '1px solid rgba(16,185,129,.35)', borderRadius: 9, padding: '10px 14px', textDecoration: 'none', fontWeight: 700 }}>Preço de eletricista em Salvador</a>
+              <a href="/guias/como-pedir-orcamento-com-seguranca" style={{ color: '#a7f3d0', border: '1px solid rgba(16,185,129,.35)', borderRadius: 9, padding: '10px 14px', textDecoration: 'none', fontWeight: 700 }}>Pedir orçamento com segurança</a>
+            </nav>
           </div>
         </section>
 

@@ -123,8 +123,8 @@ function renderHTML(
 
   const title = `${safeCategoriaLabel} em ${safeCidadeNome} — MeloCalé`
   const description = profissionais.length > 0
-    ? `${profissionais.length} ${safeCategoriaLabel.toLowerCase()}${profissionais.length > 1 ? 's' : ''} disponíve${profissionais.length > 1 ? 'is' : 'l'} em ${safeCidadeNome}. Contrate agora pelo MeloCalé — rápido, seguro e sem burocracia.`
-    : `Encontre ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome} pelo MeloCalé. Profissionais verificados, orçamento grátis.`
+    ? `${profissionais.length} ${safeCategoriaLabel.toLowerCase()}${profissionais.length > 1 ? 's' : ''} disponível${profissionais.length > 1 ? 'is' : ''} em ${safeCidadeNome}. Compare perfis e solicite orçamento pelo MeloCalé.`
+    : `O MeloCalé está formando sua rede de ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome}. Profissionais podem se cadastrar gratuitamente e clientes podem registrar a demanda.`
 
   const canonical = `https://www.melocale.com.br/servicos/${safeCategoriaSlug}-em-${safeCidadeSlug}`
   // /busca só existe autenticado (/cliente/busca, atrás de ProtectedRoute) — não é uma
@@ -156,10 +156,12 @@ function renderHTML(
   }).join('')
 
   const emptyHTML = `
-    <div style="text-align:center;padding:48px;color:#6b7280">
-      <p style="font-size:16px">Nenhum profissional cadastrado ainda em ${safeCidadeNome}.</p>
-      <p style="font-size:14px">Seja o primeiro! Cadastre-se gratuitamente.</p>
-    </div>`
+    <section class="empty-state">
+      <h2>A rede de ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome} está em expansão</h2>
+      <p>Ainda não há perfis públicos nesta busca. Se você presta este serviço, cadastre-se gratuitamente e ajude a atender a demanda local.</p>
+      <a href="${professionalUrl}" class="secondary-button">Sou ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome}</a>
+      <p class="empty-note">Precisa contratar? Você pode criar um pedido para informar a sua necessidade, sem promessa de atendimento imediato.</p>
+    </section>`
 
   const services = CATEGORY_SERVICES[categoriaSlug] ?? []
   const faqItems = buildFaq(categoriaLabel, cidadeNome)
@@ -297,6 +299,11 @@ function renderHTML(
     .badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 12px;
              font-weight: 600; padding: 4px 10px; border-radius: 100px; margin-bottom: 20px; }
     .secondary { display: block; margin: 12px 0 28px; color: #0E5C8A; font-weight: 700; text-align: center; }
+    .empty-state { margin: 24px 0; padding: 28px; border: 1px solid #bfdbfe; border-radius: 12px; background: #eff6ff; text-align: center; color: #1e3a5f; }
+    .empty-state h2 { font-size: 20px; margin-bottom: 12px; }
+    .empty-state p { line-height: 1.6; margin: 0 auto 16px; max-width: 580px; }
+    .secondary-button { display: inline-block; background: #0E5C8A; color: #fff; padding: 12px 16px; border-radius: 9px; text-decoration: none; font-weight: 700; }
+    .empty-note { color: #475569; font-size: 13px; margin-top: 18px !important; }
     .related { margin-top: 32px; padding: 24px; border-radius: 12px; background: #fff; border: 1px solid #e5e7eb; }
     .related h2 { font-size: 18px; margin-bottom: 14px; }
     .related-links { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -319,13 +326,13 @@ function renderHTML(
   </div>
   <div class="container">
     <span class="badge">${profissionais.length} ${profissionais.length === 1 ? 'profissional encontrado' : 'profissionais encontrados'}</span>
-    <a href="${appUrl}" class="cta">Ver perfis completos e contratar →</a>
+    <a href="${appUrl}" class="cta">${profissionais.length > 0 ? 'Ver perfis completos e contratar →' : 'Registrar minha necessidade →'}</a>
     <section class="services">
       <h2>Serviços mais procurados de ${safeCategoriaLabel.toLowerCase()} em ${safeCidadeNome}</h2>
       <div class="service-links">${servicesHTML}</div>
     </section>
     ${profissionais.length > 0 ? profListHTML : emptyHTML}
-    <a href="${appUrl}" class="cta" style="margin-top:24px">Contratar ${safeCategoriaLabel} em ${safeCidadeNome} →</a>
+    <a href="${appUrl}" class="cta" style="margin-top:24px">${profissionais.length > 0 ? `Contratar ${safeCategoriaLabel} em ${safeCidadeNome} →` : 'Criar pedido sem compromisso →'}</a>
     <a href="${professionalUrl}" class="secondary">Sou profissional e quero receber pedidos em ${safeCidadeNome}</a>
     <section class="faq">
       <h2>Perguntas frequentes</h2>
