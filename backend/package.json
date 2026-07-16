@@ -9,12 +9,15 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.97",
+    "@ai-sdk/google": "^3.0.94",
     "@anthropic-ai/sdk": "^0.95.1",
     "@sentry/node": "^10.53.1",
     "@supabase/supabase-js": "^2.45.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/web-push": "^3.6.4",
+    "ai": "^6.0.228",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "express-rate-limit": "^8.4.1",

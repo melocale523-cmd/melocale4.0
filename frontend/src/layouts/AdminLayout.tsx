@@ -7,7 +7,7 @@ import {
   Users, BarChart3,
   LogOut, ArrowLeft, Menu, Activity, AlertOctagon,
   Clock, CheckCircle, UserCircle, FileText, Package,
-  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy, Monitor, Search, ClipboardList, MessageCircle, Bot, Workflow, ChevronDown
+  DollarSign, Landmark, ShieldCheck, UsersRound, Zap, LifeBuoy, TestTube2, Tag, Download, Banknote, Trophy, Monitor, Search, ClipboardList, MessageCircle, Bot, Workflow, Sparkles, ChevronDown
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -27,6 +27,7 @@ const ADMIN_NAVIGATION = [
   { name: 'Conversas', href: '/admin/conversas', icon: MessageCircle },
   { name: 'Bot Stats', href: '/admin/bot-stats', icon: Bot },
   { name: 'Automações', href: '/admin/automacoes', icon: Workflow },
+  { name: 'Marketing IA', href: '/admin/marketing-ia', icon: Sparkles },
   { name: 'Pedidos', href: '/admin/pedidos', icon: ClipboardList },
   { name: 'Planos', href: '/admin/planos', icon: FileText },
   { name: 'Pacotes', href: '/admin/pacotes', icon: Package },
@@ -47,7 +48,7 @@ const ADMIN_GROUPS = [
   { name: 'Operação', hrefs: ['/admin/usuarios', '/admin/pendentes', '/admin/aprovados', '/admin/clientes', '/admin/conversas', '/admin/suporte'] },
   { name: 'Marketplace', hrefs: ['/admin/pedidos', '/admin/disputas', '/admin/ranking'] },
   { name: 'Financeiro', hrefs: ['/admin/planos', '/admin/pacotes', '/admin/transacoes', '/admin/saques', '/admin/financeiro-auditoria'] },
-  { name: 'Automação', hrefs: ['/admin/automacoes', '/admin/bot-stats', '/admin/simulador'] },
+  { name: 'Automação', hrefs: ['/admin/automacoes', '/admin/marketing-ia', '/admin/bot-stats', '/admin/simulador'] },
   { name: 'Sistema', hrefs: ['/admin/categorias', '/admin/auditoria-logs', '/admin/equipe', '/admin/testes', '/admin/relatorios'] },
 ].map(group => ({
   ...group,
