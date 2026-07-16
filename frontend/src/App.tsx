@@ -70,6 +70,7 @@ const AdminSeo = lazy(() => import('./pages/admin/Seo'));
 const AdminConversas = lazy(() => import('./pages/admin/Conversas'));
 const AdminBotStats = lazy(() => import('./pages/admin/BotStats'));
 const AdminAutomacoes = lazy(() => import('./pages/admin/Automacoes'));
+const AdminMarketingIA = lazy(() => import('./pages/admin/MarketingIA'));
 
 const CompletarPerfil = lazy(() => import('./pages/auth/CompletarPerfil'));
 
@@ -328,6 +329,7 @@ const router = createBrowserRouter([
           { path: 'conversas', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminConversas /></Suspense></ErrorBoundary> },
           { path: 'bot-stats', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminBotStats /></Suspense></ErrorBoundary> },
           { path: 'automacoes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminAutomacoes /></Suspense></ErrorBoundary> },
+          { path: 'marketing-ia', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminMarketingIA /></Suspense></ErrorBoundary> },
           { path: 'planos', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPlanos /></Suspense></ErrorBoundary> },
           { path: 'pacotes', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminPacotes /></Suspense></ErrorBoundary> },
           { path: 'categorias', element: <ErrorBoundary><Suspense fallback={<PageLoader />}><AdminCategorias /></Suspense></ErrorBoundary> },
