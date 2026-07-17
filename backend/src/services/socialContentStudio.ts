@@ -95,6 +95,15 @@ function isGeminiQuotaError(error: unknown): boolean {
   return /quota|rate.?limit|resource.?exhausted|too many requests|429/i.test(message);
 }
 
+const MELOCALE_IMAGE_GUIDANCE = [
+  'Direcao visual MeloCale: marketplace brasileiro de servicos locais, acolhedor, confiavel e contemporaneo. Use uma paleta sutil inspirada na marca: azul-marinho profundo, verde-esmeralda e pequenos acentos coral/laranja, sem transformar a imagem em um anuncio carregado. Prefira uma cena fotografica editorial fotorrealista, com iluminacao natural, materiais e proporcoes plausiveis, contexto brasileiro cotidiano e detalhes humanos autenticos. Quando uma explicacao visual for melhor atendida por ilustracao, use uma composicao 3D editorial premium, limpa e com acabamento profissional.',
+  'Composicao para redes sociais: retrato vertical 4:5, um ponto focal claro, hierarquia visual forte, fundo organizado e area de respiro para a legenda ser aplicada fora da imagem. Nao inclua texto, letras, numeros, logotipo, marca d agua, interface, preco, selo de avaliacao ou identidade visual de terceiros. Nao invente resultados, clientes, profissionais, avaliacoes ou disponibilidade. Se houver pessoas, trate-as como personagens editoriais genericos, sem sugerir que sao profissionais ou clientes reais.',
+].join('\n');
+
+function buildBrandImagePrompt(visualPrompt: string): string {
+  return visualPrompt + '\n\n' + MELOCALE_IMAGE_GUIDANCE;
+}
+
 async function createOpenAiFallbackImage(itemId: string, visualPrompt: string): Promise<{ storagePath: string; model: string; usage: Usage; estimatedCostCents: number }> {
   const apiKey = process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) throw new Error('A cota do Gemini acabou e OPENAI_API_KEY não está configurada para fallback.');
@@ -104,7 +113,7 @@ async function createOpenAiFallbackImage(itemId: string, visualPrompt: string): 
     headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
     body: JSON.stringify({
       model,
-      prompt: `${visualPrompt}\n\nCrie uma imagem editorial original para a MeloCalé. Sem texto, sem logotipos de terceiros, sem selos de avaliação, sem preço e sem retratar pessoas sintéticas como clientes ou profissionais reais.`,
+      prompt: buildBrandImagePrompt(visualPrompt),
       size: '1024x1536',
       quality: 'low',
       output_format: 'webp',
@@ -125,7 +134,7 @@ export async function createSocialImage(itemId: string, visualPrompt: string): P
     const google = createGoogleGenerativeAI({ apiKey });
     const result = await generateImage({
       model: google.image(VISUAL_MODEL),
-      prompt: `${visualPrompt}\n\nCrie uma imagem editorial original para a MeloCalé. Sem texto, sem logotipos de terceiros, sem selos de avaliação, sem preço e sem retratar pessoas sintéticas como clientes ou profissionais reais.`,
+      prompt: buildBrandImagePrompt(visualPrompt),
       aspectRatio: '4:5',
       abortSignal: AbortSignal.timeout(90_000),
     });
