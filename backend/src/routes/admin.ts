@@ -8,7 +8,7 @@ import { sendPushToUser } from "../lib/push.js";
 import { HANDOFF_MESSAGE } from "../services/whatsappConversationService.js";
 import { sendWhatsAppTemplate, normalizeBrazilianPhone, BROADCASTABLE_TEMPLATES } from "../services/whatsappService.js";
 import { filterOptedIn } from "../lib/whatsappOptIn.js";
-import { createSocialDraft, createSocialImage, type SocialContentRequest } from "../services/socialContentStudio.js";
+import { createSocialCampaignPlan, createSocialDraft, createSocialImage, publishApprovedInstagramImage, type SocialContentRequest } from "../services/socialContentStudio.js";
 
 const router = Router();
 router.get("/automation-jobs", requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
@@ -20,20 +20,20 @@ router.get("/automation-jobs", requireAuth, requireAdmin, async (_req: AuthReque
       .order("started_at", { ascending: false })
       .limit(limit);
     if (error) {
-      if (error.code === "42P01") return res.status(503).json({ error: "Migração de histórico ainda não aplicada." });
+      if (error.code === "42P01") return res.status(503).json({ error: "MigraÃ§Ã£o de histÃ³rico ainda nÃ£o aplicada." });
       throw error;
     }
     return res.json({ runs: data ?? [] });
   } catch (err) {
     console.error("/api/admin/automation-jobs error:", err instanceof Error ? err.message : String(err));
-    return res.status(500).json({ error: "Erro ao buscar histórico das automações." });
+    return res.status(500).json({ error: "Erro ao buscar histÃ³rico das automaÃ§Ãµes." });
   }
 });
 
 router.get("/automation-queue", requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   try {
     const { data, error } = await supabaseAdmin.from("automation_job_queue").select("id, job_name, status, attempts, max_attempts, available_at, completed_at, last_error, created_at").order("created_at", { ascending: false }).limit(200);
-    if (error) return res.status(error.code === "42P01" ? 503 : 500).json({ error: error.code === "42P01" ? "Fila ainda não aplicada." : "Erro ao consultar fila." });
+    if (error) return res.status(error.code === "42P01" ? 503 : 500).json({ error: error.code === "42P01" ? "Fila ainda nÃ£o aplicada." : "Erro ao consultar fila." });
     return res.json({ jobs: data ?? [] });
   } catch { return res.status(500).json({ error: "Erro ao consultar fila." }); }
 });
@@ -41,9 +41,9 @@ router.get("/automation-queue", requireAuth, requireAdmin, async (_req: AuthRequ
 router.post("/automation-queue", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { job_name, payload, max_attempts } = req.body as { job_name?: string; payload?: Record<string, unknown>; max_attempts?: number };
   const allowed = new Set(["appointment_reminders", "referral_bonus", "ai_chat_responder", "whatsapp_reengagement"]);
-  if (!job_name || !allowed.has(job_name)) return res.status(400).json({ error: "Job não permitido." });
+  if (!job_name || !allowed.has(job_name)) return res.status(400).json({ error: "Job nÃ£o permitido." });
   const { data, error } = await supabaseAdmin.rpc("enqueue_automation_job", { p_job_name: job_name, p_payload: payload ?? {}, p_max_attempts: Math.min(5, Math.max(1, max_attempts ?? 3)), p_available_at: new Date().toISOString() });
-  if (error) return res.status(error.code === "42883" ? 503 : 500).json({ error: "Fila ainda não aplicada ou indisponível." });
+  if (error) return res.status(error.code === "42883" ? 503 : 500).json({ error: "Fila ainda nÃ£o aplicada ou indisponÃ­vel." });
   return res.status(201).json({ id: data });
 });
 
@@ -80,7 +80,7 @@ router.get("/active-users", requireAuth, requireAdmin, async (req: AuthRequest, 
     return res.json({ count });
   } catch (err) {
     console.error("/api/admin/active-users error:", err instanceof Error ? err.message : String(err));
-    return res.status(500).json({ error: "Erro ao buscar usuários ativos." });
+    return res.status(500).json({ error: "Erro ao buscar usuÃ¡rios ativos." });
   }
 });
 
@@ -88,7 +88,7 @@ router.patch("/professional-status", requireAuth, requireAdmin, async (req: Auth
   try {
     const { user_id, is_active } = req.body;
     if (!user_id || typeof is_active !== "boolean") {
-      return res.status(400).json({ error: "user_id e is_active são obrigatórios." });
+      return res.status(400).json({ error: "user_id e is_active sÃ£o obrigatÃ³rios." });
     }
     const { error } = await withTimeout(
       supabaseAdmin.from("professionals").update({ is_active }).eq("user_id", user_id)
@@ -120,7 +120,7 @@ router.delete("/professionals/:userId", requireAuth, requireAdmin, async (req: A
 });
 
 // PATCH /api/admin/fix-role/:userId
-// Corrige inconsistência: seta profiles.role = 'professional' para usuário que tem row em professionals mas role errado
+// Corrige inconsistÃªncia: seta profiles.role = 'professional' para usuÃ¡rio que tem row em professionals mas role errado
 router.patch("/fix-role/:userId", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { userId } = req.params;
@@ -182,14 +182,14 @@ router.get("/users-enriched", requireAuth, requireAdmin, async (req: AuthRequest
     return res.json(result);
   } catch (err) {
     console.error("/api/admin/users-enriched error:", err instanceof Error ? err.message : String(err));
-    return res.status(500).json({ error: "Erro ao buscar dados de autenticação." });
+    return res.status(500).json({ error: "Erro ao buscar dados de autenticaÃ§Ã£o." });
   }
 });
 
 router.post("/categories", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { name, slug } = req.body;
-    if (!name || !slug) return res.status(400).json({ error: "name e slug obrigatórios." });
+    if (!name || !slug) return res.status(400).json({ error: "name e slug obrigatÃ³rios." });
     const { data, error } = await supabaseAdmin
       .from("categories")
       .insert({ name, slug, is_active: true })
@@ -207,7 +207,7 @@ router.patch("/categories/:id", requireAuth, requireAdmin, async (req: AuthReque
   try {
     const { id } = req.params;
     const { is_active } = req.body;
-    if (typeof is_active !== "boolean") return res.status(400).json({ error: "is_active obrigatório." });
+    if (typeof is_active !== "boolean") return res.status(400).json({ error: "is_active obrigatÃ³rio." });
     const { data, error } = await supabaseAdmin
       .from("categories")
       .update({ is_active })
@@ -268,9 +268,9 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
         token_hash: linkData.properties.hashed_token,
         type: "magiclink",
       });
-      if (error || !data.session || !data.user) throw new Error(error?.message ?? "Sem sessão");
+      if (error || !data.session || !data.user) throw new Error(error?.message ?? "Sem sessÃ£o");
       clientUserId = data.user.id;
-      return `OK — user_id: ${clientUserId}`;
+      return `OK â€” user_id: ${clientUserId}`;
     });
 
     await runTest("t2", "Login profissional", async () => {
@@ -284,35 +284,35 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
         token_hash: linkData.properties.hashed_token,
         type: "magiclink",
       });
-      if (error || !data.session || !data.user) throw new Error(error?.message ?? "Sem sessão");
+      if (error || !data.session || !data.user) throw new Error(error?.message ?? "Sem sessÃ£o");
       profUserId = data.user.id;
-      return `OK — user_id: ${profUserId}`;
+      return `OK â€” user_id: ${profUserId}`;
     });
 
     await runTest("t3", "Cliente cria pedido", async () => {
-      if (!clientUserId) throw new Error("Depende do T1 — login cliente falhou");
+      if (!clientUserId) throw new Error("Depende do T1 â€” login cliente falhou");
       const { data: clientProfile } = await supabaseAdmin
         .from("clients")
         .select("id")
         .eq("id", clientUserId)
         .maybeSingle();
-      if (!clientProfile) throw new Error("Perfil cliente não encontrado");
+      if (!clientProfile) throw new Error("Perfil cliente nÃ£o encontrado");
       const { data, error } = await supabaseAdmin.rpc("e2e_insert_lead", {
         p_client_id: clientUserId,
         p_title: `${E2E_PREFIX} Pintura de sala`,
-        p_description: `${E2E_PREFIX} Teste automatizado — pode ser deletado`,
+        p_description: `${E2E_PREFIX} Teste automatizado â€” pode ser deletado`,
         p_category: "Pintura",
-        p_location: "São Paulo, SP",
+        p_location: "SÃ£o Paulo, SP",
         p_budget_min: 100,
         p_budget_max: 500,
       });
       if (error) throw new Error(error.message);
       createdLeadId = data as string;
-      return `OK — lead_id: ${createdLeadId}`;
+      return `OK â€” lead_id: ${createdLeadId}`;
     });
 
-    await runTest("t4", "Profissional vê lead disponível", async () => {
-      if (!createdLeadId) throw new Error("Depende do T3 — lead não criado");
+    await runTest("t4", "Profissional vÃª lead disponÃ­vel", async () => {
+      if (!createdLeadId) throw new Error("Depende do T3 â€” lead nÃ£o criado");
       const { data, error } = await supabaseAdmin
         .from("leads")
         .select("id, title, status")
@@ -320,7 +320,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
         .single();
       if (error) throw new Error(error.message);
       if (data.status !== "open") throw new Error(`Status inesperado: ${data.status}`);
-      return `OK — "${data.title}" visível e ativo`;
+      return `OK â€” "${data.title}" visÃ­vel e ativo`;
     });
 
     await runTest("t5", "Profissional compra lead", async () => {
@@ -330,7 +330,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
         .select("id")
         .eq("user_id", profUserId)
         .maybeSingle();
-      if (!prof) throw new Error("Perfil profissional não encontrado");
+      if (!prof) throw new Error("Perfil profissional nÃ£o encontrado");
       const { data: chatId, error } = await supabaseAdmin.rpc("e2e_insert_lead_purchase", {
         p_lead_id: createdLeadId,
         p_professional_id: prof.id,
@@ -339,27 +339,27 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
       });
       if (error) throw new Error(error.message);
       createdChatId = chatId;
-      return `OK — chat_id: ${createdChatId}`;
+      return `OK â€” chat_id: ${createdChatId}`;
     });
 
-    await runTest("t6", "Chat aberto após compra", async () => {
-      if (!createdChatId) throw new Error("Depende do T5 — compra não realizada");
+    await runTest("t6", "Chat aberto apÃ³s compra", async () => {
+      if (!createdChatId) throw new Error("Depende do T5 â€” compra nÃ£o realizada");
       const { data, error } = await supabaseAdmin
         .from("conversations")
         .select("id, professional_id, client_id")
         .eq("id", createdChatId)
         .single();
       if (error) throw new Error(error.message);
-      return `OK — conversa criada (id: ${data.id})`;
+      return `OK â€” conversa criada (id: ${data.id})`;
     });
 
     await runTest("t7", "Enviar mensagem no chat", async () => {
-      if (!createdChatId) throw new Error("Depende do T6 — chat não existe");
+      if (!createdChatId) throw new Error("Depende do T6 â€” chat nÃ£o existe");
       const { data, error } = await supabaseAdmin
         .from("messages")
         .insert({
           conversation_id: createdChatId,
-          body: `${E2E_PREFIX} Olá, mensagem automática de teste`,
+          body: `${E2E_PREFIX} OlÃ¡, mensagem automÃ¡tica de teste`,
           sender_type: "client",
           read_at: null,
           attachments: [],
@@ -367,7 +367,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
         .select("id")
         .single();
       if (error) throw new Error(error.message);
-      return `OK — message_id: ${data.id}`;
+      return `OK â€” message_id: ${data.id}`;
     });
 
     try {
@@ -383,7 +383,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
         await supabaseAdmin.from("leads").delete().eq("id", createdLeadId);
       }
       await supabaseAdmin.from("leads").delete().like("title", `${E2E_PREFIX}%`);
-      if (process.env.NODE_ENV !== 'production') console.log("[e2e] cleanup concluído");
+      if (process.env.NODE_ENV !== 'production') console.log("[e2e] cleanup concluÃ­do");
     } catch (cleanupErr) {
       console.error("[e2e] cleanup parcial:", cleanupErr instanceof Error ? cleanupErr.message : String(cleanupErr));
     }
@@ -391,7 +391,7 @@ router.get("/run-tests", requireAuth, requireAdmin, async (req: AuthRequest, res
     const passed = results.filter((r) => r.status === "pass").length;
     const failed = results.filter((r) => r.status === "fail").length;
     const finishedAt = new Date().toISOString();
-    if (process.env.NODE_ENV !== 'production') console.log(`[e2e] run-tests finalizado: ${finishedAt} — passed=${passed} failed=${failed}`);
+    if (process.env.NODE_ENV !== 'production') console.log(`[e2e] run-tests finalizado: ${finishedAt} â€” passed=${passed} failed=${failed}`);
 
     return res.json({
       summary: { total: results.length, passed, failed },
@@ -515,7 +515,7 @@ router.get("/reports/transactions", requireAuth, requireAdmin, async (req: AuthR
   }
 });
 
-// ── POST /api/admin/premiar-profissional ──────────────────────────────────────
+// â”€â”€ POST /api/admin/premiar-profissional â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { user_id, coins, motivo } = req.body as {
@@ -525,10 +525,10 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
     };
 
     if (!user_id || typeof user_id !== "string") {
-      return res.status(400).json({ error: "user_id obrigatório" });
+      return res.status(400).json({ error: "user_id obrigatÃ³rio" });
     }
     if (!coins || typeof coins !== "number" || coins < 1 || coins > 10_000) {
-      return res.status(400).json({ error: "coins deve ser um número entre 1 e 10000" });
+      return res.status(400).json({ error: "coins deve ser um nÃºmero entre 1 e 10000" });
     }
 
     // Fetch professional name for notifications/Telegram
@@ -557,10 +557,10 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
     // In-app notification
     await supabaseAdmin.from("notifications").insert({
       user_id,
-      title: "🏆 Você foi premiado!",
+      title: "ðŸ† VocÃª foi premiado!",
       body: motivo
-        ? `Você recebeu ${coins} moedas: ${motivo}`
-        : `Você recebeu ${coins} moedas como prêmio do admin.`,
+        ? `VocÃª recebeu ${coins} moedas: ${motivo}`
+        : `VocÃª recebeu ${coins} moedas como prÃªmio do admin.`,
     });
 
     // Telegram alert (best-effort)
@@ -568,7 +568,7 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
     const chatId = process.env.TELEGRAM_CHAT_ID;
     if (token && chatId) {
       const text =
-        `🏆 *Premiação manual*\n` +
+        `ðŸ† *PremiaÃ§Ã£o manual*\n` +
         `Profissional: *${profName}*\n` +
         `Moedas: *${coins}*` +
         (motivo ? `\nMotivo: ${motivo}` : "");
@@ -586,9 +586,9 @@ router.post("/premiar-profissional", requireAuth, requireAdmin, async (req: Auth
   }
 });
 
-// ── Garantia de primeira compra do profissional ─────────────────────────────
-// Aprovar credita as moedas via credit_professional_guarantee (RPC própria,
-// separada de credit_professional_coins que é específico de compra Stripe).
+// â”€â”€ Garantia de primeira compra do profissional â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Aprovar credita as moedas via credit_professional_guarantee (RPC prÃ³pria,
+// separada de credit_professional_coins que Ã© especÃ­fico de compra Stripe).
 router.post("/guarantee-requests/:id/approve", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const { note } = req.body as { note?: string };
@@ -598,8 +598,8 @@ router.post("/guarantee-requests/:id/approve", requireAuth, requireAdmin, async 
       .select("*")
       .eq("id", id)
       .single();
-    if (fetchErr || !request) return res.status(404).json({ error: "Solicitação não encontrada." });
-    if (request.status !== "pending") return res.status(400).json({ error: "Solicitação não está pendente." });
+    if (fetchErr || !request) return res.status(404).json({ error: "SolicitaÃ§Ã£o nÃ£o encontrada." });
+    if (request.status !== "pending") return res.status(400).json({ error: "SolicitaÃ§Ã£o nÃ£o estÃ¡ pendente." });
 
     const { data: rpcResult, error: rpcError } = await supabaseAdmin.rpc("credit_professional_guarantee", {
       p_user_id: request.professional_id,
@@ -611,7 +611,7 @@ router.post("/guarantee-requests/:id/approve", requireAuth, requireAdmin, async 
       return res.status(500).json({ error: "Falha ao creditar moedas." });
     }
     if (rpcResult && (rpcResult as { success?: boolean }).success === false) {
-      return res.status(409).json({ error: (rpcResult as { error?: string }).error ?? "Já creditado anteriormente." });
+      return res.status(409).json({ error: (rpcResult as { error?: string }).error ?? "JÃ¡ creditado anteriormente." });
     }
 
     await supabaseAdmin
@@ -635,8 +635,8 @@ router.post("/guarantee-requests/:id/reject", requireAuth, requireAdmin, async (
       .select("id, status")
       .eq("id", id)
       .single();
-    if (fetchErr || !request) return res.status(404).json({ error: "Solicitação não encontrada." });
-    if (request.status !== "pending") return res.status(400).json({ error: "Solicitação não está pendente." });
+    if (fetchErr || !request) return res.status(404).json({ error: "SolicitaÃ§Ã£o nÃ£o encontrada." });
+    if (request.status !== "pending") return res.status(400).json({ error: "SolicitaÃ§Ã£o nÃ£o estÃ¡ pendente." });
 
     await supabaseAdmin
       .from("professional_guarantee_requests")
@@ -650,12 +650,12 @@ router.post("/guarantee-requests/:id/reject", requireAuth, requireAdmin, async (
   }
 });
 
-// Push em massa — ferramenta reutilizável pra avisos gerais (não só o anúncio
-// de indicação), por isso fica genérica (title/body/url) em vez de hardcoded.
-// Um envio por usuário único, não por subscription/dispositivo.
+// Push em massa â€” ferramenta reutilizÃ¡vel pra avisos gerais (nÃ£o sÃ³ o anÃºncio
+// de indicaÃ§Ã£o), por isso fica genÃ©rica (title/body/url) em vez de hardcoded.
+// Um envio por usuÃ¡rio Ãºnico, nÃ£o por subscription/dispositivo.
 router.post("/broadcast-push", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { title, body, url, role } = req.body as { title?: string; body?: string; url?: string; role?: 'client' | 'professional' };
-  if (!title || !body) return res.status(400).json({ error: "title e body são obrigatórios" });
+  if (!title || !body) return res.status(400).json({ error: "title e body sÃ£o obrigatÃ³rios" });
 
   try {
     const { data: subsData, error } = await supabaseAdmin
@@ -692,11 +692,11 @@ router.post("/broadcast-push", requireAuth, requireAdmin, async (req: AuthReques
   }
 });
 
-// Health check real pra página de Observabilidade — diferente de /api/health (público,
-// trivial, usado por monitores externos). Mede latência real de Supabase e Stripe, uptime
-// do processo, memória, event loop lag, tamanho do banco, info de deploy (env vars
-// automáticas do Render), freshness do webhook de pagamentos e carga estimada do sistema.
-// Se a requisição chegou até aqui, o backend já está "up" por definição.
+// Health check real pra pÃ¡gina de Observabilidade â€” diferente de /api/health (pÃºblico,
+// trivial, usado por monitores externos). Mede latÃªncia real de Supabase e Stripe, uptime
+// do processo, memÃ³ria, event loop lag, tamanho do banco, info de deploy (env vars
+// automÃ¡ticas do Render), freshness do webhook de pagamentos e carga estimada do sistema.
+// Se a requisiÃ§Ã£o chegou atÃ© aqui, o backend jÃ¡ estÃ¡ "up" por definiÃ§Ã£o.
 router.get("/system-health", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const result = await runHealthCheck();
   const mem = process.memoryUsage();
@@ -740,9 +740,9 @@ router.get("/system-health", requireAuth, requireAdmin, async (req: AuthRequest,
   });
 });
 
-// Checklist de configuração — quais env vars críticas estão presentes ou faltando, sem
-// NUNCA expor valor (só booleano). Resolve a pergunta "o que falta configurar" num lugar
-// só, em vez de descobrir aos poucos pelos avisos espalhados pela página.
+// Checklist de configuraÃ§Ã£o â€” quais env vars crÃ­ticas estÃ£o presentes ou faltando, sem
+// NUNCA expor valor (sÃ³ booleano). Resolve a pergunta "o que falta configurar" num lugar
+// sÃ³, em vez de descobrir aos poucos pelos avisos espalhados pela pÃ¡gina.
 router.get("/config-status", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const checks = [
     { key: "SUPABASE_URL", label: "Supabase URL", present: !!process.env.SUPABASE_URL, critical: true },
@@ -762,10 +762,10 @@ router.get("/config-status", requireAuth, requireAdmin, async (req: AuthRequest,
   return res.json({ checks });
 });
 
-// Histórico das últimas 24h gravadas pelo cron healthCheck.ts (a cada 5min) — uptime% real
-// por target + detecção de incidentes (transições up→down), sem depender do Sentry estar
-// configurado. Também devolve o resultado da última auditoria Stripe (stripeAudit.ts),
-// que antes só ia pro Telegram e se perdia.
+// HistÃ³rico das Ãºltimas 24h gravadas pelo cron healthCheck.ts (a cada 5min) â€” uptime% real
+// por target + detecÃ§Ã£o de incidentes (transiÃ§Ãµes upâ†’down), sem depender do Sentry estar
+// configurado. TambÃ©m devolve o resultado da Ãºltima auditoria Stripe (stripeAudit.ts),
+// que antes sÃ³ ia pro Telegram e se perdia.
 router.get("/health-history", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -832,13 +832,13 @@ router.get("/health-history", requireAuth, requireAdmin, async (req: AuthRequest
     });
   } catch (err) {
     console.error("/api/admin/health-history error:", err instanceof Error ? err.message : String(err));
-    return res.status(500).json({ error: "Erro ao buscar histórico." });
+    return res.status(500).json({ error: "Erro ao buscar histÃ³rico." });
   }
 });
 
 // Issues recentes do Sentry (backend + frontend) pra timeline de incidentes real.
 // Sem SENTRY_API_TOKEN/SENTRY_ORG_SLUG/SENTRY_PROJECT_SLUGS configurados no Render,
-// responde configured:false — front mostra aviso em vez de fingir que não tem erro.
+// responde configured:false â€” front mostra aviso em vez de fingir que nÃ£o tem erro.
 router.get("/sentry-issues", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const token = process.env.SENTRY_API_TOKEN;
   const org = process.env.SENTRY_ORG_SLUG;
@@ -853,9 +853,9 @@ router.get("/sentry-issues", requireAuth, requireAdmin, async (req: AuthRequest,
   try {
     const results = await Promise.all(
       projects.map(async (project) => {
-        // statsPeriod só afeta o gráfico interno de cada issue, NÃO filtra quais issues
-        // a API retorna — por isso o filtro real de 24h é feito abaixo, em lastSeen.
-        // limit maior (25, não 10) pra ter candidatos suficientes depois do filtro.
+        // statsPeriod sÃ³ afeta o grÃ¡fico interno de cada issue, NÃƒO filtra quais issues
+        // a API retorna â€” por isso o filtro real de 24h Ã© feito abaixo, em lastSeen.
+        // limit maior (25, nÃ£o 10) pra ter candidatos suficientes depois do filtro.
         const r = await fetch(
           `https://sentry.io/api/0/projects/${org}/${project}/issues/?sort=date&query=is:unresolved&limit=25`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -887,26 +887,26 @@ router.get("/sentry-issues", requireAuth, requireAdmin, async (req: AuthRequest,
   }
 });
 
-// Estimativas de custo — NÃO é fatura real, é aproximação pra dar noção de
-// ordem de grandeza. Haiku: ~input 2.500 tok (system prompt grande + histórico
-// + contexto da plataforma) + ~200 tok de saída, no preço do Claude Haiku
-// (~$1/MTok input, ~$5/MTok output) ≈ R$0,015/chamada (câmbio ~R$5,50).
-// Whisper: mesma estimativa usada quando a transcrição foi implementada.
+// Estimativas de custo â€” NÃƒO Ã© fatura real, Ã© aproximaÃ§Ã£o pra dar noÃ§Ã£o de
+// ordem de grandeza. Haiku: ~input 2.500 tok (system prompt grande + histÃ³rico
+// + contexto da plataforma) + ~200 tok de saÃ­da, no preÃ§o do Claude Haiku
+// (~$1/MTok input, ~$5/MTok output) â‰ˆ R$0,015/chamada (cÃ¢mbio ~R$5,50).
+// Whisper: mesma estimativa usada quando a transcriÃ§Ã£o foi implementada.
 const HAIKU_COST_BRL_PER_CALL = 0.015;
 const WHISPER_COST_BRL_PER_AUDIO = 0.02;
 
-// Visibilidade real de uso do bot do WhatsApp — hoje não existe nenhuma.
+// Visibilidade real de uso do bot do WhatsApp â€” hoje nÃ£o existe nenhuma.
 // Handoffs contados via whatsapp_messages (sender='system', body=HANDOFF_MESSAGE)
 // em vez do snapshot atual de handoff_reason em whatsapp_conversations, porque
 // esse snapshot muda com o tempo (handoffTimeout.ts zera handoff_reason depois
-// de 24h) — a mensagem de handoff é um evento carimbado, não se perde.
+// de 24h) â€” a mensagem de handoff Ã© um evento carimbado, nÃ£o se perde.
 //
-// Breakdown de handoff por urgência FICOU DE FORA: urgency (decision.urgency
-// em whatsappConversationService.ts) é usado só pra montar o título do push
-// no momento do handoff e nunca é persistido em nenhuma coluna — não dá pra
+// Breakdown de handoff por urgÃªncia FICOU DE FORA: urgency (decision.urgency
+// em whatsappConversationService.ts) Ã© usado sÃ³ pra montar o tÃ­tulo do push
+// no momento do handoff e nunca Ã© persistido em nenhuma coluna â€” nÃ£o dÃ¡ pra
 // reconstruir depois dos fatos sem adicionar uma coluna nova (fora do escopo
-// aqui). Top 5 perguntas/tópicos também ficou de fora — exigiria alguma
-// classificação, e uma categorização frágil aqui seria pior que nada.
+// aqui). Top 5 perguntas/tÃ³picos tambÃ©m ficou de fora â€” exigiria alguma
+// classificaÃ§Ã£o, e uma categorizaÃ§Ã£o frÃ¡gil aqui seria pior que nada.
 router.get("/bot-stats", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const days = Math.max(1, Math.min(90, parseInt(String(req.query.days ?? "7"), 10) || 7));
@@ -920,7 +920,7 @@ router.get("/bot-stats", requireAuth, requireAdmin, async (req: AuthRequest, res
 
     const rows = messages ?? [];
     const inbound = rows.filter((m) => m.direction === "inbound");
-    const audioTranscribed = inbound.filter((m) => (m.body ?? "").startsWith("(áudio)"));
+    const audioTranscribed = inbound.filter((m) => (m.body ?? "").startsWith("(Ã¡udio)"));
     const handoffs = rows.filter((m) => m.sender === "system" && m.body === HANDOFF_MESSAGE);
     const activeConversationIds = new Set(rows.map((m) => m.conversation_id));
 
@@ -935,7 +935,7 @@ router.get("/bot-stats", requireAuth, requireAdmin, async (req: AuthRequest, res
       (totalInbound * HAIKU_COST_BRL_PER_CALL + audioTranscribed.length * WHISPER_COST_BRL_PER_AUDIO) * 100
     ) / 100;
 
-    // Mensagens recebidas por dia, pro gráfico simples do frontend.
+    // Mensagens recebidas por dia, pro grÃ¡fico simples do frontend.
     const perDay = new Map<string, number>();
     for (const m of inbound) {
       const day = (m.created_at as string).slice(0, 10);
@@ -953,17 +953,17 @@ router.get("/bot-stats", requireAuth, requireAdmin, async (req: AuthRequest, res
       handoff_rate_pct: handoffRatePct,
       audio_messages_transcribed: audioTranscribed.length,
       estimated_cost_brl: estimatedCostBrl,
-      estimated_cost_note: "Estimativa aproximada, não é fatura real.",
+      estimated_cost_note: "Estimativa aproximada, nÃ£o Ã© fatura real.",
       messages_per_day: messagesPerDay,
     });
   } catch (err) {
     console.error("/api/admin/bot-stats error:", err instanceof Error ? err.message : String(err));
-    return res.status(500).json({ error: "Erro ao buscar estatísticas do bot." });
+    return res.status(500).json({ error: "Erro ao buscar estatÃ­sticas do bot." });
   }
 });
 
-// Só expõe templates cuja env var de aprovação já está "true" — a UI nunca
-// mostra uma opção que sabidamente vai falhar (template não aprovado pela Meta).
+// SÃ³ expÃµe templates cuja env var de aprovaÃ§Ã£o jÃ¡ estÃ¡ "true" â€” a UI nunca
+// mostra uma opÃ§Ã£o que sabidamente vai falhar (template nÃ£o aprovado pela Meta).
 router.get("/whatsapp-broadcast/templates", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const templates = Object.entries(BROADCASTABLE_TEMPLATES)
     .filter(([, t]) => process.env[t.envGate] === "true")
@@ -971,16 +971,16 @@ router.get("/whatsapp-broadcast/templates", requireAuth, requireAdmin, async (re
   return res.json({ templates });
 });
 
-// Disparo em massa de template aprovado — mesmo espírito do /broadcast-push,
-// mas via WhatsApp. Envio SEQUENCIAL (não Promise.all) de propósito: volume
-// atual da base (~40 pessoas) não justifica risco de rate limit da Graph API
+// Disparo em massa de template aprovado â€” mesmo espÃ­rito do /broadcast-push,
+// mas via WhatsApp. Envio SEQUENCIAL (nÃ£o Promise.all) de propÃ³sito: volume
+// atual da base (~40 pessoas) nÃ£o justifica risco de rate limit da Graph API
 // disparando tudo em paralelo.
 router.post("/whatsapp-broadcast", requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { templateKey, role } = req.body as { templateKey?: string; role?: "client" | "professional" };
   const template = templateKey ? BROADCASTABLE_TEMPLATES[templateKey] : undefined;
-  if (!template) return res.status(400).json({ error: "Template inválido." });
+  if (!template) return res.status(400).json({ error: "Template invÃ¡lido." });
   if (process.env[template.envGate] !== "true") {
-    return res.status(400).json({ error: "Este template ainda não foi aprovado pela Meta." });
+    return res.status(400).json({ error: "Este template ainda nÃ£o foi aprovado pela Meta." });
   }
 
   try {
@@ -994,7 +994,7 @@ router.post("/whatsapp-broadcast", requireAuth, requireAdmin, async (req: AuthRe
 
     const recipients = rows
       .filter((p) => optedIn.has(p.id))
-      .map((p) => ({ id: p.id, phone: normalizeBrazilianPhone(p.phone), firstName: p.full_name?.trim().split(/\s+/)[0] || "você" }))
+      .map((p) => ({ id: p.id, phone: normalizeBrazilianPhone(p.phone), firstName: p.full_name?.trim().split(/\s+/)[0] || "vocÃª" }))
       .filter((p): p is { id: string; phone: string; firstName: string } => !!p.phone);
 
     let sent = 0;
@@ -1016,14 +1016,14 @@ router.post("/whatsapp-broadcast", requireAuth, requireAdmin, async (req: AuthRe
 });
 
 
-// ── Marketing IA ────────────────────────────────────────────────────────────
-// Geração custa dinheiro e a publicação social sempre exige aprovação humana.
+// â”€â”€ Marketing IA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// GeraÃ§Ã£o custa dinheiro e a publicaÃ§Ã£o social sempre exige aprovaÃ§Ã£o humana.
 const socialStudioLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 12,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Limite de gerações atingido. Tente novamente em uma hora.' },
+  message: { error: 'Limite de geraÃ§Ãµes atingido. Tente novamente em uma hora.' },
 });
 
 type SocialContentRow = {
@@ -1052,7 +1052,7 @@ type SocialContentRow = {
   approved_at: string | null;
 };
 
-const socialFields = 'id, title, objective, audience, city, service, format, status, generation_status, brief, content, research_sources, visual_prompt, image_storage_path, strategy_model, visual_model, strategy_usage, visual_usage, estimated_cost_cents, safety_notes, rejection_note, created_at, approved_at';
+const socialFields = 'id, title, objective, audience, city, service, format, status, generation_status, brief, content, research_sources, visual_prompt, image_storage_path, strategy_model, visual_model, strategy_usage, visual_usage, estimated_cost_cents, safety_notes, rejection_note, instagram_media_id, publication_error, published_at, created_at, approved_at';
 
 async function withSocialImageUrl(row: SocialContentRow): Promise<SocialContentRow & { image_url: string | null }> {
   if (!row.image_storage_path) return { ...row, image_url: null };
@@ -1082,14 +1082,14 @@ function parseSocialRequest(body: unknown): SocialContentRequest | null {
 router.get('/social-content', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const limit = Math.max(1, Math.min(100, Number(_req.query.limit ?? 30) || 30));
   const { data, error } = await supabaseAdmin.from('social_content_items').select(socialFields).order('created_at', { ascending: false }).limit(limit);
-  if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'Migração do Marketing IA ainda não aplicada.' : 'Erro ao carregar conteúdos.' });
+  if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'MigraÃ§Ã£o do Marketing IA ainda nÃ£o aplicada.' : 'Erro ao carregar conteÃºdos.' });
   const items = await Promise.all(((data ?? []) as SocialContentRow[]).map(withSocialImageUrl));
   return res.json({ items, visual_enabled: Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY), research_enabled: process.env.SOCIAL_RESEARCH_ENABLED === 'true' });
 });
 
 router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, async (req: AuthRequest, res: Response) => {
   const input = parseSocialRequest(req.body);
-  if (!input) return res.status(400).json({ error: 'Preencha objetivo, público, formato e tema corretamente.' });
+  if (!input) return res.status(400).json({ error: 'Preencha objetivo, pÃºblico, formato e tema corretamente.' });
 
   const { data: pending, error: insertError } = await supabaseAdmin.from('social_content_items').insert({
     created_by: req.authUser!.id,
@@ -1102,7 +1102,7 @@ router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, a
     generation_status: 'generating',
     brief: input,
   }).select('id').single();
-  if (insertError || !pending) return res.status(insertError?.code === '42P01' ? 503 : 500).json({ error: insertError?.code === '42P01' ? 'Migração do Marketing IA ainda não aplicada.' : 'Não foi possível criar o rascunho.' });
+  if (insertError || !pending) return res.status(insertError?.code === '42P01' ? 503 : 500).json({ error: insertError?.code === '42P01' ? 'MigraÃ§Ã£o do Marketing IA ainda nÃ£o aplicada.' : 'NÃ£o foi possÃ­vel criar o rascunho.' });
 
   try {
     const generated = await createSocialDraft(input);
@@ -1118,7 +1118,7 @@ router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, a
       generation_status: 'ready',
       updated_at: new Date().toISOString(),
     }).eq('id', pending.id).select(socialFields).single();
-    if (error || !data) throw new Error(error?.message ?? 'Rascunho não encontrado após geração.');
+    if (error || !data) throw new Error(error?.message ?? 'Rascunho nÃ£o encontrado apÃ³s geraÃ§Ã£o.');
     return res.status(201).json({ item: await withSocialImageUrl(data as SocialContentRow) });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -1130,8 +1130,8 @@ router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, a
 
 router.post('/social-content/:id/image', requireAuth, requireAdmin, socialStudioLimiter, async (req: AuthRequest, res: Response) => {
   const { data: item, error } = await supabaseAdmin.from('social_content_items').select('id, visual_prompt, estimated_cost_cents').eq('id', req.params.id).single();
-  if (error || !item) return res.status(404).json({ error: 'Rascunho não encontrado.' });
-  if (!item.visual_prompt) return res.status(400).json({ error: 'Este rascunho não possui briefing visual.' });
+  if (error || !item) return res.status(404).json({ error: 'Rascunho nÃ£o encontrado.' });
+  if (!item.visual_prompt) return res.status(400).json({ error: 'Este rascunho nÃ£o possui briefing visual.' });
   try {
     const image = await createSocialImage(item.id, item.visual_prompt);
     const { data: updated, error: updateError } = await supabaseAdmin.from('social_content_items').update({
@@ -1141,7 +1141,7 @@ router.post('/social-content/:id/image', requireAuth, requireAdmin, socialStudio
       estimated_cost_cents: Number(item.estimated_cost_cents ?? 0) + image.estimatedCostCents,
       updated_at: new Date().toISOString(),
     }).eq('id', item.id).select(socialFields).single();
-    if (updateError || !updated) throw new Error(updateError?.message ?? 'Não foi possível atualizar a imagem.');
+    if (updateError || !updated) throw new Error(updateError?.message ?? 'NÃ£o foi possÃ­vel atualizar a imagem.');
     return res.json({ item: await withSocialImageUrl(updated as SocialContentRow) });
   } catch (generationError) {
     const message = generationError instanceof Error ? generationError.message : String(generationError);
@@ -1152,12 +1152,79 @@ router.post('/social-content/:id/image', requireAuth, requireAdmin, socialStudio
 
 router.patch('/social-content/:id/status', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const status = req.body?.status;
-  if (status !== 'approved' && status !== 'rejected') return res.status(400).json({ error: 'Status inválido.' });
+  if (status !== 'approved' && status !== 'rejected') return res.status(400).json({ error: 'Status invÃ¡lido.' });
   const update = status === 'approved'
     ? { status, approved_by: req.authUser!.id, approved_at: new Date().toISOString(), rejection_note: null, updated_at: new Date().toISOString() }
     : { status, rejection_note: typeof req.body?.note === 'string' ? req.body.note.slice(0, 500) : null, updated_at: new Date().toISOString() };
   const { data, error } = await supabaseAdmin.from('social_content_items').update(update).eq('id', req.params.id).select(socialFields).single();
-  if (error || !data) return res.status(404).json({ error: 'Rascunho não encontrado.' });
+  if (error || !data) return res.status(404).json({ error: 'Rascunho nÃ£o encontrado.' });
   return res.json({ item: await withSocialImageUrl(data as SocialContentRow) });
+});
+
+router.post('/social-content/:id/publish-instagram', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { data: item, error } = await supabaseAdmin.from('social_content_items')
+    .select('id, status, generation_status, image_storage_path, content')
+    .eq('id', req.params.id).single();
+  if (error || !item) return res.status(404).json({ error: 'Rascunho não encontrado.' });
+  if (item.status !== 'approved' || item.generation_status !== 'ready') return res.status(409).json({ error: 'Aprovação humana é obrigatória antes de publicar.' });
+  if (!item.image_storage_path) return res.status(409).json({ error: 'Gere e revise uma arte antes de publicar no Instagram.' });
+
+  const content = (item.content ?? {}) as { caption?: unknown; cta?: unknown };
+  const caption = [typeof content.caption === 'string' ? content.caption.trim() : '', typeof content.cta === 'string' ? content.cta.trim() : ''].filter(Boolean).join('\n\n');
+  const { data: signed, error: signedError } = await supabaseAdmin.storage.from('social-content').createSignedUrl(item.image_storage_path, 3_600);
+  if (signedError || !signed?.signedUrl) return res.status(502).json({ error: 'Não foi possível preparar a arte privada para publicação.' });
+
+  try {
+    const published = await publishApprovedInstagramImage({ imageUrl: signed.signedUrl, caption });
+    const { data: updated, error: updateError } = await supabaseAdmin.from('social_content_items').update({
+      status: 'published', published_at: new Date().toISOString(), published_by: req.authUser!.id,
+      instagram_container_id: published.containerId, instagram_media_id: published.mediaId,
+      publication_error: null, updated_at: new Date().toISOString(),
+    }).eq('id', item.id).select(socialFields).single();
+    if (updateError || !updated) throw new Error(updateError?.message ?? 'A publicação ocorreu, mas o histórico não pôde ser salvo.');
+    return res.json({ item: await withSocialImageUrl(updated as SocialContentRow), instagram_media_id: published.mediaId });
+  } catch (publishError) {
+    const message = publishError instanceof Error ? publishError.message : String(publishError);
+    await supabaseAdmin.from('social_content_items').update({ publication_error: message.slice(0, 1000), updated_at: new Date().toISOString() }).eq('id', item.id);
+    console.error('[social-content] instagram publish:', message);
+    return res.status(502).json({ error: message });
+  }
+});
+router.get('/social-content/campaigns', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
+  const { data, error } = await supabaseAdmin.from('social_content_campaigns')
+    .select('id, name, city, service, audience, objective, posts_per_week, status, auto_generate, research_enabled, weekly_generation_limit, plan, estimated_cost_cents, created_at, updated_at')
+    .order('updated_at', { ascending: false }).limit(30);
+  if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'Migração do piloto de campanhas ainda não aplicada.' : 'Erro ao carregar campanhas.' });
+  return res.json({ campaigns: data ?? [], autopilot_enabled: process.env.SOCIAL_AUTOPILOT_ENABLED === 'true' });
+});
+
+router.post('/social-content/campaigns', requireAuth, requireAdmin, socialStudioLimiter, async (req: AuthRequest, res: Response) => {
+  const body = req.body as Record<string, unknown>;
+  const name = typeof body.name === 'string' ? body.name.trim().slice(0, 120) : '';
+  const city = typeof body.city === 'string' ? body.city.trim().slice(0, 100) : '';
+  const service = typeof body.service === 'string' ? body.service.trim().slice(0, 100) : null;
+  const postsPerWeek = Math.max(1, Math.min(7, Number(body.posts_per_week) || 3));
+  const objective = body.objective as SocialContentRequest['objective'];
+  const audience = body.audience as SocialContentRequest['audience'];
+  if (name.length < 3 || city.length < 2 || !['reach','client_leads','professional_signup','trust','education'].includes(objective) || !['client','professional','mixed'].includes(audience)) return res.status(400).json({ error: 'Preencha os dados da campanha corretamente.' });
+  try {
+    const generated = await createSocialCampaignPlan({ name, city, service: service ?? undefined, postsPerWeek, objective, audience, research: body.research === true });
+    const { data: campaign, error } = await supabaseAdmin.from('social_content_campaigns').insert({ created_by: req.authUser!.id, name, city, service, objective, audience, posts_per_week: postsPerWeek, research_enabled: body.research === true, weekly_generation_limit: postsPerWeek, plan: generated.plan.items, plan_model: process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5', plan_usage: generated.usage, estimated_cost_cents: generated.estimatedCostCents, last_planned_at: new Date().toISOString() }).select().single();
+    if (error || !campaign) throw new Error(error?.message ?? 'Não foi possível salvar a campanha.');
+    const base = new Date();
+    const planned = generated.plan.items.map((item, index) => ({ created_by: req.authUser!.id, campaign_id: campaign.id, title: `Planejado: ${item.topic}`, objective, audience, city, service, format: item.format, generation_status: 'pending', brief: { topic: item.topic, objective, audience, format: item.format, city, service, research: body.research === true, planned: true }, content_pillar: item.pillar, quality_score: item.qualityScore, planned_for: new Date(base.getTime() + index * Math.floor((7 / postsPerWeek) * 86400000)).toISOString() }));
+    const { error: plannedError } = await supabaseAdmin.from('social_content_items').insert(planned);
+    if (plannedError) throw new Error(plannedError.message);
+    return res.status(201).json({ campaign, planned_count: planned.length });
+  } catch (error) { const message = error instanceof Error ? error.message : String(error); console.error('[social-campaign] plan:', message); return res.status(502).json({ error: message }); }
+});
+
+router.patch('/social-content/campaigns/:id', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const status = req.body?.status;
+  const autoGenerate = req.body?.auto_generate;
+  if (!['active', 'paused', 'archived'].includes(status) || typeof autoGenerate !== 'boolean') return res.status(400).json({ error: 'Status ou automação inválidos.' });
+  const { data, error } = await supabaseAdmin.from('social_content_campaigns').update({ status, auto_generate: autoGenerate, updated_at: new Date().toISOString() }).eq('id', req.params.id).select().single();
+  if (error || !data) return res.status(404).json({ error: 'Campanha não encontrada.' });
+  return res.json({ campaign: data });
 });
 export default router;

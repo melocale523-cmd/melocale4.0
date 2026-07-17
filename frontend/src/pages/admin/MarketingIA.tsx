@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, ImagePlus, ShieldCheck, Sparkles, XCircle } from 'lucide-react';
+import { CheckCircle2, ImagePlus, Send, ShieldCheck, Sparkles, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
@@ -22,6 +22,9 @@ type ContentItem = {
   image_url: string | null;
   estimated_cost_cents: number;
   safety_notes: string[];
+  instagram_media_id: string | null;
+  publication_error: string | null;
+  published_at: string | null;
   created_at: string;
 };
 
@@ -72,6 +75,16 @@ export default function MarketingIA() {
     onSuccess: (_, variables) => { toast.success(variables.status === 'approved' ? 'Conteúdo aprovado.' : 'Conteúdo rejeitado.'); invalidate(); },
     onError: (error) => toast.error((error as Error).message),
   });
+  const publishInstagram = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiFetch(`/api/admin/social-content/${id}/publish-instagram`, { method: 'POST' });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? 'Não foi possível publicar no Instagram.');
+      return body as { item: ContentItem; instagram_media_id: string };
+    },
+    onSuccess: () => { toast.success('Conteúdo publicado no Instagram.'); invalidate(); },
+    onError: (error) => toast.error((error as Error).message),
+  });
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((current) => ({ ...current, [key]: value }));
   const items = contentQuery.data?.items ?? [];
 
@@ -97,8 +110,8 @@ export default function MarketingIA() {
       {item.image_url && <img src={item.image_url} alt="Arte gerada para aprovação" className="h-64 w-full object-cover" />}
       <div className="space-y-3 p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs font-bold uppercase tracking-wide text-violet-300">{objectiveLabel[item.objective]} · {item.format}</p><h2 className="mt-1 text-lg font-bold text-white">{item.title}</h2><p className="mt-1 text-xs text-slate-400">{new Date(item.created_at).toLocaleString('pt-BR')} · {item.generation_status}</p></div><span className={`rounded-full px-2 py-1 text-xs font-bold ${item.status === 'approved' ? 'bg-emerald-500/15 text-emerald-300' : item.status === 'rejected' ? 'bg-red-500/15 text-red-300' : 'bg-amber-500/15 text-amber-200'}`}>{item.status}</span></div>
       {item.generation_status === 'ready' && <><div className="rounded-lg bg-[#0E1C32] p-3"><p className="text-sm font-semibold text-white">{item.content.hook}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-300">{item.content.caption}</p><p className="mt-2 text-sm font-semibold text-emerald-300">{item.content.cta}</p></div><details className="rounded-lg border border-[#29415f] p-3 text-sm text-slate-300"><summary className="cursor-pointer font-medium text-slate-200">Roteiro e regras de segurança</summary><ol className="mt-2 list-decimal space-y-1 pl-5">{item.content.slides?.map((slide, index) => <li key={`${slide.heading}-${index}`}><strong>{slide.heading}:</strong> {slide.body}</li>)}</ol>{item.safety_notes.length > 0 && <div className="mt-3 flex gap-2 text-xs text-amber-200"><ShieldCheck size={16} className="shrink-0" /><span>{item.safety_notes.join(' · ')}</span></div>}</details>
-      <div className="flex flex-wrap gap-2"><button disabled={generateImage.isPending || !contentQuery.data?.visual_enabled} onClick={() => generateImage.mutate(item.id)} className="inline-flex items-center gap-1 rounded-lg border border-violet-400/40 px-3 py-2 text-sm font-medium text-violet-200 disabled:opacity-50"><ImagePlus size={16} />{item.image_url ? 'Gerar nova arte' : 'Gerar arte'}</button>{item.status === 'draft' && <><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'approved' })} className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"><CheckCircle2 size={16} /> Aprovar</button><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'rejected' })} className="inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-sm font-medium text-red-200"><XCircle size={16} /> Rejeitar</button></>}</div></>}
-      {item.generation_status === 'failed' && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">A geração foi bloqueada ou falhou. Revise as notas de segurança antes de tentar novamente.</p>}
+      <div className="flex flex-wrap gap-2"><button disabled={generateImage.isPending || !contentQuery.data?.visual_enabled} onClick={() => generateImage.mutate(item.id)} className="inline-flex items-center gap-1 rounded-lg border border-violet-400/40 px-3 py-2 text-sm font-medium text-violet-200 disabled:opacity-50"><ImagePlus size={16} />{item.image_url ? 'Gerar nova arte' : 'Gerar arte'}</button>{item.status === 'draft' && <><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'approved' })} className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"><CheckCircle2 size={16} /> Aprovar</button><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'rejected' })} className="inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-sm font-medium text-red-200"><XCircle size={16} /> Rejeitar</button></>}{item.status === 'approved' && item.image_url && <button disabled={publishInstagram.isPending} onClick={() => { if (window.confirm('Publicar esta arte e legenda aprovadas no Instagram da MeloCalé?')) publishInstagram.mutate(item.id); }} className="inline-flex items-center gap-1 rounded-lg bg-pink-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"><Send size={16} />{publishInstagram.isPending ? 'Publicando...' : 'Publicar no Instagram'}</button>}{item.status === 'published' && <span className="inline-flex items-center rounded-lg bg-emerald-500/15 px-3 py-2 text-sm font-semibold text-emerald-300">Publicado no Instagram</span>}</div></>}
+      {item.generation_status === 'failed' && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">A geração foi bloqueada ou falhou. Revise as notas de segurança antes de tentar novamente.</p>}{item.publication_error && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">Falha na publicação: {item.publication_error}</p>}
       </div></article>)}</div>
     {!contentQuery.isLoading && !items.length && <div className="rounded-xl border border-dashed border-[#29415f] p-8 text-center text-slate-400">Ainda não há rascunhos. Crie a primeira pauta acima.</div>}
   </section>;
