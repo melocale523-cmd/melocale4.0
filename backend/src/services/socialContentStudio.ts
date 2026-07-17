@@ -79,30 +79,64 @@ export async function createSocialDraft(input: SocialContentRequest): Promise<{ 
   };
 }
 
-export async function createSocialImage(itemId: string, visualPrompt: string): Promise<{ storagePath: string; model: string; usage: Usage; estimatedCostCents: number }> {
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey) throw new Error('GOOGLE_GENERATIVE_AI_API_KEY não está configurada. A geração visual permanece desativada.');
-
-  const google = createGoogleGenerativeAI({ apiKey });
-  const result = await generateImage({
-    model: google.image(VISUAL_MODEL),
-    prompt: `${visualPrompt}\n\nCrie uma imagem editorial original para a MeloCalé. Sem texto, sem logotipos de terceiros, sem selos de avaliação, sem preço e sem retratar pessoas sintéticas como clientes ou profissionais reais.`,
-    aspectRatio: '4:5',
-    abortSignal: AbortSignal.timeout(90_000),
-  });
-
-  const extension = result.image.mediaType?.split('/')[1] ?? 'png';
+async function saveGeneratedImage(itemId: string, imageBytes: Uint8Array, mediaType: string, model: string, usage: Usage): Promise<{ storagePath: string; model: string; usage: Usage; estimatedCostCents: number }> {
+  const extension = mediaType.split('/')[1] ?? 'png';
   const storagePath = `${itemId}/${randomUUID()}.${extension}`;
   const { error } = await supabaseAdmin.storage
     .from('social-content')
-    .upload(storagePath, result.image.uint8Array, { contentType: result.image.mediaType ?? 'image/png', upsert: false });
+    .upload(storagePath, imageBytes, { contentType: mediaType, upsert: false });
   if (error) throw new Error(`Não foi possível salvar a imagem gerada: ${error.message}`);
-
-  const usage = normalizeUsage(result.usage);
   const imageRate = Number(process.env.SOCIAL_VISUAL_CENTS_PER_IMAGE ?? 0);
-  return { storagePath, model: VISUAL_MODEL, usage, estimatedCostCents: Math.max(0, Math.round(imageRate)) };
+  return { storagePath, model, usage, estimatedCostCents: Math.max(0, Math.round(imageRate)) };
 }
 
+function isGeminiQuotaError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /quota|rate.?limit|resource.?exhausted|too many requests|429/i.test(message);
+}
+
+async function createOpenAiFallbackImage(itemId: string, visualPrompt: string): Promise<{ storagePath: string; model: string; usage: Usage; estimatedCostCents: number }> {
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  if (!apiKey) throw new Error('A cota do Gemini acabou e OPENAI_API_KEY não está configurada para fallback.');
+  const model = process.env.SOCIAL_VISUAL_FALLBACK_MODEL?.trim() || 'gpt-image-1-mini';
+  const response = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      prompt: `${visualPrompt}\n\nCrie uma imagem editorial original para a MeloCalé. Sem texto, sem logotipos de terceiros, sem selos de avaliação, sem preço e sem retratar pessoas sintéticas como clientes ou profissionais reais.`,
+      size: '1024x1536',
+      quality: 'low',
+      output_format: 'webp',
+    }),
+    signal: AbortSignal.timeout(90_000),
+  });
+  const payload = await response.json().catch(() => ({})) as { data?: Array<{ b64_json?: string }>; error?: { message?: string } };
+  if (!response.ok || !payload.data?.[0]?.b64_json) {
+    throw new Error(`OpenAI não conseguiu gerar a imagem: ${payload.error?.message ?? `HTTP ${response.status}`}`);
+  }
+  return saveGeneratedImage(itemId, Buffer.from(payload.data[0].b64_json, 'base64'), 'image/webp', `openai:${model}`, { inputTokens: 0, outputTokens: 0, totalTokens: 0 });
+}
+
+export async function createSocialImage(itemId: string, visualPrompt: string): Promise<{ storagePath: string; model: string; usage: Usage; estimatedCostCents: number }> {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) return createOpenAiFallbackImage(itemId, visualPrompt);
+  try {
+    const google = createGoogleGenerativeAI({ apiKey });
+    const result = await generateImage({
+      model: google.image(VISUAL_MODEL),
+      prompt: `${visualPrompt}\n\nCrie uma imagem editorial original para a MeloCalé. Sem texto, sem logotipos de terceiros, sem selos de avaliação, sem preço e sem retratar pessoas sintéticas como clientes ou profissionais reais.`,
+      aspectRatio: '4:5',
+      abortSignal: AbortSignal.timeout(90_000),
+    });
+    const usage = normalizeUsage(result.usage);
+    return saveGeneratedImage(itemId, result.image.uint8Array, result.image.mediaType ?? 'image/png', VISUAL_MODEL, usage);
+  } catch (error) {
+    if (!isGeminiQuotaError(error) || !process.env.OPENAI_API_KEY?.trim()) throw error;
+    console.warn('[social-content] Gemini sem cota; usando fallback OpenAI.');
+    return createOpenAiFallbackImage(itemId, visualPrompt);
+  }
+}
 type InstagramPublishResult = { containerId: string; mediaId: string };
 
 function instagramApiUrl(path: string): string {
