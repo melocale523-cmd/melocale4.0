@@ -102,3 +102,85 @@ export async function createSocialImage(itemId: string, visualPrompt: string): P
   const imageRate = Number(process.env.SOCIAL_VISUAL_CENTS_PER_IMAGE ?? 0);
   return { storagePath, model: VISUAL_MODEL, usage, estimatedCostCents: Math.max(0, Math.round(imageRate)) };
 }
+
+type InstagramPublishResult = { containerId: string; mediaId: string };
+
+function instagramApiUrl(path: string): string {
+  const version = process.env.META_INSTAGRAM_GRAPH_API_VERSION?.trim();
+  return `https://graph.instagram.com/${version ? `${version}/` : ''}${path}`;
+}
+
+async function instagramRequest<T>(path: string, body: URLSearchParams): Promise<T> {
+  const response = await fetch(instagramApiUrl(path), {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body,
+    signal: AbortSignal.timeout(30_000),
+  });
+  const payload = await response.json().catch(() => ({})) as { error?: { message?: string } } & T;
+  if (!response.ok || payload.error) {
+    throw new Error(`A Meta recusou a publicação: ${payload.error?.message ?? `HTTP ${response.status}`}`);
+  }
+  return payload;
+}
+
+/** Publica somente uma imagem que já recebeu aprovação humana no painel. */
+export async function publishApprovedInstagramImage(input: { imageUrl: string; caption: string }): Promise<InstagramPublishResult> {
+  const accessToken = process.env.META_INSTAGRAM_ACCESS_TOKEN?.trim();
+  const accountId = process.env.META_INSTAGRAM_ACCOUNT_ID?.trim();
+  if (!accessToken || !accountId) throw new Error('META_INSTAGRAM_ACCESS_TOKEN e META_INSTAGRAM_ACCOUNT_ID precisam estar configuradas no servidor.');
+  const caption = input.caption.trim();
+  if (!caption) throw new Error('O conteúdo aprovado não possui legenda para publicar.');
+  if (caption.length > 2_200) throw new Error('A legenda excede o limite de 2.200 caracteres do Instagram.');
+
+  const container = await instagramRequest<{ id?: string }>(`${accountId}/media`, new URLSearchParams({ image_url: input.imageUrl, caption, access_token: accessToken }));
+  if (!container.id) throw new Error('A Meta não retornou o identificador do contêiner de mídia.');
+
+  let ready = false;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+    const response = await fetch(`${instagramApiUrl(container.id)}?fields=status_code&access_token=${encodeURIComponent(accessToken)}`, { signal: AbortSignal.timeout(15_000) });
+    const status = await response.json().catch(() => ({})) as { status_code?: string; error?: { message?: string } };
+    if (status.error) throw new Error(`A Meta não conseguiu processar a mídia: ${status.error.message ?? 'erro desconhecido'}`);
+    if (status.status_code === 'FINISHED') { ready = true; break; }
+    if (status.status_code === 'ERROR' || status.status_code === 'EXPIRED') throw new Error(`A Meta não pôde processar a mídia (${status.status_code}).`);
+  }
+  if (!ready) throw new Error('A Meta ainda está processando a imagem. Aguarde alguns segundos e publique novamente.');
+
+  const published = await instagramRequest<{ id?: string }>(`${accountId}/media_publish`, new URLSearchParams({ creation_id: container.id, access_token: accessToken }));
+  if (!published.id) throw new Error('A Meta não retornou o identificador da publicação.');
+  return { containerId: container.id, mediaId: published.id };
+}
+export type SocialCampaignPlanRequest = {
+  name: string;
+  city: string;
+  service?: string;
+  audience: SocialContentRequest['audience'];
+  objective: SocialContentRequest['objective'];
+  postsPerWeek: number;
+  research?: boolean;
+};
+
+const campaignPlanSchema = z.object({
+  items: z.array(z.object({
+    topic: z.string().min(12).max(240),
+    format: z.enum(['reel', 'carousel', 'story', 'feed', 'article']),
+    pillar: z.enum(['educacao', 'confianca', 'decisao', 'profissionais', 'marca']),
+    reason: z.string().min(12).max(240),
+    qualityScore: z.number().int().min(60).max(100),
+  })).min(1).max(7),
+});
+export type SocialCampaignPlan = z.infer<typeof campaignPlanSchema>;
+
+export async function createSocialCampaignPlan(input: SocialCampaignPlanRequest): Promise<{ plan: SocialCampaignPlan; usage: Usage; estimatedCostCents: number }> {
+  const researchAllowed = input.research === true && RESEARCH_ENABLED;
+  const result = await generateText({
+    model: anthropic(STRATEGY_MODEL),
+    system: 'Voce planeja campanhas organicas eticas para a MeloCale. Priorize utilidade real, variedade de formato e intencao. Nunca invente demanda, resultados, profissionais, avaliacoes, precos ou urgencia. Cada pauta precisa ser diferente e funcionar mesmo sem dados internos.',
+    prompt: `Monte ${input.postsPerWeek} pautas para a campanha ${input.name}. Cidade: ${input.city}. Servico: ${input.service ?? 'servicos locais'}. Publico: ${input.audience}. Objetivo: ${input.objective}. ${researchAllowed ? 'Use web apenas para descobrir duvidas recorrentes, sem inserir fatos ou numeros nao verificaveis.' : 'Nao use pesquisa externa.'}`,
+    output: Output.object({ schema: campaignPlanSchema, name: 'social_campaign_plan' }),
+    ...(researchAllowed ? { tools: { web_search: anthropic.tools.webSearch_20250305({ maxUses: 3 }) }, stopWhen: stepCountIs(4) } : {}),
+  });
+  const usage = normalizeUsage(result.totalUsage);
+  return { plan: result.output, usage, estimatedCostCents: estimateCostCents(usage) };
+}
