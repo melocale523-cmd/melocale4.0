@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, ImagePlus, LoaderCircle, Send, ShieldCheck, Sparkles, XCircle } from 'lucide-react';
+import { BarChart3, CheckCircle2, CheckSquare, ImagePlus, LoaderCircle, Play, Send, ShieldCheck, Sparkles, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { apiFetch } from '../../lib/api';
@@ -25,6 +25,7 @@ type ContentItem = {
   instagram_media_id: string | null;
   publication_error: string | null;
   published_at: string | null;
+  automation_note?: string | null;
   created_at: string;
 };
 
@@ -38,6 +39,7 @@ export default function MarketingIA() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [generatingImageId, setGeneratingImageId] = useState<string | null>(null);
   const [automationPhase, setAutomationPhase] = useState<'copy' | 'image' | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const contentQuery = useQuery({
     queryKey: ['admin-social-content'],
     queryFn: async () => {
@@ -47,6 +49,34 @@ export default function MarketingIA() {
     },
   });
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-social-content'] });
+  const overviewQuery = useQuery({
+    queryKey: ['admin-social-content-overview'],
+    queryFn: async () => {
+      const response = await apiFetch('/api/admin/social-content/overview');
+      if (!response.ok) throw new Error((await response.json()).error ?? 'Falha ao carregar metricas.');
+      return await response.json() as { metrics: { total: number; drafts: number; approved: number; published: number; failed: number; estimated_cost_cents: number } };
+    },
+  });
+  const runAutopilot = useMutation({
+    mutationFn: async () => {
+      const response = await apiFetch('/api/admin/social-content/autopilot/run', { method: 'POST' });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? 'Falha ao executar o autopilot.');
+      return body as { processed: number };
+    },
+    onSuccess: (body) => { toast.success(body.processed ? String(body.processed) + ' pauta(s) processada(s).' : 'Nenhuma pauta vencida para processar.'); invalidate(); overviewQuery.refetch(); },
+    onError: (error) => toast.error((error as Error).message),
+  });
+  const batchApprove = useMutation({
+    mutationFn: async () => {
+      const response = await apiFetch('/api/admin/social-content/batch-status', { method: 'PATCH', body: JSON.stringify({ ids: selectedIds, status: 'approved' }) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? 'Falha ao aprovar em lote.');
+      return body as { updated: number };
+    },
+    onSuccess: (body) => { setSelectedIds([]); toast.success(String(body.updated) + ' pauta(s) aprovada(s).'); invalidate(); overviewQuery.refetch(); },
+    onError: (error) => toast.error((error as Error).message),
+  });
   const generateDraft = useMutation({
     mutationFn: async () => {
       setAutomationPhase('copy');
@@ -115,12 +145,30 @@ export default function MarketingIA() {
   });
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((current) => ({ ...current, [key]: value }));
   const items = contentQuery.data?.items ?? [];
+  const metrics = overviewQuery.data?.metrics;
 
   return <section className="space-y-5">
     <header className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/15 to-[#132540] p-5">
       <div className="flex items-start gap-3"><div className="rounded-xl bg-violet-500/20 p-2 text-violet-200"><Sparkles size={24} /></div><div><h1 className="text-2xl font-bold text-white">Marketing IA</h1><p className="mt-1 max-w-3xl text-sm text-slate-300">A MeloCalé prepara a pauta, a copy e a arte automaticamente. Você só revisa e aprova antes da publicação.</p></div></div>
       <div className="mt-4 flex flex-wrap gap-2 text-xs"><span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">Claude: estratégia</span><span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">Gemini: {contentQuery.data?.visual_enabled ? 'imagem habilitada' : 'imagem aguardando chave'}</span><span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">Pesquisa web: {contentQuery.data?.research_enabled ? 'habilitada' : 'desativada'}</span></div>
     </header>
+
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      {[
+        ['Pautas', metrics?.total ?? 0],
+        ['Aguardando aprovacao', metrics?.drafts ?? 0],
+        ['Aprovadas', metrics?.approved ?? 0],
+        ['Publicadas', metrics?.published ?? 0],
+        ['Falhas', metrics?.failed ?? 0],
+      ].map(([label, value]) => <div key={label} className="rounded-xl border border-[#1C3050] bg-[#132540] p-3"><p className="text-xs text-slate-400">{label}</p><p className="mt-1 text-xl font-bold text-white">{value}</p></div>)}
+    </div>
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+      <div className="flex items-center gap-2 text-sm text-emerald-100"><BarChart3 size={18} /><span>Autopilot: gera pautas, artes e variacoes; publicar continua exigindo sua aprovacao.</span></div>
+      <div className="flex gap-2">
+        <button type="button" onClick={() => runAutopilot.mutate()} disabled={runAutopilot.isPending} className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/40 px-3 py-2 text-sm font-semibold text-emerald-200 disabled:opacity-50"><Play size={15} />{runAutopilot.isPending ? 'Processando...' : 'Executar agora'}</button>
+        <button type="button" onClick={() => batchApprove.mutate()} disabled={!selectedIds.length || batchApprove.isPending} className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"><CheckSquare size={15} />Aprovar selecionadas ({selectedIds.length})</button>
+      </div>
+    </div>
 
     <form onSubmit={(event) => { event.preventDefault(); generateDraft.mutate(); }} className="grid gap-3 rounded-xl border border-[#1C3050] bg-[#132540] p-4 md:grid-cols-2">
       <label className="text-sm text-slate-300">Tema<input required maxLength={240} value={form.topic} onChange={(event) => update('topic', event.target.value)} placeholder="Ex.: O que fazer quando o chuveiro para de esquentar" className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400" /></label>
@@ -134,13 +182,14 @@ export default function MarketingIA() {
 
     {contentQuery.isLoading && <p className="text-slate-400">Carregando rascunhos…</p>}
     {contentQuery.error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-red-200">{(contentQuery.error as Error).message}</div>}
-    <div className="grid gap-4 xl:grid-cols-2">{items.map((item) => <article key={item.id} className="overflow-hidden rounded-xl border border-[#1C3050] bg-[#132540]">
+    <div className="grid gap-4 xl:grid-cols-2">{items.map((item) => <article key={item.id} className="relative overflow-hidden rounded-xl border border-[#1C3050] bg-[#132540]">
+      {item.status === 'draft' && <label className="absolute right-3 top-3 z-10 flex items-center gap-2 rounded-lg bg-[#0E1C32]/90 px-2 py-1 text-xs text-slate-200"><input type="checkbox" checked={selectedIds.includes(item.id)} onChange={(event) => setSelectedIds((current) => event.target.checked ? [...current, item.id] : current.filter((id) => id !== item.id))} /> selecionar</label>}
       {generatingImageId === item.id && <div className="flex items-center gap-3 border-b border-violet-400/20 bg-violet-500/10 px-4 py-3 text-violet-100"><LoaderCircle size={18} className="animate-spin" /><div><p className="text-sm font-semibold">Processando imagem…</p><p className="text-xs text-violet-200/80">A MeloCalé está criando uma arte realista e alinhada à marca. Isso pode levar até 90 segundos.</p></div></div>}
       {item.image_url && <img src={item.image_url} alt="Arte gerada para aprovação" className="h-64 w-full object-cover" />}
       <div className="space-y-3 p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs font-bold uppercase tracking-wide text-violet-300">{objectiveLabel[item.objective]} · {item.format}</p><h2 className="mt-1 text-lg font-bold text-white">{item.title}</h2><p className="mt-1 text-xs text-slate-400">{new Date(item.created_at).toLocaleString('pt-BR')} · {item.generation_status}</p></div><span className={`rounded-full px-2 py-1 text-xs font-bold ${item.status === 'approved' ? 'bg-emerald-500/15 text-emerald-300' : item.status === 'rejected' ? 'bg-red-500/15 text-red-300' : 'bg-amber-500/15 text-amber-200'}`}>{item.status}</span></div>
       {item.generation_status === 'ready' && <><div className="rounded-lg bg-[#0E1C32] p-3"><p className="text-sm font-semibold text-white">{item.content.hook}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-300">{item.content.caption}</p><p className="mt-2 text-sm font-semibold text-emerald-300">{item.content.cta}</p></div><details className="rounded-lg border border-[#29415f] p-3 text-sm text-slate-300"><summary className="cursor-pointer font-medium text-slate-200">Roteiro e regras de segurança</summary><ol className="mt-2 list-decimal space-y-1 pl-5">{item.content.slides?.map((slide, index) => <li key={`${slide.heading}-${index}`}><strong>{slide.heading}:</strong> {slide.body}</li>)}</ol>{item.safety_notes.length > 0 && <div className="mt-3 flex gap-2 text-xs text-amber-200"><ShieldCheck size={16} className="shrink-0" /><span>{item.safety_notes.join(' · ')}</span></div>}</details>
       <div className="flex flex-wrap gap-2"><button disabled={generateImage.isPending || !contentQuery.data?.visual_enabled} onClick={() => generateImage.mutate(item.id)} className="inline-flex items-center gap-1 rounded-lg border border-violet-400/40 px-3 py-2 text-sm font-medium text-violet-200 disabled:opacity-50">{generatingImageId === item.id ? <LoaderCircle size={16} className="animate-spin" /> : <ImagePlus size={16} />}{generatingImageId === item.id ? 'Processando imagem…' : item.image_url ? 'Gerar nova arte' : 'Gerar arte'}</button>{item.status === 'draft' && <><button disabled={updateStatus.isPending || approveAndPublish.isPending || (Boolean(item.image_url) && !contentQuery.data?.visual_enabled)} onClick={() => item.image_url ? approveAndPublish.mutate(item.id) : updateStatus.mutate({ id: item.id, status: 'approved' })} className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"><CheckCircle2 size={16} /> {item.image_url ? approveAndPublish.isPending ? 'Publicando…' : 'Aprovar e publicar' : 'Aprovar'}</button><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'rejected' })} className="inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-sm font-medium text-red-200"><XCircle size={16} /> Rejeitar</button></>}{item.status === 'approved' && item.image_url && <button disabled={publishInstagram.isPending} onClick={() => { if (window.confirm('Publicar esta arte e legenda aprovadas no Instagram da MeloCalé?')) publishInstagram.mutate(item.id); }} className="inline-flex items-center gap-1 rounded-lg bg-pink-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"><Send size={16} />{publishInstagram.isPending ? 'Publicando...' : 'Publicar no Instagram'}</button>}{item.status === 'published' && <span className="inline-flex items-center rounded-lg bg-emerald-500/15 px-3 py-2 text-sm font-semibold text-emerald-300">Publicado no Instagram</span>}</div></>}
-      {item.generation_status === 'failed' && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">A geração foi bloqueada ou falhou. Revise as notas de segurança antes de tentar novamente.</p>}{item.publication_error && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">Falha na publicação: {item.publication_error}</p>}
+      {item.automation_note && <p className="rounded-lg bg-violet-500/10 p-3 text-xs text-violet-200">{item.automation_note}</p>}{item.generation_status === 'failed' && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">A geração foi bloqueada ou falhou. Revise as notas de segurança antes de tentar novamente.</p>}{item.publication_error && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">Falha na publicação: {item.publication_error}</p>}
       </div></article>)}</div>
     {!contentQuery.isLoading && !items.length && <div className="rounded-xl border border-dashed border-[#29415f] p-8 text-center text-slate-400">Ainda não há rascunhos. Crie a primeira pauta acima.</div>}
   </section>;
