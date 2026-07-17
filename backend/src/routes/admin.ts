@@ -9,6 +9,7 @@ import { HANDOFF_MESSAGE } from "../services/whatsappConversationService.js";
 import { sendWhatsAppTemplate, normalizeBrazilianPhone, BROADCASTABLE_TEMPLATES } from "../services/whatsappService.js";
 import { filterOptedIn } from "../lib/whatsappOptIn.js";
 import { createSocialCampaignPlan, createSocialDraft, createSocialImage, publishApprovedInstagramImage, type SocialContentRequest } from "../services/socialContentStudio.js";
+import { runSocialContentAutopilotTask } from "../jobs/socialContentAutopilot.js";
 
 const router = Router();
 router.get("/automation-jobs", requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
@@ -1052,7 +1053,7 @@ type SocialContentRow = {
   approved_at: string | null;
 };
 
-const socialFields = 'id, title, objective, audience, city, service, format, status, generation_status, brief, content, research_sources, visual_prompt, image_storage_path, strategy_model, visual_model, strategy_usage, visual_usage, estimated_cost_cents, safety_notes, rejection_note, instagram_media_id, publication_error, published_at, created_at, approved_at';
+const socialFields = 'id, title, objective, audience, city, service, format, status, generation_status, brief, content, research_sources, visual_prompt, image_storage_path, strategy_model, visual_model, strategy_usage, visual_usage, estimated_cost_cents, safety_notes, rejection_note, instagram_media_id, publication_error, published_at, created_at, approved_at, scheduled_for, generated_by_autopilot, duplicate_key, channels, variants, performance, automation_note';
 
 async function withSocialImageUrl(row: SocialContentRow): Promise<SocialContentRow & { image_url: string | null }> {
   if (!row.image_storage_path) return { ...row, image_url: null };
@@ -1079,6 +1080,48 @@ function parseSocialRequest(body: unknown): SocialContentRequest | null {
   return { objective: objective as SocialContentRequest['objective'], audience: audience as SocialContentRequest['audience'], format: format as SocialContentRequest['format'], topic, city: text('city', 100), service: text('service', 100), research: value.research === true };
 }
 
+router.get('/social-content/overview', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
+  const [items, campaigns, queue] = await Promise.all([
+    supabaseAdmin.from('social_content_items').select('id, status, generation_status, estimated_cost_cents, city, service, channels, performance, created_at').order('created_at', { ascending: false }).limit(200),
+    supabaseAdmin.from('social_content_campaigns').select('id, status, auto_generate, budget_cents, spent_cents, city, service, last_autopilot_at').order('updated_at', { ascending: false }).limit(50),
+    supabaseAdmin.from('automation_job_runs').select('id, status, processed_count, error_message, started_at, finished_at').eq('job_name', 'social_content_autopilot').order('started_at', { ascending: false }).limit(10),
+  ]);
+  if (items.error || campaigns.error) return res.status(500).json({ error: 'Erro ao carregar as metricas do Marketing IA.' });
+  const rows = items.data ?? [];
+  return res.json({
+    metrics: {
+      total: rows.length,
+      drafts: rows.filter((row) => row.status === 'draft').length,
+      approved: rows.filter((row) => row.status === 'approved').length,
+      published: rows.filter((row) => row.status === 'published').length,
+      failed: rows.filter((row) => row.generation_status === 'failed').length,
+      estimated_cost_cents: rows.reduce((sum, row) => sum + Number(row.estimated_cost_cents ?? 0), 0),
+    },
+    campaigns: campaigns.data ?? [],
+    runs: queue.data ?? [],
+  });
+});
+
+router.post('/social-content/autopilot/run', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const processed = await runSocialContentAutopilotTask(5);
+    return res.json({ processed });
+  } catch (error) {
+    return res.status(502).json({ error: error instanceof Error ? error.message : 'Falha ao executar o autopilot.' });
+  }
+});
+
+router.patch('/social-content/batch-status', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const ids = Array.isArray(req.body?.ids) ? req.body.ids.filter((id: unknown): id is string => typeof id === 'string').slice(0, 50) : [];
+  const status = req.body?.status;
+  if (!ids.length || !['approved', 'rejected'].includes(status)) return res.status(400).json({ error: 'Selecione itens validos e um status.' });
+  const update = status === 'approved'
+    ? { status, approved_by: req.authUser!.id, approved_at: new Date().toISOString(), rejection_note: null, updated_at: new Date().toISOString() }
+    : { status, updated_at: new Date().toISOString() };
+  const { data, error } = await supabaseAdmin.from('social_content_items').update(update).in('id', ids).eq('status', 'draft').select('id');
+  if (error) return res.status(500).json({ error: 'Nao foi possivel atualizar os itens selecionados.' });
+  return res.json({ updated: data?.length ?? 0 });
+});
 router.get('/social-content', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const limit = Math.max(1, Math.min(100, Number(_req.query.limit ?? 30) || 30));
   const { data, error } = await supabaseAdmin.from('social_content_items').select(socialFields).order('created_at', { ascending: false }).limit(limit);
@@ -1204,12 +1247,15 @@ router.post('/social-content/campaigns', requireAuth, requireAdmin, socialStudio
   const city = typeof body.city === 'string' ? body.city.trim().slice(0, 100) : '';
   const service = typeof body.service === 'string' ? body.service.trim().slice(0, 100) : null;
   const postsPerWeek = Math.max(1, Math.min(7, Number(body.posts_per_week) || 3));
+  const budgetCents = Math.max(0, Math.min(1000000, Number(body.budget_cents) || 0));
+  const autoGenerateImages = body.auto_generate_images !== false;
+  const trendRadarEnabled = body.trend_radar_enabled === true;
   const objective = body.objective as SocialContentRequest['objective'];
   const audience = body.audience as SocialContentRequest['audience'];
   if (name.length < 3 || city.length < 2 || !['reach','client_leads','professional_signup','trust','education'].includes(objective) || !['client','professional','mixed'].includes(audience)) return res.status(400).json({ error: 'Preencha os dados da campanha corretamente.' });
   try {
     const generated = await createSocialCampaignPlan({ name, city, service: service ?? undefined, postsPerWeek, objective, audience, research: body.research === true });
-    const { data: campaign, error } = await supabaseAdmin.from('social_content_campaigns').insert({ created_by: req.authUser!.id, name, city, service, objective, audience, posts_per_week: postsPerWeek, research_enabled: body.research === true, weekly_generation_limit: postsPerWeek, plan: generated.plan.items, plan_model: process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5', plan_usage: generated.usage, estimated_cost_cents: generated.estimatedCostCents, last_planned_at: new Date().toISOString() }).select().single();
+    const { data: campaign, error } = await supabaseAdmin.from('social_content_campaigns').insert({ created_by: req.authUser!.id, name, city, service, objective, audience, posts_per_week: postsPerWeek, research_enabled: body.research === true, weekly_generation_limit: postsPerWeek, budget_cents: budgetCents, auto_generate_images: autoGenerateImages, trend_radar_enabled: trendRadarEnabled, plan: generated.plan.items, plan_model: process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5', plan_usage: generated.usage, estimated_cost_cents: generated.estimatedCostCents, last_planned_at: new Date().toISOString() }).select().single();
     if (error || !campaign) throw new Error(error?.message ?? 'Não foi possível salvar a campanha.');
     const base = new Date();
     const planned = generated.plan.items.map((item, index) => ({ created_by: req.authUser!.id, campaign_id: campaign.id, title: `Planejado: ${item.topic}`, objective, audience, city, service, format: item.format, generation_status: 'pending', brief: { topic: item.topic, objective, audience, format: item.format, city, service, research: body.research === true, planned: true }, content_pillar: item.pillar, quality_score: item.qualityScore, planned_for: new Date(base.getTime() + index * Math.floor((7 / postsPerWeek) * 86400000)).toISOString() }));

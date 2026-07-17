@@ -14,6 +14,7 @@ import { startHealthCheckJob } from "./src/jobs/healthCheck.js";
 import { startWhatsappReengagementJob } from "./src/jobs/whatsappReengagement.js";
 import { startHandoffTimeoutJob } from "./src/jobs/handoffTimeout.js";
 import { startAutomationQueueWorker } from "./src/lib/automationQueueWorker.js";
+import { startSocialContentAutopilotJob } from "./src/jobs/socialContentAutopilot.js";
 
 // Sentry.init() agora roda em instrument.ts, carregado via `node --import`
 // (ver package.json) antes deste arquivo — necessário pra instrumentação
@@ -111,6 +112,7 @@ async function startServer() {
   startWhatsappReengagementJob();
   startHandoffTimeoutJob();
   startAutomationQueueWorker();
+  startSocialContentAutopilotJob();
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Servidor rodando em: ${PORT}`);
