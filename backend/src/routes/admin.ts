@@ -1084,7 +1084,7 @@ router.get('/social-content', requireAuth, requireAdmin, async (_req: AuthReques
   const { data, error } = await supabaseAdmin.from('social_content_items').select(socialFields).order('created_at', { ascending: false }).limit(limit);
   if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'MigraÃ§Ã£o do Marketing IA ainda nÃ£o aplicada.' : 'Erro ao carregar conteÃºdos.' });
   const items = await Promise.all(((data ?? []) as SocialContentRow[]).map(withSocialImageUrl));
-  return res.json({ items, visual_enabled: Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY), research_enabled: process.env.SOCIAL_RESEARCH_ENABLED === 'true' });
+  return res.json({ items, visual_enabled: Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.OPENAI_API_KEY), research_enabled: process.env.SOCIAL_RESEARCH_ENABLED === 'true' });
 });
 
 router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, async (req: AuthRequest, res: Response) => {
