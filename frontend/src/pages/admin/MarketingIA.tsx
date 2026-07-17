@@ -30,7 +30,10 @@ type ContentItem = {
 };
 
 type FormState = { objective: Objective; audience: Audience; format: ContentFormat; topic: string; city: string; service: string; research: boolean };
+type CampaignForm = { name: string; city: string; service: string; objective: Objective; audience: Audience; posts_per_week: number; budget_cents: number; research: boolean; auto_generate: boolean; auto_generate_images: boolean; trend_radar_enabled: boolean };
+type Campaign = { id: string; name: string; city: string; service: string | null; status: 'active' | 'paused' | 'archived'; auto_generate: boolean; posts_per_week: number; research_enabled: boolean };
 const initialForm: FormState = { objective: 'education', audience: 'client', format: 'carousel', topic: '', city: 'Salvador', service: '', research: false };
+const initialCampaign: CampaignForm = { name: '', city: 'Salvador', service: '', objective: 'education', audience: 'mixed', posts_per_week: 3, budget_cents: 0, research: true, auto_generate: true, auto_generate_images: true, trend_radar_enabled: true };
 
 const objectiveLabel: Record<Objective, string> = { reach: 'Alcance', client_leads: 'Clientes', professional_signup: 'Profissionais', trust: 'Confian√ßa', education: 'Educa√ß√£o' };
 
@@ -40,6 +43,7 @@ export default function MarketingIA() {
   const [generatingImageId, setGeneratingImageId] = useState<string | null>(null);
   const [automationPhase, setAutomationPhase] = useState<'copy' | 'image' | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [campaignForm, setCampaignForm] = useState<CampaignForm>(initialCampaign);
   const contentQuery = useQuery({
     queryKey: ['admin-social-content'],
     queryFn: async () => {
@@ -56,6 +60,40 @@ export default function MarketingIA() {
       if (!response.ok) throw new Error((await response.json()).error ?? 'Falha ao carregar metricas.');
       return await response.json() as { metrics: { total: number; drafts: number; approved: number; published: number; failed: number; estimated_cost_cents: number } };
     },
+  });
+  const campaignsQuery = useQuery({
+    queryKey: ['admin-social-campaigns'],
+    queryFn: async () => {
+      const response = await apiFetch('/api/admin/social-content/campaigns');
+      if (!response.ok) throw new Error((await response.json()).error ?? 'Falha ao carregar campanhas.');
+      return await response.json() as { campaigns: Campaign[]; autopilot_enabled: boolean };
+    },
+  });
+  const createCampaign = useMutation({
+    mutationFn: async () => {
+      const response = await apiFetch('/api/admin/social-content/campaigns', { method: 'POST', body: JSON.stringify(campaignForm) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? 'Falha ao criar campanha.');
+      return body as { planned_count: number };
+    },
+    onSuccess: (body) => {
+      toast.success(String(body.planned_count) + ' pautas planejadas.');
+      setCampaignForm(initialCampaign);
+      campaignsQuery.refetch();
+      invalidate();
+      overviewQuery.refetch();
+    },
+    onError: (error) => toast.error((error as Error).message),
+  });
+  const toggleCampaign = useMutation({
+    mutationFn: async ({ id, status, auto_generate }: { id: string; status: Campaign['status']; auto_generate: boolean }) => {
+      const response = await apiFetch('/api/admin/social-content/campaigns/' + id, { method: 'PATCH', body: JSON.stringify({ status, auto_generate }) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? 'Falha ao atualizar campanha.');
+      return body;
+    },
+    onSuccess: () => { toast.success('Campanha atualizada.'); campaignsQuery.refetch(); },
+    onError: (error) => toast.error((error as Error).message),
   });
   const runAutopilot = useMutation({
     mutationFn: async () => {
@@ -170,6 +208,29 @@ export default function MarketingIA() {
       </div>
     </div>
 
+    <section className="rounded-xl border border-violet-400/30 bg-violet-500/5 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div><h2 className="text-lg font-bold text-white">Assistente de campanha</h2><p className="mt-1 text-sm text-slate-300">Cria o calendario de pautas e deixa o autopilot preparar os conteudos no ritmo escolhido.</p></div>
+        <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-300">{campaignsQuery.data?.autopilot_enabled ? 'Worker automatico ativo' : 'Worker automatico desligado no Render'}</span>
+      </div>
+      <form onSubmit={(event) => { event.preventDefault(); createCampaign.mutate(); }} className="mt-4 grid gap-3 md:grid-cols-2">
+        <label className="text-sm text-slate-300">Nome da campanha<input required maxLength={120} value={campaignForm.name} onChange={(event) => setCampaignForm((c) => ({ ...c, name: event.target.value }))} placeholder="Ex.: Salvador - eletrica e confianca" className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400" /></label>
+        <label className="text-sm text-slate-300">Cidade<input required maxLength={100} value={campaignForm.city} onChange={(event) => setCampaignForm((c) => ({ ...c, city: event.target.value }))} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400" /></label>
+        <label className="text-sm text-slate-300">Servico<input maxLength={100} value={campaignForm.service} onChange={(event) => setCampaignForm((c) => ({ ...c, service: event.target.value }))} placeholder="Ex.: Eletricista" className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400" /></label>
+        <label className="text-sm text-slate-300">Publico<select value={campaignForm.audience} onChange={(event) => setCampaignForm((c) => ({ ...c, audience: event.target.value as Audience }))} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white"><option value="mixed">Misto</option><option value="client">Clientes</option><option value="professional">Profissionais</option></select></label>
+        <label className="text-sm text-slate-300">Objetivo<select value={campaignForm.objective} onChange={(event) => setCampaignForm((c) => ({ ...c, objective: event.target.value as Objective }))} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white">{Object.entries(objectiveLabel).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label className="text-sm text-slate-300">Posts por semana<select value={campaignForm.posts_per_week} onChange={(event) => setCampaignForm((c) => ({ ...c, posts_per_week: Number(event.target.value) }))} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white"><option value={1}>1 post</option><option value={2}>2 posts</option><option value={3}>3 posts</option><option value={4}>4 posts</option><option value={5}>5 posts</option><option value={7}>7 posts</option></select></label>
+        <label className="text-sm text-slate-300">Orcamento total da campanha (R$)<input type="number" min={0} max={10000} step={1} value={campaignForm.budget_cents / 100} onChange={(event) => setCampaignForm((c) => ({ ...c, budget_cents: Math.round(Number(event.target.value || 0) * 100) }))} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white" /></label>
+        <div className="flex flex-wrap items-center gap-4 md:col-span-2">
+          <label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={campaignForm.research} onChange={(event) => setCampaignForm((c) => ({ ...c, research: event.target.checked }))} /> Pesquisa web</label>
+          <label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={campaignForm.auto_generate_images} onChange={(event) => setCampaignForm((c) => ({ ...c, auto_generate_images: event.target.checked }))} /> Gerar artes</label>
+          <label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={campaignForm.trend_radar_enabled} onChange={(event) => setCampaignForm((c) => ({ ...c, trend_radar_enabled: event.target.checked }))} /> Radar de tendencias</label>
+          <label className="flex items-center gap-2 text-sm font-semibold text-emerald-200"><input type="checkbox" checked={campaignForm.auto_generate} onChange={(event) => setCampaignForm((c) => ({ ...c, auto_generate: event.target.checked }))} /> Ativar autopilot agora</label>
+        </div>
+        <button disabled={createCampaign.isPending || !campaignForm.name.trim() || !campaignForm.city.trim()} className="inline-flex w-fit items-center gap-2 rounded-lg bg-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-50"><Sparkles size={16} />{createCampaign.isPending ? 'Criando campanha...' : 'Criar campanha automatica'}</button>
+      </form>
+      {(campaignsQuery.data?.campaigns ?? []).length > 0 && <div className="mt-4 space-y-2"><p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Campanhas existentes</p>{campaignsQuery.data?.campaigns.map((campaign) => <div key={campaign.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#29415f] bg-[#0E1C32] p-3"><div><p className="font-semibold text-white">{campaign.name}</p><p className="text-xs text-slate-400">{campaign.city}{campaign.service ? ' ∑ ' + campaign.service : ''} ∑ {campaign.posts_per_week} posts/semana</p></div><button type="button" onClick={() => toggleCampaign.mutate({ id: campaign.id, status: campaign.status === 'active' && campaign.auto_generate ? 'paused' : 'active', auto_generate: !(campaign.status === 'active' && campaign.auto_generate) })} className="rounded-lg border border-emerald-400/40 px-3 py-2 text-sm font-semibold text-emerald-200">{campaign.status === 'active' && campaign.auto_generate ? 'Pausar autopilot' : 'Ativar autopilot'}</button></div>)}</div>}
+    </section>
     <form onSubmit={(event) => { event.preventDefault(); generateDraft.mutate(); }} className="grid gap-3 rounded-xl border border-[#1C3050] bg-[#132540] p-4 md:grid-cols-2">
       <label className="text-sm text-slate-300">Tema<input required maxLength={240} value={form.topic} onChange={(event) => update('topic', event.target.value)} placeholder="Ex.: O que fazer quando o chuveiro para de esquentar" className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400" /></label>
       <label className="text-sm text-slate-300">Objetivo<select value={form.objective} onChange={(event) => update('objective', event.target.value as Objective)} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400">{Object.entries(objectiveLabel).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
