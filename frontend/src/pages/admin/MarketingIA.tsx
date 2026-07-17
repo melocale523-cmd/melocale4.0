@@ -37,6 +37,7 @@ export default function MarketingIA() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<FormState>(initialForm);
   const [generatingImageId, setGeneratingImageId] = useState<string | null>(null);
+  const [automationPhase, setAutomationPhase] = useState<'copy' | 'image' | null>(null);
   const contentQuery = useQuery({
     queryKey: ['admin-social-content'],
     queryFn: async () => {
@@ -48,13 +49,24 @@ export default function MarketingIA() {
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin-social-content'] });
   const generateDraft = useMutation({
     mutationFn: async () => {
+      setAutomationPhase('copy');
       const response = await apiFetch('/api/admin/social-content', { method: 'POST', body: JSON.stringify(form) });
       const body = await response.json();
-      if (!response.ok) throw new Error(body.error ?? 'Não foi possível gerar o rascunho.');
-      return body as { item: ContentItem };
+      if (!response.ok) throw new Error(body.error ?? 'Não foi possível gerar o conteúdo.');
+      const draft = body as { item: ContentItem };
+      if (draft.item.id && contentQuery.data?.visual_enabled !== false) {
+        setAutomationPhase('image');
+        setGeneratingImageId(draft.item.id);
+        const imageResponse = await apiFetch('/api/admin/social-content/' + draft.item.id + '/image', { method: 'POST' });
+        const imageBody = await imageResponse.json();
+        if (!imageResponse.ok) throw new Error(imageBody.error ?? 'Copy criada, mas não foi possível gerar a arte.');
+        return imageBody as { item: ContentItem };
+      }
+      return draft;
     },
-    onSuccess: () => { toast.success('Rascunho criado para aprovação.'); invalidate(); },
+    onSuccess: () => { toast.success('Conteúdo completo pronto para sua aprovação.'); invalidate(); },
     onError: (error) => toast.error((error as Error).message),
+    onSettled: () => { setAutomationPhase(null); setGeneratingImageId(null); },
   });
   const generateImage = useMutation({
     mutationFn: async (id: string) => {
@@ -78,6 +90,19 @@ export default function MarketingIA() {
     onSuccess: (_, variables) => { toast.success(variables.status === 'approved' ? 'Conteúdo aprovado.' : 'Conteúdo rejeitado.'); invalidate(); },
     onError: (error) => toast.error((error as Error).message),
   });
+  const approveAndPublish = useMutation({
+    mutationFn: async (id: string) => {
+      const approvalResponse = await apiFetch('/api/admin/social-content/' + id + '/status', { method: 'PATCH', body: JSON.stringify({ status: 'approved' }) });
+      const approvalBody = await approvalResponse.json();
+      if (!approvalResponse.ok) throw new Error(approvalBody.error ?? 'Não foi possível aprovar o conteúdo.');
+      const publishResponse = await apiFetch('/api/admin/social-content/' + id + '/publish-instagram', { method: 'POST' });
+      const publishBody = await publishResponse.json();
+      if (!publishResponse.ok) throw new Error(publishBody.error ?? 'Conteúdo aprovado, mas não foi possível publicar.');
+      return publishBody as { item: ContentItem; instagram_media_id: string };
+    },
+    onSuccess: () => { toast.success('Conteúdo aprovado e publicado no Instagram.'); invalidate(); },
+    onError: (error) => toast.error((error as Error).message),
+  });
   const publishInstagram = useMutation({
     mutationFn: async (id: string) => {
       const response = await apiFetch(`/api/admin/social-content/${id}/publish-instagram`, { method: 'POST' });
@@ -93,7 +118,7 @@ export default function MarketingIA() {
 
   return <section className="space-y-5">
     <header className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/15 to-[#132540] p-5">
-      <div className="flex items-start gap-3"><div className="rounded-xl bg-violet-500/20 p-2 text-violet-200"><Sparkles size={24} /></div><div><h1 className="text-2xl font-bold text-white">Marketing IA</h1><p className="mt-1 max-w-3xl text-sm text-slate-300">Claude estrutura a estratégia e a copy; Gemini/Nano Banana cria a arte. Todo conteúdo nasce como rascunho e exige aprovação antes de qualquer publicação.</p></div></div>
+      <div className="flex items-start gap-3"><div className="rounded-xl bg-violet-500/20 p-2 text-violet-200"><Sparkles size={24} /></div><div><h1 className="text-2xl font-bold text-white">Marketing IA</h1><p className="mt-1 max-w-3xl text-sm text-slate-300">A MeloCalé prepara a pauta, a copy e a arte automaticamente. Você só revisa e aprova antes da publicação.</p></div></div>
       <div className="mt-4 flex flex-wrap gap-2 text-xs"><span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">Claude: estratégia</span><span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">Gemini: {contentQuery.data?.visual_enabled ? 'imagem habilitada' : 'imagem aguardando chave'}</span><span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">Pesquisa web: {contentQuery.data?.research_enabled ? 'habilitada' : 'desativada'}</span></div>
     </header>
 
@@ -104,7 +129,7 @@ export default function MarketingIA() {
       <label className="text-sm text-slate-300">Formato<select value={form.format} onChange={(event) => update('format', event.target.value as ContentFormat)} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400"><option value="carousel">Carrossel</option><option value="reel">Reel</option><option value="story">Story</option><option value="feed">Feed</option><option value="article">Artigo</option></select></label>
       <label className="text-sm text-slate-300">Cidade<input maxLength={100} value={form.city} onChange={(event) => update('city', event.target.value)} className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400" /></label>
       <label className="text-sm text-slate-300">Serviço<input maxLength={100} value={form.service} onChange={(event) => update('service', event.target.value)} placeholder="Ex.: Eletricista" className="mt-1 w-full rounded-lg border border-[#29415f] bg-[#0E1C32] px-3 py-2 text-white outline-none focus:border-violet-400" /></label>
-      <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 border-t border-[#1C3050] pt-3"><label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={form.research} disabled={!contentQuery.data?.research_enabled} onChange={(event) => update('research', event.target.checked)} /> Usar pesquisa web para encontrar dúvidas e referências públicas</label><button disabled={generateDraft.isPending || !form.topic.trim()} className="inline-flex items-center gap-2 rounded-lg bg-violet-500 px-4 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"><Sparkles size={16} />{generateDraft.isPending ? 'Gerando…' : 'Criar rascunho'}</button></div>
+      <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 border-t border-[#1C3050] pt-3"><label className="flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={form.research} disabled={!contentQuery.data?.research_enabled} onChange={(event) => update('research', event.target.checked)} /> Usar pesquisa web para encontrar dúvidas e referências públicas</label><button disabled={generateDraft.isPending || !form.topic.trim()} className="inline-flex items-center gap-2 rounded-lg bg-violet-500 px-4 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"><Sparkles size={16} />{generateDraft.isPending ? automationPhase === 'image' ? 'Processando imagem…' : 'Gerando conteúdo…' : 'Criar conteúdo completo'}</button></div>
     </form>
 
     {contentQuery.isLoading && <p className="text-slate-400">Carregando rascunhos…</p>}
@@ -114,7 +139,7 @@ export default function MarketingIA() {
       {item.image_url && <img src={item.image_url} alt="Arte gerada para aprovação" className="h-64 w-full object-cover" />}
       <div className="space-y-3 p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs font-bold uppercase tracking-wide text-violet-300">{objectiveLabel[item.objective]} · {item.format}</p><h2 className="mt-1 text-lg font-bold text-white">{item.title}</h2><p className="mt-1 text-xs text-slate-400">{new Date(item.created_at).toLocaleString('pt-BR')} · {item.generation_status}</p></div><span className={`rounded-full px-2 py-1 text-xs font-bold ${item.status === 'approved' ? 'bg-emerald-500/15 text-emerald-300' : item.status === 'rejected' ? 'bg-red-500/15 text-red-300' : 'bg-amber-500/15 text-amber-200'}`}>{item.status}</span></div>
       {item.generation_status === 'ready' && <><div className="rounded-lg bg-[#0E1C32] p-3"><p className="text-sm font-semibold text-white">{item.content.hook}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-300">{item.content.caption}</p><p className="mt-2 text-sm font-semibold text-emerald-300">{item.content.cta}</p></div><details className="rounded-lg border border-[#29415f] p-3 text-sm text-slate-300"><summary className="cursor-pointer font-medium text-slate-200">Roteiro e regras de segurança</summary><ol className="mt-2 list-decimal space-y-1 pl-5">{item.content.slides?.map((slide, index) => <li key={`${slide.heading}-${index}`}><strong>{slide.heading}:</strong> {slide.body}</li>)}</ol>{item.safety_notes.length > 0 && <div className="mt-3 flex gap-2 text-xs text-amber-200"><ShieldCheck size={16} className="shrink-0" /><span>{item.safety_notes.join(' · ')}</span></div>}</details>
-      <div className="flex flex-wrap gap-2"><button disabled={generateImage.isPending || !contentQuery.data?.visual_enabled} onClick={() => generateImage.mutate(item.id)} className="inline-flex items-center gap-1 rounded-lg border border-violet-400/40 px-3 py-2 text-sm font-medium text-violet-200 disabled:opacity-50">{generatingImageId === item.id ? <LoaderCircle size={16} className="animate-spin" /> : <ImagePlus size={16} />}{generatingImageId === item.id ? 'Processando imagem…' : item.image_url ? 'Gerar nova arte' : 'Gerar arte'}</button>{item.status === 'draft' && <><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'approved' })} className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"><CheckCircle2 size={16} /> Aprovar</button><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'rejected' })} className="inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-sm font-medium text-red-200"><XCircle size={16} /> Rejeitar</button></>}{item.status === 'approved' && item.image_url && <button disabled={publishInstagram.isPending} onClick={() => { if (window.confirm('Publicar esta arte e legenda aprovadas no Instagram da MeloCalé?')) publishInstagram.mutate(item.id); }} className="inline-flex items-center gap-1 rounded-lg bg-pink-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"><Send size={16} />{publishInstagram.isPending ? 'Publicando...' : 'Publicar no Instagram'}</button>}{item.status === 'published' && <span className="inline-flex items-center rounded-lg bg-emerald-500/15 px-3 py-2 text-sm font-semibold text-emerald-300">Publicado no Instagram</span>}</div></>}
+      <div className="flex flex-wrap gap-2"><button disabled={generateImage.isPending || !contentQuery.data?.visual_enabled} onClick={() => generateImage.mutate(item.id)} className="inline-flex items-center gap-1 rounded-lg border border-violet-400/40 px-3 py-2 text-sm font-medium text-violet-200 disabled:opacity-50">{generatingImageId === item.id ? <LoaderCircle size={16} className="animate-spin" /> : <ImagePlus size={16} />}{generatingImageId === item.id ? 'Processando imagem…' : item.image_url ? 'Gerar nova arte' : 'Gerar arte'}</button>{item.status === 'draft' && <><button disabled={updateStatus.isPending || approveAndPublish.isPending || (Boolean(item.image_url) && !contentQuery.data?.visual_enabled)} onClick={() => item.image_url ? approveAndPublish.mutate(item.id) : updateStatus.mutate({ id: item.id, status: 'approved' })} className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"><CheckCircle2 size={16} /> {item.image_url ? approveAndPublish.isPending ? 'Publicando…' : 'Aprovar e publicar' : 'Aprovar'}</button><button disabled={updateStatus.isPending} onClick={() => updateStatus.mutate({ id: item.id, status: 'rejected' })} className="inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-sm font-medium text-red-200"><XCircle size={16} /> Rejeitar</button></>}{item.status === 'approved' && item.image_url && <button disabled={publishInstagram.isPending} onClick={() => { if (window.confirm('Publicar esta arte e legenda aprovadas no Instagram da MeloCalé?')) publishInstagram.mutate(item.id); }} className="inline-flex items-center gap-1 rounded-lg bg-pink-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"><Send size={16} />{publishInstagram.isPending ? 'Publicando...' : 'Publicar no Instagram'}</button>}{item.status === 'published' && <span className="inline-flex items-center rounded-lg bg-emerald-500/15 px-3 py-2 text-sm font-semibold text-emerald-300">Publicado no Instagram</span>}</div></>}
       {item.generation_status === 'failed' && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">A geração foi bloqueada ou falhou. Revise as notas de segurança antes de tentar novamente.</p>}{item.publication_error && <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200">Falha na publicação: {item.publication_error}</p>}
       </div></article>)}</div>
     {!contentQuery.isLoading && !items.length && <div className="rounded-xl border border-dashed border-[#29415f] p-8 text-center text-slate-400">Ainda não há rascunhos. Crie a primeira pauta acima.</div>}
