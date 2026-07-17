@@ -1250,12 +1250,14 @@ router.post('/social-content/campaigns', requireAuth, requireAdmin, socialStudio
   const budgetCents = Math.max(0, Math.min(1000000, Number(body.budget_cents) || 0));
   const autoGenerateImages = body.auto_generate_images !== false;
   const trendRadarEnabled = body.trend_radar_enabled === true;
+  const autoGenerate = body.auto_generate === true;
+  const campaignStatus = autoGenerate ? 'active' : 'paused';
   const objective = body.objective as SocialContentRequest['objective'];
   const audience = body.audience as SocialContentRequest['audience'];
   if (name.length < 3 || city.length < 2 || !['reach','client_leads','professional_signup','trust','education'].includes(objective) || !['client','professional','mixed'].includes(audience)) return res.status(400).json({ error: 'Preencha os dados da campanha corretamente.' });
   try {
     const generated = await createSocialCampaignPlan({ name, city, service: service ?? undefined, postsPerWeek, objective, audience, research: body.research === true });
-    const { data: campaign, error } = await supabaseAdmin.from('social_content_campaigns').insert({ created_by: req.authUser!.id, name, city, service, objective, audience, posts_per_week: postsPerWeek, research_enabled: body.research === true, weekly_generation_limit: postsPerWeek, budget_cents: budgetCents, auto_generate_images: autoGenerateImages, trend_radar_enabled: trendRadarEnabled, plan: generated.plan.items, plan_model: process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5', plan_usage: generated.usage, estimated_cost_cents: generated.estimatedCostCents, last_planned_at: new Date().toISOString() }).select().single();
+    const { data: campaign, error } = await supabaseAdmin.from('social_content_campaigns').insert({ created_by: req.authUser!.id, name, city, service, objective, audience, posts_per_week: postsPerWeek, status: campaignStatus, auto_generate: autoGenerate, research_enabled: body.research === true, weekly_generation_limit: postsPerWeek, budget_cents: budgetCents, auto_generate_images: autoGenerateImages, trend_radar_enabled: trendRadarEnabled, plan: generated.plan.items, plan_model: process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5', plan_usage: generated.usage, estimated_cost_cents: generated.estimatedCostCents, last_planned_at: new Date().toISOString() }).select().single();
     if (error || !campaign) throw new Error(error?.message ?? 'Não foi possível salvar a campanha.');
     const base = new Date();
     const planned = generated.plan.items.map((item, index) => ({ created_by: req.authUser!.id, campaign_id: campaign.id, title: `Planejado: ${item.topic}`, objective, audience, city, service, format: item.format, generation_status: 'pending', brief: { topic: item.topic, objective, audience, format: item.format, city, service, research: body.research === true, planned: true }, content_pillar: item.pillar, quality_score: item.qualityScore, planned_for: new Date(base.getTime() + index * Math.floor((7 / postsPerWeek) * 86400000)).toISOString() }));
