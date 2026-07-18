@@ -12,7 +12,7 @@ type Campaign = {
 type PlannedItem = { id: string; title: string; format: SocialContentRequest["format"]; brief: Record<string, unknown>; planned_for: string | null; duplicate_key: string | null };
 
 function duplicateKey(value: string): string {
-  return createHash("sha256").update(value.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim()).digest("hex").slice(0, 32);
+  return createHash("sha256").update(value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim()).digest("hex").slice(0, 32);
 }
 
 function weekStart(): string {
@@ -32,7 +32,11 @@ export async function runSocialContentAutopilotTask(maxItems = 5): Promise<numbe
 
   for (const campaign of (campaigns ?? []) as Campaign[]) {
     if (processed >= maxItems) break;
-    if (campaign.budget_cents > 0 && campaign.spent_cents >= campaign.budget_cents) continue;
+    if (campaign.budget_cents <= 0) {
+      await supabaseAdmin.from("social_content_campaigns").update({ status: "paused", auto_generate: false, last_error: "Campanha pausada: defina um orcamento maior que zero para limitar o consumo das APIs de IA.", updated_at: new Date().toISOString() }).eq("id", campaign.id);
+      continue;
+    }
+    if (campaign.spent_cents >= campaign.budget_cents) continue;
     const { count } = await supabaseAdmin.from("social_content_items").select("id", { count: "exact", head: true })
       .eq("campaign_id", campaign.id).eq("generated_by_autopilot", true).gte("created_at", weekStart());
     if ((count ?? 0) >= campaign.weekly_generation_limit) continue;
@@ -75,8 +79,8 @@ export async function runSocialContentAutopilotTask(maxItems = 5): Promise<numbe
           console.warn("[social-autopilot] imagem:", imageError instanceof Error ? imageError.message : String(imageError));
         }
       }
-      if (campaign.budget_cents > 0 && campaign.spent_cents + totalCost > campaign.budget_cents) {
-        await supabaseAdmin.from("social_content_items").update({ generation_status: "failed", automation_note: "Limite de orcamento atingido antes de concluir esta pauta.", updated_at: new Date().toISOString() }).eq("id", item.id);
+      if (campaign.spent_cents + totalCost > campaign.budget_cents) {
+        await supabaseAdmin.from("social_content_items").update({ generation_status: "failed", failure_code: "budget_exceeded", failure_details: "O custo estimado desta pauta ultrapassaria o orÃƒÆ’Ã‚Â§amento restante da campanha.", automation_note: "Limite de orcamento atingido antes de concluir esta pauta.", updated_at: new Date().toISOString() }).eq("id", item.id);
         continue;
       }
       const channels = campaign.multichannel_enabled ? { instagram: "ready_for_approval", facebook: "repurpose_pending", whatsapp: "repurpose_pending" } : { instagram: "ready_for_approval" };

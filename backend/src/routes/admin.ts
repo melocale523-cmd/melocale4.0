@@ -1049,11 +1049,15 @@ type SocialContentRow = {
   estimated_cost_cents: number;
   safety_notes: string[];
   rejection_note: string | null;
+  failure_code: string | null;
+  failure_details: string | null;
+  conversion_metrics: Record<string, unknown>;
+  campaign_id: string | null;
   created_at: string;
   approved_at: string | null;
 };
 
-const socialFields = 'id, title, objective, audience, city, service, format, status, generation_status, brief, content, research_sources, visual_prompt, image_storage_path, strategy_model, visual_model, strategy_usage, visual_usage, estimated_cost_cents, safety_notes, rejection_note, instagram_media_id, publication_error, published_at, created_at, approved_at, scheduled_for, generated_by_autopilot, duplicate_key, channels, variants, performance, automation_note';
+const socialFields = 'id, campaign_id, title, objective, audience, city, service, format, status, generation_status, brief, content, research_sources, visual_prompt, image_storage_path, strategy_model, visual_model, strategy_usage, visual_usage, estimated_cost_cents, safety_notes, rejection_note, instagram_media_id, publication_error, published_at, created_at, approved_at, scheduled_for, generated_by_autopilot, duplicate_key, channels, variants, performance, conversion_metrics, automation_note, failure_code, failure_details';
 
 async function withSocialImageUrl(row: SocialContentRow): Promise<SocialContentRow & { image_url: string | null }> {
   if (!row.image_storage_path) return { ...row, image_url: null };
@@ -1082,12 +1086,18 @@ function parseSocialRequest(body: unknown): SocialContentRequest | null {
 
 router.get('/social-content/overview', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const [items, campaigns, queue] = await Promise.all([
-    supabaseAdmin.from('social_content_items').select('id, status, generation_status, estimated_cost_cents, city, service, channels, performance, created_at').order('created_at', { ascending: false }).limit(200),
+    supabaseAdmin.from('social_content_items').select('id, status, generation_status, estimated_cost_cents, city, service, channels, performance, conversion_metrics, created_at').order('created_at', { ascending: false }).limit(200),
     supabaseAdmin.from('social_content_campaigns').select('id, status, auto_generate, budget_cents, spent_cents, city, service, last_autopilot_at').order('updated_at', { ascending: false }).limit(50),
     supabaseAdmin.from('automation_job_runs').select('id, status, processed_count, error_message, started_at, finished_at').eq('job_name', 'social_content_autopilot').order('started_at', { ascending: false }).limit(10),
   ]);
   if (items.error || campaigns.error) return res.status(500).json({ error: 'Erro ao carregar as metricas do Marketing IA.' });
   const rows = items.data ?? [];
+  const metricValue = (row: any, key: string) => Number(row?.performance?.[key] ?? row?.conversion_metrics?.[key] ?? 0) || 0;
+  const performance = rows.reduce((totals, row) => ({
+    likes: totals.likes + metricValue(row, 'likes'), comments: totals.comments + metricValue(row, 'comments'),
+    reach: totals.reach + metricValue(row, 'reach'), clicks: totals.clicks + metricValue(row, 'clicks'),
+    conversions: totals.conversions + metricValue(row, 'conversions'), leads: totals.leads + metricValue(row, 'leads'),
+  }), { likes: 0, comments: 0, reach: 0, clicks: 0, conversions: 0, leads: 0 });
   return res.json({
     metrics: {
       total: rows.length,
@@ -1096,6 +1106,7 @@ router.get('/social-content/overview', requireAuth, requireAdmin, async (_req: A
       published: rows.filter((row) => row.status === 'published').length,
       failed: rows.filter((row) => row.generation_status === 'failed').length,
       estimated_cost_cents: rows.reduce((sum, row) => sum + Number(row.estimated_cost_cents ?? 0), 0),
+      ...performance,
     },
     campaigns: campaigns.data ?? [],
     runs: queue.data ?? [],
@@ -1124,7 +1135,12 @@ router.patch('/social-content/batch-status', requireAuth, requireAdmin, async (r
 });
 router.get('/social-content', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const limit = Math.max(1, Math.min(100, Number(_req.query.limit ?? 30) || 30));
-  const { data, error } = await supabaseAdmin.from('social_content_items').select(socialFields).order('created_at', { ascending: false }).limit(limit);
+  const campaignId = typeof _req.query.campaign_id === 'string' ? _req.query.campaign_id : null;
+  const generationStatus = typeof _req.query.generation_status === 'string' ? _req.query.generation_status : null;
+  let query = supabaseAdmin.from('social_content_items').select(socialFields).order('created_at', { ascending: false }).limit(limit);
+  if (campaignId) query = query.eq('campaign_id', campaignId);
+  if (generationStatus && ['pending','generating','ready','failed'].includes(generationStatus)) query = query.eq('generation_status', generationStatus);
+  const { data, error } = await query;
   if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'MigraÃ§Ã£o do Marketing IA ainda nÃ£o aplicada.' : 'Erro ao carregar conteÃºdos.' });
   const items = await Promise.all(((data ?? []) as SocialContentRow[]).map(withSocialImageUrl));
   return res.json({ items, visual_enabled: Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.OPENAI_API_KEY), research_enabled: process.env.SOCIAL_RESEARCH_ENABLED === 'true' });
@@ -1165,7 +1181,7 @@ router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, a
     return res.status(201).json({ item: await withSocialImageUrl(data as SocialContentRow) });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    await supabaseAdmin.from('social_content_items').update({ generation_status: 'failed', safety_notes: [message], updated_at: new Date().toISOString() }).eq('id', pending.id);
+    await supabaseAdmin.from('social_content_items').update({ generation_status: 'failed', failure_code: 'generation_failed', failure_details: message.slice(0, 2000), safety_notes: [message], updated_at: new Date().toISOString() }).eq('id', pending.id);
     console.error('[social-content] generation:', message);
     return res.status(502).json({ error: message });
   }
@@ -1188,6 +1204,7 @@ router.post('/social-content/:id/image', requireAuth, requireAdmin, socialStudio
     return res.json({ item: await withSocialImageUrl(updated as SocialContentRow) });
   } catch (generationError) {
     const message = generationError instanceof Error ? generationError.message : String(generationError);
+    await supabaseAdmin.from('social_content_items').update({ failure_code: 'image_generation_failed', failure_details: message.slice(0, 2000), updated_at: new Date().toISOString() }).eq('id', item.id);
     console.error('[social-content] image:', message);
     return res.status(502).json({ error: message });
   }
@@ -1235,7 +1252,7 @@ router.post('/social-content/:id/publish-instagram', requireAuth, requireAdmin, 
 });
 router.get('/social-content/campaigns', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const { data, error } = await supabaseAdmin.from('social_content_campaigns')
-    .select('id, name, city, service, audience, objective, posts_per_week, status, auto_generate, research_enabled, weekly_generation_limit, plan, estimated_cost_cents, created_at, updated_at')
+    .select('id, name, city, service, audience, objective, posts_per_week, status, auto_generate, research_enabled, weekly_generation_limit, plan, estimated_cost_cents, budget_cents, spent_cents, last_autopilot_at, archived_at, last_error, created_at, updated_at')
     .order('updated_at', { ascending: false }).limit(30);
   if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'Migração do piloto de campanhas ainda não aplicada.' : 'Erro ao carregar campanhas.' });
   return res.json({ campaigns: data ?? [], autopilot_enabled: process.env.SOCIAL_AUTOPILOT_ENABLED === 'true' });
@@ -1254,6 +1271,9 @@ router.post('/social-content/campaigns', requireAuth, requireAdmin, socialStudio
   const campaignStatus = autoGenerate ? 'active' : 'paused';
   const objective = body.objective as SocialContentRequest['objective'];
   const audience = body.audience as SocialContentRequest['audience'];
+  if (budgetCents <= 0) return res.status(400).json({ error: 'Defina um orcamento total maior que zero para limitar o consumo das APIs de IA.' });
+  const { data: duplicate } = await supabaseAdmin.from('social_content_campaigns').select('id, name').neq('status', 'archived').ilike('name', name).ilike('city', city).limit(1).maybeSingle();
+  if (duplicate) return res.status(409).json({ error: 'Ja existe uma campanha ativa ou pausada com este nome e cidade. Arquive a duplicada antes de criar outra.' });
   if (name.length < 3 || city.length < 2 || !['reach','client_leads','professional_signup','trust','education'].includes(objective) || !['client','professional','mixed'].includes(audience)) return res.status(400).json({ error: 'Preencha os dados da campanha corretamente.' });
   try {
     const generated = await createSocialCampaignPlan({ name, city, service: service ?? undefined, postsPerWeek, objective, audience, research: body.research === true });
@@ -1267,11 +1287,17 @@ router.post('/social-content/campaigns', requireAuth, requireAdmin, socialStudio
   } catch (error) { const message = error instanceof Error ? error.message : String(error); console.error('[social-campaign] plan:', message); return res.status(502).json({ error: message }); }
 });
 
+router.post('/social-content/:id/retry', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const { data, error } = await supabaseAdmin.from('social_content_items').update({ generation_status: 'pending', failure_code: null, failure_details: null, safety_notes: [], updated_at: new Date().toISOString() }).eq('id', req.params.id).eq('generation_status', 'failed').select(socialFields).single();
+  if (error || !data) return res.status(404).json({ error: 'Falha nao encontrada ou item ja esta em processamento.' });
+  return res.json({ item: await withSocialImageUrl(data as SocialContentRow) });
+});
+
 router.patch('/social-content/campaigns/:id', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const status = req.body?.status;
   const autoGenerate = req.body?.auto_generate;
   if (!['active', 'paused', 'archived'].includes(status) || typeof autoGenerate !== 'boolean') return res.status(400).json({ error: 'Status ou automação inválidos.' });
-  const { data, error } = await supabaseAdmin.from('social_content_campaigns').update({ status, auto_generate: autoGenerate, updated_at: new Date().toISOString() }).eq('id', req.params.id).select().single();
+  const { data, error } = await supabaseAdmin.from('social_content_campaigns').update({ status, auto_generate: status === 'active' ? autoGenerate : false, archived_at: status === 'archived' ? new Date().toISOString() : null, archive_reason: status === 'archived' ? (typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 300) : 'Arquivada pelo administrador') : null, updated_at: new Date().toISOString() }).eq('id', req.params.id).select().single();
   if (error || !data) return res.status(404).json({ error: 'Campanha não encontrada.' });
   return res.json({ campaign: data });
 });
