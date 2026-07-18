@@ -15,9 +15,38 @@ export type SocialContentRequest = {
   research?: boolean;
 };
 
-const STRATEGY_MODEL = process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5';
+const QUALITY_MODEL = process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5';
+const ECONOMY_MODEL = process.env.SOCIAL_ECONOMY_MODEL ?? 'claude-haiku-4-5-20251001';
 const VISUAL_MODEL = process.env.SOCIAL_VISUAL_MODEL ?? 'gemini-3.1-flash-image-preview';
 const RESEARCH_ENABLED = process.env.SOCIAL_RESEARCH_ENABLED === 'true';
+
+function strategyModel(): string {
+  return process.env.SOCIAL_STRATEGY_MODE === 'quality' ? QUALITY_MODEL : ECONOMY_MODEL;
+}
+
+export function getSocialStrategyModel(): string {
+  return strategyModel();
+}
+
+const researchCache = new Map<string, { sources: unknown[]; expiresAt: number }>();
+
+export function socialResearchCacheKey(input: Pick<SocialContentRequest, 'city' | 'service' | 'topic'>): string {
+  return [input.city, input.service, input.topic].filter(Boolean).join('|').toLocaleLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9|]+/g, ' ').trim();
+}
+
+export function getSocialResearchCache(cacheKey: string): unknown[] | null {
+  const cached = researchCache.get(cacheKey);
+  if (!cached || cached.expiresAt <= Date.now()) {
+    researchCache.delete(cacheKey);
+    return null;
+  }
+  return cached.sources;
+}
+
+export function setSocialResearchCache(cacheKey: string, sources: unknown[]): void {
+  if (sources.length) researchCache.set(cacheKey, { sources, expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 });
+}
+
 
 const contentSchema = z.object({
   title: z.string().min(8).max(110),
@@ -77,7 +106,7 @@ Retorne somente JSON v\u00e1lido, sem markdown, com exatamente estas chaves:
 
 async function generateFallbackDraft(input: SocialContentRequest, researchAllowed: boolean): Promise<{ draft: SocialDraft; usage: Usage }> {
   const result = await generateText({
-    model: anthropic(STRATEGY_MODEL),
+    model: anthropic(strategyModel()),
     system: 'Voc\u00ea \u00e9 o diretor de marketing \u00e9tico da MeloCal\u00e9. Responda em portugu\u00eas do Brasil. N\u00e3o invente profissionais, avalia\u00e7\u00f5es, pre\u00e7os, disponibilidade ou resultados. N\u00e3o fa\u00e7a promessas que a plataforma n\u00e3o possa comprovar. N\u00e3o inclua texto na arte.',
     prompt: draftPrompt(input, researchAllowed),
   });
@@ -91,7 +120,7 @@ export async function createSocialDraft(input: SocialContentRequest): Promise<{ 
   let result: any;
   try {
     result = await generateText({
-      model: anthropic(STRATEGY_MODEL),
+      model: anthropic(strategyModel()),
       system: `Voc\u00ea \u00e9 o diretor de marketing \u00e9tico da MeloCal\u00e9, uma plataforma digital brasileira que aproxima clientes e profissionais de servi\u00e7os. Crie conte\u00fado \u00fatil, humano e persuasivo em portugu\u00eas do Brasil.
 
 Regras inegoci\u00e1veis:
@@ -190,7 +219,7 @@ export async function createSocialImage(itemId: string, visualPrompt: string): P
     const usage = normalizeUsage(result.usage);
     return saveGeneratedImage(itemId, result.image.uint8Array, result.image.mediaType ?? 'image/png', VISUAL_MODEL, usage);
   } catch (error) {
-    if (!isGeminiQuotaError(error) || !process.env.OPENAI_API_KEY?.trim()) throw error;
+    if (process.env.SOCIAL_VISUAL_FALLBACK_ENABLED !== 'true' || !isGeminiQuotaError(error) || !process.env.OPENAI_API_KEY?.trim()) throw error;
     console.warn('[social-content] Gemini sem cota; usando fallback OpenAI.');
     return createOpenAiFallbackImage(itemId, visualPrompt);
   }
@@ -289,7 +318,7 @@ export type SocialCampaignPlan = z.infer<typeof campaignPlanSchema>;
 export async function createSocialCampaignPlan(input: SocialCampaignPlanRequest): Promise<{ plan: SocialCampaignPlan; usage: Usage; estimatedCostCents: number }> {
   const researchAllowed = input.research === true && RESEARCH_ENABLED;
   const result = await generateText({
-    model: anthropic(STRATEGY_MODEL),
+    model: anthropic(strategyModel()),
     system: 'Voce planeja campanhas organicas eticas para a MeloCale. Priorize utilidade real, variedade de formato e intencao. Nunca invente demanda, resultados, profissionais, avaliacoes, precos ou urgencia. Cada pauta precisa ser diferente e funcionar mesmo sem dados internos.',
     prompt: `Monte ${input.postsPerWeek} pautas para a campanha ${input.name}. Cidade: ${input.city}. Servico: ${input.service ?? 'servicos locais'}. Publico: ${input.audience}. Objetivo: ${input.objective}. ${researchAllowed ? 'Use web apenas para descobrir duvidas recorrentes, sem inserir fatos ou numeros nao verificaveis.' : 'Nao use pesquisa externa.'}`,
     output: Output.object({ schema: campaignPlanSchema, name: 'social_campaign_plan' }),

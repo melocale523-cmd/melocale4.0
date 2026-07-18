@@ -8,7 +8,7 @@ import { sendPushToUser } from "../lib/push.js";
 import { HANDOFF_MESSAGE } from "../services/whatsappConversationService.js";
 import { sendWhatsAppTemplate, normalizeBrazilianPhone, BROADCASTABLE_TEMPLATES } from "../services/whatsappService.js";
 import { filterOptedIn } from "../lib/whatsappOptIn.js";
-import { createSocialCampaignPlan, createSocialDraft, createSocialImage, fetchInstagramMediaMetrics, publishApprovedInstagramImage, type SocialContentRequest } from "../services/socialContentStudio.js";
+import { createSocialCampaignPlan, createSocialDraft, createSocialImage, fetchInstagramMediaMetrics, getSocialStrategyModel, publishApprovedInstagramImage, type SocialContentRequest } from "../services/socialContentStudio.js";
 import { runSocialContentAutopilotTask } from "../jobs/socialContentAutopilot.js";
 
 const router = Router();
@@ -1135,7 +1135,7 @@ router.post('/social-content/metrics/refresh', requireAuth, requireAdmin, async 
 
 router.post('/social-content/autopilot/run', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   try {
-    const processed = await runSocialContentAutopilotTask(5);
+    const processed = await runSocialContentAutopilotTask();
     return res.json({ processed });
   } catch (error) {
     return res.status(502).json({ error: error instanceof Error ? error.message : 'Falha ao executar o autopilot.' });
@@ -1191,7 +1191,7 @@ router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, a
       visual_prompt: generated.draft.visualPrompt,
       safety_notes: generated.draft.safetyNotes,
       research_sources: generated.sources,
-      strategy_model: process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5',
+      strategy_model: getSocialStrategyModel(),
       strategy_usage: generated.usage,
       estimated_cost_cents: generated.estimatedCostCents,
       generation_status: 'ready',
@@ -1298,7 +1298,7 @@ router.post('/social-content/campaigns', requireAuth, requireAdmin, socialStudio
   if (name.length < 3 || city.length < 2 || !['reach','client_leads','professional_signup','trust','education'].includes(objective) || !['client','professional','mixed'].includes(audience)) return res.status(400).json({ error: 'Preencha os dados da campanha corretamente.' });
   try {
     const generated = await createSocialCampaignPlan({ name, city, service: service ?? undefined, postsPerWeek, objective, audience, research: body.research === true });
-    const { data: campaign, error } = await supabaseAdmin.from('social_content_campaigns').insert({ created_by: req.authUser!.id, name, city, service, objective, audience, posts_per_week: postsPerWeek, status: campaignStatus, auto_generate: autoGenerate, research_enabled: body.research === true, weekly_generation_limit: postsPerWeek, budget_cents: budgetCents, auto_generate_images: autoGenerateImages, trend_radar_enabled: trendRadarEnabled, plan: generated.plan.items, plan_model: process.env.SOCIAL_STRATEGY_MODEL ?? 'claude-sonnet-4-5', plan_usage: generated.usage, estimated_cost_cents: generated.estimatedCostCents, last_planned_at: new Date().toISOString() }).select().single();
+    const { data: campaign, error } = await supabaseAdmin.from('social_content_campaigns').insert({ created_by: req.authUser!.id, name, city, service, objective, audience, posts_per_week: postsPerWeek, status: campaignStatus, auto_generate: autoGenerate, research_enabled: body.research === true, weekly_generation_limit: postsPerWeek, budget_cents: budgetCents, auto_generate_images: autoGenerateImages, trend_radar_enabled: trendRadarEnabled, plan: generated.plan.items, plan_model: getSocialStrategyModel(), plan_usage: generated.usage, estimated_cost_cents: generated.estimatedCostCents, last_planned_at: new Date().toISOString() }).select().single();
     if (error || !campaign) throw new Error(error?.message ?? 'Não foi possível salvar a campanha.');
     const base = new Date();
     const planned = generated.plan.items.map((item, index) => ({ created_by: req.authUser!.id, campaign_id: campaign.id, title: `Planejado: ${item.topic}`, objective, audience, city, service, format: item.format, generation_status: 'pending', brief: { topic: item.topic, objective, audience, format: item.format, city, service, research: body.research === true, planned: true }, content_pillar: item.pillar, quality_score: item.qualityScore, planned_for: new Date(base.getTime() + index * Math.floor((7 / postsPerWeek) * 86400000)).toISOString() }));

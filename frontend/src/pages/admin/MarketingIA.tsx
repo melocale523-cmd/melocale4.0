@@ -38,7 +38,7 @@ type FormState = { objective: Objective; audience: Audience; format: ContentForm
 type CampaignForm = { name: string; city: string; service: string; objective: Objective; audience: Audience; posts_per_week: number; budget_cents: number; research: boolean; auto_generate: boolean; auto_generate_images: boolean; trend_radar_enabled: boolean };
 type Campaign = { id: string; name: string; city: string; service: string | null; status: 'active' | 'paused' | 'archived'; auto_generate: boolean; posts_per_week: number; research_enabled: boolean; budget_cents: number; spent_cents: number; archived_at?: string | null };
 const initialForm: FormState = { objective: 'education', audience: 'client', format: 'carousel', topic: '', city: 'Salvador', service: '', research: false };
-const initialCampaign: CampaignForm = { name: '', city: 'Salvador', service: '', objective: 'education', audience: 'mixed', posts_per_week: 3, budget_cents: 5000, research: true, auto_generate: true, auto_generate_images: true, trend_radar_enabled: true };
+const initialCampaign: CampaignForm = { name: '', city: 'Salvador', service: '', objective: 'education', audience: 'mixed', posts_per_week: 1, budget_cents: 500, research: false, auto_generate: true, auto_generate_images: false, trend_radar_enabled: false };
 
 const objectiveLabel: Record<Objective, string> = { reach: 'Alcance', client_leads: 'Clientes', professional_signup: 'Profissionais', trust: 'Confiança', education: 'Educação' };
 const statusLabel: Record<ContentItem['status'], string> = { draft: 'Rascunho', approved: 'Aprovado', rejected: 'Rejeitado', published: 'Publicado' };

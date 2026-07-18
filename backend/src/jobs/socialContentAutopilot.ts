@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { supabaseAdmin } from "../config.js";
 import { runTrackedJob } from "../lib/automationJobs.js";
-import { createSocialDraft, createSocialImage, type SocialContentRequest } from "../services/socialContentStudio.js";
+import { createSocialDraft, createSocialImage, getSocialStrategyModel, getSocialResearchCache, setSocialResearchCache, socialResearchCacheKey, type SocialContentRequest } from "../services/socialContentStudio.js";
 
 type Campaign = {
   id: string; city: string; service: string | null; audience: SocialContentRequest["audience"];
@@ -23,12 +23,43 @@ function weekStart(): string {
   return date.toISOString();
 }
 
-export async function runSocialContentAutopilotTask(maxItems = 5): Promise<number> {
+function dayStart(): string {
+  const date = new Date();
+  date.setUTCHours(0, 0, 0, 0);
+  return date.toISOString();
+}
+
+function envInteger(name: string, fallback: number): number {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value >= 0 ? Math.floor(value) : fallback;
+}
+
+function itemReserveCents(campaign: Campaign): number {
+  const copyReserve = envInteger("SOCIAL_AUTOMATION_ITEM_RESERVE_CENTS", 15);
+  const imageReserve = campaign.auto_generate_images && process.env.SOCIAL_AUTOPILOT_ALLOW_IMAGES === "true"
+    ? envInteger("SOCIAL_VISUAL_RESERVE_CENTS", 25)
+    : 0;
+  return copyReserve + imageReserve;
+}
+
+export async function runSocialContentAutopilotTask(maxItems = envInteger("SOCIAL_AUTOPILOT_MAX_ITEMS_PER_RUN", 1)): Promise<number> {
   const { data: campaigns, error } = await supabaseAdmin.from("social_content_campaigns")
     .select("id, city, service, audience, objective, weekly_generation_limit, budget_cents, spent_cents, auto_generate_images, research_enabled, trend_radar_enabled, evergreen_enabled, seasonal_enabled, multichannel_enabled")
     .eq("status", "active").eq("auto_generate", true).limit(20);
   if (error) throw error;
   let processed = 0;
+
+  const dailyLimit = envInteger("SOCIAL_AUTOPILOT_DAILY_LIMIT_CENTS", 100);
+  const { data: dailyRows } = await supabaseAdmin.from("social_content_items")
+    .select("estimated_cost_cents")
+    .eq("generated_by_autopilot", true)
+    .gte("created_at", dayStart())
+    .limit(200);
+  let dailySpent = (dailyRows ?? []).reduce((total, row) => total + Math.max(0, Number(row.estimated_cost_cents ?? 0)), 0);
+  if (dailySpent >= dailyLimit) {
+    console.log(`[social-autopilot] limite diario atingido: ${dailySpent}/${dailyLimit} centavos`);
+    return 0;
+  }
 
   for (const campaign of (campaigns ?? []) as Campaign[]) {
     if (processed >= maxItems) break;
@@ -37,9 +68,17 @@ export async function runSocialContentAutopilotTask(maxItems = 5): Promise<numbe
       continue;
     }
     if (campaign.spent_cents >= campaign.budget_cents) continue;
+    const reserve = itemReserveCents(campaign);
+    if (campaign.spent_cents + reserve > campaign.budget_cents || dailySpent + reserve > dailyLimit) {
+      await supabaseAdmin.from("social_content_campaigns").update({ last_error: "Pauta pausada pelo limite de custo restante; aumente o orcamento ou aguarde o proximo ciclo diario.", updated_at: new Date().toISOString() }).eq("id", campaign.id);
+      continue;
+    }
     const { count } = await supabaseAdmin.from("social_content_items").select("id", { count: "exact", head: true })
       .eq("campaign_id", campaign.id).eq("generated_by_autopilot", true).gte("created_at", weekStart());
     if ((count ?? 0) >= campaign.weekly_generation_limit) continue;
+    const { count: dailyCampaignCount } = await supabaseAdmin.from("social_content_items").select("id", { count: "exact", head: true })
+      .eq("campaign_id", campaign.id).eq("generated_by_autopilot", true).gte("created_at", dayStart());
+    if ((dailyCampaignCount ?? 0) >= 1) continue;
 
     const dueFilter = "scheduled_for.is.null,scheduled_for.lte." + new Date().toISOString();
     const { data: planned } = await supabaseAdmin.from("social_content_items")
@@ -61,17 +100,23 @@ export async function runSocialContentAutopilotTask(maxItems = 5): Promise<numbe
 
     await supabaseAdmin.from("social_content_items").update({ generation_status: "generating", generated_by_autopilot: true, duplicate_key: key, automation_note: "Gerando copy automaticamente; publicacao ainda depende de aprovacao humana.", updated_at: new Date().toISOString() }).eq("id", item.id);
     try {
+      const researchRequested = (campaign.research_enabled || campaign.trend_radar_enabled) && dailyCampaignCount === 0;
       const request: SocialContentRequest = {
         objective: campaign.objective, audience: campaign.audience, format: item.format,
         city: campaign.city, service: campaign.service ?? undefined, topic,
-        research: campaign.research_enabled || campaign.trend_radar_enabled,
+        research: researchRequested,
       };
+      const cacheKey = researchRequested ? socialResearchCacheKey(request) : '';
+      const cachedSources = researchRequested ? getSocialResearchCache(cacheKey) : null;
+      request.research = researchRequested && !cachedSources;
       const generated = await createSocialDraft(request);
+      if (researchRequested && !cachedSources && generated.sources.length) setSocialResearchCache(cacheKey, generated.sources);
+      const researchSources = cachedSources ?? generated.sources;
       let storagePath: string | null = null;
       let visualModel: string | null = null;
       let visualUsage: Record<string, unknown> = {};
       let totalCost = generated.estimatedCostCents;
-      if (campaign.auto_generate_images && generated.draft.visualPrompt) {
+      if (campaign.auto_generate_images && process.env.SOCIAL_AUTOPILOT_ALLOW_IMAGES === "true" && generated.draft.visualPrompt) {
         try {
           const image = await createSocialImage(item.id, generated.draft.visualPrompt);
           storagePath = image.storagePath; visualModel = image.model; visualUsage = image.usage; totalCost += image.estimatedCostCents;
@@ -90,13 +135,14 @@ export async function runSocialContentAutopilotTask(maxItems = 5): Promise<numbe
       const { error: updateError } = await supabaseAdmin.from("social_content_items").update({
         title: generated.draft.title, content: { hook: generated.draft.hook, caption: generated.draft.caption, cta: generated.draft.cta, slides: generated.draft.slides },
         visual_prompt: generated.draft.visualPrompt, image_storage_path: storagePath, visual_model: visualModel, visual_usage: visualUsage,
-        safety_notes: generated.draft.safetyNotes, research_sources: generated.sources, strategy_model: process.env.SOCIAL_STRATEGY_MODEL ?? "claude-sonnet-4-5",
+        safety_notes: generated.draft.safetyNotes, research_sources: researchSources, strategy_model: getSocialStrategyModel(),
         strategy_usage: generated.usage, estimated_cost_cents: totalCost, generation_status: "ready", channels, variants,
         automation_note: note + " Aguardando aprovacao humana.", updated_at: new Date().toISOString(),
       }).eq("id", item.id);
       if (updateError) throw updateError;
       await supabaseAdmin.from("social_content_campaigns").update({ spent_cents: campaign.spent_cents + totalCost, last_generated_at: new Date().toISOString(), last_autopilot_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", campaign.id);
       campaign.spent_cents += totalCost;
+      dailySpent += totalCost;
       processed += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -110,7 +156,9 @@ export async function runSocialContentAutopilotTask(maxItems = 5): Promise<numbe
 
 export function startSocialContentAutopilotJob(): void {
   if (process.env.SOCIAL_AUTOPILOT_ENABLED !== "true") { console.log("[social-autopilot] desativado"); return; }
-  setInterval(() => void runTrackedJob("social_content_autopilot", () => runSocialContentAutopilotTask(5)), 15 * 60 * 1000);
-  void runTrackedJob("social_content_autopilot", () => runSocialContentAutopilotTask(5));
-  console.log("[social-autopilot] ativo: ciclo a cada 15 minutos");
+  const intervalMinutes = Math.max(60, envInteger("SOCIAL_AUTOPILOT_INTERVAL_MINUTES", 1440));
+  const maxItems = envInteger("SOCIAL_AUTOPILOT_MAX_ITEMS_PER_RUN", 1);
+  setInterval(() => void runTrackedJob("social_content_autopilot", () => runSocialContentAutopilotTask(maxItems)), intervalMinutes * 60 * 1000);
+  void runTrackedJob("social_content_autopilot", () => runSocialContentAutopilotTask(maxItems));
+  console.log(`[social-autopilot] ativo: ciclo a cada ${intervalMinutes} minutos; maximo ${maxItems} pauta(s)`);
 }
