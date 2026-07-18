@@ -8,7 +8,7 @@ import { sendPushToUser } from "../lib/push.js";
 import { HANDOFF_MESSAGE } from "../services/whatsappConversationService.js";
 import { sendWhatsAppTemplate, normalizeBrazilianPhone, BROADCASTABLE_TEMPLATES } from "../services/whatsappService.js";
 import { filterOptedIn } from "../lib/whatsappOptIn.js";
-import { createSocialCampaignPlan, createSocialDraft, createSocialImage, publishApprovedInstagramImage, type SocialContentRequest } from "../services/socialContentStudio.js";
+import { createSocialCampaignPlan, createSocialDraft, createSocialImage, fetchInstagramMediaMetrics, publishApprovedInstagramImage, type SocialContentRequest } from "../services/socialContentStudio.js";
 import { runSocialContentAutopilotTask } from "../jobs/socialContentAutopilot.js";
 
 const router = Router();
@@ -1093,12 +1093,14 @@ router.get('/social-content/overview', requireAuth, requireAdmin, async (_req: A
   if (items.error || campaigns.error) return res.status(500).json({ error: 'Erro ao carregar as metricas do Marketing IA.' });
   const rows = items.data ?? [];
   const metricValue = (row: any, key: string) => Number(row?.performance?.[key] ?? row?.conversion_metrics?.[key] ?? 0) || 0;
+  const metricsAvailable = rows.some((row) => Object.keys(row.performance ?? {}).length > 0 || Object.keys(row.conversion_metrics ?? {}).length > 0);
   const performance = rows.reduce((totals, row) => ({
     likes: totals.likes + metricValue(row, 'likes'), comments: totals.comments + metricValue(row, 'comments'),
     reach: totals.reach + metricValue(row, 'reach'), clicks: totals.clicks + metricValue(row, 'clicks'),
     conversions: totals.conversions + metricValue(row, 'conversions'), leads: totals.leads + metricValue(row, 'leads'),
   }), { likes: 0, comments: 0, reach: 0, clicks: 0, conversions: 0, leads: 0 });
   return res.json({
+    metrics_available: metricsAvailable,
     metrics: {
       total: rows.length,
       drafts: rows.filter((row) => row.status === 'draft').length,
@@ -1111,6 +1113,24 @@ router.get('/social-content/overview', requireAuth, requireAdmin, async (_req: A
     campaigns: campaigns.data ?? [],
     runs: queue.data ?? [],
   });
+});
+
+router.post('/social-content/metrics/refresh', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
+  const { data: items, error } = await supabaseAdmin.from('social_content_items').select('id, instagram_media_id, performance').eq('status', 'published').not('instagram_media_id', 'is', null).limit(100);
+  if (error) return res.status(500).json({ error: 'Nao foi possivel carregar publicacoes para atualizar os insights.' });
+  let updated = 0;
+  const errors: string[] = [];
+  for (const item of items ?? []) {
+    try {
+      const metrics = await fetchInstagramMediaMetrics(item.instagram_media_id as string);
+      const { error: updateError } = await supabaseAdmin.from('social_content_items').update({ performance: { ...(item.performance ?? {}), ...metrics }, updated_at: new Date().toISOString() }).eq('id', item.id);
+      if (updateError) throw updateError;
+      updated += 1;
+    } catch (error) {
+      errors.push(`${item.id}: ${error instanceof Error ? error.message : String(error)}`.slice(0, 500));
+    }
+  }
+  return res.json({ updated, attempted: items?.length ?? 0, errors });
 });
 
 router.post('/social-content/autopilot/run', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
@@ -1181,7 +1201,8 @@ router.post('/social-content', requireAuth, requireAdmin, socialStudioLimiter, a
     return res.status(201).json({ item: await withSocialImageUrl(data as SocialContentRow) });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    await supabaseAdmin.from('social_content_items').update({ generation_status: 'failed', failure_code: 'generation_failed', failure_details: message.slice(0, 2000), safety_notes: [message], updated_at: new Date().toISOString() }).eq('id', pending.id);
+    const schemaMismatch = /no object generated|schema|structured output|valid json/i.test(message);
+    await supabaseAdmin.from('social_content_items').update({ generation_status: 'failed', failure_code: schemaMismatch ? 'generation_schema_mismatch' : 'generation_failed', failure_details: schemaMismatch ? `A IA nao retornou o formato esperado. O sistema tentara um formato JSON validado no proximo processamento. Detalhe: ${message}`.slice(0, 2000) : message.slice(0, 2000), safety_notes: [message], updated_at: new Date().toISOString() }).eq('id', pending.id);
     console.error('[social-content] generation:', message);
     return res.status(502).json({ error: message });
   }

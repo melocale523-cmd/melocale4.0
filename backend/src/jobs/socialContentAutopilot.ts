@@ -100,7 +100,8 @@ export async function runSocialContentAutopilotTask(maxItems = 5): Promise<numbe
       processed += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      await supabaseAdmin.from("social_content_items").update({ generation_status: "failed", automation_note: message.slice(0, 500), updated_at: new Date().toISOString() }).eq("id", item.id);
+      const schemaMismatch = /no object generated|schema|structured output|valid json/i.test(message);
+      await supabaseAdmin.from("social_content_items").update({ generation_status: "failed", failure_code: schemaMismatch ? "generation_schema_mismatch" : "generation_failed", failure_details: (schemaMismatch ? `A IA nao retornou o formato esperado. Detalhe: ${message}` : message).slice(0, 2000), automation_note: message.slice(0, 500), updated_at: new Date().toISOString() }).eq("id", item.id);
       console.error("[social-autopilot] geracao:", message);
     }
   }

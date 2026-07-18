@@ -54,19 +54,68 @@ function rejectUnsafeCopy(draft: SocialDraft): void {
   }
 }
 
-export async function createSocialDraft(input: SocialContentRequest): Promise<{ draft: SocialDraft; usage: Usage; estimatedCostCents: number; sources: unknown[] }> {
-  const location = [input.city, input.service].filter(Boolean).join(' — ') || 'Brasil';
-  const researchAllowed = input.research === true && RESEARCH_ENABLED;
+function parseJsonObject(text: string): unknown {
+  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  if (first < 0 || last <= first) throw new Error('A IA n\u00e3o retornou um objeto JSON v\u00e1lido.');
+  return JSON.parse(cleaned.slice(first, last + 1));
+}
+
+function draftPrompt(input: SocialContentRequest, researchAllowed: boolean): string {
+  const location = [input.city, input.service].filter(Boolean).join(' \u00b7 ') || 'Brasil';
+  return `Crie um rascunho de conte\u00fado para ${input.format}.
+Objetivo: ${input.objective}.
+P\u00fablico: ${input.audience}.
+Local/servi\u00e7o: ${location}.
+Tema: ${input.topic}.
+${researchAllowed ? 'Use a pesquisa na web apenas para identificar d\u00favidas e formatos; n\u00e3o use n\u00fameros ou fatos n\u00e3o verific\u00e1veis no texto final.' : 'N\u00e3o h\u00e1 dados internos suficientes; trabalhe com educa\u00e7\u00e3o e transpar\u00eancia, sem alegar evid\u00eancias externas.'}
+
+Retorne somente JSON v\u00e1lido, sem markdown, com exatamente estas chaves:
+{"title":"","hook":"","caption":"","cta":"","slides":[{"heading":"","body":""}],"visualPrompt":"","safetyNotes":[""]}`;
+}
+
+async function generateFallbackDraft(input: SocialContentRequest, researchAllowed: boolean): Promise<{ draft: SocialDraft; usage: Usage }> {
   const result = await generateText({
     model: anthropic(STRATEGY_MODEL),
-    system: `Você é o diretor de marketing ético da MeloCalé, uma plataforma digital brasileira que aproxima clientes e profissionais de serviços. Crie conteúdo útil, humano e persuasivo em português do Brasil.\n\nRegras inegociáveis:\n- Não invente profissionais, clientes, avaliações, preços, disponibilidade, urgência, cobertura ou resultados.\n- Não prometa quantidade de pedidos, contratação, economia, segurança absoluta ou atendimento imediato.\n- Não use medo, manipulação, escassez falsa, spam ou comparações sem fonte.\n- Quando não houver prova real, explique processo, checklist ou orientação prática.\n- Arte: não inclua texto dentro da imagem; texto será aplicado no design depois. Não apresente pessoas geradas como clientes ou profissionais reais.\n- O conteúdo deve direcionar para um próximo passo honesto: pedir orçamento, entender o processo ou cadastrar-se como profissional.`,
-    prompt: `Crie um rascunho de conteúdo para ${input.format}.\nObjetivo: ${input.objective}.\nPúblico: ${input.audience}.\nLocal/serviço: ${location}.\nTema: ${input.topic}.\n${researchAllowed ? 'Use a pesquisa na web apenas para identificar dúvidas e formatos; não use números ou fatos não verificáveis no texto final.' : 'Não há dados internos suficientes; trabalhe com educação e transparência, sem alegar evidências externas.'}\n\nRetorne uma proposta completa e pronta para aprovação.`,
-    output: Output.object({ schema: contentSchema, name: 'social_content_draft' }),
-    ...(researchAllowed ? {
-      tools: { web_search: anthropic.tools.webSearch_20250305({ maxUses: 3 }) },
-      stopWhen: stepCountIs(4),
-    } : {}),
+    system: 'Voc\u00ea \u00e9 o diretor de marketing \u00e9tico da MeloCal\u00e9. Responda em portugu\u00eas do Brasil. N\u00e3o invente profissionais, avalia\u00e7\u00f5es, pre\u00e7os, disponibilidade ou resultados. N\u00e3o fa\u00e7a promessas que a plataforma n\u00e3o possa comprovar. N\u00e3o inclua texto na arte.',
+    prompt: draftPrompt(input, researchAllowed),
   });
+  const parsed = contentSchema.safeParse(parseJsonObject(result.text));
+  if (!parsed.success) throw new Error(`A resposta da IA n\u00e3o passou na valida\u00e7\u00e3o: ${parsed.error.issues[0]?.message ?? 'formato inv\u00e1lido'}.`);
+  return { draft: parsed.data, usage: normalizeUsage(result.totalUsage) };
+}
+
+export async function createSocialDraft(input: SocialContentRequest): Promise<{ draft: SocialDraft; usage: Usage; estimatedCostCents: number; sources: unknown[] }> {
+  const researchAllowed = input.research === true && RESEARCH_ENABLED;
+  let result: any;
+  try {
+    result = await generateText({
+      model: anthropic(STRATEGY_MODEL),
+      system: `Voc\u00ea \u00e9 o diretor de marketing \u00e9tico da MeloCal\u00e9, uma plataforma digital brasileira que aproxima clientes e profissionais de servi\u00e7os. Crie conte\u00fado \u00fatil, humano e persuasivo em portugu\u00eas do Brasil.
+
+Regras inegoci\u00e1veis:
+- N\u00e3o invente profissionais, clientes, avalia\u00e7\u00f5es, pre\u00e7os, disponibilidade, urg\u00eancia, cobertura ou resultados.
+- N\u00e3o prometa quantidade de pedidos, contrata\u00e7\u00e3o, economia, seguran\u00e7a absoluta ou atendimento imediato.
+- N\u00e3o use medo, manipula\u00e7\u00e3o, escassez falsa, spam ou compara\u00e7\u00f5es sem fonte.
+- Quando n\u00e3o houver prova real, explique processo, checklist ou orienta\u00e7\u00e3o pr\u00e1tica.
+- Arte: n\u00e3o inclua texto dentro da imagem; texto ser\u00e1 aplicado no design depois. N\u00e3o apresente pessoas geradas como clientes ou profissionais reais.
+- O conte\u00fado deve direcionar para um pr\u00f3ximo passo honesto: pedir or\u00e7amento, entender o processo ou cadastrar-se como profissional.`,
+      prompt: draftPrompt(input, researchAllowed),
+      output: Output.object({ schema: contentSchema, name: 'social_content_draft' }),
+      ...(researchAllowed ? {
+        tools: { web_search: anthropic.tools.webSearch_20250305({ maxUses: 3 }) },
+        stopWhen: stepCountIs(4),
+      } : {}),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!/no object generated|schema|structured output|valid json/i.test(message)) throw error;
+    console.warn('[social-content] resposta estruturada inv\u00e1lida; usando fallback JSON validado');
+    const fallback = await generateFallbackDraft(input, researchAllowed);
+    rejectUnsafeCopy(fallback.draft);
+    return { draft: fallback.draft, usage: fallback.usage, estimatedCostCents: estimateCostCents(fallback.usage), sources: [] };
+  }
 
   const draft = result.output;
   rejectUnsafeCopy(draft);
@@ -146,6 +195,28 @@ export async function createSocialImage(itemId: string, visualPrompt: string): P
     return createOpenAiFallbackImage(itemId, visualPrompt);
   }
 }
+export type InstagramMediaMetrics = { likes: number; comments: number; reach: number; clicks: number; conversions: number; leads: number; metrics_source: string; metrics_collected_at: string };
+
+export async function fetchInstagramMediaMetrics(mediaId: string): Promise<InstagramMediaMetrics> {
+  const accessToken = process.env.META_INSTAGRAM_ACCESS_TOKEN?.trim();
+  const version = process.env.META_INSTAGRAM_GRAPH_API_VERSION?.trim() || 'v22.0';
+  if (!accessToken) throw new Error('META_INSTAGRAM_ACCESS_TOKEN nao esta configurado.');
+  const base = `https://graph.facebook.com/${version}/${encodeURIComponent(mediaId)}`;
+  const query = (path: string) => `${base}${path}${path.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(accessToken)}`;
+  const mediaResponse = await fetch(query('?fields=like_count,comments_count'), { signal: AbortSignal.timeout(20_000) });
+  const media = await mediaResponse.json().catch(() => ({})) as { like_count?: number; comments_count?: number; error?: { message?: string } };
+  if (!mediaResponse.ok || media.error) throw new Error(`A Meta nao retornou os dados da publicacao: ${media.error?.message ?? `HTTP ${mediaResponse.status}`}`);
+  let reach = 0;
+  try {
+    const insightsResponse = await fetch(query('/insights?metric=reach,views,total_interactions'), { signal: AbortSignal.timeout(20_000) });
+    const insights = await insightsResponse.json().catch(() => ({})) as { data?: Array<{ name?: string; values?: Array<{ value?: number }> }>; error?: { message?: string } };
+    if (insightsResponse.ok && !insights.error) reach = Number(insights.data?.find((metric) => metric.name === 'reach')?.values?.[0]?.value ?? 0) || 0;
+  } catch {
+    // Basic counts remain useful when the account lacks the insights permission.
+  }
+  return { likes: Number(media.like_count ?? 0) || 0, comments: Number(media.comments_count ?? 0) || 0, reach, clicks: 0, conversions: 0, leads: 0, metrics_source: 'instagram_graph_api', metrics_collected_at: new Date().toISOString() };
+}
+
 type InstagramPublishResult = { containerId: string; mediaId: string };
 
 function instagramApiUrl(path: string): string {
