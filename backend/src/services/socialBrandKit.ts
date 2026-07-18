@@ -1,7 +1,7 @@
 export const MELOCALE_BRAND_KIT = {
   name: 'MeloCal\u00e9',
   country: 'Brasil', language: 'pt-BR',
-  logoUrl: process.env.MELOCALE_BRAND_LOGO_URL?.trim() || 'https://www.melocale.com.br/logo.png',
+  logoUrl: process.env.MELOCALE_BRAND_LOGO_URL?.trim() || 'https://www.melocale.com.br/apple-touch-icon.png',
   colors: { navy: '#092D86', royalBlue: '#0B43B8', cyan: '#08BDF2', emerald: '#08734F', ice: '#F4F8FF', coral: '#FF7A59' },
 } as const;
 
