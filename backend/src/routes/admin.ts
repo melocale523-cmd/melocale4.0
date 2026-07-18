@@ -8,8 +8,9 @@ import { sendPushToUser } from "../lib/push.js";
 import { HANDOFF_MESSAGE } from "../services/whatsappConversationService.js";
 import { sendWhatsAppTemplate, normalizeBrazilianPhone, BROADCASTABLE_TEMPLATES } from "../services/whatsappService.js";
 import { filterOptedIn } from "../lib/whatsappOptIn.js";
-import { createSocialCampaignPlan, createSocialDraft, createSocialImage, fetchInstagramMediaMetrics, getSocialStrategyModel, publishApprovedInstagramImage, type SocialContentRequest } from "../services/socialContentStudio.js";
+import { createSocialCampaignPlan, createSocialDraft, createSocialImage, fetchInstagramMediaMetrics, getSocialStrategyModel, publishApprovedInstagramImage, publishApprovedInstagramStory, type SocialContentRequest } from "../services/socialContentStudio.js";
 import { runSocialContentAutopilotTask } from "../jobs/socialContentAutopilot.js";
+import { DEFAULT_HIGHLIGHT_PACKS, MELOCALE_BRAND_KIT, highlightStoriesFor } from '../services/socialBrandKit.js';
 
 const router = Router();
 router.get("/automation-jobs", requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
@@ -1242,6 +1243,26 @@ router.patch('/social-content/:id/status', requireAuth, requireAdmin, async (req
   return res.json({ item: await withSocialImageUrl(data as SocialContentRow) });
 });
 
+router.post('/social-content/:id/publish-instagram-story', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { data: item, error: itemError } = await supabaseAdmin.from('social_content_items').select('id, format, status, generation_status, image_storage_path, content').eq('id', req.params.id).single();
+    if (itemError || !item) return res.status(404).json({ error: 'Conte?do n?o encontrado.' });
+    if (item.format !== 'story') return res.status(409).json({ error: 'Somente conte?dos no formato Story podem ser publicados como Story.' });
+    if (item.status !== 'approved' || item.generation_status !== 'ready') return res.status(409).json({ error: 'Aprove o Story antes de publicar.' });
+    if (!item.image_storage_path) return res.status(409).json({ error: 'Gere e revise uma arte antes de publicar o Story.' });
+    const { data: signed, error: signedError } = await supabaseAdmin.storage.from('social-content').createSignedUrl(item.image_storage_path, 3_600);
+    if (signedError || !signed?.signedUrl) throw new Error(signedError?.message ?? 'N?o foi poss?vel preparar a imagem do Story.');
+    const published = await publishApprovedInstagramStory({ imageUrl: signed.signedUrl });
+    const { data: updated, error: updateError } = await supabaseAdmin.from('social_content_items').update({ status: 'published', instagram_container_id: published.containerId, instagram_media_id: published.mediaId, published_at: new Date().toISOString(), publication_error: null, updated_at: new Date().toISOString() }).eq('id', item.id).select(socialFields).single();
+    if (updateError || !updated) throw new Error(updateError?.message ?? 'N?o foi poss?vel salvar a publica??o do Story.');
+    return res.json({ item: await withSocialImageUrl(updated), instagram_media_id: published.mediaId, highlight_action: 'Adicione este Story ao Destaque pelo aplicativo do Instagram.' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await supabaseAdmin.from('social_content_items').update({ publication_error: message.slice(0, 2000), updated_at: new Date().toISOString() }).eq('id', req.params.id);
+    return res.status(502).json({ error: message });
+  }
+});
+
 router.post('/social-content/:id/publish-instagram', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
   const { data: item, error } = await supabaseAdmin.from('social_content_items')
     .select('id, status, generation_status, image_storage_path, content')
@@ -1271,6 +1292,41 @@ router.post('/social-content/:id/publish-instagram', requireAuth, requireAdmin, 
     return res.status(502).json({ error: message });
   }
 });
+router.get('/social-content/highlights', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
+  const { data, error } = await supabaseAdmin.from('social_highlight_packs').select('id, slug, name, category, description, cover_color, cover_logo_url, stories, status, instagram_story_ids, last_published_at, last_error, created_at, updated_at').neq('status', 'archived').order('updated_at', { ascending: false });
+  if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'Migracao dos pacotes de Destaques ainda nao aplicada.' : error.message });
+  return res.json({ packs: data ?? [], brand_kit: MELOCALE_BRAND_KIT });
+});
+
+router.post('/social-content/highlights/bootstrap', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { data: existing, error: readError } = await supabaseAdmin.from('social_highlight_packs').select('slug').neq('status', 'archived');
+    if (readError) {
+      if (readError.code === '42P01') return res.status(503).json({ error: 'Migracao dos pacotes de Destaques ainda nao aplicada.' });
+      throw readError;
+    }
+    const known = new Set((existing ?? []).map((row) => row.slug));
+    const missing = DEFAULT_HIGHLIGHT_PACKS.filter((pack) => !known.has(pack.slug)).map((pack) => ({ created_by: req.authUser!.id, slug: pack.slug, name: pack.name, category: pack.category, description: pack.description, cover_color: pack.coverColor, cover_logo_url: MELOCALE_BRAND_KIT.logoUrl, stories: highlightStoriesFor(pack), status: 'ready' }));
+    if (missing.length) {
+      const { error } = await supabaseAdmin.from('social_highlight_packs').insert(missing);
+      if (error) throw error;
+    }
+    const { data, error } = await supabaseAdmin.from('social_highlight_packs').select('id, slug, name, category, description, cover_color, cover_logo_url, stories, status, instagram_story_ids, last_published_at, last_error, created_at, updated_at').neq('status', 'archived').order('updated_at', { ascending: false });
+    if (error) throw error;
+    return res.json({ packs: data ?? [], created: missing.length });
+  } catch (error) {
+    return res.status(error instanceof Error ? 500 : 500).json({ error: error instanceof Error ? error.message : 'Nao foi possivel criar os Destaques.' });
+  }
+});
+
+router.patch('/social-content/highlights/:id', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  const status = typeof req.body?.status === 'string' ? req.body.status : undefined;
+  if (!status || !['draft', 'ready', 'published', 'archived'].includes(status)) return res.status(400).json({ error: 'Status de Destaque inv?lido.' });
+  const { data, error } = await supabaseAdmin.from('social_highlight_packs').update({ status, updated_at: new Date().toISOString(), ...(status === 'archived' ? { last_error: 'Arquivado pelo administrador.' } : {}) }).eq('id', req.params.id).select().single();
+  if (error || !data) return res.status(error?.code === '42P01' ? 503 : 404).json({ error: error?.code === '42P01' ? 'Migracao dos pacotes de Destaques ainda nao aplicada.' : error?.message ?? 'Destaque nao encontrado.' });
+  return res.json({ pack: data });
+});
+
 router.get('/social-content/campaigns', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const { data, error } = await supabaseAdmin.from('social_content_campaigns')
     .select('id, name, city, service, audience, objective, posts_per_week, status, auto_generate, research_enabled, weekly_generation_limit, plan, estimated_cost_cents, budget_cents, spent_cents, last_autopilot_at, archived_at, last_error, created_at, updated_at')

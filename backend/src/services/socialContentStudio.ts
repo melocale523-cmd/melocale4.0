@@ -174,7 +174,7 @@ function isGeminiQuotaError(error: unknown): boolean {
 }
 
 const MELOCALE_IMAGE_GUIDANCE = [
-  'Direcao visual MeloCale: marketplace brasileiro de servicos locais, acolhedor, confiavel e contemporaneo. Use uma paleta sutil inspirada na marca: azul-marinho profundo, verde-esmeralda e pequenos acentos coral/laranja, sem transformar a imagem em um anuncio carregado. Prefira uma cena fotografica editorial fotorrealista, com iluminacao natural, materiais e proporcoes plausiveis, contexto brasileiro cotidiano e detalhes humanos autenticos. Quando uma explicacao visual for melhor atendida por ilustracao, use uma composicao 3D editorial premium, limpa e com acabamento profissional.',
+  'Direcao visual MeloCale: marketplace brasileiro de servicos locais, acolhedor, confiavel e contemporaneo. Paleta fixa da marca: navy #092D86, royal blue #0B43B8, cyan #08BDF2, emerald #08734F, ice #F4F8FF e coral #FF7A59. Use uma paleta sutil inspirada na marca: azul-marinho profundo, verde-esmeralda e pequenos acentos coral/laranja, sem transformar a imagem em um anuncio carregado. Prefira uma cena fotografica editorial fotorrealista, com iluminacao natural, materiais e proporcoes plausiveis, contexto brasileiro cotidiano e detalhes humanos autenticos. Quando uma explicacao visual for melhor atendida por ilustracao, use uma composicao 3D editorial premium, limpa e com acabamento profissional.',
   'Composicao para redes sociais: retrato vertical 4:5, um ponto focal claro, hierarquia visual forte, fundo organizado e area de respiro para a legenda ser aplicada fora da imagem. Mantenha uma assinatura visual repetivel da MeloCale: luz natural, contraste azul-marinho com verde-esmeralda e um pequeno acento coral/laranja em cada arte, sem parecer template rigido. Nao inclua texto, letras, numeros, logotipo, marca d agua, interface, preco, selo de avaliacao ou identidade visual de terceiros. Nao invente resultados, clientes, profissionais, avaliacoes ou disponibilidade. Se houver pessoas, trate-as como personagens editoriais genericos, sem sugerir que sao profissionais ou clientes reais.',
 ].join('\n');
 
@@ -292,6 +292,27 @@ export async function publishApprovedInstagramImage(input: { imageUrl: string; c
 
   const published = await instagramRequest<{ id?: string }>(`${accountId}/media_publish`, new URLSearchParams({ creation_id: container.id, access_token: accessToken }));
   if (!published.id) throw new Error('A Meta não retornou o identificador da publicação.');
+  return { containerId: container.id, mediaId: published.id };
+}
+/** Publica uma imagem aprovada como Story; a cria??o do Destaque continua sendo confirmada no Instagram. */
+export async function publishApprovedInstagramStory(input: { imageUrl: string }): Promise<InstagramPublishResult> {
+  const accessToken = process.env.META_INSTAGRAM_ACCESS_TOKEN?.trim();
+  const accountId = process.env.META_INSTAGRAM_ACCOUNT_ID?.trim();
+  if (!accessToken || !accountId) throw new Error('META_INSTAGRAM_ACCESS_TOKEN e META_INSTAGRAM_ACCOUNT_ID precisam estar configuradas no servidor.');
+  const container = await instagramRequest<{ id?: string }>(accountId + '/media', new URLSearchParams({ media_type: 'STORIES', image_url: input.imageUrl, access_token: accessToken }));
+  if (!container.id) throw new Error('A Meta n?o retornou o identificador do Story.');
+  let ready = false;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+    const response = await fetch(instagramApiUrl(container.id) + '?fields=status_code&access_token=' + encodeURIComponent(accessToken), { signal: AbortSignal.timeout(15_000) });
+    const status = await response.json().catch(() => ({})) as { status_code?: string; error?: { message?: string } };
+    if (status.error) throw new Error('A Meta n?o conseguiu processar o Story: ' + (status.error.message ?? 'erro desconhecido'));
+    if (status.status_code === 'FINISHED') { ready = true; break; }
+    if (status.status_code === 'ERROR' || status.status_code === 'EXPIRED') throw new Error('A Meta n?o p?de processar o Story (' + status.status_code + ').');
+  }
+  if (!ready) throw new Error('A Meta ainda est? processando o Story. Aguarde alguns segundos e tente novamente.');
+  const published = await instagramRequest<{ id?: string }>(accountId + '/media_publish', new URLSearchParams({ creation_id: container.id, access_token: accessToken }));
+  if (!published.id) throw new Error('A Meta n?o retornou o identificador do Story publicado.');
   return { containerId: container.id, mediaId: published.id };
 }
 export type SocialCampaignPlanRequest = {
