@@ -1320,9 +1320,18 @@ router.post('/social-content/highlights/bootstrap', requireAuth, requireAdmin, a
 });
 
 router.patch('/social-content/highlights/:id', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
-  const status = typeof req.body?.status === 'string' ? req.body.status : undefined;
-  if (!status || !['draft', 'ready', 'published', 'archived'].includes(status)) return res.status(400).json({ error: 'Status de Destaque inv?lido.' });
-  const { data, error } = await supabaseAdmin.from('social_highlight_packs').update({ status, updated_at: new Date().toISOString(), ...(status === 'archived' ? { last_error: 'Arquivado pelo administrador.' } : {}) }).eq('id', req.params.id).select().single();
+  const body = req.body as Record<string, unknown>;
+  const status = typeof body.status === 'string' ? body.status : undefined;
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (status !== undefined) {
+    if (!['draft', 'ready', 'published', 'archived'].includes(status)) return res.status(400).json({ error: 'Status de Destaque invalido.' });
+    update.status = status;
+    if (status === 'archived') update.last_error = 'Arquivado pelo administrador.';
+  }
+  for (const field of ['name', 'description'] as const) if (typeof body[field] === 'string') update[field] = body[field].trim().slice(0, field === 'name' ? 80 : 500);
+  if (typeof body.cover_color === 'string' && /^#[0-9a-f]{6}$/i.test(body.cover_color)) update.cover_color = body.cover_color;
+  if (Object.keys(update).length === 1) return res.status(400).json({ error: 'Nenhuma alteracao valida informada.' });
+  const { data, error } = await supabaseAdmin.from('social_highlight_packs').update(update).eq('id', req.params.id).select().single();
   if (error || !data) return res.status(error?.code === '42P01' ? 503 : 404).json({ error: error?.code === '42P01' ? 'Migracao dos pacotes de Destaques ainda nao aplicada.' : error?.message ?? 'Destaque nao encontrado.' });
   return res.json({ pack: data });
 });
