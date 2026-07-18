@@ -1295,7 +1295,9 @@ router.post('/social-content/:id/publish-instagram', requireAuth, requireAdmin, 
 router.get('/social-content/highlights', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const { data, error } = await supabaseAdmin.from('social_highlight_packs').select('id, slug, name, category, description, cover_color, cover_logo_url, stories, status, instagram_story_ids, last_published_at, last_error, created_at, updated_at').neq('status', 'archived').order('updated_at', { ascending: false });
   if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'Migracao dos pacotes de Destaques ainda nao aplicada.' : error.message });
-  return res.json({ packs: data ?? [], brand_kit: MELOCALE_BRAND_KIT });
+  const order = new Map(DEFAULT_HIGHLIGHT_PACKS.map((pack, index) => [pack.slug, index]));
+  const ordered = [...(data ?? [])].sort((a, b) => (order.get(a.slug) ?? 999) - (order.get(b.slug) ?? 999));
+  return res.json({ packs: ordered, brand_kit: MELOCALE_BRAND_KIT });
 });
 
 router.post('/social-content/highlights/bootstrap', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
