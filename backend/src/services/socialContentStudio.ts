@@ -72,17 +72,36 @@ function estimateCostCents(usage: Usage, inputRate = Number(process.env.SOCIAL_S
   return Math.max(0, Math.round((usage.inputTokens * inputRate + usage.outputTokens * outputRate) / 1_000_000));
 }
 
-function rejectUnsafeCopy(draft: SocialDraft): void {
-  const text = `${draft.title} ${draft.hook} ${draft.caption} ${draft.cta} ${draft.slides.map((slide) => `${slide.heading} ${slide.body}`).join(' ')}`.toLowerCase();
-  const forbidden = [
-    /profissionais? verificados?/, /melhor pre[çc]o/, /resultado garantido/, /atendimento imediato/,
-    /dispon[ií]vel agora/, /garantia de contrata[çc][ãa]o/, /avalia[çc][õo]es? reais?/, /n[úu]mero de pedidos garantido/,
-  ];
-  if (forbidden.some((pattern) => pattern.test(text))) {
-    throw new Error('O rascunho foi bloqueado por conter uma promessa que a plataforma não consegue comprovar.');
-  }
-}
+type SafetyRewrite = { pattern: RegExp; replacement: string; note: string };
 
+const safetyRewrites: SafetyRewrite[] = [
+  { pattern: /profissionais? verificados?/gi, replacement: 'profissionais cadastrados', note: 'Ajustamos uma alegação de verificação para linguagem neutra.' },
+  { pattern: /melhor pre(?:\\u00e7|c)o/gi, replacement: 'compare as op\\u00e7\\u00f5es dispon\\u00edveis', note: 'Removemos a alega\\u00e7\\u00e3o de melhor pre\\u00e7o.' },
+  { pattern: /resultado garantido/gi, replacement: 'orientação prática', note: 'Removemos a promessa de resultado garantido.' },
+  { pattern: /atendimento imediato/gi, replacement: 'próximo passo', note: 'Removemos a promessa de atendimento imediato.' },
+  { pattern: /dispon(?:i\\u00ed|i)vel agora/gi, replacement: 'consulte a disponibilidade', note: 'Trocamos disponibilidade imediata por uma orienta\\u00e7\\u00e3o verific\\u00e1vel.' },
+  { pattern: /garantia de contrata(?:\\u00e7|c)(?:\\u00e3|a)o/gi, replacement: 'possibilidade de solicitar orcamento', note: 'Removemos a garantia de contrata\\u00e7\\u00e3o.' },
+  { pattern: /avalia(?:\\u00e7|c)(?:\\u00f5|o)es? reais?/gi, replacement: 'informacoes disponiveis no perfil', note: 'Removemos a alegacao sobre avaliacoes.' },
+  { pattern: /n(?:\\u00fa|u)mero de pedidos garantido/gi, replacement: 'forma de acompanhar pedidos', note: 'Removemos a promessa sobre quantidade de pedidos.' },
+];
+
+function sanitizeUnsafeCopy(draft: SocialDraft): SocialDraft {
+  const notes = new Set<string>();
+  const rewrite = (value: string) => safetyRewrites.reduce((current, rule) => {
+    if (rule.pattern.test(current)) notes.add(rule.note);
+    rule.pattern.lastIndex = 0;
+    return current.replace(rule.pattern, rule.replacement);
+  }, value);
+  return {
+    ...draft,
+    title: rewrite(draft.title),
+    hook: rewrite(draft.hook),
+    caption: rewrite(draft.caption),
+    cta: rewrite(draft.cta),
+    slides: draft.slides.map((slide) => ({ heading: rewrite(slide.heading), body: rewrite(slide.body) })),
+    safetyNotes: [...draft.safetyNotes, ...notes].slice(0, 8),
+  };
+}
 function parseJsonObject(text: string): unknown {
   const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
   const first = cleaned.indexOf('{');
@@ -97,7 +116,7 @@ function draftPrompt(input: SocialContentRequest, researchAllowed: boolean): str
 Objetivo: ${input.objective}.
 P\u00fablico: ${input.audience}.
 Local/servi\u00e7o: ${location}.
-Tema: ${input.topic}.\nFramework persuasivo MeloCale:\n- Comece com um gancho curto que interrompa a rolagem e nomeie uma dor ou desejo concreto.\n- Mostre uma consequencia pratica sem alarmismo e entregue uma orientacao que a pessoa consiga usar.\n- Antecipe uma objecao comum (preco, confianca, prazo ou como escolher) e responda com transparencia.\n- Termine com um proximo passo unico e mensuravel, ligado ao objetivo: pedir orcamento, comparar profissionais ou cadastrar-se.\n- Use linguagem especifica, humana e visual; evite frases genericas.\n- Para alcance ou educacao, priorize salvar e compartilhar; para cliente, pedir orcamento; para profissional, cadastrar perfil.\n
+Tema: ${input.topic}.\nFramework persuasivo MeloCale:\n- Comece com um gancho curto que interrompa a rolagem e nomeie uma dor ou desejo concreto.\n- Mostre uma consequencia pratica sem alarmismo e entregue uma orientacao que a pessoa consiga usar.\n- Antecipe uma objecao comum (preco, confianca, prazo ou como escolher) e responda com transparencia.\n- Termine com um proximo passo unico e mensuravel, ligado ao objetivo: pedir orcamento, comparar profissionais ou cadastrar-se.\n- Use linguagem especifica, humana e visual; evite frases genericas.\n- Para alcance ou educacao, priorize salvar e compartilhar; para cliente, pedir orcamento; para profissional, cadastrar perfil.\n- Nunca use as expressões "profissionais verificados", "melhor preço", "resultado garantido", "atendimento imediato", "disponível agora", "garantia de contratação", "avaliações reais" ou "número de pedidos garantido". Prefira linguagem neutra e verificável.\n
 ${researchAllowed ? 'Use a pesquisa na web apenas para identificar d\u00favidas e formatos; n\u00e3o use n\u00fameros ou fatos n\u00e3o verific\u00e1veis no texto final.' : 'N\u00e3o h\u00e1 dados internos suficientes; trabalhe com educa\u00e7\u00e3o e transpar\u00eancia, sem alegar evid\u00eancias externas.'}
 
 Retorne somente JSON v\u00e1lido, sem markdown, com exatamente estas chaves:
@@ -142,15 +161,15 @@ Regras inegoci\u00e1veis:
     if (!/no object generated|schema|structured output|valid json/i.test(message)) throw error;
     console.warn('[social-content] resposta estruturada inv\u00e1lida; usando fallback JSON validado');
     const fallback = await generateFallbackDraft(input, researchAllowed);
-    rejectUnsafeCopy(fallback.draft);
-    return { draft: fallback.draft, usage: fallback.usage, estimatedCostCents: estimateCostCents(fallback.usage), sources: [] };
+    const safe = sanitizeUnsafeCopy(fallback.draft);
+    return { draft: safe, usage: fallback.usage, estimatedCostCents: estimateCostCents(fallback.usage), sources: [] };
   }
 
   const draft = result.output;
-  rejectUnsafeCopy(draft);
+  const safe = sanitizeUnsafeCopy(draft);
   const usage = normalizeUsage(result.totalUsage);
   return {
-    draft,
+    draft: safe,
     usage,
     estimatedCostCents: estimateCostCents(usage),
     sources: JSON.parse(JSON.stringify(result.sources ?? [])) as unknown[],
