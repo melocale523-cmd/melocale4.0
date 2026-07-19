@@ -38,9 +38,9 @@ Sentry.init({
       inlineStylesheet: false,
     } as Parameters<typeof Sentry.replayIntegration>[0]),
   ],
-  tracesSampleRate: 0.1,
-  replaysSessionSampleRate: 0.05,
-  replaysOnErrorSampleRate: 1.0,
+  tracesSampleRate: 0.05,
+  replaysSessionSampleRate: 0.01,
+  replaysOnErrorSampleRate: 0.1,
   // Ignora erros cuja origem (top do stack trace) é uma extensão de navegador —
   // ex: extensão de cupom/cashback fazendo telemetria própria que falha. Isso
   // não é erro do MeloCalé, mas o Sentry intercepta todo fetch/exception da
