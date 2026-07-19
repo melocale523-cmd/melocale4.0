@@ -1292,6 +1292,38 @@ router.post('/social-content/:id/publish-instagram', requireAuth, requireAdmin, 
     return res.status(502).json({ error: message });
   }
 });
+router.post('/social-content/highlights/:id/publish-stories', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { data: pack, error: packError } = await supabaseAdmin.from('social_highlight_packs').select('id, name, stories, instagram_story_ids, status').eq('id', req.params.id).single();
+    if (packError || !pack) return res.status(404).json({ error: 'Pacote de Destaque nao encontrado.' });
+    if (pack.status === 'archived') return res.status(409).json({ error: 'Este pacote esta arquivado.' });
+    const maxStories = Math.max(1, Math.min(10, Array.isArray(pack.stories) ? pack.stories.length : 4));
+    const requestedIds = Array.isArray(req.body?.item_ids) ? req.body.item_ids.filter((id: unknown): id is string => typeof id === 'string').slice(0, maxStories) : [];
+    let itemQuery = supabaseAdmin.from('social_content_items').select('id, format, status, generation_status, image_storage_path').eq('format', 'story').eq('status', 'approved').eq('generation_status', 'ready').not('image_storage_path', 'is', null).order('created_at', { ascending: true }).limit(maxStories);
+    if (requestedIds.length) itemQuery = itemQuery.in('id', requestedIds);
+    const { data: items, error: itemError } = await itemQuery;
+    if (itemError) throw new Error(itemError.message);
+    if (!items?.length) return res.status(409).json({ error: 'Nao ha Stories aprovados, prontos e com imagem para publicar.' });
+    const mediaIds: string[] = [];
+    for (const item of items) {
+      const { data: signed, error: signedError } = await supabaseAdmin.storage.from('social-content').createSignedUrl(item.image_storage_path as string, 3_600);
+      if (signedError || !signed?.signedUrl) throw new Error(signedError?.message ?? 'Nao foi possivel preparar a imagem do Story.');
+      const published = await publishApprovedInstagramStory({ imageUrl: signed.signedUrl });
+      mediaIds.push(published.mediaId);
+      const { error: updateItemError } = await supabaseAdmin.from('social_content_items').update({ status: 'published', instagram_container_id: published.containerId, instagram_media_id: published.mediaId, published_at: new Date().toISOString(), published_by: req.authUser!.id, publication_error: null, updated_at: new Date().toISOString() }).eq('id', item.id);
+      if (updateItemError) throw new Error(updateItemError.message);
+    }
+    const previousIds = Array.isArray(pack.instagram_story_ids) ? pack.instagram_story_ids.filter((id: unknown): id is string => typeof id === 'string') : [];
+    const { data: updatedPack, error: packUpdateError } = await supabaseAdmin.from('social_highlight_packs').update({ status: 'published', instagram_story_ids: [...previousIds, ...mediaIds], last_published_at: new Date().toISOString(), last_error: null, updated_at: new Date().toISOString() }).eq('id', pack.id).select().single();
+    if (packUpdateError || !updatedPack) throw new Error(packUpdateError?.message ?? 'Stories publicados, mas nao foi possivel salvar o pacote.');
+    return res.json({ pack: updatedPack, published_count: mediaIds.length, instagram_media_ids: mediaIds, highlight_action: 'Stories publicados. Agora abra o Instagram e adicione-os ao Destaque.' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await supabaseAdmin.from('social_highlight_packs').update({ last_error: message.slice(0, 2000), updated_at: new Date().toISOString() }).eq('id', req.params.id);
+    console.error('[social-content] highlight stories publish:', message);
+    return res.status(502).json({ error: message });
+  }
+});
 router.get('/social-content/highlights', requireAuth, requireAdmin, async (_req: AuthRequest, res: Response) => {
   const { data, error } = await supabaseAdmin.from('social_highlight_packs').select('id, slug, name, category, description, cover_color, cover_logo_url, stories, status, instagram_story_ids, last_published_at, last_error, created_at, updated_at').neq('status', 'archived').order('updated_at', { ascending: false });
   if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'Migracao dos pacotes de Destaques ainda nao aplicada.' : error.message });
