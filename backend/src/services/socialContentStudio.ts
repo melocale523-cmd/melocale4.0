@@ -233,12 +233,14 @@ export async function createSocialImage(itemId: string, visualPrompt: string): P
       model: google.image(VISUAL_MODEL),
       prompt: buildBrandImagePrompt(visualPrompt),
       aspectRatio: '4:5',
+      maxRetries: 0,
       abortSignal: AbortSignal.timeout(90_000),
     });
     const usage = normalizeUsage(result.usage);
     return saveGeneratedImage(itemId, result.image.uint8Array, result.image.mediaType ?? 'image/png', VISUAL_MODEL, usage);
   } catch (error) {
-    if (process.env.SOCIAL_VISUAL_FALLBACK_ENABLED !== 'true' || !isGeminiQuotaError(error) || !process.env.OPENAI_API_KEY?.trim()) throw error;
+    const fallbackEnabled = process.env.SOCIAL_VISUAL_FALLBACK_ENABLED !== 'false';
+    if (!fallbackEnabled || !isGeminiQuotaError(error) || !process.env.OPENAI_API_KEY?.trim()) throw error;
     console.warn('[social-content] Gemini sem cota; usando fallback OpenAI.');
     return createOpenAiFallbackImage(itemId, visualPrompt);
   }
