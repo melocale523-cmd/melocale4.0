@@ -4,6 +4,7 @@ import { runTrackedJob } from '../lib/automationJobs.js'
 
 export async function runReferralBonusJob() {
   try {
+    const startedAt = new Date().toISOString()
     const { data: count, error } = await supabaseAdmin.rpc('apply_monthly_referral_bonus')
     if (error) {
       console.error('[referralBonus] RPC error:', error.message)
@@ -19,7 +20,7 @@ export async function runReferralBonusJob() {
       const { data: recentBonuses } = await supabaseAdmin
         .from('referral_monthly_bonuses')
         .select('referrer_id')
-        .gte('credited_at', new Date(Date.now() - 5 * 60 * 1000).toISOString()) // last 5 min
+        .gte('credited_at', startedAt) // only bonuses created during this execution window
 
       const referrerIds = (recentBonuses ?? []).map(r => r.referrer_id)
       // Sem FK entre referral_monthly_bonuses e profiles — join feito em
