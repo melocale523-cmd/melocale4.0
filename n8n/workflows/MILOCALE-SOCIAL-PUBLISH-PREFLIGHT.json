@@ -1,0 +1,88 @@
+{
+  "name": "MILOCALE - Social Publish Preflight (no publishing)",
+  "nodes": [
+    {
+      "id": "schedule",
+      "name": "01 - Check Approved Content",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "due",
+      "name": "02 - Read Due Approved Images",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "url": "={{ 'https://REPLACE_MILOCALE_SUPABASE_REF.supabase.co/rest/v1/social_content_items?select=id,status,generation_status,format,scheduled_for,image_storage_path&status=eq.approved&generation_status=eq.ready&format=eq.feed&image_storage_path=not.is.null&scheduled_for=lte.' + encodeURIComponent(new Date().toISOString()) + '&order=scheduled_for.asc&limit=10' }}",
+        "options": {}
+      },
+      "notes": "Exige credencial Supabase exclusiva da Milocale. URL de projeto deve ser configurada antes do teste.",
+      "notesInFlow": true
+    },
+    {
+      "id": "preflight",
+      "name": "03 - Validate Only (No Publishing)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().filter((item) => item.json && item.json.id && item.json.status === 'approved' && item.json.generation_status === 'ready' && item.json.format === 'feed' && item.json.image_storage_path).map((item) => ({ json: { id: item.json.id, ready_for_atomic_claim: true, publishing_enabled: false } }));"
+      },
+      "notes": "Prévia apenas. Não adicionar saída de publicação sem reserva atômica no backend e revisão de idempotência.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "01 - Check Approved Content": {
+      "main": [
+        [
+          {
+            "node": "02 - Read Due Approved Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "02 - Read Due Approved Images": {
+      "main": [
+        [
+          {
+            "node": "03 - Validate Only (No Publishing)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "tags": [],
+  "meta": {}
+}
