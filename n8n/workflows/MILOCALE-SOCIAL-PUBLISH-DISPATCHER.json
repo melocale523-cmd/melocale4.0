@@ -1,0 +1,65 @@
+{
+  "name": "MILOCALE - Scheduled Instagram Dispatcher (draft)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {},
+  "tags": [],
+  "nodes": [
+    {
+      "id": "schedule",
+      "name": "01 - Every Five Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dispatch",
+      "name": "02 - Publish One Due Approved Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://milocale-backend.example.invalid/api/internal/social/publish-due",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "notes": "Exige token exclusivo MILOCALE_N8N_SOCIAL_TOKEN no backend e credencial Header Auth (x-milocale-social-token) no n8n. Ativar somente após migração e deploy do backend de reserva atômica.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "01 - Every Five Minutes": {
+      "main": [
+        [
+          {
+            "node": "02 - Publish One Due Approved Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

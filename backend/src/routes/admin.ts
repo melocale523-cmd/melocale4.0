@@ -1276,20 +1276,28 @@ router.post('/social-content/:id/publish-instagram', requireAuth, requireAdmin, 
   const { data: signed, error: signedError } = await supabaseAdmin.storage.from('social-content').createSignedUrl(item.image_storage_path, 3_600);
   if (signedError || !signed?.signedUrl) return res.status(502).json({ error: 'Não foi possível preparar a arte privada para publicação.' });
 
+  const { data: claimed, error: claimError } = await supabaseAdmin.from('social_content_items')
+    .update({ status: 'publishing', publishing_started_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq('id', item.id).eq('status', 'approved').eq('generation_status', 'ready')
+    .select('id').maybeSingle();
+  if (claimError) return res.status(503).json({ error: 'Não foi possível reservar esta publicação.' });
+  if (!claimed) return res.status(409).json({ error: 'Esta publicação já está em andamento ou foi concluída.' });
+
   try {
     const published = await publishApprovedInstagramImage({ imageUrl: signed.signedUrl, caption });
     const { data: updated, error: updateError } = await supabaseAdmin.from('social_content_items').update({
       status: 'published', published_at: new Date().toISOString(), published_by: req.authUser!.id,
       instagram_container_id: published.containerId, instagram_media_id: published.mediaId,
       publication_error: null, updated_at: new Date().toISOString(),
-    }).eq('id', item.id).select(socialFields).single();
+    }).eq('id', item.id).eq('status', 'publishing').select(socialFields).single();
     if (updateError || !updated) throw new Error(updateError?.message ?? 'A publicação ocorreu, mas o histórico não pôde ser salvo.');
     return res.json({ item: await withSocialImageUrl(updated as SocialContentRow), instagram_media_id: published.mediaId });
   } catch (publishError) {
-    const message = publishError instanceof Error ? publishError.message : String(publishError);
-    await supabaseAdmin.from('social_content_items').update({ publication_error: message.slice(0, 1000), updated_at: new Date().toISOString() }).eq('id', item.id);
-    console.error('[social-content] instagram publish:', message);
-    return res.status(502).json({ error: message });
+    console.error('[social-content] instagram publish requires reconciliation:', publishError instanceof Error ? publishError.name : 'unknown');
+    await supabaseAdmin.from('social_content_items')
+      .update({ publication_error: 'Publication outcome requires manual reconciliation', updated_at: new Date().toISOString() })
+      .eq('id', item.id).eq('status', 'publishing');
+    return res.status(502).json({ error: 'Verifique o Instagram antes de tentar novamente.' });
   }
 });
 router.post('/social-content/highlights/:id/publish-stories', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {
