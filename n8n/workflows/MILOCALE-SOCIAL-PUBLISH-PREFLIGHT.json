@@ -33,7 +33,7 @@
       "parameters": {
         "authentication": "genericCredentialType",
         "genericAuthType": "httpCustomAuth",
-        "url": "={{ 'https://REPLACE_MILOCALE_SUPABASE_REF.supabase.co/rest/v1/social_content_items?select=id,status,generation_status,format,scheduled_for,image_storage_path&status=eq.approved&generation_status=eq.ready&format=eq.feed&image_storage_path=not.is.null&scheduled_for=lte.' + encodeURIComponent(new Date().toISOString()) + '&order=scheduled_for.asc&limit=10' }}",
+        "url": "={{ 'https://wfournowizclpiektwuv.supabase.co/rest/v1/social_content_items?select=id,status,generation_status,format,scheduled_for,image_storage_path&status=eq.approved&generation_status=eq.ready&format=eq.feed&image_storage_path=not.is.null&scheduled_for=lte.' + encodeURIComponent(new Date().toISOString()) + '&order=scheduled_for.asc&limit=10' }}",
         "options": {}
       },
       "notes": "Exige credencial Supabase exclusiva da Milocale. URL de projeto deve ser configurada antes do teste.",
