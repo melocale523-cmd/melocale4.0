@@ -16,6 +16,9 @@ function authorized(value: unknown): boolean {
 router.post('/publish-due', async (req, res) => {
   if (!process.env.MILOCALE_N8N_SOCIAL_TOKEN) return res.status(503).json({ error: 'social_publisher_not_configured' });
   if (!authorized(req.header('x-milocale-social-token'))) return res.status(401).json({ error: 'unauthorized' });
+  if (!process.env.META_INSTAGRAM_ACCESS_TOKEN?.trim() || !process.env.META_INSTAGRAM_ACCOUNT_ID?.trim()) {
+    return res.status(503).json({ error: 'instagram_publisher_not_configured' });
+  }
 
   const now = new Date().toISOString();
   const { data: candidates, error: readError } = await supabaseAdmin.from('social_content_items')
