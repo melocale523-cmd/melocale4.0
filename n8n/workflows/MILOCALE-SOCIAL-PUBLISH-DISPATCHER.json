@@ -38,7 +38,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://milocale-backend.example.invalid/api/internal/social/publish-due",
+        "url": "https://api.melocale.com.br/api/internal/social/publish-due",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": {
