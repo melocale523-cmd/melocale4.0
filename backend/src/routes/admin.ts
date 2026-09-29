@@ -1238,8 +1238,10 @@ router.patch('/social-content/:id/status', requireAuth, requireAdmin, async (req
   const update = status === 'approved'
     ? { status, approved_by: req.authUser!.id, approved_at: new Date().toISOString(), rejection_note: null, updated_at: new Date().toISOString() }
     : { status, rejection_note: typeof req.body?.note === 'string' ? req.body.note.slice(0, 500) : null, updated_at: new Date().toISOString() };
-  const { data, error } = await supabaseAdmin.from('social_content_items').update(update).eq('id', req.params.id).select(socialFields).single();
-  if (error || !data) return res.status(404).json({ error: 'Rascunho nÃ£o encontrado.' });
+  const { data, error } = await supabaseAdmin.from('social_content_items').update(update)
+    .eq('id', req.params.id).eq('status', 'draft').select(socialFields).maybeSingle();
+  if (error) return res.status(503).json({ error: 'Não foi possível atualizar o status.' });
+  if (!data) return res.status(409).json({ error: 'Somente um rascunho pode ser aprovado ou rejeitado.' });
   return res.json({ item: await withSocialImageUrl(data as SocialContentRow) });
 });
 

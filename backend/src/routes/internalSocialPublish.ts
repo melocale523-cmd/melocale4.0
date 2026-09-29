@@ -19,7 +19,7 @@ router.post('/publish-due', async (req, res) => {
 
   const now = new Date().toISOString();
   const { data: candidates, error: readError } = await supabaseAdmin.from('social_content_items')
-    .select('id').eq('status', 'approved').eq('generation_status', 'ready').eq('format', 'feed')
+    .select('id').eq('status', 'approved').not('approved_at', 'is', null).eq('generation_status', 'ready').eq('format', 'feed')
     .not('image_storage_path', 'is', null).not('scheduled_for', 'is', null)
     .lte('scheduled_for', now).order('scheduled_for', { ascending: true }).limit(5);
   if (readError) return res.status(503).json({ error: 'social_queue_unavailable' });
@@ -27,7 +27,7 @@ router.post('/publish-due', async (req, res) => {
   for (const candidate of candidates ?? []) {
     const { data: item, error: claimError } = await supabaseAdmin.from('social_content_items')
       .update({ status: 'publishing', publishing_started_at: now, updated_at: now })
-      .eq('id', candidate.id).eq('status', 'approved').eq('generation_status', 'ready')
+      .eq('id', candidate.id).eq('status', 'approved').not('approved_at', 'is', null).eq('generation_status', 'ready')
       .eq('format', 'feed').lte('scheduled_for', now)
       .select('id,image_storage_path,content').maybeSingle();
     if (claimError) return res.status(503).json({ error: 'social_claim_unavailable' });
